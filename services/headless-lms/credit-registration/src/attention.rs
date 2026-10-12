@@ -7,7 +7,7 @@ use headless_lms_models::credit_registrations::{
 };
 use headless_lms_models::{
     ModelResult, course_module_suotar_configurations, credit_registration_phase_state,
-    credit_registration_roster_schedules,
+    credit_registration_roster_schedules, external_credit_targets,
 };
 use sqlx::PgConnection;
 
@@ -60,6 +60,7 @@ pub async fn attention_rules(
                     CreditRegistrationPhase::EnrolmentDiscovery
                         | CreditRegistrationPhase::LinkEmails
                 ),
+                reports_to_moocfi: phase == CreditRegistrationPhase::MoocfiReport,
             })
         })
         .collect();
@@ -68,8 +69,10 @@ pub async fn attention_rules(
         .into_iter()
         .map(|code| code.course_code)
         .collect();
-    let misconfigured_module_ids =
+    let mut misconfigured_module_ids =
         course_module_suotar_configurations::get_module_ids_failing_config_check(conn).await?;
+    misconfigured_module_ids
+        .extend(external_credit_targets::get_ids_failing_config_check(conn).await?);
     Ok(AttentionRules {
         thresholds: StuckThresholds::CURRENT,
         account_linking_since,

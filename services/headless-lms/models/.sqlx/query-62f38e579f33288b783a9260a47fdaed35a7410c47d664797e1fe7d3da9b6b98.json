@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_enrolment_routes\nSET enrolment_confirmed_at = CASE\n    WHEN $2 THEN COALESCE(enrolment_confirmed_at, now())\n    ELSE NULL\n  END\nWHERE COALESCE(course_module_completion_id, external_completion_id) = $1\n  AND deleted_at IS NULL\nRETURNING COALESCE(course_module_completion_id, external_completion_id) AS \"subject_id!\",\n  route AS \"route: _\",\n  enrolment_confirmed_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "subject_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "route: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "route"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "enrolment_confirmed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      true
+    ]
+  },
+  "hash": "62f38e579f33288b783a9260a47fdaed35a7410c47d664797e1fe7d3da9b6b98"
+}

@@ -342,6 +342,11 @@ export function completionRegistrationRoute(courseModuleId: string) {
   return `/completion-registration/${courseModuleId}`
 }
 
+/** Must match the backend's handoff redirect and the status link in its mails. */
+export function moocfiCompletionRegistrationRoute(moocfiCourseId: string) {
+  return `/completion-registration/mooc-fi/${moocfiCourseId}`
+}
+
 /** Must match the backend's `LINK_STUDENT_NUMBER_PATH`; a divergence breaks every mail already sent. */
 export function linkStudentNumberRoute(token: string) {
   return `/link-student-number/${token}`

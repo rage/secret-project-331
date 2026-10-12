@@ -19,6 +19,7 @@ mod export;
 mod retry;
 
 use headless_lms_models::course_modules::CourseModuleCreditRegistrationConfig;
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::credit_registration_admin_actions::{
     COURSE_TEACHER_ROLE, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
@@ -666,7 +667,7 @@ pub async fn resend_course_credit_registration_linking_email(
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
-    ensure_resend_possible(&mut conn, &app_conf, *course_id).await?;
+    ensure_resend_possible(&mut conn, &app_conf, LinkingMailSource::Course(*course_id)).await?;
 
     let recent = models::credit_registration_admin_actions::count_by_actor_since(
         &mut conn,
@@ -702,7 +703,13 @@ pub async fn resend_course_credit_registration_linking_email(
     // whole Suotar timeout, so keeping this one would tie up three of the pool per resend.
     drop(conn);
     info!(actor = %user.id, course_id = %*course_id, "Teacher requested a linking mail resend");
-    let attempt = resend_linking_mail_for_target(&ctx, *course_id, &student_number, None).await?;
+    let attempt = resend_linking_mail_for_target(
+        &ctx,
+        LinkingMailSource::Course(*course_id),
+        &student_number,
+        None,
+    )
+    .await?;
     let mut conn = pool.acquire().await?;
     let outcome = ResendOutcome::from(attempt.outcome);
     info!(?outcome, "Teacher linking mail resend finished");
@@ -766,7 +773,7 @@ async fn finish_resend(
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
-        course_id,
+        LinkingMailSource::Course(course_id),
         student_number.map(ExposeSecret::expose_secret),
         user.id,
         COURSE_TEACHER_ROLE,
@@ -791,14 +798,14 @@ async fn finish_resend(
     }))
 }
 
-/// Records a `ResendLinkEmail` action against the course and fetches this student's linking mails
-/// for it. Shared by the teacher and admin resend endpoints, which differ only in who they blame it
-/// on, whether they widen the action to the whole course (`actor_course_id`), and what extra detail
-/// goes into `details`.
+/// Records a `ResendLinkEmail` action against the course or mooc.fi target and fetches this
+/// student's linking mails for it. Shared by the teacher and admin resend endpoints, which differ
+/// only in who they blame it on, whether they widen the action to the whole course
+/// (`actor_course_id`), and what extra detail goes into `details`.
 #[allow(clippy::too_many_arguments)]
 pub(crate) async fn record_resend_and_fetch_mails(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: Option<&str>,
     actor_user_id: Uuid,
     actor_role: &str,
@@ -809,13 +816,18 @@ pub(crate) async fn record_resend_and_fetch_mails(
     models::credit_registration_admin_actions::record(
         conn,
         &NewCreditRegistrationAdminAction {
-            target_id: Some(course_id),
+            target_id: Some(source.id()),
             actor_course_id,
             reason,
             details: Some(details),
             ..NewCreditRegistrationAdminAction::new(
                 CreditRegistrationAdminAction::ResendLinkEmail,
-                CreditRegistrationAdminActionTarget::Course,
+                match source {
+                    LinkingMailSource::Course(_) => CreditRegistrationAdminActionTarget::Course,
+                    LinkingMailSource::ExternalCreditTarget(_) => {
+                        CreditRegistrationAdminActionTarget::ExternalCreditTarget
+                    }
+                },
                 actor_user_id,
                 actor_role,
             )
@@ -825,8 +837,8 @@ pub(crate) async fn record_resend_and_fetch_mails(
 
     let mails = match student_number {
         Some(number) => {
-            credit_registration_account_linking_emails::get_by_course_id_and_student_number(
-                conn, course_id, number,
+            credit_registration_account_linking_emails::get_by_source_and_student_number(
+                conn, source, number,
             )
             .await?
         }
@@ -1031,9 +1043,9 @@ async fn count_failed_linking_emails(
     course_id: Uuid,
 ) -> Result<i64, ControllerError> {
     Ok(
-        credit_registration_account_linking_emails::count_send_failed_for_course(
+        credit_registration_account_linking_emails::count_send_failed_for_source(
             conn,
-            course_id,
+            LinkingMailSource::Course(course_id),
             Utc::now(),
         )
         .await?,

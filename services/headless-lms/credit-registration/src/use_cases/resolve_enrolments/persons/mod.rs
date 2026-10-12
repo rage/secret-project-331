@@ -2,8 +2,8 @@
 //! link, which arrives with a student number only.
 //!
 //! Runs before the enrolment lookup freezes the payload, so the frozen row carries the person id
-//! that `uq_credit_registrations_person_module` and enrolment discovery key on. Rows wait out the
-//! call as the enrolment lookup's do (see [`super::Lookup`]), and a found person leaves the row
+//! that `uq_credit_registrations_person_course_code` and enrolment discovery key on. Rows wait out
+//! the call as the enrolment lookup's do (see [`super::Lookup`]), and a found person leaves the row
 //! claimable for the second half of the same iteration.
 
 mod decide;

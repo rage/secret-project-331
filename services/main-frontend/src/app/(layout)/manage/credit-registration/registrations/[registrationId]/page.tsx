@@ -70,6 +70,7 @@ import type {
   AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
+  AdminMoocfiCompletion,
   AdminNotificationEmail,
   AdminSuotarApiCall,
   CreditRegistrationAdminActionRow,
@@ -187,7 +188,11 @@ const HeaderSection: React.FC<{
     <div className={sectionHeaderCss}>
       <h1 className={pageTitleCss}>{formatUserName(row)}</h1>
       <span className={rowCss}>
-        <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
+        {row.course_id ? (
+          <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
+        ) : (
+          <span>{row.course_name}</span>
+        )}
         {row.course_module_name ? <span>{row.course_module_name}</span> : null}
         {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
       </span>
@@ -414,6 +419,96 @@ const FactsSection: React.FC<{
         {registrationItems.length > 0 && <DescriptionList items={registrationItems} />}
       </div>
       <IdentifierList row={row} />
+    </section>
+  )
+}
+
+/** The mooc.fi completion behind a mooc.fi row, and how reporting the registration back went. */
+const MoocfiCompletionSection: React.FC<{ completion: AdminMoocfiCompletion }> = ({
+  completion,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+
+  const completionItems: DescriptionListItem[] = [
+    {
+      label: t("label-moocfi-completion-id"),
+      value: <span className={codeValueCss}>{completion.moocfi_completion_id}</span>,
+    },
+    {
+      label: t("label-moocfi-raw-grade"),
+      value: completion.raw_grade ? (
+        <code className={codeValueCss}>{completion.raw_grade}</code>
+      ) : (
+        <AbsentValue />
+      ),
+    },
+    ...(completion.tier !== null && completion.tier !== undefined
+      ? [{ label: t("label-moocfi-tier"), value: completion.tier }]
+      : []),
+    {
+      label: t("label-moocfi-checked-at"),
+      value: <ZonedTimestamp at={completion.upstream_checked_at} />,
+    },
+    ...(completion.upstream_missing_at
+      ? [
+          {
+            label: t("label-moocfi-missing-since"),
+            value: <ZonedTimestamp at={completion.upstream_missing_at} />,
+          },
+        ]
+      : []),
+    ...(completion.registered_upstream_at
+      ? [
+          {
+            label: t("label-moocfi-registered-elsewhere-at"),
+            value: <ZonedTimestamp at={completion.registered_upstream_at} />,
+          },
+        ]
+      : []),
+  ]
+
+  const reportItems: DescriptionListItem[] = [
+    {
+      label: t("label-moocfi-reported-at"),
+      value: completion.reported_at ? (
+        <ZonedTimestamp at={completion.reported_at} />
+      ) : (
+        t("credit-registration-admin-moocfi-not-reported")
+      ),
+    },
+    ...(completion.report_attempt_count > 0
+      ? [{ label: t("label-moocfi-report-attempts"), value: completion.report_attempt_count }]
+      : []),
+    ...(!completion.reported_at && completion.report_attempt_count > 0
+      ? [
+          {
+            label: t("label-moocfi-next-report-attempt"),
+            value: <ZonedTimestamp at={completion.report_next_attempt_at} />,
+          },
+        ]
+      : []),
+    ...(completion.report_last_error
+      ? [
+          {
+            label: t("label-credit-registration-last-error"),
+            value: <code className={codeValueCss}>{completion.report_last_error}</code>,
+          },
+        ]
+      : []),
+  ]
+
+  return (
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-heading-moocfi-completion")}
+        </h2>
+      </div>
+      <div className={factsGridCss}>
+        <DescriptionList items={completionItems} />
+        <DescriptionList items={reportItems} />
+      </div>
     </section>
   )
 }
@@ -791,6 +886,9 @@ const RegistrationDetailPage: React.FC = () => {
             />
             {!problem && !loaded.registration.superseded && <ActionsSection details={loaded} />}
             <FactsSection details={loaded} context={context} />
+            {loaded.moocfi_completion && (
+              <MoocfiCompletionSection completion={loaded.moocfi_completion} />
+            )}
             <ApiCallSection
               calls={loaded.suotar_api_calls}
               events={loaded.events}

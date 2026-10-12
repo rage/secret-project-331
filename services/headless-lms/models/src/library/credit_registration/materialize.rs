@@ -2,10 +2,11 @@
 //! keeps up: any completion carrying the push-path flag and still missing a row gets one, stopping
 //! at `pending`, because historical completions belong to students nobody ever asked. Turning a
 //! module on reaches none made before it: `register_credits_via_suotar` is set at creation or by hand.
+//! A mooc.fi completion gets its row once its target is enabled.
 
 use crate::credit_registrations::{
-    BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
-    mark_improvement_checked, transition_batch,
+    BatchMove, CreditRegistrationState, NewCreditRegistration, NewRegistrationSubject,
+    RegistrationScope, Transition, mark_improvement_checked, transition_batch,
 };
 use crate::prelude::*;
 
@@ -28,27 +29,53 @@ pub async fn ensure_registration_rows_for_eligible_completions(
     let created = sqlx::query_scalar!(
         r#"
 WITH registrable_completion AS (
-  SELECT uuid_generate_v4() AS id,
-    c.course_module_completion_id,
-    c.user_id,
-    c.course_id,
-    c.course_module_id,
-    enrolment.course_instance_id
-  FROM credit_registration_registrable_completions c
-    -- The completion does not name an instance, and the ledger row must. An inner join, so a
-    -- completion whose enrolment was removed is skipped rather than guessed at.
-    JOIN LATERAL (
-      SELECT cie.course_instance_id
-      FROM course_instance_enrollments cie
-      WHERE cie.user_id = c.user_id
-        AND cie.course_id = c.course_id
-        AND cie.deleted_at IS NULL
-      ORDER BY cie.created_at DESC
-      LIMIT 1
-    ) enrolment ON TRUE
-  WHERE ($2::uuid IS NULL OR c.course_id = $2)
-    AND ($3::uuid IS NULL OR c.user_id = $3)
-  ORDER BY c.created_at
+  (
+    SELECT uuid_generate_v4() AS id,
+      c.course_module_completion_id,
+      c.user_id,
+      c.course_id,
+      c.course_module_id,
+      enrolment.course_instance_id,
+      NULL::uuid AS external_completion_id,
+      NULL::uuid AS external_credit_target_id,
+      c.created_at
+    FROM credit_registration_registrable_completions c
+      -- The completion does not name an instance, and the ledger row must. An inner join, so a
+      -- completion whose enrolment was removed is skipped rather than guessed at.
+      JOIN LATERAL (
+        SELECT cie.course_instance_id
+        FROM course_instance_enrollments cie
+        WHERE cie.user_id = c.user_id
+          AND cie.course_id = c.course_id
+          AND cie.deleted_at IS NULL
+        ORDER BY cie.created_at DESC
+        LIMIT 1
+      ) enrolment ON TRUE
+    WHERE c.kind = 'course_module'
+      AND ($2::uuid IS NULL OR c.course_id = $2)
+      AND ($4::uuid IS NULL OR c.external_credit_target_id = $4)
+      AND ($3::uuid IS NULL OR c.user_id = $3)
+  )
+  UNION ALL
+  (
+    SELECT uuid_generate_v4() AS id,
+      NULL::uuid,
+      c.user_id,
+      NULL::uuid,
+      NULL::uuid,
+      NULL::uuid,
+      c.external_completion_id,
+      c.external_credit_target_id,
+      c.created_at
+    FROM credit_registration_registrable_completions c
+      JOIN external_credit_targets t ON t.id = c.external_credit_target_id
+      AND t.enabled_at IS NOT NULL
+    WHERE c.kind = 'mooc_fi'
+      AND ($2::uuid IS NULL OR c.course_id = $2)
+      AND ($4::uuid IS NULL OR c.external_credit_target_id = $4)
+      AND ($3::uuid IS NULL OR c.user_id = $3)
+  )
+  ORDER BY created_at
   LIMIT $1
 ),
 inserted AS (
@@ -58,14 +85,18 @@ inserted AS (
       user_id,
       course_id,
       course_module_id,
-      course_instance_id
+      course_instance_id,
+      external_completion_id,
+      external_credit_target_id
     )
   SELECT id,
     course_module_completion_id,
     user_id,
     course_id,
     course_module_id,
-    course_instance_id
+    course_instance_id,
+    external_completion_id,
+    external_credit_target_id
   FROM registrable_completion ON CONFLICT DO NOTHING
   RETURNING id
 ),
@@ -84,6 +115,7 @@ FROM events
         limit,
         scope.course_id,
         scope.user_id,
+        scope.external_credit_target_id,
     )
     .fetch_one(conn)
     .await?;
@@ -93,19 +125,25 @@ FROM events
 /// A completion that should have a ledger row and has none.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnmaterialisedCompletion {
-    pub course_module_completion_id: Uuid,
+    /// The completion, whichever kind it is.
+    pub subject_id: Uuid,
+    pub course_module_completion_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
     pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` for a mooc.fi completion, as are `course_module_id` and `course_module_name`.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
+    pub external_credit_target_id: Option<Uuid>,
     pub completion_date: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
     /// No enrolment to hang a ledger row on, which is the one cause `materialize` cannot fix by
-    /// running again.
+    /// running again. Never true for a mooc.fi completion, whose row names no instance.
     pub missing_enrolment: bool,
 }
 
@@ -124,18 +162,22 @@ pub async fn get_unmaterialised_eligible_completions(
     let res = sqlx::query_as!(
         UnmaterialisedCompletion,
         r#"
-SELECT rc.course_module_completion_id AS "course_module_completion_id!",
+SELECT rc.subject_id AS "subject_id!",
+  rc.course_module_completion_id,
+  rc.external_completion_id,
   rc.user_id AS "user_id!",
   ud.first_name AS "first_name?",
   ud.last_name AS "last_name?",
   ud.email AS "email?",
-  rc.course_id AS "course_id!",
-  c.name AS course_name,
-  rc.course_module_id AS "course_module_id!",
-  cm.name AS course_module_name,
+  rc.course_id,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
+  rc.course_module_id,
+  cm.name AS "course_module_name?",
+  rc.external_credit_target_id,
   rc.completion_date AS "completion_date!",
   rc.created_at AS "created_at!",
-  NOT EXISTS (
+  rc.kind = 'course_module'
+  AND NOT EXISTS (
     SELECT 1
     FROM course_instance_enrollments cie
     WHERE cie.user_id = rc.user_id
@@ -143,10 +185,22 @@ SELECT rc.course_module_completion_id AS "course_module_completion_id!",
       AND cie.deleted_at IS NULL
   ) AS "missing_enrolment!"
 FROM credit_registration_registrable_completions rc
-  JOIN course_modules cm ON cm.id = rc.course_module_id AND cm.deleted_at IS NULL
-  JOIN courses c ON c.id = rc.course_id AND c.deleted_at IS NULL
+  LEFT JOIN course_modules cm ON cm.id = rc.course_module_id
+  LEFT JOIN courses c ON c.id = rc.course_id
+  LEFT JOIN external_credit_targets t ON t.id = rc.external_credit_target_id
   LEFT JOIN user_details ud ON ud.user_id = rc.user_id
 WHERE rc.created_at < now() - MAKE_INTERVAL(secs => $1::double precision)
+  AND (
+    (
+      rc.kind = 'course_module'
+      AND cm.deleted_at IS NULL
+      AND c.deleted_at IS NULL
+    )
+    OR (
+      rc.kind = 'mooc_fi'
+      AND t.enabled_at IS NOT NULL
+    )
+  )
 ORDER BY rc.created_at
 LIMIT $2
         "#,
@@ -167,9 +221,9 @@ LIMIT $2
 /// attainment.
 ///
 /// The accepted attempt stays the live credit: resolve-enrolments weighs the new one against it
-/// through [`crate::credit_registrations::lock_live_successes_for_same_module`], exactly as it does a
-/// better grade that arrives as a new completion, and marks it for replacement only if the new one
-/// goes out.
+/// through [`crate::credit_registrations::lock_live_successes_for_same_course_code`], exactly as it
+/// does a better grade that arrives as a new completion, and marks it for replacement only if the
+/// new one goes out.
 pub async fn start_re_attempts_for_improved_grades(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -185,16 +239,18 @@ SELECT cr.id,
   cr.course_id,
   cr.course_module_id,
   cr.course_instance_id,
+  cr.external_completion_id,
+  cr.external_credit_target_id,
   cr.grade_scale_id AS "registered_grade_scale_id!",
   cr.grade_id AS "registered_grade_id!",
-  cmc.passed,
-  cmc.grade,
-  cmc.updated_at AS completion_updated_at
+  s.passed AS "passed!",
+  s.grade,
+  s.updated_at AS "completion_updated_at!"
 FROM credit_registrations cr
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  -- Membership is the whole eligibility check: the view is the module opt-in and the completion
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
+  -- Membership is the whole eligibility check: the view is the unit opt-in and the completion
   -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.
-  JOIN credit_registration_eligible_completions e ON e.course_module_completion_id = cr.course_module_completion_id
+  JOIN credit_registration_eligible_completions e ON e.subject_id = cr.subject_id
   AND e.fully_eligible
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
@@ -208,7 +264,7 @@ WHERE cr.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1
     FROM credit_registrations later
-    WHERE later.course_module_completion_id = cr.course_module_completion_id
+    WHERE later.subject_id = cr.subject_id
       AND later.attempt_number > cr.attempt_number
       AND later.deleted_at IS NULL
   )
@@ -217,14 +273,15 @@ WHERE cr.deleted_at IS NULL
   -- passes that test forever, and only the grade comparison below can tell the two apart, which is
   -- why the loop stamps the watermark on every candidate it declines. Without the second half the
   -- limit keeps spending itself on the same rows while a real regrade waits behind them.
-  AND cmc.updated_at > cr.created_at
+  AND s.updated_at > cr.created_at
   AND (
     cr.improvement_checked_completion_updated_at IS NULL
-    OR cmc.updated_at > cr.improvement_checked_completion_updated_at
+    OR s.updated_at > cr.improvement_checked_completion_updated_at
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
+  AND ($5::uuid IS NULL OR cr.external_credit_target_id = $5)
   AND ($3::uuid IS NULL OR cr.user_id = $3)
-ORDER BY cmc.updated_at FOR
+ORDER BY s.updated_at FOR
 UPDATE OF cr SKIP LOCKED
 LIMIT $1
         "#,
@@ -232,6 +289,7 @@ LIMIT $1
         scope.course_id,
         scope.user_id,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
+        scope.external_credit_target_id,
     )
     .fetch_all(&mut *tx)
     .await?;
@@ -260,15 +318,26 @@ LIMIT $1
             mark_improvement_checked(&mut tx, candidate.id, looked_at).await?;
             continue;
         }
+        let subject = NewRegistrationSubject::from_columns(
+            candidate.course_module_completion_id,
+            candidate.course_id,
+            candidate.course_module_id,
+            candidate.course_instance_id,
+            candidate.external_completion_id,
+            candidate.external_credit_target_id,
+        )
+        .ok_or_else(|| {
+            model_err!(
+                Generic,
+                "A ledger row names neither exactly a course module completion nor a mooc.fi one."
+            )
+        })?;
         let next = crate::credit_registrations::insert(
             &mut tx,
             PKeyPolicy::Generate,
             &NewCreditRegistration {
-                course_module_completion_id: candidate.course_module_completion_id,
+                subject,
                 user_id: candidate.user_id,
-                course_id: candidate.course_id,
-                course_module_id: candidate.course_module_id,
-                course_instance_id: candidate.course_instance_id,
                 attempt_number: candidate.attempt_number + 1,
             },
             Some(&format!(

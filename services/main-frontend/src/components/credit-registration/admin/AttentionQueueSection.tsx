@@ -14,10 +14,7 @@ import type {
   CreditRegistrationBlockingProblemRows,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import {
-  creditRegistrationItemRoute,
-  manageCourseModulesRoute,
-} from "@/shared-module/common/utils/routes"
+import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { Disclosure, EmptyState, Link, QueryResult, Table } from "@/shared-module/components"
 
 import {
@@ -43,6 +40,7 @@ import { useCreditRegistrationAttentionItems } from "./adminCreditRegistrationHo
 import {
   attentionPhaseAnchorId,
   auditForStudentHref,
+  unitConfigurationHref,
   courseCodeHref,
   DISMISSED_RECENTLY_ANCHOR,
   phaseHref,
@@ -200,7 +198,7 @@ const BlockingProblemLine: React.FC<{
               : problem.subject,
           })}{" "}
           {first && (
-            <Link href={manageCourseModulesRoute(first.course_id)}>
+            <Link href={unitConfigurationHref(first.course_id)}>
               {t("credit-registration-admin-problem-open-module-settings")}
             </Link>
           )}

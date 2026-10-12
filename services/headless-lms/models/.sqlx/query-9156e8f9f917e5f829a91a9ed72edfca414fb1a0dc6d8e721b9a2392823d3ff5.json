@@ -1,0 +1,90 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ec.user_id,\n  ec.moocfi_user_upstream_id,\n  t.moocfi_course_id\nFROM credit_registrations cr\n  JOIN external_completions ec ON ec.id = cr.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND (\n    cr.state = ANY($1::credit_registration_state [])\n    OR (\n      cr.state = 'blocked'\n      AND ec.passed IS NULL\n    )\n  )\n  AND ec.deleted_at IS NULL\n  AND ec.upstream_checked_at < now() - $2::interval\n  AND EXISTS (\n    SELECT 1\n    FROM credit_registration_active_units au\n    WHERE au.credit_unit_id = cr.credit_unit_id\n  )\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND ($4::uuid IS NULL OR cr.external_credit_target_id = $4)\n  AND ($5::uuid IS NULL OR cr.user_id = $5)\n  AND (\n    cardinality($6::uuid []) = 0\n    OR cr.id = ANY($6::uuid [])\n  )\nGROUP BY ec.user_id,\n  ec.moocfi_user_upstream_id,\n  t.moocfi_course_id\nORDER BY MIN(ec.upstream_checked_at)\nLIMIT $7\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "moocfi_user_upstream_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_user_upstream_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "partially_registered",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Interval",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "9156e8f9f917e5f829a91a9ed72edfca414fb1a0dc6d8e721b9a2392823d3ff5"
+}

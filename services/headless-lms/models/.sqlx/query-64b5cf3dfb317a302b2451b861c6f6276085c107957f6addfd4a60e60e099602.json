@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT external_credit_target_id,\n  COUNT(*) AS \"count!\"\nFROM external_completions\nWHERE deleted_at IS NULL\n  AND passed\n  AND eligible_for_ects\nGROUP BY external_credit_target_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "external_credit_target_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "64b5cf3dfb317a302b2451b861c6f6276085c107957f6addfd4a60e60e099602"
+}

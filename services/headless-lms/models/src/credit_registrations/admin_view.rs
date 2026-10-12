@@ -28,12 +28,21 @@ pub struct AdminCreditRegistration {
     pub last_name: Option<String>,
     /// In full: the admin view exists to resolve support cases, which starts from the address.
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row, as are the module, instance and course module completion.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
-    pub course_instance_id: Uuid,
-    pub course_module_completion_id: Uuid,
+    pub course_instance_id: Option<Uuid>,
+    pub course_module_completion_id: Option<Uuid>,
+    /// Set on a mooc.fi row only, as is `external_completion_id`.
+    pub external_credit_target_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
+    /// The completion, whichever kind it is.
+    pub subject_id: Uuid,
+    /// The module or mooc.fi target, whichever kind it is.
+    pub credit_unit_id: Uuid,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
@@ -173,8 +182,10 @@ impl AdminCreditRegistrationSort {
 pub struct AdminCreditRegistrationFilters<'a> {
     pub states: Option<&'a [CreditRegistrationState]>,
     pub error_codes: Option<&'a [CreditRegistrationErrorCode]>,
+    /// A course, or a mooc.fi target, which the course facet lists beside the courses.
     pub course_id: Option<Uuid>,
-    pub course_module_id: Option<Uuid>,
+    /// A module, or a mooc.fi target.
+    pub credit_unit_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     pub student_number: Option<&'a str>,
     /// Rows at one of these timeline steps. Empty means no narrowing. A row waiting for a student
@@ -196,12 +207,12 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub search: Option<&'a str>,
     /// A uuid typed into the search box: a registration, a user or a completion id. Ambiguous by
     /// design, for a human's paste. A caller that already knows which single field it means should
-    /// use `id` or `course_module_completion_id` instead, not this plus a Rust-side filter.
+    /// use `id` or `subject_id` instead, not this plus a Rust-side filter.
     pub search_id: Option<Uuid>,
     /// Exactly one registration.
     pub id: Option<Uuid>,
-    /// Every attempt against one completion.
-    pub course_module_completion_id: Option<Uuid>,
+    /// Every attempt against one completion, of either kind.
+    pub subject_id: Option<Uuid>,
     /// An exact set of rows, for a caller that already knows which ones it wants.
     pub credit_registration_ids: Option<&'a [Uuid]>,
     /// Off by default, or a course that regrades shows two rows per student.
@@ -229,12 +240,16 @@ SELECT cr.id,
   ud.last_name AS "last_name?",
   ud.email AS "email?",
   cr.course_id,
-  c.name AS course_name,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   cr.course_module_id,
-  cm.name AS course_module_name,
+  cm.name AS "course_module_name?",
   cr.course_instance_id,
   cr.course_module_completion_id,
-  cmc.completion_date,
+  cr.external_credit_target_id,
+  cr.external_completion_id,
+  cr.subject_id,
+  cr.credit_unit_id,
+  s.completion_date AS "completion_date!",
   cr.state,
   cr.state_entered_at,
   cr.state_changed_at,
@@ -278,16 +293,23 @@ SELECT cr.id,
   sig.last_visited_at AS "last_visited_at?",
   COUNT(*) OVER () AS "total_count!"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(
+    route.course_module_completion_id,
+    route.external_completion_id
+  ) = cr.subject_id
   AND route.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+    sig.course_module_completion_id,
+    sig.external_completion_id
+  ) = cr.subject_id
   AND sig.deleted_at IS NULL
   -- The step and engagement are computed exactly as in count_by_step_and_engagement, so a list
   -- filtered to a step and engagement holds as many rows as that function counts.
@@ -323,7 +345,7 @@ FROM credit_registrations cr
         END
       END AS engagement,
       ts.step = 'waiting_for_student_number'
-      AND cmc.completion_date < $29::timestamptz AS is_before_linking
+      AND s.completion_date < $29::timestamptz AS is_before_linking
   ) eng
 WHERE cr.deleted_at IS NULL
   AND ($1::bool OR cr.superseded_by_id IS NULL)
@@ -335,8 +357,12 @@ WHERE cr.deleted_at IS NULL
     $3::credit_registration_error_code [] IS NULL
     OR cr.error_code = ANY($3)
   )
-  AND ($4::uuid IS NULL OR cr.course_id = $4)
-  AND ($5::uuid IS NULL OR cr.course_module_id = $5)
+  AND (
+    $4::uuid IS NULL
+    OR cr.course_id = $4
+    OR cr.external_credit_target_id = $4
+  )
+  AND ($5::uuid IS NULL OR cr.credit_unit_id = $5)
   AND ($6::uuid IS NULL OR cr.user_id = $6)
   AND (
     $7::text IS NULL
@@ -374,7 +400,7 @@ WHERE cr.deleted_at IS NULL
     $12::uuid IS NULL
     OR cr.id = $12
     OR cr.user_id = $12
-    OR cr.course_module_completion_id = $12
+    OR cr.subject_id = $12
   )
   AND (
     $13::uuid [] IS NULL
@@ -383,7 +409,7 @@ WHERE cr.deleted_at IS NULL
   AND ($17::uuid IS NULL OR cr.id = $17)
   AND (
     $18::uuid IS NULL
-    OR cr.course_module_completion_id = $18
+    OR cr.subject_id = $18
   )
 ORDER BY COALESCE(cr.id = ANY($28::uuid []), FALSE) DESC,
   CASE
@@ -401,7 +427,7 @@ LIMIT $15 OFFSET $16
         filters.states as Option<&[CreditRegistrationState]>,
         filters.error_codes as Option<&[CreditRegistrationErrorCode]>,
         filters.course_id,
-        filters.course_module_id,
+        filters.credit_unit_id,
         filters.user_id,
         filters.student_number,
         filters.steps as &[TimelineStep],
@@ -414,7 +440,7 @@ LIMIT $15 OFFSET $16
         limit,
         offset,
         filters.id,
-        filters.course_module_completion_id,
+        filters.subject_id,
         &step_match.states as &[CreditRegistrationState],
         &step_match.completion_eligible,
         &step_match.has_verified_student_number,
@@ -443,19 +469,20 @@ pub async fn get_admin_facing(
     admin_facing_page(conn, filters, sort, limit, offset).await
 }
 
-/// Live rows of one module at one step, with one engagement where the step waits on the student.
+/// Live rows of one module or mooc.fi target at one step, with one engagement where the step waits
+/// on the student.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StepCount {
-    pub course_module_id: Uuid,
+    pub credit_unit_id: Uuid,
     pub step: TimelineStep,
     pub engagement: Option<Engagement>,
     pub count: i64,
 }
 
-/// Live rows per module, step and engagement: the overview's "Where registrations stand", the
-/// Courses tab's per-module table and the daily snapshot.
+/// Live rows per module or mooc.fi target, step and engagement: the overview's "Where registrations
+/// stand", the Courses tab's per-unit table and the daily snapshot.
 ///
-/// Counts exactly what [`get_admin_facing`] lists filtered to the same step, engagement and module,
+/// Counts exactly what [`get_admin_facing`] lists filtered to the same step, engagement and unit,
 /// superseded rows left out: a row waiting for a student number is counted only if it completed
 /// since `account_linking_since`.
 pub async fn count_by_step_and_engagement(
@@ -466,16 +493,22 @@ pub async fn count_by_step_and_engagement(
     let res = sqlx::query_as!(
         StepCount,
         r#"
-SELECT cr.course_module_id,
+SELECT cr.credit_unit_id,
   ts.step AS "step!: TimelineStep",
   eng.engagement AS "engagement?: Engagement",
   COUNT(*) AS "count!"
 FROM credit_registrations cr
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(
+    route.course_module_completion_id,
+    route.external_completion_id
+  ) = cr.subject_id
   AND route.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+    sig.course_module_completion_id,
+    sig.external_completion_id
+  ) = cr.subject_id
   AND sig.deleted_at IS NULL
   -- Computed exactly as in admin_facing_page; see there.
   JOIN LATERAL (
@@ -510,12 +543,12 @@ FROM credit_registrations cr
         END
       END AS engagement,
       ts.step = 'waiting_for_student_number'
-      AND cmc.completion_date < $8::timestamptz AS is_before_linking
+      AND s.completion_date < $8::timestamptz AS is_before_linking
   ) eng
 WHERE cr.deleted_at IS NULL
   AND cr.superseded_by_id IS NULL
   AND eng.is_before_linking IS NOT TRUE
-GROUP BY cr.course_module_id,
+GROUP BY cr.credit_unit_id,
   ts.step,
   eng.engagement
         "#,
@@ -533,7 +566,7 @@ GROUP BY cr.course_module_id,
     Ok(res)
 }
 
-/// [`count_by_step_and_engagement`]'s rows summed over modules, in timeline order.
+/// [`count_by_step_and_engagement`]'s rows summed over modules and targets, in timeline order.
 pub fn sum_step_counts_over_modules<'a>(
     rows: impl IntoIterator<Item = &'a StepCount>,
 ) -> BTreeMap<(TimelineStep, Option<Engagement>), i64> {
@@ -582,7 +615,7 @@ ORDER BY cr.state_entered_at DESC
 /// What the student did and when, around one registration's completion, for the admin timeline.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AdminRegistrationJourney {
-    /// When they first picked any language version of the course.
+    /// When they first picked any language version of the course. `None` on a mooc.fi row.
     pub course_started_at: Option<DateTime<Utc>>,
     /// When the completion's page signals were first recorded: the first visit, unless a check
     /// request came first.
@@ -619,7 +652,7 @@ SELECT ucs.created_at AS "course_started_at?",
     SELECT o.enrolled_at
     FROM credit_registration_enrolment_check_outcomes o
       JOIN credit_registrations attempt ON attempt.id = o.credit_registration_id
-    WHERE attempt.course_module_completion_id = cr.course_module_completion_id
+    WHERE attempt.subject_id = cr.subject_id
       AND o.is_enrolment_found
       AND o.enrolled_at IS NOT NULL
     ORDER BY o.checked_at DESC
@@ -641,13 +674,19 @@ SELECT ucs.created_at AS "course_started_at?",
     LIMIT 1
   ) AS "selected_enrolment_date_time?"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN courses c ON c.id = cr.course_id
   LEFT JOIN user_course_settings ucs ON ucs.user_id = cr.user_id
   AND ucs.course_language_group_id = c.course_language_group_id
   AND ucs.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+    sig.course_module_completion_id,
+    sig.external_completion_id
+  ) = cr.subject_id
   AND sig.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(
+    route.course_module_completion_id,
+    route.external_completion_id
+  ) = cr.subject_id
   AND route.deleted_at IS NULL
 WHERE cr.id = $1
   AND cr.deleted_at IS NULL

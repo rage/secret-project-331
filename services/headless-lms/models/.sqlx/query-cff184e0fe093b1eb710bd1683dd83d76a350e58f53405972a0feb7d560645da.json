@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH this AS (\n  SELECT cr.id,\n    cr.user_id,\n    cr.credit_unit_id,\n    UPPER(TRIM(s.uh_course_code)) AS course_code\n  FROM credit_registrations cr\n    JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\n  WHERE cr.id = $1\n)\nSELECT other.grade_scale_id::text AS \"grade_scale_id?\",\n  other.grade_id::text AS \"grade_id?\",\n  os.passed IS TRUE AS \"completion_passed!\",\n  os.grade AS \"completion_grade?\"\nFROM this\n  JOIN credit_registrations other ON other.user_id = this.user_id\n  AND (\n    UPPER(TRIM(other.uh_course_code)) = this.course_code\n    OR other.credit_unit_id = this.credit_unit_id\n  )\n  AND other.id <> this.id\n  JOIN credit_registration_subjects os ON os.subject_id = other.subject_id\nWHERE other.deleted_at IS NULL\n  AND other.superseded_by_id IS NULL\n  AND other.state = ANY($2::credit_registration_state [])\nUNION ALL\nSELECT NULL::text,\n  NULL::text,\n  cmc.passed,\n  cmc.grade\nFROM this\n  JOIN course_module_completion_registered_to_study_registries r ON r.user_id = this.user_id\n  JOIN course_modules cm ON cm.id = r.course_module_id\n  AND (\n    UPPER(TRIM(cm.uh_course_code)) = this.course_code\n    OR cm.id = this.credit_unit_id\n  )\n  JOIN course_module_completions cmc ON cmc.id = r.course_module_completion_id\n  -- A null registrar is our own mirror of a row the first half already reads.\nWHERE r.study_registry_registrar_id IS NOT NULL\n  AND r.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "grade_scale_id?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "grade_id?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "completion_passed!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "completion_grade?",
+        "type_info": "Int4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "partially_registered",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "cff184e0fe093b1eb710bd1683dd83d76a350e58f53405972a0feb7d560645da"
+}

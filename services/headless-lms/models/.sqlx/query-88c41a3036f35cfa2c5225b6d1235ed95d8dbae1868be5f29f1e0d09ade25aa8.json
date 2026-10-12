@@ -40,7 +40,10 @@
                 "override_rate_cap",
                 "request_enrolment_list_fetch",
                 "dismiss_study_registry_conflict",
-                "dismiss_attention"
+                "dismiss_attention",
+                "configure_external_credit_target",
+                "pause_external_credit_target",
+                "resume_external_credit_target"
               ]
             }
           }
@@ -67,7 +70,8 @@
                 "verified_student_number",
                 "student_number_verification_token",
                 "roster_schedule",
-                "study_registry_student_number_conflict"
+                "study_registry_student_number_conflict",
+                "external_credit_target"
               ]
             }
           }

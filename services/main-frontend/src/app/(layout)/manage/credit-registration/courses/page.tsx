@@ -25,6 +25,8 @@ import {
   failureRatePercent,
   HIGH_FAILURE_RATE_PERCENT,
 } from "@/components/credit-registration/admin/courseModuleStatus"
+import ExternalCreditTargetActions from "@/components/credit-registration/admin/ExternalCreditTargetActions"
+import ExternalCreditTargetDialog from "@/components/credit-registration/admin/ExternalCreditTargetDialog"
 import FacetChip from "@/components/credit-registration/admin/FacetChip"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
 import { registrationsListHref } from "@/components/credit-registration/admin/registrationsListUrl"
@@ -34,8 +36,10 @@ import {
   TIMELINE_STEPS,
 } from "@/components/credit-registration/admin/timelineSteps"
 import WhereRegistrationsStandList from "@/components/credit-registration/admin/WhereRegistrationsStandList"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
   ALIGN_END,
+  BUTTON_SECONDARY,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   LINK_QUIET,
@@ -64,6 +68,7 @@ import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationCourseStats, TimelineStep } from "@/generated/api/types.generated"
 import {
   Badge,
+  Button,
   Checkbox,
   Dialog,
   Infobox,
@@ -247,7 +252,7 @@ const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ 
   const rate = failureRatePercent(module)
   const terminal = module.success_count + module.failed_count
   const failedHref = registrationsListHref({
-    courseModuleId: module.course_module_id,
+    courseModuleId: module.credit_unit_id,
     steps: FAILED_STEPS,
   })
   if (rate === null) {
@@ -316,7 +321,7 @@ const ModuleStepCounts: React.FC<{ module: CreditRegistrationCourseStats }> = ({
       <WhereRegistrationsStandList
         counts={module.where_registrations_stand}
         labelledBy={headingId}
-        courseModuleId={module.course_module_id}
+        courseModuleId={module.credit_unit_id}
       />
     </div>
   )
@@ -328,25 +333,52 @@ const nonZero = (count: number): number | null => (count === 0 ? null : count)
 const stripModulePrefix = (value: string): string => value.replace(/^Module\s+/, "")
 
 /** Module name and UH course code are one string in some configurations; printing it twice is noise. */
-const moduleSubtitle = (module: CreditRegistrationCourseStats): string[] => {
+const moduleSubtitle = (
+  module: CreditRegistrationCourseStats,
+  tiersLabel: string | null,
+): string[] => {
   const seen = new Set<string>()
-  return [module.course_module_name, module.uh_course_code].filter((part): part is string => {
-    if (!part) {
-      return false
-    }
-    const key = stripModulePrefix(part)
-    if (seen.has(key)) {
-      return false
-    }
-    seen.add(key)
-    return true
+  return [module.course_module_name, module.uh_course_code, tiersLabel].filter(
+    (part): part is string => {
+      if (!part) {
+        return false
+      }
+      const key = stripModulePrefix(part)
+      if (seen.has(key)) {
+        return false
+      }
+      seen.add(key)
+      return true
+    },
+  )
+}
+
+/** A tiered mooc.fi target's tiers, e.g. "Tiers 2–3"; `null` for a module or an untiered target. */
+const tiersLabel = (
+  t: CreditRegistrationTFunction,
+  unit: CreditRegistrationCourseStats,
+): string | null => {
+  const tiers = unit.external_credit_target?.tiers
+  if (!tiers) {
+    return null
+  }
+  const lowest = tiers.lowest ?? null
+  const highest = tiers.highest ?? null
+  if (lowest !== null && lowest === highest) {
+    return t("credit-registration-admin-moocfi-tier", { tier: lowest })
+  }
+  return t("credit-registration-admin-moocfi-tiers", {
+    lowest: lowest ?? "",
+    highest: highest ?? "",
   })
 }
 
-/** Which course modules register credits, how well each does it, and what is wrong with the rest. */
+/** Which course modules and mooc.fi courses register credits, how well each does it, and what is
+ *  wrong with the rest. */
 const CoursesPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statsQuery = useCreditRegistrationCourseStats()
+  const [isAddOpen, setAddOpen] = useState(false)
   const { control, watch } = useForm<ViewFields>({
     defaultValues: { sort: SORT_NAME, problemsOnly: false },
   })
@@ -359,15 +391,29 @@ const CoursesPage: React.FC = () => {
       <section className={sectionCardCss}>
         <div className={sectionCardHeaderCss}>
           <h2 className={headingCss}>{t("credit-registration-heading-courses")}</h2>
+          <Button variant={BUTTON_SECONDARY} size="medium" onClick={() => setAddOpen(true)}>
+            {t("button-text-add-moocfi-course")}
+          </Button>
         </div>
+        {isAddOpen && (
+          <ExternalCreditTargetDialog
+            isOpen
+            onClose={() => setAddOpen(false)}
+            target={null}
+            hasRegistrations={false}
+          />
+        )}
         <QueryResult
           query={statsQuery}
           refreshIndicator={QUIET_REFRESH}
           contentClassName={sectionCss}
         >
           {(stats) => {
-            const pausedCount = stats.modules.filter((module) => module.paused_at !== null).length
-            const dominantFailure = dominantConfigFailureReason(stats.modules)
+            const units = stats.credit_units
+            const moduleCount = units.filter((unit) => unit.course_module_id !== null).length
+            const moocfiCount = units.length - moduleCount
+            const pausedCount = units.filter((unit) => unit.paused_at !== null).length
+            const dominantFailure = dominantConfigFailureReason(units)
             const bannerFailure =
               dominantFailure && dominantFailure.count >= MANY_MODULES_THRESHOLD
                 ? dominantFailure
@@ -375,7 +421,7 @@ const CoursesPage: React.FC = () => {
             // The banner's chip is the only control for this, so a banner that stops rendering —
             // an admin fixed enough modules, say — must not leave the table narrowed for good.
             const activeReason = bannerFailure?.reason === reasonFilter ? reasonFilter : null
-            const shown = stats.modules.filter((module) => {
+            const shown = units.filter((module) => {
               const isProblem = courseModuleStatus(module) !== "ok" || module.paused_at !== null
               if (problemsOnly && !isProblem) {
                 return false
@@ -384,16 +430,21 @@ const CoursesPage: React.FC = () => {
             })
             const modules = shown.toSorted(SORT_COMPARATORS[sort])
             const isNothingChecked =
-              stats.modules.length > 0 &&
-              stats.modules.every((module) => courseModuleStatus(module) === UNCHECKED)
+              units.length > 0 && units.every((module) => courseModuleStatus(module) === UNCHECKED)
 
             return (
               <>
                 <StatTileList ariaLabel={t("credit-registration-heading-courses")} maxColumns={2}>
                   <StatTile
                     label={t("credit-registration-admin-modules-enabled")}
-                    value={stats.modules.length}
+                    value={moduleCount}
                   />
+                  {moocfiCount > 0 && (
+                    <StatTile
+                      label={t("credit-registration-admin-moocfi-courses")}
+                      value={moocfiCount}
+                    />
+                  )}
                   {pausedCount > 0 && (
                     <StatTile
                       label={t("credit-registration-admin-modules-paused")}
@@ -460,7 +511,7 @@ const CoursesPage: React.FC = () => {
                   caption={t("credit-registration-heading-courses")}
                   density={DENSITY_COMPACT}
                   responsive={TABLE_STACK}
-                  rowKey={(row) => row.course_module_id}
+                  rowKey={(row) => row.credit_unit_id}
                   rows={modules}
                   emptyState={t("credit-registration-admin-no-enabled-modules")}
                   expandableRow={(row) =>
@@ -476,14 +527,14 @@ const CoursesPage: React.FC = () => {
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <Link
-                            href={registrationsListHref({ courseModuleId: row.course_module_id })}
+                            href={registrationsListHref({ courseModuleId: row.credit_unit_id })}
                             appearance={LINK_QUIET}
                           >
                             {row.course_name}
                           </Link>
                           <InlineParts
                             className={cx(noteCss, codeValueCss)}
-                            parts={moduleSubtitle(row)}
+                            parts={moduleSubtitle(row, tiersLabel(t, row))}
                           />
                         </span>
                       ),
@@ -493,10 +544,17 @@ const CoursesPage: React.FC = () => {
                       minWidth: "16rem",
                       cell: (row) => {
                         const isPaused = row.paused_at !== null
+                        const target = row.external_credit_target
+                        const isOff = Boolean(target) && !target?.enabled_at
                         const heldCount = heldForCourseSetupCount(row)
                         return (
                           <span className={stackedCellCss}>
                             <span className={rowCss}>
+                              {isOff && (
+                                <Badge tone={TONE.NEUTRAL} size="compact">
+                                  {t("credit-registration-admin-moocfi-off")}
+                                </Badge>
+                              )}
                               {isPaused && (
                                 <Badge tone={TONE.NEUTRAL} size="compact">
                                   {t("credit-registration-admin-module-paused")}
@@ -526,7 +584,7 @@ const CoursesPage: React.FC = () => {
                               <Link
                                 href={registrationsListHref({
                                   steps: ["held_for_course_code"],
-                                  courseModuleId: row.course_module_id,
+                                  courseModuleId: row.credit_unit_id,
                                 })}
                                 appearance={LINK_QUIET}
                               >
@@ -555,7 +613,7 @@ const CoursesPage: React.FC = () => {
                         return count === 0 ? null : (
                           <Link
                             href={registrationsListHref({
-                              courseModuleId: row.course_module_id,
+                              courseModuleId: row.credit_unit_id,
                               steps: IN_PROGRESS_STEPS,
                             })}
                             appearance={LINK_QUIET}
@@ -597,7 +655,7 @@ const CoursesPage: React.FC = () => {
                         row.needs_attention_count === 0 ? null : (
                           <Link
                             href={registrationsListHref({
-                              courseModuleId: row.course_module_id,
+                              courseModuleId: row.credit_unit_id,
                               needsAttention: true,
                               includeNotStarted: true,
                             })}
@@ -610,14 +668,24 @@ const CoursesPage: React.FC = () => {
                     {
                       header: t("label-actions"),
                       minWidth: "4rem",
-                      cell: (row) => (
-                        <AdminCourseModulePauseButton
-                          courseId={row.course_id}
-                          courseModuleId={row.course_module_id}
-                          courseModuleName={row.course_module_name ?? row.course_name}
-                          paused={row.paused_at !== null}
-                        />
-                      ),
+                      cell: (row) => {
+                        if (row.external_credit_target) {
+                          return (
+                            <ExternalCreditTargetActions
+                              target={row.external_credit_target}
+                              hasRegistrations={row.registration_count > 0}
+                            />
+                          )
+                        }
+                        return row.course_id && row.course_module_id ? (
+                          <AdminCourseModulePauseButton
+                            courseId={row.course_id}
+                            courseModuleId={row.course_module_id}
+                            courseModuleName={row.course_module_name ?? row.course_name}
+                            paused={row.paused_at !== null}
+                          />
+                        ) : null
+                      },
                     },
                   ]}
                 />

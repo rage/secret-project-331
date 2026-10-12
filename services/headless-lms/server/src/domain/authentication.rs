@@ -35,8 +35,6 @@ use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
 
-const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
-
 pub(crate) fn constant_time_eq_str(left: &str, right: &str) -> bool {
     left.as_bytes().ct_eq(right.as_bytes()).into()
 }
@@ -363,8 +361,12 @@ async fn fetch_moocfi_id_by_upstream_id(
 ) -> anyhow::Result<Option<Uuid>> {
     info!("Fetching mooc.fi UUID for upstream user id {}", upstream_id);
 
+    let graphql_url = server_runtime_config()
+        .app_conf
+        .moocfi_configuration
+        .graphql_url()?;
     let res = REQWEST_CLIENT
-        .post(MOOCFI_GRAPHQL_URL)
+        .post(graphql_url)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
         // Exposed only here, where the bearer token header is built.
@@ -568,6 +570,11 @@ pub async fn authenticate_test_token(
         "test-token-langs" => "langs@example.com",
         "test-token-student1" => "student1@example.com",
         "test-token-student2" => "student2@example.com",
+        // The seeded accounts with a TMC user id, for the mooc.fi handoff specs.
+        "test-token-moocfi-student-1" => "moocfi-student-1@example.com",
+        "test-token-moocfi-student-2" => "moocfi-student-2@example.com",
+        "test-token-moocfi-student-3" => "moocfi-student-3@example.com",
+        "test-token-moocfi-student-4" => "moocfi-student-4@example.com",
         _ => return Ok(None),
     };
     let user = models::users::get_by_email(conn, email).await?;

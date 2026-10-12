@@ -1,8 +1,9 @@
 //! When enrolment discovery fetches each course code's enrolment list.
 //!
-//! A code is due weekly, and sooner while somebody on its modules waits for a student number: each
-//! such person is on the ladders of the signals they have given that they are enrolling, and the
-//! code is due at the earliest rung no fetch that could claim linking mail has served. Every due
+//! A code is due weekly, and sooner while somebody on its modules or mooc.fi targets waits for a
+//! student number: each such person is on the ladders of the signals they have given that they are
+//! enrolling, and the code is due at the earliest rung no fetch that could claim linking mail has
+//! served. Every due
 //! time snaps up to the code's own grid, see [`fetch_slot`], so codes spread evenly over the hour.
 //! Both are derived whenever they are needed; the table keeps only what cannot be: when fetches
 //! ran, the failure backoff and how many fetches of the code went out today.
@@ -12,7 +13,7 @@ use std::collections::HashMap;
 use chrono::TimeDelta;
 use utoipa::ToSchema;
 
-use crate::course_module_suotar_configurations::ModuleToList;
+use crate::credit_registration_account_linking_emails::LinkingMailSource;
 use crate::credit_registrations::CreditRegistrationErrorCode;
 use crate::library::credit_registration::enrolment_check_schedule::{
     COMPLETED_LADDER, DAY_SECS, HOUR_SECS, MINUTE_SECS, WEEK_SECS, ladder,
@@ -106,9 +107,9 @@ pub struct RosterSchedule {
     pub consecutive_failures: i32,
     pub retry_not_before: Option<DateTime<Utc>>,
     pub last_error: Option<CreditRegistrationErrorCode>,
-    /// The active modules on the code, which share its enrolment list.
+    /// The active modules and mooc.fi targets on the code, which share its enrolment list.
     pub module_count: i64,
-    /// Registrations on the code's modules waiting for a student number within
+    /// Registrations on the code's modules and targets waiting for a student number within
     /// [`WAITING_HORIZON`] of an anchor. Always zero with account linking off.
     pub waiting_count: i64,
     /// The earliest unserved rung of a waiting person's ladder.
@@ -174,32 +175,44 @@ impl RosterSchedule {
     }
 }
 
-/// Creates the schedule rows of every listable code, and the per-module configuration rows the
-/// listing status is written to. `course_id` narrows it to one course.
-pub async fn ensure_rows(conn: &mut PgConnection, course_id: Option<Uuid>) -> ModelResult<()> {
+/// Narrows the roster queries to one course's modules or to one mooc.fi target. The default is
+/// every active unit.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct UnitScope {
+    /// Leaves out every mooc.fi target, which has no course.
+    pub course_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
+}
+
+/// Creates the schedule rows of every listable code in `scope`, and the per-module configuration
+/// rows the listing status is written to; a mooc.fi target keeps its own.
+pub async fn ensure_rows(conn: &mut PgConnection, scope: UnitScope) -> ModelResult<()> {
     sqlx::query!(
         r#"
 INSERT INTO course_module_suotar_configurations (course_module_id)
-SELECT acm.course_module_id
-FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
-WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
-  AND ($1::uuid IS NULL OR acm.course_id = $1) ON CONFLICT (course_module_id) DO NOTHING
+SELECT au.credit_unit_id
+FROM credit_registration_active_units au
+WHERE au.course_id IS NOT NULL
+  AND TRIM(COALESCE(au.uh_course_code, '')) <> ''
+  AND ($1::uuid IS NULL OR au.course_id = $1)
+  AND ($2::uuid IS NULL OR au.external_credit_target_id = $2) ON CONFLICT (course_module_id) DO NOTHING
         "#,
-        course_id,
+        scope.course_id,
+        scope.external_credit_target_id,
     )
     .execute(&mut *conn)
     .await?;
     sqlx::query!(
         r#"
 INSERT INTO credit_registration_roster_schedules (course_code)
-SELECT DISTINCT TRIM(cm.uh_course_code)
-FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
-WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
-  AND ($1::uuid IS NULL OR acm.course_id = $1) ON CONFLICT (course_code) DO NOTHING
+SELECT DISTINCT TRIM(au.uh_course_code)
+FROM credit_registration_active_units au
+WHERE TRIM(COALESCE(au.uh_course_code, '')) <> ''
+  AND ($1::uuid IS NULL OR au.course_id = $1)
+  AND ($2::uuid IS NULL OR au.external_credit_target_id = $2) ON CONFLICT (course_code) DO NOTHING
         "#,
-        course_id,
+        scope.course_id,
+        scope.external_credit_target_id,
     )
     .execute(conn)
     .await?;
@@ -218,11 +231,31 @@ pub enum ScheduleSelection<'a> {
 }
 
 /// Every listable code that has a schedule row; see [`ensure_rows`]. `course_id` narrows the codes
-/// and the modules their waiting people come from to one course, for a scoped tick. Only
-/// completions on or after `account_linking_since` can wait, and with it `None` nobody does.
+/// and the modules their waiting people come from to one course, for a scoped tick, leaving every
+/// mooc.fi target out. Only completions on or after `account_linking_since` can wait, and with it
+/// `None` nobody does.
 pub async fn get_schedules(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
+    selection: ScheduleSelection<'_>,
+    account_linking_since: Option<DateTime<Utc>>,
+) -> ModelResult<Vec<RosterSchedule>> {
+    get_schedules_within(
+        conn,
+        UnitScope {
+            course_id,
+            external_credit_target_id: None,
+        },
+        selection,
+        account_linking_since,
+    )
+    .await
+}
+
+/// [`get_schedules`] narrowed by a [`UnitScope`], which can also name one mooc.fi target.
+pub async fn get_schedules_within(
+    conn: &mut PgConnection,
+    scope: UnitScope,
     selection: ScheduleSelection<'_>,
     account_linking_since: Option<DateTime<Utc>>,
 ) -> ModelResult<Vec<RosterSchedule>> {
@@ -233,14 +266,14 @@ pub async fn get_schedules(
     let rows = sqlx::query!(
         r#"
 WITH modules AS (
-  SELECT TRIM(cm.uh_course_code) AS course_code
-  FROM credit_registration_active_course_modules acm
-    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
-  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''
-    AND ($1::uuid IS NULL OR acm.course_id = $1)
+  SELECT TRIM(au.uh_course_code) AS course_code
+  FROM credit_registration_active_units au
+  WHERE TRIM(COALESCE(au.uh_course_code, '')) <> ''
+    AND ($1::uuid IS NULL OR au.course_id = $1)
+    AND ($5::uuid IS NULL OR au.external_credit_target_id = $5)
     AND (
       $4::text IS NULL
-      OR TRIM(cm.uh_course_code) = $4
+      OR TRIM(au.uh_course_code) = $4
     )
 )
 SELECT s.course_code,
@@ -290,10 +323,11 @@ WHERE s.course_code IN (
   )
 ORDER BY s.course_code
         "#,
-        course_id,
+        scope.course_id,
         selection == ScheduleSelection::DueCandidates,
         Utc::now() - PRESS_MIN_REFETCH_GAP,
         only_code,
+        scope.external_credit_target_id,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -306,14 +340,8 @@ ORDER BY s.course_code
                 .unwrap_or(DateTime::UNIX_EPOCH)
         })
         .collect();
-    let mut waiting = get_waiting(
-        conn,
-        course_id,
-        &codes,
-        &served_until,
-        account_linking_since,
-    )
-    .await?;
+    let mut waiting =
+        get_waiting(conn, scope, &codes, &served_until, account_linking_since).await?;
     Ok(rows
         .into_iter()
         .map(|row| {
@@ -368,7 +396,7 @@ struct CodeWaiting {
 /// `served_until`.
 async fn get_waiting(
     conn: &mut PgConnection,
-    course_id: Option<Uuid>,
+    scope: UnitScope,
     course_codes: &[String],
     served_until: &[DateTime<Utc>],
     account_linking_since: Option<DateTime<Utc>>,
@@ -390,26 +418,28 @@ waiting AS (
     ladder.offsets,
     ladder.is_press
   FROM codes
-    JOIN course_modules cm ON TRIM(cm.uh_course_code) = codes.course_code
-    AND cm.deleted_at IS NULL
-    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cm.id
-    JOIN credit_registrations cr ON cr.course_module_id = cm.id
-    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+    JOIN credit_registration_active_units au ON TRIM(au.uh_course_code) = codes.course_code
+    JOIN credit_registrations cr ON cr.credit_unit_id = au.credit_unit_id
+    JOIN credit_registration_subjects subj ON subj.subject_id = cr.subject_id
     JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-    LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+    LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+      sig.course_module_completion_id,
+      sig.external_completion_id
+    ) = cr.subject_id
     AND sig.deleted_at IS NULL
     CROSS JOIN LATERAL (
-      VALUES (cmc.completion_date, $4::bigint [], FALSE),
+      VALUES (subj.completion_date, $4::bigint [], FALSE),
         (sig.visit_ladder_anchor_at, $5::bigint [], FALSE),
         (sig.check_request_ladder_anchor_at, $6::bigint [], TRUE)
     ) AS ladder(anchor_at, offsets, is_press)
-  WHERE ($1::uuid IS NULL OR acm.course_id = $1)
+  WHERE ($1::uuid IS NULL OR au.course_id = $1)
+    AND ($9::uuid IS NULL OR au.external_credit_target_id = $9)
     AND cr.state = 'pending'
     AND cr.superseded_by_id IS NULL
     AND cr.deleted_at IS NULL
     AND p.completion_eligible
     AND NOT p.has_verified_student_number
-    AND cmc.completion_date >= $7::timestamptz
+    AND subj.completion_date >= $7::timestamptz
     AND ladder.anchor_at > now() - ($8::bigint * INTERVAL '1 second')
 )
 SELECT w.course_code AS "course_code!",
@@ -428,7 +458,7 @@ FROM waiting w
   ) rung
 GROUP BY w.course_code
         "#,
-        course_id,
+        scope.course_id,
         course_codes,
         served_until,
         &COMPLETED_LADDER[..],
@@ -436,6 +466,7 @@ GROUP BY w.course_code
         &PRESSED_LADDER[..],
         account_linking_since,
         WAITING_HORIZON.num_seconds(),
+        scope.external_credit_target_id,
     )
     .fetch_all(conn)
     .await?;
@@ -454,40 +485,70 @@ GROUP BY w.course_code
         .collect())
 }
 
-/// The active modules on each of `course_codes`, which share its roster. `course_id` narrows them
-/// to one course, as it does for [`get_schedules`].
-pub async fn get_modules_by_code(
+/// An active module or mooc.fi target on a course code, with the facts a roster listing of the
+/// code needs about it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RosterUnit {
+    /// The module's or target's id.
+    pub credit_unit_id: Uuid,
+    /// Set for a module only.
+    pub course_id: Option<Uuid>,
+    /// Set for a mooc.fi target only.
+    pub external_credit_target_id: Option<Uuid>,
+    pub uh_course_code: String,
+    /// The language the mails the listing sets off are written in.
+    pub language_code: String,
+}
+
+impl RosterUnit {
+    /// What a linking mail claimed off this unit's roster is sent for: the module's course, or the
+    /// target.
+    pub fn linking_mail_source(&self) -> LinkingMailSource {
+        match self.course_id {
+            Some(course_id) => LinkingMailSource::Course(course_id),
+            None => LinkingMailSource::ExternalCreditTarget(self.credit_unit_id),
+        }
+    }
+}
+
+/// The active modules and mooc.fi targets in `scope` on each of `course_codes`, which share its
+/// roster.
+pub async fn get_units_by_code(
     conn: &mut PgConnection,
-    course_id: Option<Uuid>,
+    scope: UnitScope,
     course_codes: &[String],
-) -> ModelResult<HashMap<String, Vec<ModuleToList>>> {
-    let modules = sqlx::query_as!(
-        ModuleToList,
+) -> ModelResult<HashMap<String, Vec<RosterUnit>>> {
+    let units = sqlx::query_as!(
+        RosterUnit,
         r#"
-SELECT acm.course_module_id AS "course_module_id!",
-  acm.course_id AS "course_id!",
-  TRIM(cm.uh_course_code) AS "uh_course_code!",
-  co.language_code AS "course_language_code!"
-FROM credit_registration_active_course_modules acm
-  JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
-  JOIN courses co ON co.id = acm.course_id AND co.deleted_at IS NULL
-WHERE TRIM(cm.uh_course_code) = ANY($2::text [])
-  AND ($1::uuid IS NULL OR acm.course_id = $1)
-ORDER BY cm.id
+SELECT au.credit_unit_id AS "credit_unit_id!",
+  au.course_id,
+  au.external_credit_target_id,
+  TRIM(au.uh_course_code) AS "uh_course_code!",
+  COALESCE(co.language_code, target.language_code) AS "language_code!"
+FROM credit_registration_active_units au
+  LEFT JOIN courses co ON co.id = au.course_id
+  LEFT JOIN external_credit_targets target ON target.id = au.external_credit_target_id
+WHERE TRIM(au.uh_course_code) = ANY($2::text [])
+  AND co.deleted_at IS NULL
+  AND ($1::uuid IS NULL OR au.course_id = $1)
+  AND ($3::uuid IS NULL OR au.external_credit_target_id = $3)
+ORDER BY au.credit_unit_id
         "#,
-        course_id,
+        scope.course_id,
         course_codes,
+        scope.external_credit_target_id,
     )
     .fetch_all(conn)
     .await?;
-    let mut modules_by_code: HashMap<String, Vec<ModuleToList>> = HashMap::new();
-    for module in modules {
-        modules_by_code
-            .entry(module.uh_course_code.clone())
+    let mut units_by_code: HashMap<String, Vec<RosterUnit>> = HashMap::new();
+    for unit in units {
+        units_by_code
+            .entry(unit.uh_course_code.clone())
             .or_default()
-            .push(module);
+            .push(unit);
     }
-    Ok(modules_by_code)
+    Ok(units_by_code)
 }
 
 /// Stamps the codes a listing request is about to go out for and counts the fetch against
@@ -705,11 +766,11 @@ pub mod testing {
     use crate::prelude::*;
 
     /// Waits out the weekly fetch and the failure backoff of every code on the course's active
-    /// modules, and returns how many codes it moved. Exists only for test setup: specs cannot wait
-    /// for a grid point.
+    /// modules, or on the mooc.fi target, and returns how many codes it moved. Exists only for test
+    /// setup: specs cannot wait for a grid point.
     pub async fn make_listings_due_for_testing(
         conn: &mut PgConnection,
-        course_id: Uuid,
+        course_or_target_id: Uuid,
     ) -> ModelResult<u64> {
         let res = sqlx::query!(
             r#"
@@ -717,13 +778,13 @@ UPDATE credit_registration_roster_schedules
 SET last_fetched_at = last_fetched_at - ($2::bigint * INTERVAL '1 second'),
   retry_not_before = NULL
 WHERE course_code IN (
-    SELECT TRIM(cm.uh_course_code)
-    FROM credit_registration_active_course_modules acm
-      JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL
-    WHERE acm.course_id = $1
+    SELECT TRIM(au.uh_course_code)
+    FROM credit_registration_active_units au
+    WHERE au.course_id = $1
+      OR au.external_credit_target_id = $1
   )
         "#,
-            course_id,
+            course_or_target_id,
             (BASELINE_INTERVAL + FETCH_GRID_STEP).num_seconds(),
         )
         .execute(conn)

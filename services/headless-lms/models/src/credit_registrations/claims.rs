@@ -2,9 +2,9 @@
 //!
 //! Every claim takes up to `limit` due rows in its states, the longest due first. The row locks
 //! live until the caller's transaction ends, so callers must pass a transaction. Rows on a paused
-//! course module, or on one whose credit registration has been switched off, are never claimed:
-//! enforced here so no phase can forget it. Both freeze a row where it stands rather than
-//! cancelling it, so switching the module back on resumes the rows that were already in flight.
+//! module or mooc.fi target, or on one whose credit registration has been switched off, are never
+//! claimed: enforced here so no phase can forget it. Both freeze a row where it stands rather than
+//! cancelling it, so switching the unit back on resumes the rows that were already in flight.
 //!
 //! An unscoped claim (the live background worker) also skips a row whose user (and, if the hold
 //! names one, course) has a live row in `credit_registration_test_exclusive_holds`. A scoped claim
@@ -22,7 +22,9 @@ use super::state::CreditRegistrationState;
 /// narrowed scope lets a test drive the pipeline for its own course on a shared database.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RegistrationScope {
+    /// Leaves out every mooc.fi row, which has no course.
     pub course_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     /// The precision escape hatch, for a caller that already knows its ledger rows.
     pub credit_registration_ids: Vec<Uuid>,
@@ -31,6 +33,7 @@ pub struct RegistrationScope {
 impl RegistrationScope {
     pub fn is_unscoped(&self) -> bool {
         self.course_id.is_none()
+            && self.external_credit_target_id.is_none()
             && self.user_id.is_none()
             && self.credit_registration_ids.is_empty()
     }
@@ -42,6 +45,10 @@ impl RegistrationScope {
         }
     }
 }
+
+/// How recently a mooc.fi row's completion must have been read from mooc.fi for import to claim it:
+/// nothing is submitted on a copy that may have been deleted or registered elsewhere since.
+pub const MOOCFI_IMPORT_MAX_CHECK_AGE: TimeDelta = TimeDelta::hours(2);
 
 /// The states resolve-enrolments looks up from: rows on their way to a first resolve, and rows
 /// parked in `no_usable_enrolment` whose next enrolment check is due, which are checked where they
@@ -63,16 +70,16 @@ pub async fn claim_due_for_person_lookup(
 
 /// Claims, for resolve-enrolments, `ready_to_submit` rows and parked rows due an enrolment check,
 /// the later [`EnrolmentCheckGroup`](crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup) first, minus any whose student already has another live row
-/// for the module somewhere between resolving and a known outcome. First pulls slow checks due soon
-/// into the batch; see
+/// for the module or target somewhere between resolving and a known outcome. First pulls slow
+/// checks due soon into the batch; see
 /// [`crate::library::credit_registration::enrolment_checks::pull_forward_batched_checks`].
 ///
-/// Only one completion per student and module goes past resolve at a time, so each is weighed
-/// against the outcome of the one before it rather than racing it to the registry; see
-/// [`lock_live_successes_for_same_module`](super::lock_live_successes_for_same_module). Of two such
-/// rows claimed together only the first comes back; the other stays claimable where it is. A parked
-/// row sent for a check must be marked with [`claim_enrolment_checks`] before the claim's
-/// transaction commits.
+/// Only one completion per student and module or target goes past resolve at a time, so each is
+/// weighed against the outcome of the one before it rather than racing it to the registry; see
+/// [`lock_live_successes_for_same_course_code`](super::lock_live_successes_for_same_course_code).
+/// Of two such rows claimed together only the first comes back; the other stays claimable where it
+/// is. A parked row sent for a check must be marked with [`claim_enrolment_checks`] before the
+/// claim's transaction commits.
 pub async fn claim_due_for_resolve(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -83,8 +90,8 @@ pub async fn claim_due_for_resolve(
     let claimed = claim(conn, &LOOKUP_STATES, scope, limit, ClaimKind::Resolve).await?;
     Ok(first_per(
         claimed,
-        |row| (row.user_id, row.course_module_id),
-        "another attempt for the same student and module",
+        |row| (row.user_id, row.credit_unit_id),
+        "another attempt for the same student and module or target",
     ))
 }
 
@@ -115,9 +122,12 @@ WHERE id = ANY($1)
 
 /// Claims, for import, `checking_enrolment` rows, minus any whose student and course code already
 /// have a submission in flight, which Suotar's hour-old copy of Sisu would not stop from
-/// registering twice, and any whose person and module slot in
-/// `uq_credit_registrations_person_module` is taken. Of two rows for the same student and course
-/// code claimed together only the first comes back; the other stays claimable where it is.
+/// registering twice, and any whose person and course code slot in
+/// `uq_credit_registrations_person_course_code` is taken. Of two rows for the same student and
+/// course code claimed together only the first comes back; the other stays claimable where it is.
+///
+/// A mooc.fi row is claimed only while its completion is live and was read from mooc.fi within
+/// [`MOOCFI_IMPORT_MAX_CHECK_AGE`]; a stale one waits where it is for the next re-check.
 pub async fn claim_due_for_import(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -239,13 +249,13 @@ async fn claim(
 WITH due AS (
   SELECT cr.id
   FROM credit_registrations cr
-    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
-    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+    JOIN credit_registration_active_units au ON au.credit_unit_id = cr.credit_unit_id
+    JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
     -- A completion opted out by hand is the pull path's again; only a row already sent carries on.
     AND (
-      cmc.register_credits_via_suotar
+      s.is_on_pipeline
       OR cr.submitted_at IS NOT NULL
     )
     AND cr.state = ANY($1::credit_registration_state [])
@@ -255,6 +265,7 @@ WITH due AS (
       OR cr.enrolment_check_claimed_until <= now()
     )
     AND ($3::uuid IS NULL OR cr.course_id = $3)
+    AND ($13::uuid IS NULL OR cr.external_credit_target_id = $13)
     AND ($4::uuid IS NULL OR cr.user_id = $4)
     AND (
       cardinality($5::uuid []) = 0
@@ -283,7 +294,19 @@ WITH due AS (
     AND (
       NOT $7::boolean
       OR (
-        NOT EXISTS (
+        (
+          cr.external_completion_id IS NULL
+          OR (
+            NOT s.is_withdrawn
+            AND EXISTS (
+              SELECT 1
+              FROM external_completions ec
+              WHERE ec.id = cr.external_completion_id
+                AND ec.upstream_checked_at > now() - $14::interval
+            )
+          )
+        )
+        AND NOT EXISTS (
           SELECT 1
           FROM credit_registrations twin
           WHERE twin.student_number = cr.student_number
@@ -292,12 +315,13 @@ WITH due AS (
             AND twin.deleted_at IS NULL
             AND twin.state = ANY($10::credit_registration_state [])
         )
-        -- Mirrors uq_credit_registrations_person_module, which moving to submitting would violate.
+        -- Mirrors uq_credit_registrations_person_course_code, which moving to submitting would
+        -- violate.
         AND NOT EXISTS (
           SELECT 1
           FROM credit_registrations holder
           WHERE holder.sisu_person_id = cr.sisu_person_id
-            AND holder.course_module_id = cr.course_module_id
+            AND UPPER(TRIM(holder.uh_course_code)) = UPPER(TRIM(cr.uh_course_code))
             AND holder.id <> cr.id
             AND holder.deleted_at IS NULL
             AND holder.superseded_by_id IS NULL
@@ -315,7 +339,7 @@ WITH due AS (
         SELECT 1
         FROM credit_registrations ahead
         WHERE ahead.user_id = cr.user_id
-          AND ahead.course_module_id = cr.course_module_id
+          AND ahead.credit_unit_id = cr.credit_unit_id
           AND ahead.id <> cr.id
           AND ahead.deleted_at IS NULL
           AND ahead.superseded_by_id IS NULL
@@ -356,6 +380,8 @@ RETURNING cr.*
         &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         only_uncertain_without_attainment_id,
+        scope.external_credit_target_id,
+        MOOCFI_IMPORT_MAX_CHECK_AGE as TimeDelta,
     )
     .fetch_all(conn)
     .await?;

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT paused_at\nFROM external_credit_targets\nWHERE id = $1\n  AND deleted_at IS NULL\nFOR UPDATE\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "paused_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "paused_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "dc703bc485ff27ed080be50b8acaf4ce107cd921e94a9a3a8dbd852e793182a1"
+}

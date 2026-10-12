@@ -26,6 +26,7 @@ import { formatZonedTimestamp } from "../ZonedTimestamp"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { linkingSimilarityLabel, resendOutcomeLabel } from "./adminCreditRegistrationCopy"
 import { useLinkingCandidates } from "./adminCreditRegistrationHooks"
+import type { LinkingMailSourceIds } from "./AdminResendLinkingEmailDialog"
 
 interface Props extends DialogOpenState {
   registrationId: string
@@ -87,11 +88,12 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
   )
 
   const { result, setResult, mutation } = useActionResult(
-    ({ fields, courseId }: { fields: Fields; courseId: string }) =>
+    ({ fields, source }: { fields: Fields; source: LinkingMailSourceIds }) =>
       adminResendAccountLinkingEmail({
         body: {
           student_number: fields.student_number,
-          course_id: courseId,
+          course_id: source.course_id ?? null,
+          external_credit_target_id: source.external_credit_target_id ?? null,
           override_rate_caps: false,
           reason: null,
           credit_registration_id: registrationId,
@@ -118,7 +120,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
   const hasCandidates = Boolean(data && data.candidates.length > 0)
   const submit = handleSubmit((fields) => {
     if (data) {
-      mutation.mutate({ fields, courseId: data.course_id })
+      mutation.mutate({ fields, source: data })
     }
   })
   const actions: readonly [DialogAction] = [

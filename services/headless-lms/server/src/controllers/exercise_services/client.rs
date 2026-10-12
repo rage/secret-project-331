@@ -1809,7 +1809,8 @@ mod upload_tests {
     use crate::test_helper::*;
     use actix_web::http::header::{CONTENT_TYPE, HeaderMap};
     use headless_lms_base::config::{
-        ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
+        ApplicationConfiguration, MoocfiConfiguration, OAuthServerConfiguration,
+        SuotarConfiguration,
     };
     use headless_lms_base::jwt::DEVELOPMENT_JWT_PASSWORD;
     use models::exercise_slide_submissions::NewExerciseSlideSubmission;
@@ -1837,9 +1838,12 @@ mod upload_tests {
             test_chatbot: false,
             test_sisu: false,
             test_suotar: false,
+            test_moocfi: false,
             disable_embedding_vector_creation_when_seeding: false,
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock Suotar configuration"),
+            moocfi_configuration: MoocfiConfiguration::mock_conf("http://project-331.local")
+                .expect("Failed to build the mock mooc.fi configuration"),
             development_uuid_login: false,
             enable_admin_email_verification: false,
             enable_email_ownership_verification: false,

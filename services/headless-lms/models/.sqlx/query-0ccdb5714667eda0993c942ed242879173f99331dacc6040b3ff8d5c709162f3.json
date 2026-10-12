@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM external_credit_targets\nWHERE enabled_at IS NOT NULL\n  AND deleted_at IS NULL\n  AND config_checked_at IS NOT NULL\n  AND config_check_message IS NOT NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0ccdb5714667eda0993c942ed242879173f99331dacc6040b3ff8d5c709162f3"
+}

@@ -1,6 +1,6 @@
 //! Moving one row's enrolment check schedule: starting it, restarting it for a visit or a check
 //! request, scheduling the next check once one answers, batching slow checks, waking rows off a
-//! roster and shifting them past a module pause. The ladders are
+//! roster and shifting them past a module or target pause. The ladders are
 //! [`super::enrolment_check_schedule`].
 
 use crate::credit_registration_enrolment_check_outcomes::{self, NewEnrolmentCheckOutcome};
@@ -358,7 +358,7 @@ pub struct EnrolmentCheckStart {
 }
 
 /// Writes the schedules rows start with, and ends the checks of the earlier attempts each new row
-/// replaces for its student and module.
+/// replaces for its student and module or target.
 ///
 /// Only rows still in `expected_state`: one a phase moved since the decision keeps whatever that
 /// phase wrote.
@@ -435,7 +435,7 @@ SET enrolment_check_anchor_at = COALESCE(replaced.enrolment_check_anchor_at, now
 FROM credit_registrations started
 WHERE started.id = ANY($1::uuid [])
   AND replaced.user_id = started.user_id
-  AND replaced.course_module_id = started.course_module_id
+  AND replaced.credit_unit_id = started.credit_unit_id
   AND replaced.id <> started.id
   AND replaced.created_at < started.created_at
   AND replaced.state = 'no_usable_enrolment'
@@ -450,22 +450,23 @@ WHERE started.id = ANY($1::uuid [])
     Ok(())
 }
 
-/// One student the roster lists on a module, with every enrolment id it lists them under.
+/// One student the roster lists on a module or target, with every enrolment id it lists them under.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RosterEnrolee {
     pub user_id: Uuid,
     pub enrolment_ids: Vec<String>,
 }
 
-/// Wakes this module's rows waiting for an enrolment when the roster lists their student under an
-/// enrolment id the row has not seen, stopped rows included, and returns how many it touched.
+/// Wakes the rows of this module or mooc.fi target waiting for an enrolment when the roster lists
+/// their student under an enrolment id the row has not seen, stopped rows included, and returns how
+/// many it touched.
 ///
 /// A row never checked has seen nothing, so any listing wakes it. The listed ids count as seen from
 /// here on, so one listing wakes a row once. A row a later attempt has replaced is left alone. Only
 /// the clock moves: the enrolment is still resolved by a check rather than read off the roster.
 pub async fn wake_for_roster_listing(
     conn: &mut PgConnection,
-    course_module_id: Uuid,
+    credit_unit_id: Uuid,
     enrolees: &[RosterEnrolee],
 ) -> ModelResult<u64> {
     let mut user_ids = Vec::new();
@@ -498,7 +499,7 @@ SET enrolment_check_source = CASE
     SELECT DISTINCT UNNEST(COALESCE(cr.seen_enrolment_ids, '{}') || listed.enrolment_ids)
   )
 FROM listed
-WHERE cr.course_module_id = $1
+WHERE cr.credit_unit_id = $1
   AND cr.user_id = listed.user_id
   AND cr.state = 'no_usable_enrolment'
   AND cr.superseded_by_id IS NULL
@@ -511,12 +512,12 @@ WHERE cr.course_module_id = $1
     SELECT 1
     FROM credit_registrations later
     WHERE later.user_id = cr.user_id
-      AND later.course_module_id = cr.course_module_id
+      AND later.credit_unit_id = cr.credit_unit_id
       AND later.created_at > cr.created_at
       AND later.deleted_at IS NULL
   )
         "#,
-        course_module_id,
+        credit_unit_id,
         &user_ids,
         &enrolment_ids as &[Option<String>],
     )
@@ -580,6 +581,7 @@ pub async fn record_enrolment_check(
         &NewEnrolmentCheckOutcome {
             credit_registration_id: row.id,
             course_module_id: row.course_module_id,
+            external_credit_target_id: row.external_credit_target_id,
             enrolment_check_group: row.enrolment_check_group,
             enrolment_check_step: row.enrolment_check_step,
             source: row.enrolment_check_source,
@@ -602,11 +604,12 @@ pub async fn record_enrolment_check(
     Ok(())
 }
 
-/// Moves the schedules of a module's rows past a pause of `paused_for`, so the pause spends none
-/// of their ladder. A batched row stays on a batch boundary. Stopped rows are left as they are.
+/// Moves the schedules of a module's or mooc.fi target's rows past a pause of `paused_for`, so the
+/// pause spends none of their ladder. A batched row stays on a batch boundary. Stopped rows are left
+/// as they are.
 pub async fn shift_past_pause(
     conn: &mut PgConnection,
-    course_module_id: Uuid,
+    credit_unit_id: Uuid,
     paused_for: TimeDelta,
 ) -> ModelResult<u64> {
     let res = sqlx::query!(
@@ -627,13 +630,13 @@ SET enrolment_check_anchor_at = enrolment_check_anchor_at + $2::interval,
     )
     ELSE next_attempt_at + $2::interval
   END
-WHERE course_module_id = $1
+WHERE credit_unit_id = $1
   AND enrolment_check_anchor_at IS NOT NULL
   AND enrolment_checks_stopped_at IS NULL
   AND superseded_by_id IS NULL
   AND deleted_at IS NULL
         "#,
-        course_module_id,
+        credit_unit_id,
         paused_for.max(TimeDelta::zero()) as TimeDelta,
         BATCH_INTERVAL.num_seconds(),
     )
@@ -664,12 +667,13 @@ WITH scoped AS (
     cr.last_attempt_at,
     cr.enrolment_check_claimed_until
   FROM credit_registrations cr
-    JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
+    JOIN credit_registration_active_units au ON au.credit_unit_id = cr.credit_unit_id
   WHERE cr.state = 'no_usable_enrolment'
     AND cr.is_enrolment_check_batched
     AND cr.superseded_by_id IS NULL
     AND cr.deleted_at IS NULL
     AND ($1::uuid IS NULL OR cr.course_id = $1)
+    AND ($6::uuid IS NULL OR cr.external_credit_target_id = $6)
     AND ($2::uuid IS NULL OR cr.user_id = $2)
     AND (
       cardinality($3::uuid []) = 0
@@ -702,6 +706,7 @@ WHERE cr.id = scoped.id
         &scope.credit_registration_ids,
         BATCH_PULL_FORWARD as TimeDelta,
         TRANSIENT_FAILURE_RETRY as TimeDelta,
+        scope.external_credit_target_id,
     )
     .execute(conn)
     .await?;

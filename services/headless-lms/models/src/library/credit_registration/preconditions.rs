@@ -29,7 +29,10 @@ struct PendingMove {
     state_entered_at: DateTime<Utc>,
     submitted_at: Option<DateTime<Utc>>,
     first_failed_at: Option<DateTime<Utc>>,
-    completion_deleted: bool,
+    is_withdrawn: bool,
+    /// A mooc.fi grade we cannot read, which blocks the row for an admin rather than leaving it
+    /// pending: only a fix on mooc.fi clears it.
+    grade_unrecognised: bool,
     /// Names the blocker in the audit event when the target is `pending`.
     preconditions: PendingPreconditions,
     has_submitted_attainment: bool,
@@ -73,7 +76,8 @@ fn precondition_target(row: &PendingMove, now: DateTime<Utc>) -> Target {
         | State::SubmissionUncertain
         | State::AwaitingVerification
         | State::PartiallyRegistered => Target::Stay,
-        _ if row.completion_deleted => Target::Move(State::Cancelled),
+        _ if row.is_withdrawn => Target::Move(State::Cancelled),
+        _ if row.grade_unrecognised => Target::Move(State::Blocked),
         State::FailedRetryable if !facts.completion_eligible => Target::Move(State::Blocked),
         State::FailedRetryable
             if row
@@ -138,10 +142,10 @@ struct CheckStartFacts {
 /// relink still looks frozen; without this it would resume at `checking_enrolment` and import the
 /// previous number.
 ///
-/// `payload_unweighed_against_held_credit` also resolves again: another row of the module holds a
-/// credit this row is not marked to replace, and only resolve-enrolments may weigh the two and hand
-/// this row that row's slot in `uq_credit_registrations_person_module`. Import would otherwise hold
-/// the row back for good.
+/// `payload_unweighed_against_held_credit` also resolves again: another row of the course code
+/// holds a credit this row is not marked to replace, and only resolve-enrolments may weigh the two
+/// and hand this row that row's slot in `uq_credit_registrations_person_course_code`. Import would
+/// otherwise hold the row back for good.
 fn resume_state(
     has_submitted_attainment_id: bool,
     has_payload_snapshot: bool,
@@ -255,6 +259,11 @@ fn precondition_move(pending: &PendingMove, target: CreditRegistrationState) -> 
             to,
             "The completion no longer exists and nothing had been submitted.",
         ),
+        State::Blocked if pending.grade_unrecognised => UnaskedMove::new(
+            to.with_code(CreditRegistrationErrorCode::NoGradeScaleMapping)
+                .needing_admin(),
+            "The mooc.fi grade could not be read, so nothing is sent until it is fixed on mooc.fi.",
+        ),
         State::Blocked => {
             UnaskedMove::new(to, "The completion is no longer eligible for registration.")
         }
@@ -318,7 +327,8 @@ WITH facts AS (
       cr.selected_enrolment_id IS NOT NULL
       AND cr.grade_id IS NOT NULL
     ) AS has_payload_snapshot,
-    p.completion_deleted,
+    p.is_withdrawn,
+    p.grade_unrecognised,
     p.completion_eligible AS eligible,
     p.has_verified_student_number AS has_student_number,
     p.course_code_allowed,
@@ -327,7 +337,10 @@ WITH facts AS (
       SELECT 1
       FROM credit_registrations held
       WHERE held.user_id = cr.user_id
-        AND held.course_module_id = cr.course_module_id
+        AND (
+          UPPER(TRIM(held.uh_course_code)) = UPPER(TRIM(cr.uh_course_code))
+          OR held.credit_unit_id = cr.credit_unit_id
+        )
         AND held.id <> cr.id
         AND held.deleted_at IS NULL
         AND held.superseded_by_id IS NULL
@@ -347,13 +360,13 @@ WITH facts AS (
         SELECT MAX(earlier.enrolment_check_group)
         FROM credit_registrations earlier
         WHERE earlier.user_id = cr.user_id
-          AND earlier.course_module_id = cr.course_module_id
+          AND earlier.credit_unit_id = cr.credit_unit_id
           AND earlier.created_at < cr.created_at
           AND earlier.deleted_at IS NULL
       )
     ) AS check_group,
     GREATEST(
-      cmc.completion_date,
+      s.completion_date,
       vsn.verified_at,
       COALESCE(sig.last_check_requested_at, sig.last_visited_at)
     ) AS check_anchor_at,
@@ -363,20 +376,32 @@ WITH facts AS (
     END::enrolment_check_source AS check_source
   FROM credit_registrations cr
     JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-    JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+    JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
     LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
     AND vsn.deleted_at IS NULL
-    LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+    LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+      sig.course_module_completion_id,
+      sig.external_completion_id
+    ) = cr.subject_id
     AND sig.deleted_at IS NULL
     LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cr.course_module_id
     AND conf.deleted_at IS NULL
+    LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   WHERE cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
     AND cr.terminal_at IS NULL
     -- Only a human moves a row the study registry reversed.
     AND cr.state <> 'misregistered'
     AND conf.paused_at IS NULL
+    -- A mooc.fi target not switched on keeps every phase away, unlike a module, whose rows carry
+    -- their own opt-in; a deleted one still lets its rows be cancelled.
+    AND t.paused_at IS NULL
+    AND (
+      cr.external_credit_target_id IS NULL
+      OR t.enabled_at IS NOT NULL
+    )
     AND ($2::uuid IS NULL OR cr.course_id = $2)
+    AND ($10::uuid IS NULL OR cr.external_credit_target_id = $10)
     AND ($3::uuid IS NULL OR cr.user_id = $3)
     AND (
       cardinality($4::uuid []) = 0
@@ -389,7 +414,8 @@ SELECT id,
   state_entered_at,
   submitted_at,
   first_failed_at,
-  completion_deleted AS "completion_deleted!",
+  is_withdrawn AS "is_withdrawn!",
+  grade_unrecognised AS "grade_unrecognised!",
   eligible AS "eligible!",
   has_student_number AS "has_student_number!",
   course_code_allowed AS "course_code_allowed!",
@@ -409,7 +435,11 @@ WHERE (
   OR (
     state <> ALL($9::credit_registration_state [])
     AND (
-      completion_deleted
+      is_withdrawn
+      OR (
+        grade_unrecognised
+        AND state <> 'blocked'
+      )
       OR (
         state = 'failed_retryable'
         AND (
@@ -463,6 +493,7 @@ LIMIT $1
         RESOLVING_RECOVERY_GRACE as TimeDelta,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::IN_FLIGHT_STATES as &[CreditRegistrationState],
+        scope.external_credit_target_id,
     )
     .fetch_all(conn)
     .await?;
@@ -475,7 +506,8 @@ LIMIT $1
             state_entered_at: row.state_entered_at,
             submitted_at: row.submitted_at,
             first_failed_at: row.first_failed_at,
-            completion_deleted: row.completion_deleted,
+            is_withdrawn: row.is_withdrawn,
+            grade_unrecognised: row.grade_unrecognised,
             preconditions: PendingPreconditions {
                 completion_eligible: row.eligible,
                 has_verified_student_number: row.has_student_number,
@@ -500,7 +532,9 @@ mod tests {
     use crate::course_module_completions::{
         CourseModuleCompletionGranter, NewCourseModuleCompletion,
     };
-    use crate::credit_registrations::{NewCreditRegistration, get_by_id, transition};
+    use crate::credit_registrations::{
+        NewCreditRegistration, NewRegistrationSubject, get_by_id, transition,
+    };
     use crate::test_helper::*;
     use crate::verified_student_numbers::{
         NewVerifiedStudentNumber, StudentNumberVerificationMethod,
@@ -549,11 +583,13 @@ mod tests {
             conn,
             PKeyPolicy::Generate,
             &NewCreditRegistration {
-                course_module_completion_id: completion.id,
+                subject: NewRegistrationSubject::CourseModule {
+                    course_module_completion_id: completion.id,
+                    course_id: course,
+                    course_module_id: course_module,
+                    course_instance_id: instance,
+                },
                 user_id: user,
-                course_id: course,
-                course_module_id: course_module,
-                course_instance_id: instance,
                 attempt_number: 1,
             },
             None,

@@ -424,7 +424,7 @@ WHERE id = $1
 
 /// Marks a registered row as being replaced by `superseded_by_id`, a later attempt with a better
 /// grade, of the same completion or another, which takes over the row's slot in
-/// `uq_credit_registrations_person_module`.
+/// `uq_credit_registrations_person_course_code`.
 ///
 /// Not [`mark_superseded`]: the row stays the live credit until the new attempt is registered,
 /// since Sisu may accept the better grade without ever making it the course unit's attainment.
@@ -479,11 +479,12 @@ WHERE id = $1
 /// the study registry says an outage is over.
 ///
 /// Only `failed_retryable`: no other state's backoff means "waiting out an outage", and
-/// `submission_uncertain` must never be swept forward in bulk.
+/// `submission_uncertain` must never be swept forward in bulk. `course_id` also takes a mooc.fi
+/// target's id, as `credit_unit_id` takes a module's or a target's.
 pub async fn requeue_retryable_now(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
-    course_module_id: Option<Uuid>,
+    credit_unit_id: Option<Uuid>,
     limit: i64,
 ) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
@@ -495,8 +496,12 @@ WITH due AS (
     AND next_attempt_at > now()
     AND superseded_by_id IS NULL
     AND deleted_at IS NULL
-    AND ($2::uuid IS NULL OR course_id = $2)
-    AND ($3::uuid IS NULL OR course_module_id = $3)
+    AND (
+      $2::uuid IS NULL
+      OR course_id = $2
+      OR external_credit_target_id = $2
+    )
+    AND ($3::uuid IS NULL OR credit_unit_id = $3)
   ORDER BY next_attempt_at
   LIMIT $1
 ),
@@ -512,7 +517,7 @@ FROM updated
         "#,
         limit,
         course_id,
-        course_module_id,
+        credit_unit_id,
     )
     .fetch_one(conn)
     .await?;

@@ -55,6 +55,11 @@ use secrecy::ExposeSecret;
     courses::get_credit_registration_stats_by_course,
     courses::admin_pause_course_module_credit_registration,
     courses::admin_resume_course_module_credit_registration,
+    courses::admin_create_external_credit_target,
+    courses::admin_update_external_credit_target,
+    courses::admin_delete_external_credit_target,
+    courses::admin_pause_external_credit_target,
+    courses::admin_resume_external_credit_target,
     reconciliation::get_credit_registration_reconciliation,
     audit::list_credit_registration_admin_actions,
     history::get_credit_registration_pipeline_history,
@@ -116,7 +121,9 @@ fn required_reason(reason: &str) -> Result<&str, ControllerError> {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminLinkingEmail {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// `None` for a mooc.fi target's mail.
+    pub course_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     pub student_number: String,
     pub sisu_person_id: String,
     /// In full.
@@ -154,6 +161,7 @@ async fn build_linking_emails(
                 ),
                 id: mail.id,
                 course_id: mail.course_id,
+                external_credit_target_id: mail.external_credit_target_id,
                 student_number: mail.student_number.expose_secret().to_owned(),
                 sisu_person_id: mail.sisu_person_id.expose_secret().to_owned(),
                 emailed_to: mail.emailed_to.expose_secret().to_owned(),

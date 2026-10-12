@@ -1,7 +1,8 @@
 //! Audit of manual actions on the credit registration pipeline.
 //!
 //! Separate from `credit_registration_events` because the targets are often not registrations at
-//! all: a phase, a course module, a student-number link. Item-targeted actions write both tables.
+//! all: a phase, a course module, a mooc.fi target, a student-number link. Item-targeted actions
+//! write both tables.
 use utoipa::ToSchema;
 
 use crate::credit_registrations::CreditRegistrationState;
@@ -38,6 +39,10 @@ pub enum CreditRegistrationAdminAction {
     /// Took a registration off the Needs attention queue; `details.attention_reasons` holds what the
     /// dismissal covers. Not `mark_resolved`, which clears the pipeline's own flag.
     DismissAttention,
+    /// Created or edited a mooc.fi target.
+    ConfigureExternalCreditTarget,
+    PauseExternalCreditTarget,
+    ResumeExternalCreditTarget,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
@@ -55,6 +60,7 @@ pub enum CreditRegistrationAdminActionTarget {
     StudentNumberVerificationToken,
     RosterSchedule,
     StudyRegistryStudentNumberConflict,
+    ExternalCreditTarget,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -232,7 +238,8 @@ pub struct CreditRegistrationAdminActionFilters<'a> {
     /// Every action about this student, whatever its target: their registrations, their student
     /// number links and tokens, and actions that name them or their student number in `details`.
     pub user_id: Option<Uuid>,
-    /// Matches the course a teacher's permission authorised and a course-targeted action alike.
+    /// Matches the course a teacher's permission authorised and a course-targeted action alike, or
+    /// a mooc.fi target and the actions targeting it.
     pub course_id: Option<Uuid>,
     pub from: Option<DateTime<Utc>>,
     pub to: Option<DateTime<Utc>>,
@@ -246,7 +253,8 @@ pub struct CreditRegistrationAdminActionListRow {
     pub actor_last_name: Option<String>,
     pub actor_email: Option<String>,
     /// The course the action was about: the one a teacher's permission authorised, the one a
-    /// course-targeted action names, or the one a targeted registration belongs to.
+    /// course-targeted action names, or the one a targeted registration belongs to. For a mooc.fi
+    /// target, or a registration under one, "mooc.fi: " and the target's name.
     pub course_name: Option<String>,
     /// The student a registration- or link-targeted action was about. `None` for a phase, a course
     /// or a module, which are about nobody in particular.
@@ -286,7 +294,7 @@ SELECT a.id,
   ud.first_name AS "actor_first_name?",
   ud.last_name AS "actor_last_name?",
   ud.email AS "actor_email?",
-  c.name AS "course_name?",
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name?",
   target_user.user_id AS "target_user_id?",
   tud.first_name AS "target_first_name?",
   tud.last_name AS "target_last_name?",
@@ -321,6 +329,13 @@ FROM credit_registration_admin_actions a
       WHEN a.target_kind = 'course' THEN a.target_id
     END
   )
+  LEFT JOIN external_credit_targets t ON c.id IS NULL
+  AND t.id = COALESCE(
+    tcr.external_credit_target_id,
+    CASE
+      WHEN a.target_kind = 'external_credit_target' THEN a.target_id
+    END
+  )
 WHERE a.deleted_at IS NULL
   AND (
     $1::credit_registration_admin_action [] IS NULL
@@ -338,7 +353,7 @@ WHERE a.deleted_at IS NULL
     $7::uuid IS NULL
     OR a.actor_course_id = $7
     OR (
-      a.target_kind = 'course'
+      a.target_kind IN ('course', 'external_credit_target')
       AND a.target_id = $7
     )
   )

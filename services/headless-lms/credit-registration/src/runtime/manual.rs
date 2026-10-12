@@ -1,12 +1,12 @@
 //! The account-linking actions a person sets off by hand, each over a study registry built for
 //! someone waiting on the answer.
 
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_utils::prelude::{DateTime, Utc};
 use headless_lms_utils::services::suotar::SuotarClient;
 use secrecy::SecretString;
 use sqlx::PgPool;
-use uuid::Uuid;
 
 use super::suotar::InteractiveSuotar;
 use crate::error::CreditRegistrationResult;
@@ -37,7 +37,7 @@ impl<'a> ManualActionContext<'a> {
 /// `rate_cap_override`, if any, only once the registry has named an address to mail.
 pub async fn resend_linking_mail_for_target(
     ctx: &ManualActionContext<'_>,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &SecretString,
     rate_cap_override: Option<RateCapOverride<'_>>,
 ) -> CreditRegistrationResult<ResendAttempt> {
@@ -45,7 +45,7 @@ pub async fn resend_linking_mail_for_target(
     account_linking::resend_for_target(
         ctx.pool,
         &registry,
-        course_id,
+        source,
         student_number,
         rate_cap_override,
     )

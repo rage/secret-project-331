@@ -54,12 +54,17 @@ pub struct AdminCreditRegistrationRow {
     pub last_name: Option<String>,
     /// In full: masking it would leave support unable to answer the question they were asked.
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi registration, as are the module, instance and course module completion.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
-    pub course_instance_id: Uuid,
-    pub course_module_completion_id: Uuid,
+    pub course_instance_id: Option<Uuid>,
+    pub course_module_completion_id: Option<Uuid>,
+    /// Set on a mooc.fi registration only, as is `external_completion_id`.
+    pub external_credit_target_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
     /// What a `pending` row is waiting on, which the ledger does not store; `null` for every other
@@ -279,6 +284,28 @@ pub struct AdminCreditRegistrationDetails {
     /// The grade the registry already held, for a row it declined as no improvement. The row's own
     /// grade is what we sent.
     pub not_improved_attainment: Option<NotImprovedAttainment>,
+    /// The mooc.fi completion behind a mooc.fi row; `None` for a course module row.
+    pub moocfi_completion: Option<AdminMoocfiCompletion>,
+}
+
+/// A mooc.fi completion as courses last read it, and how reporting the registration back went.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminMoocfiCompletion {
+    pub moocfi_completion_id: Uuid,
+    /// mooc.fi's grade verbatim, before parsing.
+    pub raw_grade: Option<String>,
+    pub tier: Option<i32>,
+    /// The last successful read from mooc.fi.
+    pub upstream_checked_at: DateTime<Utc>,
+    /// When mooc.fi stopped returning the completion.
+    pub upstream_missing_at: Option<DateTime<Utc>>,
+    /// When another organization's registration of it was first seen on mooc.fi.
+    pub registered_upstream_at: Option<DateTime<Utc>>,
+    /// When our registration was reported back to mooc.fi, or found already there.
+    pub reported_at: Option<DateTime<Utc>>,
+    pub report_attempt_count: i32,
+    pub report_next_attempt_at: DateTime<Utc>,
+    pub report_last_error: Option<String>,
 }
 
 /// The states an admin may move a row to; everything else is the pipeline's to decide.
@@ -391,7 +418,9 @@ pub struct AdminBulkTransitionResult {
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminRequeueRetryablePayload {
+    /// A course, or a mooc.fi target.
     pub course_id: Option<Uuid>,
+    /// A course module, or a mooc.fi target.
     pub course_module_id: Option<Uuid>,
     pub reason: String,
 }
@@ -408,7 +437,9 @@ pub struct ListCreditRegistrationsQuery {
     limit: Option<u32>,
     state: Option<Vec<CreditRegistrationState>>,
     error_code: Option<Vec<CreditRegistrationErrorCode>>,
+    /// A course or a mooc.fi target.
     course_id: Option<Uuid>,
+    /// A module or a mooc.fi target.
     course_module_id: Option<Uuid>,
     user_id: Option<Uuid>,
     student_number: Option<SecretString>,
@@ -439,8 +470,8 @@ and sorted.
         ("limit" = Option<u32>, Query, description = "Rows per page"),
         ("state" = Option<Vec<CreditRegistrationState>>, Query, description = "Ledger states; repeat the parameter for several"),
         ("error_code" = Option<Vec<CreditRegistrationErrorCode>>, Query, description = "Error codes; repeat the parameter for several"),
-        ("course_id" = Option<Uuid>, Query, description = "Course filter"),
-        ("course_module_id" = Option<Uuid>, Query, description = "Course module filter"),
+        ("course_id" = Option<Uuid>, Query, description = "Course or mooc.fi target filter"),
+        ("course_module_id" = Option<Uuid>, Query, description = "Course module or mooc.fi target filter"),
         ("user_id" = Option<Uuid>, Query, description = "Student filter"),
         ("student_number" = Option<String>, Query, description = "Exact student number, frozen on the row or linked to the account"),
         ("step" = Option<Vec<TimelineStep>>, Query, description = "Timeline steps; repeat the parameter for several. A row waiting for a student number matches only if it completed since account linking began, as the overview counts it"),
@@ -507,7 +538,7 @@ pub async fn list_credit_registrations_for_admin(
         states: query.state.as_deref(),
         error_codes: query.error_code.as_deref(),
         course_id: query.course_id,
-        course_module_id: query.course_module_id,
+        credit_unit_id: query.course_module_id,
         user_id: query.user_id,
         student_number,
         steps: query.step.as_deref().unwrap_or_default(),
@@ -582,8 +613,8 @@ pub async fn get_credit_registration_for_admin(
         &mut conn,
         &AdminCreditRegistrationFilters {
             user_id: Some(registration.user_id),
-            course_id: Some(registration.course_id),
-            course_module_completion_id: Some(registration.course_module_completion_id),
+            course_id: registration.course_id,
+            subject_id: Some(registration.subject_id),
             include_superseded: true,
             ..AdminCreditRegistrationFilters::default()
         },
@@ -688,6 +719,29 @@ pub async fn get_credit_registration_for_admin(
     let not_improved_attainment =
         models::credit_registration_events::get_not_improved_attainment(&mut conn, id).await?;
 
+    let moocfi_completion = match registration.external_completion_id {
+        Some(external_completion_id) => {
+            let completion = models::external_completions::get_by_id_including_deleted(
+                &mut conn,
+                external_completion_id,
+            )
+            .await?;
+            Some(AdminMoocfiCompletion {
+                moocfi_completion_id: completion.moocfi_completion_id,
+                raw_grade: completion.raw_grade,
+                tier: completion.tier,
+                upstream_checked_at: completion.upstream_checked_at,
+                upstream_missing_at: completion.upstream_missing_at,
+                registered_upstream_at: completion.registered_upstream_at,
+                reported_at: completion.reported_at,
+                report_attempt_count: completion.report_attempt_count,
+                report_next_attempt_at: completion.report_next_attempt_at,
+                report_last_error: completion.report_last_error,
+            })
+        }
+        None => None,
+    };
+
     let journey = credit_registrations::get_registration_journey(&mut conn, newest_attempt_id)
         .await?
         .map(|journey| AdminCreditRegistrationJourney {
@@ -739,6 +793,7 @@ pub async fn get_credit_registration_for_admin(
         linking_emails,
         notification_emails,
         not_improved_attainment,
+        moocfi_completion,
     }))
 }
 
@@ -981,6 +1036,13 @@ pub async fn admin_requeue_retryable_credit_registrations(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let reason = required_reason(&payload.reason)?;
+    let target_kind = match payload.course_id {
+        Some(id) if models::external_credit_targets::exists(&mut conn, id).await? => {
+            CreditRegistrationAdminActionTarget::ExternalCreditTarget
+        }
+        Some(_) => CreditRegistrationAdminActionTarget::Course,
+        None => CreditRegistrationAdminActionTarget::CreditRegistration,
+    };
 
     let mut tx = conn.begin().await?;
     let requeued_count = credit_registrations::requeue_retryable_now(
@@ -1002,10 +1064,7 @@ pub async fn admin_requeue_retryable_credit_registrations(
             affected_row_count: Some(i32::try_from(requeued_count).unwrap_or(i32::MAX)),
             ..NewCreditRegistrationAdminAction::new(
                 CreditRegistrationAdminAction::RequeueBatch,
-                match payload.course_id {
-                    Some(_) => CreditRegistrationAdminActionTarget::Course,
-                    None => CreditRegistrationAdminActionTarget::CreditRegistration,
-                },
+                target_kind,
                 user.id,
                 GLOBAL_ADMIN_ROLE,
             )
@@ -1304,6 +1363,8 @@ fn to_admin_row(
         course_module_name: row.course_module_name,
         course_instance_id: row.course_instance_id,
         course_module_completion_id: row.course_module_completion_id,
+        external_credit_target_id: row.external_credit_target_id,
+        external_completion_id: row.external_completion_id,
         completion_date: row.completion_date,
         state: row.state,
         state_entered_at: row.state_entered_at,

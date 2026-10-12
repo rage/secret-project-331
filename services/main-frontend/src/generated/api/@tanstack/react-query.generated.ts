@@ -18,21 +18,26 @@ import {
   addRole,
   addTeacherGradingForExamSubmission,
   adminBulkTransitionCreditRegistrations,
+  adminCreateExternalCreditTarget,
+  adminDeleteExternalCreditTarget,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
   adminPauseCourseModuleCreditRegistration,
+  adminPauseExternalCreditTarget,
   adminPausePhase,
   adminRequestEnrolmentListFetch,
   adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
   adminResumeCourseModuleCreditRegistration,
+  adminResumeExternalCreditTarget,
   adminResumePhase,
   adminRunPhaseNow,
   adminTransitionCreditRegistration,
   adminUnlinkStudentNumber,
+  adminUpdateExternalCreditTarget,
   advanceCourseDesignerStage,
   approveOauthConsent,
   approveOauthDeviceVerification,
@@ -43,6 +48,7 @@ import {
   configureChatbot,
   confirmCourseSuspectedCheater,
   confirmMyEnrolment,
+  confirmMyExternalCompletionEnrolment,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -236,13 +242,17 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getMoocfiCourseLink,
   getMyCertificates,
   getMyCourses,
   getMyCreditRegistrationEnrolmentBanners,
   getMyCreditRegistrationForCourseModule,
+  getMyCreditRegistrationForExternalCompletion,
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
   getMyEnrolmentRoute,
+  getMyExternalCompletionEnrolmentRoute,
+  getMyMoocfiCreditRegistrations,
   getMyStudies,
   getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
@@ -342,6 +352,7 @@ import {
   receivePlaygroundGrading,
   recheckCreditRegistrationEnrolment,
   recordMyEnrolmentPageVisit,
+  recordMyExternalCompletionEnrolmentPageVisit,
   releaseExamGrades,
   removeCoursePlanMember,
   removeRole,
@@ -371,6 +382,7 @@ import {
   setExamCourse,
   setMyCreditJustification,
   setMyEnrolmentRoute,
+  setMyExternalCompletionEnrolmentRoute,
   softDeleteOrganization,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
@@ -406,6 +418,7 @@ import {
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
   withdrawMyEnrolmentConfirmation,
+  withdrawMyExternalCompletionEnrolmentConfirmation,
 } from "../sdk.generated"
 import type {
   AddCodeGiveawayCodesData,
@@ -417,6 +430,9 @@ import type {
   AddTeacherGradingForExamSubmissionResponse,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminCreateExternalCreditTargetData,
+  AdminCreateExternalCreditTargetResponse,
+  AdminDeleteExternalCreditTargetData,
   AdminDismissCreditRegistrationAttentionData,
   AdminDismissCreditRegistrationAttentionResponse,
   AdminDismissStudyRegistryConflictData,
@@ -425,6 +441,7 @@ import type {
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponse,
   AdminPauseCourseModuleCreditRegistrationData,
+  AdminPauseExternalCreditTargetData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
   AdminRequestEnrolmentListFetchData,
@@ -436,6 +453,7 @@ import type {
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingResponse,
   AdminResumeCourseModuleCreditRegistrationData,
+  AdminResumeExternalCreditTargetData,
   AdminResumePhaseData,
   AdminResumePhaseResponse,
   AdminRunPhaseNowData,
@@ -444,6 +462,7 @@ import type {
   AdminTransitionCreditRegistrationResponse,
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberResponse,
+  AdminUpdateExternalCreditTargetData,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponse,
   ApproveOauthConsentData,
@@ -461,6 +480,8 @@ import type {
   ConfirmCourseSuspectedCheaterData,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponse,
+  ConfirmMyExternalCompletionEnrolmentData,
+  ConfirmMyExternalCompletionEnrolmentResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -820,6 +841,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetMoocfiCourseLinkData,
+  GetMoocfiCourseLinkResponse,
   GetMyCertificatesData,
   GetMyCertificatesResponse,
   GetMyCoursesData,
@@ -828,12 +851,18 @@ import type {
   GetMyCreditRegistrationEnrolmentBannersResponse,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponse,
+  GetMyCreditRegistrationForExternalCompletionData,
+  GetMyCreditRegistrationForExternalCompletionResponse,
   GetMyCreditRegistrationsData,
   GetMyCreditRegistrationsResponse,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponse,
   GetMyEnrolmentRouteData,
   GetMyEnrolmentRouteResponse,
+  GetMyExternalCompletionEnrolmentRouteData,
+  GetMyExternalCompletionEnrolmentRouteResponse,
+  GetMyMoocfiCreditRegistrationsData,
+  GetMyMoocfiCreditRegistrationsResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
   GetMyVerifiedStudentNumberData,
@@ -1019,6 +1048,7 @@ import type {
   RecheckCreditRegistrationEnrolmentData,
   RecheckCreditRegistrationEnrolmentResponse,
   RecordMyEnrolmentPageVisitData,
+  RecordMyExternalCompletionEnrolmentPageVisitData,
   ReleaseExamGradesData,
   RemoveCoursePlanMemberData,
   RemoveCoursePlanMemberResponse,
@@ -1072,6 +1102,8 @@ import type {
   SetMyCreditJustificationResponse,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponse,
+  SetMyExternalCompletionEnrolmentRouteData,
+  SetMyExternalCompletionEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
@@ -1131,6 +1163,8 @@ import type {
   VerifyEmailOwnershipResponse,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponse,
+  WithdrawMyExternalCompletionEnrolmentConfirmationData,
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponse,
 } from "../types.generated"
 
 /**
@@ -6515,6 +6549,125 @@ export const getCreditRegistrationStatsByCourseOptions = (
 
 /**
  *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets` - Adds a mooc.fi
+ * course whose credits courses registers.
+ */
+export const adminCreateExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminCreateExternalCreditTargetData>>,
+): UseMutationOptions<
+  AdminCreateExternalCreditTargetResponse,
+  DefaultError,
+  Options<AdminCreateExternalCreditTargetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminCreateExternalCreditTargetResponse,
+    DefaultError,
+    Options<AdminCreateExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminCreateExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}`
+ * - Replaces a mooc.fi target's configuration.
+ */
+export const adminUpdateExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminUpdateExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminUpdateExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminUpdateExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminUpdateExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete`
+ * - Soft-deletes a mooc.fi target, which withdraws its completions not yet submitted.
+ */
+export const adminDeleteExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminDeleteExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminDeleteExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminDeleteExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDeleteExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause`
+ * - Stops every phase from claiming this mooc.fi target's rows, freezing them where they stand.
+ */
+export const adminPauseExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminPauseExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminPauseExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminPauseExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminPauseExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume`
+ * - Lets the phases claim this mooc.fi target's rows again.
+ */
+export const adminResumeExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminResumeExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminResumeExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminResumeExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResumeExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
  * phase from claiming this module's rows.
  *
@@ -7596,6 +7749,171 @@ export const confirmMyEnrolmentMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await confirmMyEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyCreditRegistrationForExternalCompletionQueryKey = (
+  options: Options<GetMyCreditRegistrationForExternalCompletionData>,
+) => createQueryKey("getMyCreditRegistrationForExternalCompletion", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -
+ * The signed-in account's registration for one mooc.fi completion, or null when the pipeline has not
+ * created one yet.
+ */
+export const getMyCreditRegistrationForExternalCompletionOptions = (
+  options: Options<GetMyCreditRegistrationForExternalCompletionData>,
+) =>
+  queryOptions<
+    GetMyCreditRegistrationForExternalCompletionResponse,
+    DefaultError,
+    GetMyCreditRegistrationForExternalCompletionResponse,
+    ReturnType<typeof getMyCreditRegistrationForExternalCompletionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrationForExternalCompletion({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationForExternalCompletionQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
+ * - [`record_my_enrolment_page_visit`] for a mooc.fi completion.
+ */
+export const recordMyExternalCompletionEnrolmentPageVisitMutation = (
+  options?: Partial<Options<RecordMyExternalCompletionEnrolmentPageVisitData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<RecordMyExternalCompletionEnrolmentPageVisitData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<RecordMyExternalCompletionEnrolmentPageVisitData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await recordMyExternalCompletionEnrolmentPageVisit({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyExternalCompletionEnrolmentRouteQueryKey = (
+  options: Options<GetMyExternalCompletionEnrolmentRouteData>,
+) => createQueryKey("getMyExternalCompletionEnrolmentRoute", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - What the caller said about where they enrol for this mooc.fi completion.
+ */
+export const getMyExternalCompletionEnrolmentRouteOptions = (
+  options: Options<GetMyExternalCompletionEnrolmentRouteData>,
+) =>
+  queryOptions<
+    GetMyExternalCompletionEnrolmentRouteResponse,
+    DefaultError,
+    GetMyExternalCompletionEnrolmentRouteResponse,
+    ReturnType<typeof getMyExternalCompletionEnrolmentRouteQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyExternalCompletionEnrolmentRoute({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyExternalCompletionEnrolmentRouteQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - [`set_my_enrolment_route`] for a mooc.fi completion.
+ */
+export const setMyExternalCompletionEnrolmentRouteMutation = (
+  options?: Partial<Options<SetMyExternalCompletionEnrolmentRouteData>>,
+): UseMutationOptions<
+  SetMyExternalCompletionEnrolmentRouteResponse,
+  DefaultError,
+  Options<SetMyExternalCompletionEnrolmentRouteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyExternalCompletionEnrolmentRouteResponse,
+    DefaultError,
+    Options<SetMyExternalCompletionEnrolmentRouteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyExternalCompletionEnrolmentRoute({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionEnrolmentConfirmationMutation = (
+  options?: Partial<Options<WithdrawMyExternalCompletionEnrolmentConfirmationData>>,
+): UseMutationOptions<
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponse,
+  DefaultError,
+  Options<WithdrawMyExternalCompletionEnrolmentConfirmationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyExternalCompletionEnrolmentConfirmationResponse,
+    DefaultError,
+    Options<WithdrawMyExternalCompletionEnrolmentConfirmationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyExternalCompletionEnrolmentConfirmation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`confirm_my_enrolment`] for a mooc.fi completion.
+ */
+export const confirmMyExternalCompletionEnrolmentMutation = (
+  options?: Partial<Options<ConfirmMyExternalCompletionEnrolmentData>>,
+): UseMutationOptions<
+  ConfirmMyExternalCompletionEnrolmentResponse,
+  DefaultError,
+  Options<ConfirmMyExternalCompletionEnrolmentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ConfirmMyExternalCompletionEnrolmentResponse,
+    DefaultError,
+    Options<ConfirmMyExternalCompletionEnrolmentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await confirmMyExternalCompletionEnrolment({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -9359,6 +9677,64 @@ export const updateGlossaryTermMutation = (
   }
   return mutationOptions
 }
+
+export const getMyMoocfiCreditRegistrationsQueryKey = (
+  options: Options<GetMyMoocfiCreditRegistrationsData>,
+) => createQueryKey("getMyMoocfiCreditRegistrations", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}` - Syncs the caller's
+ * completions of a mooc.fi course from mooc.fi and returns them with their registration status.
+ *
+ * When mooc.fi cannot be reached the answer is still 200, from the rows stored earlier, with
+ * `is_up_to_date` false.
+ */
+export const getMyMoocfiCreditRegistrationsOptions = (
+  options: Options<GetMyMoocfiCreditRegistrationsData>,
+) =>
+  queryOptions<
+    GetMyMoocfiCreditRegistrationsResponse,
+    DefaultError,
+    GetMyMoocfiCreditRegistrationsResponse,
+    ReturnType<typeof getMyMoocfiCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyMoocfiCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyMoocfiCreditRegistrationsQueryKey(options),
+  })
+
+export const getMoocfiCourseLinkQueryKey = (options: Options<GetMoocfiCourseLinkData>) =>
+  createQueryKey("getMoocfiCourseLink", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link` - The mooc.fi
+ * course's name and registration page, without reading mooc.fi.
+ *
+ * Needs no sign-in: the handoff error page uses it while the wrong account, or none, is signed in.
+ */
+export const getMoocfiCourseLinkOptions = (options: Options<GetMoocfiCourseLinkData>) =>
+  queryOptions<
+    GetMoocfiCourseLinkResponse,
+    DefaultError,
+    GetMoocfiCourseLinkResponse,
+    ReturnType<typeof getMoocfiCourseLinkQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMoocfiCourseLink({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMoocfiCourseLinkQueryKey(options),
+  })
 
 export const getOauthOpenidConfigurationQueryKey = (
   options?: Options<GetOauthOpenidConfigurationData>,

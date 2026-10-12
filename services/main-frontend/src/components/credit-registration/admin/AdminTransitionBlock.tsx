@@ -23,7 +23,6 @@ import type {
 import { formatUserName } from "@/hooks/useUserDetails"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
@@ -42,6 +41,7 @@ import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { AdminActionDialog } from "./AdminActionDialog"
 import type { DialogOpenState } from "./AdminActionDialog"
+import { unitConfigurationHref } from "./adminLinks"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
 import type { HandActionOffer } from "./handActionOffers"
@@ -378,7 +378,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             key={offer}
             control={
               <Link
-                href={manageCourseModulesRoute(registration.course_id)}
+                href={unitConfigurationHref(registration.course_id)}
                 styledAsButton
                 variant={variantFor(offer)}
                 size="medium"
@@ -436,7 +436,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             control={
               <AdminResendLinkingEmailButton
                 studentNumber={studentNumber}
-                courseId={registration.course_id}
+                source={registration}
                 courseName={registration.course_name}
                 variant={variantFor(offer)}
               />

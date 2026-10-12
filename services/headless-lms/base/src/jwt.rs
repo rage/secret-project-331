@@ -1,13 +1,17 @@
-//! The HS256 signing key and the claims that are minted below the server crate.
+//! The HS256 signing key and the claims that live outside the server crate.
 //!
-//! Lives here rather than beside the rest of the claim machinery in
+//! Download claims live here rather than beside the rest of the claim machinery in
 //! `headless_lms_server::domain::models_requests` because the answer readers that mint download
 //! URLs sit in `headless-lms-models`, under the server crate.
 
+use std::net::IpAddr;
+
 use chrono::{Duration, Utc};
+use hmac::{Hmac, KeyInit, Mac};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Serialize, de::DeserializeOwned};
+use sha2::Sha256;
 use uuid::Uuid;
 
 /// Query parameter carrying a [`DownloadClaim`]; the claimed-file route repeats it in a rename.
@@ -59,6 +63,94 @@ pub fn validate_hs256_claim<T: DeserializeOwned>(
     let validation = Validation::new(Algorithm::HS256);
     decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
         .map(|token_data| token_data.claims)
+}
+
+/// [`validate_hs256_claim`] with no clock leeway, for claims living shorter than the default 60 s
+/// leeway, which would otherwise outlive them several times over.
+pub fn validate_hs256_claim_without_leeway<T: DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+) -> Result<T, jsonwebtoken::errors::Error> {
+    let mut validation = Validation::new(Algorithm::HS256);
+    validation.leeway = 0;
+    decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
+        .map(|token_data| token_data.claims)
+}
+
+/// Signs a student in on courses when mooc.fi's credit registration page sends them over.
+///
+/// Not single use: a leaked one is harmless because it lives 10 s and works only from the IP it was
+/// minted for.
+#[derive(Debug, Serialize, serde::Deserialize)]
+pub struct MoocfiHandoffClaim {
+    pub user_id: Uuid,
+    pub moocfi_course_id: Uuid,
+    /// The token is signed, not encrypted, so it carries a keyed hash and never the IP itself. A
+    /// plain hash of an IPv4 address is reversed by trying all 2^32 of them.
+    client_ip_hash: String,
+    iat: i64,
+    exp: i64,
+}
+
+impl MoocfiHandoffClaim {
+    const LIFETIME: Duration = Duration::seconds(10);
+
+    /// A claim for the student at `client_ip` as mooc.fi saw them, expiring in 10 s.
+    pub fn new(user_id: Uuid, moocfi_course_id: Uuid, client_ip: IpAddr, key: &JwtKey) -> Self {
+        let iat = Utc::now().timestamp();
+        Self {
+            user_id,
+            moocfi_course_id,
+            client_ip_hash: client_ip_hash(client_ip, key),
+            iat,
+            exp: iat + Self::LIFETIME.num_seconds(),
+        }
+    }
+
+    /// Whether the claim was minted for a request from `client_ip`.
+    pub fn is_bound_to(&self, client_ip: IpAddr, key: &JwtKey) -> bool {
+        self.client_ip_hash == client_ip_hash(client_ip, key)
+    }
+
+    /// The token the redeem URL carries.
+    pub fn sign(&self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(self, key)
+    }
+
+    /// Checks the signature and the expiry, with no leeway.
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, jsonwebtoken::errors::Error> {
+        validate_hs256_claim_without_leeway(token, key)
+    }
+
+    /// Checks only the signature, so an expired claim still names its course. Never sign anyone in
+    /// on what this returns.
+    pub fn read_ignoring_expiry(
+        token: &str,
+        key: &JwtKey,
+    ) -> Result<Self, jsonwebtoken::errors::Error> {
+        let mut validation = Validation::new(Algorithm::HS256);
+        validation.validate_exp = false;
+        decode::<Self>(token, &DecodingKey::from_secret(&key.0), &validation)
+            .map(|token_data| token_data.claims)
+    }
+}
+
+/// Hex HMAC-SHA256 of the IP as printed after normalising, so textual variants of one IPv6 address
+/// and the IPv4-mapped form of an IPv4 address hash the same. Keyed with a key derived from `key`
+/// rather than `key` itself, so the MAC can never double as an HS256 signature.
+fn client_ip_hash(client_ip: IpAddr, key: &JwtKey) -> String {
+    let normalised = match client_ip {
+        IpAddr::V6(v6) => v6.to_ipv4_mapped().map_or(IpAddr::V6(v6), IpAddr::V4),
+        v4 => v4,
+    };
+    let derived_key = hmac_sha256(&key.0, b"moocfi-handoff-client-ip");
+    hex::encode(hmac_sha256(&derived_key, normalised.to_string().as_bytes()))
+}
+
+fn hmac_sha256(key: &[u8], message: &[u8]) -> Vec<u8> {
+    let mut mac = Hmac::<Sha256>::new_from_slice(key).expect("HMAC takes a key of any size");
+    mac.update(message);
+    mac.finalize().into_bytes().to_vec()
 }
 
 /// Authorizes the bearer to read one specific host-stored file for a while.
@@ -201,6 +293,38 @@ mod tests {
             .expect("signing should succeed");
         DownloadClaim::validate(&token, &JwtKey::test_key())
             .expect_err("a claim signed with another key must be rejected");
+    }
+
+    #[test]
+    fn moocfi_handoff_claim_expires_without_leeway() {
+        let key = JwtKey::test_key();
+        let token = sign_hs256_claim(
+            &serde_json::json!({
+                "user_id": Uuid::new_v4(),
+                "moocfi_course_id": Uuid::new_v4(),
+                "client_ip_hash": "",
+                "iat": past_timestamp(12),
+                "exp": past_timestamp(2),
+            }),
+            &key,
+        )
+        .expect("signing should succeed");
+        validate_hs256_claim::<MoocfiHandoffClaim>(&token, &key)
+            .expect("the default leeway would still accept it");
+        MoocfiHandoffClaim::validate(&token, &key)
+            .expect_err("an expired handoff must be rejected");
+        MoocfiHandoffClaim::read_ignoring_expiry(&token, &key)
+            .expect("an expired handoff still names its course");
+    }
+
+    #[test]
+    fn the_client_ip_hash_needs_the_key() {
+        let ip: IpAddr = "192.0.2.1".parse().expect("an IP");
+        let mapped: IpAddr = "::ffff:192.0.2.1".parse().expect("an IP");
+        let claim =
+            MoocfiHandoffClaim::new(Uuid::new_v4(), Uuid::new_v4(), ip, &JwtKey::test_key());
+        assert!(claim.is_bound_to(mapped, &JwtKey::test_key()));
+        assert!(!claim.is_bound_to(ip, &other_key()));
     }
 
     #[test]

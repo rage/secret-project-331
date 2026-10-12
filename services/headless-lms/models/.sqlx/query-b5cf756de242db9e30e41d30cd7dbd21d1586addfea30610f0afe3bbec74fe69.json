@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH registrable_completion AS (\n  (\n    SELECT uuid_generate_v4() AS id,\n      c.course_module_completion_id,\n      c.user_id,\n      c.course_id,\n      c.course_module_id,\n      enrolment.course_instance_id,\n      NULL::uuid AS external_completion_id,\n      NULL::uuid AS external_credit_target_id,\n      c.created_at\n    FROM credit_registration_registrable_completions c\n      -- The completion does not name an instance, and the ledger row must. An inner join, so a\n      -- completion whose enrolment was removed is skipped rather than guessed at.\n      JOIN LATERAL (\n        SELECT cie.course_instance_id\n        FROM course_instance_enrollments cie\n        WHERE cie.user_id = c.user_id\n          AND cie.course_id = c.course_id\n          AND cie.deleted_at IS NULL\n        ORDER BY cie.created_at DESC\n        LIMIT 1\n      ) enrolment ON TRUE\n    WHERE c.kind = 'course_module'\n      AND ($2::uuid IS NULL OR c.course_id = $2)\n      AND ($4::uuid IS NULL OR c.external_credit_target_id = $4)\n      AND ($3::uuid IS NULL OR c.user_id = $3)\n  )\n  UNION ALL\n  (\n    SELECT uuid_generate_v4() AS id,\n      NULL::uuid,\n      c.user_id,\n      NULL::uuid,\n      NULL::uuid,\n      NULL::uuid,\n      c.external_completion_id,\n      c.external_credit_target_id,\n      c.created_at\n    FROM credit_registration_registrable_completions c\n      JOIN external_credit_targets t ON t.id = c.external_credit_target_id\n      AND t.enabled_at IS NOT NULL\n    WHERE c.kind = 'mooc_fi'\n      AND ($2::uuid IS NULL OR c.course_id = $2)\n      AND ($4::uuid IS NULL OR c.external_credit_target_id = $4)\n      AND ($3::uuid IS NULL OR c.user_id = $3)\n  )\n  ORDER BY created_at\n  LIMIT $1\n),\ninserted AS (\n  INSERT INTO credit_registrations (\n      id,\n      course_module_completion_id,\n      user_id,\n      course_id,\n      course_module_id,\n      course_instance_id,\n      external_completion_id,\n      external_credit_target_id\n    )\n  SELECT id,\n    course_module_completion_id,\n    user_id,\n    course_id,\n    course_module_id,\n    course_instance_id,\n    external_completion_id,\n    external_credit_target_id\n  FROM registrable_completion ON CONFLICT DO NOTHING\n  RETURNING id\n),\nevents AS (\n  INSERT INTO credit_registration_events (credit_registration_id, kind, to_state, message)\n  SELECT id,\n    'created',\n    'pending',\n    'Created for an eligible completion.'\n  FROM inserted\n  RETURNING credit_registration_id\n)\nSELECT COUNT(*) AS \"created!\"\nFROM events\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "b5cf756de242db9e30e41d30cd7dbd21d1586addfea30610f0afe3bbec74fe69"
+}

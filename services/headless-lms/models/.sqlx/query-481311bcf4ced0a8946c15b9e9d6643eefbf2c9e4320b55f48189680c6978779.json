@@ -1,0 +1,390 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  moocfi_course_id,\n  moocfi_course_slug,\n  name,\n  language_code,\n  tiers IS NOT NULL AS \"is_tiered!\",\n  LOWER(tiers) AS lowest_tier,\n  UPPER(tiers) - 1 AS highest_tier,\n  uh_course_code,\n  ects_credits,\n  grading AS \"grading: ExternalGrading\",\n  enrolment_link,\n  delegated_at,\n  enabled_at,\n  paused_at,\n  paused_by_user_id,\n  pause_reason,\n  config_checked_at,\n  checked_course_code,\n  course_code_allowed,\n  course_code_rejection,\n  config_check_message,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error: CreditRegistrationErrorCode\",\n  consecutive_listing_failures\nFROM external_credit_targets\nWHERE moocfi_course_id = $1\n  AND deleted_at IS NULL\nORDER BY LOWER(tiers) NULLS FIRST\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "moocfi_course_slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_slug"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "language_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "language_code"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "is_tiered!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "lowest_tier",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "highest_tier",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "uh_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "ects_credits",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "ects_credits"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "grading: ExternalGrading",
+        "type_info": {
+          "Custom": {
+            "name": "external_grading",
+            "kind": {
+              "Enum": [
+                "pass_fail",
+                "numeric"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "grading"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "enrolment_link",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "enrolment_link"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "delegated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "delegated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "enabled_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "enabled_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "paused_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "paused_at"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "paused_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "paused_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "pause_reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "pause_reason"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "config_checked_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "config_checked_at"
+          }
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "checked_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "checked_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "course_code_allowed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "course_code_allowed"
+          }
+        }
+      },
+      {
+        "ordinal": 23,
+        "name": "course_code_rejection",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "course_code_rejection"
+          }
+        }
+      },
+      {
+        "ordinal": 24,
+        "name": "config_check_message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "config_check_message"
+          }
+        }
+      },
+      {
+        "ordinal": 25,
+        "name": "last_listing_attempted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "last_listing_attempted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 26,
+        "name": "last_listed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "last_listed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 27,
+        "name": "last_listing_error: CreditRegistrationErrorCode",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "service_temporarily_unavailable",
+                "misregistered",
+                "not_registered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "last_listing_error"
+          }
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "consecutive_listing_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "consecutive_listing_failures"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "481311bcf4ced0a8946c15b9e9d6643eefbf2c9e4320b55f48189680c6978779"
+}

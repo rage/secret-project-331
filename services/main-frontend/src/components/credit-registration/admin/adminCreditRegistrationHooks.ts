@@ -196,7 +196,7 @@ const useOverviewCount = (select: (overview: CreditRegistrationOverview) => numb
 export const useCreditRegistrationAttentionCount = () => useOverviewCount(selectNeedsAttention)
 
 /**
- * Course modules whose current facts fail the configuration check.
+ * Course modules and mooc.fi courses whose current facts fail the configuration check.
  *
  * The same field the Courses page leads with, not the alert rule's count: a badge that disagrees
  * with the page it opens costs the reader more than it tells them.

@@ -11,7 +11,7 @@ use chrono::TimeDelta;
 use secrecy::ExposeSecret;
 
 use crate::credit_registration_account_linking_emails::{
-    self, ExistingLinkingMailFact, NewAccountLinkingEmail, claim_send_slots,
+    self, ExistingLinkingMailFact, LinkingMailSource, NewAccountLinkingEmail, claim_send_slots,
     get_existing_facts_for_persons, replace_lapsed_slots,
 };
 use crate::credit_registration_admin_actions::{
@@ -40,11 +40,12 @@ pub fn link_student_number_url(base_url: &str, token: &str) -> String {
 /// How long after a linking mail the person is left alone, across every course and address.
 pub const LINKING_MAIL_QUIET_PERIOD: TimeDelta = TimeDelta::days(1);
 
-/// How long after a linking mail for a course the same person may get another for it.
+/// How long after a linking mail for a course or mooc.fi target the same person may get another for
+/// it.
 pub const LINKING_MAIL_RESEND_INTERVAL: TimeDelta = TimeDelta::days(7);
 
-/// How many linking mails one person may ever get for one course, tokens that expired unused
-/// included.
+/// How many linking mails one person may ever get for one course or mooc.fi target, tokens that
+/// expired unused included.
 pub const MAX_LINKING_MAILS_PER_PERSON_AND_COURSE: i64 = 3;
 
 /// One person Sisu's `list-by-course` returned, and the address we mail them at.
@@ -54,22 +55,22 @@ pub struct DiscoveredPerson {
     pub student_number: DbSecret,
     pub first_names: Option<DbSecret>,
     pub last_name: Option<DbSecret>,
-    pub course_id: Uuid,
+    pub source: LinkingMailSource,
     /// Their primary address in Sisu, trimmed: the one students are told to check, and each address
     /// mailed would spend one of the person's mails for the course. See [`mail_address`].
     pub address: Option<DbSecret>,
 }
 
 impl DiscoveredPerson {
-    /// `person` as listed on a roster of `course_id`'s; the caller decides what a missing address
+    /// `person` as listed on a roster of `source`'s; the caller decides what a missing address
     /// means.
-    pub fn listed(person: &RosterPerson, course_id: Uuid) -> Self {
+    pub fn listed(person: &RosterPerson, source: LinkingMailSource) -> Self {
         Self {
             sisu_person_id: person.person_id.clone().into(),
             student_number: person.student_number.clone().into(),
             first_names: person.first_names.clone().map(Into::into),
             last_name: person.last_name.clone().map(Into::into),
-            course_id,
+            source,
             address: mail_address(person),
         }
     }
@@ -150,7 +151,7 @@ pub async fn claim_linking_mails_batch(
             .get(person.sisu_person_id.expose_secret())
             .map(Vec::as_slice)
             .unwrap_or(&[]);
-        if holds_address(person_facts, person.course_id, address.expose_secret()) {
+        if holds_address(person_facts, person.source, address.expose_secret()) {
             claims[i] = LinkingMailClaim::SuppressedByDedup;
             continue;
         }
@@ -165,14 +166,14 @@ pub async fn claim_linking_mails_batch(
             first_names: person.first_names.clone(),
             last_name: person.last_name.clone(),
             emailed_to: address.clone(),
-            course_id: Some(person.course_id),
+            course_id: person.source.course_id(),
         });
         token_owner.insert(token_id, i);
         token_ids.push(token_id);
         new_slots.push(NewAccountLinkingEmail {
             student_number: person.student_number.clone(),
             sisu_person_id: person.sisu_person_id.clone(),
-            course_id: person.course_id,
+            source: person.source,
             emailed_to: address.clone(),
             student_number_verification_token_id: Some(token_id),
             email_delivery_id: None,
@@ -210,11 +211,11 @@ pub async fn retire_capped_mails(
     conn: &mut PgConnection,
     actor_user_id: Uuid,
     actor_role: &str,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &str,
     reason: &str,
 ) -> ModelResult<i64> {
-    let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
+    let Some(person_id) = person_id_of_mails(conn, source, student_number).await? else {
         return Ok(0);
     };
     let quiet_since = Utc::now() - LINKING_MAIL_QUIET_PERIOD;
@@ -223,11 +224,14 @@ pub async fn retire_capped_mails(
         person_id.expose_secret(),
     )
     .await?;
-    // This course's rows carry the dedup guard and the lifetime cap; a recent row on any course
+    // This source's rows carry the dedup guard and the lifetime cap; a recent row on any source
     // carries the quiet period, which is about the person's inbox rather than one course.
     let retired: Vec<Uuid> = mails
         .iter()
-        .filter(|mail| mail.course_id == course_id || mail.sent_at >= quiet_since)
+        .filter(|mail| {
+            mail.course_id.or(mail.external_credit_target_id) == Some(source.id())
+                || mail.sent_at >= quiet_since
+        })
         .map(|mail| mail.id)
         .collect();
     if retired.is_empty() {
@@ -239,7 +243,7 @@ pub async fn retire_capped_mails(
     crate::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {
-            target_id: Some(course_id),
+            target_id: Some(source.id()),
             reason: Some(reason.to_string()),
             details: Some(serde_json::json!({
                 "student_number": student_number,
@@ -248,7 +252,12 @@ pub async fn retire_capped_mails(
             affected_row_count: Some(i32::try_from(retired.len()).unwrap_or(i32::MAX)),
             ..NewCreditRegistrationAdminAction::new(
                 CreditRegistrationAdminAction::OverrideRateCap,
-                CreditRegistrationAdminActionTarget::Course,
+                match source {
+                    LinkingMailSource::Course(_) => CreditRegistrationAdminActionTarget::Course,
+                    LinkingMailSource::ExternalCreditTarget(_) => {
+                        CreditRegistrationAdminActionTarget::ExternalCreditTarget
+                    }
+                },
                 actor_user_id,
                 actor_role,
             )
@@ -261,19 +270,19 @@ pub async fn retire_capped_mails(
 
 async fn person_id_of_mails(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &str,
 ) -> ModelResult<Option<DbSecret>> {
-    let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
+    let mails = credit_registration_account_linking_emails::get_by_source_and_student_number(
         conn,
-        course_id,
+        source,
         student_number,
     )
     .await?;
     Ok(mails.into_iter().next().map(|mail| mail.sisu_person_id))
 }
 
-/// Whether the caps still allow this person another mail for this course.
+/// Whether the caps still allow this person another mail for this course or target.
 fn is_within_caps(
     person: &DiscoveredPerson,
     facts: &[&ExistingLinkingMailFact],
@@ -288,7 +297,7 @@ fn is_within_caps(
     }
     let course_facts: Vec<_> = facts
         .iter()
-        .filter(|fact| fact.course_id == person.course_id)
+        .filter(|fact| fact.source_id == person.source.id())
         .collect();
     !course_facts
         .iter()
@@ -296,12 +305,16 @@ fn is_within_caps(
         && (course_facts.len() as i64) < MAX_LINKING_MAILS_PER_PERSON_AND_COURSE
 }
 
-/// Whether a mail to this (person, course, address) still holds the address. The unique index
-/// behind [`claim_send_slots`] is what actually prevents a second one.
-fn holds_address(facts: &[&ExistingLinkingMailFact], course_id: Uuid, address: &str) -> bool {
+/// Whether a mail to this (person, course or target, address) still holds the address. The unique
+/// index behind [`claim_send_slots`] is what actually prevents a second one.
+fn holds_address(
+    facts: &[&ExistingLinkingMailFact],
+    source: LinkingMailSource,
+    address: &str,
+) -> bool {
     facts.iter().any(|fact| {
         fact.holds_address
-            && fact.course_id == course_id
+            && fact.source_id == source.id()
             && fact
                 .emailed_to
                 .expose_secret()
@@ -344,7 +357,7 @@ mod tests {
             student_number: "012345678".to_string().into(),
             first_names: Some("Aada Maria".to_string().into()),
             last_name: Some("Virtanen".to_string().into()),
-            course_id,
+            source: LinkingMailSource::Course(course_id),
             address: Some(DbSecret::new(address)),
         }
     }
@@ -426,7 +439,7 @@ mod tests {
             tx.as_mut(),
             user,
             GLOBAL_ADMIN_ROLE,
-            course,
+            LinkingMailSource::Course(course),
             "012345678",
             "The recipient's mail host rejects everything we send.",
         )
@@ -465,7 +478,7 @@ mod tests {
             tx.as_mut(),
             user,
             GLOBAL_ADMIN_ROLE,
-            course,
+            LinkingMailSource::Course(course),
             "012345678",
             "No mails yet.",
         )

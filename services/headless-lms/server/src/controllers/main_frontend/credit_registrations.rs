@@ -12,7 +12,7 @@ use headless_lms_models::{
     completion_registration_credit_justifications,
     course_module_completions::CourseModuleCompletion,
     credit_registration_account_linking_emails::{
-        self, CreditRegistrationAccountLinkingEmail, LinkingMailLinkState,
+        self, CreditRegistrationAccountLinkingEmail, LinkingMailLinkState, LinkingMailSource,
     },
     credit_registration_enrolment_routes::{
         self, CreditRegistrationEnrolmentRoute, EnrolmentRouteAnswer,
@@ -20,7 +20,7 @@ use headless_lms_models::{
     credit_registration_events::CreditRegistrationEventKind,
     credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState, StudentCreditRegistration,
-        StudentRegistrationFilter,
+        StudentRegistrationFilter, SubjectId,
     },
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
@@ -54,6 +54,7 @@ use headless_lms_base::config::ApplicationConfiguration;
 #[openapi(paths(
     get_my_credit_registrations,
     get_my_credit_registration_for_course_module,
+    get_my_credit_registration_for_external_completion,
     get_my_credit_registration_enrolment_banners,
     request_credit_registration_enrolment_recheck,
     dismiss_credit_registration_enrolment_banner,
@@ -64,6 +65,11 @@ use headless_lms_base::config::ApplicationConfiguration;
     confirm_my_enrolment,
     withdraw_my_enrolment_confirmation,
     record_my_enrolment_page_visit,
+    get_my_external_completion_enrolment_route,
+    set_my_external_completion_enrolment_route,
+    confirm_my_external_completion_enrolment,
+    withdraw_my_external_completion_enrolment_confirmation,
+    record_my_external_completion_enrolment_page_visit,
     set_my_credit_justification,
     unlink_my_student_number,
     preview_student_number_verification_token,
@@ -95,11 +101,17 @@ pub enum LinkingEmailLinkState {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyCreditRegistration {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi registration, as are the slug and the module.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the mooc.fi course's.
     pub course_name: String,
-    pub course_slug: String,
-    pub course_module_id: Uuid,
+    pub course_slug: Option<String>,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
+    /// Set on a mooc.fi registration only, as is `moocfi_course_id`.
+    pub external_completion_id: Option<Uuid>,
+    /// The mooc.fi course whose registration page shows this registration.
+    pub moocfi_course_id: Option<Uuid>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub completion_date: DateTime<Utc>,
@@ -146,11 +158,12 @@ pub struct MyCreditRegistration {
     pub notification_email: Option<NotificationEmailStatus>,
 }
 
-/// The live registration for one course module, with the attempts a newer one replaced.
+/// The live registration for one course module or mooc.fi completion, with the attempts a newer one
+/// replaced.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct MyCreditRegistrationForCourseModule {
+pub struct MyCreditRegistrationForSubject {
     pub registration: MyCreditRegistration,
-    /// The module's other rows, newest completion first. Shown because the study registry may hold an
+    /// The other rows, newest completion first. Shown because the study registry may hold an
     /// earlier attempt's attainment as well as the current one's.
     pub earlier_attempts: Vec<MyCreditRegistration>,
 }
@@ -262,36 +275,76 @@ yet.
     tag = "credit-registrations",
     params(("course_module_id" = Uuid, Path, description = "Course module id")),
     responses(
-        (status = 200, description = "The caller's registration for the module", body = Option<MyCreditRegistrationForCourseModule>)
+        (status = 200, description = "The caller's registration for the module", body = Option<MyCreditRegistrationForSubject>)
     )
 )]
 pub async fn get_my_credit_registration_for_course_module(
     user: AuthUser,
     pool: web::Data<PgPool>,
     course_module_id: web::Path<Uuid>,
-) -> ControllerResult<web::Json<Option<MyCreditRegistrationForCourseModule>>> {
+) -> ControllerResult<web::Json<Option<MyCreditRegistrationForSubject>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let mut all = build_my_credit_registrations(
+    let res = build_my_credit_registration_for_subject(
         &mut conn,
         user.id,
-        StudentRegistrationFilter {
-            course_module_id: Some(*course_module_id),
-            ..StudentRegistrationFilter::default()
-        },
+        SubjectRef::CourseModule(*course_module_id),
     )
     .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -
+The signed-in account's registration for one mooc.fi completion, or null when the pipeline has not
+created one yet.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my/by-external-completion/{external_completion_id}",
+    operation_id = "getMyCreditRegistrationForExternalCompletion",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    responses(
+        (status = 200, description = "The caller's registration for the mooc.fi completion", body = Option<MyCreditRegistrationForSubject>)
+    )
+)]
+pub async fn get_my_credit_registration_for_external_completion(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Option<MyCreditRegistrationForSubject>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = build_my_credit_registration_for_subject(
+        &mut conn,
+        user.id,
+        SubjectRef::ExternalCompletion(*external_completion_id),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+async fn build_my_credit_registration_for_subject(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    subject: SubjectRef,
+) -> Result<Option<MyCreditRegistrationForSubject>, ControllerError> {
+    let mut all =
+        build_my_credit_registrations(conn, user_id, subject.registration_filter()).await?;
     let live_position = all.iter().position(|row| !row.superseded);
-    let res = live_position.map(|position| {
+    Ok(live_position.map(|position| {
         let registration = all.remove(position);
-        MyCreditRegistrationForCourseModule {
+        MyCreditRegistrationForSubject {
             registration,
             earlier_attempts: all,
         }
-    });
-
-    token.authorized_ok(web::Json(res))
+    }))
 }
 
 /**
@@ -421,7 +474,7 @@ pub async fn request_credit_registration_enrolment_recheck(
         user.id,
         RecheckTarget {
             registration_id: registration.id,
-            course_module_completion_id: registration.course_module_completion_id,
+            subject: SubjectId::of(&registration),
         },
         registration.created_at,
         "The student asked us to check for an enrolment again.",
@@ -643,6 +696,7 @@ pub async fn claim_student_number_verification_token(
     }
 
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
+    let linking_mail_source = linking_mail_source_of_token(&mut conn, &verification_token).await?;
     let current_link = verified_student_numbers::get_by_user_id(&mut conn, user.id).await?;
     let already_ours = current_link.as_ref().is_some_and(|link| {
         link.student_number.expose_secret() == verification_token.student_number.expose_secret()
@@ -692,11 +746,9 @@ pub async fn claim_student_number_verification_token(
         )
         .await?;
     // The mail went out because the course roster lists them, which proves an enrolment.
-    if let Some(course_id) = verification_token.course_id {
-        credit_registration_enrolment_check_signals::record_account_link_for_course(
-            &mut tx, user.id, course_id,
-        )
-        .await?;
+    if let Some(source) = linking_mail_source {
+        credit_registration_enrolment_check_signals::record_account_link(&mut tx, user.id, source)
+            .await?;
     }
     tx.commit().await?;
 
@@ -778,6 +830,8 @@ fn to_my_credit_registration(
         course_slug: row.course_slug,
         course_module_id: row.course_module_id,
         course_module_name: row.course_module_name,
+        external_completion_id: row.external_completion_id,
+        moocfi_course_id: row.moocfi_course_id,
         uh_course_code: row.uh_course_code,
         ects_credits: row.ects_credits,
         completion_date: row.completion_date,
@@ -815,8 +869,9 @@ struct LinkingMailCache {
     link_states: HashMap<Uuid, LinkingMailLinkState>,
 }
 
-/// The latest linking mail for this account's Sisu person on this course. `None` for an account that
-/// was never linked: the mail is addressed to a Sisu person, not to an email address.
+/// The latest linking mail for this account's Sisu person on this course or mooc.fi target. `None`
+/// for an account that was never linked: the mail is addressed to a Sisu person, not to an email
+/// address.
 async fn resolve_linking_email(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -858,10 +913,10 @@ async fn resolve_linking_email(
             "linking mail cache was not populated".to_string()
         )
     })?;
-    let mut course_mails = cache
-        .mails
-        .iter()
-        .filter(|mail| mail.course_id == row.course_id);
+    let mut course_mails = cache.mails.iter().filter(|mail| {
+        mail.course_id == row.course_id
+            && mail.external_credit_target_id == row.external_credit_target_id
+    });
     let Some(mail) = course_mails.next() else {
         return Ok(None);
     };
@@ -919,21 +974,63 @@ async fn find_conflicting_account(
     Ok(conflict == Some(LinkConflict::AnotherAccount))
 }
 
+/// What the token's mail was sent for: the course on the token, or the mooc.fi target of the mail
+/// carrying it, since a token has no column for a target.
+async fn linking_mail_source_of_token(
+    conn: &mut PgConnection,
+    token: &StudentNumberVerificationToken,
+) -> Result<Option<LinkingMailSource>, ControllerError> {
+    if let Some(course_id) = token.course_id {
+        return Ok(Some(LinkingMailSource::Course(course_id)));
+    }
+    Ok(credit_registration_account_linking_emails::get_source_by_token_id(conn, token.id).await?)
+}
+
 async fn course_name_of_token(
     conn: &mut PgConnection,
     token: &StudentNumberVerificationToken,
 ) -> Result<Option<String>, ControllerError> {
-    let Some(course_id) = token.course_id else {
-        return Ok(None);
+    let name = match linking_mail_source_of_token(conn, token).await? {
+        Some(LinkingMailSource::Course(course_id)) => {
+            models::courses::get_course(conn, course_id).await?.name
+        }
+        Some(LinkingMailSource::ExternalCreditTarget(target_id)) => {
+            let target = models::external_credit_targets::get_by_id(conn, target_id).await?;
+            format!("mooc.fi: {}", target.name)
+        }
+        None => return Ok(None),
     };
-    let course = models::courses::get_course(conn, course_id).await?;
-    Ok(Some(course.name))
+    Ok(Some(name))
 }
 
-/// The caller's answer about where they enrol one module, and whether it can still be changed.
+/// Which of the caller's completions a `/my/by-…` route is about, as its path names it.
+#[derive(Debug, Clone, Copy)]
+enum SubjectRef {
+    CourseModule(Uuid),
+    ExternalCompletion(Uuid),
+}
+
+impl SubjectRef {
+    fn registration_filter(self) -> StudentRegistrationFilter {
+        match self {
+            Self::CourseModule(course_module_id) => StudentRegistrationFilter {
+                course_module_id: Some(course_module_id),
+                ..StudentRegistrationFilter::default()
+            },
+            Self::ExternalCompletion(external_completion_id) => StudentRegistrationFilter {
+                external_completion_id: Some(external_completion_id),
+                ..StudentRegistrationFilter::default()
+            },
+        }
+    }
+}
+
+/// The caller's answer about where they enrol for one completion, and whether it can still be
+/// changed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyEnrolmentRoute {
-    pub course_module_completion_id: Uuid,
+    /// The course module completion or mooc.fi completion the answer is for.
+    pub subject_id: Uuid,
     /// `None` until the student answers the question.
     pub route: Option<CreditRegistrationEnrolmentRoute>,
     pub enrolment_confirmed_at: Option<DateTime<Utc>>,
@@ -969,76 +1066,220 @@ async fn my_registration_completion_for_module(
     Ok(completion)
 }
 
-/// The caller's completion for a module, as [`my_registration_completion_for_module`], but only on
-/// the push path.
+/// The caller's completion behind `subject`, but only on the push path, and only their own: either
+/// miss is a not-found.
 ///
-/// A completion the old path owns is a not-found: the enrolment answers only exist for the push
-/// path, and nothing should be stored against a completion that will never ask the question.
-async fn my_completion_for_module(
+/// A module completion the old path owns is a not-found because the enrolment answers only exist
+/// for the push path, and nothing should be stored against a completion that will never ask the
+/// question. A mooc.fi completion is always on the push path.
+async fn my_pipeline_subject(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
-) -> Result<Uuid, ControllerError> {
-    let completion = my_registration_completion_for_module(conn, user_id, course_module_id).await?;
-    if !completion.register_credits_via_suotar {
-        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    subject: SubjectRef,
+) -> Result<SubjectId, ControllerError> {
+    match subject {
+        SubjectRef::CourseModule(course_module_id) => {
+            let completion =
+                my_registration_completion_for_module(conn, user_id, course_module_id).await?;
+            if !completion.register_credits_via_suotar {
+                return Err(controller_err!(NotFound, "Not found.".to_string()));
+            }
+            Ok(SubjectId::CourseModuleCompletion(completion.id))
+        }
+        SubjectRef::ExternalCompletion(external_completion_id) => {
+            let completion =
+                models::external_completions::get_by_id(conn, external_completion_id).await?;
+            if completion.user_id != user_id {
+                return Err(controller_err!(NotFound, "Not found.".to_string()));
+            }
+            Ok(SubjectId::ExternalCompletion(completion.id))
+        }
     }
-    Ok(completion.id)
 }
 
-/// The caller's live registration for a module, or `None` before the pipeline has created one.
-async fn my_live_registration_for_module(
+/// The caller's live registration for `subject`, or `None` before the pipeline has created one.
+async fn my_live_registration(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
+    subject: SubjectRef,
 ) -> Result<Option<StudentCreditRegistration>, ControllerError> {
     let rows = models::credit_registrations::get_student_facing_by_user_id(
         conn,
         user_id,
-        StudentRegistrationFilter {
-            course_module_id: Some(course_module_id),
-            ..StudentRegistrationFilter::default()
-        },
+        subject.registration_filter(),
     )
     .await?;
     Ok(rows.into_iter().find(|row| row.superseded_by_id.is_none()))
 }
 
+/// The caller's enrolment answer, with what a write to it needs besides.
+struct CurrentEnrolmentRoute {
+    subject: SubjectId,
+    answer: MyEnrolmentRoute,
+    registration: Option<StudentCreditRegistration>,
+}
+
 async fn build_my_enrolment_route(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_module_id: Uuid,
-) -> Result<(MyEnrolmentRoute, Option<StudentCreditRegistration>), ControllerError> {
-    let course_module_completion_id =
-        my_completion_for_module(conn, user_id, course_module_id).await?;
-    let registration = my_live_registration_for_module(conn, user_id, course_module_id).await?;
-    let answer = credit_registration_enrolment_routes::get_by_completion_id(
-        conn,
-        course_module_completion_id,
-    )
-    .await?;
+    subject: SubjectRef,
+) -> Result<CurrentEnrolmentRoute, ControllerError> {
+    let subject_id = my_pipeline_subject(conn, user_id, subject).await?;
+    let registration = my_live_registration(conn, user_id, subject).await?;
+    let answer = credit_registration_enrolment_routes::get_by_subject(conn, subject_id).await?;
     let can_change = !registration
         .as_ref()
         .is_some_and(|row| row.has_usable_enrolment());
-    Ok((
-        my_enrolment_route(course_module_completion_id, answer, can_change),
+    Ok(CurrentEnrolmentRoute {
+        subject: subject_id,
+        answer: my_enrolment_route(subject_id, answer, can_change),
         registration,
-    ))
+    })
 }
 
 /// Kept apart from [`build_my_enrolment_route`] so a write can answer from the row it already
 /// returned, instead of reading the completion and the registration back a second time.
 fn my_enrolment_route(
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
     answer: Option<EnrolmentRouteAnswer>,
     can_change: bool,
 ) -> MyEnrolmentRoute {
     MyEnrolmentRoute {
-        course_module_completion_id,
+        subject_id: subject.id(),
         route: answer.as_ref().map(|answer| answer.route),
         enrolment_confirmed_at: answer.and_then(|answer| answer.enrolment_confirmed_at),
         can_change,
     }
+}
+
+async fn set_enrolment_route_for(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    subject: SubjectRef,
+    route: CreditRegistrationEnrolmentRoute,
+) -> Result<MyEnrolmentRoute, ControllerError> {
+    let current = build_my_enrolment_route(conn, user_id, subject).await?;
+    if !current.answer.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "We can already see your enrolment, so this answer no longer changes anything."
+                .to_string()
+        ));
+    }
+    let answer =
+        credit_registration_enrolment_routes::set_route(conn, current.subject, user_id, route)
+            .await?;
+    Ok(my_enrolment_route(
+        current.subject,
+        Some(answer),
+        current.answer.can_change,
+    ))
+}
+
+async fn confirm_enrolment_for(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    subject: SubjectRef,
+) -> Result<MyEnrolmentRoute, ControllerError> {
+    let current = build_my_enrolment_route(conn, user_id, subject).await?;
+    if current.answer.route.is_none() {
+        return Err(controller_err!(
+            BadRequest,
+            "Tell us where you enrol first.".to_string()
+        ));
+    }
+    if !current.answer.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "We can already see your enrolment.".to_string()
+        ));
+    }
+    let answer =
+        credit_registration_enrolment_routes::set_enrolment_confirmed(conn, current.subject, true)
+            .await?;
+    match current.registration {
+        Some(registration) if registration.is_waiting_for_enrolment() => {
+            start_student_enrolment_recheck(
+                conn,
+                user_id,
+                RecheckTarget {
+                    registration_id: registration.id,
+                    subject: current.subject,
+                },
+                registration.created_at,
+                "The student said they had enrolled.",
+            )
+            .await?;
+        }
+        _ => {
+            // No row waits yet: a row that starts waiting takes its group from the signal, and an
+            // unlinked student's signal makes their course code's enrolment list due.
+            credit_registration_enrolment_check_signals::record_check_request(
+                conn,
+                current.subject,
+                EnrolmentCheckSource::StudentRequest,
+            )
+            .await?;
+        }
+    }
+    Ok(my_enrolment_route(
+        current.subject,
+        Some(answer),
+        current.answer.can_change,
+    ))
+}
+
+async fn withdraw_enrolment_confirmation_for(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    subject: SubjectRef,
+) -> Result<MyEnrolmentRoute, ControllerError> {
+    let current = build_my_enrolment_route(conn, user_id, subject).await?;
+    if !current.answer.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "We can already see your enrolment, so there is nothing to undo.".to_string()
+        ));
+    }
+    let answer = match current.answer.route {
+        // No answer is already what this asks for, so it is an answer rather than a 404.
+        None => None,
+        Some(_) => Some(
+            credit_registration_enrolment_routes::set_enrolment_confirmed(
+                conn,
+                current.subject,
+                false,
+            )
+            .await?,
+        ),
+    };
+    Ok(my_enrolment_route(
+        current.subject,
+        answer,
+        current.answer.can_change,
+    ))
+}
+
+async fn record_enrolment_page_visit_for(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    subject: SubjectRef,
+) -> Result<(), ControllerError> {
+    let subject_id = my_pipeline_subject(conn, user_id, subject).await?;
+    let registration = my_live_registration(conn, user_id, subject).await?;
+    if registration
+        .as_ref()
+        .is_some_and(StudentCreditRegistration::has_usable_enrolment)
+    {
+        return Ok(());
+    }
+    credit_registration_enrolment_check_signals::record_visit(conn, subject_id).await?;
+    if let Some(registration) = registration
+        && registration.is_waiting_for_enrolment()
+    {
+        enrolment_checks::record_visit(conn, registration.id, Utc::now()).await?;
+    }
+    Ok(())
 }
 
 /**
@@ -1064,9 +1305,14 @@ pub async fn get_my_enrolment_route(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let (res, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+    let current = build_my_enrolment_route(
+        &mut conn,
+        user.id,
+        SubjectRef::CourseModule(*course_module_id),
+    )
+    .await?;
 
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(current.answer))
 }
 
 /**
@@ -1094,27 +1340,15 @@ pub async fn set_my_enrolment_route(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let (current, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
-    if !current.can_change {
-        return Err(controller_err!(
-            BadRequest,
-            "We can already see your enrolment, so this answer no longer changes anything."
-                .to_string()
-        ));
-    }
-    let answer = credit_registration_enrolment_routes::set_route(
+    let res = set_enrolment_route_for(
         &mut conn,
-        current.course_module_completion_id,
         user.id,
+        SubjectRef::CourseModule(*course_module_id),
         payload.route,
     )
     .await?;
 
-    token.authorized_ok(web::Json(my_enrolment_route(
-        current.course_module_completion_id,
-        Some(answer),
-        current.can_change,
-    )))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -1145,57 +1379,14 @@ pub async fn confirm_my_enrolment(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let (current, registration) =
-        build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
-    if current.route.is_none() {
-        return Err(controller_err!(
-            BadRequest,
-            "Tell us where you enrol first.".to_string()
-        ));
-    }
-    if !current.can_change {
-        return Err(controller_err!(
-            BadRequest,
-            "We can already see your enrolment.".to_string()
-        ));
-    }
-    let answer = credit_registration_enrolment_routes::set_enrolment_confirmed(
+    let res = confirm_enrolment_for(
         &mut conn,
-        current.course_module_completion_id,
-        true,
+        user.id,
+        SubjectRef::CourseModule(*course_module_id),
     )
     .await?;
-    match registration {
-        Some(registration) if registration.is_waiting_for_enrolment() => {
-            start_student_enrolment_recheck(
-                &mut conn,
-                user.id,
-                RecheckTarget {
-                    registration_id: registration.id,
-                    course_module_completion_id: current.course_module_completion_id,
-                },
-                registration.created_at,
-                "The student said they had enrolled.",
-            )
-            .await?;
-        }
-        _ => {
-            // No row waits yet: a row that starts waiting takes its group from the signal, and an
-            // unlinked student's signal makes their course code's enrolment list due.
-            credit_registration_enrolment_check_signals::record_check_request(
-                &mut conn,
-                current.course_module_completion_id,
-                EnrolmentCheckSource::StudentRequest,
-            )
-            .await?;
-        }
-    }
 
-    token.authorized_ok(web::Json(my_enrolment_route(
-        current.course_module_completion_id,
-        Some(answer),
-        current.can_change,
-    )))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -1221,31 +1412,149 @@ pub async fn withdraw_my_enrolment_confirmation(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let (current, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
-    if !current.can_change {
-        return Err(controller_err!(
-            BadRequest,
-            "We can already see your enrolment, so there is nothing to undo.".to_string()
-        ));
-    }
-    let answer = match current.route {
-        // No answer is already what this asks for, so it is an answer rather than a 404.
-        None => None,
-        Some(_) => Some(
-            credit_registration_enrolment_routes::set_enrolment_confirmed(
-                &mut conn,
-                current.course_module_completion_id,
-                false,
-            )
-            .await?,
-        ),
-    };
+    let res = withdraw_enrolment_confirmation_for(
+        &mut conn,
+        user.id,
+        SubjectRef::CourseModule(*course_module_id),
+    )
+    .await?;
 
-    token.authorized_ok(web::Json(my_enrolment_route(
-        current.course_module_completion_id,
-        answer,
-        current.can_change,
-    )))
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+- What the caller said about where they enrol for this mooc.fi completion.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my/by-external-completion/{external_completion_id}/enrolment-route",
+    operation_id = "getMyExternalCompletionEnrolmentRoute",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    responses(
+        (status = 200, description = "The caller's answer for the mooc.fi completion", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn get_my_external_completion_enrolment_route(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let current = build_my_enrolment_route(
+        &mut conn,
+        user.id,
+        SubjectRef::ExternalCompletion(*external_completion_id),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(current.answer))
+}
+
+/**
+PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+- [`set_my_enrolment_route`] for a mooc.fi completion.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/my/by-external-completion/{external_completion_id}/enrolment-route",
+    operation_id = "setMyExternalCompletionEnrolmentRoute",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    request_body = SetEnrolmentRoutePayload,
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn set_my_external_completion_enrolment_route(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+    payload: web::Json<SetEnrolmentRoutePayload>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = set_enrolment_route_for(
+        &mut conn,
+        user.id,
+        SubjectRef::ExternalCompletion(*external_completion_id),
+        payload.route,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+- [`confirm_my_enrolment`] for a mooc.fi completion.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
+    operation_id = "confirmMyExternalCompletionEnrolment",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn confirm_my_external_completion_enrolment(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = confirm_enrolment_for(
+        &mut conn,
+        user.id,
+        SubjectRef::ExternalCompletion(*external_completion_id),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+- [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
+    operation_id = "withdrawMyExternalCompletionEnrolmentConfirmation",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn withdraw_my_external_completion_enrolment_confirmation(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let res = withdraw_enrolment_confirmation_for(
+        &mut conn,
+        user.id,
+        SubjectRef::ExternalCompletion(*external_completion_id),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /// What the caller wrote about needing the credits rather than a certificate.
@@ -1354,26 +1663,46 @@ pub async fn record_my_enrolment_page_visit(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let course_module_completion_id =
-        my_completion_for_module(&mut conn, user.id, *course_module_id).await?;
-    let registration =
-        my_live_registration_for_module(&mut conn, user.id, *course_module_id).await?;
-    if registration
-        .as_ref()
-        .is_some_and(StudentCreditRegistration::has_usable_enrolment)
-    {
-        return token.authorized_ok(web::Json(()));
-    }
-    credit_registration_enrolment_check_signals::record_visit(
+    record_enrolment_page_visit_for(
         &mut conn,
-        course_module_completion_id,
+        user.id,
+        SubjectRef::CourseModule(*course_module_id),
     )
     .await?;
-    if let Some(registration) = registration
-        && registration.is_waiting_for_enrolment()
-    {
-        enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
-    }
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
+- [`record_my_enrolment_page_visit`] for a mooc.fi completion.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/by-external-completion/{external_completion_id}/enrolment-page-visit",
+    operation_id = "recordMyExternalCompletionEnrolmentPageVisit",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    responses(
+        (status = 200, description = "The visit is recorded"),
+        (status = 404, description = "No such mooc.fi completion of the caller's")
+    )
+)]
+pub async fn record_my_external_completion_enrolment_page_visit(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    record_enrolment_page_visit_for(
+        &mut conn,
+        user.id,
+        SubjectRef::ExternalCompletion(*external_completion_id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -1426,6 +1755,44 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                     .keyed_by(RateLimitKey::User),
                 )
                 .route(web::post().to(record_my_enrolment_page_visit)),
+        )
+        .route(
+            "/my/by-external-completion/{external_completion_id}",
+            web::get().to(get_my_credit_registration_for_external_completion),
+        )
+        .service(
+            web::resource("/my/by-external-completion/{external_completion_id}/enrolment-route")
+                .route(web::get().to(get_my_external_completion_enrolment_route))
+                .route(web::put().to(set_my_external_completion_enrolment_route)),
+        )
+        .service(
+            web::resource(
+                "/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
+            )
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(5),
+                    per_hour: Some(30),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .route(web::post().to(confirm_my_external_completion_enrolment))
+            .route(web::delete().to(withdraw_my_external_completion_enrolment_confirmation)),
+        )
+        .service(
+            web::resource(
+                "/my/by-external-completion/{external_completion_id}/enrolment-page-visit",
+            )
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(60),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .route(web::post().to(record_my_external_completion_enrolment_page_visit)),
         )
         .route(
             "/my/enrolment-banners/by-course/{course_id}",

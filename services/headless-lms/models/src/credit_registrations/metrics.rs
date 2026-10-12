@@ -41,14 +41,14 @@ pub async fn count_due_enrolment_checks(conn: &mut PgConnection) -> ModelResult<
         r#"
 SELECT COUNT(*) AS "count!"
 FROM credit_registrations cr
-  JOIN credit_registration_active_course_modules acm ON acm.course_module_id = cr.course_module_id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN credit_registration_active_units au ON au.credit_unit_id = cr.credit_unit_id
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
 WHERE cr.state = 'no_usable_enrolment'
   AND cr.next_attempt_at <= now()
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
   AND (
-    cmc.register_credits_via_suotar
+    s.is_on_pipeline
     OR cr.submitted_at IS NOT NULL
   )
   AND (
@@ -113,9 +113,12 @@ pub struct WaitingForStudentNumber {
     pub email: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub course_module_name: Option<String>,
+    pub external_credit_target_id: Option<Uuid>,
     pub uh_course_code: Option<String>,
     pub completion_date: DateTime<Utc>,
     pub last_visited_at: Option<DateTime<Utc>>,
@@ -140,10 +143,11 @@ SELECT cr.id AS credit_registration_id,
   ud.first_name AS "first_name?",
   ud.last_name AS "last_name?",
   cr.course_id,
-  c.name AS course_name,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   cm.name AS "course_module_name?",
-  cm.uh_course_code AS "uh_course_code?",
-  cmc.completion_date,
+  cr.external_credit_target_id,
+  subj.uh_course_code AS "uh_course_code?",
+  subj.completion_date AS "completion_date!",
   sig.last_visited_at AS "last_visited_at?",
   CASE
     WHEN sig.check_request_source = 'student_request' THEN sig.last_check_requested_at
@@ -152,24 +156,32 @@ SELECT cr.id AS credit_registration_id,
   COUNT(*) OVER () AS "total!"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  AND cmc.deleted_at IS NULL
-  JOIN courses c ON c.id = cr.course_id
-  AND c.deleted_at IS NULL
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  AND cm.deleted_at IS NULL
+  JOIN credit_registration_subjects subj ON subj.subject_id = cr.subject_id
+  AND NOT subj.is_withdrawn
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+    sig.course_module_completion_id,
+    sig.external_completion_id
+  ) = cr.subject_id
   AND sig.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(
+    route.course_module_completion_id,
+    route.external_completion_id
+  ) = cr.subject_id
   AND route.deleted_at IS NULL
 WHERE cr.state = 'pending'
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+  AND t.deleted_at IS NULL
   AND p.completion_eligible
   AND NOT p.has_verified_student_number
-  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)
-ORDER BY cmc.completion_date,
+  AND ($1::timestamptz IS NULL OR subj.completion_date >= $1)
+ORDER BY subj.completion_date,
   cr.id
 LIMIT $2
         "#,
@@ -190,6 +202,7 @@ LIMIT $2
                 course_id: row.course_id,
                 course_name: row.course_name,
                 course_module_name: row.course_module_name,
+                external_credit_target_id: row.external_credit_target_id,
                 uh_course_code: row.uh_course_code,
                 completion_date: row.completion_date,
                 last_visited_at: row.last_visited_at,
@@ -210,17 +223,20 @@ pub struct WaitingPresser {
     pub email: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row, as is `course_module_id`.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
-    /// The module's code now, trimmed.
+    pub external_credit_target_id: Option<Uuid>,
+    /// The module's or target's code now, trimmed.
     pub uh_course_code: Option<String>,
     pub completion_date: DateTime<Utc>,
     pub pressed_at: DateTime<Utc>,
     pub enrolment_route: CreditRegistrationEnrolmentRoute,
-    /// Linking emails claimed on any course sharing the code since the press. Not attributable to
-    /// this student: an email is tied to an account only once its link is used.
+    /// Linking emails claimed on any course or mooc.fi target sharing the code since the press. Not
+    /// attributable to this student: an email is tied to an account only once its link is used.
     pub linking_emails_on_code_since_press: i64,
     pub last_linking_email_on_code_at: Option<DateTime<Utc>>,
 }
@@ -241,24 +257,27 @@ SELECT cr.id AS credit_registration_id,
   ud.first_name AS "first_name?",
   ud.last_name AS "last_name?",
   cr.course_id,
-  c.name AS course_name,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   cr.course_module_id,
   cm.name AS "course_module_name?",
-  NULLIF(TRIM(cm.uh_course_code), '') AS "uh_course_code?",
-  cmc.completion_date,
+  cr.external_credit_target_id,
+  NULLIF(TRIM(subj.uh_course_code), '') AS "uh_course_code?",
+  subj.completion_date AS "completion_date!",
   route.enrolment_confirmed_at AS "pressed_at!",
   route.route AS "enrolment_route: CreditRegistrationEnrolmentRoute",
   emails.count AS "linking_emails_on_code_since_press!",
   emails.last_at AS "last_linking_email_on_code_at?"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  AND cmc.deleted_at IS NULL
-  JOIN courses c ON c.id = cr.course_id
-  AND c.deleted_at IS NULL
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  AND cm.deleted_at IS NULL
-  JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  JOIN credit_registration_subjects subj ON subj.subject_id = cr.subject_id
+  AND NOT subj.is_withdrawn
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
+  JOIN credit_registration_enrolment_routes route ON COALESCE(
+    route.course_module_completion_id,
+    route.external_completion_id
+  ) = cr.subject_id
   AND route.deleted_at IS NULL
   AND route.enrolment_confirmed_at IS NOT NULL
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
@@ -266,18 +285,33 @@ FROM credit_registrations cr
     SELECT COUNT(*) AS count,
       MAX(e.sent_at) AS last_at
     FROM credit_registration_account_linking_emails e
-      JOIN course_modules code_module ON code_module.course_id = e.course_id
-      AND code_module.deleted_at IS NULL
-    WHERE TRIM(code_module.uh_course_code) = TRIM(cm.uh_course_code)
-      AND e.sent_at >= route.enrolment_confirmed_at
+    WHERE e.sent_at >= route.enrolment_confirmed_at
       AND e.deleted_at IS NULL
+      AND (
+        EXISTS (
+          SELECT 1
+          FROM course_modules code_module
+          WHERE code_module.course_id = e.course_id
+            AND code_module.deleted_at IS NULL
+            AND TRIM(code_module.uh_course_code) = TRIM(subj.uh_course_code)
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM external_credit_targets code_target
+          WHERE code_target.id = e.external_credit_target_id
+            AND TRIM(code_target.uh_course_code) = TRIM(subj.uh_course_code)
+        )
+      )
   ) emails
 WHERE cr.state = 'pending'
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+  AND t.deleted_at IS NULL
   AND p.completion_eligible
   AND NOT p.has_verified_student_number
-  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)
+  AND ($1::timestamptz IS NULL OR subj.completion_date >= $1)
   AND ($2::uuid IS NULL OR cr.id = $2)
 ORDER BY route.enrolment_confirmed_at,
   cr.id
@@ -536,10 +570,10 @@ WHERE state = 'registered'
     Ok(res)
 }
 
-/// Live volumes per course module, for the Courses tab's one row per module.
+/// Live volumes per module or mooc.fi target, for the Courses tab's one row per unit.
 #[derive(Debug, Clone, PartialEq)]
-pub struct ModuleRegistrationTotals {
-    pub course_module_id: Uuid,
+pub struct CreditUnitRegistrationTotals {
+    pub credit_unit_id: Uuid,
     pub total_count: i64,
     pub success_count: i64,
     /// Of `success_count`, the ones we registered.
@@ -549,19 +583,19 @@ pub struct ModuleRegistrationTotals {
     pub in_flight_count: i64,
     pub failed_count: i64,
     pub last_registered_at: Option<DateTime<Utc>>,
-    /// The code most of the module's failing rows carry, which is usually the whole diagnosis.
+    /// The code most of the unit's failing rows carry, which is usually the whole diagnosis.
     pub top_error_code: Option<CreditRegistrationErrorCode>,
 }
 
 /// `failed_count` is `failed_permanent` and `misregistered` only, so the columns do not add up to
 /// the total by design.
-pub async fn count_by_module(
+pub async fn count_by_credit_unit(
     conn: &mut PgConnection,
-) -> ModelResult<Vec<ModuleRegistrationTotals>> {
+) -> ModelResult<Vec<CreditUnitRegistrationTotals>> {
     let res = sqlx::query_as!(
-        ModuleRegistrationTotals,
+        CreditUnitRegistrationTotals,
         r#"
-SELECT cr.course_module_id,
+SELECT cr.credit_unit_id,
   COUNT(*) AS "total_count!",
   COUNT(*) FILTER (
     WHERE cr.state = ANY($1::credit_registration_state [])
@@ -578,7 +612,7 @@ SELECT cr.course_module_id,
   (
     SELECT inner_cr.error_code
     FROM credit_registrations inner_cr
-    WHERE inner_cr.course_module_id = cr.course_module_id
+    WHERE inner_cr.credit_unit_id = cr.credit_unit_id
       AND inner_cr.error_code IS NOT NULL
       AND inner_cr.superseded_by_id IS NULL
       AND inner_cr.deleted_at IS NULL
@@ -590,7 +624,7 @@ SELECT cr.course_module_id,
 FROM credit_registrations cr
 WHERE superseded_by_id IS NULL
   AND deleted_at IS NULL
-GROUP BY cr.course_module_id
+GROUP BY cr.credit_unit_id
         "#,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::HARD_FAILURE_STATES as &[CreditRegistrationState],

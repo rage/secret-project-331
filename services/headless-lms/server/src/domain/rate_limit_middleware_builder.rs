@@ -2,7 +2,7 @@ use crate::config::server_runtime_config;
 use crate::domain::authentication::{constant_time_eq_str, session_user_id};
 use actix_session::SessionExt;
 use actix_web::{
-    Error, HttpResponse,
+    Error, HttpRequest, HttpResponse,
     body::{EitherBody, MessageBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     http::{StatusCode, header},
@@ -17,6 +17,7 @@ use secrecy::ExposeSecret;
 #[cfg(test)]
 use secrecy::SecretString;
 use std::{
+    net::{IpAddr, SocketAddr},
     num::NonZeroU32,
     sync::{
         Arc,
@@ -309,6 +310,17 @@ fn extract_client_ip_key(req: &ServiceRequest) -> String {
     }
 
     format!("unknown:{}|{}", req.connection_info().host(), req.path())
+}
+
+/// The client IP the [`RateLimitKey::ClientIp`] key is read from, parsed. `None` when the request
+/// carries none, or one that is not an address.
+pub fn request_client_ip(req: &HttpRequest) -> Option<IpAddr> {
+    let connection_info = req.connection_info();
+    let value = connection_info.realip_remote_addr()?.trim();
+    value
+        .parse::<IpAddr>()
+        .ok()
+        .or_else(|| value.parse::<SocketAddr>().ok().map(|address| address.ip()))
 }
 
 #[cfg(test)]

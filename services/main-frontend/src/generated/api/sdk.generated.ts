@@ -6774,7 +6774,7 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = tru
 
 /**
  *
- * GET `/api/v0/main-frontend/external-course/all` - Gets all external courses.
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
  */
 export const getExternalCourses = <ThrowOnError extends boolean = true>(
   options?: Options<GetExternalCoursesData, ThrowOnError>,
@@ -6788,7 +6788,7 @@ export const getExternalCourses = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/main-frontend/external-course/delete` - Deletes external course.
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
  */
 export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
   options: Options<DeleteExternalCourseData, ThrowOnError>,
@@ -6806,7 +6806,7 @@ export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/main-frontend/external-course/new` - Creates new external course.
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
  */
 export const createExternalCourse = <ThrowOnError extends boolean = true>(
   options: Options<CreateExternalCourseData, ThrowOnError>,
@@ -6824,7 +6824,7 @@ export const createExternalCourse = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/main-frontend/external-course/update` - Updates external course.
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
  */
 export const updateExternalCourse = <ThrowOnError extends boolean = true>(
   options: Options<UpdateExternalCourseData, ThrowOnError>,

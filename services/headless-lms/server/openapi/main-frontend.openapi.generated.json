@@ -10416,7 +10416,7 @@
     "/api/v0/main-frontend/external-courses/all": {
       "get": {
         "tags": ["externalCourses"],
-        "summary": "\nGET `/api/v0/main-frontend/external-course/all` - Gets all external courses.",
+        "summary": "\nGET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.",
         "operationId": "getExternalCourses",
         "responses": {
           "200": {
@@ -10438,7 +10438,7 @@
     "/api/v0/main-frontend/external-courses/delete": {
       "post": {
         "tags": ["externalCourses"],
-        "summary": "\nPOST `/api/v0/main-frontend/external-course/delete` - Deletes external course.",
+        "summary": "\nPOST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.",
         "operationId": "deleteExternalCourse",
         "requestBody": {
           "content": {
@@ -10467,7 +10467,7 @@
     "/api/v0/main-frontend/external-courses/new": {
       "post": {
         "tags": ["externalCourses"],
-        "summary": "\nPOST `/api/v0/main-frontend/external-course/new` - Creates new external course.",
+        "summary": "\nPOST `/api/v0/main-frontend/external-courses/new` - Creates new external course.",
         "operationId": "createExternalCourse",
         "requestBody": {
           "content": {
@@ -10496,7 +10496,7 @@
     "/api/v0/main-frontend/external-courses/update": {
       "post": {
         "tags": ["externalCourses"],
-        "summary": "\nPOST `/api/v0/main-frontend/external-course/update` - Updates external course.",
+        "summary": "\nPOST `/api/v0/main-frontend/external-courses/update` - Updates external course.",
         "operationId": "updateExternalCourse",
         "requestBody": {
           "content": {

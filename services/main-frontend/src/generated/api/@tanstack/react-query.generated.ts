@@ -9034,7 +9034,7 @@ export const getExternalCoursesQueryKey = (options?: Options<GetExternalCoursesD
 
 /**
  *
- * GET `/api/v0/main-frontend/external-course/all` - Gets all external courses.
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
  */
 export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesData>) =>
   queryOptions<
@@ -9055,7 +9055,7 @@ export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesDa
 
 /**
  *
- * POST `/api/v0/main-frontend/external-course/delete` - Deletes external course.
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
  */
 export const deleteExternalCourseMutation = (
   options?: Partial<Options<DeleteExternalCourseData>>,
@@ -9081,7 +9081,7 @@ export const deleteExternalCourseMutation = (
 
 /**
  *
- * POST `/api/v0/main-frontend/external-course/new` - Creates new external course.
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
  */
 export const createExternalCourseMutation = (
   options?: Partial<Options<CreateExternalCourseData>>,
@@ -9107,7 +9107,7 @@ export const createExternalCourseMutation = (
 
 /**
  *
- * POST `/api/v0/main-frontend/external-course/update` - Updates external course.
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
  */
 export const updateExternalCourseMutation = (
   options?: Partial<Options<UpdateExternalCourseData>>,

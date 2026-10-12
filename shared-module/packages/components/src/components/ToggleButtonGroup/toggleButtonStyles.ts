@@ -1,9 +1,6 @@
 import { css } from "@emotion/css"
 
-import { rootBaseCss } from "../primitives/buttonStyles"
-
-export const toggleButtonRootBaseCss = css`
-  ${rootBaseCss}
+export const toggleButtonBaseCss = css`
   border-color: rgba(10, 15, 23, 0.12) transparent rgba(10, 15, 23, 0.12) transparent;
   &:first-child {
     border-radius: var(--control-radius) 0 0 var(--control-radius);

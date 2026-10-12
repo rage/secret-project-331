@@ -14,6 +14,7 @@ import { mergeProps, useFocusRing, useHover, useToggleButtonGroupItem } from "re
 import { omitUndefined } from "../../lib/utils/nullability"
 import { iconSlotCss, resolveButtonRootCss, type IconPosition } from "../primitives/buttonStyles"
 import { ToggleButtonGroupContext } from "./ToggleButtonGroup"
+import { toggleButtonBaseCss } from "./toggleButtonStyles"
 
 export interface ToggleButtonGroupButtonProps {
   id: string
@@ -74,7 +75,7 @@ export function ToggleButtonGroupButton(props: ToggleButtonGroupButtonProps) {
   // oxlint-disable-next-line i18next/no-literal-string
   const variant = isSelected ? "selected" : "secondary"
 
-  const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
+  const rootClassName = cx(resolveButtonRootCss({ size, variant }), toggleButtonBaseCss, className)
 
   const mergedProps = mergeProps(buttonProps, focusProps, hoverProps, {
     onClick,

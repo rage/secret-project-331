@@ -25,6 +25,7 @@ import {
   candidateListCss,
   candidateName,
   ResendOutcomeNotice,
+  SendFailedNotice,
   showsNotEmailed,
 } from "./linkingCandidate"
 
@@ -110,7 +111,10 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
       actions={actions}
     >
       <div className={dialogFormCss}>
-        {result && <ResendOutcomeNotice result={result} />}
+        {result && !mutation.isPending && !mutation.isError && (
+          <ResendOutcomeNotice result={result} />
+        )}
+        {mutation.isError && <SendFailedNotice error={mutation.error} />}
         {candidatesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}

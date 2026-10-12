@@ -9,6 +9,7 @@ import type {
   AdminLinkingCandidate,
   AdminResendAccountLinkingEmailResult,
 } from "@/generated/api/types.generated"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { Infobox } from "@/shared-module/components"
 
 import type { CreditRegistrationTFunction } from "../constants"
@@ -82,6 +83,19 @@ export const ResendOutcomeNotice: React.FC<{
         </div>
       )}
       {children}
+    </Infobox>
+  )
+}
+
+/** A send request that failed, in the server's words when it refused it with a reason. */
+export const SendFailedNotice: React.FC<{ error: unknown }> = ({ error }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  // 5xx bodies carry only a generic "Internal server error".
+  const serverMessage =
+    isAppApiError(error) && error.status !== null && error.status < 500 ? error.userMessage : null
+  return (
+    <Infobox tone={TONE.DANGER} announce>
+      {serverMessage ?? t("credit-registration-admin-send-linking-email-send-failed")}
     </Infobox>
   )
 }

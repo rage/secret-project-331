@@ -35,6 +35,7 @@ import {
   candidateListCss,
   candidateName,
   ResendOutcomeNotice,
+  SendFailedNotice,
   showsNotEmailed,
 } from "./linkingCandidate"
 
@@ -155,11 +156,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
         {result && !mutation.isPending && !mutation.isError && (
           <ResendOutcomeNotice result={result} />
         )}
-        {mutation.isError && (
-          <Infobox tone={TONE.DANGER} announce>
-            {t("credit-registration-admin-send-linking-email-send-failed")}
-          </Infobox>
-        )}
+        {mutation.isError && <SendFailedNotice error={mutation.error} />}
         {coursesQuery.isError && (
           <Infobox tone={TONE.DANGER}>
             {t("credit-registration-admin-send-linking-email-courses-failed")}

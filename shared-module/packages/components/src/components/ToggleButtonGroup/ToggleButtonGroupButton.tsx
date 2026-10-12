@@ -12,8 +12,8 @@ import {
 import { mergeProps, useFocusRing, useHover, useToggleButtonGroupItem } from "react-aria"
 
 import { omitUndefined } from "../../lib/utils/nullability"
+import { iconSlotCss, resolveButtonRootCss, type IconPosition } from "../primitives/buttonStyles"
 import { ToggleButtonGroupContext } from "./ToggleButtonGroup"
-import { iconSlotCss, resolveButtonRootCss, type IconPosition } from "./toggleButtonStyles"
 
 export interface ToggleButtonGroupButtonProps {
   id: string

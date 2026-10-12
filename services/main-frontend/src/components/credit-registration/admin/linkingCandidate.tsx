@@ -33,9 +33,12 @@ export const candidateFullName = (candidate: {
 export const candidateName = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) =>
   candidateFullName(candidate) || t("credit-registration-admin-linking-candidate-no-name")
 
+const hasBeenEmailed = (candidate: AdminLinkingCandidate): boolean =>
+  candidate.linking_emails_for_course > 0 || candidate.manual_sends.length > 0
+
 /** Whether any listed person has had a linking email, so saying "not emailed" tells them apart. */
 export const showsNotEmailed = (candidates: AdminLinkingCandidate[]): boolean =>
-  candidates.some((candidate) => candidate.linking_emails_for_course > 0)
+  candidates.some((candidate) => hasBeenEmailed(candidate))
 
 /** What tells a listed person apart, for `InlineParts`: address, enrolment time, emails so far. */
 export const candidateFacts = (
@@ -57,7 +60,9 @@ export const candidateFacts = (
     ? t("credit-registration-admin-linking-candidate-emails", {
         count: candidate.linking_emails_for_course,
       })
-    : isNotEmailedShown && t("credit-registration-admin-linking-candidate-not-emailed"),
+    : isNotEmailedShown &&
+      !hasBeenEmailed(candidate) &&
+      t("credit-registration-admin-linking-candidate-not-emailed"),
 ]
 
 /** What a linking email send did, with where the person's emails for the course now stand. */

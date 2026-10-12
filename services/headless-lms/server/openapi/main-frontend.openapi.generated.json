@@ -15871,14 +15871,14 @@
           "linking_emails_for_course": {
             "type": "integer",
             "format": "int64",
-            "description": "Linking emails they have had for the course, replaced ones included."
+            "description": "Linking emails for the course that count toward its cap: replaced ones included, those a\nrate cap override retired not."
           },
           "manual_sends": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
             },
-            "description": "Those of `linking_emails_for_course` someone sent by hand, newest first."
+            "description": "Every linking email someone sent by hand for the course, newest first. Unlike\n`linking_emails_for_course`, keeps those a rate cap override has since retired."
           },
           "similarities": {
             "type": "array",

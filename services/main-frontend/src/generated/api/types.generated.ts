@@ -657,11 +657,13 @@ export type AdminLinkingCandidate = {
   first_names?: string | null
   last_name?: string | null
   /**
-   * Linking emails they have had for the course, replaced ones included.
+   * Linking emails for the course that count toward its cap: replaced ones included, those a
+   * rate cap override retired not.
    */
   linking_emails_for_course: number
   /**
-   * Those of `linking_emails_for_course` someone sent by hand, newest first.
+   * Every linking email someone sent by hand for the course, newest first. Unlike
+   * `linking_emails_for_course`, keeps those a rate cap override has since retired.
    */
   manual_sends: Array<AdminManualLinkingEmailSend>
   /**

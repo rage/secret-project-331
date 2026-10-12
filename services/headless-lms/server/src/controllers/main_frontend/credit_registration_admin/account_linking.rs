@@ -403,9 +403,11 @@ pub struct AdminLinkingCandidate {
     pub email: Option<String>,
     /// `None` when the study registry gave no enrolment time.
     pub enrolled_at: Option<DateTime<Utc>>,
-    /// Linking emails they have had for the course, replaced ones included.
+    /// Linking emails for the course that count toward its cap: replaced ones included, those a
+    /// rate cap override retired not.
     pub linking_emails_for_course: i64,
-    /// Those of `linking_emails_for_course` someone sent by hand, newest first.
+    /// Every linking email someone sent by hand for the course, newest first. Unlike
+    /// `linking_emails_for_course`, keeps those a rate cap override has since retired.
     pub manual_sends: Vec<AdminManualLinkingEmailSend>,
     /// What they share with the waiting student's account, by which the linking candidates are
     /// ordered. Always empty in [`AdminUnlinkedEnrolees`].

@@ -48,14 +48,6 @@ export const BUCKET_ORDER: QueueBucket[] = [
   "done",
 ]
 
-/** Terminal states only ever grow, so charting or measuring them beside the queues flattens both. */
-export const LIVE_BUCKETS: QueueBucket[] = [
-  "waiting_on_student",
-  "in_progress",
-  "needs_a_look",
-  "failed",
-]
-
 const BUCKET_KEYS = {
   waiting_on_student: "credit-registration-admin-bucket-waiting-on-student",
   in_progress: "credit-registration-admin-bucket-in-progress",

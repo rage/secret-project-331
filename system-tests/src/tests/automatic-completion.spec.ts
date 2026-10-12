@@ -61,7 +61,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByRole("radio", { name: "No", exact: true }).check()
   await page
     .getByText(
-      "Credits for this course are registered through the Open University of the University of Helsinki.",
+      "Completions of this course are registered through the Open University of the University of Helsinki.",
     )
     .waitFor()
 
@@ -121,7 +121,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByRole("radio", { name: "No", exact: true }).check()
   await page
     .getByText(
-      "Credits for this course are registered through the Open University of the University of Helsinki.",
+      "Completions of this course are registered through the Open University of the University of Helsinki.",
     )
     .waitFor()
 

@@ -50,6 +50,10 @@ COPY --from=builder /icu4x.postcard /icu4x.postcard
 # TODO: Remove this in the next release, this is a temporary file for compatibility
 COPY --from=builder /icu4x.postcard.2 /icu4x.postcard.2
 
+# Last, so a new commit rebuilds only this layer. Read by the credit registration admin's System tab.
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=$GIT_COMMIT
+
 USER user
 
 CMD [ "bin/run", "start-server" ]

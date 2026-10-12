@@ -2,7 +2,7 @@
 
 import type { TFunction } from "i18next"
 
-export { ABSENT_LABEL as ABSENT, MIDDLE_DOT, TONE } from "@/shared-module/components"
+export { TONE } from "@/shared-module/components"
 
 /**
  * The namespace every view in this feature reads. Its strings are a third of the service's

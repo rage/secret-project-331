@@ -25,6 +25,12 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminDismissCreditRegistrationAttentionData,
+  AdminDismissCreditRegistrationAttentionErrors,
+  AdminDismissCreditRegistrationAttentionResponses,
+  AdminDismissStudyRegistryConflictData,
+  AdminDismissStudyRegistryConflictErrors,
+  AdminDismissStudyRegistryConflictResponses,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberErrors,
   AdminManuallyLinkStudentNumberResponses,
@@ -36,6 +42,9 @@ import type {
   AdminPausePhaseData,
   AdminPausePhaseErrors,
   AdminPausePhaseResponses,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchErrors,
+  AdminRequestEnrolmentListFetchResponses,
   AdminRequeueRetryableCreditRegistrationsData,
   AdminRequeueRetryableCreditRegistrationsErrors,
   AdminRequeueRetryableCreditRegistrationsResponses,
@@ -233,8 +242,13 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponses,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponses,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  GetAccountLinkingUnlinkedEnroleesResponses,
   GetAllChatbotsData,
   GetAllChatbotsResponses,
   GetAllCoursesData,
@@ -416,6 +430,9 @@ import type {
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminErrors,
   GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationLinkingCandidatesData,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  GetCreditRegistrationLinkingCandidatesResponses,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponses,
   GetCreditRegistrationPipelineHistoryData,
@@ -834,9 +851,11 @@ import {
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminDismissCreditRegistrationAttentionResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
+  zAdminRequestEnrolmentListFetchResponse,
   zAdminRequeueRetryableCreditRegistrationsResponse,
   zAdminResendAccountLinkingEmailResponse,
   zAdminResolveStudentNumberForLinkingResponse,
@@ -903,7 +922,9 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
+  zGetAccountLinkingUnlinkedEnroleesResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
@@ -987,6 +1008,7 @@ import {
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
+  zGetCreditRegistrationLinkingCandidatesResponse,
   zGetCreditRegistrationOverviewResponse,
   zGetCreditRegistrationPipelineHistoryResponse,
   zGetCreditRegistrationReconciliationResponse,
@@ -4907,8 +4929,9 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the
- * per-module counters, the send-status totals and the stale-address list.
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
  */
 export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
   options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
@@ -4918,6 +4941,84 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
     ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingCoursesData, ThrowOnError>,
+): RequestResult<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetAccountLinkingCoursesResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingUnlinkedEnroleesData, ThrowOnError>,
+): RequestResult<
+  GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAccountLinkingUnlinkedEnroleesResponses,
+    GetAccountLinkingUnlinkedEnroleesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingUnlinkedEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetch = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRequestEnrolmentListFetchData, ThrowOnError>,
+): RequestResult<
+  AdminRequestEnrolmentListFetchResponses,
+  AdminRequestEnrolmentListFetchErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminRequestEnrolmentListFetchResponses,
+    AdminRequestEnrolmentListFetchErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminRequestEnrolmentListFetchResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -5023,12 +5124,43 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissStudyRegistryConflictData, ThrowOnError>,
+): RequestResult<
+  AdminDismissStudyRegistryConflictResponses,
+  AdminDismissStudyRegistryConflictErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissStudyRegistryConflictResponses,
+    AdminDismissStudyRegistryConflictErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
@@ -5153,7 +5285,7 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
- * and findings of the enrolment checks, and the roster schedule per course code.
+ * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
 export const getCreditRegistrationEnrolmentChecks = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationEnrolmentChecksData, ThrowOnError>,
@@ -5340,7 +5472,8 @@ export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
- * ledger state, with what entered and left each state that day.
+ * ledger state, with what entered and left each state that day, and the count per timeline step and
+ * the Needs attention count from the day those snapshots began.
  */
 export const getCreditRegistrationPipelineHistory = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationPipelineHistoryData, ThrowOnError>,
@@ -5494,6 +5627,69 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
       await zGetCreditRegistrationForAdminResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
+ * - Takes a row off the Needs attention queue.
+ *
+ * The dismissal covers the reasons the row carries now; it comes back only when a different one
+ * fires. Leaves the pipeline's own flag alone.
+ */
+export const adminDismissCreditRegistrationAttention = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissCreditRegistrationAttentionData, ThrowOnError>,
+): RequestResult<
+  AdminDismissCreditRegistrationAttentionResponses,
+  AdminDismissCreditRegistrationAttentionErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissCreditRegistrationAttentionResponses,
+    AdminDismissCreditRegistrationAttentionErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminDismissCreditRegistrationAttentionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+ * - Who on the code's enrolment list a student stuck waiting for a student number may be.
+ *
+ * Lists the roster live and keeps the people no account is linked to who enrolled before account
+ * linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+ * is only a hint. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationLinkingCandidatesData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationLinkingCandidatesResponses,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationLinkingCandidatesResponses,
+    GetCreditRegistrationLinkingCandidatesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationLinkingCandidatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
     ...options,
   })
 
@@ -5730,8 +5926,9 @@ export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
  *
  * Moves a waiting registration onto the schedule for students who have looked, or restarts that
  * schedule at most once a day. Recorded against the completion too, so a visit before there is a
- * registration, or before a student number is linked, still counts once there is. Idempotent enough
- * to call on every page load; the page sends it once per load.
+ * registration, or before a student number is linked, still counts once there is; an unlinked
+ * caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+ * every page load; the page sends it once per load.
  */
 export const recordMyEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
   options: Options<RecordMyEnrolmentPageVisitData, ThrowOnError>,
@@ -5814,8 +6011,8 @@ export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = t
  *
  * Counts as a check request: a waiting registration restarts its checks on the check-requested
  * schedule, under the limit every check request shares. Recorded against the completion too, so a
- * registration that starts waiting later starts on that schedule. With account linking on, a caller
- * with no linked student number books a roster listing of the course code instead.
+ * registration that starts waiting later starts on that schedule. For a caller with no linked
+ * student number, it also makes the course code's enrolment list due sooner.
  */
 export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
   options: Options<ConfirmMyEnrolmentData, ThrowOnError>,

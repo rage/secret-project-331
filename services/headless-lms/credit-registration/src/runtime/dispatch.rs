@@ -284,7 +284,9 @@ async fn run_body(
             config_validation::run(pool, scope, registry).await
         }
         CreditRegistrationPhase::RetentionSweep => retention_sweep::run(pool).await,
-        CreditRegistrationPhase::LedgerSnapshot => ledger_snapshot::run(pool).await,
+        CreditRegistrationPhase::LedgerSnapshot => {
+            ledger_snapshot::run(pool, ctx.account_linking_since).await
+        }
     }
 }
 

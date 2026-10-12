@@ -2,8 +2,10 @@ import type {
   AdminManualLinkOutcome,
   CreditRegistrationAdminAction,
   CreditRegistrationAdminActionTarget,
+  CreditRegistrationAlert,
   CreditRegistrationAlertId,
   CreditRegistrationAttentionReason,
+  CreditRegistrationEnrolmentRoute,
   CreditRegistrationErrorCode,
   CreditRegistrationEventKind,
   CreditRegistrationPendingReason,
@@ -11,9 +13,9 @@ import type {
   EmailSendStatus,
   EnrolmentCheckGroup,
   EnrolmentCheckSource,
+  LinkingCandidateSimilarity,
   ResendOutcome,
   Retryability,
-  RosterTier,
   StudentNumberVerificationMethod,
   SuotarEndpoint,
 } from "@/generated/api/types.generated"
@@ -27,11 +29,56 @@ import {
   registrationLedgerStateLabel,
 } from "../creditRegistrationCopy"
 import { labelFrom, translateKey, widenedLookup } from "../labelFrom"
+import { formatSharePercent } from "./percent"
 
 export {
   notificationEmailLabel as notificationKindLabel,
   studentNumberVerificationLabel as verificationMethodLabel,
 } from "../teacherCreditRegistrations"
+
+/** Where the admin wording names Suotar or the admin; teachers see only Sisu. */
+const ADMIN_LEDGER_STATE_KEYS = {
+  submitting: "credit-registration-admin-ledger-state-submitting",
+  misregistered: "credit-registration-admin-ledger-state-misregistered",
+} as const satisfies Partial<Record<CreditRegistrationState, string>>
+
+const ADMIN_PENDING_REASON_STATE_KEYS = {
+  course_code: "credit-registration-admin-ledger-state-pending-course-code",
+} as const satisfies Partial<Record<CreditRegistrationPendingReason, string>>
+
+const ADMIN_ERROR_CODE_SHORT_KEYS = {
+  course_not_allowed: "credit-registration-admin-short-reason-course-not-allowed",
+  service_temporarily_unavailable:
+    "credit-registration-admin-short-reason-service-temporarily-unavailable",
+  transport_error: "credit-registration-admin-short-reason-transport-error",
+  sisu_timeout: "credit-registration-admin-short-reason-sisu-timeout",
+  unauthorized: "credit-registration-admin-short-reason-unauthorized",
+  unexpected_response: "credit-registration-admin-short-reason-unexpected-response",
+} as const satisfies Partial<Record<CreditRegistrationErrorCode, string>>
+
+/** `registrationLedgerStateLabel` as the admin dashboard words it. */
+export const adminLedgerStateLabel = (
+  t: CreditRegistrationTFunction,
+  state: CreditRegistrationState,
+  pendingReason?: CreditRegistrationPendingReason | null,
+): string => {
+  const adminKey =
+    state === "pending" && pendingReason
+      ? widenedLookup(ADMIN_PENDING_REASON_STATE_KEYS, pendingReason)
+      : widenedLookup(ADMIN_LEDGER_STATE_KEYS, state)
+  return adminKey
+    ? translateKey(t, adminKey)
+    : registrationLedgerStateLabel(t, state, pendingReason)
+}
+
+/** `registrationErrorShortLabel` as the admin dashboard words it. */
+export const adminErrorShortLabel = (
+  t: CreditRegistrationTFunction,
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+): string | null => {
+  const adminKey = errorCode ? widenedLookup(ADMIN_ERROR_CODE_SHORT_KEYS, errorCode) : undefined
+  return adminKey ? translateKey(t, adminKey) : registrationErrorShortLabel(t, errorCode)
+}
 
 /** How much the link is worth as proof. */
 const VERIFICATION_METHOD_TONES = {
@@ -112,6 +159,9 @@ const ADMIN_ERROR_CODE_KEYS = {
 } as const satisfies Record<CreditRegistrationErrorCode, string>
 
 const ADMIN_ERROR_UNKNOWN_KEY = "credit-registration-admin-error-unknown"
+
+/** Every error code, for a filter that offers them all. */
+export const ERROR_CODES = Object.keys(ADMIN_ERROR_CODE_KEYS) as CreditRegistrationErrorCode[]
 
 /**
  * The two codes whose sentence names the value Sisu rejected. Without the value the sentence still
@@ -229,27 +279,44 @@ const ALERT_KEYS = {
 
 const GENERIC_ALERT_KEY = "credit-registration-alert-generic"
 
+const MINUTE_SECS = 60
+const HOUR_SECS = 3600
+const DAY_SECS = 86_400
+
+/** A rule's window in words, to slot into a sentence after "in the last". */
+const windowInWords = (t: CreditRegistrationTFunction, seconds: number): string => {
+  if (seconds >= DAY_SECS) {
+    return t("credit-registration-window-days", { count: Math.round(seconds / DAY_SECS) })
+  }
+  if (seconds >= HOUR_SECS) {
+    return t("credit-registration-window-hours", { count: Math.round(seconds / HOUR_SECS) })
+  }
+  return t("credit-registration-window-minutes", {
+    count: Math.max(1, Math.round(seconds / MINUTE_SECS)),
+  })
+}
+
 /**
- * One alert as the sentence the banner links.
+ * One alert as the sentence the banner shows, the window it was measured over included.
  *
- * `subject` is whatever the backend named as the commonest cause — a state, a mail domain, a phase.
+ * `subject` is whatever the backend named as the commonest cause: a state, a mail domain, a phase.
  * A state is translated on the way in, so the banner never shows a wire name; anything else is
  * passed through as the backend wrote it.
  */
 export const alertSentence = (
   t: CreditRegistrationTFunction,
-  id: CreditRegistrationAlertId,
-  count: number,
-  subject: string | null | undefined,
-  total: number | null | undefined,
+  alert: CreditRegistrationAlert,
+  locale: string,
 ): string =>
-  labelFrom(t, ALERT_KEYS, id, GENERIC_ALERT_KEY, {
-    count,
+  labelFrom(t, ALERT_KEYS, alert.id, GENERIC_ALERT_KEY, {
+    count: alert.count,
     subject:
-      subject && isLedgerState(subject)
-        ? registrationLedgerStateLabel(t, subject)
-        : (subject ?? ""),
-    total: total ?? 0,
+      alert.subject && isLedgerState(alert.subject)
+        ? adminLedgerStateLabel(t, alert.subject)
+        : (alert.subject ?? ""),
+    total: alert.total ?? 0,
+    percent: alert.total ? formatSharePercent(alert.count, alert.total, locale) : "",
+    window: alert.window_secs ? windowInWords(t, alert.window_secs) : "",
   })
 
 const ATTENTION_REASON_KEYS = {
@@ -259,6 +326,11 @@ const ATTENTION_REASON_KEYS = {
   misregistered: "credit-registration-admin-reason-misregistered",
   too_many_attempts: "credit-registration-admin-reason-too-many-attempts",
   outcome_uncertain: "credit-registration-admin-reason-outcome-uncertain",
+  partly_registered_overdue: "credit-registration-admin-reason-partly-registered-overdue",
+  verification_gave_up: "credit-registration-admin-reason-verification-gave-up",
+  repeatedly_not_registered: "credit-registration-admin-reason-repeatedly-not-registered",
+  student_number_stuck: "credit-registration-admin-reason-student-number-stuck",
+  flagged_by_pipeline: "credit-registration-admin-reason-flagged-by-pipeline",
 } as const satisfies Record<CreditRegistrationAttentionReason, string>
 
 const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
@@ -278,23 +350,6 @@ export const attentionReasonLabel = (
 ): string => labelFrom(t, ATTENTION_REASON_KEYS, reason, ATTENTION_REASON_UNKNOWN_KEY)
 
 /**
- * The error's short label beside a state badge, or `null` when it would just repeat the badge
- * (e.g. a misregistered row's error label and state label are the same sentence).
- */
-export const registrationErrorNote = (
-  t: CreditRegistrationTFunction,
-  state: CreditRegistrationState,
-  errorCode: CreditRegistrationErrorCode | null | undefined,
-  pendingReason?: CreditRegistrationPendingReason | null,
-): string | null => {
-  const errorLabel = registrationErrorShortLabel(t, errorCode)
-  if (errorLabel === null) {
-    return null
-  }
-  return errorLabel === registrationLedgerStateLabel(t, state, pendingReason) ? null : errorLabel
-}
-
-/**
  * Why a course code's roster listing fails. On the listing, `course_code_not_found` means only that
  * no realisation of the code is current, not that the code is wrong.
  */
@@ -304,7 +359,7 @@ export const listingErrorLabel = (
 ): string =>
   errorCode === "course_code_not_found"
     ? t("credit-registration-admin-listing-no-current-realisations")
-    : (registrationErrorShortLabel(t, errorCode) ?? errorCode)
+    : (adminErrorShortLabel(t, errorCode) ?? errorCode)
 
 const RETRYABILITY_KEYS = {
   retryable_transient: "credit-registration-admin-retryability-transient",
@@ -351,6 +406,10 @@ export const ADMIN_ACTION_KEYS = {
   unlink_student_number: "credit-registration-admin-action-unlink-student-number",
   manual_link_student_number: "credit-registration-admin-action-manual-link-student-number",
   override_rate_cap: "credit-registration-admin-action-override-rate-cap",
+  request_enrolment_list_fetch: "credit-registration-admin-action-request-enrolment-list-fetch",
+  dismiss_study_registry_conflict:
+    "credit-registration-admin-action-dismiss-study-registry-conflict",
+  dismiss_attention: "credit-registration-admin-action-dismiss-attention",
 } as const satisfies Record<CreditRegistrationAdminAction, string>
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
@@ -367,6 +426,9 @@ export const ADMIN_TARGET_KEYS = {
   phase: "credit-registration-admin-action-target-phase",
   verified_student_number: "credit-registration-admin-action-target-verified-student-number",
   student_number_verification_token: "credit-registration-admin-action-target-token",
+  roster_schedule: "credit-registration-admin-action-target-roster-schedule",
+  study_registry_student_number_conflict:
+    "credit-registration-admin-action-target-study-registry-conflict",
 } as const satisfies Record<CreditRegistrationAdminActionTarget, string>
 
 const ADMIN_TARGET_UNKNOWN_KEY = "credit-registration-admin-action-target-unknown"
@@ -394,6 +456,7 @@ const RESEND_OUTCOME_KEYS = {
   queued: "credit-registration-admin-resend-queued",
   already_mailed_to_every_known_address: "credit-registration-admin-resend-already-mailed",
   refused_by_rate_cap: "credit-registration-admin-resend-refused-by-rate-cap",
+  just_sent: "credit-registration-admin-resend-just-sent",
   no_address_in_study_registry: "credit-registration-admin-resend-no-address",
   not_on_the_course_roster: "credit-registration-admin-resend-not-on-roster",
   already_linked: "credit-registration-admin-resend-already-linked",
@@ -407,6 +470,20 @@ export const resendOutcomeLabel = (
   t: CreditRegistrationTFunction,
   outcome: ResendOutcome,
 ): string => labelFrom(t, RESEND_OUTCOME_KEYS, outcome, RESEND_OUTCOME_UNKNOWN_KEY)
+
+const LINKING_SIMILARITY_KEYS = {
+  email: "credit-registration-admin-linking-similarity-email",
+  email_username: "credit-registration-admin-linking-similarity-email-username",
+  last_name: "credit-registration-admin-linking-similarity-last-name",
+  first_name: "credit-registration-admin-linking-similarity-first-name",
+} as const satisfies Record<LinkingCandidateSimilarity, string>
+
+const LINKING_SIMILARITY_UNKNOWN_KEY = "credit-registration-admin-linking-similarity-unknown"
+
+export const linkingSimilarityLabel = (
+  t: CreditRegistrationTFunction,
+  similarity: LinkingCandidateSimilarity,
+): string => labelFrom(t, LINKING_SIMILARITY_KEYS, similarity, LINKING_SIMILARITY_UNKNOWN_KEY)
 
 const MANUAL_LINK_OUTCOME_KEYS = {
   linked: "credit-registration-admin-manual-link-linked",
@@ -458,24 +535,26 @@ export const enrolmentCheckSourceLabel = (
   source: EnrolmentCheckSource,
 ): string => labelFrom(t, ENROLMENT_CHECK_SOURCE_KEYS, source, ENROLMENT_CHECK_SOURCE_UNKNOWN_KEY)
 
-/** A ladder step, or that the ladder ran out when there is none. */
+/** A rung as "3rd check" (rungs count from 0), or "Stopped" once the ladder ran out. */
 export const enrolmentCheckStepLabel = (
   t: CreditRegistrationTFunction,
   step: number | null | undefined,
 ): string =>
   step === null || step === undefined
     ? t("credit-registration-admin-enrolment-check-stopped")
-    : String(step)
+    : t("credit-registration-admin-enrolment-check-nth", { count: step + 1, ordinal: true })
 
-const ROSTER_TIER_KEYS = {
-  active: "credit-registration-admin-roster-tier-active",
-  idle: "credit-registration-admin-roster-tier-idle",
-  dormant: "credit-registration-admin-roster-tier-dormant",
-  unlisted: "credit-registration-admin-roster-tier-unlisted",
-} as const satisfies Record<RosterTier, string>
-
-const ROSTER_TIER_UNKNOWN_KEY = "credit-registration-admin-roster-tier-unknown"
-
-/** How often a course code's roster listing is due, from how recently it has had activity. */
-export const rosterTierLabel = (t: CreditRegistrationTFunction, tier: RosterTier): string =>
-  labelFrom(t, ROSTER_TIER_KEYS, tier, ROSTER_TIER_UNKNOWN_KEY)
+/** How the student said they enrolled in Sisu, or `null` when they have not said. */
+export const enrolmentRouteLabel = (
+  t: CreditRegistrationTFunction,
+  route: CreditRegistrationEnrolmentRoute | null | undefined,
+): string | null => {
+  switch (route) {
+    case "open_university":
+      return t("credit-registration-admin-enrolment-route-open-university")
+    case "university_of_helsinki":
+      return t("credit-registration-admin-enrolment-route-university-of-helsinki")
+    default:
+      return null
+  }
+}

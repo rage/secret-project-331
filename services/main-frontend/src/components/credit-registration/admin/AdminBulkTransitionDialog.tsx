@@ -9,7 +9,7 @@ import { adminBulkTransitionCreditRegistrations } from "@/generated/api/sdk.gene
 import type { AdminBulkTransitionResult } from "@/generated/api/types.generated"
 import { Checkbox, Infobox, Select } from "@/shared-module/components"
 
-import { CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss, proseCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
@@ -199,15 +199,18 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedRows, onApplied })
                 label:
                   skipped === 0
                     ? label
-                    : `${label}${MIDDLE_DOT}${t("credit-registration-admin-bulk-blocked-rows", {
-                        count: skipped,
-                      })}`,
+                    : t("credit-registration-admin-bulk-option-with-blocked", {
+                        action: label,
+                        blocked: t("credit-registration-admin-bulk-blocked-rows", {
+                          count: skipped,
+                        }),
+                      }),
                 textValue: label,
                 isDisabled: skipped === selectedRows.length,
               }
             })}
           />
-          <p className={noteCss}>{selectionSummary(t, groups).join(MIDDLE_DOT)}</p>
+          <p className={noteCss}>{selectionSummary(t, groups).join(", ")}</p>
           <BulkActionNotes control={control} selectedRows={selectedRows} />
           <ReasonField control={control} />
         </>

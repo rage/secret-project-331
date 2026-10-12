@@ -83,6 +83,9 @@ pub struct ServerRuntimeConfig {
     pub tmc_server_secret_for_communicating_to_secret_project: SecretString,
     pub ratelimit_protection_safe_api_key: SecretString,
     pub pod_namespace: String,
+    /// Git commit of the running image; `GIT_COMMIT` is set by the production image build, see
+    /// `Dockerfile.production.slim.dockerfile`. "unknown" elsewhere.
+    pub build_commit: String,
 }
 
 impl ServerRuntimeConfig {
@@ -146,6 +149,11 @@ impl ServerRuntimeConfig {
                 ratelimit_protection_safe_api_key.into(),
             ),
             pod_namespace: env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string()),
+            build_commit: env::var("GIT_COMMIT")
+                .ok()
+                .map(|commit| commit.trim().to_string())
+                .filter(|commit| !commit.is_empty())
+                .unwrap_or_else(|| "unknown".to_string()),
             app_conf,
             test_mode,
         })
@@ -361,7 +369,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(suotar_client)
         .service(
             web::scope("/api/v0")
-                .wrap(RateLimit::new(api_rate_limit_config))
+                .wrap(RateLimit::new(api_rate_limit_config).bypassable())
                 .wrap(RequestSpan)
                 .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );

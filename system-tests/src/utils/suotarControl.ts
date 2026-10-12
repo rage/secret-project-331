@@ -240,7 +240,7 @@ export const makeEnrolmentChecksDue = async (
 
 /**
  * Makes the roster listings of the course `scope` names due now and refills its listing rate, so a
- * spec can list its codes again without waiting out the tier interval, a failure backoff or the
+ * spec can list its codes again without waiting for their next fetch, a failure backoff or the
  * limiter. Returns how many codes it moved. Refuses a scope without a course.
  */
 export const makeRosterListingsDue = async (

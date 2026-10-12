@@ -5,7 +5,7 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseActivityTimeline from "@/components/CourseActivityTimeline"
-import { MIDDLE_DOT, TIME_COMPACT, TONE } from "@/components/credit-registration/constants"
+import { TIME_COMPACT, TONE } from "@/components/credit-registration/constants"
 import { noteCss, rowCss, subsectionCss } from "@/components/credit-registration/styles"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
@@ -16,6 +16,7 @@ import {
   Link,
   METER_KIND,
   MeterInline,
+  MIDDLE_DOT,
   RelativeTime,
 } from "@/shared-module/components"
 

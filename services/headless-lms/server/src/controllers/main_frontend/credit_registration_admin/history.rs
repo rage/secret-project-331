@@ -1,4 +1,5 @@
-//! The Pipeline tab's history: queue depth per state per day, and the flow through each.
+//! History: queue depth per state per day and the flow through each, and per timeline step with
+//! the Needs attention count.
 //!
 //! Reads the daily snapshots the `ledger-snapshot` phase writes. The ledger holds current state
 //! only, so a row that passed through a state in an hour leaves no depth trace there — history
@@ -7,6 +8,9 @@
 use chrono::{Duration, NaiveDate};
 use headless_lms_models::credit_registration_daily_snapshots;
 use headless_lms_models::credit_registrations::CreditRegistrationState;
+use headless_lms_models::library::credit_registration::timeline::{
+    Engagement, TimelinePhase, TimelineStep,
+};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -27,6 +31,16 @@ pub struct CreditRegistrationHistoryPoint {
     pub left_count: i32,
 }
 
+/// One timeline step's count on one day.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationHistoryStepPoint {
+    pub phase: TimelinePhase,
+    pub step: TimelineStep,
+    /// `None` on a step that does not wait on the student.
+    pub engagement: Option<Engagement>,
+    pub count: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationHistoryDay {
     /// The UTC day the snapshot describes.
@@ -34,6 +48,11 @@ pub struct CreditRegistrationHistoryDay {
     /// Every state, whether or not anything is in it: a missing state would read as a gap in the
     /// chart rather than as an empty queue.
     pub states: Vec<CreditRegistrationHistoryPoint>,
+    /// Every step that had live rows, Not started included. Empty on days before step snapshots
+    /// began.
+    pub steps: Vec<CreditRegistrationHistoryStepPoint>,
+    /// `None` on days before the count was snapshotted.
+    pub needs_attention_count: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -52,7 +71,8 @@ pub struct HistoryQuery {
 
 /**
 GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
-ledger state, with what entered and left each state that day.
+ledger state, with what entered and left each state that day, and the count per timeline step and
+the Needs attention count from the day those snapshots began.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -87,6 +107,8 @@ pub async fn get_credit_registration_pipeline_history(
             history.push(CreditRegistrationHistoryDay {
                 snapshot_date: row.snapshot_date,
                 states: Vec::new(),
+                steps: Vec::new(),
+                needs_attention_count: None,
             });
         }
         if let Some(day) = history.last_mut() {
@@ -96,6 +118,33 @@ pub async fn get_credit_registration_pipeline_history(
                 entered_count: row.entered_count,
                 left_count: row.left_count,
             });
+        }
+    }
+
+    for row in
+        credit_registration_daily_snapshots::get_step_counts_between(&mut conn, from, to).await?
+    {
+        if let Some(day) = history
+            .iter_mut()
+            .find(|day| day.snapshot_date == row.snapshot_date)
+        {
+            day.steps.push(CreditRegistrationHistoryStepPoint {
+                phase: row.step.phase(),
+                step: row.step,
+                engagement: row.engagement,
+                count: row.count,
+            });
+        }
+    }
+    for (snapshot_date, count) in
+        credit_registration_daily_snapshots::get_attention_counts_between(&mut conn, from, to)
+            .await?
+    {
+        if let Some(day) = history
+            .iter_mut()
+            .find(|day| day.snapshot_date == snapshot_date)
+        {
+            day.needs_attention_count = Some(count);
         }
     }
 

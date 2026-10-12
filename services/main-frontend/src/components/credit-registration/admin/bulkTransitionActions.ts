@@ -5,7 +5,7 @@ import type {
 } from "@/generated/api/types.generated"
 
 import type { CreditRegistrationTFunction } from "../constants"
-import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
+import { adminLedgerStateLabel } from "./adminCreditRegistrationCopy"
 import type { TransitionChoice } from "./TransitionTargetSelect"
 import { CANCELLED, CHECK_NOW, CLEAR_ATTENTION, READY_TO_SUBMIT } from "./TransitionTargetSelect"
 
@@ -71,6 +71,6 @@ export const selectionSummary = (
   groups.map((group) =>
     t("credit-registration-admin-bulk-state-count", {
       count: group.count,
-      state: registrationLedgerStateLabel(t, group.state),
+      state: adminLedgerStateLabel(t, group.state),
     }),
   )

@@ -1,18 +1,16 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import type { ColumnDef } from "@tanstack/react-table"
-import React, { useDeferredValue, useMemo } from "react"
+import type { CellContext, ColumnDef } from "@tanstack/react-table"
+import React, { createContext, useContext, useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
-import {
-  ABSENT,
-  CREDIT_REGISTRATION_NS,
-  QUIET_REFRESH,
-} from "@/components/credit-registration/constants"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { CREDIT_REGISTRATION_NS, QUIET_REFRESH } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import CourseCreditRegistrationSummaryPanel from "@/components/credit-registration/CourseCreditRegistrationSummaryPanel"
+import { hasOnlyDefaultModule } from "@/components/credit-registration/creditRegistrationCopy"
 import CreditRegistrationSetupNote from "@/components/credit-registration/CreditRegistrationSetupNote"
 import CreditRegistrationStatusCell, {
   CREDIT_REGISTRATION_CELL_CHROME_PX,
@@ -24,10 +22,11 @@ import {
   creditRegistrationKey,
   useTeacherCreditRegistrations,
 } from "@/components/credit-registration/teacherCreditRegistrations"
-import type { CompletionGridRow, CourseCreditRegistration } from "@/generated/api/types.generated"
+import type { CompletionGridRow } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { EmptyState, QueryResults } from "@/shared-module/components"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { ABSENT_LABEL, EmptyState, QueryResults } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -142,7 +141,7 @@ const gradeLabel = (grade: unknown, passed: unknown, t: CreditRegistrationTFunct
   if (passed === false) {
     return t("label-not-passed")
   }
-  return ABSENT
+  return ABSENT_LABEL
 }
 
 /** Width of the review badge, which the plain-text column measurement cannot see. */
@@ -169,6 +168,38 @@ const GradeCell: React.FC<{
   )
 }
 
+interface RegistrationCellSource {
+  creditRegistrations: CreditRegistrationIndex
+  isCreditRegistrationsPending: boolean
+  isCourseWide: boolean | undefined
+}
+
+const RegistrationCellContext = createContext<RegistrationCellSource>({
+  creditRegistrations: new Map(),
+  isCreditRegistrationsPending: true,
+  isCourseWide: undefined,
+})
+
+type CompletionColumn = ColumnDef<StudentsTableFeatures, CompletionRow, unknown>
+
+/**
+ * The table mounts each `cell` function as a component, so a new one on every registrations refetch
+ * would remount the cell and close the details dialog open in it. These read the registrations from
+ * context and stay the same.
+ */
+const registrationCellFor = (moduleId: string) => {
+  const ModuleRegistrationCell = ({
+    row,
+  }: CellContext<StudentsTableFeatures, CompletionRow, unknown>) => (
+    <RegistrationCell
+      registered={Boolean(row.original[registeredKeyOf(moduleId)])}
+      userId={row.original.user_id}
+      moduleId={moduleId}
+    />
+  )
+  return ModuleRegistrationCell
+}
+
 /**
  * The registry's own state when the ledger has a row, else the legacy registered flag.
  *
@@ -178,12 +209,20 @@ const GradeCell: React.FC<{
  */
 const RegistrationCell: React.FC<{
   registered: boolean
-  creditRegistration: CourseCreditRegistration | undefined
-  isCreditRegistrationsPending: boolean
-}> = ({ registered, creditRegistration, isCreditRegistrationsPending }) => {
+  userId: string
+  moduleId: string
+}> = ({ registered, userId, moduleId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { creditRegistrations, isCreditRegistrationsPending, isCourseWide } =
+    useContext(RegistrationCellContext)
+  const creditRegistration = creditRegistrations.get(creditRegistrationKey(userId, moduleId))
   if (creditRegistration) {
-    return <CreditRegistrationStatusCell registration={creditRegistration} />
+    return (
+      <CreditRegistrationStatusCell
+        registration={creditRegistration}
+        {...omitUndefined({ isCourseWide })}
+      />
+    )
   }
   if (registered) {
     return <span>{t("registered")}</span>
@@ -195,7 +234,7 @@ const RegistrationCell: React.FC<{
       </span>
     )
   }
-  return <span>{ABSENT}</span>
+  return <AbsentValue />
 }
 
 const buildColumns = (
@@ -203,9 +242,9 @@ const buildColumns = (
   t: CreditRegistrationTFunction,
   locale: string,
   creditRegistrations: CreditRegistrationIndex,
-  isCreditRegistrationsPending: boolean,
-): ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] => {
-  const columns: ColumnDef<StudentsTableFeatures, CompletionRow, unknown>[] = [
+  registrationCells: ReadonlyMap<string, ReturnType<typeof registrationCellFor>>,
+): CompletionColumn[] => {
+  const columns: CompletionColumn[] = [
     {
       // oxlint-disable-next-line i18next/no-literal-string
       id: "last_name",
@@ -249,15 +288,7 @@ const buildColumns = (
           header: t("credit-registration-column-registration"),
           enableSorting: false,
           minSize: COMPLETIONS_LEAF_MIN_WIDTH,
-          cell: ({ row }) => (
-            <RegistrationCell
-              registered={Boolean(row.original[registeredKeyOf(moduleId)])}
-              creditRegistration={creditRegistrations.get(
-                creditRegistrationKey(row.original.user_id, moduleId),
-              )}
-              isCreditRegistrationsPending={isCreditRegistrationsPending}
-            />
-          ),
+          ...omitUndefined({ cell: registrationCells.get(moduleId) }),
           meta: {
             measureValue: (row: CompletionRow) =>
               creditRegistrationCellText(
@@ -288,6 +319,9 @@ export const CompletionsTabContent: React.FC = () => {
   const detailQuery = useCourseStudentsCompletionsDetail(courseId, userIds)
   const structureQuery = useCourseStructure(courseId)
   const structureModules = useMemo(() => structureQuery.data?.modules ?? [], [structureQuery.data])
+  const isCourseWide = structureQuery.data
+    ? hasOnlyDefaultModule(structureQuery.data.modules.map((module) => module.name))
+    : undefined
   const {
     data: creditRegistrations,
     isAuthorized: canSeeCreditRegistrations,
@@ -311,16 +345,18 @@ export const CompletionsTabContent: React.FC = () => {
     () => pivotCompletions(deferredIdentityRows, deferredDetailData ?? [], structureModules, t),
     [deferredIdentityRows, deferredDetailData, structureModules, t],
   )
+  const moduleIdsKey = modulesInOrder.map((module) => module.id).join(",")
+  const registrationCells = useMemo(
+    () => new Map(moduleIdsKey.split(",").map((id) => [id, registrationCellFor(id)])),
+    [moduleIdsKey],
+  )
   const columns = useMemo(
-    () =>
-      buildColumns(
-        modulesInOrder,
-        t,
-        i18n.language,
-        creditRegistrations,
-        isCreditRegistrationsPending,
-      ),
-    [modulesInOrder, t, i18n.language, creditRegistrations, isCreditRegistrationsPending],
+    () => buildColumns(modulesInOrder, t, i18n.language, creditRegistrations, registrationCells),
+    [modulesInOrder, t, i18n.language, creditRegistrations, registrationCells],
+  )
+  const registrationCellSource = useMemo(
+    () => ({ creditRegistrations, isCreditRegistrationsPending, isCourseWide }),
+    [creditRegistrations, isCreditRegistrationsPending, isCourseWide],
   )
 
   // The detail request is skipped while the page lists nobody, so a query that can never resolve
@@ -357,14 +393,16 @@ export const CompletionsTabContent: React.FC = () => {
           treatEmptyAsData
           refreshIndicator={QUIET_REFRESH}
           renderData={() => (
-            <StaleTableWrapper isStale={isStale}>
-              <StudentsTable
-                columns={columns}
-                data={data}
-                sorting={sorting}
-                onSortingChange={onSortingChange}
-              />
-            </StaleTableWrapper>
+            <RegistrationCellContext.Provider value={registrationCellSource}>
+              <StaleTableWrapper isStale={isStale}>
+                <StudentsTable
+                  columns={columns}
+                  data={data}
+                  sorting={sorting}
+                  onSortingChange={onSortingChange}
+                />
+              </StaleTableWrapper>
+            </RegistrationCellContext.Provider>
           )}
         />
       )}

@@ -64,6 +64,8 @@ derive_more = { version = "2.1.1", features = ["full"] }
 bytes = "1.12.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.15.0"
+# Insertion-ordered map.
+indexmap = "2.14.1"
 # the BLAKE3 hash function
 blake3 = "1.8.7"
 # Recursively walk a directory.

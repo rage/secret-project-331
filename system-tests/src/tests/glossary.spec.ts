@@ -147,7 +147,12 @@ test("glossary test", async ({ page, headless }, testInfo) => {
       testInfo,
       snapshotName: "glossary-tooltips",
       beforeScreenshot: async () => {
+        const tooltip = page.getByRole("tooltip", { name: SSD_DEFINITION })
+        // The previous viewport's tooltip is still closing after the mouse moved away, and
+        // hovering just as its close delay expires leaves it closed.
+        await expect(tooltip).toBeHidden()
         await page.getByRole("button", { name: "SSD" }).first().hover()
+        await expect(tooltip).toBeVisible()
       },
     })
   })

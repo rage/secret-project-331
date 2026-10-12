@@ -376,7 +376,7 @@ pub struct MakeRosterListingsDueResult {
 }
 
 /// Makes the roster listings of the scope's course due now and refills the listing limiter of the
-/// scope, so a spec can list its codes again without waiting out the tier interval, a backoff or
+/// scope, so a spec can list its codes again without waiting for their next fetch, a backoff or
 /// the rate. Takes the tick's scope, which must name a course; the phase is ignored.
 async fn make_roster_listings_due(
     app_conf: web::Data<ApplicationConfiguration>,

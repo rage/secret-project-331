@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM credit_registration_account_linking_emails\n    WHERE course_id = $1\n      AND student_number = $2\n      AND sent_at >= $3\n  ) AS \"claimed!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "claimed!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "ed772cf43d452bfbe5b0854cb1469f8615f1c7581f50708054e523c3772a8d8b"
+}

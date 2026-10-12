@@ -15,6 +15,7 @@ import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS } from "../constants"
+import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
@@ -33,6 +34,8 @@ interface Fields {
   reason: string
 }
 
+const DEFAULT_FIELDS: Fields = { override_rate_caps: false, reason: "" }
+
 /**
  * Sends the account-linking mail for one person and course again.
  *
@@ -48,22 +51,27 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
-  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
-    override_rate_caps: false,
-    reason: "",
-  })
+  const { control, handleSubmit, watch, reset } = useReasonRequiredForm<Fields>(DEFAULT_FIELDS)
   const override = watch("override_rate_caps")
 
-  const { result, setResult, mutation } = useActionResult((fields: Fields) =>
-    adminResendAccountLinkingEmail({
-      body: {
-        student_number: studentNumber,
-        course_id: courseId,
-        override_rate_caps: fields.override_rate_caps,
-        reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
-      },
-    }),
+  const { result, setResult, mutation } = useActionResult(
+    (fields: Fields) =>
+      adminResendAccountLinkingEmail({
+        body: {
+          student_number: studentNumber,
+          course_id: courseId,
+          override_rate_caps: fields.override_rate_caps,
+          reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
+        },
+      }),
+    (sent) => {
+      if (sent.outcome === RESEND_QUEUED) {
+        reset(DEFAULT_FIELDS)
+      }
+    },
   )
+  // Pressing again would only run into, or override, the mail just claimed.
+  const isJustQueued = result?.outcome === RESEND_QUEUED
 
   const closeDialog = () => {
     onClose()
@@ -85,6 +93,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       label: t("button-text-resend-linking-email"),
       variant: BUTTON_PRIMARY,
       isLoading: mutation.isPending,
+      disabled: isJustQueued,
       onPress: () => void submit(),
     },
   ]

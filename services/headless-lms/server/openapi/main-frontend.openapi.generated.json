@@ -7307,7 +7307,7 @@
             }
           },
           "422": {
-            "description": "An override without a reason"
+            "description": "An override without a reason, or a linking email to the person on the course was claimed under a minute ago"
           }
         }
       }

@@ -10671,7 +10671,7 @@ export type AdminResendAccountLinkingEmailData = {
 
 export type AdminResendAccountLinkingEmailErrors = {
   /**
-   * An override without a reason
+   * An override without a reason, or a linking email to the person on the course was claimed under a minute ago
    */
   422: unknown
 }

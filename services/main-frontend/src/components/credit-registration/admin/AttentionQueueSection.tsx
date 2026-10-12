@@ -50,7 +50,7 @@ import {
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
 import AttentionRowActions from "./AttentionRowActions"
-import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
+import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 import { moduleSubtitleParts } from "./moduleSubtitle"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
@@ -132,7 +132,7 @@ const AttentionItemsTable: React.FC<{
               />
               <ManualLinkingEmailSendLines
                 sends={row.manual_linking_email_sends}
-                wording={SEND_LINE_WORDING.REGISTRATION}
+                variant="registration"
               />
             </span>
           ),

@@ -33,12 +33,11 @@ export const candidateFullName = (candidate: {
 export const candidateName = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) =>
   candidateFullName(candidate) || t("credit-registration-admin-linking-candidate-no-name")
 
-const hasBeenEmailed = (candidate: AdminLinkingCandidate): boolean =>
-  candidate.linking_emails_for_course > 0 || candidate.manual_sends.length > 0
-
 /** Whether any listed person has had a linking email, so saying "not emailed" tells them apart. */
 export const showsNotEmailed = (candidates: AdminLinkingCandidate[]): boolean =>
-  candidates.some((candidate) => hasBeenEmailed(candidate))
+  candidates.some(
+    (candidate) => candidate.linking_emails_for_course > 0 || candidate.manual_sends.length > 0,
+  )
 
 /** What tells a listed person apart, for `InlineParts`: address, enrolment time, emails so far. */
 export const candidateFacts = (
@@ -61,7 +60,7 @@ export const candidateFacts = (
         count: candidate.linking_emails_for_course,
       })
     : isNotEmailedShown &&
-      !hasBeenEmailed(candidate) &&
+      candidate.manual_sends.length === 0 &&
       t("credit-registration-admin-linking-candidate-not-emailed"),
 ]
 
@@ -107,7 +106,7 @@ export const ResendOutcomeNotice: React.FC<{
 }
 
 /** A send request that failed, in the server's words when it refused it with a reason. */
-export const SendFailedNotice: React.FC<{ error: unknown }> = ({ error }) => {
+const SendFailedNotice: React.FC<{ error: unknown }> = ({ error }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { t: tShared } = useTranslation()
   const view = normalizeErrorForDisplay(error, tShared)
@@ -118,4 +117,18 @@ export const SendFailedNotice: React.FC<{ error: unknown }> = ({ error }) => {
       {message || t("credit-registration-admin-send-linking-email-send-failed")}
     </Infobox>
   )
+}
+
+/** The last send's outcome, or why it failed; nothing while a send is under way. */
+export const SendNotice: React.FC<{
+  result: AdminResendAccountLinkingEmailResult | null
+  mutation: { isPending: boolean; isError: boolean; error: unknown }
+}> = ({ result, mutation }) => {
+  if (mutation.isPending) {
+    return null
+  }
+  if (mutation.isError) {
+    return <SendFailedNotice error={mutation.error} />
+  }
+  return result && <ResendOutcomeNotice result={result} />
 }

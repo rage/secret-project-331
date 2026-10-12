@@ -33,12 +33,11 @@ import {
   candidateFullName,
   candidateListCss,
   candidateName,
-  ResendOutcomeNotice,
-  SendFailedNotice,
+  SendNotice,
   showsNotEmailed,
   withSendResult,
 } from "./linkingCandidate"
-import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
+import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 
 interface Fields {
   course_id: string | null
@@ -149,10 +148,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
       actions={actions}
     >
       <div className={dialogFormCss}>
-        {result && !mutation.isPending && !mutation.isError && (
-          <ResendOutcomeNotice result={result} />
-        )}
-        {mutation.isError && <SendFailedNotice error={mutation.error} />}
+        <SendNotice result={result} mutation={mutation} />
         {coursesQuery.isError && (
           <Infobox tone={TONE.DANGER}>
             {t("credit-registration-admin-send-linking-email-courses-failed")}
@@ -223,7 +219,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
                         <InlineParts parts={candidateFacts(t, person, isNotEmailedShown)} />
                         <ManualLinkingEmailSendLines
                           sends={person.manual_sends}
-                          wording={SEND_LINE_WORDING.CANDIDATE}
+                          variant="candidate"
                         />
                       </span>
                     }

@@ -26,12 +26,11 @@ import {
   candidateFacts,
   candidateListCss,
   candidateName,
-  ResendOutcomeNotice,
-  SendFailedNotice,
+  SendNotice,
   showsNotEmailed,
   withSendResult,
 } from "./linkingCandidate"
-import ManualLinkingEmailSendLines, { SEND_LINE_WORDING } from "./ManualLinkingEmailSendLines"
+import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 
 interface Props extends DialogOpenState {
   registrationId: string
@@ -129,10 +128,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
       actions={actions}
     >
       <div className={dialogFormCss}>
-        {result && !mutation.isPending && !mutation.isError && (
-          <ResendOutcomeNotice result={result} />
-        )}
-        {mutation.isError && <SendFailedNotice error={mutation.error} />}
+        <SendNotice result={result} mutation={mutation} />
         {candidatesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}
@@ -168,7 +164,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
                       <InlineParts parts={candidateFacts(t, candidate, isNotEmailedShown)} />
                       <ManualLinkingEmailSendLines
                         sends={candidate.manual_sends}
-                        wording={SEND_LINE_WORDING.CANDIDATE}
+                        variant="candidate"
                       />
                       {candidate.similarities.length > 0 && (
                         <span className={rowCss}>

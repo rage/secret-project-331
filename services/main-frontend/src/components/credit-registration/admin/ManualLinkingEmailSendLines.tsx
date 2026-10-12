@@ -22,25 +22,19 @@ const SENTENCES = {
   },
 } as const
 
-export const SEND_LINE_WORDING = {
-  /** Under a person in a send dialog, where the email is the dialog's subject. */
-  CANDIDATE: "candidate",
-  /** Away from the dialogs, where the line has to say it was a linking email. */
-  REGISTRATION: "registration",
-} as const
-
 interface Props {
   sends: AdminManualLinkingEmailSend[]
-  wording: (typeof SEND_LINE_WORDING)[keyof typeof SEND_LINE_WORDING]
+  /** `candidate` under a person in a send dialog; `registration` elsewhere, naming the email. */
+  variant: keyof typeof SENTENCES
 }
 
 /** Who sent linking emails by hand, to where and when, one line each. */
-const ManualLinkingEmailSendLines: React.FC<Props> = ({ sends, wording }) => {
+const ManualLinkingEmailSendLines: React.FC<Props> = ({ sends, variant }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (sends.length === 0) {
     return null
   }
-  const sentences = SENTENCES[wording]
+  const sentences = SENTENCES[variant]
   return (
     <span className={stackedCellCss}>
       {sends.map((send) => {

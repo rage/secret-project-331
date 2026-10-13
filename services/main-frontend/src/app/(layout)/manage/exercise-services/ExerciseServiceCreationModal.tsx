@@ -32,7 +32,7 @@ const ExerciseServiceCreationModal: React.FC<
     <Dialog
       open={open}
       onClose={handleClose}
-      title={t("button-text-create")}
+      title={t("title-new-exercise-service")}
       actions={[
         { label: t("button-text-cancel"), variant: "secondary", onPress: handleClose },
         { label: t("button-text-create"), variant: "primary", onPress: handleSubmit },

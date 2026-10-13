@@ -11,12 +11,12 @@ import { useTranslation } from "react-i18next"
 import type { DropdownMenuItem } from "@/components/DropdownMenu"
 import DropdownMenu from "@/components/DropdownMenu"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
+import { LoadingRegion } from "@/shared-module/components"
 import { removeSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
@@ -211,7 +211,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     })
   }
   if (currentConversationInfo.isLoading) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion minHeight={64} />
   }
 
   if (currentConversationInfo.isError) {

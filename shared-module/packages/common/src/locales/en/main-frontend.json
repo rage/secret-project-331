@@ -261,7 +261,7 @@
   "chatbot-action-executed": "Confirmed and done.",
   "chatbot-action-pending-confirmation": "Review this carefully before confirming.",
   "chatbot-asked-a-question": "The chatbot asked you a question",
-  "chatbot-command-center-empty-hint": "Pick a chatbot above to open a conversation with it.",
+  "chatbot-command-center-empty-hint": "Start a new conversation to pick a chatbot to talk to.",
   "chatbot-command-center-empty-title": "No chatbot selected",
   "chatbot-configuration-intro": "This chatbot configuration controls how the chatbot behaves and what it's allowed to do when talking with students. Changes here take effect for every future conversation as soon as you save.",
   "chatbot-discalimer-sensitive-information": "Never disclose any sensitive information to the chatbot.",

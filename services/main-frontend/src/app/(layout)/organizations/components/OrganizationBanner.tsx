@@ -31,7 +31,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
   return (
     <div
       key={organization.id}
-      aria-label={organization.name}
+      aria-label={organization.name || organization.slug}
       className={css`
         padding: 0em 0.4em;
         color: #656565;
@@ -69,7 +69,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
       >
         <OrganizationIcon />
         <OrganizationText
-          name={organization.name}
+          name={organization.name || organization.slug}
           {...omitUndefined({ hidden: organization.hidden })}
         />
         <div

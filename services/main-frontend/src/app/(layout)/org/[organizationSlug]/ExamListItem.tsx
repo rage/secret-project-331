@@ -9,7 +9,7 @@ import type { OrgExam } from "@/generated/api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { examRoute, manageExamRoute } from "@/shared-module/common/utils/routes"
-import { dateToDateTimeLocalString, humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToDateTimeLocalString, dateToString } from "@/shared-module/common/utils/time"
 import { Link } from "@/shared-module/components"
 
 type Exam = Pick<
@@ -74,7 +74,7 @@ const ManageLink = styled.div`
 `
 
 const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   return (
     <ListItem data-testid="exam-list-item">
@@ -86,7 +86,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
           <span className="label">{t("start-date")}:</span>
           <span className="value">
             <HideTextInSystemTests
-              text={humanReadableDateTime(exam.starts_at, i18n.language) ?? t("n-a")}
+              text={exam.starts_at ? dateToString(exam.starts_at) : t("n-a")}
               testPlaceholder={dateToDateTimeLocalString(parseISO("2022-01-01T00:00:00"))}
             />
           </span>
@@ -95,7 +95,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
           <span className="label">{t("end-date")}:</span>
           <span className="value">
             <HideTextInSystemTests
-              text={humanReadableDateTime(exam.ends_at, i18n.language) ?? t("n-a")}
+              text={exam.ends_at ? dateToString(exam.ends_at) : t("n-a")}
               testPlaceholder={dateToDateTimeLocalString(parseISO("2022-01-01T00:00:00"))}
             />
           </span>

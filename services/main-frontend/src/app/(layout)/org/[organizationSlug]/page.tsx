@@ -21,6 +21,7 @@ import ExamList from "./ExamList"
 /** Subordinate to the organization name above it, which is the page title. */
 const sectionHeadingCss = css`
   font-size: var(--font-size-4);
+  margin-top: var(--space-6);
 `
 
 const Organization: React.FC = () => {

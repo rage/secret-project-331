@@ -48,20 +48,22 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
       <div>
         {courseCount <= 0 && <p>{t("no-courses-in-org")}</p>}
         {courseCount > 0 && <CourseGrid>{courses}</CourseGrid>}
-        <div
-          className={css`
-            display: flex;
-            justify-content: center;
-          `}
-        >
-          <Pagination
-            totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
-            page={paginationInfo.page}
-            onPageChange={paginationInfo.setPage}
-            itemsPerPage={paginationInfo.limit}
-            onItemsPerPageChange={paginationInfo.setLimit}
-          />
-        </div>
+        {courseCount > 0 && (
+          <div
+            className={css`
+              display: flex;
+              justify-content: center;
+            `}
+          >
+            <Pagination
+              totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
+              page={paginationInfo.page}
+              onPageChange={paginationInfo.setPage}
+              itemsPerPage={paginationInfo.limit}
+              onItemsPerPageChange={paginationInfo.setLimit}
+            />
+          </div>
+        )}
 
         <NewCourseDialog
           open={newCourseFormOpen}

@@ -187,9 +187,10 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         {...includeIf(isDownloadable, { actions: [csvDownloadAction] as const })}
       >
         <MonacoEditor
-          height="90vh"
+          // The dialog caps at 90vh including its header, so a 90vh editor would scroll the body too.
+          height="70vh"
           defaultLanguage="json"
-          options={{ wordWrap: ON, readOnly }}
+          options={{ wordWrap: ON, readOnly, minimap: { enabled: false } }}
           defaultValue={stringifiedData}
           onChange={handleEditorChange}
         />

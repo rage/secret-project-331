@@ -56,7 +56,13 @@ export const headerCellCss = css`
 
 export const bodyCellCss = css`
   color: var(--color-gray-700);
-  /* Unbreakable names and emails would otherwise stretch their column past the viewport. */
+  /* Unlike "anywhere", leaves min-content alone, so auto layout never squeezes a short cell
+     (a link, a date) into mid-word breaks. */
+  overflow-wrap: break-word;
+`
+
+/** For columns of ids and emails: lets auto layout shrink the column below the token's width. */
+export const breakAnywhereCss = css`
   overflow-wrap: anywhere;
 `
 

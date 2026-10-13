@@ -75,8 +75,16 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     )
 
   const columns: TableColumn<UserDetail>[] = [
-    { header: t("label-user-id"), cell: (user) => dimIfFuzzyMatch(user, user.user_id) },
-    { header: t("label-email"), cell: (user) => dimIfFuzzyMatch(user, user.email) },
+    {
+      header: t("label-user-id"),
+      breakAnywhere: true,
+      cell: (user) => dimIfFuzzyMatch(user, user.user_id),
+    },
+    {
+      header: t("label-email"),
+      breakAnywhere: true,
+      cell: (user) => dimIfFuzzyMatch(user, user.email),
+    },
     { header: t("first-name"), cell: (user) => dimIfFuzzyMatch(user, user.first_name) },
     { header: t("last-name"), cell: (user) => dimIfFuzzyMatch(user, user.last_name) },
     {

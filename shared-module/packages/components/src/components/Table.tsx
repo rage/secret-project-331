@@ -17,6 +17,7 @@ import { ChevronIcon } from "./primitives/ChevronIcon"
 import {
   alignCss,
   bodyCellCss,
+  breakAnywhereCss,
   captionCss,
   cellCompactCss,
   cellCss,
@@ -98,6 +99,11 @@ export interface TableColumn<Row> {
    * should wrap so the column can be narrower than it.
    */
   nowrap?: boolean
+  /**
+   * Lets the cell break an unbreakable token (an id, an email) anywhere, so the column can shrink
+   * below it. Leave unset for words and dates, which should only wrap between words.
+   */
+  breakAnywhere?: boolean
   /**
    * Turns the header into a button and shows a sort indicator. Called with the direction the
    * press asks for, which is the opposite of `sortDirection` once this column is the sorted one.
@@ -404,6 +410,7 @@ export function Table<Row>({
     cell: cx(
       isFixedLayout || column.minWidth === undefined ? undefined : minWidthCss(column.minWidth),
       wrapFor(column),
+      column.breakAnywhere ? breakAnywhereCss : undefined,
       alignFor(column),
     ),
   }))

@@ -11,7 +11,11 @@ import { useTranslation } from "react-i18next"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
-import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import {
+  isVisuallyHiddenLabel,
+  resolveFloatingPlaceholder,
+  resolveRenderedErrorMessage,
+} from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
@@ -261,7 +265,7 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
         data-has-icon-end="true"
         data-focused={floatingState.isFocused ? "true" : "false"}
         data-filled={floatingState.hasValue ? "true" : "false"}
-        data-floated={floatingState.isFloated ? "true" : "false"}
+        data-floated={floatingState.isFloated && !isVisuallyHiddenLabel(label) ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
       >
         <input

@@ -47,7 +47,8 @@ const SearchContainer = styled.div<{ $hasContent: boolean }>`
 const SearchInputContainer = styled.div`
   position: relative;
   flex-shrink: 0;
-  padding: 0 1rem;
+  /* Clears the dialog's floating close button. */
+  padding: 0 3.5rem 0 1rem;
 `
 
 const ResultsContainer = styled.div<{ $hasResults: boolean }>`

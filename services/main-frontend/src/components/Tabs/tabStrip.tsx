@@ -12,7 +12,7 @@ import { baseTheme, fontWeights } from "@/shared-module/common/styles"
  * The container both tab strips share: `Tabs` (state-driven) and `RouteTabList` (route-driven).
  *
  * Full width and wrapping, so a strip with more tabs than fit on one line grows a second row
- * instead of clipping or scrolling them out of reach. Pills keep their own content-sized `flex`
+ * instead of clipping them; on phones it scrolls sideways instead. Pills keep their own content-sized `flex`
  * (see `tabPillCss`), so a wrapped row goes ragged rather than stretching to fill it.
  */
 export const tabStripCss = css`
@@ -27,6 +27,19 @@ export const tabStripCss = css`
   background: ${baseTheme.colors.gray[75]};
   border: 1px solid ${baseTheme.colors.gray[100]};
   border-radius: 8px;
+`
+
+/** One scrollable row on phones instead of many wrapped ones. */
+const tabStripScrollOnPhoneCss = css`
+  @media (max-width: 639px) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+
+    && > * {
+      flex-shrink: 0;
+    }
+  }
 `
 
 export const tabStripVerticalCss = css`
@@ -110,7 +123,12 @@ export function tabPillCss({
 const tabStripClassName = (
   orientation: "horizontal" | "vertical",
   className: string | undefined,
-): string => cx(tabStripCss, orientation === "vertical" && tabStripVerticalCss, className)
+): string =>
+  cx(
+    tabStripCss,
+    orientation === "vertical" ? tabStripVerticalCss : tabStripScrollOnPhoneCss,
+    className,
+  )
 
 export interface TabStripProps {
   state: TabListState<object>

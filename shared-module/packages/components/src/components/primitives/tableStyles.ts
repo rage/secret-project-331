@@ -8,6 +8,8 @@ export const CONTROL_COLUMN_WIDTH = "3rem"
 
 export const frameCss = css`
   position: relative;
+  max-width: 100%;
+  min-width: 0;
 `
 
 export const scrollCss = css`

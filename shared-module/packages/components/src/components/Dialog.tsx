@@ -161,10 +161,12 @@ const paddingCss: Record<DialogPadding, string> = {
   normal: css`
     --dialog-padding: var(--dialog-edge-padding);
     --dialog-gap-below-header: var(--space-4);
+    --dialog-close-clearance: 3.5rem;
   `,
   none: css`
     --dialog-padding: 0;
     --dialog-gap-below-header: 0;
+    --dialog-close-clearance: 0px;
   `,
 }
 
@@ -180,9 +182,17 @@ const headerCss = css`
     border-bottom: 1px solid var(--color-clear-300);
   }
 
+  /* Floats over the body so an untitled dialog does not spend a row on the close button. */
   &[data-has-title="false"] {
-    justify-content: flex-end;
-    padding-bottom: 0;
+    position: absolute;
+    top: var(--space-3);
+    inset-inline-end: var(--space-3);
+    z-index: 1;
+    padding: 0;
+  }
+
+  &[data-has-title="false"] > button {
+    margin: 0;
   }
 `
 
@@ -235,6 +245,10 @@ const contentCss = css`
 
   &[data-below-header="true"] {
     padding-top: var(--dialog-gap-below-header);
+  }
+
+  &[data-close-overlay="true"] {
+    padding-inline-end: var(--dialog-close-clearance);
   }
 `
 
@@ -419,6 +433,7 @@ const OpenDialog: React.FC<DialogProps> = ({
             {...(hasDescription ? contentProps : undefined)}
             className={contentCss}
             data-below-header={hasTitle}
+            data-close-overlay={!hasTitle && showCloseButton}
           >
             {children}
           </div>

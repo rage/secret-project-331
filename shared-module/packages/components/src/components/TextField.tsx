@@ -9,7 +9,11 @@ import type { FieldValues, Path } from "react-hook-form"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
-import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import {
+  isVisuallyHiddenLabel,
+  resolveFloatingPlaceholder,
+  resolveRenderedErrorMessage,
+} from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
@@ -100,6 +104,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const inputRef = useRef<HTMLInputElement>(null)
+  const hasHiddenLabel = !!isLabelHidden || isVisuallyHiddenLabel(label)
   const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
@@ -162,7 +167,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     onChange: handleChange,
     onFocus: handleFocus,
     onBlur: handleBlur,
-    placeholder: resolveFloatingPlaceholder(isLabelHidden ? placeholder : undefined),
+    placeholder: resolveFloatingPlaceholder(hasHiddenLabel ? placeholder : undefined),
     min,
     max,
     step,
@@ -188,9 +193,9 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
         data-has-icon-end={iconEnd ? "true" : undefined}
         data-focused={floatingState.isFocused ? "true" : "false"}
         data-filled={floatingState.hasValue ? "true" : "false"}
-        data-floated={floatingState.isFloated ? "true" : "false"}
+        data-floated={floatingState.isFloated && !hasHiddenLabel ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
-        data-label-hidden={isLabelHidden ? "true" : undefined}
+        data-label-hidden={hasHiddenLabel ? "true" : undefined}
       >
         <input
           {...mergedInputProps}
@@ -199,7 +204,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
           aria-describedby={resolvedAriaDescribedBy}
           data-testid={dataTestId}
         />
-        {isLabelHidden ? (
+        {hasHiddenLabel ? (
           <VisuallyHidden>
             <label {...labelProps}>{label}</label>
           </VisuallyHidden>

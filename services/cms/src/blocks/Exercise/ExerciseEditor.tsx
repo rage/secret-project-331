@@ -76,7 +76,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 />
 
                 <div>
-                  <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
+                  <Button variant="secondary" size="medium" onClick={handleAddNewSlide}>
                     {t("add-slide")}
                   </Button>
                 </div>

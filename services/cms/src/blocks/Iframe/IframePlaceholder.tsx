@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useForm } from "react-hook-form"
 
 import { Button, TextArea } from "@/shared-module/components"
@@ -73,7 +74,14 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
   }
 
   return (
-    <form onSubmit={handleSubmit(onParse)}>
+    <form
+      onSubmit={handleSubmit(onParse)}
+      className={css`
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      `}
+    >
       <TextArea
         name="source"
         control={control}
@@ -91,7 +99,14 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
           },
         }}
       />
-      <Button variant="primary" size="medium" type="submit">
+      <Button
+        variant="primary"
+        size="medium"
+        type="submit"
+        className={css`
+          align-self: flex-start;
+        `}
+      >
         {t("parse")}
       </Button>
     </form>

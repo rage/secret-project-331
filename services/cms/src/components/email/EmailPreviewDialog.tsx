@@ -163,7 +163,7 @@ const EmailPreviewDialog: React.FC<EmailPreviewDialogProps> = ({
                   display: block;
                   width: ${width === WIDTH_MOBILE ? `${MOBILE_WIDTH_PX}px` : "100%"};
                   max-width: 100%;
-                  height: 60vh;
+                  height: 50vh;
                   margin: 0 auto;
                   border: 1px solid var(--color-gray-300);
                   border-radius: 4px;
@@ -174,7 +174,7 @@ const EmailPreviewDialog: React.FC<EmailPreviewDialogProps> = ({
                 className={css`
                   margin: 0;
                   padding: 1rem;
-                  max-height: 60vh;
+                  max-height: 50vh;
                   overflow: auto;
                   white-space: pre-wrap;
                   overflow-wrap: anywhere;

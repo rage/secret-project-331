@@ -18,6 +18,12 @@ const placeHolderFixHeightStyles = css`
   margin-bottom: 1rem !important;
 `
 
+const checkboxGroupCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+`
+
 const DEFAULT_BACKGROUND_COLORS = [
   { color: "#FFFFFF", name: "white" },
   { color: "#663399", name: "rebeccapurple" },
@@ -179,22 +185,24 @@ const BackgroundAndColorCustomizer: React.FC<
 
       {/* Background Layout Options */}
       <PanelBody title={t("background-layout")} initialOpen={false}>
-        <Checkbox
-          name="backgroundRepeatX"
-          control={control}
-          label={t("label-repeat-background-x")}
-        />
-        {!noAlign && (
-          <>
-            <Checkbox name="alignCenter" control={control} label={t("label-align-center")} />
-            <Checkbox name="alignBottom" control={control} label={t("label-align-bottom")} />
-          </>
-        )}
-        <Checkbox
-          name="isNotPartiallyTransparent"
-          control={control}
-          label={t("partially-transparent-background")}
-        />
+        <div className={checkboxGroupCss}>
+          <Checkbox
+            name="backgroundRepeatX"
+            control={control}
+            label={t("label-repeat-background-x")}
+          />
+          {!noAlign && (
+            <>
+              <Checkbox name="alignCenter" control={control} label={t("label-align-center")} />
+              <Checkbox name="alignBottom" control={control} label={t("label-align-bottom")} />
+            </>
+          )}
+          <Checkbox
+            name="isNotPartiallyTransparent"
+            control={control}
+            label={t("partially-transparent-background")}
+          />
+        </div>
       </PanelBody>
 
       {/* Colors Section */}
@@ -229,11 +237,13 @@ const BackgroundAndColorCustomizer: React.FC<
 
       {/* Text Options */}
       <PanelBody title={t("text-options")} initialOpen={false}>
-        <Checkbox
-          name="useDefaultTextForLabel"
-          control={control}
-          label={t("use-default-text-for-label")}
-        />
+        <div className={checkboxGroupCss}>
+          <Checkbox
+            name="useDefaultTextForLabel"
+            control={control}
+            label={t("use-default-text-for-label")}
+          />
+        </div>
       </PanelBody>
     </>
   )

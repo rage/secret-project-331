@@ -28,61 +28,41 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import type { ExerciseAttributes } from "../blocks/Exercise"
 
 const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   margin: 0 auto;
   max-width: 1000px;
   height: 100%;
-  span {
-    display: inline-block;
-    font-size: 18px;
-    margin-bottom: 10px;
-    color: #1a2333;
-  }
   h2 {
+    margin: var(--space-2) 0 0;
     font-weight: 300;
     font-size: 1.7rem;
     line-height: 1.2;
-    margin-top: 10px;
   }
+`
+
+const reviewSettingsCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 `
 
 const List = styled.div`
   display: grid;
-  grid-template-columns: 0.5fr 1.2fr 0.1fr 0.1fr;
-  min-height: 40px;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  font-size: 20px;
+  grid-template-columns: minmax(10rem, 0.6fr) minmax(0, 1.5fr) minmax(8rem, max-content) auto;
+  align-items: start;
+  gap: var(--space-3);
   @media (max-width: 767.98px) {
-    grid-template-columns: 100%;
-    gap: 5px;
-    margin-bottom: 30px;
+    grid-template-columns: minmax(0, 1fr);
   }
 `
-const StyledQuestion = styled.div`
-  background: #f5f6f7;
-  border: 1.5px solid #e2e4e6;
+const QuestionCell = styled.div`
+  background: var(--color-gray-50);
+  border: 1.5px solid var(--color-gray-300);
+  border-radius: var(--radius-2);
   width: 100%;
-  padding: 0.4rem 1rem;
-  border-radius: 3px;
-  @media (max-width: 767.98px) {
-    width: 100%;
-  }
-`
-const selectSpacingCss = css`
-  @media (max-width: 767.98px) {
-    margin-bottom: 10px;
-  }
-`
-const StyledQuestionType = styled.div`
-  background: #f5f6f7;
-  border: 1.5px solid #e2e4e6;
-  border-radius: 3px;
-  width: 100%;
-  padding: 0.4rem 1rem;
-  @media (max-width: 767.98px) {
-    width: 100%;
-  }
+  padding: var(--space-3) var(--space-4);
 `
 
 export interface PeerReviewEditorExtraProps {
@@ -176,11 +156,10 @@ const QuestionRow: React.FC<QuestionRowProps> = ({
 
   return (
     <List id={question.id}>
-      <StyledQuestion>
+      <QuestionCell>
         <Select
           name="questionType"
           control={control}
-          className={selectSpacingCss}
           label={t("peer-review-question-type")}
           options={typeOptions}
           id={`peer-review-question-${question.id}`}
@@ -194,36 +173,19 @@ const QuestionRow: React.FC<QuestionRowProps> = ({
             min={0}
             max={1}
             step="0.01"
-            className={css`
-              margin-bottom: 0;
-            `}
           />
         )}
-      </StyledQuestion>
-      <StyledQuestionType>
+      </QuestionCell>
+      <QuestionCell>
         <TextArea name="question" control={control} label={t("peer-review-question")} autoResize />
-      </StyledQuestionType>
-      <StyledQuestion>
+      </QuestionCell>
+      <QuestionCell>
         {question.question_type !== "Scale" ? (
-          <Checkbox
-            name="answerRequired"
-            control={control}
-            label={t("answer-required")}
-            className={css`
-              margin-top: 0.5rem;
-            `}
-          />
+          <Checkbox name="answerRequired" control={control} label={t("answer-required")} />
         ) : (
-          <div
-            className={css`
-              min-width: 93px;
-            `}
-          >
-            {/* oxlint-disable-next-line i18next/no-literal-string */}
-            &nbsp;
-          </div>
+          <div aria-hidden />
         )}
-      </StyledQuestion>
+      </QuestionCell>
       <Button
         variant="secondary"
         size="medium"
@@ -579,11 +541,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   return (
     <QueryResult query={defaultCmsPeerOrSelfReviewConfig}>
       {(defaultCmsPeerOrSelfReviewConfigData) => (
-        <div
-          className={css`
-            display: block;
-          `}
-        >
+        <div className={reviewSettingsCss}>
           {!courseGlobalEditor && (
             <>
               <Checkbox
@@ -613,7 +571,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
             </>
           )}
           {(peerReviewEnabled || selfReviewEnabled) && (
-            <div>
+            <div className={reviewSettingsCss}>
               {!courseGlobalEditor && (
                 <Checkbox
                   name="useCourseDefaultConfig"
@@ -639,12 +597,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   <div
                     className={css`
                       display: flex;
-                      gap: 5px 5px;
-                      justify-content: space-between;
-
-                      h2 {
-                        margin-bottom: 2rem;
-                      }
+                      gap: var(--space-3);
                     `}
                   >
                     <TextField
@@ -670,17 +623,18 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       label={t("peer-reviews-to-give")}
                     />
                   </div>
-                  <p
-                    className={css`
-                      font-size: 1.5em !important;
-                      color: ${baseTheme.colors.crimson[700]};
-                      width: 100%;
-                    `}
-                  >
-                    {parsedPeerOrSelfReviewConfig.peer_reviews_to_receive >=
-                      parsedPeerOrSelfReviewConfig.peer_reviews_to_give &&
-                      t("peer-reviews-to-receive-and-give-error-message")}
-                  </p>
+                  {parsedPeerOrSelfReviewConfig.peer_reviews_to_receive >=
+                    parsedPeerOrSelfReviewConfig.peer_reviews_to_give && (
+                    <p
+                      className={css`
+                        margin: 0;
+                        font-size: 1.125rem;
+                        color: ${baseTheme.colors.crimson[700]};
+                      `}
+                    >
+                      {t("peer-reviews-to-receive-and-give-error-message")}
+                    </p>
+                  )}
                   <Select
                     name="processingStrategy"
                     control={configControl}
@@ -710,7 +664,6 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   {!parsedPeerOrSelfReviewConfig.points_are_all_or_nothing && (
                     <div
                       className={css`
-                        margin-bottom: 1rem;
                         padding: 1rem;
                         background-color: ${baseTheme.colors.red[100]};
                         color: ${baseTheme.colors.red[700]};
@@ -754,6 +707,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   <Button
                     variant="primary"
                     size="medium"
+                    className={css`
+                      align-self: flex-start;
+                    `}
                     onClick={() => {
                       if (parsedPeerOrSelfReviewConfig) {
                         addPeerOrSelfReviewQuestion(parsedPeerOrSelfReviewConfig.id)

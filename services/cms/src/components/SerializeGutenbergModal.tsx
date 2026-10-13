@@ -27,11 +27,12 @@ const SerializeGutenbergModal: React.FC<React.PropsWithChildren<SerializeGutenbe
       <Dialog
         open={serialized !== null}
         onClose={() => setSerialized(null)}
-        aria-label={t("serialize-to-html")}
+        size="wide"
+        title={t("serialize-to-html")}
       >
         <MonacoEditor
-          height="90vh"
-          width="80vw"
+          height="60vh"
+          width="100%"
           defaultLanguage="html"
           {...includeIf(serialized !== null, { defaultValue: serialized })}
         />

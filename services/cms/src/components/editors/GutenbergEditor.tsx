@@ -559,8 +559,8 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                   </div>
                   <div
                     className={css`
-                      margin: 1rem;
-                      margin-bottom: 0;
+                      margin: var(--space-4);
+                      margin-bottom: var(--space-3);
                     `}
                   >
                     <Select
@@ -581,7 +581,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                   {inspectorButtons && (
                     <div
                       className={css`
-                        margin: 1rem;
+                        margin: var(--space-4);
                         margin-top: 0;
                       `}
                     >

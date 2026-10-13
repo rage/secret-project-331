@@ -14,7 +14,7 @@ import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
 import PlaceholderInfo from "../email/PlaceholderInfo"
 
 const FieldContainer = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-5);
 `
 
 export interface EmailDetailsFormFields {
@@ -117,7 +117,7 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
           {templateTypeHelperText && (
             <div
               className={css`
-                margin-top: 0.25rem;
+                margin-top: var(--space-2);
                 font-size: 0.875rem;
                 color: #6c757d;
               `}
@@ -135,7 +135,7 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
           />
           <div
             className={css`
-              margin-top: 0.25rem;
+              margin-top: var(--space-2);
               font-size: 0.875rem;
               color: #6c757d;
             `}

@@ -191,10 +191,10 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       className={css`
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 1rem;
+        align-items: stretch;
+        gap: var(--space-3);
         background: #f5f6f7;
-        padding: 1rem;
+        padding: var(--space-4);
       `}
     >
       <Button
@@ -238,7 +238,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       <div className="editor__component">
         <div
           className={css`
-            padding: 1rem;
+            padding: 1rem 0;
             max-width: 1200px;
             margin: 0 auto;
           `}

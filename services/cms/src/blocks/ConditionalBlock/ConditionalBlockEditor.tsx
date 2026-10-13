@@ -66,12 +66,14 @@ const ALLOWED_NESTED_BLOCKS = [
 ]
 
 const Wrapper = styled.div`
-  margin-left: 1rem;
-  margin-right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-4);
   height: auto;
 `
 const Text = styled.p`
-  padding-bottom: 1rem;
+  margin: 0;
 `
 
 interface RequiredConditions {

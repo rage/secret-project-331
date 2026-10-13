@@ -197,7 +197,7 @@ const ExerciseTaskEditor: React.FC<
                 <XmarkCircle
                   size={16}
                   className={css`
-                    color: ${baseTheme.colors.gray[100]};
+                    color: ${baseTheme.colors.gray[700]};
                     margin: 1.5rem;
                   `}
                 />
@@ -205,7 +205,7 @@ const ExerciseTaskEditor: React.FC<
                 <PencilBox
                   size={16}
                   className={css`
-                    color: ${baseTheme.colors.gray[100]};
+                    color: ${baseTheme.colors.gray[700]};
                     margin: 1.5rem;
                   `}
                 />

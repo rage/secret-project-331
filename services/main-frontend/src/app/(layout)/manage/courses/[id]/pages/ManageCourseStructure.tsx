@@ -24,11 +24,10 @@ import managePageOrderReducer, {
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { Button, useDialog } from "@/shared-module/components"
+import { Button, Menu, useDialog } from "@/shared-module/components"
 
 import ChapterFormDialog from "./ChapterFormDialog"
 import ChapterImageDialog from "./ChapterImageDialog"
@@ -40,6 +39,12 @@ import {
   MOVING_ALLOWED_ONLY_UP,
   MOVING_NOT_ALLOWED,
 } from "./PageList/PageListItem"
+
+const MENU_KEY_EDIT = "edit"
+const MENU_KEY_EDIT_IMAGE = "edit-image"
+const MENU_KEY_MOVE_UP = "move-up"
+const MENU_KEY_MOVE_DOWN = "move-down"
+const MENU_KEY_DELETE = "delete"
 
 const headingDropdown = css`
   float: right;
@@ -206,74 +211,82 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                           "chapter-name": chapter.name,
                         })}
                         <div className={cx(headingDropdown)}>
-                          <DropdownMenu
+                          <Menu
+                            aria-label={t("dropdown-menu")}
                             items={[
                               {
+                                key: MENU_KEY_EDIT,
                                 label: t("edit"),
-                                onClick: () => {
+                                onAction: () => {
                                   setChapterBeingEdited(chapter)
                                   setShowEditChapterForm(true)
                                 },
                               },
                               {
+                                key: MENU_KEY_EDIT_IMAGE,
                                 label: t("button-text-edit-image"),
-                                onClick: () => {
+                                onAction: () => {
                                   setChapterBeingEdited(chapter)
                                   setShowEditImageModal(true)
                                 },
                               },
-                              moving === "allowed" || moving === "only-up"
-                                ? {
-                                    label: t("button-text-move-up"),
-                                    onClick: () => {
-                                      pageOrderDispatch({
-                                        type: "move",
-
-                                        payload: {
-                                          pageId: null,
-                                          chapterId: chapter.id,
-
-                                          direction: "up",
-                                        },
-                                      })
+                              ...(moving === "allowed" || moving === "only-up"
+                                ? [
+                                    {
+                                      key: MENU_KEY_MOVE_UP,
+                                      label: t("button-text-move-up"),
+                                      onAction: () => {
+                                        pageOrderDispatch({
+                                          type: "move",
+                                          payload: {
+                                            pageId: null,
+                                            chapterId: chapter.id,
+                                            direction: "up",
+                                          },
+                                        })
+                                      },
                                     },
-                                  }
-                                : null,
-                              moving === "allowed" || moving === "only-down"
-                                ? {
-                                    label: t("button-text-move-down"),
-                                    onClick: () => {
-                                      pageOrderDispatch({
-                                        type: "move",
-
-                                        payload: {
-                                          pageId: null,
-                                          chapterId: chapter.id,
-
-                                          direction: "down",
-                                        },
-                                      })
+                                  ]
+                                : []),
+                              ...(moving === "allowed" || moving === "only-down"
+                                ? [
+                                    {
+                                      key: MENU_KEY_MOVE_DOWN,
+                                      label: t("button-text-move-down"),
+                                      onAction: () => {
+                                        pageOrderDispatch({
+                                          type: "move",
+                                          payload: {
+                                            pageId: null,
+                                            chapterId: chapter.id,
+                                            direction: "down",
+                                          },
+                                        })
+                                      },
                                     },
-                                  }
-                                : null,
+                                  ]
+                                : []),
                               {
+                                key: MENU_KEY_DELETE,
                                 label: t("button-text-delete"),
-                                onClick: async () => {
-                                  if (
-                                    !(await confirm({
-                                      message: t(
-                                        "message-are-you-sure-you-want-to-delete-this-chapter",
-                                      ),
-                                      isDestructive: true,
-                                    }))
-                                  ) {
-                                    return
-                                  }
-                                  deleteChapterMutation.mutate({
-                                    path: {
-                                      chapter_id: chapter.id,
-                                    },
-                                  })
+                                onAction: () => {
+                                  void (async () => {
+                                    if (
+                                      !(await confirm({
+                                        message: t(
+                                          "message-are-you-sure-you-want-to-delete-this-chapter",
+                                        ),
+                                        isDestructive: true,
+                                      }))
+                                    ) {
+                                      return
+                                    }
+                                    deleteChapterMutation.mutate({
+                                      path: {
+                                        chapter_id: chapter.id,
+                                      },
+                                    })
+                                  })()
                                 },
                               },
                             ]}

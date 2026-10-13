@@ -15,11 +15,16 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseModule, CourseModuleThresholdInfo } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, QueryResult, QueryResults, TextField } from "@/shared-module/components"
+import {
+  Button,
+  QueryResult,
+  QueryResults,
+  TextField,
+  ErrorNotice,
+} from "@/shared-module/components"
 
 interface CheatersThresholdConfigProps {
   courseId: string
@@ -185,15 +190,10 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
         `}
       >
         {postThresholdForModuleMutation.isError && (
-          <ErrorBanner
-            variant="readOnly"
-            error={postThresholdForModuleMutation.error}
-            announce={ERROR_ANNOUNCEMENT}
-          />
+          <ErrorNotice error={postThresholdForModuleMutation.error} announce={ERROR_ANNOUNCEMENT} />
         )}
         {deleteThresholdForModuleMutation.isError && (
-          <ErrorBanner
-            variant="readOnly"
+          <ErrorNotice
             error={deleteThresholdForModuleMutation.error}
             announce={ERROR_ANNOUNCEMENT}
           />
@@ -207,7 +207,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
           // A thresholds failure should not block the table: it can be rendered from the course
           // structure alone, with saved values simply missing.
           <>
-            <ErrorBanner variant="readOnly" error={thresholdsQuery.error} />
+            <ErrorNotice error={thresholdsQuery.error} />
             <QueryResult query={courseStructureQuery}>{() => renderThresholdTable()}</QueryResult>
           </>
         ) : (

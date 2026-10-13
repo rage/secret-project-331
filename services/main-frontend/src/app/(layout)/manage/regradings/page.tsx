@@ -14,7 +14,6 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewRegradingIdType, UserPointsUpdateStrategy } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -28,6 +27,7 @@ import {
   Button,
   Dialog,
   Link,
+  Pagination,
   QueryResult,
   Select,
   Table,
@@ -184,7 +184,10 @@ const RegradingsPage: React.FC = () => {
             {regradingsCountQuery.data !== undefined && (
               <Pagination
                 totalPages={Math.ceil(regradingsCountQuery.data / paginationInfo.limit)}
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
               />
             )}
             <DebugModal data={regradings} />

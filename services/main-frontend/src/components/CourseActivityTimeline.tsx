@@ -17,10 +17,9 @@ import {
   getUserCourseEnrollmentsOptions,
   getUserCourseSubmissionTimesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Disclosure, LoadingRegion } from "@/shared-module/components"
+import { Disclosure, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { computeModuleRows, formatDuration } from "@/utils/moduleTimeline"
 import {
   colorAt,
@@ -74,9 +73,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
   }
 
   if (enrollmentsQuery.isError || submissionsQuery.isError) {
-    return (
-      <ErrorBanner variant="readOnly" error={enrollmentsQuery.error ?? submissionsQuery.error} />
-    )
+    return <ErrorNotice error={enrollmentsQuery.error ?? submissionsQuery.error} />
   }
 
   const enrollment = enrollmentsQuery.data?.course_enrollments.find((e) => e.course_id === courseId)

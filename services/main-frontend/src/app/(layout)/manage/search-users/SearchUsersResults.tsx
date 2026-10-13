@@ -14,10 +14,9 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, LoadingRegion, Spinner } from "@/shared-module/components"
+import { Link, LoadingRegion, Spinner, ErrorNotice } from "@/shared-module/components"
 
 // useSearchUsersLiveRegion already announces a failed search; a second live region would repeat it.
 const ERROR_ANNOUNCEMENT = "off"
@@ -44,7 +43,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
   const firstError = searchQueries.find((query) => query.isError)?.error
   const errorBanner =
     firstError !== undefined && firstError !== null ? (
-      <ErrorBanner variant="readOnly" error={firstError} announce={ERROR_ANNOUNCEMENT} />
+      <ErrorNotice error={firstError} announce={ERROR_ANNOUNCEMENT} />
     ) : null
 
   const [data, userIdsFromFuzzyMatch] = useMemo(() => {

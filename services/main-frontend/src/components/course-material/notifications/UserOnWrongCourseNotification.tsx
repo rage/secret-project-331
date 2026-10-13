@@ -9,12 +9,10 @@ import { Trans, useTranslation } from "react-i18next"
 import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import { useCourseData } from "@/hooks/course-material/useCourseData"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Link, LoadingRegion } from "@/shared-module/components"
+import { Button, Link, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 export interface CourseData {
@@ -61,11 +59,11 @@ const UserOnWrongCourseNotification: React.FC<
   }, [getCourseById.data, getLanguageUrl])
 
   if (getCourseById.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
+    return <ErrorNotice error={getCourseById.error} />
   }
 
   if (languageNavError) {
-    return <ErrorBanner variant={"readOnly"} error={new Error(languageNavError)} />
+    return <ErrorNotice error={new Error(languageNavError)} />
   }
 
   if (getCourseById.isLoading || languageNavLoading) {
@@ -74,12 +72,18 @@ const UserOnWrongCourseNotification: React.FC<
 
   if (!getCourseById.data) {
     return (
-      <DataLoadError
-        buttonSize={variant === "compact" ? "small" : "medium"}
-        onRetry={() => {
-          void getCourseById.refetch()
-        }}
-      />
+      <div>
+        <ErrorNotice error={t("label-error-loading")} />
+        <Button
+          variant="primary"
+          size={variant === "compact" ? "small" : "medium"}
+          onClick={() => {
+            void getCourseById.refetch()
+          }}
+        >
+          {t("button-text-try-again")}
+        </Button>
+      </div>
     )
   }
 

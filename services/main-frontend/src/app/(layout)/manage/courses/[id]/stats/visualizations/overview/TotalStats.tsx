@@ -13,11 +13,10 @@ import {
   useTotalUsersStartedCourseQuery,
   useTotalUsersStartedCourseQueryCustomTimePeriod,
 } from "@/hooks/stats"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { DateField, Select } from "@/shared-module/components"
+import { DateField, Select, ErrorNotice } from "@/shared-module/components"
 
 interface TotalStatsProps {
   courseId: string
@@ -146,10 +145,7 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
       `}
     >
       {hasError ? (
-        <ErrorBanner
-          variant="readOnly"
-          error={usersQuery.error || returnedQuery.error || completionsQuery.error}
-        />
+        <ErrorNotice error={usersQuery.error || returnedQuery.error || completionsQuery.error} />
       ) : (
         <div>
           <div

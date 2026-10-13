@@ -13,12 +13,11 @@ import NewCourseInstanceForm, {
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 /** The shared form renders no submit button, since its dialog caller puts one in the footer. */
 const editActionsCss = css`
@@ -93,11 +92,11 @@ const ManageCourseInstances: React.FC = () => {
       {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
       {mutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner variant={"readOnly"} error={mutation.error} announce="off" />
+        <ErrorNotice error={mutation.error} announce="off" />
       )}
       {deleteMutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner variant={"readOnly"} error={deleteMutation.error} announce="off" />
+        <ErrorNotice error={deleteMutation.error} announce="off" />
       )}
       <QueryResult query={getCourseInstances}>
         {(data) => {

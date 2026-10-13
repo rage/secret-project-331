@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -19,7 +18,13 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Breadcrumbs, type BreadcrumbItem, Button, QueryResult } from "@/shared-module/components"
+import {
+  Breadcrumbs,
+  Button,
+  Pagination,
+  QueryResult,
+  type BreadcrumbItem,
+} from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { t } = useTranslation()
@@ -229,7 +234,10 @@ const GradingPage: React.FC = () => {
               </table>
               <Pagination
                 totalPages={getSubmissionsData.total_pages}
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
               />
             </>
           )

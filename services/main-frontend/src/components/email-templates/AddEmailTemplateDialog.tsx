@@ -11,9 +11,8 @@ import {
   getEmailTemplatesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { EmailTemplateType } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, Dialog, Select, TextField } from "@/shared-module/components"
+import { Button, Dialog, Select, TextField, ErrorNotice } from "@/shared-module/components"
 
 interface Fields {
   templateType: EmailTemplateType | ""
@@ -122,7 +121,7 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
             }))}
           />
           <TextField name="subject" control={control} label={t("label-email-subject")} />
-          {mutation.isError && <ErrorBanner variant="readOnly" error={mutation.error} />}
+          {mutation.isError && <ErrorNotice error={mutation.error} />}
         </form>
       </Dialog>
     </>

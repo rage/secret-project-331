@@ -7,11 +7,10 @@ import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion, TextArea } from "@/shared-module/components"
+import { LoadingRegion, TextArea, ErrorNotice } from "@/shared-module/components"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -105,9 +104,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           <p>{t("public-spec-explanation")}</p>
 
-          {publicSpecQuery.isError && (
-            <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
-          )}
+          {publicSpecQuery.isError && <ErrorNotice error={publicSpecQuery.error} />}
           {publicSpecQuery.isLoading && publicSpecQuery.isFetching && <LoadingRegion />}
           {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>
@@ -130,9 +127,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           <p>{t("model-solution-spec-explanation")}</p>
 
-          {modelSolutionSpecQuery.isError && (
-            <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
-          )}
+          {modelSolutionSpecQuery.isError && <ErrorNotice error={modelSolutionSpecQuery.error} />}
           {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
             <LoadingRegion />
           )}

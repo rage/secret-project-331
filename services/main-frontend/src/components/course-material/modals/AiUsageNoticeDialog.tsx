@@ -9,11 +9,10 @@ import { Trans, useTranslation } from "react-i18next"
 import { getAiUsageNoticeAcknowledgementQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { acknowledgeAiUsageNotice } from "@/generated/course-material-api/sdk.generated"
 import type { CourseAiPolicy } from "@/generated/course-material-api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Checkbox, Dialog } from "@/shared-module/components"
+import { Button, Checkbox, Dialog, ErrorNotice } from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
 // Only fi/sv/en versions are published; other languages fall back to the English page.
@@ -134,9 +133,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
           line-height: 1.55;
         `}
       >
-        {acknowledgeMutation.isError && (
-          <ErrorBanner variant={"readOnly"} error={acknowledgeMutation.error} />
-        )}
+        {acknowledgeMutation.isError && <ErrorNotice error={acknowledgeMutation.error} />}
         {showsDefaultMessage ? (
           <p className={paragraphStyle}>
             <Trans

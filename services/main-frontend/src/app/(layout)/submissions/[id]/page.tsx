@@ -16,7 +16,6 @@ import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsFor
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
@@ -33,6 +32,7 @@ import {
   Link,
   LoadingRegion,
   QueryResult,
+  ErrorNotice,
 } from "@/shared-module/components"
 
 const Submission: React.FC = () => {
@@ -247,8 +247,7 @@ const Submission: React.FC = () => {
 
             {/* User Details Error Banner */}
             {userDetails.isError && (
-              <ErrorBanner
-                variant="readOnly"
+              <ErrorNotice
                 error={userDetails.error}
                 className={css`
                   max-width: ${narrowContainerWidthRem}rem;

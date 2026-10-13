@@ -5,12 +5,11 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 
 interface Submission {
   id: string
@@ -53,7 +52,7 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
       </h2>
 
       {isLoading && <LoadingRegion />}
-      {isError && <ErrorBanner variant="readOnly" error={error} />}
+      {isError && <ErrorNotice error={error} />}
       {submissions && (
         <div
           className={css`

@@ -27,11 +27,9 @@ import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
-import { Select } from "@/shared-module/components"
+import { Pagination, Select, Spinner } from "@/shared-module/components"
 
 import {
   StudentsContextProvider,
@@ -287,7 +285,7 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               </span>
               {isSearchPending && (
                 <span className={styles.searchPendingSpinner} aria-hidden="true">
-                  <Spinner variant="small" disableMargin />
+                  <Spinner size="sm" />
                 </span>
               )}
             </div>
@@ -361,7 +359,10 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
         {totalPages > 1 && (
           <Pagination
             totalPages={totalPages}
-            paginationInfo={{ page, setPage, limit, setLimit }}
+            page={page}
+            onPageChange={setPage}
+            itemsPerPage={limit}
+            onItemsPerPageChange={setLimit}
             itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
           />
         )}

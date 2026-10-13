@@ -9,9 +9,8 @@ import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { DateField, LoadingRegion, Select } from "@/shared-module/components"
+import { DateField, LoadingRegion, Select, ErrorNotice } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import StatsHeader from "./StatsHeader"
@@ -211,7 +210,7 @@ const LineChart: React.FC<LineChartProps> = ({
         {isLoading ? (
           <LoadingRegion minHeight={0} />
         ) : error ? (
-          <ErrorBanner variant="readOnly" error={error} />
+          <ErrorNotice error={error} />
         ) : !data || data.length < 2 ? (
           <div>{t("no-data")}</div>
         ) : (

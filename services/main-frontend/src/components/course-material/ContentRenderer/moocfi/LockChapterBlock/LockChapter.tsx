@@ -15,9 +15,8 @@ import {
   refetchUserChapterLocks,
   useUserChapterLocks,
 } from "@/hooks/course-material/useUserChapterLocks"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { LoadingRegion, useDialog } from "@/shared-module/components"
+import { LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { refetchViewAtom } from "@/state/course-material/selectors"
 
@@ -190,7 +189,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     courseMaterialState.lockChapterContentState === "waiting_teacher_review"
 
   if (getUserLocks.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />
+    return <ErrorNotice error={getUserLocks.error} />
   }
 
   if (getUserLocks.isLoading) {

@@ -22,8 +22,6 @@ import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/Ro
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
@@ -37,6 +35,7 @@ import {
   creditRegistrationSystemRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ErrorNotice, LoadingRegion } from "@/shared-module/components"
 
 const KEY_OVERVIEW = "overview"
 const KEY_REGISTRATIONS = "registrations"
@@ -171,10 +170,10 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
   // Everyone this section is for holds the permission, so a denied banner while the check is still
   // in flight would give the wrong answer to its only readers.
   if (permission.isPending) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
   if (permission.data?.[0] !== true) {
-    return <ErrorBanner variant="readOnly" error={t("error-unauthorized")} />
+    return <ErrorNotice error={t("error-unauthorized")} />
   }
   return <CreditRegistrationSection>{children}</CreditRegistrationSection>
 }

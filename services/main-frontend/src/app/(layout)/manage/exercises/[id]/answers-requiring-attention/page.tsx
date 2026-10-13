@@ -10,14 +10,13 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Pagination, QueryResult } from "@/shared-module/components"
 
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
@@ -131,7 +130,10 @@ const SubmissionsPage: React.FC = () => {
             />
             <Pagination
               totalPages={answers.total_pages}
-              paginationInfo={paginationInfo}
+              page={paginationInfo.page}
+              onPageChange={paginationInfo.setPage}
+              itemsPerPage={paginationInfo.limit}
+              onItemsPerPageChange={paginationInfo.setLimit}
               itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
             />
           </>

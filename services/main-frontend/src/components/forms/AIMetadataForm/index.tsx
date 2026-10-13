@@ -12,9 +12,8 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseMetadata } from "@/generated/api/types.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Dialog, QueryResults } from "@/shared-module/components"
+import { Dialog, QueryResults, ErrorNotice } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import AIMetadataFormFields from "./AIMetadataFormFields"
@@ -142,7 +141,7 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             )
           }}
           renderBlockingError={({ error, retry: _retry }) => {
-            return <ErrorBanner variant={"readOnly"} error={error} />
+            return <ErrorNotice error={error} />
           }}
         />
       </div>

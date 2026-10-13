@@ -11,10 +11,9 @@ import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
@@ -189,7 +188,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
       treatNullAsEmpty
       emptyFallback={
         <div>
-          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <ErrorNotice error={t("error-loading-exercise")} />
           <Button
             variant={"primary"}
             size={"medium"}

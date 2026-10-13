@@ -33,7 +33,6 @@ import useCourseMaterialExerciseQuery, {
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
@@ -46,7 +45,7 @@ import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   type CapturedExerciseTaskAnswer,
@@ -459,7 +458,7 @@ const ExerciseBlock: React.FC<
       query={getCourseMaterialExercise}
       emptyFallback={
         <div>
-          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <ErrorNotice error={t("error-loading-exercise")} />
           <button
             className={cx(exerciseButtonStyles)}
             onClick={() => {
@@ -998,7 +997,7 @@ const ExerciseBlock: React.FC<
                     </div>
                   )}
                 {postSubmissionMutation.isError && (
-                  <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
+                  <ErrorNotice error={postSubmissionMutation.error} />
                 )}
               </div>
             </div>

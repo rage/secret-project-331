@@ -18,14 +18,13 @@ import {
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, LoadingRegion, useDialog } from "@/shared-module/components"
+import { Button, LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
@@ -168,7 +167,7 @@ const CertificationsPage: React.FC = () => {
         {t("certificates")}: {courseInstanceId}
       </h1>
       {defaultCertificateConfigurationsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={defaultCertificateConfigurationsQuery.error} />
+        <ErrorNotice error={defaultCertificateConfigurationsQuery.error} />
       )}
       {defaultCertificateConfigurationsQuery.isLoading && <LoadingRegion />}
       {getCourse.isSuccess && defaultCertificateConfigurationsQuery.isSuccess && (

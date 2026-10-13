@@ -23,12 +23,11 @@ import {
   removeRole as removeRoleFromApi,
 } from "@/generated/api/sdk.generated"
 import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, QueryResult, Select, TextField } from "@/shared-module/components"
+import { Button, QueryResult, Select, TextField, ErrorNotice } from "@/shared-module/components"
 
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
@@ -461,7 +460,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {mutationError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner variant="readOnly" error={mutationError} announce="off" />
+        <ErrorNotice error={mutationError} announce="off" />
       )}
       <div
         className={css`

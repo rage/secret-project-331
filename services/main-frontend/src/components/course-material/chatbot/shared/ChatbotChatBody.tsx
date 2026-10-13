@@ -16,9 +16,8 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import SendIcon from "@/imgs/send.svg"
 import StopIcon from "@/imgs/stop.svg"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, LoadingRegion, TextArea } from "@/shared-module/components"
+import { Button, LoadingRegion, TextArea, ErrorNotice } from "@/shared-module/components"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import { useChatbotContext } from "./ChatbotContext"
@@ -39,6 +38,8 @@ import {
 } from "./messageClassification"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
+
+const ERROR_DETAILS_MAX_HEIGHT = "35vh"
 
 export interface ChatbotConversationMessageWithStatus {
   message: ChatbotConversationMessage
@@ -665,11 +666,10 @@ const ChatbotChatBody: React.FC = () => {
         <LoadingRegion />
       ) : currentConversationInfo.isError ? (
         <div className={errorWrapperStyle}>
-          <ErrorBanner
+          <ErrorNotice
             error={currentConversationInfo.error}
-            variant="readOnly"
-            maxHeightVH={50}
-            listMaxHeightVH={35}
+            maxHeight="50vh"
+            detailsMaxHeight={ERROR_DETAILS_MAX_HEIGHT}
           />
           <Button
             onClick={() => currentConversationInfo.refetch()}

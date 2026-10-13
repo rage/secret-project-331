@@ -14,7 +14,6 @@ import {
   unsetExamCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getOrganization } from "@/generated/api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
@@ -26,7 +25,14 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, DescriptionList, Link, QueryResult, TextField } from "@/shared-module/components"
+import {
+  Button,
+  DescriptionList,
+  Link,
+  QueryResult,
+  TextField,
+  ErrorNotice,
+} from "@/shared-module/components"
 import { examPointsCsvHref, examSubmissionsCsvHref } from "@/utils/exportDownloadUrls"
 
 import EditExamDialog from "../EditExamDialog"
@@ -335,11 +341,11 @@ const ManageExam: React.FC = () => {
             {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
             {setCourseMutation.isError && (
               // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-              <ErrorBanner variant="readOnly" error={setCourseMutation.error} announce="off" />
+              <ErrorNotice error={setCourseMutation.error} announce="off" />
             )}
             {unsetCourseMutation.isError && (
               // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-              <ErrorBanner variant="readOnly" error={unsetCourseMutation.error} announce="off" />
+              <ErrorNotice error={unsetCourseMutation.error} announce="off" />
             )}
           </>
         )}

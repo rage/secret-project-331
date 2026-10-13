@@ -7,10 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import useOrganization from "@/hooks/course-material/useOrganization"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
-import { Dialog, Link, LoadingRegion } from "@/shared-module/components"
+import { Dialog, Link, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {
@@ -23,7 +22,7 @@ const ClosedCourseWarningDialog = () => {
   const organization = useOrganization(successorCourse?.data?.organization_id)
 
   if (successorCourse.isError || organization.isError) {
-    return <ErrorBanner error={successorCourse.error || organization.error} />
+    return <ErrorNotice error={successorCourse.error || organization.error} />
   }
 
   if (!course) {

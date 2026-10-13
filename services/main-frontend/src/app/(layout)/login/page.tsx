@@ -9,14 +9,13 @@ import { CredentialsForm } from "@/app/(layout)/login/CredentialsForm"
 import { VerificationForm } from "@/app/(layout)/login/VerificationForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { useLoginFlow } from "@/hooks/useLoginFlow"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Dialog, LoadingRegion } from "@/shared-module/components"
+import { Dialog, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
@@ -61,7 +60,7 @@ const Login: React.FC = () => {
         }
       `}
     >
-      {error && <ErrorBanner error={error} />}
+      {error && <ErrorNotice error={error} />}
 
       {(step.step === "credentials" || step.step === "verification") && (
         <CredentialsForm

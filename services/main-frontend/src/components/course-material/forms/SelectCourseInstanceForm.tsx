@@ -14,9 +14,8 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import useAdditionalQuestions from "@/hooks/course-material/useAdditionalQuestions"
 import useCourse from "@/hooks/course-material/useCourse"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Checkbox, Radio, RadioGroup } from "@/shared-module/components"
+import { Button, Checkbox, Radio, RadioGroup, ErrorNotice } from "@/shared-module/components"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
@@ -219,9 +218,7 @@ const SelectCourseInstanceForm: React.FC<
           })}
         </div>
       )}
-      {additionalQuestionsQuery.error && (
-        <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
-      )}
+      {additionalQuestionsQuery.error && <ErrorNotice error={additionalQuestionsQuery.error} />}
       {getCourse.data?.ask_marketing_consent && (
         <div>
           <SelectMarketingConsentForm

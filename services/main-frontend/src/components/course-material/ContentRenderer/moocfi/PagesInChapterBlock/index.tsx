@@ -5,9 +5,8 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { currentPageDataAtom, viewStatusAtom } from "@/state/course-material/selectors"
 
 import type { BlockRendererProps } from "../.."
@@ -27,7 +26,7 @@ const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const chapterId = pageData?.chapter_id
 
   if (!chapterId) {
-    return <ErrorBanner variant={"readOnly"} error={t("error-page-does-not-belong-to-chapter")} />
+    return <ErrorNotice error={t("error-page-does-not-belong-to-chapter")} />
   }
 
   if (!courseSlug || !organizationSlug) {

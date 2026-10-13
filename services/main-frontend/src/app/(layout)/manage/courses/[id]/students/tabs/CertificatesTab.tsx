@@ -13,11 +13,17 @@ import type {
   CertificateUpdateRequest,
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
-import { Button, DateField, Dialog, LoadingRegion, TextField } from "@/shared-module/components"
+import {
+  Button,
+  DateField,
+  Dialog,
+  LoadingRegion,
+  TextField,
+  ErrorNotice,
+} from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -293,10 +299,10 @@ export const CertificatesTabContent: React.FC = () => {
   )
 
   if (identityQuery.isError) {
-    return <ErrorBanner error={identityQuery.error} />
+    return <ErrorNotice error={identityQuery.error} />
   }
   if (detailQuery.isError) {
-    return <ErrorBanner error={detailQuery.error} />
+    return <ErrorNotice error={detailQuery.error} />
   }
   if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
     return <LoadingRegion />

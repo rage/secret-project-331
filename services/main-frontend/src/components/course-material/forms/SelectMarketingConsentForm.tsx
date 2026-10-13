@@ -9,9 +9,8 @@ import {
   getCourseMaterialCustomPrivacyPolicyCheckboxTexts,
   getCourseMaterialUserMarketingConsent,
 } from "@/generated/course-material-api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { Checkbox, LoadingRegion } from "@/shared-module/components"
+import { Checkbox, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface SelectMarketingConsentFormProps {
@@ -130,8 +129,7 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   }
   if (initialMarketingConsentQuery.isError || customPrivacyPolicyCheckboxTextsQuery.isError) {
     return (
-      <ErrorBanner
-        variant="readOnly"
+      <ErrorNotice
         error={initialMarketingConsentQuery.error ?? customPrivacyPolicyCheckboxTextsQuery.error}
       />
     )

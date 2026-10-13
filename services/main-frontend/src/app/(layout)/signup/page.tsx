@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
@@ -26,7 +25,7 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
+import { Button, Checkbox, ComboBox, TextField, ErrorNotice } from "@/shared-module/components"
 
 interface CreateUserErrorResponse {
   message?: string
@@ -497,7 +496,7 @@ const CreateAccountForm: React.FC = () => {
       {createAccountMutation.isError &&
         !emailAlreadyTakenError && (
           // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-          <ErrorBanner variant={"text"} error={createAccountMutation.error} announce="off" />
+          <ErrorNotice error={createAccountMutation.error} announce="off" />
         )}
     </Wrapper>
   )

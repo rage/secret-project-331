@@ -24,9 +24,8 @@ import {
 } from "@/components/credit-registration/teacherCreditRegistrations"
 import type { CompletionGridRow } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { ABSENT_LABEL, EmptyState, QueryResults } from "@/shared-module/components"
+import { ABSENT_LABEL, EmptyState, QueryResults, Spinner } from "@/shared-module/components"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
 import {
@@ -230,7 +229,7 @@ const RegistrationCell: React.FC<{
   if (isCreditRegistrationsPending) {
     return (
       <span aria-hidden="true">
-        <Spinner variant="small" disableMargin />
+        <Spinner size="sm" />
       </span>
     )
   }

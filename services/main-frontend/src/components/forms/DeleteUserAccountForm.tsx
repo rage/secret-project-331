@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import React, { useContext, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
   postAuthDeleteUserAccount,
@@ -15,7 +14,7 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, type DialogAction } from "@/shared-module/components"
+import { Button, Dialog, type DialogAction, ErrorNotice } from "@/shared-module/components"
 
 import OneTimeCodeForm from "./OneTimeCodeForm"
 import "@/shared-module/common/init/registerAuthApiClients"
@@ -155,7 +154,7 @@ const DeleteUserAccountForm: React.FC = () => {
         actions={actions}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
-          <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+          <ErrorNotice error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
         )}
 
         {step === PASSWORD_STEP && (

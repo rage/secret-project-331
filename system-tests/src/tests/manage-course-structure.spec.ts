@@ -41,7 +41,7 @@ async function moveChapter(page: Page, chapterHeading: string, direction: "up" |
       .getByRole("heading", { name: new RegExp(chapterHeading) })
       .getByRole("button", { name: "Dropdown menu" })
       .click()
-    await page.getByRole("button", { name: `Move ${direction}` }).click()
+    await page.getByRole("menuitem", { name: `Move ${direction}` }).click()
     await verifyDialogState(page, true, false)
   })
 }
@@ -50,7 +50,7 @@ async function movePage(page: Page, pageText: string, direction: "up" | "down") 
   await test.step(`Move page "${pageText}" ${direction}`, async () => {
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
     await pageRow.getByLabel("Dropdown menu").click()
-    await page.getByRole("button", { name: `Move ${direction}` }).click()
+    await page.getByRole("menuitem", { name: `Move ${direction}` }).click()
     await verifyDialogState(page, false, true)
   })
 }
@@ -61,7 +61,7 @@ async function deletePage(page: Page, pageText: string) {
     await pageRow.getByLabel("Dropdown menu").click()
 
     await hideToasts(page)
-    await page.getByRole("button", { name: "Delete" }).click()
+    await page.getByRole("menuitem", { name: "Delete" }).click()
     await respondToConfirmDialog(page, true)
     await expect(page.getByText("Successfully deleted")).toBeVisible()
     await expect(page.getByRole("row").filter({ hasText: pageText })).toHaveCount(0)
@@ -145,7 +145,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       .getByRole("heading", { name: /Chapter 2: The intermediaries/ })
       .getByRole("button", { name: "Dropdown menu" })
       .click()
-    await page.getByRole("button", { name: "Edit", exact: true }).click()
+    await page.getByRole("menuitem", { name: "Edit", exact: true }).click()
 
     await page.getByLabel("Name").first().fill("The intermediaries TEST change")
     await page.getByRole("checkbox", { name: "Set Deadline" }).first().check()

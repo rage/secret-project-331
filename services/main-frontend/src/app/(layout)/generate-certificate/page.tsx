@@ -20,7 +20,6 @@ import type {
   GeneratedCertificate,
   CourseModule as GeneratedCourseModule,
 } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -30,7 +29,13 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, LoadingRegion, TextField, useDialog } from "@/shared-module/components"
+import {
+  Button,
+  LoadingRegion,
+  TextField,
+  useDialog,
+  ErrorNotice,
+} from "@/shared-module/components"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()
@@ -139,10 +144,8 @@ const ModuleCertificate: React.FC = () => {
 
   return (
     <>
-      {courseAndModule.isError && (
-        <ErrorBanner error={courseAndModule.error} variant={"readOnly"} />
-      )}
-      {userGrade.isError && <ErrorBanner error={userGrade.error} variant={"readOnly"} />}
+      {courseAndModule.isError && <ErrorNotice error={courseAndModule.error} />}
+      {userGrade.isError && <ErrorNotice error={userGrade.error} />}
       {(userInfo.isLoading || courseAndModule.isLoading || userGrade.isLoading) && (
         <LoadingRegion />
       )}

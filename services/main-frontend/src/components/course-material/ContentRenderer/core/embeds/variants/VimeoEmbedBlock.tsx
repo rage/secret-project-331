@@ -6,9 +6,8 @@ import { useTranslation } from "react-i18next"
 
 import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles/theme"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
@@ -81,8 +80,7 @@ export const VimeoEmbedBlock: React.FC<
         </BreakFromCentered>
       )}
       {!embedHtml && !fetching && (
-        <ErrorBanner
-          variant="readOnly"
+        <ErrorNotice
           error={t("could-not-fetch-embed", {
             provider: props.providerNameSlug,
             url: props.url ?? "undefined",

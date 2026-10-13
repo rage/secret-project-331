@@ -15,13 +15,12 @@ import {
   isUserDetailsNotFound,
   useUserDetails,
 } from "@/hooks/useUserDetails"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { searchUsersRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults } from "@/shared-module/components"
+import { Button, ErrorNotice, QueryResults } from "@/shared-module/components"
 
 import ActivityTimeline from "./components/ActivityTimeline"
 import CompletionReviewBanner from "./components/CompletionReviewBanner"
@@ -64,12 +63,20 @@ const UserPage: React.FC = () => {
     <QueryResults
       queries={[courseEnrollmentsQuery, userDetailsQuery] as const}
       emptyFallback={
-        <DataLoadError
-          contextMessage={t("label-user-details-query-returned-no-data")}
-          onRetry={() => {
-            void userDetailsQuery.refetch()
-          }}
-        />
+        <div>
+          <ErrorNotice
+            error={t("label-error-loading")}
+            context={t("label-user-details-query-returned-no-data")}
+          />
+          <Button
+            variant="primary"
+            onClick={() => {
+              void userDetailsQuery.refetch()
+            }}
+          >
+            {t("button-text-try-again")}
+          </Button>
+        </div>
       }
       renderData={([enrollmentsResult, userDetailsResult]) => (
         <UserPageContent

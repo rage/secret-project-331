@@ -13,11 +13,17 @@ import {
   updateExternalCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExternalCourseOutput } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
-import { Button, Checkbox, nullIfEmpty, TextArea, useDialog } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  nullIfEmpty,
+  TextArea,
+  useDialog,
+  ErrorNotice,
+} from "@/shared-module/components"
 
 import ContentDisplayBox from "../manage/course-auditing/CourseCard/ContentDisplayBox"
 
@@ -216,9 +222,7 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
               gap: 1rem;
             `}
           >
-            {updateMutation.isError && (
-              <ErrorBanner error={updateMutation.error} variant="readOnly" />
-            )}
+            {updateMutation.isError && <ErrorNotice error={updateMutation.error} />}
             <TextArea
               control={control}
               label={t("text-field-label-name")}

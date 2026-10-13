@@ -11,11 +11,10 @@ import { useTranslation } from "react-i18next"
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { getCourseReferencesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MaterialReference } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
@@ -101,7 +100,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
               return (
                 <li key={idx}>
                   <ErrorHeader>{r.citation_key}</ErrorHeader>
-                  <ErrorBanner error={error} variant="readOnly" />
+                  <ErrorNotice error={error} />
                   <Button
                     size="medium"
                     variant="secondary"
@@ -143,7 +142,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
               }
             `}
           >
-            <ErrorBanner variant="readOnly" error={error} />
+            <ErrorNotice error={error} />
           </div>
         )}
       >

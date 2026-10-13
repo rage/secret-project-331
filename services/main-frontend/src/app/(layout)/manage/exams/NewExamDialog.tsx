@@ -10,9 +10,8 @@ import {
   duplicateExamMutation as duplicateExamMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Dialog, QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 interface ExamDialogProps {
   organizationId: string
@@ -109,11 +108,11 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
       {createExamMutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} announce="off" />
+        <ErrorNotice error={createExamMutation.error} announce="off" />
       )}
       {duplicateExamMutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} announce="off" />
+        <ErrorNotice error={duplicateExamMutation.error} announce="off" />
       )}
       <QueryResult query={getOrgExams} treatEmptyAsData>
         {(exams) => renderForm(exams)}

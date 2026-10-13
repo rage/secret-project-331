@@ -82,7 +82,6 @@ import type {
   TimelinePhase,
   TimelineStep,
 } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import {
@@ -93,6 +92,7 @@ import {
   Disclosure,
   EmptyState,
   MultiSelect,
+  Pagination,
   QueryResult,
   Select,
   Table,
@@ -743,7 +743,10 @@ const RegistrationsPage: React.FC = () => {
                   ]}
                 />
                 <Pagination
-                  paginationInfo={paginationInfo}
+                  page={paginationInfo.page}
+                  onPageChange={paginationInfo.setPage}
+                  itemsPerPage={paginationInfo.limit}
+                  onItemsPerPageChange={paginationInfo.setLimit}
                   totalPages={page.total_pages}
                   totalItems={page.total_count}
                   itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}

@@ -13,13 +13,12 @@ import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Dialog, QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult, ErrorNotice } from "@/shared-module/components"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
 import {
   currentCourseIdAtom,
@@ -158,7 +157,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
 
   if (courseId === null) {
     // oxlint-disable-next-line i18next/no-literal-string
-    return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
+    return <ErrorNotice error={"No course ID defined"} />
   }
 
   if (!open) {
@@ -173,7 +172,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       showCloseButton={false}
       lang={dialogLanguage}
     >
-      {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
+      {!!submitError && <ErrorNotice error={submitError} />}
       {pageId && selectedLangCourseId && (
         <SelectCourseLanguage
           selectedLangCourseId={selectedLangCourseId}

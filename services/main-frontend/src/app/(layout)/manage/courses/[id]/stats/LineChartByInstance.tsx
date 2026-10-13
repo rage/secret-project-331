@@ -10,9 +10,8 @@ import { useTranslation } from "react-i18next"
 import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { LoadingRegion, Select } from "@/shared-module/components"
+import { LoadingRegion, Select, ErrorNotice } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import type { Period } from "./LineChart"
@@ -383,7 +382,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         {isLoading || courseInstancesQuery.isLoading ? (
           <LoadingRegion minHeight={0} />
         ) : error || courseInstancesQuery.error ? (
-          <ErrorBanner variant="readOnly" error={error || courseInstancesQuery.error} />
+          <ErrorNotice error={error || courseInstancesQuery.error} />
         ) : isDataEmpty ? (
           <div>{t("no-data")}</div>
         ) : (

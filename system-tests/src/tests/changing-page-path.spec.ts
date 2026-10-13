@@ -27,7 +27,7 @@ test("Chaning page path works and redirects correctly", async ({ page }) => {
     })
     .getByLabel("Dropdown menu")
     .click()
-  await page.getByRole("button", { name: "Edit page details" }).click()
+  await page.getByRole("menuitem", { name: "Edit page details" }).click()
   await page.getByLabel("Title", { exact: true }).fill("page-with-right-path")
   await page.getByLabel("Path", { exact: true }).fill("page-with-right-path-yeah")
   await waitForSuccessNotification(page, async () => {

@@ -8,9 +8,8 @@ import { useTranslation } from "react-i18next"
 
 import type { NewCourse } from "@/generated/api/types.generated"
 import { useCreateCourse } from "@/hooks/useCreateCourse"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, Checkbox } from "@/shared-module/components"
+import { Button, Checkbox, ErrorNotice } from "@/shared-module/components"
 
 import BasicCourseInfo from "./BasicCourseInfo"
 import DuplicateOptions from "./DuplicateOptions"
@@ -126,10 +125,7 @@ const NewCourseForm = React.forwardRef<NewCourseFormHandle, NewCourseFormProps>(
           `}
         >
           {(errors.root || Boolean(createCourseMutation.error)) && (
-            <ErrorBanner
-              error={createCourseMutation.error || errors.root?.message}
-              variant="readOnly"
-            />
+            <ErrorNotice error={createCourseMutation.error || errors.root?.message} />
           )}
 
           <BasicCourseInfo form={useFormReturn} />

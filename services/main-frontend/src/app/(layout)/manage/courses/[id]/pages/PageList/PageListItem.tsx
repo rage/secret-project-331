@@ -7,12 +7,19 @@ import { useTranslation } from "react-i18next"
 
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
-import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined, includeIf } from "@/shared-module/common/utils/nullability"
+import { Menu } from "@/shared-module/components"
 
 import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageAudioWidget from "./PageAudioWidget"
+
+const MENU_KEY_EDIT_DETAILS = "edit-details"
+const MENU_KEY_HISTORY = "history"
+const MENU_KEY_UPLOAD_AUDIO = "upload-audio"
+const MENU_KEY_MOVE_UP = "move-up"
+const MENU_KEY_MOVE_DOWN = "move-down"
+const MENU_KEY_DELETE = "delete"
 
 export const MOVING_ALLOWED: MovePolicy = "allowed"
 export const MOVING_NOT_ALLOWED: MovePolicy = "not-allowed"
@@ -116,63 +123,79 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
             <a href={`/cms/pages/${page.id}`}>
               <ActionButton>{t("button-text-edit-page")}</ActionButton>
             </a>
-            <DropdownMenu
+            <Menu
+              aria-label={t("dropdown-menu")}
               items={[
-                canEditPageDetails
-                  ? {
-                      label: t("button-text-edit-page-details"),
-                      onClick: () => {
-                        setShowEditDetailsPageForm(true)
+                ...(canEditPageDetails
+                  ? [
+                      {
+                        key: MENU_KEY_EDIT_DETAILS,
+                        label: t("button-text-edit-page-details"),
+                        onAction: () => {
+                          setShowEditDetailsPageForm(true)
+                        },
                       },
-                    }
-                  : null,
+                    ]
+                  : []),
                 {
+                  key: MENU_KEY_HISTORY,
                   label: t("link-history"),
                   href: `/manage/pages/${page.id}/history`,
                 },
                 {
+                  key: MENU_KEY_UPLOAD_AUDIO,
                   label: t("upload-audio-file"),
-
-                  onClick: () => {
+                  onAction: () => {
                     setShowDialog(true)
                   },
                 },
-                canMoveUp
-                  ? {
-                      label: t("button-text-move-up"),
-                      onClick: () => {
-                        pageOrderDispatch({
-                          type: "move",
-                          payload: {
-                            pageId: page.id,
-                            chapterId: page.chapter_id ?? null,
-                            direction: "up",
-                          },
-                        })
+                ...(canMoveUp
+                  ? [
+                      {
+                        key: MENU_KEY_MOVE_UP,
+                        label: t("button-text-move-up"),
+                        onAction: () => {
+                          pageOrderDispatch({
+                            type: "move",
+                            payload: {
+                              pageId: page.id,
+                              chapterId: page.chapter_id ?? null,
+                              direction: "up",
+                            },
+                          })
+                        },
                       },
-                    }
-                  : null,
-                canMoveDown
-                  ? {
-                      label: t("button-text-move-down"),
-                      onClick: () => {
-                        pageOrderDispatch({
-                          type: "move",
-                          payload: {
-                            pageId: page.id,
-                            chapterId: page.chapter_id ?? null,
-                            direction: "down",
-                          },
-                        })
+                    ]
+                  : []),
+                ...(canMoveDown
+                  ? [
+                      {
+                        key: MENU_KEY_MOVE_DOWN,
+                        label: t("button-text-move-down"),
+                        onAction: () => {
+                          pageOrderDispatch({
+                            type: "move",
+                            payload: {
+                              pageId: page.id,
+                              chapterId: page.chapter_id ?? null,
+                              direction: "down",
+                            },
+                          })
+                        },
                       },
-                    }
-                  : null,
-                onDeletePage && {
-                  label: t("button-text-delete"),
-                  onClick: () => {
-                    onDeletePage()
-                  },
-                },
+                    ]
+                  : []),
+                ...(onDeletePage
+                  ? [
+                      {
+                        key: MENU_KEY_DELETE,
+                        label: t("button-text-delete"),
+                        onAction: () => {
+                          onDeletePage()
+                        },
+                      },
+                    ]
+                  : []),
               ]}
             />
           </div>

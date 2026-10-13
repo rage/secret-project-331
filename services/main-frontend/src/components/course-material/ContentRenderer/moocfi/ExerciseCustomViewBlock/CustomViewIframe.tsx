@@ -13,9 +13,8 @@ import {
   getCourseMaterialModuleIdByChapterId,
 } from "@/generated/course-material-api/sdk.generated"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
-import { useDialog } from "@/shared-module/components"
+import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   CustomViewIframeState,
@@ -170,7 +169,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     return res
   }, [submission_data])
   if (!url || url.trim() === "") {
-    return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} variant="readOnly" />
+    return <ErrorNotice error={t("cannot-render-exercise-task-missing-url")} />
   }
 
   if (!userInfo.data || !subs_by_exercise || !courseInfo.data) {

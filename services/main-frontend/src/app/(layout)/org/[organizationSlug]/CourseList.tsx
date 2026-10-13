@@ -7,11 +7,10 @@ import { useTranslation } from "react-i18next"
 import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
 import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Pagination from "@/shared-module/common/components/Pagination"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { Button, QueryResults } from "@/shared-module/components"
+import { Button, Pagination, QueryResults } from "@/shared-module/components"
 
 import CourseCard, { CourseGrid } from "./CourseCard"
 import NewCourseDialog from "./NewCourseDialog"
@@ -57,7 +56,10 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         >
           <Pagination
             totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
-            paginationInfo={paginationInfo}
+            page={paginationInfo.page}
+            onPageChange={paginationInfo.setPage}
+            itemsPerPage={paginationInfo.limit}
+            onItemsPerPageChange={paginationInfo.setLimit}
           />
         </div>
 

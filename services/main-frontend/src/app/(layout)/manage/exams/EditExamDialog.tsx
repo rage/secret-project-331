@@ -6,9 +6,8 @@ import { useTranslation } from "react-i18next"
 import EditExamForm, { EDIT_EXAM_FORM_ID } from "@/components/forms/EditExamForm"
 import { editExamMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, ErrorNotice } from "@/shared-module/components"
 
 interface ExamDialogProps {
   initialData: Exam
@@ -62,7 +61,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {createExamMutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} announce="off" />
+        <ErrorNotice error={createExamMutation.error} announce="off" />
       )}
       <EditExamForm
         initialData={initialData}

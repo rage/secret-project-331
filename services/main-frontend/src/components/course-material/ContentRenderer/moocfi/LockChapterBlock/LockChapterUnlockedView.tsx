@@ -5,9 +5,8 @@ import { Padlock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { Button } from "@/shared-module/components"
+import { Button, ErrorNotice } from "@/shared-module/components"
 
 interface LockChapterUnlockedViewProps {
   onLock: () => void
@@ -106,9 +105,7 @@ const LockChapterUnlockedView: React.FC<LockChapterUnlockedViewProps> = ({
               ? t("locking-chapter")
               : t("lock-chapter")}
         </Button>
-        {(error || previewError) && (
-          <ErrorBanner variant={"readOnly"} error={(error ?? previewError) as Error} />
-        )}
+        {(error || previewError) && <ErrorNotice error={(error ?? previewError) as Error} />}
       </div>
     </div>
   )

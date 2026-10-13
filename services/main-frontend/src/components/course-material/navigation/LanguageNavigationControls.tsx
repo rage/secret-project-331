@@ -5,10 +5,9 @@ import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import type { LanguageOption } from "@/shared-module/common/components/LanguageSelection"
 import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
-import { LoadingRegion, useDialog } from "@/shared-module/components"
+import { LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import {
   currentCourseIdAtom,
   currentPageDataAtom,
@@ -58,7 +57,7 @@ const LanguageNavigationControls: React.FC<LanguageNavigationControlsProps> = ({
   )
 
   if (error) {
-    return <ErrorBanner error={error} />
+    return <ErrorNotice error={error} />
   }
 
   if (isLoading) {

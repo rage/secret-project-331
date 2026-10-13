@@ -25,7 +25,6 @@ import type {
   CourseAuditingDataUpdate,
   CourseAuditingModuleUpdate,
 } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -44,6 +43,7 @@ import {
   TextField,
   useDialog,
   TONE,
+  ErrorNotice,
 } from "@/shared-module/components"
 
 import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
@@ -398,7 +398,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
             {updateMutation.isError && (
               // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-              <ErrorBanner error={updateMutation.error} variant="readOnly" announce="off" />
+              <ErrorNotice error={updateMutation.error} announce="off" />
             )}
             <TextArea
               control={control}

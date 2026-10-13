@@ -16,15 +16,22 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Checkbox, Dialog, Link, QueryResults, Select } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorNotice,
+  Link,
+  Pagination,
+  QueryResults,
+  Select,
+} from "@/shared-module/components"
 import {
   exerciseAnswerFilesHref,
   exerciseAnswersCsvHref,
@@ -226,9 +233,7 @@ const SubmissionsPage: React.FC = () => {
             {t("message-csv-export-not-supported-for-this-exercise-type")}
           </p>
         )}
-      {csvExportTaskOptionsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={csvExportTaskOptionsQuery.error} />
-      )}
+      {csvExportTaskOptionsQuery.isError && <ErrorNotice error={csvExportTaskOptionsQuery.error} />}
       <QueryResults
         queries={[exerciseQuery, exerciseSubmissionsQuery] as const}
         renderData={([exercise, exerciseSubmissions]) =>
@@ -240,7 +245,10 @@ const SubmissionsPage: React.FC = () => {
               />
               <Pagination
                 totalPages={exerciseSubmissions.total_pages}
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
               />
             </>
           ) : null

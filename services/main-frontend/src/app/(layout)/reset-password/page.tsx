@@ -8,14 +8,13 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, TextField, ErrorNotice } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface SubmitEmailFormFields {
@@ -88,7 +87,7 @@ const ResetPassword: React.FC = () => {
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {postResetPassword.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorBanner error={postResetPassword.error} variant={"readOnly"} announce="off" />
+        <ErrorNotice error={postResetPassword.error} announce="off" />
       )}
 
       <form

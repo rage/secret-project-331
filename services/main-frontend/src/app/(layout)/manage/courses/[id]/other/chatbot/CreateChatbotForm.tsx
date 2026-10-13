@@ -7,9 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, TextArea, TextField, useDialog } from "@/shared-module/components"
+import { Button, TextArea, TextField, useDialog, ErrorNotice } from "@/shared-module/components"
 
 import { itemsContainerCss } from "./styles"
 
@@ -51,7 +50,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
               <p>{t("create-chatbot-form-fail-dialog")}</p>
               {/* notify:true already announced this error via the toast when the mutation failed */}
               {/* oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text */}
-              <ErrorBanner error={error} announce="off" />
+              <ErrorNotice error={error} announce="off" />
             </>
           ),
           title: t("create-chatbot-form-fail-title"),

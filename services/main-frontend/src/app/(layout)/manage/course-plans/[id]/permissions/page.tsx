@@ -14,13 +14,12 @@ import {
   removeCoursePlanMemberMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlanMemberWithDetails } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult, TextField } from "@/shared-module/components"
+import { Button, QueryResult, TextField, ErrorNotice } from "@/shared-module/components"
 
 const ADD_MEMBER_FIELD = "email" as const
 
@@ -176,7 +175,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
       {mutationError !== null &&
         mutationError !== undefined && (
           // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-          <ErrorBanner variant="readOnly" error={normalizedMutationError} announce="off" />
+          <ErrorNotice error={normalizedMutationError} announce="off" />
         )}
 
       <form className={addFormStyles} onSubmit={handleAddMember}>

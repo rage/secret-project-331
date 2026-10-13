@@ -11,12 +11,11 @@ import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.
 import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
 import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/types.generated"
 import { zEmailTemplateType } from "@/generated/api/zod.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 
 interface GroupedTemplates {
   templateType: EmailTemplateType
@@ -186,7 +185,7 @@ const EmailTemplatesList: React.FC = () => {
   }, [groupedTemplates, getTemplateTypeLabel])
 
   if (templatesQuery.isError) {
-    return <ErrorBanner variant={"readOnly"} error={templatesQuery.error} />
+    return <ErrorNotice error={templatesQuery.error} />
   }
 
   if (templatesQuery.isLoading) {
@@ -198,7 +197,7 @@ const EmailTemplatesList: React.FC = () => {
   }
 
   if (coursesQueries.isError) {
-    return <ErrorBanner variant={"readOnly"} error={coursesQueries.error} />
+    return <ErrorNotice error={coursesQueries.error} />
   }
 
   return (

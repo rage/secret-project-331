@@ -11,12 +11,11 @@ import { enrollInExam } from "@/generated/course-material-api/sdk.generated"
 import type { ExamData, ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
 import Centered from "@/shared-module/common/components/Centering/Centered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
-import { LoadingRegion } from "@/shared-module/components"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { refetchViewAtom } from "@/state/course-material/selectors"
@@ -117,7 +116,7 @@ export default function ExamPageShell({
   }, [mode, courseMaterialState.examData])
 
   if (courseMaterialState.error) {
-    return <ErrorBanner variant="readOnly" error={courseMaterialState.error} />
+    return <ErrorNotice error={courseMaterialState.error} />
   }
   if (courseMaterialState.status === "loading" || !courseMaterialState.examData) {
     return <LoadingRegion />

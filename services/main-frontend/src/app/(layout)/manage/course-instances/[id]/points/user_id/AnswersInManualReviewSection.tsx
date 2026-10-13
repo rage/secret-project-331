@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { exerciseAnswersRequiringAttentionRoute } from "@/shared-module/common/utils/routes"
+import { Link } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;

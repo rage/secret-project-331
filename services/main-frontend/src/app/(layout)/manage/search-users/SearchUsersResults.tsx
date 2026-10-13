@@ -2,13 +2,6 @@
 
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
-import {
-  columnVisibilityFeature,
-  createColumnHelper,
-  flexRender,
-  tableFeatures,
-  useTable,
-} from "@tanstack/react-table"
 import { differenceBy } from "lodash"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -16,7 +9,14 @@ import { useTranslation } from "react-i18next"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, LoadingRegion, Spinner, ErrorNotice } from "@/shared-module/components"
+import {
+  ErrorNotice,
+  Link,
+  LoadingRegion,
+  Spinner,
+  Table,
+  type TableColumn,
+} from "@/shared-module/components"
 
 // useSearchUsersLiveRegion already announces a failed search; a second live region would repeat it.
 const ERROR_ANNOUNCEMENT = "off"
@@ -29,7 +29,9 @@ export interface SearchUsersResultsProps {
 
 const SEARCH_QUERY_COUNT = 3
 
-const tableFeaturesConfig = tableFeatures({ columnVisibilityFeature })
+const fuzzyMatchCss = css`
+  opacity: 0.7;
+`
 
 const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsProps>> = ({
   searchByEmailQuery,
@@ -65,41 +67,34 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     return [res, new Set(fuzzyMatchUserIds)]
   }, [searchByEmailQuery.data, searchByOtherDetailsQuery.data, searchFuzzyMatchQuery.data])
 
-  const columnHelper = createColumnHelper<typeof tableFeaturesConfig, UserDetail>()
+  const dimIfFuzzyMatch = (user: UserDetail, content: React.ReactNode) =>
+    userIdsFromFuzzyMatch.has(user.user_id) ? (
+      <span className={fuzzyMatchCss}>{content}</span>
+    ) : (
+      content
+    )
 
-  const columns = columnHelper.columns([
-    columnHelper.accessor("user_id", { header: t("label-user-id") }),
-    columnHelper.accessor("email", {
-      header: t("label-email"),
-    }),
-    columnHelper.accessor("first_name", {
-      header: t("first-name"),
-    }),
-    columnHelper.accessor("last_name", {
-      header: t("last-name"),
-    }),
-    columnHelper.display({
-      // oxlint-disable-next-line i18next/no-literal-string
-      id: "details",
+  const columns: TableColumn<UserDetail>[] = [
+    { header: t("label-user-id"), cell: (user) => dimIfFuzzyMatch(user, user.user_id) },
+    { header: t("label-email"), cell: (user) => dimIfFuzzyMatch(user, user.email) },
+    { header: t("first-name"), cell: (user) => dimIfFuzzyMatch(user, user.first_name) },
+    { header: t("last-name"), cell: (user) => dimIfFuzzyMatch(user, user.last_name) },
+    {
       header: t("button-details"),
-      cell: (props) => (
-        <Link
-          href={manageUserRoute(props.row.original.user_id)}
-          styledAsButton
-          variant="tertiary"
-          size="medium"
-        >
-          {t("button-details")}
-        </Link>
-      ),
-    }),
-  ])
-
-  const table = useTable({
-    features: tableFeaturesConfig,
-    data,
-    columns,
-  })
+      cell: (user) =>
+        dimIfFuzzyMatch(
+          user,
+          <Link
+            href={manageUserRoute(user.user_id)}
+            styledAsButton
+            variant="tertiary"
+            size="medium"
+          >
+            {t("button-details")}
+          </Link>,
+        ),
+    },
+  ]
 
   const progressIndicator = isAnyFetching ? (
     <div
@@ -129,49 +124,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     <div>
       {errorBanner}
       {progressIndicator}
-      <div
-        className={css`
-          table {
-            width: 100%;
-          }
-          th {
-            text-align: left;
-          }
-          td {
-            padding: 0.5rem 2rem;
-            padding-left: 0;
-          }
-        `}
-      >
-        <table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {!header.isPlaceholder &&
-                      flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className={css`
-                  ${userIdsFromFuzzyMatch.has(row.original.user_id) && `opacity: 0.7;`}
-                `}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table caption={t("users")} rows={data} rowKey={(user) => user.user_id} columns={columns} />
     </div>
   )
 }

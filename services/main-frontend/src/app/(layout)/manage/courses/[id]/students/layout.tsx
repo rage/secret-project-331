@@ -29,7 +29,7 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
-import { Pagination, Select, Spinner } from "@/shared-module/components"
+import { Pagination, Select, Spinner, TextField } from "@/shared-module/components"
 
 import {
   StudentsContextProvider,
@@ -115,6 +115,7 @@ const rosterCaptionCss = css`
 `
 
 interface FilterFields {
+  search: string
   instance: string
   module: string
   grade: string
@@ -177,15 +178,17 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   // a count in the summary panel sets a view and the select has to move with it.
   const filterValues = useMemo(
     (): FilterFields => ({
+      search: searchInput,
       instance: courseInstanceId ?? ANY,
       module: moduleId ?? ANY,
       grade: grade ?? ANY,
       registration: registrationView,
     }),
-    [courseInstanceId, moduleId, grade, registrationView],
+    [searchInput, courseInstanceId, moduleId, grade, registrationView],
   )
   const { control, watch } = useForm<FilterFields>({ values: filterValues })
-  const [watchedInstance, watchedModule, watchedGrade, watchedRegistration] = watch([
+  const [watchedSearch, watchedInstance, watchedModule, watchedGrade, watchedRegistration] = watch([
+    "search",
     "instance",
     "module",
     "grade",
@@ -193,6 +196,9 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   ])
 
   useEffect(() => {
+    if (watchedSearch !== filterValues.search) {
+      setSearchInput(watchedSearch)
+    }
     if (watchedInstance !== filterValues.instance) {
       setCourseInstanceId(watchedInstance === ANY ? null : watchedInstance)
     }
@@ -206,6 +212,8 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
       setRegistrationView(watchedRegistration as RegistrationStatusView)
     }
   }, [
+    watchedSearch,
+    setSearchInput,
     watchedInstance,
     watchedModule,
     watchedGrade,
@@ -267,28 +275,24 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
             <RouteTabList tabs={tabs} className={styles.tabListCss} />
           </div>
           <div className={styles.controlsRow}>
-            <div className={styles.searchBoxWrap}>
-              <input
-                className={styles.searchInput}
+            <form
+              role="search"
+              className={styles.searchBoxWrap}
+              onSubmit={(event) => {
+                event.preventDefault()
+                runImmediateSearch()
+              }}
+            >
+              <TextField
+                name="search"
+                control={control}
+                label={t("search-students")}
+                isLabelHidden
                 placeholder={t("search-students")}
-                aria-label={t("search-students")}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    runImmediateSearch()
-                  }
-                }}
+                iconStart={<MagnifyingGlass size={18} />}
+                {...(isSearchPending ? { iconEnd: <Spinner size="sm" /> } : {})}
               />
-              <span className={styles.searchIcon} aria-hidden="true">
-                <MagnifyingGlass size={18} />
-              </span>
-              {isSearchPending && (
-                <span className={styles.searchPendingSpinner} aria-hidden="true">
-                  <Spinner size="sm" />
-                </span>
-              )}
-            </div>
+            </form>
 
             <Select
               name="instance"

@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import type { ChangeEvent } from "react"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -20,7 +19,14 @@ import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { Button, QueryResult, TextField, useDialog } from "@/shared-module/components"
+import {
+  Button,
+  QueryResult,
+  Select,
+  TextArea,
+  TextField,
+  useDialog,
+} from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -36,17 +42,31 @@ const Home: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-playground-exercise-iframe"))
   const dialog = useDialog()
-  const { control, setValue, watch } = useForm<{ url: string; width: string; name: string }>({
-    defaultValues: { url: "", width: String(narrowContainerWidthPx), name: "" },
+  const { control, setValue, watch } = useForm<{
+    url: string
+    width: string
+    name: string
+    data: string
+    exampleId: string
+  }>({
+    defaultValues: {
+      url: "",
+      width: String(narrowContainerWidthPx),
+      name: "",
+      data: "",
+      exampleId: "",
+    },
   })
   const exampleUrl = watch("url")
   const exampleWidth = Number(watch("width"))
   const exampleName = watch("name")
-  const [exampleData, setExampleData] = useState<string>("")
+  const exampleData = watch("data")
+  const exampleId = watch("exampleId")
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
-  const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
   const getPlaygroundExamples = useQuery(getPlaygroundExamplesOptions())
+  const selectedExample: PlaygroundExample | null =
+    getPlaygroundExamples.data?.find((example) => example.id === exampleId) ?? null
   const saveMutation = useToastMutationOptions(
     savePlaygroundExampleMutationOptions(),
     {
@@ -94,7 +114,7 @@ const Home: React.FC = () => {
     {
       onSuccess: () => {
         getPlaygroundExamples.refetch()
-        setSelectedExample(null)
+        setValue("exampleId", "")
         setTimeout(() => deleteMutation.reset(), 5000)
       },
       onError: () => {
@@ -118,20 +138,17 @@ const Home: React.FC = () => {
     }
   }, [exampleUrl, exampleWidth])
 
-  const handleDataChange = (e: string) => {
-    if (e) {
-      setExampleData(e)
+  useEffect(() => {
+    if (!selectedExample) {
+      return
     }
-  }
-
-  const handleExampleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
-    setValue("url", example.url)
-    setValue("width", String(example.width))
-    setExampleData(JSON.stringify(example.data as unknown, undefined, 2))
-    setValue("name", example.name)
-    setSelectedExample(example)
-  }
+    setValue("url", selectedExample.url)
+    setValue("width", String(selectedExample.width))
+    setValue("data", JSON.stringify(selectedExample.data as unknown, undefined, 2))
+    setValue("name", selectedExample.name)
+    // Re-applying on refetch would overwrite unsaved edits.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [exampleId])
 
   const handleExampleSave = () => {
     saveMutation.mutate({
@@ -184,23 +201,13 @@ const Home: React.FC = () => {
                   margin-top: 0.5rem;
                 `}
               >
-                {}
-                <select
-                  onChange={handleExampleChange}
-                  name="playground-examples"
-                  aria-label={t("playground-examples")}
-                >
-                  {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name */}
-                  <option selected disabled label={t("label-examples")} />
-                  {data.map((example) => (
-                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name
-                    <option
-                      key={JSON.stringify(example)}
-                      value={JSON.stringify(example)}
-                      label={example.name}
-                    />
-                  ))}
-                </select>
+                <Select
+                  name="exampleId"
+                  control={control}
+                  label={t("playground-examples")}
+                  placeholder={t("label-examples")}
+                  options={data.map((example) => ({ value: example.id, label: example.name }))}
+                />
               </div>
             </div>
           )}
@@ -231,18 +238,16 @@ const Home: React.FC = () => {
           `}
         />
         <br />
-        <label id="data-preview-label">{t("data-to-post-to-iframe")}</label>
-        <textarea
+        <TextArea
+          name="data"
+          control={control}
+          label={t("data-to-post-to-iframe")}
           rows={20}
-          spellCheck={false}
-          value={exampleData}
-          onChange={(e) => handleDataChange(e.target.value)}
-          aria-labelledby="data-preview-label"
           className={css`
-            border: 1px solid black;
             margin-bottom: 1rem;
-            width: 100%;
-            font-family: ${monospaceFont} !important;
+            textarea {
+              font-family: ${monospaceFont};
+            }
           `}
         />
         {exampleUrl && exampleWidth && exampleData && exampleName && (

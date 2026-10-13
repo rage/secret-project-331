@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Dialog, Select } from "@/shared-module/components"
+import { Button, Dialog, Meter, METER_KIND, Select, TONE } from "@/shared-module/components"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
@@ -91,40 +91,6 @@ const summaryProgressBlockStyles = css`
     align-items: stretch;
     min-width: 0;
   }
-`
-
-const summaryProgressLabelStyles = css`
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: ${baseTheme.colors.gray[500]};
-`
-
-const summaryProgressTrackStyles = css`
-  width: 12rem;
-  height: 6px;
-  background: ${baseTheme.colors.gray[100]};
-  border-radius: 999px;
-  overflow: hidden;
-
-  @media (max-width: 540px) {
-    width: 100%;
-  }
-`
-
-const summaryProgressFillStyles = (percent: number) => css`
-  display: block;
-  width: ${Math.max(0, Math.min(100, percent))}%;
-  height: 100%;
-  background: ${baseTheme.colors.green[600]};
-  border-radius: inherit;
-  transition: width 250ms ease;
-`
-
-const summaryProgressMetaStyles = css`
-  font-size: 0.8rem;
-  color: ${baseTheme.colors.gray[500]};
 `
 
 const timelineSectionStyles = css`
@@ -425,9 +391,6 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   const canAdjustSchedule = activeStage !== null && activeStageData !== null
 
   const showTaskProgressInSummary = activeStage !== null && activeStageTaskTotal > 0
-  const taskProgressPercent = showTaskProgressInSummary
-    ? (activeStageTaskCompleted / activeStageTaskTotal) * 100
-    : 0
 
   if (!isOpen) {
     return null
@@ -497,25 +460,17 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
 
           {showTaskProgressInSummary && (
             <div className={summaryProgressBlockStyles}>
-              <span className={summaryProgressLabelStyles}>
-                {t("course-plans-overview-course-progress")}
-              </span>
-              <span
-                className={summaryProgressTrackStyles}
-                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled progress indicator; native <progress> changes layout
-                role="progressbar"
-                aria-valuenow={activeStageTaskCompleted}
-                aria-valuemin={0}
-                aria-valuemax={activeStageTaskTotal}
-              >
-                <span className={summaryProgressFillStyles(taskProgressPercent)} />
-              </span>
-              <span className={summaryProgressMetaStyles}>
-                {t("course-plans-overview-phase-tasks-progress", {
+              <Meter
+                kind={METER_KIND.PROGRESS}
+                tone={TONE.SUCCESS}
+                label={t("course-plans-overview-course-progress")}
+                value={activeStageTaskCompleted}
+                maxValue={activeStageTaskTotal}
+                valueLabel={t("course-plans-overview-phase-tasks-progress", {
                   completed: activeStageTaskCompleted,
                   total: activeStageTaskTotal,
                 })}
-              </span>
+              />
             </div>
           )}
         </section>

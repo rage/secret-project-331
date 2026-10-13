@@ -1,17 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useAutocompleteState } from "@react-stately/autocomplete"
-import { useSearchFieldState } from "@react-stately/searchfield"
 import { ArrowRight, MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import { useMemo, useRef, useState } from "react"
-import { useAutocomplete, useFilter, useSearchField } from "react-aria"
+import { useMemo } from "react"
+import { useFilter } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Dialog } from "@/shared-module/components"
+import { Dialog, TextField } from "@/shared-module/components"
 import { listBoxEmptyStateCss } from "@/shared-module/components/components/primitives/selectStyles"
 
 interface NewConversationDialogProps {
@@ -45,22 +44,6 @@ const sectionGroupCss = css`
   gap: 7px;
 `
 
-const searchfieldCss = css`
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 999px;
-  padding: 0 2rem;
-  width: 100%;
-  outline: none;
-  border: none;
-  box-shadow: inset 0 0 0 1px var(--field-border);
-  min-height: 2.5rem;
-  &:focus-visible {
-    box-shadow: none;
-    outline: 2px solid var(--field-border-color-focus);
-  }
-`
-
 const buttonCss = css`
   width: 100%;
   justify-content: flex-start;
@@ -91,9 +74,10 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation()
-  const [filterValue, setFilterValue] = useState("")
-  const searchRef = useRef<HTMLInputElement>(null)
-  const listRef = useRef(null)
+  const { control, watch } = useForm<{ filterValue: string }>({
+    defaultValues: { filterValue: "" },
+  })
+  const filterValue = watch("filterValue")
 
   const { newConversationMutation } = useChatbotContext()
 
@@ -150,61 +134,27 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
     return groupedSorted
   }, [courses, chatbots, t])
 
-  const chatbotOptionsFiltered =
-    searchRef.current === document.activeElement
-      ? chatbotOptions
-          .map((category) => ({
-            ...category,
-            options: category.options.filter((option) => contains(option.label, filterValue)),
-          }))
-          .filter((category) => category.options.length > 0)
-      : chatbotOptions
-
-  const searchFieldState = useSearchFieldState({
-    value: filterValue,
-    onChange: setFilterValue,
-  })
-
-  const autoCompleteState = useAutocompleteState({})
-
-  const { inputProps: autoCompleteInputProps } = useAutocomplete(
-    {
-      inputRef: searchRef,
-      collectionRef: listRef,
-    },
-    autoCompleteState,
-  )
-
-  const { inputProps } = useSearchField(
-    {
-      ...autoCompleteInputProps,
-      placeholder: t("chatbot-search-placeholder"),
-      "aria-label": t("chatbot-search-placeholder"),
-    },
-    searchFieldState,
-    searchRef,
-  )
+  const chatbotOptionsFiltered = chatbotOptions
+    .map((category) => ({
+      ...category,
+      options: category.options.filter((option) => contains(option.label, filterValue)),
+    }))
+    .filter((category) => category.options.length > 0)
 
   return (
     <Dialog isDismissable open={open} onClose={onClose} title={t("new-conversation-dialog-title")}>
-      <div
+      <TextField
+        name="filterValue"
+        control={control}
+        type="search"
+        label={t("chatbot-search-placeholder")}
+        isLabelHidden
+        placeholder={t("chatbot-search-placeholder")}
+        iconStart={<MagnifyingGlass size={16} weight="bold" />}
         className={css`
-          position: relative;
-          padding: 0;
+          margin: 0.5rem 0;
         `}
-      >
-        <span
-          className={css`
-            display: inline-block;
-            position: absolute;
-            left: 12px;
-            top: 1.125rem;
-          `}
-        >
-          <MagnifyingGlass size={16} weight="bold" />
-        </span>
-        <input {...inputProps} ref={searchRef} className={searchfieldCss} />
-      </div>
+      />
       <ul
         className={css`
           padding: 0;

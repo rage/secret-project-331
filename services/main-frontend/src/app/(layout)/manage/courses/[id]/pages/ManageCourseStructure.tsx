@@ -38,7 +38,7 @@ import {
   MOVING_ALLOWED_ONLY_DOWN,
   MOVING_ALLOWED_ONLY_UP,
   MOVING_NOT_ALLOWED,
-} from "./PageList/PageListItem"
+} from "./PageList/PageRowActions"
 
 const MENU_KEY_EDIT = "edit"
 const MENU_KEY_EDIT_IMAGE = "edit-image"

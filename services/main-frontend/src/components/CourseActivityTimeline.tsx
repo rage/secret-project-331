@@ -7,19 +7,15 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
-import {
-  moduleTimingCaptionCss,
-  ModuleTimingCells,
-  moduleTimingLegendCss,
-  moduleTimingTableCss,
-} from "@/components/ModuleTimingTable"
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
+import { moduleTimingColumns, moduleTimingLegendCss } from "@/components/ModuleTimingTable"
 import {
   getUserCourseEnrollmentsOptions,
   getUserCourseSubmissionTimesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Disclosure, LoadingRegion, ErrorNotice } from "@/shared-module/components"
+import { Disclosure, ErrorNotice, LoadingRegion, Table } from "@/shared-module/components"
 import { computeModuleRows, formatDuration } from "@/utils/moduleTimeline"
 import {
   colorAt,
@@ -259,25 +255,14 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
         )
       ) : null}
       <Disclosure title={t("show-underlying-data")}>
-        <table className={moduleTimingTableCss}>
-          <caption className={moduleTimingCaptionCss}>{t("completion-timeline-caption")}</caption>
-          <thead>
-            <tr>
-              <th>{t("label-module")}</th>
-              <th>{t("label-started")}</th>
-              <th>{t("label-completed")}</th>
-              <th>{t("label-time-in-module")}</th>
-              <th>{t("label-since-enrolled")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {moduleRows.map((row) => (
-              <tr key={row.moduleId}>
-                <ModuleTimingCells row={row} />
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Table
+          caption={t("completion-timeline-caption")}
+          showCaption
+          density={DENSITY_COMPACT}
+          columns={moduleTimingColumns(t)}
+          rows={moduleRows}
+          rowKey={(row) => row.moduleId}
+        />
       </Disclosure>
     </div>
   )

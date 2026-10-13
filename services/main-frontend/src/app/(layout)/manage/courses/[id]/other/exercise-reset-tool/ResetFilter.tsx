@@ -7,17 +7,15 @@ import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
-import { Checkbox } from "@/shared-module/components"
+import { Checkbox, NumberField } from "@/shared-module/components"
 
 import type { ResetFormFields } from "./ResetExercises"
 
 interface ResetFilterProps {
   control: Control<ResetFormFields>
-  threshold: number | null
-  setThreshold: (val: number | null) => void
 }
 
-const ResetFilter: React.FC<ResetFilterProps> = ({ control, threshold, setThreshold }) => {
+const ResetFilter: React.FC<ResetFilterProps> = ({ control }) => {
   const { t } = useTranslation()
   // oxlint-disable-next-line i18next/no-literal-string
   const thresholdCheckBox = useWatch({ control, name: "onlyResetBelowThreshold" })
@@ -38,24 +36,16 @@ const ResetFilter: React.FC<ResetFilterProps> = ({ control, threshold, setThresh
           label={t("label-only-reset-if-less-than")}
           isInline
         />
-        <input
-          id="pointsThreshold"
-          type="number"
-          min="0"
+        <NumberField
+          name="pointsThreshold"
+          control={control}
+          label={t("label-only-reset-if-less-than")}
+          minValue={0}
+          step={1}
+          isDisabled={!thresholdCheckBox}
           className={css`
-            width: 5rem;
+            width: 8rem;
           `}
-          value={threshold ?? ""}
-          aria-label={t("label-only-reset-if-less-than")}
-          step="1"
-          disabled={!thresholdCheckBox}
-          onChange={(e) => {
-            let value = e.target.value === "" ? null : Number(e.target.value)
-            if (value !== null && (isNaN(value) || value < 0)) {
-              value = 0
-            }
-            setThreshold(value)
-          }}
         />
         <p> {t("label-points-from-the-exercise").toLowerCase()}</p>
       </div>

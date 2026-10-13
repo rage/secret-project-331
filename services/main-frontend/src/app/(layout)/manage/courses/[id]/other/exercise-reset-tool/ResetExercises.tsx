@@ -20,6 +20,7 @@ import SelectedUsers from "./SelectedUsers"
 
 export interface ResetFormFields {
   onlyResetBelowThreshold: boolean
+  pointsThreshold: number | null
   resetAllBelowMaxPoints: boolean
   resetOnlyLockedPeerReviews: boolean
   selectedExercises: Record<string, boolean>
@@ -30,11 +31,11 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { data: users, isLoading } = useUsers(courseId)
   const [selectedUsers, setSelectedUsers] = useState<UserDetail[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [threshold, setThreshold] = useState<number | null>(null)
 
   const { control, watch, setValue } = useForm<ResetFormFields>({
     defaultValues: {
       onlyResetBelowThreshold: false,
+      pointsThreshold: null,
       resetAllBelowMaxPoints: false,
       resetOnlyLockedPeerReviews: false,
       selectedExercises: {},
@@ -42,6 +43,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   })
   const resetOnlyLockedPeerReviews = watch("resetOnlyLockedPeerReviews")
   const resetAllBelowMaxPoints = watch("resetAllBelowMaxPoints")
+  const threshold = watch("pointsThreshold")
   const selectedExercisesMap = watch("selectedExercises")
   // Not memoized: react-hook-form mutates the object `watch` returns in place, so a memo keyed on
   // it would never see a new reference and would hold the empty first-render result, leaving the
@@ -134,7 +136,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         />
       </div>
 
-      <ResetFilter control={control} threshold={threshold} setThreshold={setThreshold} />
+      <ResetFilter control={control} />
 
       <div
         className={css`

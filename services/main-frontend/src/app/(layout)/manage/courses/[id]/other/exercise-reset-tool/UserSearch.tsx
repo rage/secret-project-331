@@ -2,13 +2,14 @@
 
 import { css } from "@emotion/css"
 import { useMemo, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
-import { Button, Dialog, LoadingRegion, TextField } from "@/shared-module/components"
+import { Button, Dialog, LoadingRegion, Table, TextField } from "@/shared-module/components"
 
 interface Props {
   users?: UserDetail[]
@@ -98,62 +99,35 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
               iconStart={<SearchIcon />}
             />
             <div>
-              <table
-                className={css`
-                  border-collapse: collapse;
-                  width: 100%;
-                  td,
-                  th {
-                    white-space: nowrap;
-                    height: 60px;
-                    padding-left: 2rem;
-                    padding-top: 1rem;
-                    padding-bottom: 1rem;
-
-                    text-align: left;
-                    color: ${baseTheme.colors.gray[700]};
-                    font-size: ${baseTheme.fontSizes[0]}px;
-                    opacity: 0.8;
-                  }
-                  tr {
-                    border-bottom: 1.5px solid #ced1d7;
-                  }
-                  th {
-                    font-weight: ${fontWeights.medium};
-                  }
-                `}
-              >
-                <thead>
-                  <tr>
-                    <th>{t("text-field-label-name")}</th>
-                    <th>{t("label-email")}</th>
-                    <th>{t("label-user-id")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(searchTerm.trim() ? filteredUsers : users || []).map((user) => (
-                    <tr key={user.user_id}>
-                      <td>
-                        {user.first_name} {user.last_name}
-                      </td>
-                      <td>{user.email}</td>
-                      <td>{user.user_id}</td>
-                      <td>
-                        <Button
-                          onClick={() =>
-                            isAdded(user) ? handleRemoveUser(user) : handleAddUser(user)
-                          }
-                          variant={"secondary"}
-                          size={"small"}
-                          data-testid={`add-user-button-${user.user_id}`}
-                        >
-                          {t(isAdded(user) ? "button-remove" : "button-add")}
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Table
+                caption={t("label-list-of-all-students")}
+                emptyState={null}
+                rows={searchTerm.trim() ? filteredUsers : users || []}
+                rowKey={(user) => user.user_id}
+                columns={[
+                  {
+                    header: t("text-field-label-name"),
+                    cell: (user) => `${user.first_name ?? ""} ${user.last_name ?? ""}`,
+                  },
+                  { header: t("label-email"), cell: (user) => user.email },
+                  { header: t("label-user-id"), cell: (user) => user.user_id },
+                  {
+                    header: <VisuallyHidden>{t("button-add")}</VisuallyHidden>,
+                    cell: (user) => (
+                      <Button
+                        onClick={() =>
+                          isAdded(user) ? handleRemoveUser(user) : handleAddUser(user)
+                        }
+                        variant={"secondary"}
+                        size={"small"}
+                        data-testid={`add-user-button-${user.user_id}`}
+                      >
+                        {t(isAdded(user) ? "button-remove" : "button-add")}
+                      </Button>
+                    ),
+                  },
+                ]}
+              />
             </div>
 
             {searchTerm.trim() && filteredUsers.length === 0 && <p>{t("label-no-users-found")}</p>}

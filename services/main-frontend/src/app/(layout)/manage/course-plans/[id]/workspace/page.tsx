@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
@@ -22,7 +21,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult, useDialog } from "@/shared-module/components"
+import { Button, Link, QueryResult, useDialog } from "@/shared-module/components"
 
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
 import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
@@ -323,28 +322,6 @@ const stageContextActionRowStyles = css`
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.35rem;
-`
-
-const stageContextActionButtonStyles = css`
-  background: transparent;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: ${baseTheme.colors.green[700]};
-  cursor: pointer;
-  text-decoration: underline;
-
-  &:hover,
-  &:focus-visible {
-    color: ${baseTheme.colors.green[800]};
-    outline: none;
-  }
-
-  &:focus-visible {
-    text-decoration-thickness: 2px;
-  }
 `
 
 const welcomeDialogBodyStyles = css`
@@ -777,15 +754,15 @@ function CoursePlanWorkspacePage() {
                           </p>
                           {currentStage && (
                             <div className={stageContextActionRowStyles}>
-                              <button
-                                type="button"
-                                className={stageContextActionButtonStyles}
+                              <Button
+                                variant="tertiary"
+                                size="small"
                                 onClick={() => handleSelectedStageChange(currentStage)}
                               >
                                 {t("course-plans-stage-context-go-to-active", {
                                   activeStage: activeStageNameForCopy,
                                 })}
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </aside>
@@ -810,15 +787,15 @@ function CoursePlanWorkspacePage() {
                           </p>
                           {currentStage && (
                             <div className={stageContextActionRowStyles}>
-                              <button
-                                type="button"
-                                className={stageContextActionButtonStyles}
+                              <Button
+                                variant="tertiary"
+                                size="small"
                                 onClick={() => handleSelectedStageChange(currentStage)}
                               >
                                 {t("course-plans-stage-context-go-to-active", {
                                   activeStage: activeStageNameForCopy,
                                 })}
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </aside>

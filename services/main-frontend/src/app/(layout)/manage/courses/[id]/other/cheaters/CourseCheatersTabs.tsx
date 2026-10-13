@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { LINK_QUIET } from "@/components/credit-registration/constants"
 import {
   getCourseFlaggedSuspectedCheatersCountQueryKey,
   getCourseSuspectedCheatersOptions,
@@ -17,9 +17,9 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { Button, QueryResult, useDialog } from "@/shared-module/components"
+import { Button, Link, QueryResult, Table, useDialog } from "@/shared-module/components"
 
 interface CourseCheatersProps {
   courseId: string
@@ -176,126 +176,86 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
         }
       >
         {(data) => (
-          <table
-            id="cheaters"
-            className={css`
-              width: 100%;
-              margin-top: 0.4rem;
-              text-align: left;
-              border-collapse: collapse;
-              font-family: ${headingFont};
-              border: 1px solid ${baseTheme.colors.gray[100]};
-
-              th {
-                color: ${baseTheme.colors.gray[500]};
-                padding: 0.4rem 0;
-                font-weight: 600;
-                font-size: 15px;
-                border-bottom: 1px solid ${baseTheme.colors.gray[100]};
-                padding: 0.8rem;
-              }
-
-              td {
-                color: ${baseTheme.colors.gray[500]};
-                padding: 0.4rem 0;
-                font-size: 18px;
-                padding: 0.8rem;
-              }
-            `}
-            aria-label={listTitle}
-          >
-            <caption
-              className={css`
-                text-align: left;
-                font-weight: 600;
-                margin-bottom: 0.5rem;
-                caption-side: top;
-              `}
-            >
-              {listTitle}
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">{t("student-id")}</th>
-                <th scope="col">{t("points")}</th>
-                <th scope="col">{t("duration")}</th>
-                {showActions && <th scope="col">{t("actions")}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map(({ user_id, total_points, total_duration_seconds }, index) => {
-                const everySecondListItem = index % 2 === 1
-                const durationHours = total_duration_seconds
-                  ? Math.round((total_duration_seconds / 3600) * 10) / 10
-                  : 0
-                const durationText = total_duration_seconds
-                  ? `${durationHours} ${t("hours")} (${total_duration_seconds} ${t("seconds")})`
-                  : `0 ${t("hours")}`
-                return (
-                  <tr
-                    key={user_id}
-                    className={css`
-                      background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
-                    `}
+          <Table
+            caption={listTitle}
+            showCaption
+            rows={data}
+            rowKey={(row) => row.user_id}
+            columns={[
+              {
+                header: t("student-id"),
+                cell: ({ user_id }) => (
+                  <Link
+                    href={courseUserStatusSummaryRoute(courseId, user_id)}
+                    appearance={LINK_QUIET}
+                    aria-label={`${t("student-id")}: ${user_id}`}
                   >
-                    <td>
-                      <Link
-                        href={courseUserStatusSummaryRoute(courseId, user_id)}
-                        className={css`
-                          text-decoration: none;
-                        `}
-                        aria-label={`${t("student-id")}: ${user_id}`}
-                      >
-                        {user_id}
-                      </Link>
-                    </td>
-                    <td>{total_points}</td>
-                    <td>
-                      <span aria-label={`${t("duration")}: ${durationText}`}>
-                        {total_duration_seconds
-                          ? `${durationHours}${t("hours-short")}`
-                          : `0${t("hours-short")}`}
-                      </span>
-                    </td>
-                    {showActions && (
-                      <td>
-                        {canConfirm && (
-                          <Button
-                            className="threshold-btn"
-                            variant="primary"
-                            size="medium"
-                            onClick={() => onConfirmClick(user_id)}
-                            aria-label={t("confirm-cheating-for-student", {
-                              action: t("confirm-cheating"),
-                              label: t("student-id"),
-                              id: user_id,
-                            })}
-                          >
-                            {t("confirm-cheating")}
-                          </Button>
-                        )}
-                        {canDismiss && (
-                          <Button
-                            className="threshold-btn"
-                            variant="secondary"
-                            size="medium"
-                            onClick={() => onDismissClick(user_id)}
-                            aria-label={t("confirm-cheating-for-student", {
-                              action: t("dismiss-suspicion"),
-                              label: t("student-id"),
-                              id: user_id,
-                            })}
-                          >
-                            {t("dismiss-suspicion")}
-                          </Button>
-                        )}
-                      </td>
-                    )}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    {user_id}
+                  </Link>
+                ),
+              },
+              { header: t("points"), cell: ({ total_points }) => total_points },
+              {
+                header: t("duration"),
+                cell: ({ total_duration_seconds }) => {
+                  const durationHours = total_duration_seconds
+                    ? Math.round((total_duration_seconds / 3600) * 10) / 10
+                    : 0
+                  const durationText = total_duration_seconds
+                    ? `${durationHours} ${t("hours")} (${total_duration_seconds} ${t("seconds")})`
+                    : `0 ${t("hours")}`
+                  return (
+                    <span aria-label={`${t("duration")}: ${durationText}`}>
+                      {total_duration_seconds
+                        ? `${durationHours}${t("hours-short")}`
+                        : `0${t("hours-short")}`}
+                    </span>
+                  )
+                },
+              },
+              ...(showActions
+                ? [
+                    {
+                      header: t("actions"),
+                      cell: ({ user_id }: { user_id: string }) => (
+                        <>
+                          {canConfirm && (
+                            <Button
+                              className="threshold-btn"
+                              variant="primary"
+                              size="medium"
+                              onClick={() => onConfirmClick(user_id)}
+                              aria-label={t("confirm-cheating-for-student", {
+                                action: t("confirm-cheating"),
+                                label: t("student-id"),
+                                id: user_id,
+                              })}
+                            >
+                              {t("confirm-cheating")}
+                            </Button>
+                          )}
+                          {canDismiss && (
+                            <Button
+                              className="threshold-btn"
+                              variant="secondary"
+                              size="medium"
+                              onClick={() => onDismissClick(user_id)}
+                              aria-label={t("confirm-cheating-for-student", {
+                                action: t("dismiss-suspicion"),
+                                label: t("student-id"),
+                                id: user_id,
+                              })}
+                            >
+                              {t("dismiss-suspicion")}
+                            </Button>
+                          )}
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+            ]}
+          />
         )}
       </QueryResult>
     </>

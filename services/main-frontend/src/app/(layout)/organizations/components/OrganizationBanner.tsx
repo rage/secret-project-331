@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { LINK_INHERIT } from "@/components/credit-registration/constants"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -14,6 +14,7 @@ import {
   manageOrganizationRoute,
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
+import { Link } from "@/shared-module/components"
 
 interface Props {
   organization: {
@@ -85,6 +86,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             resource={{ type: "organization", id: organization.id }}
           >
             <Link
+              appearance={LINK_INHERIT}
               href={manageOrganizationRoute(organization.id)}
               aria-label={t("label-manage-organization", {
                 name: organization.name,
@@ -119,6 +121,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
           </OnlyRenderIfPermissions>
 
           <Link
+            appearance={LINK_INHERIT}
             href={organizationFrontPageRoute(organization.slug)}
             className={css`
               background-color: rgba(237, 238, 240, 1);

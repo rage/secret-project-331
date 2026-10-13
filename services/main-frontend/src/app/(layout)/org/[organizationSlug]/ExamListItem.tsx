@@ -2,7 +2,6 @@
 
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +10,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import { baseTheme } from "@/shared-module/common/styles"
 import { examRoute, manageExamRoute } from "@/shared-module/common/utils/routes"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
+import { Link } from "@/shared-module/components"
 
 type Exam = Pick<
   OrgExam,

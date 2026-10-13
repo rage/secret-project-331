@@ -1,15 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { LINK_INHERIT } from "@/components/credit-registration/constants"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
+import { LoadingRegion, ErrorNotice, Link } from "@/shared-module/components"
 
 interface Submission {
   id: string
@@ -69,6 +69,7 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
 
               return (
                 <Link
+                  appearance={LINK_INHERIT}
                   key={submission.id}
                   href={`/submissions/${submission.id}`}
                   className={css`

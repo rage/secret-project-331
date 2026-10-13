@@ -1,10 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Dialog } from "@/shared-module/components"
+import { Dialog, TextField } from "@/shared-module/components"
 
 interface Props {
   show: boolean
@@ -14,33 +15,34 @@ interface Props {
 
 const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete }) => {
   const { t } = useTranslation()
-  const [confirmText, setConfirmText] = useState("")
+  const { control, watch, reset } = useForm<{ confirmText: string }>({
+    defaultValues: { confirmText: "" },
+  })
+  const confirmText = watch("confirmText")
+
+  const close = () => {
+    setShow(false)
+    reset()
+  }
 
   return (
     <Dialog
       open={show}
-      onClose={() => {
-        setShow(false)
-        setConfirmText("")
-      }}
+      onClose={close}
       title={t("delete-organization")}
       actions={[
         {
           label: t("confirm"),
           onClick: () => {
             handleDelete()
-            setShow(false)
-            setConfirmText("")
+            close()
           },
           variant: "primary",
           disabled: confirmText !== "delete",
         },
         {
           label: t("button-text-cancel"),
-          onClick: () => {
-            setShow(false)
-            setConfirmText("")
-          },
+          onClick: close,
           variant: "secondary",
         },
       ]}
@@ -53,18 +55,11 @@ const DeleteOrganizationPopup: React.FC<Props> = ({ show, setShow, handleDelete 
       >
         {t("confirm-organization-deletion")}
       </p>
-
-      <input
-        type="text"
-        value={confirmText}
-        onChange={(e) => setConfirmText(e.target.value)}
-        className={css`
-          border: 1.6px solid #e4e5e8;
-          border-radius: 2px;
-          padding: 8px 12px;
-          font-size: 14px;
-          width: 100%;
-        `}
+      <TextField
+        name="confirmText"
+        control={control}
+        label={t("confirm-organization-deletion")}
+        isLabelHidden
       />
     </Dialog>
   )

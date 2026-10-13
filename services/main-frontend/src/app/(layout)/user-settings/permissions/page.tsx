@@ -3,7 +3,6 @@
 import { css, cx } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import { LinesClipboard, LinkChain, XmarkCircle } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -22,7 +21,7 @@ import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { Button, Link, QueryResult } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 const PermissionsSettingsPage: React.FC = () => {
@@ -131,28 +130,14 @@ const PermissionsSettingsPage: React.FC = () => {
               {t("title-research-consents")}
             </h2>
           </div>
-          <button
+          <Button
             data-testid="edit-research-consent-button"
+            variant="tertiary"
+            size="small"
             onClick={handleGeneralResearchFormButton}
-            className={css`
-              display: inline-flex;
-              align-items: center;
-              font-size: 0.8125rem;
-              font-weight: 500;
-              color: ${baseTheme.colors.green[700]};
-              background: transparent;
-              border: none;
-              padding: 0.375rem 0.625rem;
-              border-radius: 6px;
-              cursor: pointer;
-              transition: all 0.15s ease;
-              &:hover {
-                background: ${baseTheme.colors.green[75]};
-              }
-            `}
           >
             {t("edit")}
-          </button>
+          </Button>
         </div>
 
         {!openResearchForm && (
@@ -394,31 +379,15 @@ const PermissionsSettingsPage: React.FC = () => {
                         {client.scopes.join(", ")}
                       </div>
                     </div>
-                    <button
+                    <Button
                       data-testid={`revoke-app-${client.client_id}`}
+                      variant="tertiary"
+                      size="small"
                       onClick={() => revokeMutation.mutate(client.client_id)}
                       disabled={revokeMutation.isPending}
-                      className={css`
-                        font-size: 0.8125rem;
-                        font-weight: 500;
-                        color: ${baseTheme.colors.red[600]};
-                        background: transparent;
-                        border: none;
-                        padding: 0.375rem 0.625rem;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        transition: all 0.15s ease;
-                        &:hover {
-                          background: ${baseTheme.colors.red[75]};
-                        }
-                        &:disabled {
-                          opacity: 0.5;
-                          cursor: not-allowed;
-                        }
-                      `}
                     >
                       {t("revoke")}
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>

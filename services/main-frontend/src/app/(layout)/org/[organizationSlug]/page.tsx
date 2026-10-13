@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useSetAtom } from "jotai"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useEffect, useId } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,7 +12,7 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Link } from "@/shared-module/components"
 import { viewParamsAtom } from "@/state/course-material/params"
 
 import CourseList from "./CourseList"

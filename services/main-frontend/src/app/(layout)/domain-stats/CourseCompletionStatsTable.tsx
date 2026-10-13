@@ -1,12 +1,13 @@
 "use client"
 
 import type { UseQueryResult } from "@tanstack/react-query"
+import { useId } from "react"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import type { CourseCompletionStats } from "@/generated/api/types.generated"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Table } from "@/shared-module/components"
 
 interface CourseCompletionStatsTableProps {
   query: UseQueryResult<CourseCompletionStats[]>
@@ -18,44 +19,49 @@ const CourseCompletionStatsTable: React.FC<CourseCompletionStatsTableProps> = ({
   domain,
 }) => {
   const { t } = useTranslation()
+  const headingId = useId()
 
   const renderTable = (data: CourseCompletionStats[]) => (
     <div>
-      <h3>
+      <h3 id={headingId}>
         {t("courses-completed-by-users-from")} {domain}
       </h3>
-      <FullWidthTable>
-        <thead>
-          <FullWidthTableRow>
-            <th>{t("course")}</th>
-            <th>{t("total-completions")}</th>
-            <th>{t("unique-users")}</th>
-            <th>{t("registered-percentage")}</th>
-            <th>{t("registered-completions")}</th>
-            <th>{t("unregistered-completions")}</th>
-            <th>{t("users-with-registered")}</th>
-            <th>{t("users-with-unregistered")}</th>
-            <th>{t("registered-ects")}</th>
-            <th>{t("unregistered-ects")}</th>
-          </FullWidthTableRow>
-        </thead>
-        <tbody>
-          {data.map((course) => (
-            <FullWidthTableRow key={course.course_id}>
-              <td>{course.course_name}</td>
-              <td>{course.total_completions}</td>
-              <td>{course.unique_users}</td>
-              <td>{course.registered_completion_percentage?.toFixed(2) || "-"}%</td>
-              <td>{course.registered_completions}</td>
-              <td>{course.not_registered_completions}</td>
-              <td>{course.users_with_some_registered_completions}</td>
-              <td>{course.users_with_some_unregistered_completions}</td>
-              <td>{course.registered_ects_credits.toFixed(1)}</td>
-              <td>{course.not_registered_ects_credits.toFixed(1)}</td>
-            </FullWidthTableRow>
-          ))}
-        </tbody>
-      </FullWidthTable>
+      <Table
+        labelledBy={headingId}
+        density={DENSITY_COMPACT}
+        rows={data}
+        rowKey={(course) => course.course_id}
+        columns={[
+          { header: t("course"), cell: (course) => course.course_name },
+          { header: t("total-completions"), cell: (course) => course.total_completions },
+          { header: t("unique-users"), cell: (course) => course.unique_users },
+          {
+            header: t("registered-percentage"),
+            cell: (course) => `${course.registered_completion_percentage?.toFixed(2) || "-"}%`,
+          },
+          { header: t("registered-completions"), cell: (course) => course.registered_completions },
+          {
+            header: t("unregistered-completions"),
+            cell: (course) => course.not_registered_completions,
+          },
+          {
+            header: t("users-with-registered"),
+            cell: (course) => course.users_with_some_registered_completions,
+          },
+          {
+            header: t("users-with-unregistered"),
+            cell: (course) => course.users_with_some_unregistered_completions,
+          },
+          {
+            header: t("registered-ects"),
+            cell: (course) => course.registered_ects_credits.toFixed(1),
+          },
+          {
+            header: t("unregistered-ects"),
+            cell: (course) => course.not_registered_ects_credits.toFixed(1),
+          },
+        ]}
+      />
     </div>
   )
 

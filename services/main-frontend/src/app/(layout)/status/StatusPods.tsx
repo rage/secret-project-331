@@ -3,19 +3,22 @@
 import { css } from "@emotion/css"
 import { CheckCircle, Clock, Question, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useRef, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
 import { useStatusPods } from "@/hooks/useStatusPods"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import { Button, Dialog, QueryResult } from "@/shared-module/components"
+import { Button, Dialog, QueryResult, Select, Table } from "@/shared-module/components"
 import { parseAnsiToReact } from "@/utils/parseAnsiToReact"
 
 const StatusPods: React.FC = () => {
   const { t } = useTranslation()
   const podsQuery = useStatusPods()
   const [selectedPod, setSelectedPod] = useState<string | null>(null)
-  const [tail, setTail] = useState<number>(100)
+  const { control, watch } = useForm<{ tail: string }>({ defaultValues: { tail: "100" } })
+  const tail = Number(watch("tail"))
   const logsContainerRef = useRef<HTMLDivElement>(null)
   const logsQuery = useStatusPodLogs(selectedPod, undefined, tail)
 
@@ -29,145 +32,107 @@ const StatusPods: React.FC = () => {
     <>
       <QueryResult query={podsQuery} emptyFallback={<p>{t("status-no-pods-found")}</p>}>
         {(pods) => (
-          <div
+          <Table
+            caption={t("status-pods")}
+            density={DENSITY_COMPACT}
+            rowHover
+            rows={pods}
+            rowKey={(pod) => pod.name}
             className={css`
-              overflow-x: auto;
+              margin-top: 1rem;
             `}
-          >
-            <table
-              className={css`
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 1rem;
-
-                th,
-                td {
-                  padding: 0.5rem;
-                  text-align: left;
-                  border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-                }
-
-                th {
-                  background-color: ${baseTheme.colors.clear[100]};
-                  font-weight: 600;
-                }
-
-                tr:hover {
-                  background-color: ${baseTheme.colors.clear[200]};
-                }
-              `}
-            >
-              <thead>
-                <tr>
-                  <th>{t("status-name")}</th>
-                  <th>{t("status-phase")}</th>
-                  <th>{t("status-ready")}</th>
-                  <th>{t("status-actions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pods.map((pod) => {
+            columns={[
+              { header: t("status-name"), cell: (pod) => pod.name },
+              {
+                header: t("status-phase"),
+                cell: (pod) => {
                   const isHealthy = pod.ready === true && pod.phase === "Running"
                   const isFailed = pod.phase === "Failed"
                   const isPending = pod.phase === "Pending"
                   const isSucceeded = pod.phase === "Succeeded"
                   return (
-                    <tr
-                      key={pod.name}
+                    <div
                       className={css`
-                        ${isFailed ? `background-color: ${baseTheme.colors.red[100]};` : ""}
-                        ${isPending ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
-                        ${isSucceeded ? `background-color: ${baseTheme.colors.clear[200]};` : ""}
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
                       `}
                     >
-                      <td>{pod.name}</td>
-                      <td>
-                        <div
-                          className={css`
-                            display: flex;
-                            align-items: center;
-                            gap: 0.5rem;
-                          `}
-                        >
-                          {isHealthy && (
-                            <CheckCircle size={16} color={baseTheme.colors.green[600]} />
-                          )}
-                          {isFailed && <XmarkCircle size={16} color={baseTheme.colors.red[600]} />}
-                          {isPending && <Clock size={16} color={baseTheme.colors.yellow[700]} />}
-                          {isSucceeded && (
-                            <CheckCircle size={16} color={baseTheme.colors.green[600]} />
-                          )}
-                          {!isHealthy && !isFailed && !isPending && !isSucceeded && (
-                            <Question size={16} color={baseTheme.colors.gray[500]} />
-                          )}
-                          <span
-                            className={css`
-                              padding: 0.25rem 0.5rem;
-                              border-radius: 4px;
-                              font-size: 0.85rem;
-                              font-weight: 600;
-                              background-color: ${
-                                isHealthy
-                                  ? baseTheme.colors.green[100]
-                                  : isFailed
-                                    ? baseTheme.colors.red[100]
-                                    : isPending
-                                      ? baseTheme.colors.yellow[100]
-                                      : isSucceeded
-                                        ? baseTheme.colors.green[100]
-                                        : baseTheme.colors.clear[300]
-                              };
-                              color: ${
-                                isHealthy
-                                  ? baseTheme.colors.green[700]
-                                  : isFailed
-                                    ? baseTheme.colors.red[700]
-                                    : isPending
-                                      ? baseTheme.colors.yellow[700]
-                                      : isSucceeded
-                                        ? baseTheme.colors.green[700]
-                                        : baseTheme.colors.gray[600]
-                              };
-                            `}
-                          >
-                            {pod.phase}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div
-                          className={css`
-                            display: flex;
-                            align-items: center;
-                            gap: 0.5rem;
-                          `}
-                        >
-                          {pod.ready === true ? (
-                            <CheckCircle size={20} color={baseTheme.colors.green[600]} />
-                          ) : pod.phase === "Succeeded" ? (
-                            <CheckCircle size={20} color={baseTheme.colors.gray[400]} />
-                          ) : pod.ready === false ? (
-                            <XmarkCircle size={20} color={baseTheme.colors.red[600]} />
-                          ) : (
-                            <Question size={20} color={baseTheme.colors.yellow[600]} />
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <Button
-                          variant="secondary"
-                          size="small"
-                          onClick={() => setSelectedPod(pod.name)}
-                        >
-                          {t("status-view-logs")}
-                        </Button>
-                      </td>
-                    </tr>
+                      {isHealthy && <CheckCircle size={16} color={baseTheme.colors.green[600]} />}
+                      {isFailed && <XmarkCircle size={16} color={baseTheme.colors.red[600]} />}
+                      {isPending && <Clock size={16} color={baseTheme.colors.yellow[700]} />}
+                      {isSucceeded && <CheckCircle size={16} color={baseTheme.colors.green[600]} />}
+                      {!isHealthy && !isFailed && !isPending && !isSucceeded && (
+                        <Question size={16} color={baseTheme.colors.gray[500]} />
+                      )}
+                      <span
+                        className={css`
+                          padding: 0.25rem 0.5rem;
+                          border-radius: 4px;
+                          font-size: 0.85rem;
+                          font-weight: 600;
+                          background-color: ${
+                            isHealthy
+                              ? baseTheme.colors.green[100]
+                              : isFailed
+                                ? baseTheme.colors.red[100]
+                                : isPending
+                                  ? baseTheme.colors.yellow[100]
+                                  : isSucceeded
+                                    ? baseTheme.colors.green[100]
+                                    : baseTheme.colors.clear[300]
+                          };
+                          color: ${
+                            isHealthy
+                              ? baseTheme.colors.green[700]
+                              : isFailed
+                                ? baseTheme.colors.red[700]
+                                : isPending
+                                  ? baseTheme.colors.yellow[700]
+                                  : isSucceeded
+                                    ? baseTheme.colors.green[700]
+                                    : baseTheme.colors.gray[600]
+                          };
+                        `}
+                      >
+                        {pod.phase}
+                      </span>
+                    </div>
                   )
-                })}
-              </tbody>
-            </table>
-          </div>
+                },
+              },
+              {
+                header: t("status-ready"),
+                cell: (pod) => (
+                  <div
+                    className={css`
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    `}
+                  >
+                    {pod.ready === true ? (
+                      <CheckCircle size={20} color={baseTheme.colors.green[600]} />
+                    ) : pod.phase === "Succeeded" ? (
+                      <CheckCircle size={20} color={baseTheme.colors.gray[400]} />
+                    ) : pod.ready === false ? (
+                      <XmarkCircle size={20} color={baseTheme.colors.red[600]} />
+                    ) : (
+                      <Question size={20} color={baseTheme.colors.yellow[600]} />
+                    )}
+                  </div>
+                ),
+              },
+              {
+                header: t("status-actions"),
+                cell: (pod) => (
+                  <Button variant="secondary" size="small" onClick={() => setSelectedPod(pod.name)}>
+                    {t("status-view-logs")}
+                  </Button>
+                ),
+              },
+            ]}
+          />
         )}
       </QueryResult>
 
@@ -192,30 +157,12 @@ const StatusPods: React.FC = () => {
                 align-items: center;
               `}
             >
-              <label
-                htmlFor="tail-lines-select"
-                className={css`
-                  font-weight: 600;
-                `}
-              >
-                {t("status-tail-lines")}:
-              </label>
-              <select
-                id="tail-lines-select"
-                value={tail}
-                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
-                onChange={(e) => setTail(parseInt(e.currentTarget.value, 10))}
-                className={css`
-                  padding: 0.5rem;
-                  border: 1px solid ${baseTheme.colors.clear[300]};
-                  border-radius: 4px;
-                `}
-              >
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={200}>200</option>
-                <option value={500}>500</option>
-              </select>
+              <Select
+                name="tail"
+                control={control}
+                label={t("status-tail-lines")}
+                options={["50", "100", "200", "500"].map((n) => ({ value: n, label: n }))}
+              />
             </div>
 
             <div

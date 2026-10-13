@@ -2,19 +2,34 @@
 
 import { css } from "@emotion/css"
 import { ExclamationTriangle, InfoCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { useStatusEvents } from "@/hooks/useStatusEvents"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Select, Table } from "@/shared-module/components"
+
+const FILTER_ALL = "all" as const
+const FILTER_ERROR = "error" as const
+const FILTER_WARNING = "warning" as const
+const FILTER_NORMAL = "normal" as const
 
 const StatusEvents: React.FC = () => {
   const { t } = useTranslation()
   const eventsQuery = useStatusEvents()
   const events = eventsQuery.data
-  // oxlint-disable-next-line i18next/no-literal-string
-  const [filterType, setFilterType] = useState<"all" | "warning" | "error" | "normal">("all")
+  const { control, watch } = useForm<{
+    filterType:
+      | typeof FILTER_ALL
+      | typeof FILTER_ERROR
+      | typeof FILTER_WARNING
+      | typeof FILTER_NORMAL
+  }>({
+    defaultValues: { filterType: FILTER_ALL },
+  })
+  const filterType = watch("filterType")
 
   // Filter and sort events - must be called before early returns
   const filteredAndSortedEvents = useMemo(() => {
@@ -61,29 +76,17 @@ const StatusEvents: React.FC = () => {
               align-items: center;
             `}
           >
-            <label
-              className={css`
-                font-weight: 600;
-              `}
-            >
-              {t("status-filter")}:
-            </label>
-            <select
-              value={filterType}
-              onChange={(e) =>
-                setFilterType(e.currentTarget.value as "all" | "warning" | "error" | "normal")
-              }
-              className={css`
-                padding: 0.5rem;
-                border: 1px solid ${baseTheme.colors.clear[300]};
-                border-radius: 4px;
-              `}
-            >
-              <option value="all">{t("status-filter-all-events")}</option>
-              <option value="error">{t("status-filter-errors-only")}</option>
-              <option value="warning">{t("status-filter-warnings-only")}</option>
-              <option value="normal">{t("status-filter-normal-only")}</option>
-            </select>
+            <Select
+              name="filterType"
+              control={control}
+              label={t("status-filter")}
+              options={[
+                { value: FILTER_ALL, label: t("status-filter-all-events") },
+                { value: FILTER_ERROR, label: t("status-filter-errors-only") },
+                { value: FILTER_WARNING, label: t("status-filter-warnings-only") },
+                { value: FILTER_NORMAL, label: t("status-filter-normal-only") },
+              ]}
+            />
             <span
               className={css`
                 color: ${baseTheme.colors.gray[500]};
@@ -96,112 +99,55 @@ const StatusEvents: React.FC = () => {
               })}
             </span>
           </div>
-          <div
+          <Table
+            caption={t("status-events")}
+            density={DENSITY_COMPACT}
+            rowHover
+            rows={filteredAndSortedEvents}
+            rowKey={(event) => event.name}
             className={css`
-              overflow-x: auto;
+              margin-top: 1rem;
             `}
-          >
-            <table
-              className={css`
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 1rem;
-
-                th,
-                td {
-                  padding: 0.5rem;
-                  text-align: left;
-                  border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-                }
-
-                th {
-                  background-color: ${baseTheme.colors.clear[100]};
-                  font-weight: 600;
-                }
-
-                tr:hover {
-                  background-color: ${baseTheme.colors.clear[200]};
-                }
-
-                .type-warning {
-                  background-color: ${baseTheme.colors.yellow[100]};
-                }
-
-                .type-error {
-                  background-color: ${baseTheme.colors.red[100]};
-                }
-              `}
-            >
-              <thead>
-                <tr>
-                  <th>{t("status-type")}</th>
-                  <th>{t("status-reason")}</th>
-                  <th>{t("status-object")}</th>
-                  <th>{t("status-message")}</th>
-                  <th>{t("status-count")}</th>
-                  <th>{t("status-last-timestamp")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAndSortedEvents.map((event) => (
-                  <tr
-                    key={event.name}
+            columns={[
+              {
+                header: t("status-type"),
+                cell: (event) => (
+                  <div
                     className={css`
-                      ${
-                        event.type_ === "Warning"
-                          ? `background-color: ${baseTheme.colors.yellow[100]};`
-                          : ""
-                      }
-                      ${
-                        event.type_ === "Error"
-                          ? `background-color: ${baseTheme.colors.red[100]};`
-                          : ""
-                      }
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
                     `}
                   >
-                    <td>
-                      <div
-                        className={css`
-                          display: flex;
-                          align-items: center;
-                          gap: 0.5rem;
-                        `}
-                      >
-                        {event.type_ === "Error" && (
-                          <XmarkCircle size={16} color={baseTheme.colors.red[600]} />
-                        )}
-                        {event.type_ === "Warning" && (
-                          <ExclamationTriangle size={16} color={baseTheme.colors.yellow[700]} />
-                        )}
-                        {(!event.type_ || event.type_ === "Normal") && (
-                          <InfoCircle size={16} color={baseTheme.colors.blue[600]} />
-                        )}
-                        <span>{event.type_ || t("status-normal")}</span>
-                      </div>
-                    </td>
-                    <td>{event.reason || "-"}</td>
-                    <td>
-                      {event.involved_object_kind && event.involved_object_name
-                        ? `${event.involved_object_kind}/${event.involved_object_name}`
-                        : "-"}
-                    </td>
-                    <td
-                      className={css`
-                        max-width: 400px;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                      `}
-                    >
-                      {event.message || "-"}
-                    </td>
-                    <td>{event.count || 0}</td>
-                    <td>{event.last_timestamp || event.first_timestamp || "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    {event.type_ === "Error" && (
+                      <XmarkCircle size={16} color={baseTheme.colors.red[600]} />
+                    )}
+                    {event.type_ === "Warning" && (
+                      <ExclamationTriangle size={16} color={baseTheme.colors.yellow[700]} />
+                    )}
+                    {(!event.type_ || event.type_ === "Normal") && (
+                      <InfoCircle size={16} color={baseTheme.colors.blue[600]} />
+                    )}
+                    <span>{event.type_ || t("status-normal")}</span>
+                  </div>
+                ),
+              },
+              { header: t("status-reason"), cell: (event) => event.reason || "-" },
+              {
+                header: t("status-object"),
+                cell: (event) =>
+                  event.involved_object_kind && event.involved_object_name
+                    ? `${event.involved_object_kind}/${event.involved_object_name}`
+                    : "-",
+              },
+              { header: t("status-message"), cell: (event) => event.message || "-" },
+              { header: t("status-count"), cell: (event) => event.count || 0 },
+              {
+                header: t("status-last-timestamp"),
+                cell: (event) => event.last_timestamp || event.first_timestamp || "-",
+              },
+            ]}
+          />
         </div>
       )}
     </QueryResult>

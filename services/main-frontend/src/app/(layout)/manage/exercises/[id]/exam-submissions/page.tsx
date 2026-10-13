@@ -13,7 +13,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
@@ -23,8 +23,17 @@ import {
   Button,
   Pagination,
   QueryResult,
+  Table,
   type BreadcrumbItem,
 } from "@/shared-module/components"
+
+const positiveCss = css`
+  color: #32bea6;
+`
+
+const negativeCss = css`
+  color: #f76d82;
+`
 
 const GradingPage: React.FC = () => {
   const { t } = useTranslation()
@@ -77,161 +86,82 @@ const GradingPage: React.FC = () => {
               >
                 {t("header-submissions")}
               </h3>
-              <table
+              <Table
+                caption={t("header-submissions")}
+                rows={getSubmissionsData.data}
+                rowKey={(submission) => submission.exercise_slide_submission.id}
                 className={css`
-                  border-collapse: collapse;
                   margin-top: 1.5rem;
-                  width: 100%;
-
-                  td,
-                  th {
-                    padding-left: 20px;
-                    text-align: left;
-                    height: 60px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  }
-                  tr {
-                    border-bottom: 1.5px solid #0000001a;
-                    font-size: ${baseTheme.fontSizes[18]};
-                  }
                 `}
-              >
-                <thead>
-                  <tr
-                    className={css`
-                      font-family: ${headingFont};
-                      font-weight: ${fontWeights.semibold};
-                      font-size: ${baseTheme.fontSizes[18]};
-                      color: #7c7c7ccc;
-                      opacity: 0.8;
-                    `}
-                  >
-                    <th>{t("label-action")}</th>
-                    <th>{t("user-id")}</th>
-                    <th>{t("status")}</th>
-                    <th>{t("published")}</th>
-                    <th>{t("label-submission-time")}</th>
-                    <th>{t("label-points")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getSubmissionsData.data.map((submission) => (
-                    <tr key={submission.exercise_slide_submission.id}>
-                      <td>
-                        {getExam.data?.grade_manually ? (
-                          submission.teacher_grading_decision ? (
-                            <Button
-                              variant={"secondary"}
-                              size={"small"}
-                              onClick={() => {
-                                router.push(
-                                  submissionGradingRoute(submission.exercise_slide_submission.id),
-                                )
-                              }}
-                            >
-                              {t("label-review")}
-                            </Button>
-                          ) : (
-                            <Button
-                              variant={"primary"}
-                              size={"small"}
-                              onClick={() => {
-                                router.push(
-                                  submissionGradingRoute(submission.exercise_slide_submission.id),
-                                )
-                              }}
-                            >
-                              {t("grade")}
-                            </Button>
-                          )
-                        ) : (
-                          <Button
-                            variant={"secondary"}
-                            size={"small"}
-                            onClick={() => {
-                              router.push(
-                                submissionGradingRoute(submission.exercise_slide_submission.id),
-                              )
-                            }}
-                          >
-                            {t("label-review")}
-                          </Button>
-                        )}
-                      </td>
-                      <td>{submission.exercise_slide_submission.user_id}</td>
-                      <td>
-                        {getExam.data?.grade_manually ? (
-                          submission.teacher_grading_decision ? (
-                            <div
-                              className={css`
-                                color: #32bea6;
-                              `}
-                            >
-                              {t("status-graded")}
-                            </div>
-                          ) : (
-                            <div
-                              className={css`
-                                color: #f76d82;
-                              `}
-                            >
-                              {t("status-ungraded")}
-                            </div>
-                          )
-                        ) : (
-                          <div
-                            className={css`
-                              color: #32bea6;
-                            `}
-                          >
-                            {t("label-graded-automatically")}
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        {getExam.data?.grade_manually ? (
-                          submission.teacher_grading_decision ? (
-                            submission.teacher_grading_decision.hidden ? (
-                              <div
-                                className={css`
-                                  color: #f76d82;
-                                `}
-                              >
-                                {t("unpublished")}
-                              </div>
-                            ) : (
-                              <div
-                                className={css`
-                                  color: #32bea6;
-                                `}
-                              >
-                                {t("published")}
-                              </div>
+                columns={[
+                  {
+                    header: t("label-action"),
+                    cell: (submission) => {
+                      const needsGrading =
+                        getExam.data?.grade_manually && !submission.teacher_grading_decision
+                      return (
+                        <Button
+                          variant={needsGrading ? "primary" : "secondary"}
+                          size={"small"}
+                          onClick={() => {
+                            router.push(
+                              submissionGradingRoute(submission.exercise_slide_submission.id),
                             )
-                          ) : (
-                            <>-</>
-                          )
-                        ) : (
-                          <>-</>
-                        )}
-                      </td>
-                      <td>
-                        {parseISO(submission.exercise_slide_submission.created_at).toLocaleString()}
-                      </td>
-                      <td>
-                        {getExam.data?.grade_manually
-                          ? submission.teacher_grading_decision
-                            ? submission.teacher_grading_decision.score_given
-                            : 0
-                          : submission.user_exercise_state.score_given}
-                        / {submission.exercise.score_maximum}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          }}
+                        >
+                          {needsGrading ? t("grade") : t("label-review")}
+                        </Button>
+                      )
+                    },
+                  },
+                  {
+                    header: t("user-id"),
+                    cell: (submission) => submission.exercise_slide_submission.user_id,
+                  },
+                  {
+                    header: t("status"),
+                    cell: (submission) => {
+                      if (!getExam.data?.grade_manually) {
+                        return (
+                          <span className={positiveCss}>{t("label-graded-automatically")}</span>
+                        )
+                      }
+                      return submission.teacher_grading_decision ? (
+                        <span className={positiveCss}>{t("status-graded")}</span>
+                      ) : (
+                        <span className={negativeCss}>{t("status-ungraded")}</span>
+                      )
+                    },
+                  },
+                  {
+                    header: t("published"),
+                    cell: (submission) => {
+                      if (!getExam.data?.grade_manually || !submission.teacher_grading_decision) {
+                        return "-"
+                      }
+                      return submission.teacher_grading_decision.hidden ? (
+                        <span className={negativeCss}>{t("unpublished")}</span>
+                      ) : (
+                        <span className={positiveCss}>{t("published")}</span>
+                      )
+                    },
+                  },
+                  {
+                    header: t("label-submission-time"),
+                    cell: (submission) =>
+                      parseISO(submission.exercise_slide_submission.created_at).toLocaleString(),
+                  },
+                  {
+                    header: t("label-points"),
+                    cell: (submission) => {
+                      const scoreGiven = getExam.data?.grade_manually
+                        ? (submission.teacher_grading_decision?.score_given ?? 0)
+                        : submission.user_exercise_state.score_given
+                      return `${scoreGiven} / ${submission.exercise.score_maximum}`
+                    },
+                  },
+                ]}
+              />
               <Pagination
                 totalPages={getSubmissionsData.total_pages}
                 page={paginationInfo.page}

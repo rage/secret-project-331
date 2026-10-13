@@ -2,13 +2,12 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
-import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
+import { DENSITY_COMPACT, SORT_ASCENDING } from "@/components/credit-registration/constants"
 import {
   getCourseInstanceOptions,
   getCourseInstancePointsOptions,
@@ -16,13 +15,13 @@ import {
 import type { UserDetail } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { roundDown } from "@/shared-module/common/utils/numbers"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Link, QueryResult, Table, type TableColumn } from "@/shared-module/components"
 
 import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
@@ -36,7 +35,8 @@ const NAME = "name"
 const NUMBER = "number"
 const SCORE = "score"
 const EMAIL = "email"
-const DOWN_ARROW = "v"
+
+const chapterSortKey = (chapterNumber: number) => `ch${chapterNumber}`
 
 const CourseInstancePointsList: React.FC = () => {
   const { id: courseInstanceId } = useParams<{ id: string }>()
@@ -82,6 +82,13 @@ const CourseInstancePointsList: React.FC = () => {
     return (second.chapterPoints[sorting] ?? 0) - (first.chapterPoints[sorting] ?? 0)
   }
 
+  const sortColumn = (
+    key: string,
+  ): Pick<TableColumn<ProcessedUser>, "onSort" | "sortDirection"> => ({
+    onSort: () => setSorting(key),
+    sortDirection: sorting === key ? SORT_ASCENDING : null,
+  })
+
   const getPointsList = useQuery({
     ...getCourseInstancePointsOptions({
       path: {
@@ -124,6 +131,23 @@ const CourseInstancePointsList: React.FC = () => {
             courseInstanceQuery.data?.course_id ??
             (data.chapter_points.length > 0 ? data.chapter_points[0]?.course_id : undefined)
 
+          const rows: ProcessedUser[] = data.users
+            .map((user) => {
+              const userChapterPoints = data.user_chapter_points[user.user_id] || {}
+              const totalPoints = Object.values(userChapterPoints).reduce(
+                (prev, curr) => prev + curr,
+                0,
+              )
+              const chapterPoints = Object.fromEntries(
+                data.chapter_points.map((c) => [
+                  chapterSortKey(c.chapter_number),
+                  userChapterPoints[c.id] || 0,
+                ]),
+              )
+              return { user, totalPoints, chapterPoints }
+            })
+            .toSorted(sortUsers)
+
           return (
             <>
               <ChapterPointsDashboard
@@ -134,124 +158,54 @@ const CourseInstancePointsList: React.FC = () => {
                 }))}
                 userCount={data.users.length}
               />
-              <FullWidthTable>
-                <thead
-                  className={css`
-                    th {
-                      font-weight: ${fontWeights.medium} !important;
-                    }
-                  `}
-                >
-                  <tr
-                    className={css`
-                      text-align: left;
-                      font-size: 13px;
-                    `}
-                  >
-                    <th>
-                      {t("label-user-id")}{" "}
-                      <a href="#number" onClick={() => setSorting(NUMBER)}>
-                        {DOWN_ARROW}
-                      </a>
-                    </th>
-                    <th>
-                      {t("student-name")}{" "}
-                      <a href="#name" onClick={() => setSorting(NAME)}>
-                        {DOWN_ARROW}
-                      </a>
-                    </th>
-
-                    <th>
-                      {t("label-email")}{" "}
-                      <a href="#email" onClick={() => setSorting(EMAIL)}>
-                        {DOWN_ARROW}
-                      </a>
-                    </th>
-                    <th>
-                      {t(SCORE)}{" "}
-                      <a href="#score" onClick={() => setSorting(SCORE)}>
-                        {DOWN_ARROW}
-                      </a>
-                    </th>
-
-                    {data.chapter_points.map((c) => {
-                      // oxlint-disable-next-line i18next/no-literal-string
-                      const courseSorting = `#ch${c.chapter_number}`
-                      return (
-                        <th key={c.id}>
-                          {t("title-chapter-only-number", { "chapter-number": c.chapter_number })}{" "}
-                          <a
-                            href={courseSorting}
-                            onClick={() => setSorting(courseSorting.slice(1))}
-                          >
-                            {DOWN_ARROW}
-                          </a>
-                        </th>
-                      )
-                    })}
-                  </tr>
-                </thead>
-                <tbody
-                  className={css`
-                    font-family: ${secondaryFont};
-                    font-weight: ${fontWeights.medium};
-                  `}
-                >
-                  {data.users
-                    .map((user) => {
-                      const totalPoints = Object.values(
-                        data.user_chapter_points[user.user_id] || {},
-                      ).reduce((prev, curr) => prev + curr, 0)
-                      const userChapterPoints = data.user_chapter_points[user.user_id] || {}
-                      const chapterPoints = Object.fromEntries(
-                        data.chapter_points.map((c) => [
-                          // oxlint-disable-next-line i18next/no-literal-string
-                          `ch${c.chapter_number}`,
-                          userChapterPoints[c.id] || 0,
-                        ]),
-                      )
-                      return { user, totalPoints, chapterPoints }
-                    })
-                    .toSorted(sortUsers)
-                    .map(({ user, totalPoints }) => {
-                      return (
-                        <FullWidthTableRow key={user.user_id}>
-                          <td>
-                            {courseId ? (
-                              <Link href={courseUserStatusSummaryRoute(courseId, user.user_id)}>
-                                {user.user_id}
-                              </Link>
-                            ) : (
-                              user.user_id
-                            )}
-                          </td>
-                          <td>
-                            {user.first_name} {user.last_name}
-                          </td>
-
-                          <td>{user.email}</td>
-                          <td>
-                            {roundDown(totalPoints, 2)}/{instanceTotalPoints} (
-                            {instanceTotalPoints > 0
-                              ? roundDown((totalPoints / instanceTotalPoints) * 100, 0)
-                              : 0}
-                            %)
-                          </td>
-
-                          {data.chapter_points.map((c) => {
-                            const userChapterPoints = data.user_chapter_points[user.user_id] || {}
-                            const chapterPoints = userChapterPoints[c.id] || 0
-                            return (
-                              <td key={user.user_id + c.id}>
-                                {roundDown(chapterPoints, 2)}/{c.score_total}
-                              </td>
-                            )
-                          })}
-                        </FullWidthTableRow>
-                      )
-                    })}
-                </tbody>
-              </FullWidthTable>
+              <Table
+                caption={t("point-summary")}
+                density={DENSITY_COMPACT}
+                rows={rows}
+                rowKey={({ user }) => user.user_id}
+                columns={[
+                  {
+                    header: t("label-user-id"),
+                    ...sortColumn(NUMBER),
+                    cell: ({ user }) =>
+                      courseId ? (
+                        <Link href={courseUserStatusSummaryRoute(courseId, user.user_id)}>
+                          {user.user_id}
+                        </Link>
+                      ) : (
+                        user.user_id
+                      ),
+                  },
+                  {
+                    header: t("student-name"),
+                    ...sortColumn(NAME),
+                    cell: ({ user }) => `${user.first_name ?? ""} ${user.last_name ?? ""}`,
+                  },
+                  {
+                    header: t("label-email"),
+                    ...sortColumn(EMAIL),
+                    cell: ({ user }) => user.email,
+                  },
+                  {
+                    header: t(SCORE),
+                    ...sortColumn(SCORE),
+                    cell: ({ totalPoints }) =>
+                      `${roundDown(totalPoints, 2)}/${instanceTotalPoints} (${
+                        instanceTotalPoints > 0
+                          ? roundDown((totalPoints / instanceTotalPoints) * 100, 0)
+                          : 0
+                      }%)`,
+                  },
+                  ...data.chapter_points.map((c): TableColumn<ProcessedUser> => ({
+                    header: t("title-chapter-only-number", {
+                      "chapter-number": c.chapter_number,
+                    }),
+                    ...sortColumn(chapterSortKey(c.chapter_number)),
+                    cell: ({ user }) =>
+                      `${roundDown(data.user_chapter_points[user.user_id]?.[c.id] || 0, 2)}/${c.score_total}`,
+                  })),
+                ]}
+              />
             </>
           )
         }}

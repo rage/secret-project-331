@@ -142,30 +142,15 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           >
             {t("user-settings-personal-info")}
           </h3>
-          <button
+          <Button
             data-testid="edit-profile-button"
+            variant="tertiary"
+            size="small"
+            icon={<Pencil size={14} />}
             onClick={() => setIsEditing(true)}
-            className={css`
-              display: inline-flex;
-              align-items: center;
-              gap: 0.375rem;
-              font-size: 0.8125rem;
-              font-weight: 500;
-              color: ${baseTheme.colors.green[700]};
-              background: transparent;
-              border: none;
-              padding: 0.375rem 0.625rem;
-              border-radius: 6px;
-              cursor: pointer;
-              transition: all 0.15s ease;
-              &:hover {
-                background: ${baseTheme.colors.green[75]};
-              }
-            `}
           >
-            <Pencil size={14} />
             {t("user-settings-edit-profile")}
-          </button>
+          </Button>
         </div>
 
         <div

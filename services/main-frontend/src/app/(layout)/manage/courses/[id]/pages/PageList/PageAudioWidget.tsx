@@ -15,7 +15,7 @@ import TrashIcon from "@/imgs/trash.svg"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
-import { Dialog, FileField, QueryResult } from "@/shared-module/components"
+import { Button, Dialog, FileField, QueryResult } from "@/shared-module/components"
 
 const ACCEPTABLE_MIME_TYPES = [
   "audio/mpeg",
@@ -196,15 +196,6 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
             gap: 12px;
             padding: 12px;
             width: 85%;
-
-            input[type="submit"] {
-              border: none;
-              background: #555;
-              padding: 3px 20px;
-              color: #fff;
-              cursor: pointer;
-              transition: background 0.2s ease-in-out;
-            }
           `}
         >
           <FileField
@@ -215,7 +206,9 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
             accept={ACCEPTABLE_MIME_TYPES.join(",")}
             data-testid="page-audio-file-field"
           />
-          <input type="submit" value={t("upload")} />
+          <Button type="submit" variant="primary" size="small">
+            {t("upload")}
+          </Button>
         </form>
       </div>
     </div>

@@ -7,6 +7,8 @@ import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import { useParams, useRouter } from "next/navigation"
 import React from "react"
+import { useForm } from "react-hook-form"
+import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -33,21 +35,40 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult, useDialog } from "@/shared-module/components"
-import {
-  actionButtonStyle,
-  containerBase,
-  disabledButton,
-  primaryButton,
-} from "@/styles/sharedStyles"
+import { Button, Checkbox, QueryResult, TextField, useDialog } from "@/shared-module/components"
+import { actionButtonStyle, containerBase } from "@/styles/sharedStyles"
 
 import AddUserPopup from "./AddUserPopup"
 import DeleteOrganizationPopup from "./DeleteOrganizationPopup"
 import EditUserPopup from "./EditUserPopup"
 
 type NamedRoleUser = RoleUser & { name: string }
+
+interface OrganizationFormFields {
+  name: string
+  slug: string
+  hidden: boolean
+}
+
+const fieldLabelCss = css`
+  font-size: 14px;
+  width: 80px;
+  flex-shrink: 0;
+`
+
+const organizationFieldCss = css`
+  width: 70%;
+  ${respondToOrLarger.lg} {
+    width: 250px;
+  }
+`
+
+const hiddenCss = css`
+  visibility: hidden;
+`
 
 const GENERAL_TAB = "general"
 const PERMISSIONS_TAB = "permissions"
@@ -63,13 +84,14 @@ const ManageOrganization: React.FC = () => {
   const [showAddUserPopup, setShowAddUserPopup] = React.useState(false)
   const [editMode, setEditMode] = React.useState(false)
   const [users, setUsers] = React.useState<NamedRoleUser[]>([])
-  const [hidden, setHidden] = React.useState(false)
   const [showEditPopup, setShowEditPopup] = React.useState(false)
   const [editUser, setEditUser] = React.useState<RoleUser | null>(null)
   const [editRole, setEditRole] = React.useState("")
-  const [editedName, setEditedName] = React.useState("")
   const [showDeletePopup, setShowDeletePopup] = React.useState(false)
-  const [editedSlug, setEditedSlug] = React.useState("")
+  const { control, watch, reset } = useForm<OrganizationFormFields>({
+    defaultValues: { name: "", slug: "", hidden: false },
+  })
+  const fields = watch()
 
   const router = useRouter()
   const { id } = useParams<{ id: string }>()
@@ -218,11 +240,13 @@ const ManageOrganization: React.FC = () => {
 
   React.useEffect(() => {
     if (organization.data) {
-      setEditedName(organization.data.name)
-      setEditedSlug(organization.data.slug)
-      setHidden(organization.data.hidden)
+      reset({
+        name: organization.data.name,
+        slug: organization.data.slug,
+        hidden: organization.data.hidden,
+      })
     }
-  }, [organization.data])
+  }, [organization.data, reset])
 
   return (
     <div
@@ -250,18 +274,14 @@ const ManageOrganization: React.FC = () => {
               users,
               handleDelete,
               handleEdit,
-              editedName,
-              setEditedName,
-              hidden,
-              setHidden,
+              control,
+              fields,
               updateOrgMutation,
               id,
               organizationData,
               showDeletePopup,
               setShowDeletePopup,
               deleteMutation,
-              editedSlug,
-              setEditedSlug,
             )
           }
         </QueryResult>
@@ -297,18 +317,14 @@ const content = (
   users: NamedRoleUser[],
   handleDelete: (user: NamedRoleUser) => void,
   handleEdit: (user: NamedRoleUser) => void,
-  editedName: string,
-  setEditedName: React.Dispatch<React.SetStateAction<string>>,
-  hidden: boolean,
-  setHidden: React.Dispatch<React.SetStateAction<boolean>>,
+  control: Control<OrganizationFormFields>,
+  fields: OrganizationFormFields,
   updateOrgMutation: UseMutationResult<unknown, Error, Options<UpdateOrganizationData>, unknown>,
   id: string,
   organization: Organization,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
   deleteMutation: UseMutationResult<unknown, Error, Options<SoftDeleteOrganizationData>, unknown>,
-  editedSlug: string,
-  setEditedSlug: React.Dispatch<React.SetStateAction<string>>,
 ) => (
   <div
     className={css`
@@ -412,17 +428,13 @@ const content = (
           t,
           editMode,
           setEditMode,
-          editedName,
-          setEditedName,
-          hidden,
-          setHidden,
+          control,
+          fields,
           updateOrgMutation,
           id,
           showDeletePopup,
           setShowDeletePopup,
           deleteMutation,
-          editedSlug,
-          setEditedSlug,
         )}
       </div>
     ) : (
@@ -437,17 +449,13 @@ const designContent = (
   t: TFunction,
   editMode: boolean,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
-  editedName: string,
-  setEditedName: React.Dispatch<React.SetStateAction<string>>,
-  hidden: boolean,
-  setHidden: React.Dispatch<React.SetStateAction<boolean>>,
+  control: Control<OrganizationFormFields>,
+  fields: OrganizationFormFields,
   updateOrgMutation: UseMutationResult<unknown, Error, Options<UpdateOrganizationData>, unknown>,
   id: string,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
   deleteMutation: UseMutationResult<unknown, Error, Options<SoftDeleteOrganizationData>, unknown>,
-  editedSlug: string,
-  setEditedSlug: React.Dispatch<React.SetStateAction<string>>,
 ) => {
   return (
     <div className={containerBase}>
@@ -462,22 +470,15 @@ const designContent = (
         `}
       >
         <span>{t("general")}</span>
-        <button
+        <Button
+          variant="primary"
+          size="medium"
           onClick={() => setEditMode(true)}
           disabled={editMode}
-          className={css`
-            ${editMode ? disabledButton : primaryButton};
-            ${
-              editMode &&
-              `
-              opacity: 0;
-              pointer-events: none;
-            `
-            }
-          `}
+          {...omitUndefined({ className: editMode ? hiddenCss : undefined })}
         >
           {t("edit")}
-        </button>
+        </Button>
       </div>
 
       <div
@@ -496,42 +497,24 @@ const designContent = (
             gap: 24px;
           `}
         >
-          <label
-            htmlFor="organization-name"
-            className={css`
-              font-size: 14px;
-              width: 80px;
-              flex-shrink: 0;
-            `}
-          >
-            {t("label-name")}
-          </label>
-
           {editMode ? (
-            <input
-              id="organization-name"
-              type="text"
-              value={editedName}
-              onChange={(e) => setEditedName(e.target.value)}
-              className={css`
-                width: 70%;
-                border: 2px solid #e4e5e8;
-                border-radius: 2px;
-                padding: 8px 12px;
-                font-size: 14px;
-                ${respondToOrLarger.lg} {
-                  width: 250px;
-                }
-              `}
+            <TextField
+              name="name"
+              control={control}
+              label={t("label-name")}
+              className={organizationFieldCss}
             />
           ) : (
-            <span
-              className={css`
-                font-size: 14px;
-              `}
-            >
-              {editedName}
-            </span>
+            <>
+              <span className={fieldLabelCss}>{t("label-name")}</span>
+              <span
+                className={css`
+                  font-size: 14px;
+                `}
+              >
+                {fields.name}
+              </span>
+            </>
           )}
         </div>
 
@@ -543,50 +526,12 @@ const designContent = (
             gap: 24px;
           `}
         >
-          <span
-            className={css`
-              font-size: 14px;
-              width: 80px;
-              flex-shrink: 0;
-            `}
-          >
-            {t("visibility")}
-          </span>
+          <span className={fieldLabelCss}>{t("visibility")}</span>
 
           {editMode ? (
-            <div
-              className={css`
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              `}
-            >
-              <label
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                  cursor: pointer;
-                `}
-              >
-                <input
-                  type="checkbox"
-                  checked={hidden}
-                  onChange={(e) => setHidden(e.target.checked)}
-                  className={css`
-                    width: 18px;
-                    height: 18px;
-                    border: 1px solid #1a2333;
-                    border-radius: 2px;
-                    cursor: pointer;
-                    accent-color: #1a2333;
-                  `}
-                />
-                <span>{t("hide")}</span>
-              </label>
-            </div>
+            <Checkbox name="hidden" control={control} label={t("hide")} />
           ) : (
-            <span>{hidden ? t("visibility-false") : t("visibility-true")}</span>
+            <span>{fields.hidden ? t("visibility-false") : t("visibility-true")}</span>
           )}
         </div>
 
@@ -598,45 +543,29 @@ const designContent = (
             gap: 24px;
           `}
         >
-          <label
-            htmlFor="organization-slug"
-            className={css`
-              font-size: 14px;
-              width: 80px;
-              flex-shrink: 0;
-            `}
-          >
-            {t("text-field-label-or-header-slug-or-short-name")}
-          </label>
-
           {editMode ? (
-            <input
-              id="organization-slug"
-              type="text"
-              value={editedSlug}
-              onChange={(e) => setEditedSlug(e.target.value)}
-              className={css`
-                width: 70%;
-                border: 2px solid #e4e5e8;
-                border-radius: 2px;
-                padding: 8px 12px;
-                font-size: 14px;
-                ${respondToOrLarger.lg} {
-                  width: 250px;
-                }
-              `}
+            <TextField
+              name="slug"
+              control={control}
+              label={t("text-field-label-or-header-slug-or-short-name")}
+              className={organizationFieldCss}
             />
           ) : (
-            <span
-              className={css`
-                font-size: 14px;
-                font-family: ${primaryFont};
-                line-height: 20px;
-                color: #1a2333;
-              `}
-            >
-              {editedSlug}
-            </span>
+            <>
+              <span className={fieldLabelCss}>
+                {t("text-field-label-or-header-slug-or-short-name")}
+              </span>
+              <span
+                className={css`
+                  font-size: 14px;
+                  font-family: ${primaryFont};
+                  line-height: 20px;
+                  color: #1a2333;
+                `}
+              >
+                {fields.slug}
+              </span>
+            </>
           )}
         </div>
 
@@ -671,14 +600,15 @@ const designContent = (
         >
           {editMode ? (
             <>
-              <button
-                className={primaryButton}
+              <Button
+                variant="primary"
+                size="medium"
                 onClick={() => {
                   updateOrgMutation.mutate({
                     body: {
-                      name: editedName,
-                      hidden,
-                      slug: editedSlug,
+                      name: fields.name,
+                      hidden: fields.hidden,
+                      slug: fields.slug,
                     },
                     path: {
                       organization_id: id,
@@ -687,19 +617,11 @@ const designContent = (
                 }}
               >
                 {t("button-text-save")}
-              </button>
+              </Button>
 
-              <button
-                className={css`
-                  background: transparent;
-                  color: #1a2333;
-                  padding: 8px 16px;
-                  border: none;
-                `}
-                onClick={() => setEditMode(false)}
-              >
+              <Button variant="tertiary" size="medium" onClick={() => setEditMode(false)}>
                 {t("button-text-cancel")}
-              </button>
+              </Button>
             </>
           ) : null}
         </div>
@@ -742,9 +664,9 @@ const permissionContent = (
       >
         {t("organization-permissions")}
       </h2>
-      <button onClick={() => setShowAddUserPopup(true)} className={primaryButton}>
+      <Button variant="primary" size="medium" onClick={() => setShowAddUserPopup(true)}>
         {t("label-add-user")}
-      </button>
+      </Button>
     </div>
 
     <div

@@ -6,14 +6,13 @@ import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
   getCodeGiveawayByIdOptions,
   getCodeGiveawayCodesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
-import { Button, Link, QueryResults } from "@/shared-module/components"
+import { Button, Link, QueryResults, Table } from "@/shared-module/components"
 import { codeGiveawayCodesCsvHref } from "@/utils/exportDownloadUrls"
 
 import CodeGiveawayCode from "./CodeGiveawayCode"
@@ -77,21 +76,22 @@ const CodeGiveawayPage = () => {
           {t("link-export-given-codes-as-csv")}
         </Link>
       </div>
-      <FullWidthTable>
-        <thead>
-          <FullWidthTableRow>
-            <th>{t("code")}</th>
-            <th>{t("user-id")}</th>
-            <th>{t("added-by-user")}</th>
-          </FullWidthTableRow>
-        </thead>
-        <tbody>
-          {codes &&
-            codes.map((code) => (
-              <CodeGiveawayCode key={code.id} code={code} revealed={revealCodes} />
-            ))}
-        </tbody>
-      </FullWidthTable>
+      <Table
+        caption={t("code")}
+        rows={codes ?? []}
+        rowKey={(code) => code.id}
+        columns={[
+          {
+            header: t("code"),
+            cell: (code) => <CodeGiveawayCode code={code.code} revealed={revealCodes} />,
+          },
+          {
+            header: t("user-id"),
+            cell: (code) => code.code_given_to_user_id ?? t("not-given"),
+          },
+          { header: t("added-by-user"), cell: (code) => code.added_by_user_id },
+        ]}
+      />
       <Button size="medium" variant="primary" onClick={() => setImportDialogOpen(true)}>
         {t("button-text-import")}
       </Button>

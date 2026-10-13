@@ -154,6 +154,7 @@ export const CertificatesTabContent: React.FC = () => {
     ? // oxlint-disable-next-line i18next/no-literal-string
       `${window.location.origin}/certificates/validate/${verificationId}`
     : ""
+  const verificationForm = useForm<{ verificationUrl: string }>({ values: { verificationUrl } })
   const copyToClipboard = useCopyToClipboard(verificationUrl)
   const closePopup = () => {
     setPopupUrl(null)
@@ -375,15 +376,6 @@ export const CertificatesTabContent: React.FC = () => {
                 border-top: 1px solid #e5e5e5;
               `}
             >
-              <label
-                htmlFor="verification-url-input"
-                className={css`
-                  font-size: 14px;
-                  font-weight: 500;
-                `}
-              >
-                {t("verification-url")}
-              </label>
               <div
                 className={css`
                   display: flex;
@@ -391,18 +383,13 @@ export const CertificatesTabContent: React.FC = () => {
                   align-items: center;
                 `}
               >
-                <input
-                  id="verification-url-input"
-                  type="text"
-                  readOnly
-                  value={verificationUrl}
+                <TextField
+                  name="verificationUrl"
+                  control={verificationForm.control}
+                  label={t("verification-url")}
+                  isReadOnly
                   className={css`
                     flex: 1;
-                    padding: 8px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    font-size: 14px;
-                    background: #f5f5f5;
                   `}
                 />
                 <Button

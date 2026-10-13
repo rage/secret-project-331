@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import NextLink from "next/link"
 import { useTranslation } from "react-i18next"
 
 import type { CertificateConfigurationAndRequirements } from "@/generated/api/types.generated"
@@ -41,9 +40,9 @@ const CertificateView: React.FC<Props> = ({
         {t("background-svg")}:{" "}
         <MaskOverThisInSystemTests>
           <SetHeightInSystemTests heightPx={100}>
-            <NextLink href={`/api/v0/files/${configuration.background_svg_path}`}>
+            <Link href={`/api/v0/files/${configuration.background_svg_path}`}>
               {configuration.background_svg_path}
-            </NextLink>
+            </Link>
           </SetHeightInSystemTests>
         </MaskOverThisInSystemTests>
       </div>
@@ -52,9 +51,9 @@ const CertificateView: React.FC<Props> = ({
         {configuration.overlay_svg_path ? (
           <MaskOverThisInSystemTests>
             <SetHeightInSystemTests heightPx={100}>
-              <NextLink href={`/api/v0/files/${configuration.overlay_svg_path}`}>
+              <Link href={`/api/v0/files/${configuration.overlay_svg_path}`}>
                 {configuration.overlay_svg_path}
-              </NextLink>
+              </Link>
             </SetHeightInSystemTests>
           </MaskOverThisInSystemTests>
         ) : (

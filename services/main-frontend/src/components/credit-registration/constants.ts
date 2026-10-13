@@ -22,6 +22,12 @@ export const STACKED = "stacked" as const
 /** `TableColumn.align` for numeric columns. */
 export const ALIGN_END = "end" as const
 
+/** `TableColumn.align` for a column of icons or short controls. */
+export const ALIGN_CENTER = "center" as const
+
+/** `TableColumn.sortDirection` for the column a table is currently sorted by. */
+export const SORT_ASCENDING = "ascending" as const
+
 /** `QueryResult.refreshIndicator` for polled views: a poll must not blank or freeze the page. */
 export const QUIET_REFRESH = "quiet" as const
 

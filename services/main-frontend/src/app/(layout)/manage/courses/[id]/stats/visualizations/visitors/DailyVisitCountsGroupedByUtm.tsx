@@ -1,21 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  columnVisibilityFeature,
-  createColumnHelper,
-  flexRender,
-  tableFeatures,
-  useTable,
-} from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Disclosure, QueryResult } from "@/shared-module/components"
+import { Disclosure, QueryResult, Table } from "@/shared-module/components"
 
 import { InstructionBox } from "../../CourseStatsPage"
 import StatsHeader from "../../StatsHeader"
@@ -27,43 +20,12 @@ export interface DailyVisitCountsGroupedByUtmProps {
 
 const DEFAULT_HEIGHT = 300
 
-const tableFeaturesConfig = tableFeatures({ columnVisibilityFeature })
-
 const containerStyles = css`
   margin-bottom: 2rem;
   min-height: ${DEFAULT_HEIGHT}px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-`
-
-const tableStyles = css`
-  width: 100%;
-
-  table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  td {
-    padding: 0.5rem 0.7rem;
-    max-width: 250px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    border: 1px solid ${baseTheme.colors.clear[300]};
-  }
-  thead {
-    th {
-      text-align: left;
-      padding-left: 0.5rem;
-      font-weight: 600;
-      font-size: 14px;
-      line-height: 16px;
-      color: ${baseTheme.colors.gray[500]};
-    }
-  }
 `
 
 const DailyVisitCountsGroupedByUtm: React.FC<
@@ -106,29 +68,6 @@ const DailyVisitCountsGroupedByUtm: React.FC<
     return sorted
   }, [query.data])
 
-  const columnHelper = createColumnHelper<
-    typeof tableFeaturesConfig,
-    PageVisitDatumSummaryByCourse
-  >()
-
-  const columns = columnHelper.columns([
-    columnHelper.accessor("visit_date", {
-      header: t("header-visit-date"),
-    }),
-    columnHelper.accessor("utm_source", { header: "UTM Source" }),
-    columnHelper.accessor("utm_medium", { header: "UTM Medium" }),
-    columnHelper.accessor("utm_campaign", { header: "UTM Campaign" }),
-    columnHelper.accessor("utm_term", { header: "UTM Term" }),
-    columnHelper.accessor("utm_content", { header: "UTM Content" }),
-    columnHelper.accessor("num_visitors", { header: t("header-number-of-visitors") }),
-  ])
-
-  const table = useTable({
-    features: tableFeaturesConfig,
-    data: aggregatedData ?? [],
-    columns,
-  })
-
   return (
     <>
       <StatsHeader heading={t("stats-heading-utm-traffic-details")} debugData={aggregatedData} />
@@ -146,33 +85,26 @@ const DailyVisitCountsGroupedByUtm: React.FC<
                 `}
                 title={t("header-grouped-by-utm-tags")}
               >
-                <div className={tableStyles}>
-                  <table>
-                    <thead>
-                      {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                          {headerGroup.headers.map((header) => (
-                            <th key={header.id}>
-                              {!header.isPlaceholder &&
-                                flexRender(header.column.columnDef.header, header.getContext())}
-                            </th>
-                          ))}
-                        </tr>
-                      ))}
-                    </thead>
-                    <tbody>
-                      {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <Table
+                  caption={t("header-grouped-by-utm-tags")}
+                  density={DENSITY_COMPACT}
+                  rows={aggregatedData}
+                  rowKey={rowToGroupingKey}
+                  columns={[
+                    { header: t("header-visit-date"), cell: (row) => row.visit_date },
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    { header: "UTM Source", cell: (row) => row.utm_source },
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    { header: "UTM Medium", cell: (row) => row.utm_medium },
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    { header: "UTM Campaign", cell: (row) => row.utm_campaign },
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    { header: "UTM Term", cell: (row) => row.utm_term },
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    { header: "UTM Content", cell: (row) => row.utm_content },
+                    { header: t("header-number-of-visitors"), cell: (row) => row.num_visitors },
+                  ]}
+                />
               </Disclosure>
             )
           }

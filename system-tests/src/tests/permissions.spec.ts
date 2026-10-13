@@ -57,7 +57,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     await page.getByText("Add user").click()
   })
 
-  await page.click('[aria-label="Sort by email"]')
+  await page.getByRole("columnheader", { name: "Email" }).getByRole("button").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/a2002fc3-2c87-4aae-a5e5-9d14617aad2b/permissions?sort=email",
   )
@@ -70,7 +70,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     clearNotifications: true,
   })
 
-  await page.click('[aria-label="Sort by role"]')
+  await page.getByRole("columnheader", { name: "Role" }).getByRole("button").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/a2002fc3-2c87-4aae-a5e5-9d14617aad2b/permissions?sort=role",
   )

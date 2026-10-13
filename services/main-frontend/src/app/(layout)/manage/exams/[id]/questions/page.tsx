@@ -18,7 +18,7 @@ import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -28,6 +28,7 @@ import {
   Button,
   Infobox,
   QueryResult,
+  Table,
   useDialog,
 } from "@/shared-module/components"
 
@@ -221,84 +222,48 @@ const GradingPage: React.FC = () => {
       >
         {getExam.data?.name}
       </h3>
-      <table
+      <Table
+        caption={t("questions")}
+        rows={sorted}
+        rowKey={(exercise) => exercise.name}
         className={css`
-          display: block;
-          overflow-x: auto;
-          border-collapse: collapse;
           margin-top: 1.5rem;
-          width: 100%;
-
-          td,
-          th {
-            padding-left: 20px;
-            text-align: left;
-            height: 60px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          tr {
-            border-bottom: 1.5px solid #0000001a;
-            font-size: ${baseTheme.fontSizes[18]};
-          }
         `}
-      >
-        <thead>
-          <tr
-            className={css`
-              font-family: ${headingFont};
-              font-weight: ${fontWeights.semibold};
-              font-size: ${baseTheme.fontSizes[18]};
-              color: #7c7c7ccc;
-              opacity: 0.8;
-            `}
-          >
-            <th>{t("label-grade")}</th>
-            <th>{t("question")}</th>
-            <th>{t("status")}</th>
-            <th>{t("number-of-answered")}</th>
-            <th>{t("number-of-graded")}</th>
-            <th>{t("number-of-unpublished-gradings")}</th>
-            <th>{t("points")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted?.map((exercise) => (
-            <tr key={exercise.name}>
-              <td>
-                {getExam.data?.grade_manually ? (
-                  <Button
-                    variant={"primary"}
-                    size={"small"}
-                    onClick={() => {
-                      router.push(exerciseExamSubmissionsRoute(exercise.id))
-                    }}
-                  >
-                    {t("grade")}
-                  </Button>
-                ) : (
-                  <Button
-                    variant={"primary"}
-                    size={"small"}
-                    onClick={() => {
-                      router.push(exerciseExamSubmissionsRoute(exercise.id))
-                    }}
-                  >
-                    {t("label-review")}
-                  </Button>
-                )}
-              </td>
-              <td>{t("question-n", { n: exercise.order_number + 1 })}</td>
-              <td>{exercise.id && gradedCheck(exercise.id)}</td>
-              <td>{exercise.id && totalAnswered(exercise.id)}</td>
-              <td>{exercise.id && totalGraded(exercise.id)}</td>
-              <td>{exercise.id && totalPublished(exercise.id)}</td>
-              <td>{exercise.score_maximum}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        columns={[
+          {
+            header: t("label-grade"),
+            cell: (exercise) => (
+              <Button
+                variant={"primary"}
+                size={"small"}
+                onClick={() => {
+                  router.push(exerciseExamSubmissionsRoute(exercise.id))
+                }}
+              >
+                {getExam.data?.grade_manually ? t("grade") : t("label-review")}
+              </Button>
+            ),
+          },
+          {
+            header: t("question"),
+            cell: (exercise) => t("question-n", { n: exercise.order_number + 1 }),
+          },
+          { header: t("status"), cell: (exercise) => exercise.id && gradedCheck(exercise.id) },
+          {
+            header: t("number-of-answered"),
+            cell: (exercise) => exercise.id && totalAnswered(exercise.id),
+          },
+          {
+            header: t("number-of-graded"),
+            cell: (exercise) => exercise.id && totalGraded(exercise.id),
+          },
+          {
+            header: t("number-of-unpublished-gradings"),
+            cell: (exercise) => exercise.id && totalPublished(exercise.id),
+          },
+          { header: t("points"), cell: (exercise) => exercise.score_maximum },
+        ]}
+      />
       {getExam.data?.grade_manually && (
         <div
           className={css`

@@ -116,7 +116,7 @@ const SettingsFields: React.FC<SettingsFieldsProps> = ({
           label={t("limit-number-of-tries")}
           className={css`
             flex: 1;
-            padding-top: 1.3rem;
+            padding-top: 0.4rem;
           `}
         />
         <TextField

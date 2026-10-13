@@ -36,8 +36,8 @@ const Wrapper = styled.div`
   height: 100%;
   h2 {
     margin: var(--space-2) 0 0;
-    font-weight: 300;
-    font-size: 1.7rem;
+    font-weight: 600;
+    font-size: 1.25rem;
     line-height: 1.2;
   }
 `

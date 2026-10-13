@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useState } from "react"
 
@@ -53,7 +54,11 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstruction
   return (
     <>
       <div className="editor__component">
-        <div>
+        <div
+          className={css`
+            margin-bottom: 2.5rem;
+          `}
+        >
           {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
           <Button
             variant="primary"

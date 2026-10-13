@@ -253,6 +253,8 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         </div>
       </div>
 
+      <div className="editor__top-button-wrapper">{saveButton}</div>
+
       <EmailGutenbergEditor
         content={content}
         onContentChange={setContent}

@@ -5,8 +5,8 @@ import { Select } from "@/utils/components/Select"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
-// Zoned timestamps join their parts with word joiners and carry the browser's UTC offset.
-const CLOSING_STATUS_OPEN_UNTIL = /Open until 2099-\u2060?06-\u2060?06\s06:06:00\s\(UTC[+-]?\d*\)/
+// The offset depends on the browser's time zone.
+const CLOSING_STATUS_OPEN_UNTIL = /Open until 2099-06-06 06:06:00 UTC[+-]\d{2}:\d{2}/
 test.use({
   storageState: "src/states/admin@example.com.json",
 })

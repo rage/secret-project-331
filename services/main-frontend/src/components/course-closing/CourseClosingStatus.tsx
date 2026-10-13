@@ -5,7 +5,7 @@ import { isValid, parseISO } from "date-fns"
 import React from "react"
 import { Trans } from "react-i18next"
 
-import { formatZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { RelativeTime } from "@/shared-module/components"
 
 const statusStyles = css`
@@ -26,7 +26,7 @@ const CourseClosingStatus: React.FC<CourseClosingStatusProps> = ({ closedAt }) =
   if (!isValid(date)) {
     return null
   }
-  const formattedDate = formatZonedTimestamp(date)
+  const formattedDate = dateToString(date)
 
   if (date.getTime() > Date.now()) {
     return (

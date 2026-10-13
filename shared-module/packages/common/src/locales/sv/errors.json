@@ -1,0 +1,31 @@
+{
+  "button-text-try-again": "Försök igen",
+  "default-toast-error-message": "Ett fel inträffade",
+  "default-toast-error-title": "Fel",
+  "dynamic-import-error-boundary-reload": "Ladda om sidan",
+  "dynamic-import-error-boundary-title": "Något gick fel när den här delen av sidan skulle läsas in.",
+  "error-hide-details": "Dölj detaljer",
+  "error-issue": "Problem: {{issue}}",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Logga in för att se tentamensövningar.",
+      "title": "Inloggning krävs"
+    },
+    "chapter_not_open_yet": {
+      "message": "Det här kapitlet är inte öppet ännu.",
+      "title": "Kapitlet är stängt"
+    }
+  },
+  "error-original-message": "Originalmeddelande",
+  "error-page-without-course": "Fel: Sidan är inte associerad med någon kurs",
+  "error-part-of-page-has-crashed-error": "Del av sidan har kraschat: {{error}}",
+  "error-request-id": "Begäran ID: {{requestId}}",
+  "error-show-details": "Visa detaljer",
+  "error-status": "Status: {{status}}",
+  "error-title": "Fel",
+  "error-type": "Typ: {{type}}",
+  "failed-to-send-message": "Misslyckades med att skicka meddelande",
+  "go-to-error": "Gå till fel",
+  "label-error-loading": "Fel vid laddning av data.",
+  "show-error-source": "Visa källa"
+}

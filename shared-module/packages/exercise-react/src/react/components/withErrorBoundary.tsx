@@ -86,7 +86,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
 
       if (error) {
         return (
-          <Translation>
+          <Translation ns="errors">
             {(t) => (
               <div className={bannerClass} role="alert">
                 <div>

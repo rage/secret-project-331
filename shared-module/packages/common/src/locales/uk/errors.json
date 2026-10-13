@@ -1,0 +1,29 @@
+{
+  "button-text-try-again": "Спробувати знову",
+  "default-toast-error-message": "Виникла помилка",
+  "default-toast-error-title": "Помилка",
+  "error-hide-details": "Сховати деталі",
+  "error-issue": "Проблема: {{issue}}",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Увійдіть, щоб переглядати екзаменаційні завдання.",
+      "title": "Потрібен вхід"
+    },
+    "chapter_not_open_yet": {
+      "message": "Цей розділ ще не відкрито.",
+      "title": "Розділ закрито"
+    }
+  },
+  "error-original-message": "Оригінальне повідомлення",
+  "error-page-without-course": "Помилка: сторінка не пов'язана з жодним курсом",
+  "error-part-of-page-has-crashed-error": "Частина сторінки аварійно завершила роботу: {{error}}",
+  "error-request-id": "ID запиту: {{requestId}}",
+  "error-show-details": "Показати деталі",
+  "error-status": "Статус: {{status}}",
+  "error-title": "Помилка",
+  "error-type": "Тип: {{type}}",
+  "failed-to-send-message": "Не вдалося надіслати повідомлення",
+  "go-to-error": "Перейти до помилки",
+  "label-error-loading": "Помилка завантаження даних.",
+  "show-error-source": "Показати джерело"
+}

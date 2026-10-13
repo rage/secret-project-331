@@ -108,8 +108,8 @@ export const ResendOutcomeNotice: React.FC<{
 /** A send request that failed, in the server's words when it refused it with a reason. */
 const SendFailedNotice: React.FC<{ error: unknown }> = ({ error }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const { t: tShared } = useTranslation()
-  const view = normalizeErrorForDisplay(error, tShared)
+  const { t: tErrors } = useTranslation("errors")
+  const view = normalizeErrorForDisplay(error, tErrors)
   // A server error's message is a generic "Internal server error".
   const message = view.category === "server" ? null : view.message
   return (

@@ -90,7 +90,7 @@ const ErrorMessage = styled.div`
 `
 
 const ErrorNotification = (props: ErrorNotificationProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   return (
     <NotificationWrapper data-testid="toast-notification">
       <Content>

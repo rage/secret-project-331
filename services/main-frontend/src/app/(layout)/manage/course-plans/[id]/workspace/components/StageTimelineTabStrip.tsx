@@ -101,10 +101,11 @@ const todayIndicatorStyles = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 5;
 `
 
 const todayLabelStyles = css`
+  position: relative;
+  z-index: 5;
   font-size: 0.68rem;
   font-weight: 600;
   color: ${baseTheme.colors.red[600]};
@@ -115,6 +116,8 @@ const todayLabelStyles = css`
 `
 
 const todayTriangleStyles = css`
+  position: relative;
+  z-index: 5;
   width: 0;
   height: 0;
   border-left: 4px solid transparent;
@@ -122,7 +125,10 @@ const todayTriangleStyles = css`
   border-top: 6px solid ${baseTheme.colors.red[600]};
 `
 
+// Behind the month tiles so it never crosses their text.
 const todayLineStyles = css`
+  position: relative;
+  z-index: 0;
   margin-top: 2px;
   flex: 1;
   width: 2px;

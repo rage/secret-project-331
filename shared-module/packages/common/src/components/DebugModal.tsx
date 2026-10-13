@@ -42,13 +42,6 @@ const iconButtonStyles = css`
   }
 `
 
-const titleSuffixStyles = css`
-  color: var(--color-gray-700);
-  font-weight: normal;
-  font-size: 0.9em;
-  margin-left: 0.5rem;
-`
-
 const ON = "on"
 
 // Limit so that we don't freeze the browser
@@ -178,12 +171,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         onClose={closeModal}
         size="wide"
         padding="none"
-        title={
-          <>
-            {t("title-data-view")}
-            <span className={titleSuffixStyles}>({readOnlySpecifier})</span>
-          </>
-        }
+        title={`${t("title-data-view")} (${readOnlySpecifier})`}
         {...includeIf(isDownloadable, { actions: [csvDownloadAction] as const })}
       >
         <MonacoEditor

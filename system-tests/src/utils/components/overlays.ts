@@ -1,4 +1,5 @@
 import type { Locator, Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 /**
  * Locates the overlay a trigger has opened.
@@ -35,4 +36,15 @@ export async function dialogLabelledByTrigger(page: Page, trigger: Locator): Pro
     throw new Error("Trigger has no id, so its calendar dialog cannot be identified.")
   }
   return page.locator(`[role="dialog"][aria-labelledby~="${triggerId}"]`)
+}
+
+/**
+ * Dismisses a popover dialog with Escape and waits for it to go.
+ *
+ * Escape is pressed on the dialog itself: after a time input commits on blur, focus can sit outside
+ * the popover, where a page-level Escape would not reach the popover's key handler.
+ */
+export async function closeDialog(dialog: Locator): Promise<void> {
+  await dialog.press("Escape")
+  await expect(dialog).toBeHidden()
 }

@@ -15,4 +15,13 @@ export class DateField extends PickerTemporalField {
       await this.setSegments(entries, isoDate)
     })
   }
+
+  /** Picks the date in the calendar opened by clicking the field, and asserts the field committed it. */
+  public async pickValue(isoDate: string): Promise<void> {
+    await test.step(`Pick "${isoDate}" for ${this.testId}`, async () => {
+      const calendar = await this.openCalendar()
+      await calendar.pickDate(isoDate)
+      await this.expectValue(isoDate)
+    })
+  }
 }

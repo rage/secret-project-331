@@ -23,7 +23,6 @@ export const segmentedSegmentsRowCss = css`
      box, which made the field a pixel or two taller than an input showing the same text. */
   align-items: center;
   justify-content: flex-start;
-  gap: 2px;
   white-space: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
@@ -57,10 +56,15 @@ export const segmentedPickerFieldCss = css`
 export const segmentCss = css`
   position: relative;
   flex: 0 0 auto;
-  min-width: 1ch;
-  border-radius: 4px;
   color: inherit;
   outline: none;
+`
+
+/** The negative margin cancels the padding, so the focus tint gets room without spacing the text. */
+export const segmentEditableCss = css`
+  padding-inline: 1px;
+  margin-inline: -1px;
+  border-radius: 4px;
   font-variant-numeric: tabular-nums;
 
   &[data-focus-visible="true"] {
@@ -72,13 +76,11 @@ export const segmentPlaceholderCss = css`
   color: var(--field-placeholder);
 `
 
+/** Keeps the locale's own spacing (", ", " ") that line-end whitespace collapsing would drop. */
 export const segmentLiteralCss = css`
   color: var(--field-chrome);
+  white-space: pre;
   user-select: none;
-`
-
-export const kloSegmentLiteralCss = css`
-  visibility: hidden;
 `
 
 export const datePickerButtonCss = css`
@@ -156,5 +158,12 @@ export const dateTimePickerPopoverCss = css`
   && {
     width: min(720px, calc(100vw - 32px));
     min-width: min(320px, calc(100vw - 32px));
+  }
+`
+
+export const timePickerPopoverCss = css`
+  && {
+    width: min(280px, calc(100vw - 32px));
+    min-width: min(240px, calc(100vw - 32px));
   }
 `

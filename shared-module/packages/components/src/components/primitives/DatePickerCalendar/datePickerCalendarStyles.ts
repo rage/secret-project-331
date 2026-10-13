@@ -419,6 +419,12 @@ export const timePanelCss = css`
   }
 `
 
+/** Drops the divider that separates the time panel from the calendar when it stands alone. */
+export const standaloneTimePanelCss = css`
+  padding: 0;
+  border: 0;
+`
+
 export const timePanelHeadingCss = css`
   color: var(--color-gray-400);
   font-size: 0.625rem;

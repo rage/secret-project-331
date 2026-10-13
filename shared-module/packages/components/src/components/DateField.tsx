@@ -15,6 +15,7 @@ const dateFieldKind = "date" as const
 
 /**
  * Segmented date input with optional calendar; value is an ISO date string (`yyyy-mm-dd`).
+ * A pointer click anywhere on the field opens the picker; the keyboard edits the segments.
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example

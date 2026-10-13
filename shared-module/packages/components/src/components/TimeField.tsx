@@ -14,7 +14,9 @@ const floatingLayout = "floating" as const
 const timeFieldKind = "time" as const
 
 /**
- * Segmented time input; value is a time string compatible with the segmented serializer.
+ * Segmented time input with a time picker popover; value is a time string compatible with the
+ * segmented serializer.
+ * A pointer click anywhere on the field opens the picker; the keyboard edits the segments.
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example

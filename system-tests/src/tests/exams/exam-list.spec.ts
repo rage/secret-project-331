@@ -21,7 +21,7 @@ test("exam list renders, can create exam", async ({ page }) => {
 
   await page.getByRole("button", { name: "Create" }).nth(1).click()
   await page.getByLabel("Name", { exact: true }).fill("new exam")
-  await new DateTimeLocalField(page, "exam-starts-at-field").setValue("2099-11-11T13:15")
+  await new DateTimeLocalField(page, "exam-starts-at-field").pickValue("2099-11-11T13:15")
   await new DateTimeLocalField(page, "exam-ends-at-field").setValue("2099-11-12T13:15")
   await page.getByLabel("Time in minutes", { exact: true }).fill("120")
 

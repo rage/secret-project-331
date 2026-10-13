@@ -181,3 +181,37 @@ export function useSegmentedFieldBase(
 }
 
 export type SegmentedFieldBase = ReturnType<typeof useSegmentedFieldBase>
+
+// Presses on these keep their own behaviour (the trigger opens by itself, icon slots may hold buttons).
+const interactiveSelector = "button, a[href], input, select, textarea"
+
+/**
+ * Builds a click handler that opens the field's picker on a pointer click anywhere it is attached.
+ *
+ * Only real pointer clicks open it: keyboard-synthesized clicks (`detail === 0`, e.g. Enter on the
+ * trigger) are ignored so keyboard users keep editing the segments. Never opens a disabled or
+ * read-only field, and only ever opens, so it cannot undo the trigger's own press.
+ */
+export function createPointerOpenHandler({
+  isOpen,
+  isDisabled,
+  isReadOnly,
+  open,
+}: {
+  isOpen: boolean
+  isDisabled: boolean
+  isReadOnly: boolean
+  open: () => void
+}): React.MouseEventHandler<HTMLElement> {
+  return (event) => {
+    if (isOpen || isDisabled || isReadOnly || event.detail === 0) {
+      return
+    }
+    const interactive =
+      event.target instanceof Element ? event.target.closest(interactiveSelector) : null
+    if (interactive && event.currentTarget.contains(interactive)) {
+      return
+    }
+    open()
+  }
+}

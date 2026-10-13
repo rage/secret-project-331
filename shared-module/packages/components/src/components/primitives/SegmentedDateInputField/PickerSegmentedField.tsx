@@ -20,8 +20,9 @@ import {
   resolveSegmentedFloatingShellCss,
 } from "../fieldStyles"
 import { Popover } from "../popover"
-import { DatePickerTriggerButton } from "./DatePickerTriggerButton"
+import { CalendarIcon } from "./CalendarIcon"
 import { DateSegment } from "./DateSegment"
+import { PickerTriggerButton } from "./PickerTriggerButton"
 import { dataStateFalse, dataStateTrue } from "./segmentedDateInputFieldConstants"
 import {
   segmentedFieldDisabledCss,
@@ -33,6 +34,7 @@ import {
   segmentedSegmentsRowRestHiddenCss,
 } from "./segmentedDateInputFieldStyles"
 import {
+  createPointerOpenHandler,
   emitSyntheticBlur,
   emitSyntheticFocus,
   shouldHideRestSegmentPlaceholders,
@@ -166,6 +168,18 @@ export function PickerSegmentedField({
     },
   })
 
+  const onPointerOpen = createPointerOpenHandler({
+    isOpen: pickerState.isOpen,
+    isDisabled: resolvedState.isDisabled,
+    isReadOnly: resolvedState.isReadOnly,
+    open: () => pickerState.setOpen(true),
+  })
+  // A floating label sits inside the control slot, so only a stacked one needs its own handler.
+  const labelProps = mergeProps(
+    pickerAria.labelProps,
+    isFloatingLayout ? {} : { onClick: onPointerOpen },
+  ) as React.HTMLAttributes<HTMLElement>
+
   return (
     <FieldShell
       controlClassName={cx(
@@ -178,6 +192,7 @@ export function PickerSegmentedField({
         "data-invalid": pickerState.isInvalid ? dataStateTrue : dataStateFalse,
         "data-readonly": resolvedState.isReadOnly ? dataStateTrue : dataStateFalse,
         "data-has-icon-start": iconStart ? dataStateTrue : undefined,
+        onClickCapture: onPointerOpen,
       }}
       label={label}
       description={description}
@@ -186,9 +201,7 @@ export function PickerSegmentedField({
       errorMessageProps={pickerAria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
       {...omitUndefined({ className })}
-      {...includeIf(label, {
-        labelProps: pickerAria.labelProps as React.HTMLAttributes<HTMLElement>,
-      })}
+      {...includeIf(label, { labelProps })}
       {...includeIf(notice, { noticeId })}
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
@@ -237,7 +250,11 @@ export function PickerSegmentedField({
           </div>
         </div>
         {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
-        <DatePickerTriggerButton buttonProps={pickerAria.buttonProps} dataTestId={triggerTestId} />
+        <PickerTriggerButton
+          buttonProps={pickerAria.buttonProps}
+          dataTestId={triggerTestId}
+          icon={<CalendarIcon />}
+        />
       </div>
       <input
         {...dateFieldAria.inputProps}

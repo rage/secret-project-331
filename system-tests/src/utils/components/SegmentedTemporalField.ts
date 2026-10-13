@@ -6,6 +6,9 @@ import type { SegmentEntry, TemporalSegment } from "./dateTimeNames"
 import { DEFAULT_TEMPORAL_LOCALE, segmentNamePattern } from "./dateTimeNames"
 import { dialogLabelledByTrigger } from "./overlays"
 
+/** How to open a field's picker: a pointer click on the field itself, or on its trigger button. */
+export type PickerOpener = "field" | "trigger"
+
 /** Deletes needed to empty any one segment; the year is the widest at four characters. */
 const LONGEST_SEGMENT_LENGTH = 4
 
@@ -20,7 +23,10 @@ export interface SegmentedTemporalFieldOptions {
  * Shared driver for `DateField`, `DateTimeLocalField` and `TimeField`.
  *
  * Addressed by the `data-testid` the caller passes to the component: the id itself lands on the
- * `role="group"`, `${id}-value` on the hidden input and `${id}-trigger` on the calendar button.
+ * `role="group"`, `${id}-value` on the hidden input and `${id}-trigger` on the picker button.
+ *
+ * A pointer click anywhere on these fields opens their picker, so segment entry never clicks: it
+ * focuses the segment and types, which is the keyboard route and leaves the picker closed.
  */
 export class SegmentedTemporalField {
   protected readonly page: Page
@@ -65,6 +71,11 @@ export class SegmentedTemporalField {
     return this.page.locator(`[id="${labelId}"]`)
   }
 
+  /** The picker button at the trailing edge of the field. */
+  public getTrigger(): Locator {
+    return this.page.getByTestId(`${this.testId}-trigger`)
+  }
+
   /** One editable segment, located by name because the segment order follows the locale. */
   public getSegment(segment: TemporalSegment): Locator {
     return this.getGroup().getByRole("spinbutton", {
@@ -93,7 +104,7 @@ export class SegmentedTemporalField {
       await this.revealSegments()
       const segments = await this.getGroup().getByRole("spinbutton").all()
       for (const segment of segments) {
-        await segment.click()
+        await segment.focus()
         for (let deletion = 0; deletion < LONGEST_SEGMENT_LENGTH; deletion += 1) {
           await segment.press("Backspace")
         }
@@ -103,17 +114,31 @@ export class SegmentedTemporalField {
   }
 
   /**
-   * Brings the segment row into reach before anything clicks a segment.
+   * Brings the segment row into view before typing.
    *
-   * While the field is empty and unfocused the floating layout collapses the row to zero height,
-   * and Playwright will not click a zero-height element, so the row cannot be its own way in.
-   * Clicking the label is react-aria's answer: `useDateField` hangs `focusManager.focusFirst()` off
-   * the label, which focuses the first segment and expands the row.
+   * An empty, unfocused floating field fades the row out behind its label. Focusing the trigger
+   * counts as focus within the field, which shows the row without opening the picker the way a
+   * click would.
    */
   protected async revealSegments(): Promise<void> {
-    const label = await this.getLabel()
-    await label.click()
+    await this.getTrigger().focus()
     await expect(this.getGroup().getByRole("spinbutton").first()).toBeVisible()
+  }
+
+  /**
+   * Opens the picker popover and returns its dialog.
+   *
+   * The dialog is portaled, so it is found through the trigger's id, which labels it.
+   */
+  protected async openPicker(via: PickerOpener): Promise<Locator> {
+    if (via === "field") {
+      await this.getGroup().click()
+    } else {
+      await this.getTrigger().click()
+    }
+    const dialog = await dialogLabelledByTrigger(this.page, this.getTrigger())
+    await expect(dialog).toBeVisible()
+    return dialog
   }
 
   /** Fills the segments in order and asserts the value the field commits from them. */
@@ -127,7 +152,7 @@ export class SegmentedTemporalField {
 
   protected async typeIntoSegment(segment: TemporalSegment, text: string): Promise<void> {
     const locator = this.getSegment(segment)
-    await locator.click()
+    await locator.focus()
     // Segments are contenteditable divs whose `beforeinput` react-aria cancels, feeding `e.data`
     // through a per-character parser. `fill()` delivers the whole string in one event, so it
     // neither throws nor sets anything; only per-character typing reaches the segment.
@@ -141,32 +166,15 @@ export abstract class PickerTemporalField extends SegmentedTemporalField {
   /** Whether picking a day in the calendar closes it, which `shouldCloseOnSelect` decides. */
   protected abstract readonly closesOnDaySelect: boolean
 
-  /** The calendar affordance at the trailing edge of the group. */
-  public getTrigger(): Locator {
-    return this.page.getByTestId(`${this.testId}-trigger`)
-  }
-
-  /** Opens the calendar popover and returns a driver for it. */
-  public async openCalendar(): Promise<DatePickerCalendar> {
-    const trigger = this.getTrigger()
-    return await test.step(`Open the calendar of ${this.testId}`, async () => {
-      await trigger.click()
-      const dialog = await dialogLabelledByTrigger(this.page, trigger)
-      await expect(dialog).toBeVisible()
-      return new DatePickerCalendar(this.page, dialog, {
+  /** Opens the calendar popover, by default by clicking the field, and returns a driver for it. */
+  public async openCalendar(via: PickerOpener = "field"): Promise<DatePickerCalendar> {
+    return await test.step(`Open the calendar of ${this.testId} via the ${via}`, async () => {
+      const dialog = await this.openPicker(via)
+      return new DatePickerCalendar(dialog, {
         closesOnDaySelect: this.closesOnDaySelect,
         locale: this.locale,
         hourCycle: this.hourCycle,
       })
     })
-  }
-
-  /**
-   * Focuses the trigger, which is always visible and sits inside the group, rather than routing
-   * through the label as the base class has to.
-   */
-  protected override async revealSegments(): Promise<void> {
-    await this.getTrigger().focus()
-    await expect(this.getGroup().getByRole("spinbutton").first()).toBeVisible()
   }
 }

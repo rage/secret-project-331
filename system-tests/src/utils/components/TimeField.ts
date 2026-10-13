@@ -1,14 +1,13 @@
+import type { Locator } from "@playwright/test"
 import { test } from "@playwright/test"
 
-import { timeSegmentEntries } from "./dateTimeNames"
+import { DATE_PICKER_LABELS, timeSegmentEntries } from "./dateTimeNames"
+import { HybridTimeSelector } from "./HybridTimeSelector"
+import { closeDialog, dialogLabelledByTrigger } from "./overlays"
+import type { PickerOpener } from "./SegmentedTemporalField"
 import { SegmentedTemporalField } from "./SegmentedTemporalField"
 
-/**
- * Driver for the shared-module `TimeField`, whose committed value is an `HH:mm` string.
- *
- * It has no calendar and therefore no trigger button to focus, so an empty one is reached through
- * its label; see `SegmentedTemporalField.revealSegments`.
- */
+/** Driver for the shared-module `TimeField`, whose committed value is an `HH:mm` string. */
 export class TimeField extends SegmentedTemporalField {
   /** Types the time segment by segment and asserts the field committed it. */
   public async setValue(isoTime: string): Promise<void> {
@@ -19,5 +18,37 @@ export class TimeField extends SegmentedTemporalField {
     await test.step(`Set ${this.testId} to "${isoTime}"`, async () => {
       await this.setSegments(entries, isoTime)
     })
+  }
+
+  /** Opens the time popover, by default by clicking the field, and returns a driver for its panel. */
+  public async openTimePicker(via: PickerOpener = "field"): Promise<HybridTimeSelector> {
+    return await test.step(`Open the time picker of ${this.testId} via the ${via}`, async () => {
+      const dialog = await this.openPicker(via)
+      return this.timeSelectorIn(dialog)
+    })
+  }
+
+  /** Closes the time popover; the panel commits each change as it is made. */
+  public async closeTimePicker(): Promise<void> {
+    await test.step(`Close the time picker of ${this.testId}`, async () => {
+      await closeDialog(await dialogLabelledByTrigger(this.page, this.getTrigger()))
+    })
+  }
+
+  /** Types the time into the popover's time panel, closes it and asserts the field committed it. */
+  public async pickValue(isoTime: string): Promise<void> {
+    await test.step(`Pick "${isoTime}" for ${this.testId}`, async () => {
+      const selector = await this.openTimePicker()
+      await selector.setTime(isoTime)
+      await this.closeTimePicker()
+      await this.expectValue(isoTime)
+    })
+  }
+
+  private timeSelectorIn(dialog: Locator): HybridTimeSelector {
+    return new HybridTimeSelector(
+      dialog.getByRole("group", { name: DATE_PICKER_LABELS.time, exact: true }),
+      { locale: this.locale, hourCycle: this.hourCycle },
+    )
   }
 }

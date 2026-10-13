@@ -16,10 +16,12 @@ export interface HybridTimeSelectorOptions {
 }
 
 /**
- * Driver for the time column the calendar shows in datetime mode.
+ * Driver for the time panel: the calendar's time column in datetime mode, and the whole popover of
+ * a `TimeField`.
  *
- * Get one from `DatePickerCalendar.getTimeSelector()` rather than constructing it directly; the
- * panel lives inside the calendar dialog, so this needs no page of its own. Note that the AM/PM
+ * Get one from `DatePickerCalendar.getTimeSelector()` or `TimeField.openTimePicker()` rather than
+ * constructing it directly; the panel lives inside the picker dialog, so this needs no page of its
+ * own. Note that the AM/PM
  * buttons carry the fixed element ids `period-am` and `period-pm`, so two datetime pickers open at
  * once would produce duplicate ids; every locator here is scoped to the panel instead.
  */

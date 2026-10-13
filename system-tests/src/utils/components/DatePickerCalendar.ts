@@ -1,4 +1,4 @@
-import type { Locator, Page } from "@playwright/test"
+import type { Locator } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import {
@@ -6,8 +6,10 @@ import {
   chooseMonthAndYearLabel,
   DATE_PICKER_LABELS,
   DEFAULT_TEMPORAL_LOCALE,
+  monthLabel,
 } from "./dateTimeNames"
 import { HybridTimeSelector } from "./HybridTimeSelector"
+import { closeDialog } from "./overlays"
 import { YearMonthPicker } from "./YearMonthPicker"
 
 export interface DatePickerCalendarOptions {
@@ -26,14 +28,12 @@ export interface DatePickerCalendarOptions {
  * invisible "Dismiss" buttons every popover carries.
  */
 export class DatePickerCalendar {
-  private readonly page: Page
   private readonly dialog: Locator
   private readonly closesOnDaySelect: boolean
   private readonly locale: string
   private readonly hourCycle: 12 | 24 | undefined
 
-  public constructor(page: Page, dialog: Locator, options: DatePickerCalendarOptions) {
-    this.page = page
+  public constructor(dialog: Locator, options: DatePickerCalendarOptions) {
     this.dialog = dialog
     this.closesOnDaySelect = options.closesOnDaySelect
     this.locale = options.locale ?? DEFAULT_TEMPORAL_LOCALE
@@ -79,6 +79,30 @@ export class DatePickerCalendar {
     await test.step(`Select ${isoDate} in the calendar`, async () => {
       await this.getDay(isoDate).click()
       await this.assertSelectionSettled()
+    })
+  }
+
+  /**
+   * Shows the month holding `isoDate` and picks that day, the way a user would: through the year
+   * and month choosers in the header rather than paging month by month.
+   *
+   * @param isoDate a `yyyy-MM-dd` date
+   */
+  public async pickDate(isoDate: string): Promise<void> {
+    const [year, month] = isoDate.split("-").map(Number)
+    if (year === undefined || month === undefined) {
+      throw new Error(`Expected a yyyy-MM-dd date, got "${isoDate}".`)
+    }
+
+    await test.step(`Pick ${isoDate} in the calendar`, async () => {
+      const visibleYear = await this.dialog
+        .getByRole("button", { name: new RegExp(`^${chooseMonthAndYearLabel("\\d+")}$`) })
+        .textContent()
+      const chooser = await this.openChooser(visibleYear ?? "")
+      await chooser.goToYear(year)
+      await chooser.chooseMonth(monthLabel(month, this.locale))
+      await expect(this.getGrid()).toBeVisible()
+      await this.selectDay(isoDate)
     })
   }
 
@@ -156,8 +180,7 @@ export class DatePickerCalendar {
    */
   public async close(): Promise<void> {
     await test.step("Close the calendar", async () => {
-      await this.page.keyboard.press("Escape")
-      await expect(this.dialog).toBeHidden()
+      await closeDialog(this.dialog)
     })
   }
 

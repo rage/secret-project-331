@@ -1,20 +1,22 @@
 "use client"
 
 import { cx } from "@emotion/css"
+import type React from "react"
 import { useRef } from "react"
 import type { AriaButtonProps } from "react-aria"
 import { useButton } from "react-aria"
 
-import { CalendarIcon } from "./CalendarIcon"
 import { datePickerButtonCss, segmentedPickerTriggerCss } from "./segmentedDateInputFieldStyles"
 
-/** Calendar affordance wired to the date picker `useDatePicker` button props. */
-export function DatePickerTriggerButton({
+/** Icon button at the trailing edge of a segmented field that opens its picker popover. */
+export function PickerTriggerButton({
   buttonProps,
   dataTestId,
+  icon,
 }: {
   buttonProps: AriaButtonProps
   dataTestId?: string | undefined
+  icon: React.ReactNode
 }) {
   const ref = useRef<HTMLButtonElement>(null)
   const { buttonProps: triggerProps } = useButton(buttonProps, ref)
@@ -27,7 +29,7 @@ export function DatePickerTriggerButton({
       data-testid={dataTestId}
       type="button"
     >
-      <CalendarIcon />
+      {icon}
     </button>
   )
 }

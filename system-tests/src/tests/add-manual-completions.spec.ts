@@ -89,5 +89,5 @@ async function fillCompletionDefaults(page: Page): Promise<void> {
   await new Select(page, page.getByRole("button", { name: "Course module" })).chooseOption(
     "Default",
   )
-  await new DateField(page, "completion-date-field").setValue("2024-02-21")
+  await new DateField(page, "completion-date-field").pickValue("2024-02-21")
 }

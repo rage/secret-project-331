@@ -23,4 +23,23 @@ export class DateTimeLocalField extends PickerTemporalField {
       await this.setSegments(entries, isoDateTime)
     })
   }
+
+  /**
+   * Picks the day in the calendar and types the time into its time panel, both in the popover
+   * opened by clicking the field, then closes it and asserts the field committed the result.
+   */
+  public async pickValue(isoDateTime: string): Promise<void> {
+    const [isoDate, isoTime] = isoDateTime.split("T")
+    if (isoDate === undefined || isoTime === undefined) {
+      throw new Error(`Expected a yyyy-MM-ddTHH:mm datetime, got "${isoDateTime}".`)
+    }
+
+    await test.step(`Pick "${isoDateTime}" for ${this.testId}`, async () => {
+      const calendar = await this.openCalendar()
+      await calendar.pickDate(isoDate)
+      await calendar.getTimeSelector().setTime(isoTime)
+      await calendar.close()
+      await this.expectValue(isoDateTime)
+    })
+  }
 }

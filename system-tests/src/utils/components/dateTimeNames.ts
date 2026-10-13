@@ -95,6 +95,13 @@ export function calendarDayNamePattern(isoDate: string, locale = DEFAULT_TEMPORA
   return new RegExp(whitespaceTolerantPattern(formatted))
 }
 
+/** The locale's full name for a month (1-12), as the month chooser labels its buttons. */
+export function monthLabel(month: number, locale = DEFAULT_TEMPORAL_LOCALE): string {
+  return new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(
+    new Date(Date.UTC(2000, month - 1, 1)),
+  )
+}
+
 /** True when the locale (or an explicit override) renders times with an AM/PM part. */
 export function showsDayPeriod(locale = DEFAULT_TEMPORAL_LOCALE, hourCycle?: 12 | 24): boolean {
   const options: Intl.DateTimeFormatOptions =

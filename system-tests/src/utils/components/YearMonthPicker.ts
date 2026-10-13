@@ -3,6 +3,11 @@ import { expect, test } from "@playwright/test"
 
 import { DATE_PICKER_LABELS } from "./dateTimeNames"
 
+const YEAR_PAGE_SIZE = 12
+
+/** Bounds {@link YearMonthPicker.goToYear}'s paging, which spans ±1200 years. */
+const MAX_YEAR_PAGES = 100
+
 /**
  * Driver for the month/year chooser grid.
  *
@@ -44,6 +49,18 @@ export class YearMonthPicker {
     await test.step(`Choose ${year}`, async () => {
       await this.getYearOption(year).click()
       await expect(this.getTitle(DATE_PICKER_LABELS.chooseMonth)).toBeVisible()
+    })
+  }
+
+  /**
+   * Pages the year view until it shows `year`, then picks it.
+   *
+   * Pages are twelve years long, so a year decades away costs a few clicks rather than one per year.
+   */
+  public async goToYear(year: number): Promise<void> {
+    await test.step(`Page to and choose ${year}`, async () => {
+      await this.pageYearViewTo(year)
+      await this.chooseYear(year)
     })
   }
 
@@ -105,6 +122,21 @@ export class YearMonthPicker {
     const before = (await draftYear.textContent()) ?? ""
     await this.getButton(label).click()
     await expect(draftYear).not.toHaveText(before)
+  }
+
+  private async pageYearViewTo(year: number): Promise<void> {
+    const firstYear = this.root.getByRole("button", { name: /^\d{4}$/ }).first()
+    for (let page = 0; page < MAX_YEAR_PAGES; page += 1) {
+      const pageStart = Number(await firstYear.textContent())
+      if (year < pageStart) {
+        await this.pageYearView(DATE_PICKER_LABELS.previousYears)
+      } else if (year >= pageStart + YEAR_PAGE_SIZE) {
+        await this.pageYearView(DATE_PICKER_LABELS.nextYears)
+      } else {
+        return
+      }
+    }
+    throw new Error(`Year ${year} is more than ${MAX_YEAR_PAGES} year pages away.`)
   }
 
   private async pageYearView(label: string): Promise<void> {

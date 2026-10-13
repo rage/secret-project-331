@@ -54,7 +54,10 @@ describe("date and time fields", () => {
     ).not.toHaveLength(0)
     expect(container.querySelector('input[type="time"]')).not.toBeInTheDocument()
     expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
-    expect(screen.queryByRole("button")).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Time Time" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    )
   })
 
   test("TimeField updates the hidden value when the value prop changes", () => {

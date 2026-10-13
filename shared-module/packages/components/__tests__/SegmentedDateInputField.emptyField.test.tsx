@@ -8,10 +8,10 @@ import { DateTimeLocalField } from "../src/components/DateTimeLocalField"
 import { TimeField } from "../src/components/TimeField"
 import "../tests/test-i18n"
 
-// An empty floating field fades its segment row out behind the resting label, and for a TimeField
-// (no calendar trigger) the label is then the only route in — react-aria puts
-// `focusManager.focusFirst()` there. So the hiding has to leave the segments focusable, which rules
-// out `visibility: hidden` and `display: none`.
+// An empty floating field fades its segment row out behind the resting label. A label activation
+// that is not a pointer click (`fireEvent.click` has `detail: 0`, like assistive tech) skips the
+// picker and runs react-aria's `focusManager.focusFirst()`, so the hiding has to leave the segments
+// focusable, which rules out `visibility: hidden` and `display: none`.
 
 function EmptyTimeHarness() {
   const { control } = useForm<{ t: string }>({ defaultValues: { t: "" } })
@@ -56,7 +56,7 @@ const firstSegmentIn = (groupName: string): HTMLElement => {
 }
 
 describe("empty floating segmented field stays reachable", () => {
-  test("clicking the label focuses the first segment of an empty time field", () => {
+  test("activating the label focuses the first segment of an empty time field", () => {
     render(<EmptyTimeHarness />)
 
     fireEvent.click(screen.getByText("Time"))
@@ -64,11 +64,11 @@ describe("empty floating segmented field stays reachable", () => {
     expect(firstSegmentIn("Time")).toHaveFocus()
   })
 
-  test("typing after the label click commits a value to the hidden input", () => {
+  test("typing after the label activation commits a value to the hidden input", () => {
     render(<EmptyTimeHarness />)
     fireEvent.click(screen.getByText("Time"))
 
-    // Typed at whatever the label click focused, and at whatever each completed segment advances
+    // Typed at whatever the label activation focused, and at whatever each completed segment advances
     // to, so the whole keyboard-only route is under test rather than the segments in isolation.
     typeIntoFocusedSegment("9")
     typeIntoFocusedSegment("4")
@@ -78,7 +78,7 @@ describe("empty floating segmented field stays reachable", () => {
     expect(screen.getByTestId("time-value")).toHaveValue("21:45")
   })
 
-  test("clicking the label focuses the first segment of an empty picker field", () => {
+  test("activating the label focuses the first segment of an empty picker field", () => {
     render(<EmptyDateTimeHarness />)
 
     fireEvent.click(screen.getByText("Publish at"))

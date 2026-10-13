@@ -54,7 +54,7 @@ const addFormStyles = css`
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
-  align-items: end;
+  align-items: start;
   margin-bottom: 2rem;
 
   ${respondToOrLarger.sm} {

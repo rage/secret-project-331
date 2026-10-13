@@ -57,7 +57,7 @@ pub async fn hash_folder(root_path: &Path) -> UtilResult<Hash> {
         // accidental collisions in the hashed string.
         let serialized_metadata = format!(
             "-{}{}{}{}{:?}-",
-            directory as u8, file as u8, symlink as u8, &permissions_mode, &relative_path
+            directory as u8, file as u8, symlink as u8, permissions_mode, relative_path
         );
 
         hasher.update(serialized_metadata.as_bytes());

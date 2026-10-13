@@ -1,9 +1,10 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { subheadingCss } from "@/components/credit-registration/styles"
 import type {
   CertificateConfigurationAndRequirements,
   CertificateTextAnchor,
@@ -13,6 +14,13 @@ import MaskOverThisInSystemTests from "@/shared-module/common/components/system-
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, Checkbox, FileField, Select, TextField } from "@/shared-module/components"
+
+const sectionLabelCss = cx(
+  subheadingCss,
+  css`
+    margin-bottom: var(--space-2);
+  `,
+)
 
 interface Props {
   generatingCertificatesEnabled: boolean
@@ -174,7 +182,7 @@ const CertificateForm: React.FC<Props> = ({
       />
       <hr />
       <div>
-        <h3>{t("certificate-owner-name")}</h3>
+        <h3 className={sectionLabelCss}>{t("certificate-owner-name")}</h3>
         <TextField
           id={"ownerNamePosX"}
           name="ownerNamePosX"
@@ -213,7 +221,7 @@ const CertificateForm: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("certificate-validation-url")}</h3>
+        <h3 className={sectionLabelCss}>{t("certificate-validation-url")}</h3>
         <TextField
           id={"validateUrlPosX"}
           name="validateUrlPosX"
@@ -252,7 +260,7 @@ const CertificateForm: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("date")}</h3>
+        <h3 className={sectionLabelCss}>{t("date")}</h3>
         <TextField
           id={"datePosX"}
           name="datePosX"
@@ -301,7 +309,7 @@ const CertificateForm: React.FC<Props> = ({
             label={t("label-show-grade-in-cerfiticate")}
           />
           <div>
-            <h3>{t("grade")}</h3>
+            <h3 className={sectionLabelCss}>{t("grade")}</h3>
             <TextField
               id={"gradePosX"}
               name="gradePosX"

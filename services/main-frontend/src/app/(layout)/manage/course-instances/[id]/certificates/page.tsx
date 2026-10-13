@@ -19,7 +19,6 @@ import {
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
-import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -207,8 +206,7 @@ const CertificationsPage: React.FC = () => {
                 )}
               >
                 <h2 className={headingCss}>
-                  {module.name ? `${t("module")}: ${module.name}` : t("default-module")}{" "}
-                  <HideTextInSystemTests text={module.id} testPlaceholder="module-id" />
+                  {module.name ? `${t("module")}: ${module.name}` : t("default-module")}
                 </h2>
                 {module.id === editingConfiguration && (
                   <CertificateForm

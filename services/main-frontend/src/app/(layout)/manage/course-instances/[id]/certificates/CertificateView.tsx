@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
+import { subheadingCss } from "@/components/credit-registration/styles"
 import type { CertificateConfigurationAndRequirements } from "@/generated/api/types.generated"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
@@ -73,7 +74,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("certificate-owner-name")}</h3>
+        <h3 className={subheadingCss}>{t("certificate-owner-name")}</h3>
         <div>
           {t("position-x")}: {configuration.certificate_owner_name_x_pos}
         </div>
@@ -92,7 +93,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("certificate-validation-url")}</h3>
+        <h3 className={subheadingCss}>{t("certificate-validation-url")}</h3>
         <div>
           {t("position-x")}: {configuration.certificate_validate_url_x_pos}
         </div>
@@ -111,7 +112,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("date")}</h3>
+        <h3 className={subheadingCss}>{t("date")}</h3>
         <div>
           {t("position-x")}: {configuration.certificate_date_x_pos}
         </div>
@@ -130,7 +131,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("label-grade")}</h3>
+        <h3 className={subheadingCss}>{t("label-grade")}</h3>
         <div>
           {t("label-show-grade-in-cerfiticate")}:{" "}
           {configuration.render_certificate_grade ? t("yes") : t("no")}

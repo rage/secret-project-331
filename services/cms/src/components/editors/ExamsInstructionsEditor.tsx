@@ -4,9 +4,8 @@ import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useState } from "react"
 
 import type { ExamInstructions, ExamInstructionsUpdate } from "@/generated/api"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { Button } from "@/shared-module/components"
+import { Button, ErrorNotice } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -55,7 +54,7 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstruction
     <>
       <div className="editor__component">
         <div>
-          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+          {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
           <Button
             variant="primary"
             size="medium"

@@ -15,14 +15,13 @@ import {
 import { getExercisesWithSubmissions } from "@/generated/api/sdk.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 /* oxlint-disable i18next/no-literal-string */
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { Button, Link, useDialog } from "@/shared-module/components"
+import { Button, Link, useDialog, ErrorNotice } from "@/shared-module/components"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -342,7 +341,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </BreakFromCentered>
       <div className="editor__component">
         <div>
-          {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
+          {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>

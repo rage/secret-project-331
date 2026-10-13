@@ -10,9 +10,8 @@ import type {
   EmailTemplatePreviewRequest,
   EmailTemplateUpdate,
 } from "@/generated/api"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { Button, Infobox, TONE } from "@/shared-module/components"
+import { Button, Infobox, TONE, ErrorNotice } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -244,7 +243,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
             margin: 0 auto;
           `}
         >
-          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+          {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
 
           <UpdateEmailDetailsForm
             control={emailDetailsControl}

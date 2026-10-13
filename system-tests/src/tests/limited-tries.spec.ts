@@ -27,15 +27,13 @@ test("Limited tries work", async ({ page }) => {
     .first()
     .click()
 
-  await page.locator('[placeholder="Max\\ points"]').click()
-  // Fill [placeholder="Max\ points"]
-  await page.locator('[placeholder="Max\\ points"]').fill("8")
+  await page.getByLabel("Max points", { exact: true }).click()
+  await page.getByLabel("Max points", { exact: true }).fill("8")
 
   await page.getByText("Limit number of tries").click()
 
-  await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').click()
-  // Fill [placeholder="Max\ tries\ per\ slide"]
-  await page.locator('[placeholder="Max\\ tries\\ per\\ slide"]').fill("2")
+  await page.getByLabel("Max tries per slide", { exact: true }).click()
+  await page.getByLabel("Max tries per slide", { exact: true }).fill("2")
 
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Save", exact: true }).click()

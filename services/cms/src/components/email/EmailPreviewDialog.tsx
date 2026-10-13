@@ -10,7 +10,6 @@ import {
   previewCmsEmailTemplateMutation,
   sendCmsEmailTemplateTestMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import Spinner from "@/shared-module/common/components/Spinner"
 import {
   Dialog,
   getErrorMessage,
@@ -18,6 +17,7 @@ import {
   Radio,
   RadioGroup,
   TONE,
+  LoadingRegion,
 } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -99,7 +99,7 @@ const EmailPreviewDialog: React.FC<EmailPreviewDialogProps> = ({
           gap: 1rem;
         `}
       >
-        {previewMutation.isPending && <Spinner variant="medium" />}
+        {previewMutation.isPending && <LoadingRegion />}
         {previewMutation.isError && (
           <Infobox tone={TONE.DANGER} heading={t("email-preview-failed")}>
             {getErrorMessage(previewMutation.error)}

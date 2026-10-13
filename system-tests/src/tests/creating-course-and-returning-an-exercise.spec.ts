@@ -81,9 +81,8 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await page.click(`button:text("Exercise")`)
 
-  await page.click('[placeholder="Exercise name"]')
-  // Fill [placeholder="Exercise name"]
-  await page.fill('[placeholder="Exercise name"]', "What is system testing")
+  await page.getByLabel("Exercise name", { exact: true }).click()
+  await page.getByLabel("Exercise name", { exact: true }).fill("What is system testing")
 
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 

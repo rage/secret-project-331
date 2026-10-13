@@ -39,7 +39,7 @@ test.skip("Testing exam works", async ({ page }) => {
     const sidebarView = new Select(page, page.locator("#select-sidebar-view"))
     await sidebarView.chooseOptionByValue("block-menu")
     await page.getByRole("option", { name: "Exercise", exact: true }).click()
-    await page.getByPlaceholder("Exercise name").fill("Exercise name")
+    await page.getByLabel("Exercise name", { exact: true }).fill("Exercise name")
 
     await page.getByLabel("Edit").click()
     await page.getByRole("button", { name: "Quizzes" }).click()

@@ -66,13 +66,7 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await saveCMSPage(page)
 
-  // Triple click [placeholder="Exercise name"]
-  await page.click('[placeholder="Exercise name"]', {
-    clickCount: 3,
-  })
-
-  // Fill [placeholder="Exercise name"]
-  await page.fill('[placeholder="Exercise name"]', "New exercise!")
+  await page.getByLabel("Exercise name", { exact: true }).fill("New exercise!")
 
   await saveCMSPage(page)
 

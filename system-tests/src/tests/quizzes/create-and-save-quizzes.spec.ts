@@ -79,10 +79,9 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await page.click('[aria-label="Block: Exercise"]')
 
-    await page.click('[placeholder="Exercise name"]')
+    await page.getByLabel("Exercise name", { exact: true }).click()
 
-    // Fill [placeholder="Exercise name"]
-    await page.fill('[placeholder="Exercise name"]', "quizzes test")
+    await page.getByLabel("Exercise name", { exact: true }).fill("quizzes test")
 
     // The test will add a task later on
     await page.getByLabel("Delete").click()

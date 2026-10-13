@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { ErrorNotice } from "@/shared-module/components"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -44,7 +44,7 @@ const ResearchConsentCheckBoxEditor: React.FC<
         />
       </div>
       {(attributes.content ?? "").split(/\s+/).length < 3 && (
-        <ErrorBanner error={t("error-question-too-short")} variant="readOnly" />
+        <ErrorNotice error={t("error-question-too-short")} />
       )}
     </BlockPlaceholderWrapper>
   )

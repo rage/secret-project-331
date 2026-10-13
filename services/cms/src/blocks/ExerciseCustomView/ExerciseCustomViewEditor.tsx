@@ -3,8 +3,7 @@
 import { css } from "@emotion/css"
 
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import { Button } from "@/shared-module/components"
+import { Button, ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -34,8 +33,7 @@ const ExerciseCustomViewEditor: React.FC<
           if (exerciseType && !url) {
             return (
               <>
-                <ErrorBanner
-                  variant="readOnly"
+                <ErrorNotice
                   error={t("error-cannot-render-editor-for-exercise-service-x", {
                     slug: exerciseType,
                   })}

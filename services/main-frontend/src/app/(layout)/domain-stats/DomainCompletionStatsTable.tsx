@@ -27,31 +27,45 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
       rowKey={(domain) => domain.email_domain}
       columns={[
         { header: t("email-domain"), cell: (domain) => domain.email_domain },
-        { header: t("total-completions"), cell: (domain) => domain.total_completions },
-        { header: t("unique-users"), cell: (domain) => domain.unique_users },
+        {
+          header: t("total-completions"),
+          nowrap: false,
+          cell: (domain) => domain.total_completions,
+        },
+        { header: t("unique-users"), nowrap: false, cell: (domain) => domain.unique_users },
         {
           header: t("registered-percentage"),
+          nowrap: false,
           cell: (domain) => `${domain.registered_completion_percentage?.toFixed(2) || "-"}%`,
         },
-        { header: t("registered-completions"), cell: (domain) => domain.registered_completions },
+        {
+          header: t("registered-completions"),
+          nowrap: false,
+          cell: (domain) => domain.registered_completions,
+        },
         {
           header: t("unregistered-completions"),
+          nowrap: false,
           cell: (domain) => domain.not_registered_completions,
         },
         {
           header: t("users-with-registered"),
+          nowrap: false,
           cell: (domain) => domain.users_with_some_registered_completions,
         },
         {
           header: t("users-with-unregistered"),
+          nowrap: false,
           cell: (domain) => domain.users_with_some_unregistered_completions,
         },
         {
           header: t("registered-ects"),
+          nowrap: false,
           cell: (domain) => domain.registered_ects_credits.toFixed(1),
         },
         {
           header: t("unregistered-ects"),
+          nowrap: false,
           cell: (domain) => domain.not_registered_ects_credits.toFixed(1),
         },
         {

@@ -36,6 +36,10 @@ const NUMBER = "number"
 const SCORE = "score"
 const EMAIL = "email"
 
+const SHORT_ID_LENGTH = 8
+
+const shortId = (id: string) => id.slice(0, SHORT_ID_LENGTH)
+
 const chapterSortKey = (chapterNumber: number) => `ch${chapterNumber}`
 
 const CourseInstancePointsList: React.FC = () => {
@@ -164,10 +168,10 @@ const CourseInstancePointsList: React.FC = () => {
                     cell: ({ user }) =>
                       courseId ? (
                         <Link href={courseUserStatusSummaryRoute(courseId, user.user_id)}>
-                          {user.user_id}
+                          {shortId(user.user_id)}
                         </Link>
                       ) : (
-                        user.user_id
+                        shortId(user.user_id)
                       ),
                   },
                   {
@@ -178,6 +182,7 @@ const CourseInstancePointsList: React.FC = () => {
                   {
                     header: t("label-email"),
                     ...sortColumn(EMAIL),
+                    breakAnywhere: true,
                     cell: ({ user }) => user.email,
                   },
                   {

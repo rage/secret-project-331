@@ -33,31 +33,45 @@ const CourseCompletionStatsTable: React.FC<CourseCompletionStatsTableProps> = ({
         rowKey={(course) => course.course_id}
         columns={[
           { header: t("course"), cell: (course) => course.course_name },
-          { header: t("total-completions"), cell: (course) => course.total_completions },
-          { header: t("unique-users"), cell: (course) => course.unique_users },
+          {
+            header: t("total-completions"),
+            nowrap: false,
+            cell: (course) => course.total_completions,
+          },
+          { header: t("unique-users"), nowrap: false, cell: (course) => course.unique_users },
           {
             header: t("registered-percentage"),
+            nowrap: false,
             cell: (course) => `${course.registered_completion_percentage?.toFixed(2) || "-"}%`,
           },
-          { header: t("registered-completions"), cell: (course) => course.registered_completions },
+          {
+            header: t("registered-completions"),
+            nowrap: false,
+            cell: (course) => course.registered_completions,
+          },
           {
             header: t("unregistered-completions"),
+            nowrap: false,
             cell: (course) => course.not_registered_completions,
           },
           {
             header: t("users-with-registered"),
+            nowrap: false,
             cell: (course) => course.users_with_some_registered_completions,
           },
           {
             header: t("users-with-unregistered"),
+            nowrap: false,
             cell: (course) => course.users_with_some_unregistered_completions,
           },
           {
             header: t("registered-ects"),
+            nowrap: false,
             cell: (course) => course.registered_ects_credits.toFixed(1),
           },
           {
             header: t("unregistered-ects"),
+            nowrap: false,
             cell: (course) => course.not_registered_ects_credits.toFixed(1),
           },
         ]}

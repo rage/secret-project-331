@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { dialogFormCss, pageTitleCss } from "@/components/credit-registration/styles"
 import {
   createRegradingMutation as createNewRegradingMutationOptions,
@@ -105,6 +106,21 @@ const RegradingsPage: React.FC = () => {
     },
   )
 
+  const submitRegrading = () =>
+    void handleSubmit((data) => {
+      const lines = data.ids
+        .trim()
+        .split("\n")
+        .map((line) => line.trim())
+      newRegradingMutation.mutate({
+        body: {
+          ids: lines,
+          user_points_update_strategy: data.userPointsUpdateStrategy,
+          id_type: data.idType,
+        },
+      })
+    })()
+
   const pointsUpdateStrategyLabel = (strategy: UserPointsUpdateStrategy): string => {
     switch (strategy) {
       case "CanAddPointsAndCanRemovePoints":
@@ -134,12 +150,12 @@ const RegradingsPage: React.FC = () => {
           <>
             <Table
               caption={t("title-regradings")}
+              density={DENSITY_COMPACT}
               rows={regradings}
               rowKey={(regrading) => regrading.id}
               columns={[
                 {
                   header: t("regradings-column-created"),
-                  minWidth: "14rem",
                   nowrap: true,
                   cell: (regrading) => (
                     <Link href={manageRegradingRoute(regrading.id)}>
@@ -149,30 +165,25 @@ const RegradingsPage: React.FC = () => {
                 },
                 {
                   header: t("regradings-column-started"),
-                  minWidth: "14rem",
                   nowrap: true,
                   cell: (regrading) => timestampOrAbsent(regrading.regrading_started_at),
                 },
                 {
                   header: t("regradings-column-completed"),
-                  minWidth: "14rem",
                   nowrap: true,
                   cell: (regrading) => timestampOrAbsent(regrading.regrading_completed_at),
                 },
                 {
                   header: t("regradings-column-grading-progress"),
-                  minWidth: "6rem",
                   cell: (regrading) => regrading.total_grading_progress,
                 },
                 {
                   header: t("regradings-column-points-update-strategy"),
-                  minWidth: "10rem",
                   cell: (regrading) =>
                     pointsUpdateStrategyLabel(regrading.user_points_update_strategy),
                 },
                 {
                   header: t("regradings-column-updated"),
-                  minWidth: "14rem",
                   nowrap: true,
                   cell: (regrading) => dateToString(regrading.updated_at),
                 },
@@ -196,6 +207,14 @@ const RegradingsPage: React.FC = () => {
         open={newRegradingDialogOpen}
         onClose={() => setNewRegradingDialogOpen(false)}
         title={t("button-text-new-regrading")}
+        actions={[
+          {
+            label: t("button-text-create"),
+            variant: "primary",
+            disabled: !isValid || newRegradingMutation.isPending,
+            onPress: submitRegrading,
+          },
+        ]}
       >
         <div className={dialogFormCss}>
           <Select
@@ -251,29 +270,6 @@ const RegradingsPage: React.FC = () => {
               },
             ]}
           />
-
-          <Button
-            variant="primary"
-            size="medium"
-            disabled={!isValid || newRegradingMutation.isPending}
-            onClick={() =>
-              void handleSubmit((data) => {
-                const lines = data.ids
-                  .trim()
-                  .split("\n")
-                  .map((line) => line.trim())
-                newRegradingMutation.mutate({
-                  body: {
-                    ids: lines,
-                    user_points_update_strategy: data.userPointsUpdateStrategy,
-                    id_type: data.idType,
-                  },
-                })
-              })()
-            }
-          >
-            {t("button-text-create")}
-          </Button>
         </div>
       </Dialog>
     </div>

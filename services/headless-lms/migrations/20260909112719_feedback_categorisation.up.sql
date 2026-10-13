@@ -7,7 +7,7 @@ CREATE TABLE feedback_categories (
 );
 
 CREATE UNIQUE INDEX unique_category_name ON feedback_categories (name, deleted_at)
-WHERE deleted_at IS NOT NULL;
+WHERE deleted_at IS NULL;
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON feedback_categories FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

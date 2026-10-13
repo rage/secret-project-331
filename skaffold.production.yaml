@@ -17,6 +17,10 @@ build:
         dockerfile: Dockerfile.production.slim.dockerfile
         buildArgs:
           GIT_COMMIT: '{{default "unknown" .GITHUB_SHA}}'
+        # Set in CI for sccache; unset elsewhere, which leaves the build uncached
+        secrets:
+          - id: actions_cache_env
+            env: ACTIONS_CACHE_ENV
 
     # cms
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim

@@ -10,6 +10,9 @@ build:
             dest: /app
           - src: "**/*.sql"
             dest: /app
+          # SQLX_OFFLINE builds read query metadata from here
+          - src: "**/.sqlx/*.json"
+            dest: /app
           - src: shared-module/**/*
             dest: /app
       docker:

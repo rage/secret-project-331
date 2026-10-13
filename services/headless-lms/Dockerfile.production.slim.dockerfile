@@ -18,7 +18,15 @@ ENV CARGO_HOME=/home/user/.cargo \
 
 # compile dependencies
 COPY --chown=user --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+# Caches dependency compiles in the GitHub Actions cache when CI provides credentials, else builds uncached
+RUN --mount=type=secret,id=actions_cache_env,uid=1000 \
+  if [ -s /run/secrets/actions_cache_env ]; then \
+    . /run/secrets/actions_cache_env \
+    && export SCCACHE_GHA_ENABLED=on \
+    && if sccache --start-server; then export RUSTC_WRAPPER=sccache; fi; \
+  fi \
+  && cargo chef cook --release --recipe-path recipe.json \
+  && if [ -n "${RUSTC_WRAPPER:-}" ]; then sccache --show-stats; fi
 
 COPY --chown=user . .
 # Compile the program

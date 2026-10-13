@@ -58,6 +58,7 @@ RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \
   cargo install cargo-watch && \
   cargo install systemfd && \
   cargo install cargo-chef --locked && \
+  cargo install sccache --locked && \
   rustup component add clippy
 
 COPY --from=icu4x-builder /icu4x.postcard /icu4x.postcard
@@ -72,32 +73,17 @@ RUN useradd -ms /usr/sbin/nologin user
 ENV CARGO_HOME=/home/user/.cargo \
   PATH=/home/user/.cargo/bin:$PATH
 
-# Cache Rust dependencies using cargo chef
-FROM rust-base AS chef-planner
+# Downloads only: prebuilt dependencies go stale with the next Cargo.lock change, and service builds cook anyway
+FROM rust-base AS dependency-fetcher
 
-COPY . /app/
-RUN chown -R user:user /app
-
-USER user
-
-WORKDIR /app
-RUN cargo chef prepare --recipe-path recipe.json
-
-FROM rust-base AS chef-builder
-
-COPY --from=chef-planner --chown=user:user /app/recipe.json recipe.json
-RUN chown -R user:user /app
+COPY --chown=user:user . /app/
 
 USER user
 
-# Cache both debug and release dependencies
-RUN cargo chef cook --recipe-path recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo fetch --locked
 
-# Create final stage with cached dependencies
 FROM rust-base
 
-# Copy the cached dependencies
-COPY --from=chef-builder --chown=user:user /home/user/.cargo /home/user/.cargo
+COPY --from=dependency-fetcher --chown=user:user /home/user/.cargo /home/user/.cargo
 
 USER root

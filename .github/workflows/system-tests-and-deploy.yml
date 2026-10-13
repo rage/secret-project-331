@@ -135,6 +135,16 @@ jobs:
         run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(minikube config defaults kubernetes-version | head -n 1 | tr -d '* ')"
         timeout-minutes: 10
 
+      # Only actions get the cache credentials; skaffold.production.yaml passes them to sccache in the headless-lms build
+      - name: Expose the GitHub Actions cache to Docker builds
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            if (process.env.ACTIONS_RUNTIME_TOKEN) core.setSecret(process.env.ACTIONS_RUNTIME_TOKEN)
+            const names = ["ACTIONS_CACHE_URL", "ACTIONS_RESULTS_URL", "ACTIONS_RUNTIME_TOKEN", "ACTIONS_CACHE_SERVICE_V2"]
+            const lines = names.filter((name) => process.env[name]).map((name) => `export ${name}='${process.env[name]}'`)
+            core.exportVariable("ACTIONS_CACHE_ENV", lines.join("\n"))
+
       - name: Build
         id: build
         run: bin/skaffold-build-test-env-and-serialize-output

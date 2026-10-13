@@ -5,6 +5,8 @@ import { Select } from "@/utils/components/Select"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
+// Zoned timestamps join their parts with word joiners and carry the browser's UTC offset.
+const CLOSING_STATUS_OPEN_UNTIL = /Open until 2099-\u2060?06-\u2060?06\s06:06:00\s\(UTC[+-]?\d*\)/
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -65,7 +67,7 @@ test.describe("Course auditing", () => {
       .setChecked(true)
     await new DateTimeLocalField(page, "closed-at-field").setValue("2099-06-06T06:06")
     await expect(auditingCourseCard.getByTestId("course-closing-status")).toContainText(
-      "Open until 2099-06-06 06:06",
+      CLOSING_STATUS_OPEN_UNTIL,
     )
 
     await auditingCourseCard
@@ -148,7 +150,7 @@ test.describe("Course auditing", () => {
       auditingCourseCard
         .getByTestId("content-display-box")
         .filter({ hasText: "Closing time" })
-        .getByText("Open until 2099-06-06 06:06"),
+        .getByText(CLOSING_STATUS_OPEN_UNTIL),
     ).toBeVisible()
     await expect(
       auditingCourseCard

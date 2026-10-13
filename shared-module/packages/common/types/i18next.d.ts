@@ -5,7 +5,7 @@ import type sharedModule from "../src/locales/en/shared-module.json"
 declare module "i18next" {
   interface CustomTypeOptions {
     defaultNS: "shared-module"
-    fallbackNS: ["shared-module", "errors"]
+    fallbackNS: "shared-module"
     resources: {
       "shared-module": typeof sharedModule
       errors: typeof errors

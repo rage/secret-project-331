@@ -16,6 +16,9 @@ import {
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import CourseClosingFields from "@/components/course-closing/CourseClosingFields"
+import CourseClosingStatus from "@/components/course-closing/CourseClosingStatus"
+import { useAllClosingSuccessorCandidates } from "@/components/course-closing/useClosingSuccessorCandidates"
 import {
   getCoursesForAuditingQueryKey,
   updateCourseAuditingDataMutation,
@@ -49,7 +52,6 @@ import {
 import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
 import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
-import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
 
 const linkStyles = css`
@@ -103,6 +105,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const { t } = useTranslation()
 
   const [editing, setEditing] = useState<boolean>(false)
+  const closingCandidates = useAllClosingSuccessorCandidates(
+    editing || Boolean(courseAuditingData.closed_course_successor_id),
+  )
+  const currentLanguageCode =
+    closingCandidates.candidates.find((candidate) => candidate.id === courseAuditingData.id)
+      ?.languageCode ?? ""
+  const closingSuccessor = closingCandidates.candidates.find(
+    (candidate) => candidate.id === courseAuditingData.closed_course_successor_id,
+  )
   const queryClient = useQueryClient()
 
   const methods = useForm<EditCourseAuditingData>({
@@ -538,7 +549,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
               name={"is_joinable_by_code_only"}
             />
 
-            <ClosedSectionFields />
+            <CourseClosingFields
+              candidates={closingCandidates.candidates}
+              isLoadingCandidates={closingCandidates.isLoading}
+              currentCourseId={courseAuditingData.id}
+              currentOrganizationId={courseAuditingData.organization_id}
+              currentLanguageCode={currentLanguageCode}
+              groupByOrganization
+            />
 
             <div
               className={css`
@@ -662,22 +680,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
             >
               <div className={contentRowStyles}>
                 <ContentDisplayBox
-                  label={t("closed-at")}
+                  label={t("course-closing-time-label")}
                   content={
                     courseAuditingData.closed_at && (
-                      <TimeComponent date={parseISO(courseAuditingData.closed_at)} />
+                      <CourseClosingStatus closedAt={courseAuditingData.closed_at} />
                     )
                   }
                   isVisible={showClosedAt}
                 />
                 <ContentDisplayBox
-                  label={t("closed-course-successor-id")}
-                  content={courseAuditingData.closed_course_successor_id}
+                  label={t("course-closing-successor-label")}
+                  content={
+                    courseAuditingData.closed_course_successor_id && (
+                      <Link
+                        href={manageCourseByIdRoute(courseAuditingData.closed_course_successor_id)}
+                      >
+                        {closingSuccessor?.name ?? courseAuditingData.closed_course_successor_id}
+                      </Link>
+                    )
+                  }
                   isVisible={Boolean(courseAuditingData.closed_at) && showClosedCourseSuccessorId}
                 />
               </div>
               <ContentDisplayBox
-                label={t("closed-additional-message")}
+                label={t("course-closing-note-label")}
                 content={courseAuditingData.closed_additional_message}
                 isVisible={Boolean(courseAuditingData.closed_at) && showAdditionalMessage}
               />

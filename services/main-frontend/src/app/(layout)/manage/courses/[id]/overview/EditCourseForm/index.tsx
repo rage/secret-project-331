@@ -6,6 +6,8 @@ import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import CourseClosingFields from "@/components/course-closing/CourseClosingFields"
+import { useOrganizationClosingSuccessorCandidates } from "@/components/course-closing/useClosingSuccessorCandidates"
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -15,7 +17,6 @@ import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/t
 import { Checkbox, Dialog, TextArea, TextField } from "@/shared-module/components"
 
 import AiPolicyFields from "./AiPolicyFields"
-import ClosedSectionFields from "./ClosedSectionFields"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -72,6 +73,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   }, [course, reset])
 
   const draftStatus = watch("is_draft")
+  const closingCandidates = useOrganizationClosingSuccessorCandidates(course.organization_id, open)
 
   const updateCourseMutation = useToastMutation(
     async (data: EditCourseFormValues) => {
@@ -217,7 +219,13 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
 
           <AiPolicyFields />
 
-          <ClosedSectionFields />
+          <CourseClosingFields
+            candidates={closingCandidates.candidates}
+            isLoadingCandidates={closingCandidates.isLoading}
+            currentCourseId={course.id}
+            currentOrganizationId={course.organization_id}
+            currentLanguageCode={course.language_code}
+          />
         </div>
       </Dialog>
     </FormProvider>

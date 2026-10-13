@@ -8,12 +8,17 @@ import { useTranslation } from "react-i18next"
 import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { useStatusCronJobs } from "@/hooks/useStatusCronJobs"
 import { baseTheme } from "@/shared-module/common/styles"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult, Table } from "@/shared-module/components"
 
 const iconRowCss = css`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+`
+
+const nowrapCss = css`
+  white-space: nowrap;
 `
 
 const StatusCronJobs: React.FC = () => {
@@ -50,7 +55,11 @@ const StatusCronJobs: React.FC = () => {
                   {cronJob.last_schedule_time && (
                     <CheckCircle size={16} color={baseTheme.colors.green[600]} />
                   )}
-                  <span>{cronJob.last_schedule_time || t("status-never")}</span>
+                  <span className={nowrapCss}>
+                    {cronJob.last_schedule_time
+                      ? dateToString(cronJob.last_schedule_time)
+                      : t("status-never")}
+                  </span>
                 </div>
               ),
             },

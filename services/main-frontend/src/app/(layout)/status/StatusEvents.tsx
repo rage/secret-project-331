@@ -9,12 +9,17 @@ import { useTranslation } from "react-i18next"
 import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { useStatusEvents } from "@/hooks/useStatusEvents"
 import { baseTheme } from "@/shared-module/common/styles"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult, Select, Table } from "@/shared-module/components"
 
 const FILTER_ALL = "all" as const
 const FILTER_ERROR = "error" as const
 const FILTER_WARNING = "warning" as const
 const FILTER_NORMAL = "normal" as const
+
+const nowrapCss = css`
+  white-space: nowrap;
+`
 
 const StatusEvents: React.FC = () => {
   const { t } = useTranslation()
@@ -144,7 +149,14 @@ const StatusEvents: React.FC = () => {
               { header: t("status-count"), cell: (event) => event.count || 0 },
               {
                 header: t("status-last-timestamp"),
-                cell: (event) => event.last_timestamp || event.first_timestamp || "-",
+                cell: (event) => {
+                  const timestamp = event.last_timestamp || event.first_timestamp
+                  return timestamp ? (
+                    <span className={nowrapCss}>{dateToString(timestamp)}</span>
+                  ) : (
+                    "-"
+                  )
+                },
               },
             ]}
           />

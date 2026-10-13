@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
@@ -84,9 +85,13 @@ const StyledPre = styled.pre<{ fullWidth: boolean }>`
 `
 
 const GridContainer = styled.div`
-  padding: 2rem;
+  padding: 2rem 0;
   max-width: 1800px;
   margin: 0 auto;
+
+  ${respondToOrLarger.md} {
+    padding: 2rem;
+  }
 
   display: grid;
   gap: 0;
@@ -416,7 +421,9 @@ const IframeViewPlayground: React.FC = () => {
 
   return (
     <>
-      <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
+      <h1 id="heading-playground-exercise-iframe" className={pageTitleCss}>
+        {t("title-playground-exercise-iframe")}
+      </h1>
       <br />
 
       <BreakFromCentered sidebar={false}>
@@ -481,8 +488,10 @@ const IframeViewPlayground: React.FC = () => {
                 margin-bottom: 1rem;
                 textarea {
                   width: 100%;
-                  max-width: 50vw;
                   height: 700px;
+                  ${respondToOrLarger.xl} {
+                    max-width: 50vw;
+                  }
                   font-family: ${monospaceFont} !important;
                   resize: vertical;
                   font-size: 13px !important;
@@ -811,6 +820,7 @@ const IframeViewPlayground: React.FC = () => {
         <div
           className={css`
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             h3 {
               margin-right: 0.5rem;

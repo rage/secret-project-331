@@ -15,6 +15,7 @@ import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/t
 import { zEmailTemplateType } from "@/generated/api/zod.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { ErrorNotice, Link, LoadingRegion, Table } from "@/shared-module/components"
 
@@ -29,11 +30,6 @@ interface GroupedTemplates {
 }
 
 const TEMPLATE_TYPES = zEmailTemplateType.options
-
-const formatDate = (date: Date | string): string => {
-  const d = typeof date === "string" ? new Date(date) : date
-  return d.toLocaleDateString()
-}
 
 const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
@@ -249,7 +245,7 @@ const EmailTemplatesList: React.FC = () => {
             },
             {
               header: t("email-template-last-updated"),
-              cell: ({ template }) => formatDate(template.updated_at),
+              cell: ({ template }) => dateToString(template.updated_at),
             },
             {
               header: <VisuallyHidden>{t("label-actions")}</VisuallyHidden>,

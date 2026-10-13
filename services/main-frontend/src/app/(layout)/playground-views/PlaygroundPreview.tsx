@@ -332,6 +332,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
           <div
             className={css`
               display: flex;
+              flex-wrap: wrap;
               align-items: center;
               h3 {
                 margin-right: 0.5rem;

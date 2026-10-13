@@ -56,14 +56,14 @@ const EditUserPopup: React.FC<EditUserPopupProps> = ({
       title={t("edit-user-role")}
       actions={[
         {
-          label: t("save"),
-          onClick: handleSave,
-          variant: "primary",
-        },
-        {
           label: t("button-text-cancel"),
           onClick: () => setShow(false),
           variant: "secondary",
+        },
+        {
+          label: t("save"),
+          onClick: handleSave,
+          variant: "primary",
         },
       ]}
     >

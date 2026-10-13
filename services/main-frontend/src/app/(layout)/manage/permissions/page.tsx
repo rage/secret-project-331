@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,21 +7,13 @@ import { pageTitleCss } from "@/components/credit-registration/styles"
 import { PermissionPage } from "@/components/PermissionPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const GlobalPermissions: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("global-permissions"))
 
   return (
-    <div
-      className={css`
-        margin-top: 40px;
-        ${respondToOrLarger.sm} {
-          margin-top: 80px;
-        }
-      `}
-    >
+    <div>
       <h1 className={pageTitleCss}>{t("global-permissions")}</h1>
       <PermissionPage
         domain={{

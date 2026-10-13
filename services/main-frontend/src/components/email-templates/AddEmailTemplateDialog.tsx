@@ -93,7 +93,7 @@ const AddEmailTemplateDialog: React.FC<AddEmailTemplateDialogProps> = ({ templat
         onClose={close}
         title={t("title-add-email-template")}
         actions={[
-          { label: t("button-text-cancel"), variant: "tertiary", onPress: close },
+          { label: t("button-text-cancel"), variant: "secondary", onPress: close },
           {
             label: t("button-text-create"),
             variant: "primary",

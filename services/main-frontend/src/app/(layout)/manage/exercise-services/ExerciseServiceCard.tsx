@@ -307,7 +307,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
         <div
           className={css`
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
+            gap: var(--space-2) var(--space-4);
             padding-top: 1rem;
           `}
         >

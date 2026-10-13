@@ -22,7 +22,7 @@ import StageTimelineTab from "./StageTimelineTab"
 const timelineShellStyles = css`
   position: relative;
   margin-top: 0.5rem;
-  padding-top: 2.3rem;
+  padding-top: 2.9rem;
   overflow-x: auto;
 `
 
@@ -71,12 +71,11 @@ const currentStageLabelStyles = css`
 
 const currentStageEditButtonStyles = css`
   background: transparent;
-  border: none;
-  padding: 0;
+  border: 1px solid ${baseTheme.colors.gray[300]};
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.1rem 0.45rem;
+  padding: 0.1rem 0.6rem;
   border-radius: 4px;
   color: ${baseTheme.colors.gray[700]};
   cursor: pointer;
@@ -85,8 +84,11 @@ const currentStageEditButtonStyles = css`
   &:focus-visible {
     background: ${baseTheme.colors.gray[100]};
     color: ${baseTheme.colors.gray[800]};
-    text-decoration: underline;
-    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.gray[700]};
+    outline-offset: 1px;
   }
 `
 

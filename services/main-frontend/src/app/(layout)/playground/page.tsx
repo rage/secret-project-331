@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   deletePlaygroundExampleMutation as deletePlaygroundExampleMutationOptions,
   getPlaygroundExamplesOptions,
@@ -190,7 +191,7 @@ const Home: React.FC = () => {
   return (
     <>
       <div>
-        <h2>{t("title-playground-exercise-iframe")}</h2>
+        <h2 className={pageTitleCss}>{t("title-playground-exercise-iframe")}</h2>
         <QueryResult query={getPlaygroundExamples}>
           {(data) => (
             <div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { UseMutationResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form"
 import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   getOrganizationOptions,
   getRolesOptions,
@@ -61,6 +62,24 @@ const fieldLabelCss = css`
 
 const fieldValueCss = css`
   font-size: 14px;
+`
+
+const flushContainerCss = css`
+  ${respondToOrLarger.lg} {
+    max-width: none;
+    margin: 0;
+    padding: 24px 0;
+  }
+`
+
+const permissionsRowColumnsCss = css`
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr auto;
+  column-gap: 4px;
+
+  ${respondToOrLarger.lg} {
+    grid-template-columns: 1fr 2fr 2fr 1fr;
+  }
 `
 
 const hiddenCss = css`
@@ -334,30 +353,17 @@ const content = (
       }
     `}
   >
-    <div
-      className={css`
-        font-family: ${primaryFont};
-        color: #1a2333;
-        font-size: 24px;
-        ${respondToOrLarger.lg} {
-          padding: 40px 40px 0 40px;
-        }
-      `}
-    >
-      {t("link-manage-organization-with-name", { name: organization.name ?? "" })}
-    </div>
+    <h1 className={pageTitleCss}>
+      {t("link-manage-organization-with-name", { name: organization.name || organization.slug })}
+    </h1>
 
     <div
       className={css`
         display: flex;
         gap: 24px;
-        margin: 20px 0 0 0px;
+        margin: 20px 0 0 0;
         border-bottom: 2px solid rgba(26, 35, 51, 0.2);
         font-family: ${primaryFont};
-
-        ${respondToOrLarger.lg} {
-          margin: 40px 0 0 40px;
-        }
       `}
     >
       <div
@@ -383,13 +389,9 @@ const content = (
           className={css`
             padding-bottom: 8px;
             font-size: 16px;
-            margin-right: 0.5rem;
+            margin-right: 1.5rem;
             border-bottom: ${activeTab === GENERAL_TAB ? "2px solid #1A2333" : "none"};
             cursor: pointer;
-
-            ${respondToOrLarger.lg} {
-              margin-right: 2rem;
-            }
           `}
         >
           {t("general")}
@@ -455,7 +457,7 @@ const designContent = (
   deleteMutation: UseMutationResult<unknown, Error, Options<SoftDeleteOrganizationData>, unknown>,
 ) => {
   return (
-    <div className={containerBase}>
+    <div className={cx(containerBase, flushContainerCss)}>
       <div
         className={css`
           margin-bottom: 32px;
@@ -624,7 +626,7 @@ const permissionContent = (
   handleDelete: (user: NamedRoleUser) => void,
   handleEdit: (user: NamedRoleUser) => void,
 ) => (
-  <div className={containerBase}>
+  <div className={cx(containerBase, flushContainerCss)}>
     <div
       className={css`
         display: flex;
@@ -668,13 +670,14 @@ const permissionContent = (
         `}
       >
         <div
-          className={css`
-            display: grid;
-            grid-template-columns: 1fr 2fr 2fr 1fr;
-            font-size: 14px;
-            margin-bottom: 16px;
-            opacity: 0.8;
-          `}
+          className={cx(
+            permissionsRowColumnsCss,
+            css`
+              font-size: 14px;
+              margin-bottom: 16px;
+              opacity: 0.8;
+            `,
+          )}
         >
           <div>{t("text-field-label-name")}</div>
           <div>{t("label-email")}</div>
@@ -692,17 +695,14 @@ const permissionContent = (
         {users.map((user, index) => (
           <div key={index}>
             <div
-              className={css`
-                display: grid;
-                grid-template-columns: 1fr 2fr 2fr auto;
-                font-size: 14px;
-                margin-bottom: 16px;
-                opacity: 0.8;
-                column-gap: 4px;
-                ${respondToOrLarger.lg} {
-                  grid-template-columns: 1fr 2fr 2fr 1fr;
-                }
-              `}
+              className={cx(
+                permissionsRowColumnsCss,
+                css`
+                  font-size: 14px;
+                  margin-bottom: 16px;
+                  opacity: 0.8;
+                `,
+              )}
             >
               <div>{user.name}</div>
               <div>{user.email}</div>

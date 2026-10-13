@@ -2,12 +2,13 @@
 
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { XmarkCircle } from "@vectopus/atlas-icons-react"
+import { Trash } from "@vectopus/atlas-icons-react"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   addCoursePlanMemberMutation,
   getCoursePlanMembersOptions,
@@ -42,27 +43,18 @@ function formatPlanMemberDisplayName(
 }
 
 const pageStyles = css`
-  max-width: 900px;
-  margin: 2.5rem auto;
-  padding: 0 1.25rem 3rem;
-
-  ${respondToOrLarger.md} {
-    padding: 0 1.75rem 3rem;
-  }
+  padding-bottom: 3rem;
 `
 
 const titleStyles = css`
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: ${baseTheme.colors.gray[900]};
-  margin: 0 0 1.5rem 0;
+  margin-bottom: 1.5rem;
 `
 
 const addFormStyles = css`
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
-  align-items: center;
+  align-items: end;
   margin-bottom: 2rem;
 
   ${respondToOrLarger.sm} {
@@ -169,7 +161,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
 
   return (
     <div className={pageStyles}>
-      <h1 className={titleStyles}>{t("course-plan-permissions-title")}</h1>
+      <h1 className={cx(pageTitleCss, titleStyles)}>{t("course-plan-permissions-title")}</h1>
 
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {mutationError !== null &&
@@ -192,7 +184,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
         <Button
           type="submit"
           variant="primary"
-          size="medium"
+          size="large"
           disabled={addMutation.isPending || email.trim().length === 0}
           isLoading={addMutation.isPending}
         >
@@ -228,7 +220,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
                       })
                     }
                   >
-                    <XmarkCircle size={18} />
+                    <Trash size={18} />
                   </Button>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   useCompletionStatsByEmailDomainQuery,
   useCourseCompletionStatsForEmailDomainQuery,
@@ -53,7 +54,7 @@ const DomainStatsPage = () => {
         }
       `}
     >
-      <h1>{t("domain-completion-statistics")}</h1>
+      <h1 className={pageTitleCss}>{t("domain-completion-statistics")}</h1>
 
       <div
         className={css`

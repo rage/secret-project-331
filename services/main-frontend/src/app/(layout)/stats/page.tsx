@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import type { TimeGranularity } from "@/generated/api/types.generated"
 import {
   useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery,
@@ -59,7 +60,7 @@ const StatsPage = () => {
         }
       `}
     >
-      <h1>{t("link-stats")}</h1>
+      <h1 className={pageTitleCss}>{t("link-stats")}</h1>
       <Select
         id="granularity-select"
         className="granularity-select"

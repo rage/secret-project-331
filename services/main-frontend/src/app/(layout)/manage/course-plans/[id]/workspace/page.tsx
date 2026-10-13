@@ -20,6 +20,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Link, QueryResult, useDialog } from "@/shared-module/components"
 
@@ -590,11 +591,7 @@ function CoursePlanWorkspacePage() {
 
               const lastEditedText = plan.updated_at
                 ? t("course-plans-last-edited", {
-                    time: new Date(plan.updated_at).toLocaleDateString(undefined, {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    }),
+                    time: dateToString(plan.updated_at),
                   })
                 : null
 

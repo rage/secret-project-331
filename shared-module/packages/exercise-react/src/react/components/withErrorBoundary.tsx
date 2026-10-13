@@ -86,7 +86,8 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
 
       if (error) {
         return (
-          <Translation>
+          // oxlint-disable-next-line i18next/no-literal-string
+          <Translation ns="errors">
             {(t) => (
               <div className={bannerClass} role="alert">
                 <div>

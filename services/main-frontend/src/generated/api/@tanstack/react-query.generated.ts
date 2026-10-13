@@ -60,6 +60,7 @@ import {
   createEmailTemplate,
   createExerciseRepository,
   createExerciseService,
+  createExternalCourse,
   createOrganization,
   createOrganizationExam,
   createPage,
@@ -82,6 +83,7 @@ import {
   deleteEmailTemplate,
   deleteExerciseRepository,
   deleteExerciseService,
+  deleteExternalCourse,
   deleteGlossaryTerm,
   deleteOauthAuthorizedClient,
   deleteOrganizationImage,
@@ -235,6 +237,7 @@ import {
   getExerciseSlideSubmissionInfo,
   getExerciseSubmissions,
   getExerciseSubmissionsForUser,
+  getExternalCourses,
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
@@ -394,6 +397,7 @@ import {
   updateCourseReference,
   updateExerciseRepository,
   updateExerciseService,
+  updateExternalCourse,
   updateGeneratedCertificate,
   updateGlossaryTerm,
   updateMetadata,
@@ -494,6 +498,8 @@ import type {
   CreateExerciseRepositoryResponse,
   CreateExerciseServiceData,
   CreateExerciseServiceResponse,
+  CreateExternalCourseData,
+  CreateExternalCourseResponse,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreatePageAudioFileData,
@@ -528,6 +534,8 @@ import type {
   DeleteExerciseRepositoryResponse,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponse,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
   DeleteOauthAuthorizedClientData,
   DeleteOauthAuthorizedClientResponse,
@@ -820,6 +828,8 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponse,
   GetExerciseSubmissionsResponse,
+  GetExternalCoursesData,
+  GetExternalCoursesResponse,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponse,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
@@ -1113,6 +1123,8 @@ import type {
   UpdateExerciseRepositoryResponse,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponse,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponse,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponse,
   UpdateGlossaryTermData,
@@ -9152,6 +9164,108 @@ export const getExerciseSubmissionsForUserOptions = (
       }),
     queryKey: getExerciseSubmissionsForUserQueryKey(options),
   })
+
+export const getExternalCoursesQueryKey = (options?: Options<GetExternalCoursesData>) =>
+  createQueryKey("getExternalCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
+ */
+export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesData>) =>
+  queryOptions<
+    GetExternalCoursesResponse,
+    DefaultError,
+    GetExternalCoursesResponse,
+    ReturnType<typeof getExternalCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getExternalCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getExternalCoursesQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
+ */
+export const deleteExternalCourseMutation = (
+  options?: Partial<Options<DeleteExternalCourseData>>,
+): UseMutationOptions<
+  DeleteExternalCourseResponse,
+  DefaultError,
+  Options<DeleteExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteExternalCourseResponse,
+    DefaultError,
+    Options<DeleteExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
+ */
+export const createExternalCourseMutation = (
+  options?: Partial<Options<CreateExternalCourseData>>,
+): UseMutationOptions<
+  CreateExternalCourseResponse,
+  DefaultError,
+  Options<CreateExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateExternalCourseResponse,
+    DefaultError,
+    Options<CreateExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
+ */
+export const updateExternalCourseMutation = (
+  options?: Partial<Options<UpdateExternalCourseData>>,
+): UseMutationOptions<
+  UpdateExternalCourseResponse,
+  DefaultError,
+  Options<UpdateExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateExternalCourseResponse,
+    DefaultError,
+    Options<UpdateExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

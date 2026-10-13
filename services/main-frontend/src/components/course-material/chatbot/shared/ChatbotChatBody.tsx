@@ -1,10 +1,9 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
-import type { Control } from "react-hook-form"
-import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -15,19 +14,20 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import SendIcon from "@/imgs/send.svg"
 import StopIcon from "@/imgs/stop.svg"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, LoadingRegion, TextArea } from "@/shared-module/components"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
+import { useChatbotContext } from "./ChatbotContext"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import { hasStreamedAssistantContent } from "./chatbotReducer"
 import ChatbotStatusRow from "./ChatbotStatusRow"
 import type { ClosedClientToolAnswer } from "./clientToolRegistry"
 import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
 import ErrorDisplay from "./ErrorDisplay"
-import type { ChatbotComposerValues, ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
-import { MESSAGE_FIELD } from "./hooks/useChatbotStateAndData"
 import MessageBubble from "./MessageBubble"
 import type { MessageClassification } from "./messageClassification"
 import {
@@ -205,17 +205,21 @@ const composerShellStyle = css`
   gap: 0.5rem;
   margin: 0 1rem;
   padding: 0.25rem 0.25rem 0.25rem 0.5rem;
-  border: 1.5px solid var(--field-border-color);
+  /* gray[400] is the palest step still >= 3:1 against the field background (WCAG 1.4.11);
+     gray[300] measures 2.76:1. Matches the border the shared field picks for the same reason. */
+  border: 1.5px solid ${baseTheme.colors.gray[400]};
   border-radius: 14px;
-  background-color: var(--field-bg);
+  background-color: ${baseTheme.colors.clear[50]};
   box-shadow: 0 1px 2px ${baseTheme.colors.gray[700]}14;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 
+  /* Mirrors the tokens shared fields focus with (--field-border-color-focus, --focus-ring-color);
+     restated here because packages/common has no token export the composer can import. */
   &:focus-within {
-    border-color: var(--field-border-color-focus);
-    box-shadow: 0 0 0 4px var(--focus-ring-color);
+    border-color: ${baseTheme.colors.green[500]};
+    box-shadow: 0 0 0 4px ${baseTheme.colors.green[600]}99;
   }
 `
 
@@ -224,22 +228,18 @@ const composerFieldStyle = css`
   min-width: 0;
   margin-bottom: 0;
 
-  /* Matches [data-field-control][data-floated] specificity from the shared field's own
-     textarea styles so this wins regardless of stylesheet insertion order; the composer's
-     label is hidden, so the floated/rest padding split does not apply here. */
-  & [data-field-control] textarea,
-  & [data-field-control][data-floated="true"] textarea {
-    min-height: 0;
+  /* Reaches into TextAreaField's own label textarea rules, which it renders and styles at the
+     same specificity; this wins only because cx puts the consumer class last. */
+  label textarea {
     padding: 0.6rem 0.25rem 0.4rem 0.4rem;
     border: none;
-    box-shadow: none;
     background: transparent;
     resize: none;
   }
 
   /* The shell already shows focus for the whole composer. */
-  & [data-field-control] textarea:focus,
-  & [data-field-control] textarea:focus-visible {
+  label textarea:focus,
+  label textarea:focus-visible {
     box-shadow: none;
   }
 `
@@ -381,13 +381,15 @@ interface ChatbotConversationViewProps {
   hasStreamedAssistantContent: boolean
   suggestedMessages: { id: string; message: string }[]
   isSuggestionsLoading: boolean
-  onPickSuggestion: (message: string) => void
+  onPickSuggestion: UseMutationResult<void, unknown, string, unknown>
   scrollContainerRef: React.RefObject<HTMLUListElement | null>
   onScroll: () => void
   error: unknown
-  control: Control<ChatbotComposerValues>
-  onSubmit: () => Promise<void>
+  newMessage: string
+  setNewMessage: (message: string) => void
+  onSubmit: UseMutationResult<void, unknown, string, unknown>
   onStop: () => void
+  canSubmit: boolean
   composerRef: React.RefObject<HTMLTextAreaElement | null>
   onAutoResized: () => void
 }
@@ -405,16 +407,15 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   scrollContainerRef,
   onScroll,
   error,
-  control,
+  newMessage,
+  setNewMessage,
   onSubmit,
   onStop,
+  canSubmit,
   composerRef,
   onAutoResized,
 }) => {
   const { t } = useTranslation()
-
-  const message = useWatch({ control, name: MESSAGE_FIELD })
-  const canSubmit = Boolean(message && message.trim().length > 0 && !isTurnInFlight)
 
   const isQuestionWaiting = rows.some((row) => row.kind === "clientToolCall" && row.call.isOpen)
 
@@ -453,26 +454,23 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
                 key={m.id}
                 isLoading={isSuggestionsLoading}
                 message={m.message}
-                handleClick={() => onPickSuggestion(m.message)}
+                handleClick={() => onPickSuggestion.mutate(m.message)}
               />
             ))}
         </li>
       </ul>
       {error !== null && error !== undefined ? <ErrorDisplay error={error} /> : null}
       <div className={composerShellStyle}>
-        <TextArea
-          control={control}
-          name={MESSAGE_FIELD}
-          label={t("label-message")}
-          isLabelHidden
-          placeholder={t("label-message")}
-          inputRef={composerRef}
+        <TextAreaField
+          ref={composerRef}
           className={composerFieldStyle}
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault()
               if (canSubmit) {
-                onSubmit()
+                onSubmit.mutate(newMessage)
               }
             }
           }}
@@ -481,6 +479,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
           autoResize={true}
           onAutoResized={onAutoResized}
           autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
+          placeholder={t("label-message")}
         />
         {/* One button across both states, so focus and tab order survive a turn starting or
           ending. */}
@@ -492,7 +491,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
             if (isTurnInFlight) {
               onStop()
             } else {
-              onSubmit()
+              onSubmit.mutate(newMessage)
             }
           }}
         >
@@ -504,22 +503,25 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   )
 }
 
-const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
-  currentConversationInfo,
-  newConversationMutation,
-  control,
-  submitMessage,
-  error,
-  messageState,
-  chatbotMessageAnnouncement,
-  newMessageMutation,
-  toolResponseMutation,
-  isTurnInFlight,
-  stopTurn,
-}) => {
+const ChatbotChatBody: React.FC = () => {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const { t } = useTranslation()
+
+  const {
+    currentConversationInfo,
+    newConversationMutation,
+    messageState,
+    toolResponseMutation,
+    newMessage,
+    isTurnInFlight,
+    error,
+    setNewMessage,
+    stopTurn,
+    chatbotMessageAnnouncement,
+    handlePickSuggestionMutation,
+    handleSubmitMutation,
+  } = useChatbotContext()
 
   const citations = useMemo(() => {
     const citationsMap = new Map<string, ChatbotConversationMessageCitation[]>()
@@ -647,12 +649,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     scrollToBottomIfFollowing()
   }, [scrollToBottomIfFollowing, classifiedFetched, messageState.messages])
 
-  const handlePickSuggestion = useCallback(
-    (message: string) => {
-      newMessageMutation.mutate(message)
-    },
-    [newMessageMutation],
-  )
+  const canSubmit = Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight)
 
   return (
     <>
@@ -662,8 +659,10 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {currentConversationInfo.isLoading ? (
-        <LoadingRegion />
+      {/* The previous conversation stays loaded while a new one is created; hide it so nothing
+          is sent into it. */}
+      {currentConversationInfo.isLoading || newConversationMutation.isPending ? (
+        <Spinner variant="medium" />
       ) : currentConversationInfo.isError ? (
         <div className={errorWrapperStyle}>
           <ErrorBanner
@@ -705,13 +704,15 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           hasStreamedAssistantContent={hasStreamedAssistantContent(messageState.messages)}
           suggestedMessages={currentConversationInfo.data.suggested_messages ?? []}
           isSuggestionsLoading={currentConversationInfo.isRefetching}
-          onPickSuggestion={handlePickSuggestion}
+          onPickSuggestion={handlePickSuggestionMutation}
           scrollContainerRef={scrollContainerRef}
           onScroll={handleScroll}
           error={error}
-          control={control}
-          onSubmit={submitMessage}
+          newMessage={newMessage}
+          setNewMessage={setNewMessage}
+          onSubmit={handleSubmitMutation}
           onStop={stopTurn}
+          canSubmit={canSubmit}
           composerRef={composerRef}
           onAutoResized={scrollToBottomIfFollowing}
         />

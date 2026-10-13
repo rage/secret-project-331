@@ -85,6 +85,13 @@ export function nullIfEmptyString(string: string | undefined | null): string | n
   return string.trim() === "" ? null : string.trim()
 }
 
+export function emptyStringIfNull(input: string | boolean | null | undefined): string {
+  if (typeof input === "string") {
+    return input
+  }
+  return ""
+}
+
 export function errorToDescription(error: string | FieldError | undefined): string | null {
   if (error === undefined) {
     return null

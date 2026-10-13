@@ -1,15 +1,4 @@
-import { formatDuration } from "@/utils/moduleTimeline"
-
 import type { CreditRegistrationTFunction } from "../constants"
-
-const MINUTE_SECS = 60
-
-/**
- * A phase's tick interval in words. Not `formatDuration` alone: it rounds to whole minutes, which
- * turns the phases that tick every 30 seconds into "0 min".
- */
-export const formatIntervalSecs = (seconds: number, t: CreditRegistrationTFunction): string =>
-  seconds < MINUTE_SECS ? t("duration-seconds", { seconds }) : formatDuration(seconds, t)
 
 export type PhaseHealth =
   | "paused"
@@ -25,7 +14,7 @@ export type PhaseHealth =
  */
 export interface PhaseHealthFields {
   paused_at?: string | null
-  implemented: boolean
+  is_known_phase: boolean
   failing?: boolean
   heartbeat_late: boolean
   last_heartbeat_at?: string | null
@@ -36,7 +25,7 @@ export const phaseHealth = (phase: PhaseHealthFields): PhaseHealth => {
   if (phase.paused_at) {
     return "paused"
   }
-  if (!phase.implemented) {
+  if (!phase.is_known_phase) {
     return "not_built"
   }
   if (phase.failing) {

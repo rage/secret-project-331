@@ -3,7 +3,7 @@ Executable programs that can be started. Contains for example the server program
 */
 pub mod calculate_page_visit_stats;
 pub mod chatbot_syncer;
-pub mod credit_registrar;
+pub mod credit_registration_workers;
 pub mod doc_file_generator;
 pub mod email_deliver;
 pub mod ended_exams_processor;
@@ -12,11 +12,9 @@ pub mod exercise_spec_upload_reaper;
 pub mod mailchimp_syncer;
 pub mod open_university_registration_link_fetcher;
 pub mod peer_review_updater;
-pub mod periodic_worker;
 pub mod regrader;
 pub mod seed;
 pub mod service_info_fetcher;
 pub mod sorter;
 pub mod start_server;
-pub mod suotar_syncer;
 pub mod sync_tmc_users;

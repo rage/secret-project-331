@@ -8,7 +8,8 @@ import { getCourseCreditRegistrationModuleConfigsOptions } from "@/generated/api
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 
-import { CREDIT_REGISTRATION_NS, MIDDLE_DOT } from "./constants"
+import { CREDIT_REGISTRATION_NS } from "./constants"
+import { hasOnlyDefaultModule } from "./creditRegistrationCopy"
 import { noteCss, proseCss } from "./styles"
 
 interface Props {
@@ -29,7 +30,7 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
   )
   const structureQuery = useCourseStructure(courseId)
 
-  const configs = configsQuery.data?.modules ?? []
+  const configs = configsQuery.data ?? []
   const enabled = configs.filter((config) => config.enable_credit_registration_via_suotar)
 
   if (enabled.length === 0) {
@@ -47,13 +48,19 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
         : t("credit-registration-credits", { credits: config.ects_credits }),
     ]
       .filter(Boolean)
-      .join(MIDDLE_DOT)
+      .join(", ")
+
+  const isCourseWide = hasOnlyDefaultModule(
+    (structureQuery.data?.modules ?? []).map((module) => module.name),
+  )
 
   return (
     <div className={proseCss}>
       {enabled.map((config) => (
         <p key={config.course_module_id} className={noteCss}>
-          {t("credit-registration-set-up-for-module", { module: moduleName(config) })}{" "}
+          {isCourseWide
+            ? t("credit-registration-set-up-for-course")
+            : t("credit-registration-set-up-for-module", { module: moduleName(config) })}{" "}
           {settings(config)}
         </p>
       ))}

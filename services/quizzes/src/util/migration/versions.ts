@@ -8,10 +8,10 @@
 
 /** v1 is the pre-version "old quiz" format: its blobs have no `version` field at all. */
 export const OLDEST_QUIZ_VERSION = "1" as const
-export const LATEST_QUIZ_VERSION = "4" as const
-export type QuizSpecVersion = "1" | "2" | "3" | "4"
+export const LATEST_QUIZ_VERSION = "5" as const
+export type QuizSpecVersion = "1" | "2" | "3" | "4" | "5"
 
-const KNOWN_QUIZ_VERSIONS: ReadonlySet<string> = new Set(["1", "2", "3", "4"])
+const KNOWN_QUIZ_VERSIONS: ReadonlySet<string> = new Set(["1", "2", "3", "4", "5"])
 
 /**
  * A stored blob with no `version` field is the v1 ("old quiz") format. Any other value than a known

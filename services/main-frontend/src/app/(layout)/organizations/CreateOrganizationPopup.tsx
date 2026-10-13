@@ -60,7 +60,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
         },
         {
           label: t("create"),
-          onClick: submitForm,
+          onClick: () => void submitForm(),
           variant: "primary",
         },
       ]}

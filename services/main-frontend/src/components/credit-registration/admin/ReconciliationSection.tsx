@@ -4,10 +4,11 @@ import { cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { adminMaterializeCreditRegistrations } from "@/generated/api/sdk.generated"
 import type { CreditRegistrationReconciliation } from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Disclosure, RelativeTime, Table } from "@/shared-module/components"
+import { Badge, Disclosure, Table } from "@/shared-module/components"
 
 import {
   BADGE_COMPACT,
@@ -15,13 +16,13 @@ import {
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
-  TIME_COMPACT,
   TONE,
 } from "../constants"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   dividedListCss,
   headingCss,
-  monospaceCss,
   noteCss,
   proseCss,
   rowCss,
@@ -142,7 +143,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               minWidth: "11rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
                   <span className={noteCss}>{row.course_module_name}</span>
                 </span>
               ),
@@ -151,7 +152,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-completed"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.completion_date} absoluteTime={TIME_COMPACT} />,
+              cell: (row) => <ZonedTimestamp at={row.completion_date} />,
             },
             {
               header: t("credit-registration-admin-column-why-not-materialised"),
@@ -197,15 +198,15 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("label-student-number"),
               minWidth: "7rem",
               nowrap: true,
-              cell: (row) => <span className={monospaceCss}>{row.student_number}</span>,
+              cell: (row) => <span className={codeValueCss}>{row.student_number}</span>,
             },
             {
               header: t("label-course"),
               minWidth: "11rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
-                  <span className={cx(noteCss, monospaceCss)}>{row.uh_course_code}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
+                  <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
                 </span>
               ),
             },
@@ -218,7 +219,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               header: t("credit-registration-admin-column-submitted-at"),
               minWidth: "8rem",
               nowrap: true,
-              cell: (row) => <RelativeTime at={row.submitted_at} absoluteTime={TIME_COMPACT} />,
+              cell: (row) => <ZonedTimestamp at={row.submitted_at} />,
             },
           ]}
         />
@@ -246,7 +247,11 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
                 />
               ),
             },
-            { header: t("label-course"), minWidth: "11rem", cell: (row) => row.course_name },
+            {
+              header: t("label-course"),
+              minWidth: "11rem",
+              cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
+            },
             {
               header: t("label-state"),
               minWidth: "10rem",
@@ -276,11 +281,8 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
     },
   ]
 
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
-      </div>
+  const checks = (
+    <>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-reconciliation-in-queue-note")}
       </p>
@@ -304,6 +306,31 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
       {/* After the checks, not beside the heading: it stays the section's action regardless of
           what the checks found, but a phone must not read it before it reads why it exists. */}
       <MaterializeButton />
+    </>
+  )
+
+  if (detectors.every((detector) => detector.count === 0)) {
+    return (
+      <section className={sectionCardCss}>
+        <Disclosure
+          title={t("credit-registration-heading-reconciliation")}
+          summary={
+            <span className={noteCss}>{t("credit-registration-admin-check-none-found")}</span>
+          }
+          variant={PLAIN_DISCLOSURE}
+        >
+          <div className={subsectionCss}>{checks}</div>
+        </Disclosure>
+      </section>
+    )
+  }
+
+  return (
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
+      </div>
+      {checks}
     </section>
   )
 }

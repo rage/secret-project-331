@@ -26,10 +26,10 @@ import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Checkbox, Dialog, Link, QueryResults, Select } from "@/shared-module/components"
 import {
-  exerciseAnswerFilesUrl,
-  exerciseAnswersCsvUrl,
-  exerciseDefinitionsCsvUrl,
-} from "@/utils/exportUrls"
+  exerciseAnswerFilesHref,
+  exerciseAnswersCsvHref,
+  exerciseDefinitionsCsvHref,
+} from "@/utils/exportDownloadUrls"
 
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
@@ -138,13 +138,10 @@ const SubmissionsPage: React.FC = () => {
 
   const exportHref =
     exportMode === "definitions"
-      ? exerciseDefinitionsCsvUrl(id, { exercise_task_id: selectedTaskId })
-      : exerciseAnswersCsvUrl(id, {
-          exercise_task_id: selectedTaskId,
-          ...(onlyLatestPerUser ? { only_latest_per_user: true } : {}),
-        })
+      ? exerciseDefinitionsCsvHref(id, selectedTaskId)
+      : exerciseAnswersCsvHref(id, selectedTaskId, onlyLatestPerUser)
 
-  const answerFilesHref = exerciseAnswerFilesUrl(id)
+  const answerFilesHref = exerciseAnswerFilesHref(id)
 
   return (
     <div>

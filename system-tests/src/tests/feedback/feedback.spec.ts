@@ -25,7 +25,10 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await page.getByText("Page One").first().click()
+  await page
+    .getByTestId("pages-in-chapter-container")
+    .getByRole("link", { name: "Page One" })
+    .click()
   await page.locator(`text=Everything is a big topic`).waitFor()
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first

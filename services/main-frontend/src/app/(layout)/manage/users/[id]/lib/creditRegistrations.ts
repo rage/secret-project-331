@@ -1,6 +1,7 @@
 import { type UseQueryResult, useQueries } from "@tanstack/react-query"
 import { useMemo } from "react"
 
+import { indexLiveRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import { getCourseCreditRegistrationsForUsers } from "@/generated/api/sdk.generated"
 import type {
   CourseCreditRegistration,
@@ -19,7 +20,7 @@ const VIEW_CREDIT_REGISTRATIONS = { type: "view_and_manage_credit_registrations"
 
 /** The student's registrations, and which courses the viewer is allowed to know anything about. */
 export interface UserCreditRegistrations {
-  /** Newest live registration per module, grouped by course. */
+  /** The live registration shown per module, grouped by course; see `indexLiveRegistrations`. */
   byCourseId: Map<string, CourseCreditRegistration[]>
   /**
    * Courses whose registrations the viewer may read. A course outside this set must render nothing
@@ -35,10 +36,7 @@ const groupLiveRegistrations = (
 ): Map<string, CourseCreditRegistration[]> => {
   const byCourseId = new Map<string, CourseCreditRegistration[]>()
   for (const result of results) {
-    for (const row of result.data ?? []) {
-      if (row.superseded) {
-        continue
-      }
+    for (const row of indexLiveRegistrations(result.data ?? []).values()) {
       const forCourse = byCourseId.get(row.course_id) ?? []
       forCourse.push(row)
       byCourseId.set(row.course_id, forCourse)
@@ -137,7 +135,7 @@ export interface StudentNumberState {
   /** Null until a number is confirmed; the credits wait in the pipeline until then. */
   studentNumber: string | null
   verifiedVia: StudentNumberVerificationMethod | null
-  /** Our own send status for the confirmation link, present only while nothing is linked. */
+  /** Our own send status for the account linking email, present only while nothing is linked. */
   linkingEmail: TeacherLinkingEmailStatus | null
 }
 

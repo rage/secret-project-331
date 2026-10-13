@@ -30,7 +30,10 @@ import {
   getCmsRepositoryExercisesForCourse,
   getExercisesWithSubmissions,
   type Options,
+  previewCmsEmailTemplate,
+  requestChartSpecGeneration,
   requestParagraphSuggestions,
+  sendCmsEmailTemplateTest,
   updateCmsCourseDefaultPeerReview,
   updateCmsEmailTemplate,
   updateCmsExamInstructions,
@@ -87,8 +90,14 @@ import type {
   GetCmsRepositoryExercisesForCourseResponse,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponse,
+  PreviewCmsEmailTemplateData,
+  PreviewCmsEmailTemplateResponse,
+  RequestChartSpecGenerationData,
+  RequestChartSpecGenerationResponse,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponse,
+  SendCmsEmailTemplateTestData,
+  SendCmsEmailTemplateTestResponse,
   UpdateCmsCourseDefaultPeerReviewData,
   UpdateCmsCourseDefaultPeerReviewResponse,
   UpdateCmsEmailTemplateData,
@@ -109,6 +118,36 @@ import type {
   UpsertCmsCourseResearchFormQuestionsResponse,
   UpsertCmsCourseResearchFormResponse,
 } from "../types.generated"
+
+/**
+ *
+ * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
+ *
+ * This endpoint is intended for the CMS chart block editor. It requires the user to have
+ * edit access to the referenced page when `page_id` is provided, otherwise it falls back
+ * to requiring a teaching role for some course via `Res::AnyCourse`.
+ */
+export const requestChartSpecGenerationMutation = (
+  options?: Partial<Options<RequestChartSpecGenerationData>>,
+): UseMutationOptions<
+  RequestChartSpecGenerationResponse,
+  DefaultError,
+  Options<RequestChartSpecGenerationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestChartSpecGenerationResponse,
+    DefaultError,
+    Options<RequestChartSpecGenerationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await requestChartSpecGeneration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -707,6 +746,63 @@ export const updateCmsEmailTemplateMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await updateCmsEmailTemplate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/preview`
+ *
+ * Renders the editor's unsaved state exactly as the sender would, with sample placeholder values.
+ */
+export const previewCmsEmailTemplateMutation = (
+  options?: Partial<Options<PreviewCmsEmailTemplateData>>,
+): UseMutationOptions<
+  PreviewCmsEmailTemplateResponse,
+  DefaultError,
+  Options<PreviewCmsEmailTemplateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PreviewCmsEmailTemplateResponse,
+    DefaultError,
+    Options<PreviewCmsEmailTemplateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await previewCmsEmailTemplate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/send-test`
+ *
+ * Queues the editor's unsaved state, with sample placeholder values, to the requesting user's own
+ * address. Returns the id of the queued delivery.
+ */
+export const sendCmsEmailTemplateTestMutation = (
+  options?: Partial<Options<SendCmsEmailTemplateTestData>>,
+): UseMutationOptions<
+  SendCmsEmailTemplateTestResponse,
+  DefaultError,
+  Options<SendCmsEmailTemplateTestData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCmsEmailTemplateTestResponse,
+    DefaultError,
+    Options<SendCmsEmailTemplateTestData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCmsEmailTemplateTest({
         ...options,
         ...fnOptions,
         throwOnError: true,

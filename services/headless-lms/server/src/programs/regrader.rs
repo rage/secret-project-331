@@ -1,14 +1,15 @@
-use std::{env, error::Error, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use crate::config::FileStoreRuntimeConfig;
 use crate::config::program_config::ProgramConfig;
 use crate::domain::models_requests;
-use crate::programs::periodic_worker::{
-    PeriodicWorkerConfig, is_db_disconnect, run_periodic_worker,
-};
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::jwt::JwtKey;
 use headless_lms_models as models;
+use headless_lms_utils::error::is_db_disconnect;
+use headless_lms_utils::periodic_worker::{
+    PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
+};
 use models::library::regrading;
 use sqlx::PgPool;
 
@@ -16,9 +17,8 @@ use sqlx::PgPool;
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
 */
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenvy::dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     crate::setup_tracing()?;
     let db_url = ProgramConfig::database_url_with_default();
     let app_conf = ApplicationConfiguration::try_from_env()?;
@@ -33,9 +33,11 @@ pub async fn main() -> anyhow::Result<()> {
     run_periodic_worker(
         PeriodicWorkerConfig {
             tick_interval: Duration::from_secs(10),
-            still_running_every: 60,
-            still_running_message: "running the regrader",
-            initial_ticks: 60,
+            still_running: Some(StillRunningLog {
+                every: 60,
+                message: "running the regrader",
+                initial_ticks: 60,
+            }),
             delay_missed_ticks: false,
         },
         async || {
@@ -59,7 +61,7 @@ pub async fn main() -> anyhow::Result<()> {
             .await
             {
                 tracing::error!("Error in regrader: {}", err);
-                if is_db_disconnect(err.source()) {
+                if is_db_disconnect(&err) {
                     // this usually happens if the database is reset while running bin/dev etc.
                     tracing::info!(
                         "regrader may have lost its connection to the db, trying to reconnect"

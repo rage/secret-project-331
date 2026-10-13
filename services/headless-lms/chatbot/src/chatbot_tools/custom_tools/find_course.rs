@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::cache::Cache;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -168,6 +169,7 @@ impl ChatbotTool for FindCourseTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
@@ -283,16 +285,15 @@ impl ChatbotTool for FindCourseTool {
         }
 
         if candidates.iter().any(|c| c.course.closed_at.is_some()) {
-            let now = chrono::Utc::now();
             let mut closed_at_note = String::from(
                 "closed_at is a scheduled closing timestamp: absent means the course was \
                  never scheduled to close, a future value means it's still open, and only a \
                  past value means it's actually closed.",
             );
-            if candidates.iter().any(|c| {
-                c.course.closed_at.is_some_and(|t| t <= now)
-                    && c.course.closed_course_successor_id.is_none()
-            }) {
+            if candidates
+                .iter()
+                .any(|c| c.course.is_closed() && c.course.closed_course_successor_id.is_none())
+            {
                 closed_at_note.push_str(
                     " A closed course with no closed_course_successor_id has nowhere \
                      configured to send the student.",

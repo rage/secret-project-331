@@ -302,7 +302,7 @@ mod test {
         let u2 = users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
-            "second@example.org",
+            "second@example.com",
             None,
             None,
         )

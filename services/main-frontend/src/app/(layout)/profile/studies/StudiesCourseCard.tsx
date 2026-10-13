@@ -8,12 +8,12 @@ import { useTranslation } from "react-i18next"
 import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
-  MIDDLE_DOT,
   TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
+  myRegistrationStatusLabel,
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
@@ -34,7 +34,15 @@ import {
   completionRegistrationRoute,
   navigateToCourseRoute,
 } from "@/shared-module/common/utils/routes"
-import { Link, Meter, RegistrationStatusBadge, RelativeTime } from "@/shared-module/components"
+import {
+  Link,
+  Meter,
+  METER_KIND,
+  MIDDLE_DOT,
+  RegistrationStatusBadge,
+  RelativeTime,
+} from "@/shared-module/components"
+import { formatPoints } from "@/utils/completionThresholds"
 
 import {
   studiesCardBodyCss,
@@ -178,12 +186,6 @@ const completionHeading = (
 }
 
 const STATUS_ARROW_SIZE = 16
-const POINTS_FRACTION_DIGITS = 2
-
-/** Points are stored to two decimals, so a whole score must not render as "5.00". */
-const formatPoints = (points: number, locale: string): string =>
-  points.toLocaleString(locale, { maximumFractionDigits: POINTS_FRACTION_DIGITS })
-
 const completionResultLabel = (
   t: CreditRegistrationTFunction,
   completion: MyStudiesCompletion,
@@ -327,6 +329,13 @@ const ModuleRow: React.FC<{
       ? t("ects-n", { n: module.ects_credits })
       : null
   const registersOnCompletion = !completion && module.supports_credit_registration
+  const registrationStatus =
+    registration?.student_facing_status ??
+    // oxlint-disable-next-line i18next/no-literal-string -- a status value, not user-facing text
+    (module.is_credit_registration_starting ? "sending" : null)
+  const registrationStatusText = registration
+    ? myRegistrationStatusLabel(t, registration)
+    : registrationStatus && registrationStatusLabel(t, registrationStatus)
   const factsLine = completion ? (
     <>
       {ectsLabel ? `${ectsLabel}${MIDDLE_DOT}` : null}
@@ -355,19 +364,17 @@ const ModuleRow: React.FC<{
             explainTeacherGrading={explainTeacherGrading}
             rowWouldBeBare={!factsLine && !hasProgressToShow(module)}
           />
-          {registration ? (
+          {registrationStatus ? (
             <Link
               href={completionRegistrationRoute(module.course_module_id)}
               className={statusTriggerCss}
               appearance={LINK_INHERIT}
               aria-label={t("credit-registration-status-link-label", {
-                status: registrationStatusLabel(t, registration.student_facing_status),
+                status: registrationStatusText,
               })}
             >
-              <RegistrationStatusBadge
-                state={registrationStatusState(registration.student_facing_status)}
-              >
-                {registrationStatusLabel(t, registration.student_facing_status)}
+              <RegistrationStatusBadge state={registrationStatusState(registrationStatus)}>
+                {registrationStatusText}
               </RegistrationStatusBadge>
               {/* A pill does not read as a link, and on touch there is no hover to prove it. */}
               <span className={detailsLabelCss}>
@@ -564,6 +571,7 @@ const ModuleDimension: React.FC<{
 }> = ({ label, value, maxValue, valueLabel, threshold, showBar }) =>
   showBar ? (
     <Meter
+      kind={METER_KIND.PROGRESS}
       label={label}
       value={value}
       maxValue={maxValue}

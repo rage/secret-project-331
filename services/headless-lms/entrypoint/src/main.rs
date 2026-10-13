@@ -27,10 +27,17 @@ struct Program {
 }
 
 fn main() -> Result<()> {
+    // Both ring and aws-lc-rs end up in the dependency tree, so rustls can't pick one on its own.
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .expect("failed to install rustls ring crypto provider");
+
     let programs_list = vec![
         Program {
             name: "credit-registrar",
-            execute: Box::new(|| tokio_run(programs::credit_registrar::main())),
+            execute: Box::new(|| {
+                tokio_run(programs::credit_registration_workers::credit_registrar_main())
+            }),
         },
         Program {
             name: "doc-file-generator",
@@ -89,7 +96,9 @@ fn main() -> Result<()> {
         },
         Program {
             name: "suotar-syncer",
-            execute: Box::new(|| tokio_run(programs::suotar_syncer::main())),
+            execute: Box::new(|| {
+                tokio_run(programs::credit_registration_workers::suotar_syncer_main())
+            }),
         },
         Program {
             name: "sync-tmc-users",

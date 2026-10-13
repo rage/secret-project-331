@@ -12,6 +12,8 @@ use headless_lms_models::verified_student_numbers::{
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
+use secrecy::{ExposeSecret, SecretString};
 
 use super::{authorize_credit_registration_admin, required_reason};
 
@@ -24,7 +26,8 @@ pub struct AdminVerifiedStudentNumberRow {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub student_number: String,
-    pub sisu_person_id: String,
+    /// `None` for a link the study registry reported, which names no person.
+    pub sisu_person_id: Option<String>,
     pub verified_at: DateTime<Utc>,
     pub verified_via: StudentNumberVerificationMethod,
     /// The registry-held address the proof rests on, in full. `None` for an admin-established link.
@@ -51,7 +54,7 @@ pub struct ListVerifiedStudentNumbersQuery {
     page: Option<u32>,
     limit: Option<u32>,
     verified_via: Option<StudentNumberVerificationMethod>,
-    search: Option<String>,
+    search: Option<SecretString>,
 }
 
 /**
@@ -86,7 +89,7 @@ pub async fn list_verified_student_numbers_for_admin(
     let (rows, total_count) = verified_student_numbers::get_admin_page(
         &mut conn,
         query.verified_via,
-        query.search.as_deref(),
+        expose_option(&query.search),
         pagination.limit(),
         pagination.offset(),
     )
@@ -146,7 +149,7 @@ pub async fn admin_unlink_student_number(
             reason: Some(reason.to_string()),
             details: Some(serde_json::json!({
                 "user_id": link.user_id,
-                "student_number": link.student_number,
+                "student_number": link.student_number.expose_secret(),
                 "verified_via": link.verified_via,
             })),
             affected_row_count: Some(
@@ -175,11 +178,11 @@ fn to_admin_student_number(row: AdminVerifiedStudentNumber) -> AdminVerifiedStud
         user_email: row.user_email,
         first_name: row.first_name,
         last_name: row.last_name,
-        student_number: row.student_number,
-        sisu_person_id: row.sisu_person_id,
+        student_number: row.student_number.expose_secret().to_owned(),
+        sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         verified_at: row.verified_at,
         verified_via: row.verified_via,
-        verified_via_email: row.verified_via_email,
+        verified_via_email: expose_option(&row.verified_via_email).map(str::to_owned),
         linked_by_user_id: row.linked_by_user_id,
         link_reason: row.link_reason,
         verified_from_course_id: row.verified_from_course_id,

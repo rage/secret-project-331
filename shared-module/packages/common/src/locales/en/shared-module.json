@@ -224,8 +224,11 @@
   "home-page": "Home page",
   "in-this-page": "In this page",
   "label-error-loading": "Error loading data.",
+  "label-exclude": "Exclude",
   "label-false": "False",
+  "label-include": "Include",
   "label-items-per-page": "Items per page",
+  "label-null": "Not set",
   "label-true": "True",
   "language": "Language",
   "license": "License",
@@ -309,5 +312,6 @@
   "translate": "Translate",
   "university-of-helsinki": "University of Helsinki",
   "user-settings": "User settings",
+  "value-of-maximum": "{{value}} / {{maximum}}",
   "yes": "Yes"
 }

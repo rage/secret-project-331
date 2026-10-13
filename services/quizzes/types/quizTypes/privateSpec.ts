@@ -37,7 +37,7 @@ export interface QuizItemOption {
 
 export type DisplayDirection = "horizontal" | "vertical"
 export interface PrivateSpecQuiz {
-  version: "4"
+  version: "5"
   awardPointsEvenIfWrong: boolean
   grantPointsPolicy: GrantPointsPolicy
   items: PrivateSpecQuizItem[]
@@ -63,6 +63,9 @@ export type multipleChoiceMultipleOptionsGradingPolicy =
   | "points-off-incorrect-options"
   | "points-off-unselected-options"
   | "some-correct-none-incorrect"
+
+/** `whole-matrix`: full marks only when nothing differs. `per-cell`: each differing cell costs one cell's share. */
+export type MatrixGradingPolicy = "whole-matrix" | "per-cell"
 
 export type PrivateSpecQuizItem =
   | PrivateSpecQuizItemMultiplechoice
@@ -187,6 +190,13 @@ export interface PrivateSpecQuizItemMatrix {
   title?: string | null
   optionCells: string[][] | null
   feedbackMessages: QuizFeedbackMessage[]
+  gradingPolicy: MatrixGradingPolicy
+  /** Absolute tolerance for numeric cells; 0 means the value must match exactly. Never applies to text cells. */
+  tolerance: number
+  /** Let a wrongly sized answer earn per-cell credit, each missing or extra cell counting as wrong. */
+  partialCreditForWrongShape: boolean
+  /** Hide per-cell verdicts and force `whole-matrix`, so retries can't reveal the key cell by cell. */
+  fogOfWar: boolean
 }
 
 export interface PrivateSpecQuizItemTimelineItem {

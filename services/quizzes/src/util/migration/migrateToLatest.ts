@@ -11,12 +11,12 @@ import type {
  * model-solution endpoint, grade path, and the editor/answer/submission iframe) calls exactly one
  * of the `migrate*ToLatest` functions below and never sees version logic itself.
  *
- * ── How to add a new version (e.g. v4) ─────────────────────────────────────────────────────────
- *   1. Bump `LATEST_QUIZ_VERSION` to "4" in `versions.ts` and add "4" to `QuizSpecVersion`.
+ * ── How to add a new version (e.g. v5) ─────────────────────────────────────────────────────────
+ *   1. Bump `LATEST_QUIZ_VERSION` to "5" in `versions.ts` and add "5" to `QuizSpecVersion`.
  *   2. Snapshot any item type you are about to change into `types/quizTypes/v2.ts`'s sibling (a
- *      `v3.ts`) so the v2->v3 step keeps compiling against the shape it produces.
- *   3. Write `migrate*V3ToV4` step functions (mirroring `v2ToV3.ts`).
- *   4. Add one line per registry below: `"3": (b) => migrateXxxV3ToV4(b as XxxV3)`.
+ *      `v4.ts`) so the previous step keeps compiling against the shape it produces.
+ *   3. Write `migrate*V4ToV5` step functions (mirroring `v3ToV4.ts`).
+ *   4. Add one line per registry below: `"4": (b) => migrateXxxV4ToV5(b as XxxV4)`.
  * No door changes are ever needed. That is the whole point of this module.
  */
 import type { UserAnswer } from "../../../types/quizTypes/answer"
@@ -35,6 +35,12 @@ import type {
   PublicSpecQuizV3,
   UserAnswerV3,
 } from "../../../types/quizTypes/v3"
+import type {
+  ModelSolutionQuizV4,
+  PrivateSpecQuizV4,
+  PublicSpecQuizV4,
+  UserAnswerV4,
+} from "../../../types/quizTypes/v4"
 import { migrateQuiz } from "../migrate"
 import migrateModelSolutionSpecQuiz from "./modelSolutionSpecQuiz"
 import { migratePrivateSpecQuiz } from "./privateSpecQuiz"
@@ -52,6 +58,12 @@ import {
   migratePublicSpecV3ToV4,
   migrateUserAnswerV3ToV4,
 } from "./v3ToV4"
+import {
+  migrateModelSolutionV4ToV5,
+  migratePrivateSpecV4ToV5,
+  migratePublicSpecV4ToV5,
+  migrateUserAnswerV4ToV5,
+} from "./v4ToV5"
 import { detectQuizVersion, LATEST_QUIZ_VERSION, type QuizSpecVersion } from "./versions"
 
 /** A step migrates a spec blob up exactly one version. Keyed by the version it accepts. */
@@ -87,18 +99,21 @@ const privateSpecSteps: SpecMigrationSteps = {
   "1": (blob) => migratePrivateSpecQuiz(migrateQuiz(blob)),
   "2": (blob) => migratePrivateSpecV2ToV3(blob as PrivateSpecQuizV2),
   "3": (blob) => migratePrivateSpecV3ToV4(blob as PrivateSpecQuizV3),
+  "4": (blob) => migratePrivateSpecV4ToV5(blob as PrivateSpecQuizV4),
 }
 
 const publicSpecSteps: SpecMigrationSteps = {
   "1": (blob) => migratePublicSpecQuiz(blob as OldPublicQuiz),
   "2": (blob) => migratePublicSpecV2ToV3(blob as PublicSpecQuizV2),
   "3": (blob) => migratePublicSpecV3ToV4(blob as PublicSpecQuizV3),
+  "4": (blob) => migratePublicSpecV4ToV5(blob as PublicSpecQuizV4),
 }
 
 const modelSolutionSteps: SpecMigrationSteps = {
   "1": (blob) => migrateModelSolutionSpecQuiz(blob as OldModelSolutionQuiz),
   "2": (blob) => migrateModelSolutionV2ToV3(blob as ModelSolutionQuizV2),
   "3": (blob) => migrateModelSolutionV3ToV4(blob as ModelSolutionQuizV3),
+  "4": (blob) => migrateModelSolutionV4ToV5(blob as ModelSolutionQuizV4),
 }
 
 export const migratePrivateSpecToLatest = (blob: unknown): PrivateSpecQuiz =>
@@ -124,6 +139,7 @@ const answerSteps: Partial<Record<QuizSpecVersion, AnswerMigrationStep>> = {
   "1": (answer, spec) => migrateQuizAnswer(answer as OldQuizAnswer, spec),
   "2": (answer) => migrateUserAnswerV2ToV3(answer as UserAnswerV2),
   "3": (answer) => migrateUserAnswerV3ToV4(answer as UserAnswerV3),
+  "4": (answer) => migrateUserAnswerV4ToV5(answer as UserAnswerV4),
 }
 
 export const migrateUserAnswerToLatest = (

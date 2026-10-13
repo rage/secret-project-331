@@ -54,6 +54,18 @@ export type ChapterLockPreview = {
 
 export type ChapterLockingStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
 
+/**
+ * A chapter's pages in a points breakdown, with their subtotal.
+ */
+export type ChapterPointsBreakdown = {
+  chapter_id: string
+  chapter_number: number
+  name: string
+  pages: Array<PagePointsBreakdown>
+  score_given: number
+  score_maximum: number
+}
+
 export type ChapterStatus = "open" | "closed"
 
 export type ChapterWithStatus = {
@@ -131,6 +143,7 @@ export type ChatbotChatStreamEvent =
 export type ChatbotConversation = {
   anonymous_token?: string | null
   chatbot_configuration_id: string
+  conversation_title?: string | null
   course_id?: string | null
   created_at: string
   deleted_at?: string | null
@@ -577,7 +590,7 @@ export type CourseModuleCompletion = {
   passed: boolean
   prerequisite_modules_completed: boolean
   /**
-   * Whether the push path owns this completion. See the column comment; decided at insert.
+   * Whether the push path owns this completion. See the column comment.
    */
   register_credits_via_suotar: boolean
   updated_at: string
@@ -760,6 +773,45 @@ export type Exercise = {
   updated_at: string
   use_course_default_peer_or_self_review_config: boolean
 }
+
+/**
+ * One exercise's row in a points breakdown.
+ */
+export type ExercisePointsBreakdown = {
+  /**
+   * Submissions to the slide the user was given, which is what the attempt limit counts.
+   */
+  attempts: number
+  /**
+   * `None` when the exercise allows unlimited attempts.
+   */
+  attempts_limit?: number | null
+  exercise_id: string
+  name: string
+  /**
+   * Rounded to two decimals; 0 until the answer counts towards the module's points.
+   */
+  score_given: number
+  score_maximum: number
+  status: ExercisePointsStatus
+}
+
+/**
+ * Where a user's answer to an exercise stands, as far as the student may know.
+ *
+ * Collapses the exercise state into what the exercise block itself tells the student, so the
+ * underlying reviewing and grading stages never reach the client.
+ */
+export type ExercisePointsStatus =
+  | "NotStarted"
+  | "GradingInProgress"
+  | "GradingFailed"
+  | "PeerReviewToGive"
+  | "SelfReviewToGive"
+  | "WaitingForPeerReviews"
+  | "WaitingForTeacherGrading"
+  | "NotAnswered"
+  | "Done"
 
 export type ExerciseSlideSubmission = {
   course_id?: string | null
@@ -972,6 +1024,21 @@ export type PageNavigationInformation = {
   chapter_front_page?: null | PageRoutingData
   next_page?: null | PageRoutingData
   previous_page?: null | PageRoutingData
+}
+
+/**
+ * A page's exercises in a points breakdown, with their subtotal.
+ */
+export type PagePointsBreakdown = {
+  exercises: Array<ExercisePointsBreakdown>
+  page_id: string
+  score_given: number
+  score_maximum: number
+  title: string
+  /**
+   * Path within the course; the exercise's block is anchored on the page by its exercise id.
+   */
+  url_path: string
 }
 
 export type PageRoutingData = {
@@ -1279,9 +1346,17 @@ export type UserCourseInstanceChapterProgress = {
 export type UserCourseProgress = {
   attempted_exercises?: number | null
   attempted_exercises_required?: number | null
+  /**
+   * False when a teacher grades the module, in which case neither threshold applies.
+   */
+  automatic_completion: boolean
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
+  /**
+   * When true, the thresholds only qualify the user to sit an exam that completion also needs.
+   */
+  requires_exam: boolean
   score_given: number
   score_maximum?: number | null
   score_required?: number | null
@@ -1362,6 +1437,12 @@ export type UserModuleCompletionStatus = {
   order_number: number
   passed?: boolean | null
   prerequisite_modules_completed: boolean
+  /**
+   * Whether the module's registration flow is the push path, decided by
+   * [`course_module_completions::select_registration_completion`] rather than by the shown
+   * completion. False when no completion is shown.
+   */
+  register_credits_via_suotar: boolean
 }
 
 export type UserPointsUpdateStrategy =
@@ -1516,6 +1597,23 @@ export type GetCourseMaterialChapterPagesExcludingFrontPageResponses = {
 export type GetCourseMaterialChapterPagesExcludingFrontPageResponse =
   GetCourseMaterialChapterPagesExcludingFrontPageResponses[keyof GetCourseMaterialChapterPagesExcludingFrontPageResponses]
 
+export type AllUserConversationsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/course-material/chatbot/conversations/all"
+}
+
+export type AllUserConversationsResponses = {
+  /**
+   * All chatbot conversations for user
+   */
+  200: Array<ChatbotConversation>
+}
+
+export type AllUserConversationsResponse =
+  AllUserConversationsResponses[keyof AllUserConversationsResponses]
+
 export type GetDefaultChatbotConfigurationForCourseData = {
   body?: never
   path: {
@@ -1538,7 +1636,34 @@ export type GetDefaultChatbotConfigurationForCourseResponses = {
 export type GetDefaultChatbotConfigurationForCourseResponse =
   GetDefaultChatbotConfigurationForCourseResponses[keyof GetDefaultChatbotConfigurationForCourseResponses]
 
-export type GetChatbotCurrentConversationInfoData = {
+export type GetConversationInfoData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: {
+    /**
+     * Conversation id
+     */
+    conversation_id?: string
+  }
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations"
+}
+
+export type GetConversationInfoResponses = {
+  /**
+   * Selected chatbot conversation info
+   */
+  200: ChatbotConversationInfo
+}
+
+export type GetConversationInfoResponse =
+  GetConversationInfoResponses[keyof GetConversationInfoResponses]
+
+export type GetCurrentConversationIdData = {
   body?: never
   path: {
     /**
@@ -1547,18 +1672,18 @@ export type GetChatbotCurrentConversationInfoData = {
     chatbot_configuration_id: string
   }
   query?: never
-  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current"
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id"
 }
 
-export type GetChatbotCurrentConversationInfoResponses = {
+export type GetCurrentConversationIdResponses = {
   /**
-   * Current chatbot conversation info
+   * Current conversation ID
    */
-  200: ChatbotConversationInfo
+  200: string | null
 }
 
-export type GetChatbotCurrentConversationInfoResponse =
-  GetChatbotCurrentConversationInfoResponses[keyof GetChatbotCurrentConversationInfoResponses]
+export type GetCurrentConversationIdResponse =
+  GetCurrentConversationIdResponses[keyof GetCurrentConversationIdResponses]
 
 export type NewChatbotConversationData = {
   body?: never
@@ -1633,6 +1758,29 @@ export type SendChatbotToolResponseResponses = {
 
 export type SendChatbotToolResponseResponse =
   SendChatbotToolResponseResponses[keyof SendChatbotToolResponseResponses]
+
+export type UpdateTitleData = {
+  body: string
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title"
+}
+
+export type UpdateTitleResponses = {
+  /**
+   * Conversation title updated
+   */
+  200: unknown
+}
 
 export type ClaimCodeFromCodeGiveawayData = {
   body?: never
@@ -1777,6 +1925,32 @@ export type GetCourseMaterialCourseModuleCompletionsForUserResponses = {
 
 export type GetCourseMaterialCourseModuleCompletionsForUserResponse =
   GetCourseMaterialCourseModuleCompletionsForUserResponses[keyof GetCourseMaterialCourseModuleCompletionsForUserResponses]
+
+export type GetCourseMaterialCourseModulePointsBreakdownData = {
+  body?: never
+  path: {
+    /**
+     * Course instance id
+     */
+    course_instance_id: string
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/course-instances/{course_instance_id}/course-modules/{course_module_id}/points-breakdown"
+}
+
+export type GetCourseMaterialCourseModulePointsBreakdownResponses = {
+  /**
+   * The user's points by chapter, page and exercise
+   */
+  200: Array<ChapterPointsBreakdown>
+}
+
+export type GetCourseMaterialCourseModulePointsBreakdownResponse =
+  GetCourseMaterialCourseModulePointsBreakdownResponses[keyof GetCourseMaterialCourseModulePointsBreakdownResponses]
 
 export type GetCourseMaterialUserModuleCompletionsData = {
   body?: never

@@ -7,18 +7,24 @@
 
 use std::collections::HashMap;
 
+use chrono::TimeDelta;
+use secrecy::ExposeSecret;
+
 use crate::credit_registration_account_linking_emails::{
     self, ExistingLinkingMailFact, NewAccountLinkingEmail, claim_send_slots,
-    get_existing_facts_for_persons,
+    get_existing_facts_for_persons, replace_lapsed_slots,
 };
 use crate::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
     NewCreditRegistrationAdminAction,
 };
+use crate::error::missing_model_error;
 use crate::prelude::*;
 use crate::student_number_verification_tokens::{
     NewStudentNumberVerificationToken, insert_batch as insert_tokens_batch,
 };
+
+use super::study_registry::RosterPerson;
 
 /// Both the mailed URL and the frontend route that serves it are built from this one value.
 pub const LINK_STUDENT_NUMBER_PATH: &str = "/link-student-number";
@@ -32,112 +38,138 @@ pub fn link_student_number_url(base_url: &str, token: &str) -> String {
 }
 
 /// How long after a linking mail the person is left alone, across every course and address.
-pub const LINKING_MAIL_QUIET_PERIOD_SECS: i64 = 24 * 60 * 60;
+pub const LINKING_MAIL_QUIET_PERIOD: TimeDelta = TimeDelta::days(1);
+
+/// How long after a linking mail for a course the same person may get another for it.
+pub const LINKING_MAIL_RESEND_INTERVAL: TimeDelta = TimeDelta::days(7);
 
 /// How many linking mails one person may ever get for one course, tokens that expired unused
 /// included.
 pub const MAX_LINKING_MAILS_PER_PERSON_AND_COURSE: i64 = 3;
 
-/// One person Sisu's `list-by-course` returned, and every address we could reach them at.
-#[derive(Debug, Clone, PartialEq)]
-pub struct DiscoveredPerson {
-    pub sisu_person_id: String,
-    pub student_number: String,
-    pub first_names: Option<String>,
-    pub last_name: Option<String>,
-    pub course_id: Uuid,
-    /// Each address gets its own mail and its own token: we cannot tell which one they read.
-    pub addresses: Vec<String>,
+/// No override retires a mail claimed this recently, so a second click, tab or colleague cannot
+/// replace one that has only just gone out.
+pub const JUST_CLAIMED_PERIOD: TimeDelta = TimeDelta::minutes(1);
+
+/// What [`retire_capped_mails`] did.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RetiredMails {
+    pub retired_count: i64,
+    /// A mail within [`JUST_CLAIMED_PERIOD`] was left in place, where the caps still count it.
+    pub kept_just_claimed: bool,
 }
 
-/// The three buckets are disjoint and sum to the addresses tried.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
-pub struct ClaimedLinkingMails {
-    pub claimed: i32,
-    pub suppressed_by_dedup: i32,
-    pub suppressed_by_rate_cap: i32,
+/// One person Sisu's `list-by-course` returned, and the address we mail them at.
+#[derive(Debug, Clone)]
+pub struct DiscoveredPerson {
+    pub sisu_person_id: DbSecret,
+    pub student_number: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
+    pub course_id: Uuid,
+    /// Their primary address in Sisu, trimmed: the one students are told to check, and each address
+    /// mailed would spend one of the person's mails for the course. See [`mail_address`].
+    pub address: Option<DbSecret>,
+}
+
+impl DiscoveredPerson {
+    /// `person` as listed on a roster of `course_id`'s; the caller decides what a missing address
+    /// means.
+    pub fn listed(person: &RosterPerson, course_id: Uuid) -> Self {
+        Self {
+            sisu_person_id: person.person_id.clone().into(),
+            student_number: person.student_number.clone().into(),
+            first_names: person.first_names.clone().map(Into::into),
+            last_name: person.last_name.clone().map(Into::into),
+            course_id,
+            address: mail_address(person),
+        }
+    }
+}
+
+/// The address a linking mail to `person` goes to, if Sisu holds one.
+pub fn mail_address(person: &RosterPerson) -> Option<DbSecret> {
+    person
+        .primary_email
+        .as_ref()
+        .map(|address| address.expose_secret().trim())
+        .filter(|address| !address.is_empty())
+        .map(DbSecret::new)
+}
+
+/// What claiming a linking mail did for one person. Ordered from weakest to strongest, so the
+/// strongest of several claims for one person is their maximum.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LinkingMailClaim {
+    NoAddress,
+    SuppressedByRateCap,
+    /// An earlier mail to the address still has a usable link, or another writer claimed it first.
+    SuppressedByDedup,
+    /// A mail the `link-emails` phase still owes.
+    Claimed,
 }
 
 /// One person's [`claim_linking_mails_batch`].
-pub async fn claim_linking_mails(
+pub async fn claim_linking_mail(
     conn: &mut PgConnection,
     person: &DiscoveredPerson,
-) -> ModelResult<ClaimedLinkingMails> {
-    Ok(
-        claim_linking_mails_batch(conn, std::slice::from_ref(person))
-            .await?
-            .into_iter()
-            .next()
-            .unwrap_or_default(),
-    )
+) -> ModelResult<LinkingMailClaim> {
+    claim_linking_mails_batch(conn, std::slice::from_ref(person))
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(missing_model_error(
+            ModelErrorType::Generic,
+            "Claiming linking mails answered nothing for the one person asked about.",
+        ))
 }
 
-/// Claims one slot and one unbound token per person and address, dedup before rate cap and the
-/// allowance spent left to right. Returns one outcome per input, in order; a claimed slot means a
-/// mail the `link-emails` phase still owes.
+/// Claims one slot and one unbound token per person whose address has no usable link from us yet,
+/// dedup before the rate caps. Returns one claim per input, in order.
 pub async fn claim_linking_mails_batch(
     conn: &mut PgConnection,
     people: &[DiscoveredPerson],
-) -> ModelResult<Vec<ClaimedLinkingMails>> {
-    let mut outcomes = vec![ClaimedLinkingMails::default(); people.len()];
-    let per_person_addresses: Vec<Vec<String>> = people
-        .iter()
-        .map(|person| distinct_addresses(&person.addresses))
-        .collect();
-
+) -> ModelResult<Vec<LinkingMailClaim>> {
+    let mut claims = vec![LinkingMailClaim::NoAddress; people.len()];
     let sisu_person_ids: Vec<String> = people
         .iter()
-        .enumerate()
-        .filter(|(i, _)| !per_person_addresses[*i].is_empty())
-        .map(|(_, person)| person.sisu_person_id.clone())
+        .filter(|person| person.address.is_some())
+        .map(|person| person.sisu_person_id.expose_secret().to_owned())
         .collect();
     if sisu_person_ids.is_empty() {
-        return Ok(outcomes);
+        return Ok(claims);
     }
     let facts = get_existing_facts_for_persons(conn, &sisu_person_ids).await?;
     let mut by_person: HashMap<&str, Vec<&ExistingLinkingMailFact>> = HashMap::new();
     for fact in &facts {
         by_person
-            .entry(fact.sisu_person_id.as_str())
+            .entry(fact.sisu_person_id.expose_secret())
             .or_default()
             .push(fact);
     }
-    let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
-
-    let mut to_claim: Vec<(usize, String)> = Vec::new();
-    for (i, person) in people.iter().enumerate() {
-        if per_person_addresses[i].is_empty() {
-            continue;
-        }
-        let person_facts = by_person
-            .get(person.sisu_person_id.as_str())
-            .map(Vec::as_slice)
-            .unwrap_or(&[]);
-        let mut allowance = remaining_allowance(person, person_facts, quiet_since);
-        for address in &per_person_addresses[i] {
-            if already_mailed(person_facts, person.course_id, address) {
-                outcomes[i].suppressed_by_dedup += 1;
-                continue;
-            }
-            if allowance == 0 {
-                outcomes[i].suppressed_by_rate_cap += 1;
-                continue;
-            }
-            allowance -= 1;
-            to_claim.push((i, address.clone()));
-        }
-    }
-    if to_claim.is_empty() {
-        return Ok(outcomes);
-    }
+    let now = Utc::now();
 
     // Tokens are minted before any slot is claimed: the random value cannot come from SQL.
-    let mut new_tokens = Vec::with_capacity(to_claim.len());
-    let mut new_slots = Vec::with_capacity(to_claim.len());
-    let mut token_ids = Vec::with_capacity(to_claim.len());
+    let mut new_tokens = Vec::new();
+    let mut new_slots = Vec::new();
+    let mut token_ids = Vec::new();
     let mut token_owner: HashMap<Uuid, usize> = HashMap::new();
-    for (person_index, address) in &to_claim {
-        let person = &people[*person_index];
+    for (i, person) in people.iter().enumerate() {
+        let Some(address) = &person.address else {
+            continue;
+        };
+        let person_facts = by_person
+            .get(person.sisu_person_id.expose_secret())
+            .map(Vec::as_slice)
+            .unwrap_or(&[]);
+        if holds_address(person_facts, person.course_id, address.expose_secret()) {
+            claims[i] = LinkingMailClaim::SuppressedByDedup;
+            continue;
+        }
+        if !is_within_caps(person, person_facts, now) {
+            claims[i] = LinkingMailClaim::SuppressedByRateCap;
+            continue;
+        }
         let token_id = Uuid::new_v4();
         new_tokens.push(NewStudentNumberVerificationToken {
             student_number: person.student_number.clone(),
@@ -147,7 +179,7 @@ pub async fn claim_linking_mails_batch(
             emailed_to: address.clone(),
             course_id: Some(person.course_id),
         });
-        token_owner.insert(token_id, *person_index);
+        token_owner.insert(token_id, i);
         token_ids.push(token_id);
         new_slots.push(NewAccountLinkingEmail {
             student_number: person.student_number.clone(),
@@ -158,8 +190,12 @@ pub async fn claim_linking_mails_batch(
             email_delivery_id: None,
         });
     }
+    if new_slots.is_empty() {
+        return Ok(claims);
+    }
     insert_tokens_batch(conn, &token_ids, &new_tokens).await?;
 
+    replace_lapsed_slots(conn, &new_slots).await?;
     let claimed_token_ids = claim_send_slots(conn, &new_slots, &token_ids).await?;
     let lost_token_ids: Vec<Uuid> = token_owner
         .keys()
@@ -169,14 +205,14 @@ pub async fn claim_linking_mails_batch(
     // A refused claim must leave no usable token behind: nobody would ever send that link.
     void_tokens(conn, &lost_token_ids).await?;
     for (token_id, person_index) in &token_owner {
-        if claimed_token_ids.contains(token_id) {
-            outcomes[*person_index].claimed += 1;
+        claims[*person_index] = if claimed_token_ids.contains(token_id) {
+            LinkingMailClaim::Claimed
         } else {
             // Lost the race to another writer; same outcome for the recipient as dedup.
-            outcomes[*person_index].suppressed_by_dedup += 1;
-        }
+            LinkingMailClaim::SuppressedByDedup
+        };
     }
-    Ok(outcomes)
+    Ok(claims)
 }
 
 /// Retires the linking-mail rows the caps are counting for this person, so the ordinary claim path can
@@ -189,22 +225,31 @@ pub async fn retire_capped_mails(
     course_id: Uuid,
     student_number: &str,
     reason: &str,
-) -> ModelResult<i64> {
-    let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
-        return Ok(0);
+) -> ModelResult<RetiredMails> {
+    let mut outcome = RetiredMails {
+        retired_count: 0,
+        kept_just_claimed: false,
     };
-    let quiet_since = Utc::now() - chrono::Duration::seconds(LINKING_MAIL_QUIET_PERIOD_SECS);
-    let mails =
-        credit_registration_account_linking_emails::get_by_sisu_person_id(conn, &person_id).await?;
+    let Some(person_id) = person_id_of_mails(conn, course_id, student_number).await? else {
+        return Ok(outcome);
+    };
+    let now = Utc::now();
+    let quiet_since = now - LINKING_MAIL_QUIET_PERIOD;
+    let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
+        conn,
+        person_id.expose_secret(),
+    )
+    .await?;
     // This course's rows carry the dedup guard and the lifetime cap; a recent row on any course
     // carries the quiet period, which is about the person's inbox rather than one course.
-    let retired: Vec<Uuid> = mails
+    let (just_claimed, retirable): (Vec<_>, Vec<_>) = mails
         .iter()
         .filter(|mail| mail.course_id == course_id || mail.sent_at >= quiet_since)
-        .map(|mail| mail.id)
-        .collect();
+        .partition(|mail| mail.sent_at >= now - JUST_CLAIMED_PERIOD);
+    outcome.kept_just_claimed = !just_claimed.is_empty();
+    let retired: Vec<Uuid> = retirable.iter().map(|mail| mail.id).collect();
     if retired.is_empty() {
-        return Ok(0);
+        return Ok(outcome);
     }
 
     let mut tx = conn.begin().await?;
@@ -229,14 +274,15 @@ pub async fn retire_capped_mails(
     )
     .await?;
     tx.commit().await?;
-    Ok(retired.len() as i64)
+    outcome.retired_count = retired.len() as i64;
+    Ok(outcome)
 }
 
 async fn person_id_of_mails(
     conn: &mut PgConnection,
     course_id: Uuid,
     student_number: &str,
-) -> ModelResult<Option<String>> {
+) -> ModelResult<Option<DbSecret>> {
     let mails = credit_registration_account_linking_emails::get_by_course_id_and_student_number(
         conn,
         course_id,
@@ -246,29 +292,40 @@ async fn person_id_of_mails(
     Ok(mails.into_iter().next().map(|mail| mail.sisu_person_id))
 }
 
-/// How many mails the caps still allow this person for this course.
-fn remaining_allowance(
+/// Whether the caps still allow this person another mail for this course.
+fn is_within_caps(
     person: &DiscoveredPerson,
     facts: &[&ExistingLinkingMailFact],
-    quiet_since: DateTime<Utc>,
-) -> i64 {
+    now: DateTime<Utc>,
+) -> bool {
     // The quiet period is about the person's inbox, so it ignores the course.
-    if facts.iter().any(|fact| fact.sent_at >= quiet_since) {
-        return 0;
+    if facts
+        .iter()
+        .any(|fact| fact.sent_at >= now - LINKING_MAIL_QUIET_PERIOD)
+    {
+        return false;
     }
-    let already_sent = facts
+    let course_facts: Vec<_> = facts
         .iter()
         .filter(|fact| fact.course_id == person.course_id)
-        .count() as i64;
-    (MAX_LINKING_MAILS_PER_PERSON_AND_COURSE - already_sent).max(0)
+        .collect();
+    !course_facts
+        .iter()
+        .any(|fact| fact.sent_at >= now - LINKING_MAIL_RESEND_INTERVAL)
+        && (course_facts.len() as i64) < MAX_LINKING_MAILS_PER_PERSON_AND_COURSE
 }
 
-/// Whether this (person, course, address) already had its mail. The unique index behind
-/// [`claim_send_slots`] is what actually prevents a second one.
-fn already_mailed(facts: &[&ExistingLinkingMailFact], course_id: Uuid, address: &str) -> bool {
-    facts
-        .iter()
-        .any(|fact| fact.course_id == course_id && fact.emailed_to.eq_ignore_ascii_case(address))
+/// Whether a mail to this (person, course, address) still holds the address. The unique index
+/// behind [`claim_send_slots`] is what actually prevents a second one.
+fn holds_address(facts: &[&ExistingLinkingMailFact], course_id: Uuid, address: &str) -> bool {
+    facts.iter().any(|fact| {
+        fact.holds_address
+            && fact.course_id == course_id
+            && fact
+                .emailed_to
+                .expose_secret()
+                .eq_ignore_ascii_case(address)
+    })
 }
 
 /// Soft-deletes tokens whose slot lost the race, so no unusable link is left behind.
@@ -290,23 +347,6 @@ WHERE id = ANY($1::uuid [])
     Ok(())
 }
 
-/// Sisu can list one address twice and the dedup key is case-insensitive, so the pair is collapsed
-/// before either is charged against a cap.
-fn distinct_addresses(addresses: &[String]) -> Vec<String> {
-    let mut kept: Vec<String> = Vec::new();
-    for address in addresses {
-        let trimmed = address.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
-        if kept.iter().any(|seen| seen.eq_ignore_ascii_case(trimmed)) {
-            continue;
-        }
-        kept.push(trimmed.to_string());
-    }
-    kept
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -317,68 +357,28 @@ mod tests {
     use crate::student_number_verification_tokens::{claim, get_by_ids};
     use crate::test_helper::*;
 
-    fn person(course_id: Uuid, addresses: &[&str]) -> DiscoveredPerson {
+    fn person(course_id: Uuid, address: &str) -> DiscoveredPerson {
         DiscoveredPerson {
-            sisu_person_id: "hy-hlo-1".to_string(),
-            student_number: "012345678".to_string(),
-            first_names: Some("Aada Maria".to_string()),
-            last_name: Some("Virtanen".to_string()),
+            sisu_person_id: "hy-hlo-1".to_string().into(),
+            student_number: "012345678".to_string().into(),
+            first_names: Some("Aada Maria".to_string().into()),
+            last_name: Some("Virtanen".to_string().into()),
             course_id,
-            addresses: addresses.iter().map(|a| a.to_string()).collect(),
+            address: Some(DbSecret::new(address)),
         }
-    }
-
-    #[tokio::test]
-    async fn each_address_of_a_person_gets_its_own_mail_and_token() {
-        insert_data!(:tx, :user, :org, :course);
-        let claimed = claim_linking_mails(
-            tx.as_mut(),
-            &person(course, &["aada@helsinki.fi", "aada@example.com"]),
-        )
-        .await
-        .unwrap();
-        assert_eq!(claimed.claimed, 2);
-        assert_eq!(claimed.suppressed_by_dedup, 0);
-        let rows = get_by_sisu_person_id(tx.as_mut(), "hy-hlo-1")
-            .await
-            .unwrap();
-        assert_eq!(rows.len(), 2);
-        for row in rows {
-            assert!(row.student_number_verification_token_id.is_some());
-            assert!(row.email_delivery_id.is_none());
-        }
-    }
-
-    #[tokio::test]
-    async fn one_address_repeated_is_claimed_once() {
-        insert_data!(:tx, :user, :org, :course);
-        let claimed = claim_linking_mails(
-            tx.as_mut(),
-            &person(course, &["Aada@Helsinki.fi", "aada@helsinki.fi", "  "]),
-        )
-        .await
-        .unwrap();
-        assert_eq!(claimed.claimed, 1);
-        assert_eq!(claimed.suppressed_by_rate_cap, 0);
     }
 
     #[tokio::test]
     async fn mailing_the_same_address_twice_is_refused_as_a_duplicate() {
         insert_data!(:tx, :user, :org, :course);
-        let discovered = person(course, &["aada@helsinki.fi"]);
+        let discovered = person(course, "aada.uni@example.com");
         assert_eq!(
-            claim_linking_mails(tx.as_mut(), &discovered).await.unwrap(),
-            ClaimedLinkingMails {
-                claimed: 1,
-                ..ClaimedLinkingMails::default()
-            }
+            claim_linking_mail(tx.as_mut(), &discovered).await.unwrap(),
+            LinkingMailClaim::Claimed
         );
         assert_eq!(
-            claim_linking_mails(tx.as_mut(), &discovered).await.unwrap(),
-            ClaimedLinkingMails {
-                suppressed_by_dedup: 1,
-                ..ClaimedLinkingMails::default()
-            }
+            claim_linking_mail(tx.as_mut(), &discovered).await.unwrap(),
+            LinkingMailClaim::SuppressedByDedup
         );
         assert_eq!(
             get_by_sisu_person_id(tx.as_mut(), "hy-hlo-1")
@@ -392,48 +392,19 @@ mod tests {
     #[tokio::test]
     async fn a_person_mailed_today_is_left_alone_even_at_another_address() {
         insert_data!(:tx, :user, :org, :course);
-        claim_linking_mails(tx.as_mut(), &person(course, &["aada@helsinki.fi"]))
+        claim_linking_mail(tx.as_mut(), &person(course, "aada.uni@example.com"))
             .await
             .unwrap();
-        let claimed = claim_linking_mails(tx.as_mut(), &person(course, &["aada@example.com"]))
+        let claimed = claim_linking_mail(tx.as_mut(), &person(course, "aada@example.com"))
             .await
             .unwrap();
-        assert_eq!(
-            claimed,
-            ClaimedLinkingMails {
-                suppressed_by_rate_cap: 1,
-                ..ClaimedLinkingMails::default()
-            }
-        );
-    }
-
-    #[tokio::test]
-    async fn a_person_and_course_are_never_mailed_more_than_the_cap() {
-        insert_data!(:tx, :user, :org, :course);
-        let cap = usize::try_from(MAX_LINKING_MAILS_PER_PERSON_AND_COURSE).unwrap();
-        let addresses: Vec<String> = (0..cap + 2)
-            .map(|i| format!("aada{i}@example.com"))
-            .collect();
-        let claimed = claim_linking_mails(
-            tx.as_mut(),
-            &DiscoveredPerson {
-                addresses,
-                ..person(course, &[])
-            },
-        )
-        .await
-        .unwrap();
-        assert_eq!(
-            i64::from(claimed.claimed),
-            MAX_LINKING_MAILS_PER_PERSON_AND_COURSE
-        );
-        assert_eq!(claimed.suppressed_by_rate_cap, 2);
+        assert_eq!(claimed, LinkingMailClaim::SuppressedByRateCap);
     }
 
     #[tokio::test]
     async fn the_token_is_created_unbound_and_can_be_claimed_only_once() {
         insert_data!(:tx, :user, :org, :course);
-        claim_linking_mails(tx.as_mut(), &person(course, &["aada@helsinki.fi"]))
+        claim_linking_mail(tx.as_mut(), &person(course, "aada.uni@example.com"))
             .await
             .unwrap();
         let slot = get_by_sisu_person_id(tx.as_mut(), "hy-hlo-1")
@@ -459,26 +430,31 @@ mod tests {
     async fn the_rate_cap_override_retires_the_ledger_rows_and_audits_itself() {
         insert_data!(:tx, :user, :org, :course);
 
-        let claimed = claim_linking_mails(
-            tx.as_mut(),
-            &DiscoveredPerson {
-                sisu_person_id: "hy-hlo-1".to_string(),
-                student_number: "012345678".to_string(),
-                first_names: Some("Aada Maria".to_string()),
-                last_name: Some("Virtanen".to_string()),
-                course_id: course,
-                addresses: vec!["aada@helsinki.fi".to_string()],
-            },
-        )
-        .await
-        .unwrap();
-        assert_eq!(claimed.claimed, 1);
+        let claimed = claim_linking_mail(tx.as_mut(), &person(course, "aada.uni@example.com"))
+            .await
+            .unwrap();
+        assert_eq!(claimed, LinkingMailClaim::Claimed);
         assert_eq!(
             count_sent_for_person_and_course(tx.as_mut(), "hy-hlo-1", course)
                 .await
                 .unwrap(),
             1
         );
+        let mails = credit_registration_account_linking_emails::get_by_sisu_person_id(
+            tx.as_mut(),
+            "hy-hlo-1",
+        )
+        .await
+        .unwrap();
+        for mail in mails {
+            credit_registration_account_linking_emails::backdate(
+                tx.as_mut(),
+                mail.id,
+                chrono::Duration::hours(1),
+            )
+            .await
+            .unwrap();
+        }
 
         let retired = retire_capped_mails(
             tx.as_mut(),
@@ -490,7 +466,7 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(retired, 1);
+        assert_eq!(retired.retired_count, 1);
         assert_eq!(
             count_sent_for_person_and_course(tx.as_mut(), "hy-hlo-1", course)
                 .await
@@ -529,7 +505,7 @@ mod tests {
         )
         .await
         .unwrap();
-        assert_eq!(retired, 0);
+        assert_eq!(retired.retired_count, 0);
         assert!(
             credit_registration_admin_actions::get_by_actor(tx.as_mut(), user, 10)
                 .await

@@ -123,6 +123,17 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 11,
+        "name": "replaced_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "replaced_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -142,6 +153,7 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },

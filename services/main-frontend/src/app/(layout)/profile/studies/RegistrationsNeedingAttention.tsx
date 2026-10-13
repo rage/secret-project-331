@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import {
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   STATE_ACTION_NEEDED,
   STATE_FAILED,
   TIME_DATE,
@@ -25,7 +24,6 @@ import {
   sectionCss,
   sectionsCss,
 } from "@/components/credit-registration/styles"
-import { useCanConfirmEmailAddress } from "@/components/credit-registration/useCanConfirmEmailAddress"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -91,15 +89,16 @@ const AttentionSection: React.FC<{
 const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
-  const canConfirmEmail = useCanConfirmEmailAddress()
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
-    canConfirmEmail,
     linkToStatusPage: true,
   })
 
   const subject = registration.course_module_name
-    ? `${registration.course_name}${MIDDLE_DOT}${registration.course_module_name}`
+    ? t("credit-registration-course-and-module", {
+        course: registration.course_name,
+        module: registration.course_module_name,
+      })
     : registration.course_name
 
   return (

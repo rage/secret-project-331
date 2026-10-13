@@ -19,32 +19,50 @@ pub async fn seed_generic_emails(
     let english_subject = Some("Reset password request");
     let english_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "95acea49-1c92-4d54-9854-707e1bfee010",
             "attributes": {
                 "content": "Hello, it seems you requested a password reset.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "ceac591d-b291-40b2-8da7-6f437a6a8fce",
             "attributes": {
-                "content": "You can reset your password here: {{RESET_LINK}}",
-                "drop_cap": false
+                "content": "Click the button below to choose a new password.",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e1000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e1000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Reset password",
+                        "url": "{{RESET_LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "6a4165a1-38e1-4a17-b364-5f265afc7d23",
             "attributes": {
                 "content": "If you did not request a password reset, please ignore this message.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -62,32 +80,50 @@ pub async fn seed_generic_emails(
     let finnish_subject = Some("Salasanan palautuspyyntö");
     let finnish_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "a9de49ff-919f-44b4-a085-9210ce0da94b",
             "attributes": {
                 "content": "Hei, olet pyytänyt salasanan palautusta.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "c145bae4-9ff5-4194-8913-50f8900c20c8",
             "attributes": {
-                "content": "Voit palauttaa salasanasi tästä: {{RESET_LINK}}",
-                "drop_cap": false
+                "content": "Valitse uusi salasana alla olevasta painikkeesta.",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e2000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e2000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Palauta salasana",
+                        "url": "{{RESET_LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "ebd0d430-0ae3-4b85-9e8e-96481660ded4",
             "attributes": {
                 "content": "Jos et pyytänyt salasanan palautusta, voit jättää tämän viestin huomiotta.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -116,32 +152,41 @@ pub async fn seed_generic_emails(
     let delete_subject = Some("Account deletion code");
     let delete_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "11111111-1111-1111-1111-111111111111",
             "attributes": {
                 "content": "Hello, it seems you requested a code for deleting your account",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "22222222-2222-2222-2222-222222222222",
             "attributes": {
-                "content": "Use this verification code to delete your account: {{CODE}}",
-                "drop_cap": false
+                "content": "Use this verification code to delete your account:",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000001",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "33333333-3333-3333-3333-333333333333",
             "attributes": {
                 "content": "If you did not request a code, please ignore this message.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -161,32 +206,41 @@ pub async fn seed_generic_emails(
     let confirm_subject = Some("Email verification code");
     let confirm_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "44444444-4444-4444-4444-444444444444",
             "attributes": {
                 "content": "Hello, please use this code to verify your email address",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "55555555-5555-5555-5555-555555555555",
             "attributes": {
-                "content": "Your verification code is: {{CODE}}",
-                "drop_cap": false
+                "content": "Your verification code is:",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000002",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "66666666-6666-6666-6666-666666666666",
             "attributes": {
                 "content": "If you did not request this code, please ignore this message.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -203,274 +257,7 @@ pub async fn seed_generic_emails(
 
     seed_email_ownership_verification_templates(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
-    seed_student_notification_templates(&mut conn).await?;
-    seed_student_number_linked_templates(&mut conn).await?;
-
-    Ok(())
-}
-
-/// The two terminal-state mails a student may get about a credit registration, and the only two
-/// that exist.
-///
-/// `{{ENROLMENT_LINK}}` is empty for a module with no open university product or no resolved access
-/// token, so the sentence carrying it has to read correctly on its own; that degraded case is what
-/// the configuration check reports as a problem.
-async fn seed_student_notification_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
-    info!("inserting credit registration student notification emails");
-
-    let english_subject = Some("We could not register your credits yet");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d3000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, we could not register your {{CREDITS}} credits for {{COURSE_NAME}} because the University of Helsinki study registry has no active enrolment for you on this course.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d3000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Enrol on the course in Sisu and we will register the credits for you automatically. {{ENROLMENT_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d3000000-0000-0000-0000-000000000003",
-            "attributes": {
-                "content": "You can follow the registration here: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationActionNeeded,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Emme voineet vielä kirjata opintopisteitäsi");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d4000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, emme voineet kirjata {{CREDITS}} opintopistettäsi kurssilta {{COURSE_NAME}}, koska Helsingin yliopiston opintorekisterissä ei ole sinulle voimassa olevaa ilmoittautumista tälle kurssille.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d4000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Ilmoittaudu kurssille Sisussa, niin kirjaamme opintopisteet puolestasi automaattisesti. {{ENROLMENT_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d4000000-0000-0000-0000-000000000003",
-            "attributes": {
-                "content": "Voit seurata kirjausta täältä: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationActionNeeded,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
-
-    // One template for `registered`, `duplicate` and `not_improved`: from the student's side the
-    // credit exists either way, and a message that told them apart would only invite a support
-    // question about a distinction they cannot act on.
-    let english_subject = Some("Your credits are recorded in Sisu");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d5000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, your {{CREDITS}} credits for {{COURSE_NAME}} are now recorded in the University of Helsinki study registry.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d5000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "If the credits were already recorded there, this message simply confirms it. You can see the details here: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationRegistered,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Opintopisteesi on kirjattu Sisuun");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d6000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, {{CREDITS}} opintopistettäsi kurssilta {{COURSE_NAME}} on nyt kirjattu Helsingin yliopiston opintorekisteriin.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d6000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Jos opintopisteet oli jo kirjattu sinne, tämä viesti vain vahvistaa sen. Näet tiedot täältä: {{STATUS_LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationRegistered,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
-
-    Ok(())
-}
-
-/// Told to a student whose student number we linked from a matching verified email address, without
-/// them clicking anything. A compensating control for that automatic link: it is how someone finds
-/// out a number was attached to their account and can detach it.
-async fn seed_student_number_linked_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
-    info!("inserting credit registration student number linked emails");
-
-    let english_subject = Some("Your student number was linked to your account");
-    let english_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d7000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hello {{NAME}}, we linked student number {{STUDENT_NUMBER}} to your courses.mooc.fi account, because the University of Helsinki study registry holds this same confirmed email address for that student number.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d7000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Your credits will be registered under this student number. If it is not yours, remove it here: {{LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationStudentNumberLinked,
-            language: Some("en".to_string()),
-            content: Some(english_body),
-            subject: english_subject.map(|s| s.to_string()),
-        },
-        english_subject,
-    )
-    .await?;
-
-    let finnish_subject = Some("Opiskelijanumerosi liitettiin tiliisi");
-    let finnish_body = json!([
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d8000000-0000-0000-0000-000000000001",
-            "attributes": {
-                "content": "Hei {{NAME}}, liitimme opiskelijanumeron {{STUDENT_NUMBER}} courses.mooc.fi-tiliisi, koska Helsingin yliopiston opintorekisterissä on samalle opiskelijanumerolle tämä sama vahvistettu sähköpostiosoite.",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        },
-        {
-            "type": "core/paragraph",
-            "isValid": true,
-            "clientId": "d8000000-0000-0000-0000-000000000002",
-            "attributes": {
-                "content": "Opintopisteesi kirjataan tälle opiskelijanumerolle. Jos se ei ole sinun, poista se täältä: {{LINK}}",
-                "drop_cap": false
-            },
-            "innerBlocks": []
-        }
-    ]);
-
-    insert_email_template(
-        conn,
-        None,
-        EmailTemplateNew {
-            template_type: EmailTemplateType::CreditRegistrationStudentNumberLinked,
-            language: Some("fi".to_string()),
-            content: Some(finnish_body),
-            subject: finnish_subject.map(|s| s.to_string()),
-        },
-        finnish_subject,
-    )
-    .await?;
+    seed_credit_registration_status_templates(&mut conn).await?;
 
     Ok(())
 }
@@ -482,35 +269,74 @@ async fn seed_student_number_linked_templates(conn: &mut sqlx::PgConnection) -> 
 async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
     info!("inserting credit registration account linking emails");
 
-    let english_subject = Some("Link your student number to register your credits");
+    let english_subject =
+        Some("Link your University of Helsinki student number to register your credits");
     let english_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hello {{NAME}}, you completed {{COURSE_NAME}} on courses.mooc.fi and we can register the credits for you.",
-                "drop_cap": false
+                "content": "Hello, we can see your enrolment on {{COURSE_NAME}}. To register your completion in Sisu, we need to link your University of Helsinki student number {{STUDENT_NUMBER}} to your account on courses.mooc.fi.",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Open this link while logged in to confirm that student number {{STUDENT_NUMBER}} is yours: {{LINK}}",
-                "drop_cap": false
+                "content": "Log in to courses.mooc.fi with the account you use for the course, then press the button below.",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e4000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e4000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Link student number",
+                        "url": "{{LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d1000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "The link is valid for 14 days and can be used once. You received this message because you are enrolled in {{COURSE_NAME}} at the University of Helsinki and completed it on courses.mooc.fi. If this was not you, please ignore this message.",
-                "drop_cap": false
+                "content": "The link works once, for 14 days. It is fine if this email address is different from the one you use on courses.mooc.fi.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "You got this email because you are enrolled on {{COURSE_NAME}} at the University of Helsinki. If that is not you, ignore this email.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d1000000-0000-0000-0000-000000000005",
+            "attributes": {
+                "content": "Best regards,<br>MOOC.fi",
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -529,35 +355,74 @@ async fn seed_account_linking_templates(conn: &mut sqlx::PgConnection) -> anyhow
     )
     .await?;
 
-    let finnish_subject = Some("Yhdistä opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
+    let finnish_subject =
+        Some("Liitä Helsingin yliopiston opiskelijanumerosi, jotta voimme kirjata opintopisteesi");
     let finnish_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hei {{NAME}}, olet suorittanut kurssin {{COURSE_NAME}} courses.mooc.fi-palvelussa ja voimme kirjata opintopisteet puolestasi.",
-                "drop_cap": false
+                "content": "Hei, näemme ilmoittautumisesi kurssille {{COURSE_NAME}}. Jotta voimme kirjata suorituksesi Sisuun, meidän pitää liittää Helsingin yliopiston opiskelijanumerosi {{STUDENT_NUMBER}} courses.mooc.fi-tiliisi.",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000002",
             "attributes": {
-                "content": "Avaa tämä linkki kirjautuneena vahvistaaksesi, että opiskelijanumero {{STUDENT_NUMBER}} on sinun: {{LINK}}",
-                "drop_cap": false
+                "content": "Kirjaudu courses.mooc.fi-palveluun sillä tilillä, jolla teet kurssia, ja paina sitten alla olevaa painiketta.",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/buttons",
+            "isValid": true,
+            "clientId": "e5000000-0000-0000-0000-000000000001",
+            "attributes": {},
+            "innerBlocks": [
+                {
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": "e5000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "text": "Liitä opiskelijanumero",
+                        "url": "{{LINK}}"
+                    },
+                    "innerBlocks": []
+                }
+            ]
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "d2000000-0000-0000-0000-000000000003",
             "attributes": {
-                "content": "Linkki on voimassa 14 päivää ja sen voi käyttää kertaalleen. Sait tämän viestin, koska olet ilmoittautunut kurssille {{COURSE_NAME}} Helsingin yliopistossa ja suorittanut sen courses.mooc.fi-palvelussa. Jos tämä ei ollut sinä, voit jättää viestin huomiotta.",
-                "drop_cap": false
+                "content": "Linkki toimii kerran, 14 päivän ajan. Ei haittaa, jos tämä sähköpostiosoite on eri kuin courses.mooc.fi:ssä käyttämäsi.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "Sait tämän viestin, koska olet ilmoittautunut Helsingin yliopiston kurssille {{COURSE_NAME}}. Jos viesti ei ole sinulle, voit jättää sen huomiotta.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "d2000000-0000-0000-0000-000000000005",
+            "attributes": {
+                "content": "Terveisin,<br>MOOC.fi",
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -592,32 +457,41 @@ async fn seed_email_ownership_verification_templates(
     let english_subject = Some("Confirm your email address");
     let english_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "77777777-7777-7777-7777-777777777777",
             "attributes": {
                 "content": "Hello, please use this code to confirm the email address on your account.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "88888888-8888-8888-8888-888888888888",
             "attributes": {
-                "content": "Your confirmation code is: {{CODE}}",
-                "drop_cap": false
+                "content": "Your confirmation code is:",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000003",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "99999999-9999-9999-9999-999999999999",
             "attributes": {
                 "content": "If you did not request this, you can ignore this message. Nothing changes until the code is entered.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -639,32 +513,41 @@ async fn seed_email_ownership_verification_templates(
     let finnish_subject = Some("Vahvista sähköpostiosoitteesi");
     let finnish_body = json!([
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "aaaaaaaa-7777-7777-7777-777777777777",
             "attributes": {
                 "content": "Hei, vahvista tilisi sähköpostiosoite tällä koodilla.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "bbbbbbbb-8888-8888-8888-888888888888",
             "attributes": {
-                "content": "Vahvistuskoodisi on: {{CODE}}",
-                "drop_cap": false
+                "content": "Vahvistuskoodisi on:",
+                "dropCap": false
             },
             "innerBlocks": []
         },
         {
-            "type": "core/paragraph",
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "e3000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
             "isValid": true,
             "clientId": "cccccccc-9999-9999-9999-999999999999",
             "attributes": {
                 "content": "Jos et pyytänyt tätä, voit jättää viestin huomiotta. Mikään ei muutu ennen kuin koodi syötetään.",
-                "drop_cap": false
+                "dropCap": false
             },
             "innerBlocks": []
         }
@@ -682,6 +565,121 @@ async fn seed_email_ownership_verification_templates(
         finnish_subject,
     )
     .await?;
+
+    Ok(())
+}
+
+/// The credit registration student mails. Their only link is the status page, since students enrol
+/// in different ways.
+async fn seed_credit_registration_status_templates(
+    conn: &mut sqlx::PgConnection,
+) -> anyhow::Result<()> {
+    info!("inserting credit registration status emails");
+
+    const BUTTON_AFTER_PARAGRAPH: usize = 2;
+
+    let templates: [(EmailTemplateType, &str, &str, &str, &[&str]); 4] = [
+        (
+            EmailTemplateType::CreditRegistrationActionNeeded,
+            "en",
+            "One more step to get your credits registered",
+            "See how to enrol",
+            &[
+                "Hello, congratulations on completing {{COURSE_NAME}}! You have earned {{CREDITS}} credits.",
+                "To get your completion registered in Sisu, enrol on the course. The button below shows how. If you have already enrolled, you do not need to enrol again.",
+                "After you enrol, we register your completion automatically. If your University of Helsinki student number is not linked yet, we first send a linking email to your primary email address in Sisu.",
+                "Best regards,<br>MOOC.fi",
+            ],
+        ),
+        (
+            EmailTemplateType::CreditRegistrationActionNeeded,
+            "fi",
+            "Vielä yksi vaihe opintopisteiden kirjaamiseen",
+            "Katso ilmoittautumisohjeet",
+            &[
+                "Hei, onnittelut kurssin {{COURSE_NAME}} suorittamisesta! Olet ansainnut {{CREDITS}} op.",
+                "Jotta suorituksesi voidaan kirjata Sisuun, ilmoittaudu kurssille. Alla olevasta painikkeesta näet, miten. Jos olet jo ilmoittautunut, sinun ei tarvitse ilmoittautua uudelleen.",
+                "Ilmoittautumisen jälkeen kirjaamme suorituksesi automaattisesti. Jos Helsingin yliopiston opiskelijanumeroasi ei ole vielä liitetty, lähetämme ensin liitosviestin Sisussa olevaan ensisijaiseen sähköpostiosoitteeseesi.",
+                "Terveisin,<br>MOOC.fi",
+            ],
+        ),
+        (
+            EmailTemplateType::CreditRegistrationRegistered,
+            "en",
+            "Your credits have been registered",
+            "See the details",
+            &[
+                "Hello, your completion of {{COURSE_NAME}} ({{CREDITS}} credits) is now registered in Sisu.",
+                "You do not need to do anything else.",
+                "Best regards,<br>MOOC.fi",
+            ],
+        ),
+        (
+            EmailTemplateType::CreditRegistrationRegistered,
+            "fi",
+            "Opintopisteesi on kirjattu",
+            "Katso tiedot",
+            &[
+                "Hei, suorituksesi kurssilta {{COURSE_NAME}} ({{CREDITS}} op) on nyt kirjattu Sisuun.",
+                "Sinun ei tarvitse tehdä muuta.",
+                "Terveisin,<br>MOOC.fi",
+            ],
+        ),
+    ];
+
+    for (template_index, (template_type, language, subject, button_label, paragraphs)) in
+        templates.into_iter().enumerate()
+    {
+        let mut blocks: Vec<_> = paragraphs
+            .iter()
+            .enumerate()
+            .map(|(paragraph_index, content)| {
+                json!({
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": format!(
+                        "d{}000000-0000-0000-0000-{:012}",
+                        template_index + 3,
+                        paragraph_index + 1
+                    ),
+                    "attributes": {
+                        "content": content,
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                })
+            })
+            .collect();
+        blocks.insert(
+            BUTTON_AFTER_PARAGRAPH,
+            json!({
+                "name": "core/buttons",
+                "isValid": true,
+                "clientId": format!("d{}000000-0000-0000-0000-{:012}", template_index + 3, 100),
+                "attributes": {},
+                "innerBlocks": [{
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": format!("d{}000000-0000-0000-0000-{:012}", template_index + 3, 101),
+                    "attributes": { "text": button_label, "url": "{{STATUS_LINK}}" },
+                    "innerBlocks": []
+                }]
+            }),
+        );
+
+        insert_email_template(
+            conn,
+            None,
+            EmailTemplateNew {
+                template_type,
+                language: Some(language.to_string()),
+                content: Some(json!(blocks)),
+                subject: Some(subject.to_string()),
+            },
+            Some(subject),
+        )
+        .await?;
+    }
 
     Ok(())
 }

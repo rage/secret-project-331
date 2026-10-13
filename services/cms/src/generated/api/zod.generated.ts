@@ -20,6 +20,19 @@ export const zAutomaticCompletionRequirements = z.object({
   requires_exam: z.boolean(),
 })
 
+export const zChartSpecGenerationRequest = z.object({
+  current_spec: z.string().nullish(),
+  data_format: z.string().nullish(),
+  data_sample: z.string().nullish(),
+  data_url: z.string().nullish(),
+  page_id: z.uuid().nullish(),
+  prompt: z.string(),
+})
+
+export const zChartSpecGenerationResponse = z.object({
+  spec: z.string(),
+})
+
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -177,6 +190,23 @@ export const zDatabaseChapter = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * A template rendered as it would be sent, with sample placeholder values.
+ */
+export const zEmailTemplatePreview = z.object({
+  html: z.string(),
+  plain_text: z.string(),
+  subject: z.string(),
+})
+
+/**
+ * The editor's unsaved subject and body.
+ */
+export const zEmailTemplatePreviewRequest = z.object({
+  content: z.unknown(),
+  subject: z.string(),
+})
+
 export const zEmailTemplateType = z.enum([
   "reset_password_email",
   "delete_user_email",
@@ -186,7 +216,6 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
-  "credit_registration_student_number_linked",
 ])
 
 export const zEmailTemplate = z.object({
@@ -591,6 +620,13 @@ export const zChatbotConfiguration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zRequestChartSpecGenerationBody = zChartSpecGenerationRequest
+
+/**
+ * Generated Vega-Lite chart specification
+ */
+export const zRequestChartSpecGenerationResponse = zChartSpecGenerationResponse
+
 export const zRequestParagraphSuggestionsBody = zParagraphSuggestionRequest
 
 /**
@@ -793,6 +829,28 @@ export const zUpdateCmsEmailTemplatePath = z.object({
  * Updated email template
  */
 export const zUpdateCmsEmailTemplateResponse = zEmailTemplate
+
+export const zPreviewCmsEmailTemplateBody = zEmailTemplatePreviewRequest
+
+export const zPreviewCmsEmailTemplatePath = z.object({
+  email_template_id: z.uuid(),
+})
+
+/**
+ * Rendered email
+ */
+export const zPreviewCmsEmailTemplateResponse = zEmailTemplatePreview
+
+export const zSendCmsEmailTemplateTestBody = zEmailTemplatePreviewRequest
+
+export const zSendCmsEmailTemplateTestPath = z.object({
+  email_template_id: z.uuid(),
+})
+
+/**
+ * Id of the queued test delivery
+ */
+export const zSendCmsEmailTemplateTestResponse = z.uuid()
 
 export const zGetCmsExamInstructionsPath = z.object({
   exam_id: z.uuid(),

@@ -35,9 +35,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
             {data.map((exercise_service) => (
               <li key={exercise_service.name}>
                 <Button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
+                  onClick={() => {
                     if (!exercise_service.public_iframe_url) {
                       return
                     }

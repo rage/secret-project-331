@@ -1,8 +1,6 @@
 /*!
 Syncs tmc users
 */
-use std::env;
-
 use crate::config::program_config::ProgramConfig;
 use crate::domain::email_ownership_verification::queue_verification_email_best_effort;
 use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
@@ -38,9 +36,8 @@ pub struct Change {
 }
 
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     let database_url = ProgramConfig::database_url_with_default();
     // The same variable the server reads into

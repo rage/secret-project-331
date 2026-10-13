@@ -1,6 +1,6 @@
 import { css, cx } from "@emotion/css"
 
-import { monospaceFont } from "@/shared-module/common/styles"
+import { monospaceFont, primaryFont } from "@/shared-module/common/styles"
 
 /** Page shell for the standalone student pages. */
 export const narrowPageCss = css`
@@ -102,6 +102,7 @@ export const subsectionCss = cx(
 /** The page's h1. */
 export const pageTitleCss = css`
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--color-gray-700);
   font-size: var(--font-size-5);
   font-weight: 600;
@@ -161,6 +162,19 @@ export const controlCss = css`
 `
 
 /**
+ * A button beside a field in a `controlsCss` row, centred on the 56px floating-label input rather
+ * than on the whole field, whose message can extend below it.
+ */
+export const fieldActionCss = css`
+  margin-top: calc((56px - var(--control-height-md)) / 2);
+`
+
+/** A `Tooltip` trigger in a line of text: its 32px button would otherwise push the line's text down. */
+export const inlineTooltipTriggerCss = css`
+  margin-block: calc(var(--space-3) * -1);
+`
+
+/**
  * A checkbox in a `controlsCss` row. `controlsCss` aligns items to `start`, but a floating-label
  * field is much taller than an inline checkbox, so the checkbox needs centering on its own.
  */
@@ -174,6 +188,11 @@ export const rowCss = css`
   flex-wrap: wrap;
   gap: var(--space-3);
   align-items: center;
+`
+
+/** Pushed to the far end of a `rowCss`, for an action that does not move the row forward. */
+export const apartCss = css`
+  margin-left: auto;
 `
 
 /** A `rowCss` whose ends are pushed apart: a name on the left, its status or action on the right. */
@@ -256,10 +275,12 @@ export const dividedListCss = css`
 `
 
 /** Stacks the fields of a dialog form. */
-export const dialogFormCss = css`
-  display: grid;
-  gap: var(--space-4);
-`
+export const dialogFormCss = cx(
+  stackCss,
+  css`
+    gap: var(--space-4);
+  `,
+)
 
 /** A `dialogFormCss` whose controls keep their own width instead of stretching to the grid. */
 export const dialogFormStartCss = cx(
@@ -329,18 +350,25 @@ export const statusTriggerCss = css`
   }
 `
 
-/** Holds the arrow to the state it leads away from, so it never starts a line of its own. */
-export const stateChangeFromCss = css`
-  display: inline-flex;
+/** The arrow and the state a change led to, under the state it left. */
+export const stateChangeToCss = css`
+  display: flex;
   align-items: center;
   gap: var(--space-2);
-  white-space: nowrap;
 `
 
-/** Any code-like value: identifiers, error codes, student numbers. */
-export const monospaceCss = css`
-  font-family: ${monospaceFont};
-  font-variant-numeric: tabular-nums;
+/**
+ * Text we do not control and that can hold one run longer than its box: a name, a course title, a
+ * server message. Breaks anywhere so the run wraps instead of widening its table or flex row.
+ */
+export const breakAnywhereCss = css`
+  overflow-wrap: anywhere;
+`
+
+/** A code-like value (identifier, error code, student number) in the body font; `<code>` and `<pre>` are monospace globally. */
+export const codeValueCss = css`
+  font-family: ${primaryFont};
+  font-feature-settings: normal;
   overflow-wrap: anywhere;
 `
 
@@ -352,18 +380,18 @@ export const studentNumberCss = css`
   font-variant-numeric: tabular-nums;
 `
 
-/** A stored request or response body in a `<pre>`. */
-export const payloadCss = cx(
-  monospaceCss,
-  css`
-    margin: 0;
-    padding: var(--space-3);
-    max-height: 20rem;
-    overflow: auto;
-    border: 1px solid var(--color-clear-300);
-    border-radius: var(--surface-radius);
-    background: var(--color-gray-50);
-    font-size: var(--font-size-1);
-    white-space: pre-wrap;
-  `,
-)
+/** A stored request or response body in a `<pre>`: JSON, so it stays monospace. */
+export const payloadCss = css`
+  font-family: ${monospaceFont};
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  margin: 0;
+  padding: var(--space-3);
+  max-height: 20rem;
+  overflow: auto;
+  border: 1px solid var(--color-clear-300);
+  border-radius: var(--surface-radius);
+  background: var(--color-gray-50);
+  font-size: var(--font-size-1);
+  white-space: pre-wrap;
+`

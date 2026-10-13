@@ -1,12 +1,16 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
+  getAccountLinkingCoursesOptions,
   getAccountLinkingStatsOptions,
+  getAccountLinkingUnlinkedEnroleesOptions,
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationAttentionItemsOptions,
   getCreditRegistrationAttentionItemsQueryKey,
+  getCreditRegistrationEnrolmentChecksOptions,
   getCreditRegistrationErrorsByCodeOptions,
   getCreditRegistrationForAdminOptions,
+  getCreditRegistrationLinkingCandidatesOptions,
   getCreditRegistrationOverviewOptions,
   getCreditRegistrationOverviewQueryKey,
   getCreditRegistrationPipelineHistoryOptions,
@@ -14,7 +18,6 @@ import {
   getCreditRegistrationReconciliationQueryKey,
   getCreditRegistrationStatsByCourseOptions,
   getCreditRegistrationStatsByCourseQueryKey,
-  getCreditRegistrationThresholdsOptions,
   getSuotarHealthOptions,
   listCreditRegistrationAdminActionsOptions,
   listCreditRegistrationPhasesOptions,
@@ -25,7 +28,6 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
-  AccountLinkingStats,
   CreditRegistrationAlertId,
   CreditRegistrationOverview,
   CreditRegistrationStatsByCourse,
@@ -50,7 +52,7 @@ const HISTORY_REFETCH_INTERVAL_MS = 300_000
 /** The shortest window the health endpoint reports. */
 export const HOUR_SECS = 3600
 
-/** The window the Linking page reads its funnel over. Shared so the tab badge hits the same cache. */
+/** The window the Linking page reads its linking email counts over. */
 export const LINKING_STATS_WINDOW_DAYS = 30
 
 const GC_TIME_MS = 5 * 60_000
@@ -90,10 +92,11 @@ export const useSuotarApiCalls = (query: NonNullable<ListSuotarApiCallsData["que
 
 export const useAdminCreditRegistrations = (
   query: NonNullable<ListCreditRegistrationsForAdminData["query"]>,
-  { paused }: { paused: boolean },
+  { paused, enabled = true }: { paused: boolean; enabled?: boolean },
 ) =>
   useQuery({
     ...listCreditRegistrationsForAdminOptions({ query }),
+    enabled,
     // A table that reshuffles under a click is worse than a stale one.
     refetchInterval: paused ? false : LIST_REFETCH_INTERVAL_MS,
     staleTime: LIST_REFETCH_INTERVAL_MS,
@@ -109,6 +112,37 @@ export const useAdminCreditRegistration = (creditRegistrationId: string) =>
       query.state.data?.registration.terminal_at ? false : LIVE_ITEM_REFETCH_INTERVAL_MS,
     staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
+  })
+
+/**
+ * Fetches the code's enrolment list live from Sisu on every open; nothing is cached past the dialog.
+ */
+export const useLinkingCandidates = (creditRegistrationId: string, isEnabled: boolean) =>
+  useQuery({
+    ...getCreditRegistrationLinkingCandidatesOptions({
+      path: { credit_registration_id: creditRegistrationId },
+    }),
+    enabled: isEnabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  })
+
+/** The courses a linking email can be sent for by hand, loaded once the dialog opens. */
+export const useAccountLinkingCourses = (isEnabled: boolean) =>
+  useQuery({ ...getAccountLinkingCoursesOptions(), enabled: isEnabled })
+
+/**
+ * Fetches the course's enrolment lists live from Sisu once a course is picked; nothing is cached
+ * past the dialog.
+ */
+export const useUnlinkedEnrolees = (courseId: string | null, isEnabled: boolean) =>
+  useQuery({
+    ...getAccountLinkingUnlinkedEnroleesOptions({ path: { course_id: courseId ?? "" } }),
+    enabled: isEnabled && courseId !== null,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
   })
 
 export const useAccountLinkingStats = (windowDays: number) =>
@@ -131,30 +165,13 @@ export const useCreditRegistrationPhases = () =>
     ...polled(PHASE_REFETCH_INTERVAL_MS),
   })
 
-/** The thresholds the detectors and the alert rules share, so the page never states a number of its own. */
-export const useCreditRegistrationThresholds = () =>
-  useQuery({
-    ...getCreditRegistrationThresholdsOptions(),
-    staleTime: GC_TIME_MS,
-    gcTime: GC_TIME_MS,
-  })
-
-/**
- * One page of the work queue. The facet counts on the response cover the whole queue, not the page.
- *
- * `enabled: false` for the second call a page makes to select a whole facet at once, which must not
- * run until the operator asks for it.
- */
+/** The Needs attention tab's sections. Each lists its oldest rows; every count covers all of them. */
 export const useCreditRegistrationAttentionItems = (
   query: NonNullable<GetCreditRegistrationAttentionItemsData["query"]>,
-  { enabled = true }: { enabled?: boolean } = {},
 ) =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions({ query }),
     ...polled(ATTENTION_REFETCH_INTERVAL_MS),
-    enabled,
-    // A facet click must not blank the table it renumbers.
-    placeholderData: keepPreviousData,
   })
 
 export const useInvalidateAttentionItems = () => {
@@ -182,7 +199,7 @@ const SYSTEM_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
 ]
 
 const selectNeedsAttention = (overview: CreditRegistrationOverview) =>
-  overview.needs_admin_attention_count
+  overview.needs_attention_count
 
 const selectUnhealthyPhases = (overview: CreditRegistrationOverview) =>
   alertTotal(overview, SYSTEM_ALERT_IDS)
@@ -210,20 +227,44 @@ export const useCreditRegistrationMisconfiguredCourseCount = () =>
     select: (stats: CreditRegistrationStatsByCourse) => stats.misconfigured_count,
   })
 
+const BLOCKING_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
+  "phase_failing",
+  "phase_heartbeat_stale",
+  "pipeline_paused_globally",
+  "roster_course_code_failing",
+]
+
+const selectHasBlockingAlert = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, BLOCKING_ALERT_IDS) > 0
+
+/**
+ * Whether a processing phase is paused or late or a course code is failing: problems that hold up
+ * many registrations, which the Needs attention count leaves out.
+ */
+export const useHasBlockingProblem = (): boolean => {
+  const hasBlockingAlert = useQuery({
+    ...getCreditRegistrationOverviewOptions(),
+    ...polled(OVERVIEW_REFETCH_INTERVAL_MS),
+    select: selectHasBlockingAlert,
+  }).data
+  const hasPausedPhase = useCreditRegistrationPhases().data?.phases.some(
+    (phase) => phase.paused_at !== null && phase.paused_at !== undefined,
+  )
+  return Boolean(hasBlockingAlert || hasPausedPhase)
+}
+
 /** Pipeline phases that are failing or overdue. */
 export const useCreditRegistrationUnhealthyPhaseCount = () =>
   useOverviewCount(selectUnhealthyPhases)
 
-/**
- * Account-linking mails our own sender never got out, all time — the number the Linking page's
- * "Sending failed" tile shows. Keep the two reading the same field.
- */
-export const useCreditRegistrationLinkingFailureCount = () =>
-  useQuery({
-    ...getAccountLinkingStatsOptions({ query: { window_days: LINKING_STATS_WINDOW_DAYS } }),
-    ...polled(LIST_REFETCH_INTERVAL_MS),
-    select: (stats: AccountLinkingStats) => stats.send_status_totals.send_failed,
-  })
+const ROSTER_ALERT_IDS: readonly CreditRegistrationAlertId[] = ["roster_course_code_failing"]
+
+const selectFailingRosterCodes = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, ROSTER_ALERT_IDS)
+
+/** Course codes whose roster listing is backing off after repeated failures. */
+export const useCreditRegistrationFailingRosterCodeCount = () =>
+  useOverviewCount(selectFailingRosterCodes)
 
 export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({
@@ -263,6 +304,13 @@ export const useInvalidateAfterMaterialize = () => {
       queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
     ])
 }
+
+/** The pacing dashboard: lateness, cost, population and findings for the chosen window. */
+export const useCreditRegistrationEnrolmentChecks = (windowSecs: number) =>
+  useQuery({
+    ...getCreditRegistrationEnrolmentChecksOptions({ query: { window_secs: windowSecs } }),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
 
 export const useCreditRegistrationCourseStats = () =>
   useQuery({

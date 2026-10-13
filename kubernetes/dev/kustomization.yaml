@@ -1,6 +1,7 @@
 resources:
   - ../base
   - ../base-data
+  - ../mailpit
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
   - access-ingress-internally.yml

@@ -16,9 +16,9 @@ headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-chatbot = { path = "../chatbot" }
+headless-lms-credit-registration = { path = "../credit-registration" }
 exercise-services-api = { path = "../exercise-services-api", features = ["openapi"] }
 doc-macro = { path = "../doc-macro" }
-rustls.workspace = true
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
 actix-web = "4.15.0"
@@ -64,6 +64,8 @@ derive_more = { version = "2.1.1", features = ["full"] }
 bytes = "1.12.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.15.0"
+# Insertion-ordered map.
+indexmap = "2.14.1"
 # the BLAKE3 hash function
 blake3 = "1.8.7"
 # Recursively walk a directory.
@@ -106,7 +108,7 @@ isbot = "0.1.3"
 # user-agent strings parser
 woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
-git2 = "0.21.0"
+git2 = { version = "0.21.0", features = ["https", "ssh"] }
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 #  Binding for the zstd compression library.
@@ -166,6 +168,8 @@ pretty_assertions = "1.4.1"
 mockito = "1.7.2"
 # Random number generators and other randomness functionality.
 rand = "0.10.2"
+# Gives the tests a client for the mock Suotar.
+headless-lms-utils = { path = "../utils", features = ["test-support"] }
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -17,6 +17,19 @@ export type AutomaticCompletionRequirements = {
   requires_exam: boolean
 }
 
+export type ChartSpecGenerationRequest = {
+  current_spec?: string | null
+  data_format?: string | null
+  data_sample?: string | null
+  data_url?: string | null
+  page_id?: string | null
+  prompt: string
+}
+
+export type ChartSpecGenerationResponse = {
+  spec: string
+}
+
 export type ChatbotConfiguration = {
   chatbot_name: string
   course_id?: string | null
@@ -267,6 +280,26 @@ export type EmailTemplate = {
   updated_at: string
 }
 
+/**
+ * A template rendered as it would be sent, with sample placeholder values.
+ */
+export type EmailTemplatePreview = {
+  /**
+   * The complete HTML document, layout included.
+   */
+  html: string
+  plain_text: string
+  subject: string
+}
+
+/**
+ * The editor's unsaved subject and body.
+ */
+export type EmailTemplatePreviewRequest = {
+  content: unknown
+  subject: string
+}
+
 export type EmailTemplateType =
   | "reset_password_email"
   | "delete_user_email"
@@ -276,7 +309,6 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
-  | "credit_registration_student_number_linked"
 
 export type EmailTemplateUpdate = {
   content: unknown
@@ -516,6 +548,23 @@ export type UploadResult = {
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
+
+export type RequestChartSpecGenerationData = {
+  body: ChartSpecGenerationRequest
+  path?: never
+  query?: never
+  url: "/api/v0/cms/ai-suggestions/chart-spec"
+}
+
+export type RequestChartSpecGenerationResponses = {
+  /**
+   * Generated Vega-Lite chart specification
+   */
+  200: ChartSpecGenerationResponse
+}
+
+export type RequestChartSpecGenerationResponse =
+  RequestChartSpecGenerationResponses[keyof RequestChartSpecGenerationResponses]
 
 export type RequestParagraphSuggestionsData = {
   body: ParagraphSuggestionRequest
@@ -990,6 +1039,50 @@ export type UpdateCmsEmailTemplateResponses = {
 
 export type UpdateCmsEmailTemplateResponse =
   UpdateCmsEmailTemplateResponses[keyof UpdateCmsEmailTemplateResponses]
+
+export type PreviewCmsEmailTemplateData = {
+  body: EmailTemplatePreviewRequest
+  path: {
+    /**
+     * Email template id
+     */
+    email_template_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/email-templates/{email_template_id}/preview"
+}
+
+export type PreviewCmsEmailTemplateResponses = {
+  /**
+   * Rendered email
+   */
+  200: EmailTemplatePreview
+}
+
+export type PreviewCmsEmailTemplateResponse =
+  PreviewCmsEmailTemplateResponses[keyof PreviewCmsEmailTemplateResponses]
+
+export type SendCmsEmailTemplateTestData = {
+  body: EmailTemplatePreviewRequest
+  path: {
+    /**
+     * Email template id
+     */
+    email_template_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/email-templates/{email_template_id}/send-test"
+}
+
+export type SendCmsEmailTemplateTestResponses = {
+  /**
+   * Id of the queued test delivery
+   */
+  200: string
+}
+
+export type SendCmsEmailTemplateTestResponse =
+  SendCmsEmailTemplateTestResponses[keyof SendCmsEmailTemplateTestResponses]
 
 export type GetCmsExamInstructionsData = {
   body?: never

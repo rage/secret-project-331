@@ -211,6 +211,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
@@ -234,6 +236,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
@@ -266,6 +270,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
@@ -289,6 +295,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
@@ -312,6 +320,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
@@ -335,6 +345,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
@@ -364,6 +376,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: pnpm install --frozen-lockfile for the root of the repo
         run: pnpm install --frozen-lockfile
@@ -387,6 +401,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile
@@ -448,6 +464,8 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: node
         timeout-minutes: 5
       - name: Install dependencies at repository root
         run: pnpm install --frozen-lockfile

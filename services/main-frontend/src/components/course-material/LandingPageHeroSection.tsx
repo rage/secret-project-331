@@ -195,8 +195,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           className={css`
             z-index: 99 !important;
           `}
-          onClick={(e) => {
-            e.preventDefault()
+          onClick={() => {
             const firstChapterGrid = document.querySelector(
               `.${CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING}`,
             )

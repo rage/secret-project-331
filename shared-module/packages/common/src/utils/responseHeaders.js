@@ -25,7 +25,8 @@ function generateNormalResponseHeaders(options = {}) {
       value: [
         "default-src 'none'",
         "connect-src 'self' https://vimeo.com/api/oembed.json *",
-        "font-src 'self'",
+        // data: is needed for the codicon icon font, which monaco-editor inlines into its CSS.
+        "font-src 'self' data:",
         "frame-src * data: blob:",
         "img-src 'self' data: blob: https://storage.googleapis.com abs.twimg.com https://pbs.twimg.com ton.twimg.com platform.twitter.com",
         "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob: https://cdn.syndication.twimg.com platform.twitter.com",

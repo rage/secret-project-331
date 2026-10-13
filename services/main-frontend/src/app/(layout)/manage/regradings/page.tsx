@@ -255,19 +255,21 @@ const RegradingsPage: React.FC = () => {
           variant="primary"
           size="medium"
           disabled={!isValid || newRegradingMutation.isPending}
-          onClick={handleSubmit((data) => {
-            const lines = data.ids
-              .trim()
-              .split("\n")
-              .map((line) => line.trim())
-            newRegradingMutation.mutate({
-              body: {
-                ids: lines,
-                user_points_update_strategy: data.userPointsUpdateStrategy,
-                id_type: data.idType,
-              },
-            })
-          })}
+          onClick={() =>
+            void handleSubmit((data) => {
+              const lines = data.ids
+                .trim()
+                .split("\n")
+                .map((line) => line.trim())
+              newRegradingMutation.mutate({
+                body: {
+                  ids: lines,
+                  user_points_update_strategy: data.userPointsUpdateStrategy,
+                  id_type: data.idType,
+                },
+              })
+            })()
+          }
         >
           {t("button-text-create")}
         </Button>

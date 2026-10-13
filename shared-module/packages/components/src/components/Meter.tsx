@@ -2,11 +2,18 @@
 
 import { css, cx } from "@emotion/css"
 import React from "react"
-import { useMeter } from "react-aria"
+import { useProgressBar } from "react-aria"
 
 import { omitUndefined } from "../lib/utils/nullability"
 
 export type MeterTone = "neutral" | "success" | "warning" | "danger"
+
+/**
+ * What the bar reports: `measure` is a reading within a range, such as disk usage
+ * (role="meter"); `progress` is how far a task has advanced toward done, such as points toward
+ * a completion (role="progressbar").
+ */
+export type MeterKind = "measure" | "progress"
 
 export interface MeterProps {
   value: number
@@ -19,6 +26,8 @@ export interface MeterProps {
   /** Optional reference marker on the same scale as `value` (e.g. a threshold). `null` draws none. */
   threshold?: number | null
   tone?: MeterTone
+  /** Defaults to `measure`. */
+  kind?: MeterKind
   /**
    * Show the label/value row above the bar. When false, the bar is compact and the label is
    * SR-only, so the bar itself carries no visible meaning — only safe on a dashboard where a
@@ -146,7 +155,10 @@ function clampPct(value: number, min: number, max: number): number {
   return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100))
 }
 
-/** Horizontal meter for a value in a range, with optional threshold marker. Uses react-aria `useMeter`; the visual bar is `aria-hidden`. */
+/**
+ * Horizontal bar for a value in a range, with optional threshold marker. `kind` picks the role;
+ * the visual bar is `aria-hidden`.
+ */
 export const Meter: React.FC<MeterProps> = ({
   value,
   minValue = 0,
@@ -155,11 +167,12 @@ export const Meter: React.FC<MeterProps> = ({
   valueLabel,
   threshold,
   tone = "neutral",
+  kind = "measure",
   showLabel = true,
   className,
   "data-testid": dataTestId,
 }) => {
-  const { meterProps, labelProps } = useMeter({
+  const { progressBarProps, labelProps } = useProgressBar({
     label,
     value,
     minValue,
@@ -173,10 +186,15 @@ export const Meter: React.FC<MeterProps> = ({
     typeof threshold === "number" ? clampPct(threshold, minValue, maxValue) : null
 
   return (
-    // react-aria sets role="meter progressbar" (an old multi-role fallback trick); axe-core treats
-    // that as an invalid role and rejects the aria-value* attributes it puts on the same element.
-    // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in meterProps
-    <div {...meterProps} role="meter" className={cx(rootCss, className)} data-testid={dataTestId}>
+    // useMeter would add nothing but role="meter progressbar", a multi-role fallback axe-core
+    // rejects, so both kinds share useProgressBar and the role comes from `kind`.
+    // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in progressBarProps
+    <div
+      {...progressBarProps}
+      role={kind === "progress" ? "progressbar" : "meter"}
+      className={cx(rootCss, className)}
+      data-testid={dataTestId}
+    >
       {showLabel ? (
         <div className={labelRowCss}>
           <span {...labelProps}>{label}</span>
@@ -213,6 +231,8 @@ export interface MeterInlineProps {
   /** Optional reference marker on the same scale as `value` (e.g. a threshold). `null` draws none. */
   threshold?: number | null
   tone?: MeterTone
+  /** Defaults to `measure`. */
+  kind?: MeterKind
   /**
    * `compact`, the default, keeps the bar short and sizes the meter to its own content, for a
    * dense table cell. `fill` spreads the meter across the width it is given and hands the bar
@@ -290,8 +310,8 @@ const inlineTickCss = css`
 `
 
 /**
- * A meter's value as text beside a short bar, for a table cell or another dense row where a bare
- * bar (`Meter` with `showLabel={false}`) would carry no visible meaning. The value is always
+ * A `Meter`'s value as text beside a short bar, for a table cell or another dense row where a
+ * bare bar (`Meter` with `showLabel={false}`) would carry no visible meaning. The value is always
  * shown — there is no `showLabel` toggle.
  */
 export const MeterInline: React.FC<MeterInlineProps> = ({
@@ -304,11 +324,12 @@ export const MeterInline: React.FC<MeterInlineProps> = ({
   secondaryText,
   threshold,
   tone = "neutral",
+  kind = "measure",
   trackWidth = "compact",
   className,
 }) => {
   const resolvedValueLabel = valueLabel ?? (typeof valueText === "string" ? valueText : undefined)
-  const { meterProps } = useMeter({
+  const { progressBarProps } = useProgressBar({
     label,
     value,
     minValue,
@@ -328,8 +349,12 @@ export const MeterInline: React.FC<MeterInlineProps> = ({
   )
 
   return (
-    // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in meterProps
-    <span {...meterProps} role="meter" className={rootClassName}>
+    // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- aria-valuenow is in progressBarProps
+    <span
+      {...progressBarProps}
+      role={kind === "progress" ? "progressbar" : "meter"}
+      className={rootClassName}
+    >
       <span className={inlineValueCss}>{valueText}</span>
       <MeterTrack
         as={SPAN_ELEMENT}

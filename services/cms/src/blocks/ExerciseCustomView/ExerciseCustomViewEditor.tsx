@@ -63,9 +63,7 @@ const ExerciseCustomViewEditor: React.FC<
                       exercise_service.has_custom_view && (
                         <li key={exercise_service.name}>
                           <Button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.preventDefault()
+                            onClick={() => {
                               if (!exercise_service.public_iframe_url) {
                                 return
                               }

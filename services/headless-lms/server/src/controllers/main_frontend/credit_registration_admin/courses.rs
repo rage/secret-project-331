@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::course_module_suotar_configurations::{
     self, SuotarModuleOverview, get_config_facts_for_enabled_modules,
 };
@@ -9,27 +10,32 @@ use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
-use headless_lms_models::credit_registrations::{self, CreditRegistrationErrorCode};
-use headless_lms_models::library::credit_registration::config_validation::check_module_config;
+use headless_lms_models::credit_registrations::{
+    self, AttentionStanding, CreditRegistrationErrorCode,
+};
+use headless_lms_models::library::credit_registration::config_validation::{
+    CourseCodeVerdict, check_module_config,
+};
 use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-use super::{authorize_credit_registration_admin, required_reason};
+use super::dashboard::{CreditRegistrationStepCount, sum_step_counts};
+use super::{attention_rules, authorize_credit_registration_admin, required_reason};
 
 /// Suotar-enabled modules, comfortably above any real deployment's count. The only admin tab
 /// without a page or a limit of its own before this.
 const COURSES_LIMIT: i64 = 2_000;
 
 /// What the configuration check concluded about one module, freshly derived from the same facts and
-/// the same rule the `config-validation` phase uses.
+/// the same rule the `config-validation` phase uses, with the course code verdict Suotar gave that
+/// phase.
 ///
-/// `course_code_resolves` is `None` while no listing has been attempted: never checked is not the
-/// same as checked and failed, and the two must not render alike.
+/// `course_code_allowed` is `None` while Suotar has given no verdict on the current course code:
+/// never checked is not the same as checked and failed, and the two must not render alike.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCourseConfigCheck {
-    pub course_code_resolves: Option<bool>,
-    pub product_token_found: Option<bool>,
+    pub course_code_allowed: Option<bool>,
     /// Every problem found, in one line. `None` means the module is fine.
     pub message: Option<String>,
 }
@@ -42,14 +48,10 @@ pub struct CreditRegistrationCourseStats {
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub open_university_product_id: Option<String>,
-    /// The module's override; `None` means the scale is derived from the completion.
-    pub grade_scale_id: Option<String>,
-    /// The old pull path is on as well, which would register the same completion twice.
-    pub old_flow_also_enabled: bool,
+    /// Where a student with no usable enrolment is sent to enrol.
+    pub enrolment_link: Option<String>,
     pub paused_at: Option<DateTime<Utc>>,
     pub pause_reason: Option<String>,
-    pub active_realisation_count: i64,
     pub last_listed_at: Option<DateTime<Utc>>,
     /// What the current facts say. Recomputed on read, so a configuration fixed a minute ago no
     /// longer shows as broken.
@@ -65,10 +67,21 @@ pub struct CreditRegistrationCourseStats {
     /// completions that predate the opt-in.
     pub eligible_completion_count: i64,
     pub registration_count: i64,
+    /// Registered, already in Sisu and better grade in Sisu: the denominator the failure rate is
+    /// taken against, with `failed_count`.
     pub success_count: i64,
+    /// Of `success_count`, registered by us.
+    pub registered_count: i64,
+    /// Of `success_count`, already in Sisu or with a better grade there.
+    pub already_in_sisu_count: i64,
     pub in_flight_count: i64,
     pub failed_count: i64,
-    pub needs_admin_attention_count: i64,
+    /// The module's rows counted in Needs attention: the Registrations list with
+    /// `course_module_id` and `needs_attention=true` holds exactly these.
+    pub needs_attention_count: i64,
+    /// The module's "Where registrations stand", Not started left out; each count equals the
+    /// Registrations list filtered by its step, engagement and `course_module_id`.
+    pub where_registrations_stand: Vec<CreditRegistrationStepCount>,
     pub last_registered_at: Option<DateTime<Utc>>,
     pub top_error_code: Option<CreditRegistrationErrorCode>,
 }
@@ -94,7 +107,7 @@ pub struct AdminResumeCourseModulePayload {
 GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
 its validated configuration and its volumes.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 #[utoipa::path(
     get,
     path = "/courses",
@@ -107,6 +120,7 @@ its validated configuration and its volumes.
 pub async fn get_credit_registration_stats_by_course(
     user: AuthUser,
     pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CreditRegistrationStatsByCourse>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
@@ -118,12 +132,11 @@ pub async fn get_credit_registration_stats_by_course(
             .await?
             .into_iter()
             .map(|facts| {
-                let check = check_module_config(&facts);
+                let check = check_module_config(&facts, CourseCodeVerdict::stored(&facts).as_ref());
                 (
                     facts.course_module_id,
                     CreditRegistrationCourseConfigCheck {
-                        course_code_resolves: check.course_code_resolves,
-                        product_token_found: check.product_token_found,
+                        course_code_allowed: check.course_code_allowed,
                         message: check.message,
                     },
                 )
@@ -135,21 +148,40 @@ pub async fn get_credit_registration_stats_by_course(
         .map(|row| (row.course_module_id, row))
         .collect();
 
+    let rules = attention_rules(&mut conn, &app_conf).await?;
+    let mut needs_attention: HashMap<Uuid, i64> = HashMap::new();
+    for row in credit_registrations::get_attention_items(&mut conn, &rules, None).await? {
+        if row.standing(&rules.blocking) == AttentionStanding::NeedsAttention {
+            *needs_attention.entry(row.course_module_id).or_insert(0) += 1;
+        }
+    }
+    let step_counts = credit_registrations::count_by_step_and_engagement(
+        &mut conn,
+        app_conf.suotar_configuration.account_linking_since,
+    )
+    .await?;
+
     let modules: Vec<CreditRegistrationCourseStats> = overviews
         .into_iter()
         .map(|overview| {
             let module_id = overview.course_module_id;
-            to_course_stats(
+            let mut stats = to_course_stats(
                 overview,
                 checks
                     .remove(&module_id)
                     .unwrap_or(CreditRegistrationCourseConfigCheck {
-                        course_code_resolves: None,
-                        product_token_found: None,
+                        course_code_allowed: None,
                         message: None,
                     }),
                 totals.remove(&module_id),
-            )
+            );
+            stats.needs_attention_count = needs_attention.remove(&module_id).unwrap_or(0);
+            stats.where_registrations_stand = sum_step_counts(
+                step_counts
+                    .iter()
+                    .filter(|row| row.course_module_id == module_id),
+            );
+            stats
         })
         .collect();
 
@@ -314,12 +346,9 @@ fn to_course_stats(
         course_module_name: overview.course_module_name,
         uh_course_code: overview.uh_course_code,
         ects_credits: overview.ects_credits,
-        open_university_product_id: overview.open_university_product_id,
-        grade_scale_id: overview.grade_scale_id,
-        old_flow_also_enabled: overview.old_flow_also_enabled,
+        enrolment_link: overview.enrolment_link,
         paused_at: overview.paused_at,
         pause_reason: overview.pause_reason,
-        active_realisation_count: overview.active_realisation_count,
         last_listed_at: overview.last_listed_at,
         check,
         config_checked_at: overview.config_checked_at,
@@ -327,11 +356,12 @@ fn to_course_stats(
         eligible_completion_count: overview.eligible_completion_count,
         registration_count: totals.as_ref().map_or(0, |row| row.total_count),
         success_count: totals.as_ref().map_or(0, |row| row.success_count),
+        registered_count: totals.as_ref().map_or(0, |row| row.registered_count),
+        already_in_sisu_count: totals.as_ref().map_or(0, |row| row.already_in_sisu_count),
         in_flight_count: totals.as_ref().map_or(0, |row| row.in_flight_count),
         failed_count: totals.as_ref().map_or(0, |row| row.failed_count),
-        needs_admin_attention_count: totals
-            .as_ref()
-            .map_or(0, |row| row.needs_admin_attention_count),
+        needs_attention_count: 0,
+        where_registrations_stand: Vec::new(),
         last_registered_at: totals.as_ref().and_then(|row| row.last_registered_at),
         top_error_code: totals.and_then(|row| row.top_error_code),
     }

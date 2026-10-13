@@ -1,14 +1,13 @@
 import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemClosedEndedQuestion,
+  PrivateSpecQuizItemMatrix,
 } from "../../types/quizTypes/privateSpec"
+import { isFilledRectangle } from "./matrix"
 
 /**
- * Whether a private spec is valid to save/derive/grade. This is the single place item invariants
- * live; the editor reports the result as the `valid` flag in `current-state` and the host uses it to
- * gate saving. Half-finished specs are still representable (parseable) — validity is a separate
- * judgement. Only closed-ended items have type-specific checks for now; other item types are treated
- * as valid until their invariants are encoded too. Feedback messages are checked at every scope.
+ * Whether a private spec can be saved and graded; the host gates saving on it. Only closed-ended
+ * and matrix items have item-specific checks so far.
  */
 
 // Allowed visibility tags per scope. Checked at runtime (blobs are untrusted, not just typed).
@@ -77,6 +76,10 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
   }
 }
 
+// The grader refuses an empty key or one with a gap, and a negative tolerance is meaningless.
+const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean =>
+  isFilledRectangle(item.optionCells) && Number.isFinite(item.tolerance) && item.tolerance >= 0
+
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {
     return false
@@ -98,6 +101,9 @@ export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolea
     }
     if (item.type === "closed-ended-question") {
       return isClosedEndedItemValid(item)
+    }
+    if (item.type === "matrix") {
+      return isMatrixItemValid(item)
     }
     return true
   })

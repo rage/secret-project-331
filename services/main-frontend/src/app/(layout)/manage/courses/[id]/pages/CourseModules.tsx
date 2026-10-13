@@ -36,7 +36,6 @@ import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleF
 import {
   creditRegistrationFieldsOf,
   EMPTY_CREDIT_REGISTRATION_FIELDS,
-  toCreditRegistrationEdit,
 } from "./creditRegistrationModuleFields"
 import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
 
@@ -235,7 +234,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const creditRegistrationConfigs = creditRegistrationConfigsQuery.data
   // A registration carries the student's Sisu identity, so the counts need their own permission.
   const canViewCreditRegistrations = useCanViewCreditRegistrations(courseId)
-  const courseUsesStudyRegistry = (creditRegistrationConfigs?.modules ?? []).some(
+  const courseUsesStudyRegistry = (creditRegistrationConfigs ?? []).some(
     (module) => module.enable_credit_registration_via_suotar,
   )
   const registrationSummaryQuery = useQuery({
@@ -365,7 +364,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
-            credit_registration: toCreditRegistrationEdit(courseModule.credit_registration),
           })
         } else if (
           initialModule !== undefined &&
@@ -399,7 +397,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             enable_registering_completion_to_uh_open_university:
               courseModule.enable_registering_completion_to_uh_open_university,
             enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
-            credit_registration: toCreditRegistrationEdit(courseModule.credit_registration),
           })
         }
       }
@@ -582,7 +579,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                     mode={EDIT}
                     module={module}
                     chapters={data.chapterNumbers}
-                    creditRegistrationConfig={creditRegistrationConfigs?.modules.find(
+                    creditRegistrationConfig={creditRegistrationConfigs?.find(
                       (config) => config.course_module_id === module.id,
                     )}
                     canConfigureStudyRegistry={canConfigureStudyRegistry}

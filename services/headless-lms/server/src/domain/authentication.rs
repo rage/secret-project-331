@@ -37,7 +37,7 @@ const SESSION_KEY: &str = "user";
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
 
-fn constant_time_eq_str(left: &str, right: &str) -> bool {
+pub(crate) fn constant_time_eq_str(left: &str, right: &str) -> bool {
     left.as_bytes().ct_eq(right.as_bytes()).into()
 }
 #[derive(Debug, Serialize, Deserialize)]
@@ -79,6 +79,16 @@ impl AuthUser {
     pub fn upstream_id(&self) -> Option<i32> {
         self.upstream_id
     }
+}
+
+/// The id of the user the session is signed in as, without checking the user still exists. For
+/// keying things like rate limits; use the [`AuthUser`] extractor to authenticate.
+pub fn session_user_id(session: &Session) -> Option<Uuid> {
+    session
+        .get::<AuthUser>(SESSION_KEY)
+        .ok()
+        .flatten()
+        .map(|user| user.id)
 }
 
 impl FromRequest for AuthUser {

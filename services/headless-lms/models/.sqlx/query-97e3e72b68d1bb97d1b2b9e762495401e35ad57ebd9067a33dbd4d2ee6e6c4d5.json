@@ -1,0 +1,57 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_attention_dismissals (\n    credit_registration_id,\n    dismissed_reasons,\n    dismissed_by_user_id,\n    reason\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_attention_dismissals",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_attention_reason[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_attention_reason",
+                  "kind": {
+                    "Enum": [
+                      "stuck_in_state",
+                      "permanent_error",
+                      "retry_window_expired",
+                      "misregistered",
+                      "too_many_attempts",
+                      "outcome_uncertain",
+                      "partly_registered_overdue",
+                      "verification_gave_up",
+                      "repeatedly_not_registered",
+                      "student_number_stuck",
+                      "flagged_by_pipeline"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "97e3e72b68d1bb97d1b2b9e762495401e35ad57ebd9067a33dbd4d2ee6e6c4d5"
+}

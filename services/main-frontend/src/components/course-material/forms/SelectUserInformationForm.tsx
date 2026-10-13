@@ -135,7 +135,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           disabled: postUserCountryMutation.isPending || !isValid,
           variant: "primary",
           label: t("save"),
-          onClick: handleSubmit((data) => postUserCountryMutation.mutate(data)),
+          onClick: () => void handleSubmit((data) => postUserCountryMutation.mutate(data))(),
         },
       ]}
     >

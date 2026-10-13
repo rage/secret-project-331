@@ -61,6 +61,8 @@ const renderSubmission = (selectedOptionId: string) =>
         quiz_item_feedback: null,
         quiz_item_option_feedbacks: null,
         timeline_item_feedbacks: null,
+        matrix_cell_feedbacks: null,
+        matrix_score_breakdown: null,
         correctnessCoefficient: selectedOptionId === "o-mercury" ? 1 : 0,
       }}
       user_quiz_item_answer={

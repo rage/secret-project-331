@@ -5,12 +5,20 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseActivityTimeline from "@/components/CourseActivityTimeline"
-import { MIDDLE_DOT, TIME_COMPACT, TONE } from "@/components/credit-registration/constants"
+import { TIME_COMPACT, TONE } from "@/components/credit-registration/constants"
 import { noteCss, rowCss, subsectionCss } from "@/components/credit-registration/styles"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Disclosure, Link, MeterInline, RelativeTime } from "@/shared-module/components"
+import {
+  Badge,
+  Disclosure,
+  Link,
+  METER_KIND,
+  MeterInline,
+  MIDDLE_DOT,
+  RelativeTime,
+} from "@/shared-module/components"
 
 import { completedModuleCount } from "../lib/completions"
 import {
@@ -143,6 +151,7 @@ const CourseEnrollmentCard: React.FC<CourseEnrollmentCardProps> = ({
           </div>
           {totalModules > 0 && (
             <MeterInline
+              kind={METER_KIND.PROGRESS}
               className={progressCss}
               label={progressLabel}
               valueText={t("modules-completed-fraction", {

@@ -1,6 +1,7 @@
 import type {
   CreditRegistrationEnrolmentRoute,
   CreditRegistrationErrorCode,
+  MyCreditRegistration,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
   StudentFacingCreditRegistrationStatus,
@@ -10,12 +11,21 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import type { CreditRegistrationTFunction } from "./constants"
 import { labelFrom, translateKey, widenedLookup } from "./labelFrom"
 
+/**
+ * Whether credit registration copy names the course rather than a module: only for a course with
+ * nothing but its default module. Pass the names of all the course's modules, registering or not.
+ */
+export const hasOnlyDefaultModule = (
+  moduleNames: readonly (string | null | undefined)[],
+): boolean => moduleNames.length === 1 && !moduleNames[0]
+
 const STATUS_STATES = {
   waiting_for_completion: "upcoming",
   needs_student_number: "action-needed",
   looking_for_enrolment: "current",
   sending: "current",
   needs_enrolment: "action-needed",
+  waiting_for_course_setup: "upcoming",
   waiting_for_sisu: "current",
   registered: "done",
   failed: "failed",
@@ -28,6 +38,7 @@ const STATUS_LABEL_KEYS = {
   looking_for_enrolment: "credit-registration-status-looking-for-enrolment",
   sending: "credit-registration-status-sending",
   needs_enrolment: "credit-registration-status-needs-enrolment",
+  waiting_for_course_setup: "credit-registration-status-waiting-for-course-setup",
   waiting_for_sisu: "credit-registration-status-waiting-for-sisu",
   registered: "credit-registration-status-registered",
   failed: "credit-registration-status-failed",
@@ -43,6 +54,7 @@ const TEACHER_STATUS_LABEL_KEYS = {
   looking_for_enrolment: "credit-registration-teacher-status-looking-for-enrolment",
   sending: "credit-registration-teacher-status-sending",
   needs_enrolment: "credit-registration-teacher-status-needs-enrolment",
+  waiting_for_course_setup: "credit-registration-teacher-status-waiting-for-course-setup",
   waiting_for_sisu: "credit-registration-teacher-status-waiting-for-sisu",
   registered: "credit-registration-teacher-status-registered",
   failed: "credit-registration-teacher-status-failed",
@@ -57,6 +69,7 @@ const STATUS_EXPLANATION_KEYS = {
   looking_for_enrolment: "credit-registration-explanation-looking-for-enrolment",
   sending: "credit-registration-explanation-sending",
   needs_enrolment: "credit-registration-explanation-needs-enrolment",
+  waiting_for_course_setup: "credit-registration-explanation-waiting-for-course-setup",
   waiting_for_sisu: "credit-registration-explanation-waiting-for-sisu",
   registered: "credit-registration-explanation-registered",
   failed: "credit-registration-explanation-failed",
@@ -69,6 +82,7 @@ const TEACHER_STATUS_EXPLANATION_KEYS = {
   looking_for_enrolment: "credit-registration-teacher-explanation-looking-for-enrolment",
   sending: "credit-registration-teacher-explanation-sending",
   needs_enrolment: "credit-registration-teacher-explanation-needs-enrolment",
+  waiting_for_course_setup: "credit-registration-teacher-explanation-waiting-for-course-setup",
   waiting_for_sisu: "credit-registration-teacher-explanation-waiting-for-sisu",
   registered: "credit-registration-teacher-explanation-registered",
   failed: "credit-registration-teacher-explanation-failed",
@@ -77,6 +91,15 @@ const TEACHER_STATUS_EXPLANATION_KEYS = {
 
 const TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY = "credit-registration-teacher-explanation-unknown"
 
+/** "This module" sentences reworded for a course whose only module is its default one. */
+const TEACHER_STATUS_EXPLANATION_COURSE_KEYS: Partial<
+  Record<StudentFacingCreditRegistrationStatus, string>
+> = {
+  waiting_for_completion: "credit-registration-teacher-explanation-waiting-for-completion-course",
+  waiting_for_course_setup:
+    "credit-registration-teacher-explanation-waiting-for-course-setup-course",
+}
+
 /** The study registry's own message is never shown: it is untranslated and may name a person. */
 const ERROR_CODE_KEYS = {
   person_not_found: "credit-registration-error-person-not-found",
@@ -84,14 +107,15 @@ const ERROR_CODE_KEYS = {
   enrolment_not_found: "credit-registration-error-enrolment-not-found",
   enrolment_not_accepted: "credit-registration-error-enrolment-not-accepted",
   invalid_grade_for_grade_scale: "credit-registration-error-invalid-grade-for-grade-scale",
+  grade_scale_mismatch: "credit-registration-error-grade-scale-mismatch",
   course_not_allowed: "credit-registration-error-course-not-allowed",
   invalid_credits: "credit-registration-error-invalid-credits",
   study_right_not_valid: "credit-registration-error-study-right-not-valid",
-  acceptor_not_found: "credit-registration-error-acceptor-not-found",
   sisu_validation_failed: "credit-registration-error-sisu-validation-failed",
   sisu_timeout: "credit-registration-error-sisu-timeout",
-  sisu_temporarily_unavailable: "credit-registration-error-sisu-temporarily-unavailable",
+  service_temporarily_unavailable: "credit-registration-error-service-temporarily-unavailable",
   misregistered: "credit-registration-error-misregistered",
+  not_registered: "credit-registration-error-not-registered",
   unauthorized: "credit-registration-error-unauthorized",
   malformed_request: "credit-registration-error-malformed-request",
   transport_error: "credit-registration-error-transport-error",
@@ -112,14 +136,16 @@ const TEACHER_ERROR_CODE_KEYS = {
   enrolment_not_found: "credit-registration-teacher-error-enrolment-not-found",
   enrolment_not_accepted: "credit-registration-teacher-error-enrolment-not-accepted",
   invalid_grade_for_grade_scale: "credit-registration-teacher-error-invalid-grade-for-grade-scale",
+  grade_scale_mismatch: "credit-registration-teacher-error-grade-scale-mismatch",
   course_not_allowed: "credit-registration-teacher-error-course-not-allowed",
   invalid_credits: "credit-registration-teacher-error-invalid-credits",
   study_right_not_valid: "credit-registration-teacher-error-study-right-not-valid",
-  acceptor_not_found: "credit-registration-teacher-error-acceptor-not-found",
   sisu_validation_failed: "credit-registration-teacher-error-sisu-validation-failed",
   sisu_timeout: "credit-registration-teacher-error-sisu-timeout",
-  sisu_temporarily_unavailable: "credit-registration-teacher-error-sisu-temporarily-unavailable",
+  service_temporarily_unavailable:
+    "credit-registration-teacher-error-service-temporarily-unavailable",
   misregistered: "credit-registration-teacher-error-misregistered",
+  not_registered: "credit-registration-teacher-error-not-registered",
   unauthorized: "credit-registration-teacher-error-unauthorized",
   malformed_request: "credit-registration-teacher-error-malformed-request",
   transport_error: "credit-registration-teacher-error-transport-error",
@@ -131,6 +157,15 @@ const TEACHER_ERROR_CODE_KEYS = {
   unknown: "credit-registration-teacher-error-unknown",
 } as const satisfies Record<CreditRegistrationErrorCode, string>
 
+/** See `TEACHER_STATUS_EXPLANATION_COURSE_KEYS`. */
+const TEACHER_ERROR_COURSE_KEYS: Partial<Record<CreditRegistrationErrorCode, string>> = {
+  course_code_not_found: "credit-registration-teacher-error-course-code-not-found-course",
+  invalid_credits: "credit-registration-teacher-error-invalid-credits-course",
+  no_grade_scale_mapping: "credit-registration-teacher-error-no-grade-scale-mapping-course",
+  missing_uh_course_code: "credit-registration-teacher-error-missing-uh-course-code-course",
+  missing_ects_credits: "credit-registration-teacher-error-missing-ects-credits-course",
+}
+
 const TEACHER_ERROR_UNKNOWN_KEY = "credit-registration-teacher-error-unknown"
 
 /** The same failures named in two or three words, short enough for a table cell or a chip. */
@@ -140,14 +175,15 @@ const ERROR_CODE_SHORT_KEYS = {
   enrolment_not_found: "credit-registration-reason-enrolment-not-found",
   enrolment_not_accepted: "credit-registration-reason-enrolment-not-accepted",
   invalid_grade_for_grade_scale: "credit-registration-reason-invalid-grade-for-grade-scale",
+  grade_scale_mismatch: "credit-registration-reason-grade-scale-mismatch",
   course_not_allowed: "credit-registration-reason-course-not-allowed",
   invalid_credits: "credit-registration-reason-invalid-credits",
   study_right_not_valid: "credit-registration-reason-study-right-not-valid",
-  acceptor_not_found: "credit-registration-reason-acceptor-not-found",
   sisu_validation_failed: "credit-registration-reason-sisu-validation-failed",
   sisu_timeout: "credit-registration-reason-sisu-timeout",
-  sisu_temporarily_unavailable: "credit-registration-reason-sisu-temporarily-unavailable",
+  service_temporarily_unavailable: "credit-registration-reason-service-temporarily-unavailable",
   misregistered: "credit-registration-reason-misregistered",
+  not_registered: "credit-registration-reason-not-registered",
   unauthorized: "credit-registration-reason-unauthorized",
   malformed_request: "credit-registration-reason-malformed-request",
   transport_error: "credit-registration-reason-transport-error",
@@ -165,6 +201,18 @@ export const registrationStatusLabel = (
   t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
 ): string => labelFrom(t, STATUS_LABEL_KEYS, status, STATUS_LABEL_UNKNOWN_KEY)
+
+/**
+ * `registrationStatusLabel` for the student's own registration, which can say more than its status:
+ * Sisu may have received the completion without having turned it into credits yet.
+ */
+export const myRegistrationStatusLabel = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): string =>
+  registration.is_processing_in_sisu
+    ? t("credit-registration-status-processing-in-sisu")
+    : registrationStatusLabel(t, registration.student_facing_status)
 
 /**
  * The status as a teacher or an administrator reads it: third person, and short enough for a
@@ -209,6 +257,15 @@ export const registrationExplanation = (
 ): string =>
   labelFrom(t, STATUS_EXPLANATION_KEYS, status, STATUS_EXPLANATION_KEYS.waiting_for_completion)
 
+/** `registrationExplanation` for the student's own registration; see `myRegistrationStatusLabel`. */
+export const myRegistrationExplanation = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): string =>
+  registration.is_processing_in_sisu
+    ? t("credit-registration-explanation-processing-in-sisu")
+    : registrationExplanation(t, registration.student_facing_status)
+
 /**
  * What the status means, for a teacher or an administrator looking at somebody else's
  * registration.
@@ -218,8 +275,13 @@ export const registrationExplanation = (
 export const registrationTeacherExplanation = (
   t: CreditRegistrationTFunction,
   status: StudentFacingCreditRegistrationStatus,
-): string =>
-  labelFrom(t, TEACHER_STATUS_EXPLANATION_KEYS, status, TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY)
+  isCourseOnlyModule: boolean,
+): string => {
+  const courseKey = isCourseOnlyModule ? TEACHER_STATUS_EXPLANATION_COURSE_KEYS[status] : undefined
+  return courseKey
+    ? translateKey(t, courseKey)
+    : labelFrom(t, TEACHER_STATUS_EXPLANATION_KEYS, status, TEACHER_STATUS_EXPLANATION_UNKNOWN_KEY)
+}
 
 /** Matches `grade_mapping.rs`: both spellings of the pass/fail scale are in circulation. */
 const PASS_FAIL_GRADE_SCALE_IDS = ["sis-hyl-hyv", "sis-hyv-hyl"]
@@ -259,8 +321,16 @@ export const registrationErrorHelp = (
 export const registrationErrorTeacherHelp = (
   t: CreditRegistrationTFunction,
   errorCode: CreditRegistrationErrorCode | null | undefined,
-): string | null =>
-  errorCode ? labelFrom(t, TEACHER_ERROR_CODE_KEYS, errorCode, TEACHER_ERROR_UNKNOWN_KEY) : null
+  isCourseOnlyModule: boolean,
+): string | null => {
+  if (!errorCode) {
+    return null
+  }
+  const courseKey = isCourseOnlyModule ? TEACHER_ERROR_COURSE_KEYS[errorCode] : undefined
+  return courseKey
+    ? translateKey(t, courseKey)
+    : labelFrom(t, TEACHER_ERROR_CODE_KEYS, errorCode, TEACHER_ERROR_UNKNOWN_KEY)
+}
 
 /**
  * Why the registration failed, in the two or three words a roster cell or a breakdown chip has
@@ -284,6 +354,7 @@ const LEDGER_STATE_KEYS = {
   submitting: "credit-registration-ledger-state-submitting",
   submission_uncertain: "credit-registration-ledger-state-submission-uncertain",
   awaiting_verification: "credit-registration-ledger-state-awaiting-verification",
+  partially_registered: "credit-registration-ledger-state-partially-registered",
   registered: "credit-registration-ledger-state-registered",
   duplicate: "credit-registration-ledger-state-duplicate",
   not_improved: "credit-registration-ledger-state-not-improved",
@@ -296,10 +367,11 @@ const LEDGER_STATE_KEYS = {
 
 const LEDGER_STATE_UNKNOWN_KEY = "credit-registration-ledger-state-unknown"
 
-/** `pending` alone does not say what the row is waiting for, and the two waits are unrelated. */
+/** `pending` alone does not say what the row is waiting for, and the waits are unrelated. */
 const PENDING_REASON_STATE_KEYS = {
   completion: "credit-registration-ledger-state-pending-completion",
   student_number: "credit-registration-ledger-state-pending-student-number",
+  course_code: "credit-registration-ledger-state-pending-course-code",
 } as const satisfies Record<CreditRegistrationPendingReason, string>
 
 const LEDGER_STATES = Object.keys(LEDGER_STATE_KEYS) as CreditRegistrationState[]

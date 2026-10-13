@@ -12,6 +12,7 @@ pub enum UserRole {
     MaterialViewer,
     TeachingAndLearningServices,
     StatsViewer,
+    CreditRegistrationAdmin,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]

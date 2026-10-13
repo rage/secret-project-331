@@ -35,12 +35,15 @@ import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 import {
+  Badge,
   Button,
+  Checkbox,
   Link,
   nullIfEmpty,
   TextArea,
   TextField,
   useDialog,
+  TONE,
 } from "@/shared-module/components"
 
 import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
@@ -73,6 +76,10 @@ export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingDat
   return {
     ...omitUndefined({
       description: data.description,
+      is_draft: data.is_draft,
+      is_test_mode: data.is_test_mode,
+      is_unlisted: data.is_unlisted,
+      is_joinable_by_code_only: data.is_joinable_by_code_only,
       closed_at: data.closed_at && (formatDateForDateTimeLocalInputs(data.closed_at) ?? null),
       closed_additional_message: data.closed_additional_message,
       closed_course_successor_id: data.closed_course_successor_id,
@@ -141,8 +148,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
     (module) => module.order_number === 0,
   )?.uh_course_code
 
-  const { control, handleSubmit, reset, getValues } = methods
+  const { control, handleSubmit, reset, getValues, watch } = methods
   const { isDirty } = useFormState({ control })
+
+  const draftStatus = watch("is_draft")
 
   const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
 
@@ -184,9 +193,18 @@ const CourseCard: React.FC<CourseCardProps> = ({
   }
 
   const onSubmit = handleSubmit(async (data: EditCourseAuditingData) => {
+    let unlisted = data.is_unlisted
+    if (data.is_draft) {
+      // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
+      unlisted = false
+    }
     await updateMutation.mutateAsync({
       body: {
         description: nullIfEmptyString(data.description),
+        is_draft: data.is_draft,
+        is_test_mode: data.is_test_mode,
+        is_unlisted: unlisted,
+        is_joinable_by_code_only: data.is_joinable_by_code_only,
         closed_at:
           data.set_course_closed_at && data.closed_at
             ? parseISO(data.closed_at).toISOString()
@@ -293,14 +311,32 @@ const CourseCard: React.FC<CourseCardProps> = ({
           `}
         >
           <div>
-            <h1
+            <div
               className={css`
-                font-weight: 400;
-                font-size: 1.5rem;
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: start;
+                gap: 1rem;
               `}
             >
-              {courseAuditingData.name}
-            </h1>
+              <h1
+                className={css`
+                  font-weight: 400;
+                  font-size: 1.5rem;
+                `}
+              >
+                {courseAuditingData.name}
+              </h1>
+              {courseAuditingData.is_draft && <Badge tone={TONE.INFO}>{t("draft")}</Badge>}
+              {courseAuditingData.is_unlisted && <Badge tone={TONE.WARNING}>{t("unlisted")}</Badge>}
+              {courseAuditingData.is_test_mode && (
+                <Badge tone={TONE.SUCCESS}>{t("test-course")}</Badge>
+              )}
+              {courseAuditingData.is_joinable_by_code_only && (
+                <Badge tone={TONE.DANGER}>{t("joinable-by-code-only")}</Badge>
+              )}
+            </div>
             <div
               className={css`
                 color: ${baseTheme.colors.gray[600]};
@@ -323,7 +359,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             >
               <Button
                 aria-label={t("button-text-save")}
-                onClick={onSubmit}
+                onClick={() => void onSubmit()}
                 variant={"icon"}
                 size={"small"}
               >
@@ -490,6 +526,17 @@ const CourseCard: React.FC<CourseCardProps> = ({
                 </Button>
               </div>
             </FieldSet>
+
+            <Checkbox control={control} label={t("draft")} name={"is_draft"} />
+            {!draftStatus && (
+              <Checkbox control={control} label={t("unlisted")} name={"is_unlisted"} />
+            )}
+            <Checkbox control={control} label={t("test-course")} name={"is_test_mode"} />
+            <Checkbox
+              control={control}
+              label={t("joinable-by-code-only")}
+              name={"is_joinable_by_code_only"}
+            />
 
             <ClosedSectionFields />
 

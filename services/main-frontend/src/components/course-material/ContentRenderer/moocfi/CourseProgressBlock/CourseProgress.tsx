@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { CourseInstanceLocation } from "@/components/course-progress/PointsBreakdownDialog"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 
 import CourseModuleProgressBars from "./CourseModuleProgressBars"
@@ -11,10 +12,13 @@ import TempAccordionItem from "./TempAccordionItem"
 
 export interface CourseProgressProps {
   userCourseProgress: UserCourseProgress[]
+  /** `null` leaves out the buttons that list every exercise. */
+  courseInstanceLocation: CourseInstanceLocation | null
 }
 
 const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = ({
   userCourseProgress,
+  courseInstanceLocation,
 }) => {
   const [openedModule, setOpenedModule] = useState(0)
   const { t } = useTranslation()
@@ -46,7 +50,10 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
             title={courseModuleProgress.course_module_name}
             key={courseModuleProgress.course_module_id}
           >
-            <CourseModuleProgressBars courseModuleProgress={courseModuleProgress} />
+            <CourseModuleProgressBars
+              courseModuleProgress={courseModuleProgress}
+              courseInstanceLocation={courseInstanceLocation}
+            />
           </TempAccordionItem>
         ))}
     </>

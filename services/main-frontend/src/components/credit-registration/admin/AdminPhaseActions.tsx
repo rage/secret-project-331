@@ -15,14 +15,16 @@ import { Menu, type MenuItemDescriptor, useDialog } from "@/shared-module/compon
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
+const LINK_EMAILS_PHASE = "link-emails"
+
 interface Props {
   phase: string
   paused: boolean
-  implemented: boolean
+  isKnownPhase: boolean
 }
 
 /** Pause, resume and run-now for one pipeline phase, collapsed into the System tab's row menu. */
-const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
+const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
@@ -41,7 +43,10 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
     pauseActionLabel: t("button-text-credit-registration-phase-pause"),
     resumeActionLabel: t("button-text-credit-registration-phase-resume"),
     pauseDialogTitle: t("credit-registration-admin-phase-pause-title", { phase }),
-    pauseReasonDescription: t("credit-registration-admin-phase-pause-reason-description"),
+    pauseReasonDescription:
+      phase === LINK_EMAILS_PHASE
+        ? `${t("credit-registration-admin-phase-pause-reason-description")} ${t("credit-registration-admin-link-emails-pause-note")}`
+        : t("credit-registration-admin-phase-pause-reason-description"),
   })
 
   const runNowMutation = useToastMutation(
@@ -50,7 +55,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, implemented }) => {
     { onSuccess: () => void invalidatePhases() },
   )
 
-  if (!implemented) {
+  if (!isKnownPhase) {
     return null
   }
 

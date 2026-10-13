@@ -1,4 +1,5 @@
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { MATRIX_GRID_SIZE } from "@/util/matrix"
 import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
 
 import type {
@@ -31,7 +32,6 @@ import {
   getSortedTimelineItems,
   getValidityRegex,
   joinValues,
-  MATRIX_MAX_SIZE,
   matrixToHumanReadable,
   mergeColumns,
 } from "./csvExportUtils"
@@ -254,8 +254,8 @@ function buildDefinitionRow(
         matrix_summary: matrixToHumanReadable(quizItem.optionCells),
       }
 
-      for (let rowIndex = 0; rowIndex < MATRIX_MAX_SIZE; rowIndex += 1) {
-        for (let columnIndex = 0; columnIndex < MATRIX_MAX_SIZE; columnIndex += 1) {
+      for (let rowIndex = 0; rowIndex < MATRIX_GRID_SIZE; rowIndex += 1) {
+        for (let columnIndex = 0; columnIndex < MATRIX_GRID_SIZE; columnIndex += 1) {
           row[`matrix_row_${rowIndex + 1}_column_${columnIndex + 1}`] = getMatrixCellValue(
             quizItem.optionCells,
             rowIndex,

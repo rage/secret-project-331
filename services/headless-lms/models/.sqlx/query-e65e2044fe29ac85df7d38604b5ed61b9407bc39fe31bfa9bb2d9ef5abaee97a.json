@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH src AS (\n  SELECT e.*,\n    copied_page.chapter_id AS tgt_chapter_id,\n    CASE\n      WHEN $4 THEN e.exercise_language_group_id\n      ELSE uuid_generate_v5($3, e.id::text)\n    END AS tgt_elg_id\n  FROM exercises e\n    JOIN pages copied_page ON copied_page.id = uuid_generate_v5($1, e.page_id::text)\n  WHERE e.course_id = $2\n    AND e.deleted_at IS NULL\n),\nins_elg AS (\n  INSERT INTO exercise_language_groups (id, course_language_group_id)\n  SELECT DISTINCT tgt_elg_id,\n    $3\n  FROM src\n  WHERE NOT $4 ON CONFLICT (id) DO NOTHING\n),\nins_exercises AS (\n  INSERT INTO exercises (\n      id,\n      course_id,\n      name,\n      deadline,\n      page_id,\n      score_maximum,\n      order_number,\n      chapter_id,\n      copied_from,\n      exercise_language_group_id,\n      max_tries_per_slide,\n      limit_number_of_tries,\n      needs_peer_review,\n      use_course_default_peer_or_self_review_config,\n      needs_self_review,\n      teacher_reviews_answer_after_locking\n    )\n  SELECT uuid_generate_v5($1, src.id::text),\n    $1,\n    src.name,\n    src.deadline,\n    uuid_generate_v5($1, src.page_id::text),\n    src.score_maximum,\n    src.order_number,\n    src.tgt_chapter_id,\n    src.id,\n    src.tgt_elg_id,\n    src.max_tries_per_slide,\n    src.limit_number_of_tries,\n    src.needs_peer_review,\n    src.use_course_default_peer_or_self_review_config,\n    src.needs_self_review,\n    src.teacher_reviews_answer_after_locking\n  FROM src\n  RETURNING id\n)\nSELECT id\nFROM ins_exercises;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e65e2044fe29ac85df7d38604b5ed61b9407bc39fe31bfa9bb2d9ef5abaee97a"
+}

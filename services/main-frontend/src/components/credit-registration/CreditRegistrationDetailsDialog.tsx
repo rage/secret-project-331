@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { formatUserName } from "@/hooks/useUserDetails"
 import {
   Badge,
@@ -22,15 +23,9 @@ import {
 
 import { eventKindLabel } from "./admin/adminCreditRegistrationCopy"
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
+import { CREDIT_REGISTRATION_NS, PLAIN_DISCLOSURE, STACKED, TIME_COMPACT, TONE } from "./constants"
 import {
-  CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
-  PLAIN_DISCLOSURE,
-  STACKED,
-  TIME_COMPACT,
-  TONE,
-} from "./constants"
-import {
+  hasOnlyDefaultModule,
   registrationErrorTeacherHelp,
   registrationGradeLabel,
   registrationLedgerStateLabel,
@@ -38,9 +33,10 @@ import {
   registrationStatusTeacherLabel,
   registrationTeacherExplanation,
 } from "./creditRegistrationCopy"
+import EnrolmentRecheckBlock from "./EnrolmentRecheckBlock"
 import RetryCreditRegistrationBlock from "./RetryCreditRegistrationBlock"
 import {
-  monospaceCss,
+  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -55,11 +51,14 @@ import {
   notificationEmailSentence,
   studentNumberVerificationLabel,
 } from "./teacherCreditRegistrations"
+import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 interface Props {
   registration: CourseCreditRegistration
   open: boolean
   onClose: () => void
+  /** See `hasOnlyDefaultModule`; left out, the dialog loads the course structure to tell. */
+  isCourseWide?: boolean
 }
 
 // The one stage where a resend can help: nothing moves until a student number is linked.
@@ -85,8 +84,14 @@ const supportReferenceValueCss = css`
   white-space: nowrap;
 `
 
-const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, onClose }) => {
+const CreditRegistrationDetailsDialog: React.FC<Props> = ({
+  registration,
+  open,
+  onClose,
+  isCourseWide,
+}) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },
@@ -95,11 +100,20 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
   })
 
   const studentName = formatUserName(registration) || t("missing-name")
-  const moduleName = registration.course_module_name ?? t("default-module")
+  const structureQuery = useCourseStructure(
+    isCourseWide === undefined ? registration.course_id : null,
+  )
+  const structureModules = structureQuery.data?.modules
+  const isCourseOnlyModule =
+    isCourseWide ??
+    (structureModules !== undefined &&
+      hasOnlyDefaultModule(structureModules.map((module) => module.name)))
   // Why this row is where it is: the failure when there is one, otherwise what the stage means.
   const leadSentence =
-    registrationErrorTeacherHelp(t, registration.error_code) ??
-    registrationTeacherExplanation(t, registration.student_facing_status)
+    registrationErrorTeacherHelp(t, registration.error_code, isCourseOnlyModule) ??
+    (registration.student_facing_status === "needs_student_number" && !isAccountLinkingEnabled
+      ? t("credit-registration-teacher-explanation-needs-student-number-linking-off")
+      : registrationTeacherExplanation(t, registration.student_facing_status, isCourseOnlyModule))
   const verificationLabel = studentNumberVerificationLabel(
     t,
     registration.student_number_verified_via,
@@ -109,7 +123,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
       label: t("label-verified-student-number"),
       value: registration.student_number ? (
         <span className={rowCss}>
-          <span className={monospaceCss}>{registration.student_number}</span>
+          <span className={codeValueCss}>{registration.student_number}</span>
           {verificationLabel && <Badge tone={TONE.NEUTRAL}>{verificationLabel}</Badge>}
         </span>
       ) : (
@@ -154,7 +168,18 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
     .join(" ")
 
   return (
-    <Dialog open={open} onClose={onClose} title={`${studentName}${MIDDLE_DOT}${moduleName}`}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={
+        isCourseOnlyModule
+          ? studentName
+          : t("credit-registration-name-and-module", {
+              name: studentName,
+              module: registration.course_module_name ?? t("default-module"),
+            })
+      }
+    >
       <div className={sectionsCss}>
         <div className={leadCss}>
           <RegistrationStatusHeadline
@@ -165,10 +190,12 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
           <p className={proseCss}>{leadSentence}</p>
         </div>
         <DescriptionList items={items} layout={STACKED} />
-        {registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
-          <ResendLinkingEmailBlock registration={registration} />
-        )}
+        {isAccountLinkingEnabled &&
+          registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
+            <ResendLinkingEmailBlock registration={registration} />
+          )}
         <RetryCreditRegistrationBlock registration={registration} />
+        <EnrolmentRecheckBlock registration={registration} />
         <QueryResult query={detailsQuery}>
           {(details) => (
             <>
@@ -225,7 +252,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({ registration, open, 
         </QueryResult>
         <Disclosure variant={PLAIN_DISCLOSURE} title={t("credit-registration-heading-for-support")}>
           <div className={supportReferenceRowCss}>
-            <span className={cx(monospaceCss, supportReferenceValueCss)} title={supportReference}>
+            <span className={cx(codeValueCss, supportReferenceValueCss)} title={supportReference}>
               {supportReference}
             </span>
             <CopyButton

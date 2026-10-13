@@ -43,6 +43,7 @@ const COURSE_OR_EXAM_CREATOR: UserRole = "CourseOrExamCreator"
 const MATERIAL_VIEWER: UserRole = "MaterialViewer"
 const TEACHING_AND_LEARNING_SERVICES: UserRole = "TeachingAndLearningServices"
 const STATS_VIEWER: UserRole = "StatsViewer"
+const CREDIT_REGISTRATION_ADMIN: UserRole = "CreditRegistrationAdmin"
 
 const options = (t: TFunction) => {
   return [
@@ -65,6 +66,10 @@ const options = (t: TFunction) => {
     {
       value: STATS_VIEWER,
       label: t("role-stats-viewer"),
+    },
+    {
+      value: CREDIT_REGISTRATION_ADMIN,
+      label: t("role-credit-registration-admin"),
     },
   ]
 }

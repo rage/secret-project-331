@@ -25,6 +25,7 @@ pub mod exercise_repositories;
 pub mod exercise_services;
 pub mod exercise_slide_submissions;
 pub mod exercises;
+pub mod external_courses;
 pub mod feedback;
 pub mod global_stats;
 pub mod glossary;
@@ -89,7 +90,8 @@ use utoipa::OpenApi;
         (path = "/teacher-grading-decisions", api = teacher_grading_decisions::MainFrontendTeacherGradingDecisionsApiDoc),
         (path = "/time", api = time::MainFrontendTimeApiDoc),
         (path = "/user-details", api = user_details::MainFrontendUserDetailsApiDoc),
-        (path = "/users", api = users::MainFrontendUsersApiDoc)
+        (path = "/users", api = users::MainFrontendUsersApiDoc),
+        (path = "/external-courses", api = external_courses::MainFrontendExternalCoursesApiDoc)
     )
 )]
 pub struct MainFrontendRoutesApiDoc;
@@ -146,5 +148,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/chatbot-models").configure(chatbot_models::_add_routes))
         .service(web::scope("/time").configure(time::_add_routes))
         .service(web::scope("/shared-submissions").configure(shared_submissions::_add_routes))
-        .service(web::scope("/status").configure(status::_add_routes));
+        .service(web::scope("/status").configure(status::_add_routes))
+        .service(web::scope("/external-courses").configure(external_courses::_add_routes));
 }

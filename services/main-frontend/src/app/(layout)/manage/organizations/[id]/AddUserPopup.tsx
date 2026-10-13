@@ -71,7 +71,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
         },
         {
           label: t("save"),
-          onClick: submitForm,
+          onClick: () => void submitForm(),
           variant: "primary",
         },
       ]}

@@ -1,6 +1,7 @@
 //! One tool-call round: running the calls the server answers, storing each beside its output, and
 //! handing the round's items on to the next request.
 
+use headless_lms_utils::cache::Cache;
 use std::ops::DerefMut;
 
 use futures::StreamExt;
@@ -482,9 +483,11 @@ fn item_without_reasoning_payload(item: &OutputItem) -> OutputItem {
 ///
 /// Takes `conn` by value rather than by reference so that the caller can hand over the pooled
 /// connection it no longer needs, instead of keeping one borrowed for as long as this stream lives.
+#[allow(clippy::too_many_arguments)]
 pub(super) async fn parse_tool<'a, C>(
     mut conn: C,
     app_config: &'a ApplicationConfiguration,
+    cache: &'a Cache,
     mut lines: ResponseLinesStream<'a>,
     conversation_id: Uuid,
     response_id: String,
@@ -605,7 +608,7 @@ where
                     // function call without its output. `args` is only borrowed here, so it is
                     // still available below on the error path.
                     let tool_call =
-                        call_chatbot_tool(&mut conn, app_config, &name, &args, user_context).await;
+                        call_chatbot_tool(&mut conn, app_config, cache, &name, &args, user_context).await;
                     match tool_call {
                         Ok(result) => result,
                         Err(error) => ChatbotToolCallResult {
@@ -729,14 +732,13 @@ fn recover_or_terminate(
 /// generically, because other messages are built from library errors and can carry
 /// internals such as SQL or endpoint URLs.
 fn tool_failure_output_for_llm(error: &ChatbotError) -> String {
-    let reason = match error.error_type() {
-        ChatbotErrorType::InvalidToolName
-        | ChatbotErrorType::InvalidToolArguments
-        | ChatbotErrorType::ToolUseError => error.message(),
-        _ => "The tool is unavailable.",
+    let message = match error.error_type() {
+        ChatbotErrorType::FailedAzureResponse => "Azure response failed",
+        ChatbotErrorType::AzureAISearchFilterError => "Couldn't create search filter for AI search",
+        _ => error.message(),
     };
     format!(
-        "The tool call failed and returned no data. Reason: {reason} Answer the user without this tool, or tell them what you would need to answer."
+        "The tool call failed and returned no data. Message: {message} Answer the user without this tool, or tell them what you would need to answer."
     )
 }
 
@@ -763,10 +765,12 @@ mod tests {
         let user_context = context(None, None, Vec::new());
         let app_config =
             ApplicationConfiguration::mock_conf().expect("the mock configuration builds");
+        let cache = Cache::new("redis://127.0.0.1:1").expect("cache");
 
         let mut events = parse_tool(
             tx.as_mut() as &mut PgConnection,
             &app_config,
+            &cache,
             azure_response_stream(&[
                 "event: response.output_item.added",
                 r#"data: {"type":"response.output_item.added","item":{"type":"reasoning","id":"rs_1","response_id":"resp_1","summary":[]}}"#,
@@ -830,10 +834,12 @@ mod tests {
         let user_context = context(None, None, Vec::new());
         let app_config =
             ApplicationConfiguration::mock_conf().expect("the mock configuration builds");
+        let cache = Cache::new("redis://127.0.0.1:1").expect("cache");
 
         let mut events = parse_tool(
             tx.as_mut() as &mut PgConnection,
             &app_config,
+            &cache,
             azure_response_stream(&[
                 "event: response.output_item.done",
                 r#"data: {"type":"response.output_item.done","item":{"type":"function_call","id":"fc_1","response_id":"resp_1","call_id":"call_1","name":"no_such_tool","arguments":"{}"}}"#,

@@ -19,6 +19,7 @@ const courseModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCours
   order_number: 0,
   ects_credits: 5,
   supports_credit_registration: false,
+  is_credit_registration_starting: false,
   score_given: 12,
   score_maximum: 20,
   score_required: 16,
@@ -82,7 +83,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getAllByRole("meter")).toHaveLength(2)
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2)
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
   })
 
@@ -177,6 +178,26 @@ describe("StudiesCourseCard", () => {
     ).toHaveAttribute("href", "/completion-registration/module-default")
   })
 
+  it("says a completion is being registered before its registration exists", () => {
+    render(
+      <StudiesCourseCard
+        course={course([
+          courseModule({
+            supports_credit_registration: true,
+            is_credit_registration_starting: true,
+            completion: completion(true),
+          }),
+        ])}
+        registrationByCourseModuleId={noRegistrations}
+      />,
+    )
+
+    expect(screen.getByText("credit-registration-status-sending")).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", { name: "credit-registration-status-link-label" }),
+    ).toHaveAttribute("href", "/completion-registration/module-default")
+  })
+
   it("leads with what is still missing rather than with the raw fractions", () => {
     render(
       <StudiesCourseCard
@@ -209,7 +230,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.getAllByRole("meter")).toHaveLength(2)
+    expect(screen.getAllByRole("progressbar")).toHaveLength(2)
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
@@ -221,7 +242,7 @@ describe("StudiesCourseCard", () => {
       />,
     )
 
-    expect(screen.queryAllByRole("meter")).toHaveLength(0)
+    expect(screen.queryAllByRole("progressbar")).toHaveLength(0)
     expect(screen.getAllByText("value-of-maximum")).toHaveLength(2)
   })
 
@@ -248,7 +269,7 @@ describe("StudiesCourseCard", () => {
     )
 
     expect(screen.getByText(/note-graded-by-your-teacher/)).toBeInTheDocument()
-    expect(screen.queryByRole("meter")).not.toBeInTheDocument()
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 
   it("says a whole teacher-graded course is one once, not under each of its modules", () => {
@@ -295,6 +316,6 @@ describe("StudiesCourseCard", () => {
     )
 
     expect(screen.queryByText("x-to-complete-this-course")).not.toBeInTheDocument()
-    expect(screen.queryByRole("meter")).not.toBeInTheDocument()
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument()
   })
 })

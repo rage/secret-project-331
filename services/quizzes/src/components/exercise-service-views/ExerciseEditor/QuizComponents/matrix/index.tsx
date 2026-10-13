@@ -10,6 +10,7 @@ import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
 } from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
+import MatrixGradingSettings from "./MatrixGradingSettings"
 import TableContent from "./TableContent"
 
 interface MatrixEditorProps {
@@ -57,6 +58,7 @@ const MatrixEditor: React.FC<MatrixEditorProps> = ({ quizItemId }) => {
         />
       )}
       <TableContent quizItemId={quizItemId} />
+      <MatrixGradingSettings quizItemId={quizItemId} />
       <FeedbackMessagesEditor
         value={selected.feedbackMessages}
         visibilityOptions={itemFeedbackVisibilityOptions}

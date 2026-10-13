@@ -128,7 +128,7 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
         title={t("edit-course")}
         actions={[
           {
-            onClick: onSubmit,
+            onClick: () => void onSubmit(),
             label: t("button-text-update"),
             variant: "primary",
             disabled: updateCourseMutation.isPending,

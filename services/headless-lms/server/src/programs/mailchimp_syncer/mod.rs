@@ -9,10 +9,7 @@ use headless_lms_utils::http::REQWEST_CLIENT;
 use secrecy::ExposeSecret;
 use serde_json::json;
 use sqlx::{PgConnection, PgPool};
-use std::{
-    env,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 mod batch_client;
@@ -203,9 +200,8 @@ pub async fn main() -> anyhow::Result<()> {
 
 /// Initializes environment variables, logging, and tracing setup.
 fn initialize_environment() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     Ok(())
 }

@@ -1,3 +1,4 @@
+import { effectiveMatrixGradingPolicy } from "@/grading/assessment/matrix"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { revealableCorrectAnswers } from "@/util/converter"
 import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
@@ -7,6 +8,7 @@ import type {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
   ModelSolutionQuizItemClosedEndedQuestion,
+  ModelSolutionQuizItemMatrix,
 } from "../../types/quizTypes/modelSolutionSpec"
 
 const SERVICE = "quizzes"
@@ -136,6 +138,15 @@ function createModelSolution(privateSpecInput: unknown): ModelSolutionQuiz {
         messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
         correctAnswerDisplayTexts: revealableCorrectAnswers(gradingStrategy),
       } satisfies ModelSolutionQuizItemClosedEndedQuestion
+    }
+    if (quizItem.type === "matrix") {
+      // Excluded explicitly: `satisfies` does not strip extra properties from the response.
+      const { feedbackMessages, tolerance: _tolerance, fogOfWar: _fogOfWar, ...rest } = quizItem
+      return {
+        ...rest,
+        gradingPolicy: effectiveMatrixGradingPolicy(quizItem),
+        messagesOnModelSolution: messagesOnModelSolution(feedbackMessages),
+      } satisfies ModelSolutionQuizItemMatrix
     }
     const { feedbackMessages, ...rest } = quizItem
     return {

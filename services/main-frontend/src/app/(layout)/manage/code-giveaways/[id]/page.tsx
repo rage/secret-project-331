@@ -14,7 +14,7 @@ import {
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { Button, Link, QueryResults } from "@/shared-module/components"
-import { codeGiveawayCodesCsvUrl } from "@/utils/exportUrls"
+import { codeGiveawayCodesCsvHref } from "@/utils/exportDownloadUrls"
 
 import CodeGiveawayCode from "./CodeGiveawayCode"
 import ImportCodesForm from "./ImportCodesForm"
@@ -65,7 +65,7 @@ const CodeGiveawayPage = () => {
           {t(revealCodes ? "hide" : "reveal")}
         </Button>
         <Link
-          href={codeGiveawayCodesCsvUrl(id)}
+          href={codeGiveawayCodesCsvHref(id)}
           download
           styledAsButton
           size="medium"

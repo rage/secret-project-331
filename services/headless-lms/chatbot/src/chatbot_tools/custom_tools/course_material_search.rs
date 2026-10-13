@@ -1,4 +1,6 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::cache::Cache;
+use headless_lms_utils::course_url::build_courses_base_url;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
@@ -205,6 +207,7 @@ impl ChatbotTool for CourseMaterialSearchTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
@@ -281,10 +284,9 @@ impl ChatbotTool for CourseMaterialSearchTool {
                 course_name: course.name,
                 course_slug: course.slug,
                 hits,
-                document_url_prefix: format!(
-                    "{}/org/{}/courses",
-                    app_config.base_url.trim_end_matches('/'),
-                    organization.slug
+                document_url_prefix: build_courses_base_url(
+                    &app_config.base_url,
+                    &organization.slug,
                 ),
             },
         })

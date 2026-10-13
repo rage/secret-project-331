@@ -49,11 +49,16 @@ const FrontPage = () => {
       <div>
         <a href="https://www.mooc.fi">{t("link-text-find-more-courses")}</a>
       </div>
-      <div>
-        <Link href="/manage/course-plans" className={navLinkCss}>
-          {t("link-text-course-plans")}
-        </Link>
-      </div>
+      <OnlyRenderIfPermissions
+        action={{ type: "create_courses_or_exams" }}
+        resource={{ type: "any_course" }}
+      >
+        <div>
+          <Link href="/manage/course-plans" className={navLinkCss}>
+            {t("link-text-course-plans")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
       <div>
         <Link href={allOrganizationsRoute()} className={navLinkCss}>
           {t("link-text-all-organizations")}
@@ -117,7 +122,7 @@ const FrontPage = () => {
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions
-        action={{ type: "administrate" }}
+        action={{ type: "administrate_credit_registrations" }}
         resource={{ type: "global_permissions" }}
       >
         <div>
@@ -126,10 +131,27 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "administrate" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link href="/manage/email-templates" className={navLinkCss}>
+            {t("email-templates-title")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
           <Link href={courseAuditingRoute()} className={navLinkCss}>
             {t("link-course-auditing")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link href="/external-courses" className={navLinkCss}>
+            {t("external-courses")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

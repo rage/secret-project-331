@@ -96,7 +96,13 @@ const config = {
   publicRuntimeConfig: {
     publicAddress: process.env.PUBLIC_ADDRESS,
   },
-  transpilePackages: ["@vectopus/atlas-icons-react"],
+  // uuid and react-table ship only ES modules, and next/jest transforms only what is listed here.
+  transpilePackages: [
+    "@vectopus/atlas-icons-react",
+    "uuid",
+    "@tanstack/react-table",
+    "@tanstack/table-core",
+  ],
   allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code
   productionBrowserSourceMaps: true,

@@ -10,4 +10,8 @@ export const USER_ROLES = [
     translationKey: "role-teaching-and-learning-services" as const,
   },
   { value: "StatsViewer", translationKey: "role-stats-viewer" as const },
+  {
+    value: "CreditRegistrationAdmin",
+    translationKey: "role-credit-registration-admin" as const,
+  },
 ]

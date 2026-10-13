@@ -5,11 +5,11 @@ pub mod program_config;
 use crate::{
     OAuthClient,
     config::program_config::ProgramConfig,
-    controllers::mock_suotar::store::MockSuotarStore,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
     },
+    mock_suotar::store::MockSuotarStore,
 };
 use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{
@@ -19,6 +19,7 @@ use actix_web::{
 };
 use anyhow::Context;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::is_waiting_item;
 use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::{
     cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
@@ -82,6 +83,9 @@ pub struct ServerRuntimeConfig {
     pub tmc_server_secret_for_communicating_to_secret_project: SecretString,
     pub ratelimit_protection_safe_api_key: SecretString,
     pub pod_namespace: String,
+    /// Git commit of the running image; `GIT_COMMIT` is set by the production image build, see
+    /// `Dockerfile.production.slim.dockerfile`. "unknown" elsewhere.
+    pub build_commit: String,
 }
 
 impl ServerRuntimeConfig {
@@ -145,6 +149,11 @@ impl ServerRuntimeConfig {
                 ratelimit_protection_safe_api_key.into(),
             ),
             pod_namespace: env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string()),
+            build_commit: env::var("GIT_COMMIT")
+                .ok()
+                .map(|commit| commit.trim().to_string())
+                .filter(|commit| !commit.is_empty())
+                .unwrap_or_else(|| "unknown".to_string()),
             app_conf,
             test_mode,
         })
@@ -275,7 +284,10 @@ impl ServerConfigBuilder {
         // Built here rather than in `from_runtime_config` because auditing every call needs the pool.
         let suotar_client = Data::new(SuotarClient::new(
             &app_conf.suotar_configuration,
-            Arc::new(PgSuotarCallAudit::new(db_pool.as_ref().clone())),
+            Arc::new(PgSuotarCallAudit::new(
+                db_pool.as_ref().clone(),
+                is_waiting_item,
+            )),
         ));
 
         let config = ServerConfig {
@@ -357,7 +369,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(suotar_client)
         .service(
             web::scope("/api/v0")
-                .wrap(RateLimit::new(api_rate_limit_config))
+                .wrap(RateLimit::new(api_rate_limit_config).bypassable())
                 .wrap(RequestSpan)
                 .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );

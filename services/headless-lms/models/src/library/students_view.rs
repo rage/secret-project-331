@@ -146,16 +146,19 @@ FROM (
               $7::credit_registration_state [],
               $8::boolean [],
               $9::boolean [],
-              $10::boolean []
+              $10::boolean [],
+              $11::boolean []
             ) AS stage(
               state,
               completion_eligible,
               has_verified_student_number,
+              course_code_allowed,
               enrolment_resolved
             )
             ON stage.state = cr.state
             AND stage.completion_eligible = p.completion_eligible
             AND stage.has_verified_student_number = p.has_verified_student_number
+            AND stage.course_code_allowed = p.course_code_allowed
             AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
         WHERE cr.user_id = u.id
           AND cr.course_id = $1
@@ -177,6 +180,7 @@ FROM (
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
     )
     .fetch_one(&mut *conn)
@@ -252,16 +256,19 @@ WHERE cie.course_id = $1
             $11::credit_registration_state [],
             $12::boolean [],
             $13::boolean [],
-            $14::boolean []
+            $14::boolean [],
+            $15::boolean []
           ) AS stage(
             state,
             completion_eligible,
             has_verified_student_number,
+            course_code_allowed,
             enrolment_resolved
           )
           ON stage.state = cr.state
           AND stage.completion_eligible = p.completion_eligible
           AND stage.has_verified_student_number = p.has_verified_student_number
+          AND stage.course_code_allowed = p.course_code_allowed
           AND stage.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)
       WHERE cr.user_id = u.id
         AND cr.course_id = $1
@@ -311,6 +318,7 @@ LIMIT $5 OFFSET $6
         &stages.states as &[CreditRegistrationState],
         &stages.completion_eligible as &[bool],
         &stages.has_verified_student_number as &[bool],
+        &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
     )
     .fetch_all(&mut *conn)

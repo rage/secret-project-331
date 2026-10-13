@@ -256,8 +256,10 @@ async fn set_chapter_image(
         models::chapters::update_chapter_image_path(&mut conn, chapter.id, Some(chapter_image))
             .await?;
 
-    // Remove old image if one exists.
-    if let Some(old_image_path) = chapter.chapter_image_path {
+    // Course copies share chapter images with their source.
+    if let Some(old_image_path) = chapter.chapter_image_path
+        && !models::chapters::chapter_image_path_is_referenced(&mut conn, &old_image_path).await?
+    {
         let file = PathBuf::from_str(&old_image_path).map_err(|original_error| {
             ControllerError::new(
                 ControllerErrorType::InternalServerError,
@@ -320,21 +322,26 @@ async fn remove_chapter_image(
     )
     .await?;
     if let Some(chapter_image_path) = chapter.chapter_image_path {
-        let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
         let _res = models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
-        file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
+        // Course copies share chapter images with their source.
+        if !models::chapters::chapter_image_path_is_referenced(&mut conn, &chapter_image_path)
+            .await?
+        {
+            let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
+                controller_err!(
+                    InternalServerError,
+                    original_error.to_string(),
+                    original_error
+                )
+            })?;
+            file_store.delete(&file).await.map_err(|original_error| {
+                controller_err!(
+                    InternalServerError,
+                    original_error.to_string(),
+                    original_error
+                )
+            })?;
+        }
     }
     token.authorized_ok(web::Json(()))
 }

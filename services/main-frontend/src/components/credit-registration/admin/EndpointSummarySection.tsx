@@ -3,25 +3,27 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { QueryResult, RelativeTime, Table } from "@/shared-module/components"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import { QueryResult, Table } from "@/shared-module/components"
 
 import {
-  ABSENT,
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
-  TIME_COMPACT,
 } from "../constants"
 import {
   controlCss,
+  codeValueCss,
   headingCss,
   noteCss,
   sectionCardCss,
   sectionCardHeaderCss,
   stackedCellCss,
 } from "../styles"
+import { suotarEndpointLabel } from "./adminCreditRegistrationCopy"
 import { useSuotarHealth } from "./adminCreditRegistrationHooks"
 import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSelect"
 
@@ -53,8 +55,8 @@ const EndpointSummarySection: React.FC = () => {
             columns={[
               {
                 header: t("label-endpoint"),
-                minWidth: "14rem",
-                cell: (row) => <code>{row.endpoint}</code>,
+                minWidth: "12rem",
+                cell: (row) => suotarEndpointLabel(t, row.endpoint),
               },
               {
                 header: t("credit-registration-admin-column-calls"),
@@ -80,7 +82,7 @@ const EndpointSummarySection: React.FC = () => {
                 align: ALIGN_END,
                 minWidth: "5rem",
                 nowrap: true,
-                cell: (row) => row.p95_duration_ms ?? ABSENT,
+                cell: (row) => row.p95_duration_ms ?? <AbsentValue />,
               },
               {
                 header: t("label-credit-registration-last-failure"),
@@ -88,11 +90,11 @@ const EndpointSummarySection: React.FC = () => {
                 minWidth: "9rem",
                 cell: (row) => (
                   <span className={stackedCellCss}>
-                    <RelativeTime at={row.last_failure_at} absoluteTime={TIME_COMPACT} />
+                    <ZonedTimestamp at={row.last_failure_at} />
                     {row.last_request_level_error_code && (
                       <span className={noteCss}>
                         {t("credit-registration-admin-request-error-code-label")}{" "}
-                        <code>{row.last_request_level_error_code}</code>
+                        <code className={codeValueCss}>{row.last_request_level_error_code}</code>
                       </span>
                     )}
                   </span>

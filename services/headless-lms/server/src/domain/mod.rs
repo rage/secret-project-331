@@ -6,7 +6,6 @@ pub mod answer_files_archive;
 pub mod authentication;
 pub mod authorization;
 pub mod credit_registration;
-pub mod credit_registration_phases;
 pub mod csv_export;
 pub mod email_ownership_verification;
 pub mod error;

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE exercises SET chapter_id = $2 WHERE page_id = $1 AND deleted_at IS NULL",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9da054e7477095bc7d35972669d4fc0cbe1b73fa61546efa8a13084e0e4100d9"
+}

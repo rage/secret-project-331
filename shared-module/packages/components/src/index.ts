@@ -34,6 +34,17 @@ export { TextField } from "./components/TextField"
 export type { TextFieldProps } from "./components/TextField"
 export { TimeField } from "./components/TimeField"
 export type { TimeFieldProps } from "./components/TimeField"
+export { ToggleButtonGroup } from "./components/ToggleButtonGroup/ToggleButtonGroup"
+export type { ToggleButtonGroupProps } from "./components/ToggleButtonGroup/ToggleButtonGroup"
+export { ToggleButtonGroupButton } from "./components/ToggleButtonGroup/ToggleButtonGroupButton"
+export type { ToggleButtonGroupButtonProps } from "./components/ToggleButtonGroup/ToggleButtonGroupButton"
+export {
+  TriStateToggle,
+  type TriStateToggleStates,
+  NOT_SET,
+  INCLUDE,
+  EXCLUDE,
+} from "./components/ToggleButtonGroup/TriStateToggle"
 export { YearMonthField } from "./components/YearMonthField"
 export type { YearMonthFieldProps } from "./components/YearMonthField"
 export { Avatar } from "./components/Avatar"
@@ -86,6 +97,7 @@ export { Meter, MeterInline } from "./components/Meter"
 export type {
   MeterInlineProps,
   MeterInlineTrackWidth,
+  MeterKind,
   MeterProps,
   MeterTone,
 } from "./components/Meter"
@@ -100,10 +112,13 @@ export type { RegistrationStatusBadgeProps } from "./components/registrationStat
 export { RegistrationStatusHeadline } from "./components/registrationStatus/RegistrationStatusHeadline"
 export type { RegistrationStatusHeadlineProps } from "./components/registrationStatus/RegistrationStatusHeadline"
 export type { RegistrationStatusState } from "./components/registrationStatus/registrationStatusState"
-export { registrationStatusTone } from "./components/registrationStatus/registrationStatusState"
+export {
+  registrationStatusIcon,
+  registrationStatusTone,
+} from "./components/registrationStatus/registrationStatusState"
 export { RelativeTime } from "./components/RelativeTime"
 export type { RelativeTimeProps } from "./components/RelativeTime"
-export { ABSENT_LABEL, MIDDLE_DOT, TONE } from "./lib/displayConstants"
+export { ABSENT_LABEL, METER_KIND, MIDDLE_DOT, TONE } from "./lib/displayConstants"
 export { StatTile } from "./components/StatTile"
 export type { StatTileDeltaTone, StatTileProps, StatTileTone } from "./components/StatTile"
 export { StatTileList } from "./components/StatTileList"
@@ -115,6 +130,7 @@ export type {
   TableDensity,
   TableProps,
   TableResponsive,
+  TableRowGroup,
   TableSelection,
   TableSortDirection,
 } from "./components/Table"

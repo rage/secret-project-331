@@ -1,15 +1,12 @@
 "use client"
 
-import { useTabListState } from "@react-stately/tabs"
-import { usePathname } from "next/navigation"
-import React, { useMemo } from "react"
+import React from "react"
 
 import { TabStrip } from "@/components/Tabs/tabStrip"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
 
-import { resolveActiveTab } from "./resolveActiveTab"
 import { RouteTab, type RouteTabDefinition } from "./RouteTab"
 import { useRouteTabListContext } from "./RouteTabListContext"
+import { useRouteTabListState } from "./useRouteTabListState"
 
 const DEFAULT_ORIENTATION = "horizontal"
 
@@ -28,29 +25,7 @@ function RouteTabListStandalone({
   tabs: RouteTabDefinition[]
   orientation: "horizontal" | "vertical"
 }) {
-  const pathname = usePathname()
-
-  // Resolved without the fallback so a route with no matching tab can be told apart from one that
-  // genuinely matches the first tab; react-stately still needs some key selected for keyboard use.
-  const matchedTab = useMemo(() => resolveActiveTab(tabs, pathname, false), [pathname, tabs])
-  const isCurrentRouteATab = matchedTab !== undefined
-  const selectedKey = matchedTab?.key ?? tabs[0]?.key
-
-  const items = useMemo(
-    () =>
-      tabs.map((tab) => ({
-        key: tab.key,
-        id: tab.key,
-        textValue: tab.title,
-      })),
-    [tabs],
-  )
-
-  const state = useTabListState({
-    ...omitUndefined({ selectedKey }),
-    ...omitUndefined({ defaultSelectedKey: tabs[0]?.key }),
-    items,
-  })
+  const { state, isCurrentRouteATab } = useRouteTabListState(tabs)
 
   return (
     <TabStrip state={state} orientation={orientation} className={className}>

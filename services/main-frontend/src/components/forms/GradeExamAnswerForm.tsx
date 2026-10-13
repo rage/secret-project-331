@@ -212,7 +212,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
             variant={"primary"}
             size={"medium"}
             type="button"
-            onClick={handleSubmit(handleSubmitForm)}
+            onClick={() => void handleSubmit(handleSubmitForm)()}
           >
             {t("button-text-submit")}
           </Button>
@@ -223,7 +223,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
             size={"medium"}
             type="button"
             disabled={nextSubmissionId === "lastAnswer"}
-            onClick={handleSubmit(handleSubmitAndNext)}
+            onClick={() => void handleSubmit(handleSubmitAndNext)()}
           >
             {t("button-text-save-and-next")}
           </Button>

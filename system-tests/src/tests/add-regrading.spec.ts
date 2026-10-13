@@ -15,7 +15,7 @@ test("Regradings work", async ({ page }) => {
   await waitForSuccessNotification(page, async () => {
     await page.locator('button:has-text("Create")').click()
   })
-  await page.getByText("/ 1 Submissions regraded").waitFor()
+  await expect(page.getByRole("progressbar", { name: "Submissions regraded" })).toContainText("/ 1")
   await expect(page).toHaveURL(/http:\/\/project-331\.local\/manage\/regradings\/.+/)
 
   const firstRegradingPageUrl = page.url()

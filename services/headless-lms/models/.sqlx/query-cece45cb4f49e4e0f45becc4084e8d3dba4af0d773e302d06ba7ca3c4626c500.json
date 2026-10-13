@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT NOT EXISTS (\n    SELECT 1\n    FROM UNNEST($2::uuid []) AS ids(id)\n    WHERE NOT EXISTS (\n        SELECT 1\n        FROM course_modules cm\n        WHERE cm.id = ids.id\n          AND cm.course_id = $1\n          AND cm.deleted_at IS NULL\n      )\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM UNNEST($3::uuid []) AS ids(id)\n    WHERE NOT EXISTS (\n        SELECT 1\n        FROM chapters c\n        WHERE c.id = ids.id\n          AND c.course_id = $1\n          AND c.deleted_at IS NULL\n      )\n  ) AS \"all_belong!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "all_belong!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "cece45cb4f49e4e0f45becc4084e8d3dba4af0d773e302d06ba7ca3c4626c500"
+}

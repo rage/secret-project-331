@@ -27,7 +27,7 @@ export interface AdminPhaseStatus {
   last_heartbeat_at: string | null
   paused_at: string | null
   pause_reason: string | null
-  implemented: boolean
+  is_known_phase: boolean
 }
 
 export interface AdminRegistrationRow {
@@ -35,8 +35,9 @@ export interface AdminRegistrationRow {
   email: string | null
   state: string
   /** What a `pending` row waits on, derived per request; null in every other state. */
-  pending_reason: "completion" | "student_number" | null
+  pending_reason: "completion" | "student_number" | "course_code" | null
   error_code: string | null
+  needs_admin_attention: boolean
   submit_retry_count: number
   /** Frozen on the row before it was sent, so not always the number the account is linked to now. */
   student_number: string | null
@@ -68,53 +69,81 @@ export interface AdminNotificationEmail {
 export interface AdminRegistrationAttempt {
   id: string
   state: string
+  /** What a `pending` row waits on; `null` in every other state. */
+  pending_reason: "completion" | "student_number" | "course_code" | null
   attempt_number: number
   superseded: boolean
+  superseded_by_id: string | null
+  course_module_id: string
   terminal_at: string | null
   needs_admin_attention: boolean
   /** Frozen before the attempt was sent, so it is the grade this attempt actually carried. */
   grade_id: string | null
   grade_scale_id: string | null
+  /** The `hy-kur-…` id import answered with, if it answered. */
+  submitted_attainment_id: string | null
+  /** The attainment the study registry holds for this row, which may not be one we submitted. */
+  sisu_attainment_id: string | null
+  sisu_person_id: string | null
+  next_attempt_at: string
+  /** Suotar's `retryAfter` for a pending submission. */
+  resubmit_not_before: string | null
+  /** What the single-row hand transition would allow on this row. */
+  hand_actions: {
+    resubmission:
+      | { kind: "allowed"; risk: string }
+      | { kind: "refused"; refusal: string; available_at: string | null }
+    cancel_refusal: string | null
+    check_now: string | null
+  }
 }
 
 export interface AdminRegistrationDetails {
   registration: AdminRegistrationAttempt
   /** Every attempt for the same completion, this one included. */
   attempts: AdminRegistrationAttempt[]
-  events: { details: unknown }[]
-  suotar_api_calls: { request_body_sample: unknown; response_body_sample: unknown }[]
+  events: { kind: string; details: unknown; request_item_id: string | null }[]
+  suotar_api_calls: { id: string }[]
   actions: AdminRegistrationAction[]
   notification_emails: AdminNotificationEmail[]
   /** Only on a row the study registry declined as no improvement. */
   not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
 }
 
-export interface AccountLinkingRealisationCounters {
-  course_id: string
-  last_listed_at: string | null
-  listed_person_count: number | null
+export interface AccountLinkingCourseCode {
+  course_code: string
+  modules: { course_id: string; last_listed_at: string | null }[]
+  linking: { listed_person_count: number } | null
 }
 
 export interface AccountLinkingStats {
-  realisations: AccountLinkingRealisationCounters[]
+  course_codes: AccountLinkingCourseCode[]
 }
+
+/** When an enrolment list last fed account linking for one of the course's modules. */
+export const linkingListedAt = (stats: AccountLinkingStats, courseId: string): string | null =>
+  stats.course_codes.flatMap((code) => code.modules).find((module) => module.course_id === courseId)
+    ?.last_listed_at ?? null
 
 export interface AdminRegistrationFilter {
   student_number?: string
   course_id?: string
   state?: string
   needs_admin_attention?: boolean
+  include_superseded?: boolean
+  /** Defaults to true here, unlike in the API: a spec looking up its own row never wants it hidden. */
+  include_not_started?: boolean
   limit?: number
 }
 
+/** A page of the ledger, including rows waiting on a student who has not started. */
 export const listAdminRegistrations = (
   request: APIRequestContext,
   filter: AdminRegistrationFilter = {},
 ): Promise<AdminRegistrationsPage> =>
-  // Spread: an interface has no index signature, so it does not satisfy `queryString`'s parameter.
   getJson<AdminRegistrationsPage>(
     request,
-    `${ADMIN_REGISTRATIONS_URL}${queryString({ ...filter })}`,
+    `${ADMIN_REGISTRATIONS_URL}${queryString({ include_not_started: true, ...filter })}`,
   )
 
 export const adminRegistrationDetails = (
@@ -205,7 +234,7 @@ export const attentionItems = (request: APIRequestContext): Promise<AdminAttenti
 export interface AdminPhaseRow {
   phase: string
   process_name: string
-  implemented: boolean
+  is_known_phase: boolean
   last_heartbeat_at: string | null
   paused_at: string | null
   heartbeat_late: boolean
@@ -231,7 +260,7 @@ export interface AdminCourseModuleStats {
   eligible_completion_count: number
   registration_count: number
   config_checked_at: string | null
-  check: { course_code_resolves: boolean | null; product_token_found: boolean | null }
+  check: { course_code_allowed: boolean | null }
 }
 
 export interface AdminCourseStats {
@@ -279,7 +308,7 @@ export interface SuotarApiCallDetails {
   response_body_sample: unknown
   ledger_references: {
     credit_registration_id: string
-    request_item_id: string
+    request_item_id: string | null
     student_number: string | null
     first_name: string | null
     last_name: string | null
@@ -311,6 +340,8 @@ export const ADMIN_RESOLVE_PERSON_URL = `${CREDIT_REGISTRATION_ADMIN_API}/accoun
 /** The subset of `adminResolveStudentNumberForLinking` the linking specs read. */
 export interface AdminResolvedStudentNumber {
   found: boolean
+  /** Set when the registry answered with an error other than `personNotFound`. */
+  lookup_error_code: string | null
   already_linked_to_user_id: string | null
   already_linked_via: string | null
   linking_emails: { id: string; emailed_to: string }[]
@@ -318,8 +349,7 @@ export interface AdminResolvedStudentNumber {
 
 /**
  * Who the registry says a number belongs to, and every linking mail we have claimed for them. The
- * only read that answers "was this person mailed a link", which is what the fast-track specs assert
- * the absence of.
+ * only read that answers "was this person mailed a link".
  */
 export const adminResolveStudentNumber = async (
   request: APIRequestContext,
@@ -395,6 +425,10 @@ export const makeRegistrationDueNow = async (
   })
   if (!response.ok()) {
     throw new Error(`POST ${url} answered ${response.status()}: ${await response.text()}`)
+  }
+  const body = await response.json()
+  if (body.outcome === "refused") {
+    throw new Error(`POST ${url} refused check_now: ${body.refusal}`)
   }
 }
 

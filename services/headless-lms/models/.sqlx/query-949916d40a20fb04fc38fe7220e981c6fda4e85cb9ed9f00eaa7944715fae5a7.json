@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH stamped AS (\n  UPDATE credit_registration_roster_schedules\n  SET last_attempted_at = now(),\n    fetch_day_count = CASE\n      WHEN fetch_day = (now() AT TIME ZONE 'UTC')::date THEN fetch_day_count + 1\n      ELSE 1\n    END,\n    fetch_day = (now() AT TIME ZONE 'UTC')::date\n  WHERE course_code = ANY($1::text [])\n)\nSELECT now() AS \"started_at!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "started_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "949916d40a20fb04fc38fe7220e981c6fda4e85cb9ed9f00eaa7944715fae5a7"
+}

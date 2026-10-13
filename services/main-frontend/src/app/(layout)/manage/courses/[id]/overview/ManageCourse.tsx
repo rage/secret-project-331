@@ -24,13 +24,13 @@ import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
 import { Button, Link, useDialog } from "@/shared-module/components"
 import {
-  courseExerciseTasksCsvUrl,
-  courseInstancesCsvUrl,
-  courseSubmissionsCsvUrl,
-  courseUserConsentsCsvUrl,
-  courseUserDetailsCsvUrl,
-  courseUserExerciseStatesCsvUrl,
-} from "@/utils/exportUrls"
+  courseExerciseTasksCsvHref,
+  courseInstancesCsvHref,
+  courseSubmissionsCsvHref,
+  courseUserConsentsCsvHref,
+  courseUserDetailsCsvHref,
+  courseUserExerciseStatesCsvHref,
+} from "@/utils/exportDownloadUrls"
 
 import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
@@ -333,7 +333,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           >
             <li>
               <Link
-                href={courseSubmissionsCsvUrl(course.id)}
+                href={courseSubmissionsCsvHref(course.id)}
                 aria-label={t("link-export-submissions")}
                 download
                 styledAsButton
@@ -345,7 +345,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </li>
             <li>
               <Link
-                href={courseUserDetailsCsvUrl(course.id)}
+                href={courseUserDetailsCsvHref(course.id)}
                 aria-label={t("link-export-user-details")}
                 download
                 styledAsButton
@@ -357,7 +357,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </li>
             <li>
               <Link
-                href={courseExerciseTasksCsvUrl(course.id)}
+                href={courseExerciseTasksCsvHref(course.id)}
                 aria-label={t("link-export-exercise-tasks")}
                 download
                 styledAsButton
@@ -369,7 +369,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </li>
             <li>
               <Link
-                href={courseInstancesCsvUrl(course.id)}
+                href={courseInstancesCsvHref(course.id)}
                 aria-label={t("link-export-course-instances")}
                 download
                 styledAsButton
@@ -381,7 +381,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </li>
             <li>
               <Link
-                href={courseUserConsentsCsvUrl(course.id)}
+                href={courseUserConsentsCsvHref(course.id)}
                 aria-label={t("link-export-course-user-consents")}
                 download
                 styledAsButton
@@ -393,7 +393,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </li>
             <li>
               <Link
-                href={courseUserExerciseStatesCsvUrl(course.id)}
+                href={courseUserExerciseStatesCsvHref(course.id)}
                 aria-label={t("link-export-user-exercise-states")}
                 download
                 styledAsButton

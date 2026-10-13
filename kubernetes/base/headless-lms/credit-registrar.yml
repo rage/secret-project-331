@@ -9,6 +9,9 @@ metadata:
 spec:
   # The circuit breaker is per pod, so a second replica would double the calls to a failing registry.
   replicas: 1
+  # Also one pod during a rollout: the new one starts only once the old one has finished its calls.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: credit-registrar
@@ -19,6 +22,9 @@ spec:
       labels:
         app: credit-registrar
     spec:
+      # An import call may run for 60 minutes and is left to finish on shutdown; killing it midway
+      # leaves the whole batch uncertain.
+      terminationGracePeriodSeconds: 3900
       containers:
         - name: credit-registrar
           image: headless-lms

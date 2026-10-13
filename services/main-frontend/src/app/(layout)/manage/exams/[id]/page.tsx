@@ -27,7 +27,7 @@ import {
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, DescriptionList, Link, QueryResult, TextField } from "@/shared-module/components"
-import { examPointsCsvUrl, examSubmissionsCsvUrl } from "@/utils/exportUrls"
+import { examPointsCsvHref, examSubmissionsCsvHref } from "@/utils/exportDownloadUrls"
 
 import EditExamDialog from "../EditExamDialog"
 
@@ -247,7 +247,7 @@ const ManageExam: React.FC = () => {
                 </Link>
               )}
               <Link
-                href={examPointsCsvUrl(data.id)}
+                href={examPointsCsvHref(data.id)}
                 download
                 styledAsButton
                 variant="tertiary"
@@ -256,7 +256,7 @@ const ManageExam: React.FC = () => {
                 {t("link-export-points")}
               </Link>
               <Link
-                href={examSubmissionsCsvUrl(data.id)}
+                href={examSubmissionsCsvHref(data.id)}
                 download
                 styledAsButton
                 variant="tertiary"

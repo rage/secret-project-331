@@ -1,3 +1,4 @@
+use headless_lms_utils::cache::Cache;
 use std::collections::HashMap;
 
 use indexmap::IndexMap;
@@ -11,20 +12,26 @@ use crate::{
     prelude::*,
     user_context::ChatbotTurnContext,
 };
-use headless_lms_models::chatbot_configurations::ToolCategory;
+use headless_lms_models::{
+    chatbot_configurations::ToolCategory,
+    organizations::{self, DatabaseOrganization},
+};
 use headless_lms_models::{
     course_audiences::get_course_ids_by_audience_vectors,
     course_prerequisites::get_course_ids_by_prerequisite_vectors,
     courses::{self, Course, get_by_description_vectors},
+    external_courses::{ExternalCourseOutput, get_external_courses_by_embeddings},
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings,
+    course_url::build_course_url,
     json_schema_types::{Schema, string_array_property},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CourseFinderState {
     courses: Vec<CourseOccurrences>,
+    external_courses: Vec<ExternalCourseOutput>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -40,6 +47,7 @@ pub struct CourseFinderArguments {
 pub struct CourseOccurrences {
     course: Course,
     occurrences: usize,
+    course_url: String,
 }
 
 pub type CourseFinderTool = ToolProperties<CourseFinderState>;
@@ -57,6 +65,7 @@ impl ChatbotTool for CourseFinderTool {
     async fn from_db_and_arguments(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        _cache: &Cache,
         arguments: Self::Arguments,
         _user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
@@ -85,15 +94,26 @@ impl ChatbotTool for CourseFinderTool {
             vec![]
         };
 
-        let description_courses = if let Some(description) = &arguments.description {
-            let description_embeddings = create_embeddings(app_config, description.clone())
-                .await?
-                .to_owned();
+        let (description_courses, external_courses) =
+            if let Some(description) = &arguments.description {
+                let description_embeddings = create_embeddings(app_config, description.clone())
+                    .await?
+                    .to_owned();
 
-            get_by_description_vectors(conn, description_embeddings, description.clone()).await?
-        } else {
-            vec![]
-        };
+                let external_courses = get_external_courses_by_embeddings(
+                    conn,
+                    description.clone(),
+                    description_embeddings.clone(),
+                )
+                .await?;
+
+                let courses =
+                    get_by_description_vectors(conn, description_embeddings, description.clone())
+                        .await?;
+                (courses, external_courses)
+            } else {
+                (vec![], vec![])
+            };
 
         let course_ids = [description_courses, audience_courses, prerequisite_courses].concat();
 
@@ -105,11 +125,39 @@ impl ChatbotTool for CourseFinderTool {
 
         let courses = courses::get_by_ids(conn, &course_ids).await?;
 
+        let organization_ids: Vec<Uuid> = courses
+            .iter()
+            .map(|course| course.organization_id)
+            .collect();
+
+        let organizations = organizations::get_by_ids(conn, &organization_ids).await?;
+
+        let organization_by_id: HashMap<Uuid, &DatabaseOrganization> = organizations
+            .iter()
+            .map(|organization| (organization.id, organization))
+            .collect();
+
         let mut course_occurrences: Vec<CourseOccurrences> = courses
             .into_iter()
-            .map(|course| CourseOccurrences {
-                occurrences: counts[&course.id],
-                course,
+            .filter_map(|course| {
+                if course.is_draft
+                    || course.is_test_mode
+                    || course.is_unlisted
+                    || course.is_closed()
+                {
+                    return None;
+                }
+                let organization = organization_by_id.get(&course.organization_id)?;
+
+                Some(CourseOccurrences {
+                    occurrences: counts[&course.id],
+                    course_url: build_course_url(
+                        &app_config.base_url,
+                        &organization.slug,
+                        &course.slug,
+                    ),
+                    course,
+                })
             })
             .collect();
 
@@ -118,17 +166,17 @@ impl ChatbotTool for CourseFinderTool {
         Ok(CourseFinderTool {
             state: CourseFinderState {
                 courses: course_occurrences,
+                external_courses,
             },
         })
     }
 
     fn output(&self) -> String {
-        serde_json::to_string(&self.state.courses)
-            .unwrap_or_else(|_| "No courses found".to_string())
+        serde_json::to_string(&self.state).unwrap_or_else(|_| "No courses found".to_string())
     }
 
     fn output_description_instructions(&self) -> Option<String> {
-        Some("Do not return the whole JSON of the courses to the user. Present the most suitable courses based on the user query. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
+        Some("Do not return the whole JSON of the courses to the user. Courses under the 'courses'key are what you should prioritize. If in addition to those courses there is some external course that matches the user query especially well, you can recommend that as well. If you recommend an external course, state that an external course is not in courses.mooc.fi. If the course is checked to be on the old platform (on_old_platform is true), say that it is on the older version of our platform so not all information may be found on this site. If it is not on the old platform, just say it is hosted on an external platform and we don't have any additional information on it. Use the url provided to link the external course. Present the most suitable courses based on the user query. Use the course names and course descriptions to give a list and a very brief and summarized description of each course to the user. If there are duplicate courses ignore them. You can also mention why the course could be suitable to the user based on their request.".to_string())
     }
 }
 

@@ -8,7 +8,7 @@ import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types
 import { Disclosure, Infobox, Link } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, TONE } from "./constants"
-import { dividedListCss, monospaceCss, noteCss, sectionCss } from "./styles"
+import { dividedListCss, codeValueCss, noteCss, sectionCss } from "./styles"
 
 /** One enabled module's saved credit-registration configuration, named for the callout. */
 export interface CreditRegistrationConfigCalloutModule {
@@ -20,6 +20,8 @@ interface Props {
   configs: CreditRegistrationConfigCalloutModule[]
   /** Where the fields are edited, for callers that are not already on that page. */
   fixHref?: string
+  /** The course's only module is its default one, so the problem is the course's. */
+  isCourseWide?: boolean
 }
 
 /** Whether the module's saved configuration failed its last check; a module with one always has a config. */
@@ -30,7 +32,11 @@ export const hasCreditRegistrationConfigProblem = (
   Boolean(config.credit_registration_config_check_message)
 
 /** One callout naming every enabled module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */
-const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) => {
+const CreditRegistrationConfigCallout: React.FC<Props> = ({
+  configs,
+  fixHref,
+  isCourseWide = false,
+}) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const failing = configs.flatMap(({ moduleName, config }) =>
     hasCreditRegistrationConfigProblem(config) ? [{ moduleName, config }] : [],
@@ -48,17 +54,19 @@ const CreditRegistrationConfigCallout: React.FC<Props> = ({ configs, fixHref }) 
             <div>
               {shouldNameModule
                 ? t("heading-credit-registration-config-problem-in-module", { module: moduleName })
-                : t("heading-credit-registration-config-problem")}
+                : isCourseWide
+                  ? t("heading-credit-registration-config-problem-course")
+                  : t("heading-credit-registration-config-problem")}
             </div>
-            {config.credit_registration_course_code_resolves === false && (
-              <div>{t("credit-registration-config-course-code-unknown")}</div>
+            {config.credit_registration_course_code_allowed === false && (
+              <div>{t("credit-registration-config-course-code-not-accepted")}</div>
             )}
-            {config.credit_registration_product_token_found === false && (
-              <div>{t("credit-registration-config-no-product-token")}</div>
+            {!config.credit_registration_has_enrolment_link && (
+              <div>{t("credit-registration-config-enrolment-link-missing")}</div>
             )}
             {/* Written for an integrator and stored untranslated; it is what a teacher quotes to support. */}
             <Disclosure title={t("credit-registration-config-diagnostic-for-support")}>
-              <div className={cx(noteCss, monospaceCss)}>
+              <div className={cx(noteCss, codeValueCss)}>
                 {config.credit_registration_config_check_message}
               </div>
             </Disclosure>

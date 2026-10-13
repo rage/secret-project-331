@@ -134,7 +134,7 @@ const surfaceCss = css`
   border-radius: var(--surface-radius);
   outline: none;
 
-  /* The scrim is dropped in high contrast mode, so without an edge the surface merges into the page. */
+  /* Forced colours paint the surface and the page behind it the same Canvas; this is the edge. */
   @media (forced-colors: active) {
     border: 1px solid CanvasText;
   }
@@ -186,6 +186,7 @@ const titleCss = css`
   margin: 0;
   font-size: var(--font-size-4);
   font-weight: 600;
+  line-height: 1.3;
   overflow-wrap: break-word;
 `
 
@@ -196,7 +197,8 @@ const closeButtonCss = css`
   justify-content: center;
   width: var(--space-6);
   height: var(--space-6);
-  margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) 0 0;
+  margin-block-start: calc(var(--space-3) * -1);
+  margin-inline-end: calc(var(--space-3) * -1);
   padding: 0;
   border: none;
   border-radius: 50%;

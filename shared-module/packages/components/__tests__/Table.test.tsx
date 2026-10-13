@@ -22,7 +22,11 @@ const columns: TableColumn<Row>[] = [
   { header: "Credits", cell: (row) => row.credits, align: "end" },
 ]
 
-function renderTable(props?: Partial<TableProps<Row>>) {
+type RenderTableProps = Partial<Omit<TableProps<Row>, "caption" | "labelledBy" | "showCaption">> & {
+  showCaption?: boolean
+}
+
+function renderTable(props?: RenderTableProps) {
   return renderUi(
     <Table
       columns={columns}

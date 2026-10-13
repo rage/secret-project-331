@@ -16,12 +16,12 @@ use headless_lms_models::suotar_api_calls::{
 use utoipa::ToSchema;
 
 use crate::prelude::*;
+use headless_lms_utils::secret_string::expose_option;
 
 use super::authorize_credit_registration_admin;
 
-/// How many ledger rows one call may resolve. A batch is capped well below this by the endpoint's
-/// own batch size.
-const MAX_REFERENCED_ROWS: i64 = 500;
+/// How many ledger rows one call may resolve: the largest batch any endpoint carries.
+const MAX_REFERENCED_ROWS: i64 = 1000;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCallRow {
@@ -36,6 +36,7 @@ pub struct SuotarApiCallRow {
     pub request_item_count: i32,
     pub ok_item_count: i32,
     pub error_item_count: i32,
+    pub pending_item_count: i32,
     /// The registry's own request-level code, an identifier rather than prose.
     pub request_level_error_code: Option<String>,
     pub worker_name: String,
@@ -55,8 +56,9 @@ pub struct SuotarApiCallsPage {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCallLedgerReference {
     pub credit_registration_id: Uuid,
-    /// The id the registry saw for this row, so a line of the stored body maps to a student.
-    pub request_item_id: String,
+    /// The id the registry saw for this row, so a line of the stored body maps to a student. `None`
+    /// when no event recorded it.
+    pub request_item_id: Option<String>,
     pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -78,6 +80,8 @@ pub struct SuotarApiCallEvent {
     pub from_state: Option<CreditRegistrationState>,
     pub to_state: Option<CreditRegistrationState>,
     pub error_code: Option<CreditRegistrationErrorCode>,
+    /// Our own wording for what the call did to the row.
+    pub message: Option<String>,
     /// The `{request, response}` pair for this one item, scrubbed at write time.
     pub details: Option<serde_json::Value>,
 }
@@ -191,8 +195,12 @@ pub async fn get_suotar_api_call(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let call = suotar_api_calls::get_by_id(&mut conn, *suotar_api_call_id).await?;
-    let ledger_references =
-        resolve_ledger_references(&mut conn, &call.credit_registration_ids).await?;
+    let ledger_references = resolve_ledger_references(
+        &mut conn,
+        &call.credit_registration_ids,
+        &call.request_item_ids,
+    )
+    .await?;
     let events = models::credit_registration_events::get_by_suotar_api_call_id(
         &mut conn,
         *suotar_api_call_id,
@@ -207,6 +215,7 @@ pub async fn get_suotar_api_call(
         from_state: event.from_state,
         to_state: event.to_state,
         error_code: event.error_code,
+        message: event.message,
         details: event.details,
     })
     .collect();
@@ -226,10 +235,17 @@ pub async fn get_suotar_api_call(
 async fn resolve_ledger_references(
     conn: &mut PgConnection,
     credit_registration_ids: &[Uuid],
+    request_item_ids: &[String],
 ) -> Result<Vec<SuotarApiCallLedgerReference>, ControllerError> {
     if credit_registration_ids.is_empty() {
         return Ok(Vec::new());
     }
+    let mut sent_as = models::credit_registration_events::get_request_item_ids_in_call(
+        conn,
+        credit_registration_ids,
+        request_item_ids,
+    )
+    .await?;
     let rows = credit_registrations::get_admin_facing(
         conn,
         &AdminCreditRegistrationFilters {
@@ -249,12 +265,12 @@ async fn resolve_ledger_references(
         .filter_map(|id| by_id.remove(id))
         .map(|row| SuotarApiCallLedgerReference {
             credit_registration_id: row.id,
-            request_item_id: row.request_item_id,
+            request_item_id: sent_as.remove(&row.id),
             user_id: row.user_id,
             first_name: row.first_name,
             last_name: row.last_name,
             email: row.email,
-            student_number: row.student_number,
+            student_number: expose_option(&row.student_number).map(str::to_owned),
             course_id: row.course_id,
             course_name: row.course_name,
             state: row.state,
@@ -274,6 +290,7 @@ fn to_call_row(call: SuotarApiCallPageRow) -> SuotarApiCallRow {
         request_item_count: call.request_item_count,
         ok_item_count: call.ok_item_count,
         error_item_count: call.error_item_count,
+        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code,
         worker_name: call.worker_name,
         credit_registration_ids: call.credit_registration_ids,
@@ -292,6 +309,7 @@ fn to_call_row_from_full(call: &SuotarApiCall) -> SuotarApiCallRow {
         request_item_count: call.request_item_count,
         ok_item_count: call.ok_item_count,
         error_item_count: call.error_item_count,
+        pending_item_count: call.pending_item_count,
         request_level_error_code: call.request_level_error_code.clone(),
         worker_name: call.worker_name.clone(),
         credit_registration_ids: call.credit_registration_ids.clone(),

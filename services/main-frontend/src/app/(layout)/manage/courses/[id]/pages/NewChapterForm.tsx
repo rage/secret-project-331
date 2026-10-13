@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import React, { useEffect } from "react"
-import { useForm, useWatch } from "react-hook-form"
+import { Controller, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,6 +13,8 @@ import type { Chapter, NewChapter } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 import { Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+
+const DEFAULT_COLOR = "#000000"
 
 // Shared with ChapterFormDialog.tsx, whose footer submit button targets this form by id.
 export const NEW_CHAPTER_FORM_ID = "new-chapter-form"
@@ -165,15 +167,34 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
           label={t("set-field-value", { name: t("input-field-chapter-color") })}
         />
         {hasColor && (
-          <TextField
-            className={css`
-              height: 45px;
-              padding: 0px 0px 0px 0px !important;
-            `}
+          <Controller
             name="color"
             control={control}
-            label={t("input-field-chapter-color")}
-            type="color"
+            render={({ field }) => (
+              <label
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: var(--space-3);
+                `}
+              >
+                <input
+                  type="color"
+                  name={field.name}
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  value={field.value ?? DEFAULT_COLOR}
+                  onChange={(event) => field.onChange(event.target.value)}
+                  className={css`
+                    width: 3rem;
+                    height: 2.5rem;
+                    padding: 0;
+                    cursor: pointer;
+                  `}
+                />
+                {t("input-field-chapter-color")}
+              </label>
+            )}
           />
         )}
         <Checkbox

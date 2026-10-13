@@ -1,12 +1,13 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import AllSubmissionsList from "@/components/AllSubmissionsList"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import ExerciseGradingCard from "@/components/ExerciseGradingCard"
 import KeyValueCard from "@/components/KeyValueCard"
@@ -26,6 +27,7 @@ import {
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
+  ABSENT_LABEL,
   Breadcrumbs,
   type BreadcrumbItem,
   Infobox,
@@ -120,9 +122,12 @@ const Submission: React.FC = () => {
             )}
 
             <h1
-              className={css`
-                margin-bottom: 2rem;
-              `}
+              className={cx(
+                pageTitleCss,
+                css`
+                  margin-bottom: var(--space-5);
+                `,
+              )}
             >
               <HideTextInSystemTests
                 text={t("title-submission-id", { id })}
@@ -163,7 +168,7 @@ const Submission: React.FC = () => {
                         // oxlint-disable-next-line i18next/no-literal-string
                         key: "points",
                         label: t("points-from-whole-exercise"),
-                        value: pointsFromWholeExercise,
+                        value: pointsFromWholeExercise ?? ABSENT_LABEL,
                         colSpan: 2,
                       },
                       {

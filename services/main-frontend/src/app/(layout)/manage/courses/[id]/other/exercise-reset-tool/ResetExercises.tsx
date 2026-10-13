@@ -1,16 +1,17 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
+import { headingCss } from "@/components/credit-registration/styles"
 import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Button, Dialog } from "@/shared-module/components"
 
@@ -111,12 +112,12 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   return (
     <div>
       <h3
-        className={css`
-          color: ${baseTheme.colors.gray[700]};
-          font-family: ${secondaryFont};
-          padding-bottom: 22px;
-          font-weight: ${fontWeights.medium};
-        `}
+        className={cx(
+          headingCss,
+          css`
+            padding-bottom: var(--space-4);
+          `,
+        )}
       >
         {t("title-reset-exercises")}
       </h3>

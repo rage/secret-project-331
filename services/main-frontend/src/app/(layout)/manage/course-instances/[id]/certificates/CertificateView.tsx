@@ -25,8 +25,19 @@ const CertificateView: React.FC<Props> = ({
   return (
     <div
       className={css`
+        display: grid;
+        gap: var(--space-2);
+        width: 100%;
+
         hr {
-          color: ${baseTheme.colors.clear[300]};
+          width: 100%;
+          margin: var(--space-2) 0;
+          border: none;
+          border-top: 1px solid ${baseTheme.colors.clear[300]};
+        }
+
+        h3 {
+          margin: 0 0 var(--space-2);
         }
       `}
     >
@@ -143,13 +154,15 @@ const CertificateView: React.FC<Props> = ({
       <div
         className={css`
           display: flex;
-          margin-top: 1rem;
+          flex-wrap: wrap;
+          gap: var(--space-3);
+          margin-top: var(--space-3);
         `}
       >
-        <Button variant="primary" size="medium" onClick={onClickEdit}>
+        <Button variant="secondary" size="medium" onClick={onClickEdit}>
           {t("edit")}
         </Button>
-        <Button variant="tertiary" size="medium" onClick={onClickDelete}>
+        <Button variant="secondary" size="medium" onClick={onClickDelete}>
           {t("delete")}
         </Button>
         <div
@@ -160,7 +173,7 @@ const CertificateView: React.FC<Props> = ({
         <Link
           href={`/certificates/validate/test?test_certificate_configuration_id=${configurationAndRequirements.certificate_configuration.id}&debug=true`}
           styledAsButton
-          variant="tertiary"
+          variant="secondary"
           size="medium"
         >
           {t("button-text-preview")}

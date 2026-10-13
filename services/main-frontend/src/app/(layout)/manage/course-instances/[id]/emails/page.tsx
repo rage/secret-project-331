@@ -1,11 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions,
   getCourseInstanceEmailTemplatesOptions,
@@ -63,7 +64,16 @@ const CourseInstanceEmailTemplates: React.FC = () => {
       `}
     >
       {/* TODO: Perhaps insert some data regarding the course instance */}
-      <h1>{t("title-email-templates")}</h1>
+      <h1
+        className={cx(
+          pageTitleCss,
+          css`
+            margin-bottom: var(--space-4);
+          `,
+        )}
+      >
+        {t("title-email-templates")}
+      </h1>
       <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
         {t("button-text-create")}
       </Button>

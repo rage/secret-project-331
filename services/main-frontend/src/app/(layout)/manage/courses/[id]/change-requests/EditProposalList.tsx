@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { getEditProposalCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { Pagination, QueryResult } from "@/shared-module/components"
+import { EmptyState, Pagination, QueryResult } from "@/shared-module/components"
 
 import EditProposalPage from "./EditProposalPage"
 
@@ -36,7 +36,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
       {(data) => {
         const items = pending ? data.pending : data.handled
         if (items <= 0) {
-          return <div>{t("no-change-requests")}</div>
+          return <EmptyState title={t("no-change-requests")} />
         }
 
         const pageCount = Math.ceil(items / perPage)

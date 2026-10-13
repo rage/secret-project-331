@@ -45,7 +45,7 @@ import {
 } from "@/shared-module/components"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
-import { itemsContainerCss } from "./styles"
+import { headingsCss, itemsContainerCss } from "./styles"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -306,7 +306,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           : false
 
         return (
-          <div>
+          <div className={headingsCss}>
             <h2>{t("customize-chatbot")}</h2>
             <form className={itemsContainerCss} onSubmit={onConfigureChatbotWrapper}>
               <TextField
@@ -434,7 +434,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   <div className={itemsContainerCss}>
                     <div
                       className={css`
-                        margin: 20px 20px;
+                        margin: 20px 0;
                       `}
                     >
                       {fields.map((item, idx) => (

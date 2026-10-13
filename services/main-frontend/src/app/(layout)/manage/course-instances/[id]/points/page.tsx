@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { DENSITY_COMPACT, SORT_ASCENDING } from "@/components/credit-registration/constants"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   getCourseInstanceOptions,
   getCourseInstancePointsOptions,
@@ -15,7 +16,6 @@ import {
 import type { UserDetail } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { roundDown } from "@/shared-module/common/utils/numbers"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
@@ -102,9 +102,7 @@ const CourseInstancePointsList: React.FC = () => {
       className={css`
         display: flex;
         flex-direction: column;
-        color: #707070;
-        font-weight: 600;
-        font-family: ${headingFont};
+        gap: var(--space-4);
 
         margin-top: 40px;
         ${respondToOrLarger.sm} {
@@ -112,14 +110,9 @@ const CourseInstancePointsList: React.FC = () => {
         }
       `}
     >
-      <h2
-        className={css`
-          font-size: 45px;
-          line-height: 45px;
-        `}
-      >
+      <h1 className={pageTitleCss}>
         {t("point-summary")}: {instanceLabel}
-      </h2>
+      </h1>
       <QueryResult query={getPointsList}>
         {(data) => {
           const instanceTotalPoints = data.chapter_points.reduce(
@@ -166,6 +159,7 @@ const CourseInstancePointsList: React.FC = () => {
                 columns={[
                   {
                     header: t("label-user-id"),
+                    nowrap: true,
                     ...sortColumn(NUMBER),
                     cell: ({ user }) =>
                       courseId ? (

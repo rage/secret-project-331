@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import type { FlaggedAnswer } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
 
 export interface FlaggedPeerReviewAccordionProps {
@@ -75,7 +76,7 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
               </li>
               <li>
                 <strong>{t("label-created-at")}: </strong>
-                {new Date(report.created_at).toLocaleString()}
+                {dateToString(report.created_at)}
               </li>
             </ul>
           </div>

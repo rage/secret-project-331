@@ -23,7 +23,7 @@ import {
   manageExamQuestionsRoute,
   testExamRoute,
 } from "@/shared-module/common/utils/routes"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   Button,
@@ -47,11 +47,16 @@ const actionRow = css`
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0 0 1.5rem 0;
+
+  & > a {
+    max-width: 100%;
+    white-space: normal;
+  }
 `
 
 const ManageExam: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const getExam = useQuery({
     ...getExamOptions({
       path: {
@@ -152,11 +157,11 @@ const ManageExam: React.FC = () => {
                 items={[
                   {
                     label: t("label-starts-at"),
-                    value: humanReadableDateTime(data.starts_at, i18n.language) ?? NO_VALUE,
+                    value: data.starts_at ? dateToString(data.starts_at) : NO_VALUE,
                   },
                   {
                     label: t("label-ends-at"),
-                    value: humanReadableDateTime(data.ends_at, i18n.language) ?? NO_VALUE,
+                    value: data.ends_at ? dateToString(data.ends_at) : NO_VALUE,
                   },
                   {
                     label: t("label-duration"),

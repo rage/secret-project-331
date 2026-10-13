@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Papa from "papaparse"
 import React from "react"
@@ -231,7 +232,14 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         label={t("label-csv")}
         autoResize
       />
-      <Button variant="primary" size="medium" type="submit">
+      <Button
+        variant="primary"
+        size="medium"
+        type="submit"
+        className={css`
+          margin-top: var(--space-4);
+        `}
+      >
         {submitText ?? t("button-text-submit")}
       </Button>
     </form>

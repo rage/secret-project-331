@@ -94,10 +94,19 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         <h2 className={sectionHeadingCss}>{t("customize-chatbot")}</h2>
         <CardList>
           {sortedChatbotsList.map((bot) => (
-            <CardListItem key={bot.id}>
+            <CardListItem
+              key={bot.id}
+              className={css`
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: var(--space-3);
+              `}
+            >
               <h3
                 className={css`
-                  margin: 5px;
+                  flex-basis: 100%;
+                  margin: 0;
                 `}
               >
                 {bot.chatbot_name} <em>{bot.default_chatbot ? `(${t("label-default")})` : ""}</em>

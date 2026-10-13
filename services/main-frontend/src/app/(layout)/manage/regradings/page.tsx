@@ -7,7 +7,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { pageTitleCss } from "@/components/credit-registration/styles"
+import { dialogFormCss, pageTitleCss } from "@/components/credit-registration/styles"
 import {
   createRegradingMutation as createNewRegradingMutationOptions,
   getRegradingsCountOptions,
@@ -161,12 +161,12 @@ const RegradingsPage: React.FC = () => {
                 },
                 {
                   header: t("regradings-column-grading-progress"),
-                  minWidth: "9rem",
+                  minWidth: "6rem",
                   cell: (regrading) => regrading.total_grading_progress,
                 },
                 {
                   header: t("regradings-column-points-update-strategy"),
-                  minWidth: "14rem",
+                  minWidth: "10rem",
                   cell: (regrading) =>
                     pointsUpdateStrategyLabel(regrading.user_points_update_strategy),
                 },
@@ -197,82 +197,84 @@ const RegradingsPage: React.FC = () => {
         onClose={() => setNewRegradingDialogOpen(false)}
         title={t("button-text-new-regrading")}
       >
-        <Select
-          name="idType"
-          control={control}
-          label={t("label-id-type")}
-          options={[
-            {
-              label: t("option-exercise-task-submission-id"),
-              // oxlint-disable-next-line i18next/no-literal-string
-              value: "ExerciseTaskSubmissionId" satisfies NewRegradingIdType,
-            },
+        <div className={dialogFormCss}>
+          <Select
+            name="idType"
+            control={control}
+            label={t("label-id-type")}
+            options={[
+              {
+                label: t("option-exercise-task-submission-id"),
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "ExerciseTaskSubmissionId" satisfies NewRegradingIdType,
+              },
 
-            {
-              label: t("option-exercise-id"),
-              // oxlint-disable-next-line i18next/no-literal-string
-              value: "ExerciseId" satisfies NewRegradingIdType,
-            },
-          ]}
-        />
-        <TextArea
-          name="ids"
-          control={control}
-          label={t("label-ids-one-per-line")}
-          rows={20}
-          rules={{
-            validate: (input) => {
-              const lines = input.trim().split("\n")
-              if (lines.length === 0) {
-                return false
-              }
+              {
+                label: t("option-exercise-id"),
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "ExerciseId" satisfies NewRegradingIdType,
+              },
+            ]}
+          />
+          <TextArea
+            name="ids"
+            control={control}
+            label={t("label-ids-one-per-line")}
+            rows={8}
+            rules={{
+              validate: (input) => {
+                const lines = input.trim().split("\n")
+                if (lines.length === 0) {
+                  return false
+                }
 
-              return lines.every((line) => isUuid(line.trim()))
-            },
-          }}
-        />
+                return lines.every((line) => isUuid(line.trim()))
+              },
+            }}
+          />
 
-        <Select
-          name="userPointsUpdateStrategy"
-          control={control}
-          label={t("label-user-points-update-strategy")}
-          options={[
-            {
-              label: t("option-can-add-points-but-cannot-remove-points"),
-              // oxlint-disable-next-line i18next/no-literal-string
-              value: "CanAddPointsButCannotRemovePoints" satisfies UserPointsUpdateStrategy,
-            },
+          <Select
+            name="userPointsUpdateStrategy"
+            control={control}
+            label={t("label-user-points-update-strategy")}
+            options={[
+              {
+                label: t("option-can-add-points-but-cannot-remove-points"),
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "CanAddPointsButCannotRemovePoints" satisfies UserPointsUpdateStrategy,
+              },
 
-            {
-              label: t("option-can-add-points-and-can-remove-points"),
-              // oxlint-disable-next-line i18next/no-literal-string
-              value: "CanAddPointsAndCanRemovePoints" satisfies UserPointsUpdateStrategy,
-            },
-          ]}
-        />
+              {
+                label: t("option-can-add-points-and-can-remove-points"),
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "CanAddPointsAndCanRemovePoints" satisfies UserPointsUpdateStrategy,
+              },
+            ]}
+          />
 
-        <Button
-          variant="primary"
-          size="medium"
-          disabled={!isValid || newRegradingMutation.isPending}
-          onClick={() =>
-            void handleSubmit((data) => {
-              const lines = data.ids
-                .trim()
-                .split("\n")
-                .map((line) => line.trim())
-              newRegradingMutation.mutate({
-                body: {
-                  ids: lines,
-                  user_points_update_strategy: data.userPointsUpdateStrategy,
-                  id_type: data.idType,
-                },
-              })
-            })()
-          }
-        >
-          {t("button-text-create")}
-        </Button>
+          <Button
+            variant="primary"
+            size="medium"
+            disabled={!isValid || newRegradingMutation.isPending}
+            onClick={() =>
+              void handleSubmit((data) => {
+                const lines = data.ids
+                  .trim()
+                  .split("\n")
+                  .map((line) => line.trim())
+                newRegradingMutation.mutate({
+                  body: {
+                    ids: lines,
+                    user_points_update_strategy: data.userPointsUpdateStrategy,
+                    id_type: data.idType,
+                  },
+                })
+              })()
+            }
+          >
+            {t("button-text-create")}
+          </Button>
+        </div>
       </Dialog>
     </div>
   )

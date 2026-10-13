@@ -360,20 +360,27 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
     <>
       <StatsHeader heading={statHeading} debugData={data}>
         {!disablePeriodSelector && period && setPeriod && (
-          <Select
-            id="period-select"
-            control={filterControl}
-            name={FIELD_PERIOD}
-            label={t("stats-period-selector-label")}
-            options={[
-              { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
-              { value: DAILY_PERIOD, label: t("stats-period-daily") },
-            ]}
+          <div
             className={css`
-              margin-bottom: 0;
-              min-width: 120px;
+              display: flex;
+              align-items: center;
             `}
-          />
+          >
+            <Select
+              id="period-select"
+              control={filterControl}
+              name={FIELD_PERIOD}
+              label={t("stats-period-selector-label")}
+              options={[
+                { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
+                { value: DAILY_PERIOD, label: t("stats-period-daily") },
+              ]}
+              className={css`
+                margin-bottom: 0;
+                min-width: 120px;
+              `}
+            />
+          </div>
         )}
       </StatsHeader>
       <InstructionBox>{instructionText}</InstructionBox>

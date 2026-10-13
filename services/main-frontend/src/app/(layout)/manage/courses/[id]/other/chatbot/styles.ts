@@ -12,6 +12,28 @@ export const itemsContainerCss = css`
   gap: 1rem;
 `
 
+/** Section headings of the chatbot configuration form, which renders plain h2-h4 elements. */
+export const headingsCss = css`
+  h2,
+  h3,
+  h4 {
+    color: var(--color-gray-700);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  h2 {
+    margin: var(--space-4) 0;
+    font-size: var(--font-size-3-5);
+  }
+
+  h3,
+  h4 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-2);
+  }
+`
+
 /** The one h1 a chatbot management page gets. */
 export const pageTitleCss = css`
   margin: 0 0 1rem;

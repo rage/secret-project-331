@@ -16,7 +16,7 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Pagination, QueryResult } from "@/shared-module/components"
+import { EmptyState, Pagination, QueryResult } from "@/shared-module/components"
 
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
@@ -32,7 +32,6 @@ const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
       margin-top: 0.5rem;
       color: ${baseTheme.colors.gray[500]};
       font-family: ${primaryFont};
-      text-align: center;
     `}
   >
     {children}
@@ -98,7 +97,6 @@ const SubmissionsPage: React.FC = () => {
           font-weight: 600;
           line-height: 1.2;
           letter-spacing: -0.01em;
-          text-align: center;
           margin-bottom: 0.75rem;
           margin-top: 1rem;
         `}
@@ -120,24 +118,28 @@ const SubmissionsPage: React.FC = () => {
       )}
 
       <QueryResult query={answersQuery}>
-        {(answers) => (
-          <>
-            <AnswersRequiringAttentionList
-              answersRequiringAttention={answers.data}
-              exercise_max_points={answers.exercise_max_points}
-              courseId={exerciseQuery.data?.course_id ?? null}
-              refetch={answersQuery.refetch}
-            />
-            <Pagination
-              totalPages={answers.total_pages}
-              page={paginationInfo.page}
-              onPageChange={paginationInfo.setPage}
-              itemsPerPage={paginationInfo.limit}
-              onItemsPerPageChange={paginationInfo.setLimit}
-              itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
-            />
-          </>
-        )}
+        {(answers) =>
+          answers.data.length === 0 ? (
+            <EmptyState title={t("no-answers-requiring-attention")} />
+          ) : (
+            <>
+              <AnswersRequiringAttentionList
+                answersRequiringAttention={answers.data}
+                exercise_max_points={answers.exercise_max_points}
+                courseId={exerciseQuery.data?.course_id ?? null}
+                refetch={answersQuery.refetch}
+              />
+              <Pagination
+                totalPages={answers.total_pages}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
+                itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+              />
+            </>
+          )
+        }
       </QueryResult>
     </div>
   )

@@ -28,6 +28,19 @@ const editActionsCss = css`
   margin-top: var(--space-4);
 `
 
+const detailsCss = css`
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+
+  hr {
+    width: 100%;
+    margin: var(--space-2) 0;
+    border: none;
+    border-top: 1px solid var(--color-clear-300);
+  }
+`
+
 const viewActionsCss = css`
   display: flex;
   flex-wrap: wrap;
@@ -180,7 +193,7 @@ const ManageCourseInstances: React.FC = () => {
             schedule = <div>{t("instance-has-no-set-opening-time")}</div>
           }
           return (
-            <>
+            <div className={detailsCss}>
               <div>{data.description}</div>
               <hr />
               <div>
@@ -204,7 +217,7 @@ const ManageCourseInstances: React.FC = () => {
                   {t("button-text-delete")}
                 </Button>
               </div>
-            </>
+            </div>
           )
         }}
       </QueryResult>

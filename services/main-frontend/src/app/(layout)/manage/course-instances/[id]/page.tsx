@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { isPast, parseISO } from "date-fns"
 import { useParams, useRouter } from "next/navigation"
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import NewCourseInstanceForm, {
   NEW_COURSE_INSTANCE_FORM_ID,
 } from "@/app/(layout)/manage/courses/[id]/course-instances/NewCourseInstanceForm"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
@@ -21,6 +22,13 @@ import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 /** The shared form renders no submit button, since its dialog caller puts one in the footer. */
 const editActionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+`
+
+const viewActionsCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
@@ -84,7 +92,14 @@ const ManageCourseInstances: React.FC = () => {
         margin-bottom: 1rem;
       `}
     >
-      <h1>
+      <h1
+        className={cx(
+          pageTitleCss,
+          css`
+            margin-bottom: var(--space-4);
+          `,
+        )}
+      >
         {t("label-course-instance")}{" "}
         {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
         {getCourseInstances.isSuccess && getCourseInstances.data.id})
@@ -177,16 +192,18 @@ const ManageCourseInstances: React.FC = () => {
               {supportEmail}
               <div>{t("support-email-description")}</div>
               {schedule}
-              <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
-                {t("edit")}
-              </Button>
-              <Button
-                variant="secondary"
-                size="medium"
-                onClick={() => deleteMutation.mutate(data.course_id)}
-              >
-                {t("button-text-delete")}
-              </Button>
+              <div className={viewActionsCss}>
+                <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
+                  {t("edit")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  onClick={() => deleteMutation.mutate(data.course_id)}
+                >
+                  {t("button-text-delete")}
+                </Button>
+              </div>
             </>
           )
         }}

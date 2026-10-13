@@ -50,7 +50,7 @@ const reviewSettingsCss = css`
 
 const List = styled.div`
   display: grid;
-  grid-template-columns: minmax(10rem, 0.6fr) minmax(0, 1.5fr) minmax(8rem, max-content) auto;
+  grid-template-columns: minmax(14rem, 0.7fr) minmax(0, 1.5fr) 10rem 3rem;
   align-items: start;
   gap: var(--space-3);
   @media (max-width: 767.98px) {
@@ -179,13 +179,13 @@ const QuestionRow: React.FC<QuestionRowProps> = ({
       <QuestionCell>
         <TextArea name="question" control={control} label={t("peer-review-question")} autoResize />
       </QuestionCell>
-      <QuestionCell>
-        {question.question_type !== "Scale" ? (
+      {question.question_type !== "Scale" ? (
+        <QuestionCell>
           <Checkbox name="answerRequired" control={control} label={t("answer-required")} />
-        ) : (
-          <div aria-hidden />
-        )}
-      </QuestionCell>
+        </QuestionCell>
+      ) : (
+        <div aria-hidden />
+      )}
       <Button
         variant="secondary"
         size="medium"

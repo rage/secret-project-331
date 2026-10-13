@@ -11,6 +11,11 @@ import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
 import { Button, DateField, Select, TextArea } from "@/shared-module/components"
 
+const DateHint = styled.p`
+  margin: 1.5rem 0 0.5rem;
+  color: ${baseTheme.colors.gray[700]};
+`
+
 const FormatInstructions = styled.div`
   margin-top: 1.5rem;
   margin-bottom: 1rem;
@@ -198,7 +203,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         }))}
       />
 
-      <p>{t("label-csv-completion-date")}</p>
+      <DateHint>{t("label-csv-completion-date")}</DateHint>
       <DateField
         control={control}
         name="date"

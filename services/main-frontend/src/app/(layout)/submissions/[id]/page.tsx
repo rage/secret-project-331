@@ -103,6 +103,7 @@ const Submission: React.FC = () => {
     }
 
     return [
+      { label: t("home"), href: "/" },
       {
         label: t("header-submissions"),
         href: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
@@ -129,12 +130,7 @@ const Submission: React.FC = () => {
                 `,
               )}
             >
-              <HideTextInSystemTests
-                text={t("title-submission-id", { id })}
-                testPlaceholder={t("title-submission-id", {
-                  id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                })}
-              />
+              {submissionInfo.exercise.name}
             </h1>
 
             {/* User Information Section */}

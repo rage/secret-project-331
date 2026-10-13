@@ -38,6 +38,10 @@ const bodyCss = css`
   gap: var(--space-4);
   line-height: 1.5;
 
+  p {
+    margin: 0;
+  }
+
   ol {
     display: grid;
     gap: var(--space-2);

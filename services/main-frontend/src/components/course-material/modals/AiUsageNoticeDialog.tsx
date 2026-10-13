@@ -12,7 +12,7 @@ import type { CourseAiPolicy } from "@/generated/course-material-api/types.gener
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Checkbox, Dialog, ErrorNotice } from "@/shared-module/components"
+import { Button, Checkbox, Dialog, ErrorNotice, TransLink } from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
 // Only fi/sv/en versions are published; other languages fall back to the English page.
@@ -60,10 +60,9 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   })
   const agreed = watch("agreed")
 
-  // The link content is provided by the translation string via <Trans>, so the anchor has no
-  // static children here.
-  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
-  const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
+  const guidelinesLink = (
+    <TransLink href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
+  )
 
   const paragraphStyle = css`
     margin: 0;

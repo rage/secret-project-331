@@ -50,7 +50,6 @@ export const segmentedPickerGroupCss = css`
 
 export const segmentedZoneLabelCss = css`
   flex: 0 0 auto;
-  margin-left: auto;
   color: var(--field-chrome);
   font-size: 0.85em;
   white-space: nowrap;

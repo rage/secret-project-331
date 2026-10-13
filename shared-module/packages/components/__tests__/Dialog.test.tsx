@@ -227,10 +227,15 @@ describe("Dialog", () => {
       </Dialog>,
     )
     const dialog = screen.getByRole("dialog")
-    expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe("var(--space-5)")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-edge-padding")).toBe(
+      "var(--space-5)",
+    )
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe(
+      "var(--dialog-edge-padding)",
+    )
   })
 
-  test("padding none collapses --dialog-padding to zero", () => {
+  test("padding none collapses the body padding but keeps the header and footer inset", () => {
     renderUi(
       <Dialog open onClose={jest.fn()} title="Flush" padding="none">
         <p>Content</p>
@@ -238,6 +243,9 @@ describe("Dialog", () => {
     )
     const dialog = screen.getByRole("dialog")
     expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe("0")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-edge-padding")).toBe(
+      "var(--space-5)",
+    )
   })
 
   test("role defaults to dialog with no aria-describedby", () => {

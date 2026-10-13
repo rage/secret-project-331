@@ -58,9 +58,9 @@ export type DialogProps = DialogLabelling &
     children: React.ReactNode
     size?: DialogSize
     /**
-     * Space between the surface's edge and its header, body and footer, set via
-     * `--dialog-padding`. `"none"` lets children run flush to the edge (a toolbar, a table, a
-     * list whose rows carry their own padding); reach for a different value through `className`.
+     * Space between the surface's edge and the body, set via `--dialog-padding`. `"none"` lets
+     * children run flush to the edge (a toolbar, a table, an editor); the header and footer keep
+     * their inset either way. Reach for a different value through `className`.
      */
     padding?: DialogPadding
     /**
@@ -149,16 +149,22 @@ const sizeCss: Record<DialogSize, string> = {
   `,
 }
 
+const edgePaddingCss = css`
+  --dialog-edge-padding: var(--space-5);
+
+  ${below("xs")} {
+    --dialog-edge-padding: var(--space-4);
+  }
+`
+
 const paddingCss: Record<DialogPadding, string> = {
   normal: css`
-    --dialog-padding: var(--space-5);
-
-    ${below("xs")} {
-      --dialog-padding: var(--space-4);
-    }
+    --dialog-padding: var(--dialog-edge-padding);
+    --dialog-gap-below-header: var(--space-4);
   `,
   none: css`
     --dialog-padding: 0;
+    --dialog-gap-below-header: 0;
   `,
 }
 
@@ -167,7 +173,7 @@ const headerCss = css`
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--dialog-padding);
+  padding: var(--dialog-edge-padding);
   padding-bottom: var(--space-4);
 
   &[data-has-title="true"] {
@@ -228,7 +234,7 @@ const contentCss = css`
   padding: var(--dialog-padding);
 
   &[data-below-header="true"] {
-    padding-top: var(--space-4);
+    padding-top: var(--dialog-gap-below-header);
   }
 `
 
@@ -237,7 +243,7 @@ const footerCss = css`
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
-  padding: 0 var(--dialog-padding) var(--dialog-padding);
+  padding: 0 var(--dialog-edge-padding) var(--dialog-edge-padding);
 
   ${below("xs")} {
     flex-direction: column;
@@ -377,7 +383,7 @@ const OpenDialog: React.FC<DialogProps> = ({
           ref={ref}
           lang={lang}
           data-testid={dataTestId}
-          className={cx(surfaceCss, sizeCss[size], paddingCss[padding], className)}
+          className={cx(surfaceCss, sizeCss[size], edgePaddingCss, paddingCss[padding], className)}
           initial={shouldReduceMotion ? false : { opacity: 0, y: 8, scale: 0.98 }}
           animate={
             shouldReduceMotion

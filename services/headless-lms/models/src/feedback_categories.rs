@@ -62,13 +62,13 @@ RETURNING *
     .await?;
 
     if let Some(c) = res {
-        return Ok(c.id);
+        Ok(c.id)
     } else {
-        return get_by_name(conn, &normalized_name)
+        get_by_name(conn, &normalized_name)
             .await?
             .map(|x| x.id)
-            .ok_or(model_err!(RecordNotFound, "Category n"));
-    };
+            .ok_or(model_err!(RecordNotFound, "Category n"))
+    }
 }
 
 pub async fn get_by_name(

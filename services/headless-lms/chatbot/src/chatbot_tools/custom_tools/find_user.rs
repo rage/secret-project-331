@@ -204,7 +204,8 @@ impl ChatbotTool for FindUserTool {
                 find_by_upstream_id(conn, &arguments.query).await?,
             ),
             FindUserKind::Email => {
-                let exact = find_by_exact_email(conn, &arguments.query).await?;
+                let exact =
+                    user_details::search_for_user_details_exact(conn, &arguments.query).await?;
                 if exact.is_empty() {
                     ("fuzzy", find_by_fuzzy_match(conn, &arguments.query).await?)
                 } else {
@@ -376,7 +377,7 @@ async fn find_auto(
         }
     }
 
-    let details = find_by_exact_email(conn, query).await?;
+    let details = user_details::search_for_user_details_exact(conn, query).await?;
     if !details.is_empty() {
         return Ok(("email", details));
     }
@@ -390,17 +391,6 @@ async fn find_auto(
         ));
     }
     Ok(("fuzzy", find_by_fuzzy_match(conn, query).await?))
-}
-
-/// The user whose email equals `query`, ignoring case; empty for anything that is not an email.
-async fn find_by_exact_email(
-    conn: &mut PgConnection,
-    query: &str,
-) -> ChatbotResult<Vec<UserDetail>> {
-    if !query.contains('@') {
-        return Ok(Vec::new());
-    }
-    Ok(user_details::search_for_user_details_exact(conn, query).await?)
 }
 
 /// Users whose name or email local part resembles `query`, best first.

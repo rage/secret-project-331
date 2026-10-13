@@ -5,20 +5,12 @@ import { keepPreviousData, useQuery, type UseQueryResult } from "@tanstack/react
 import { searchUserDetailsExact, searchUserDetailsFuzzy } from "@/generated/api/sdk.generated"
 import type { FuzzyUserSearchResults, UserDetail } from "@/generated/api/types.generated"
 
-/** Matches the backend's minimum for the typo-tolerant search. */
+/** Matches MIN_FUZZY_SEARCH_TERM_LENGTH in the headless-lms user_details model. */
 const MIN_SEARCH_TERM_LENGTH = 3
 
 export interface SearchUsersQueries {
   exactQuery: UseQueryResult<UserDetail[], unknown>
   fuzzyQuery: UseQueryResult<FuzzyUserSearchResults, unknown>
-}
-
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
-/** Only an email or a user id can match exactly, so other terms skip the request. */
-const canMatchExactly = (searchQuery: string): boolean => {
-  const term = searchQuery.trim()
-  return term.includes("@") || UUID_PATTERN.test(term)
 }
 
 /** True for a term that cannot match anything, so it is not sent at all. */
@@ -34,10 +26,7 @@ const useSearchUsersQueries = (searchQuery: string): SearchUsersQueries => {
 
   const exactQuery = useQuery({
     queryKey: ["searchUsersExact", searchQuery],
-    queryFn: ({ signal }) =>
-      canMatchExactly(searchQuery)
-        ? searchUserDetailsExact({ body: { query: searchQuery }, signal })
-        : Promise.resolve([]),
+    queryFn: ({ signal }) => searchUserDetailsExact({ body: { query: searchQuery }, signal }),
     enabled,
     placeholderData: keepPreviousData,
   })

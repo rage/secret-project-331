@@ -196,7 +196,7 @@ WHERE user_id = $1
 }
 
 /// Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct FuzzyUserSearchResults {
     pub users: Vec<UserDetail>,
     /// More users matched than `users` holds.
@@ -213,32 +213,23 @@ pub async fn search_for_user_details_fuzzy(
     conn: &mut PgConnection,
     search: &str,
 ) -> ModelResult<FuzzyUserSearchResults> {
-    let mut results = FuzzyUserSearchResults {
-        users: Vec::new(),
-        has_more: false,
-        timed_out: false,
-    };
+    let mut results = FuzzyUserSearchResults::default();
     let Some(term) = fuzzy_search_term(search) else {
         return Ok(results);
     };
     let row_limit = FUZZY_SEARCH_RESULT_LIMIT + 1;
 
     let mut tx = conn.begin().await?;
-    set_local_setting(&mut tx, "statement_timeout", FUZZY_SEARCH_TIMEOUT).await?;
-    set_local_setting(
-        &mut tx,
-        "pg_trgm.word_similarity_threshold",
-        &FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD.to_string(),
+    sqlx::query!(
+        "SELECT set_config('pg_trgm.word_similarity_threshold', $1, true) AS threshold,
+  set_config('statement_timeout', $2, true) AS statement_timeout",
+        FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD.to_string(),
+        DISTANCE_ORDERED_SEARCH_TIMEOUT,
     )
+    .fetch_one(&mut *tx)
     .await?;
 
     let mut distance_attempt = tx.begin().await?;
-    set_local_setting(
-        &mut distance_attempt,
-        "statement_timeout",
-        DISTANCE_ORDERED_SEARCH_TIMEOUT,
-    )
-    .await?;
     let mut users = match fuzzy_search_by_distance(&mut distance_attempt, &term, row_limit).await {
         Ok(users) => {
             distance_attempt.commit().await?;
@@ -246,6 +237,7 @@ pub async fn search_for_user_details_fuzzy(
         }
         Err(err) if is_statement_timeout(&err) => {
             distance_attempt.rollback().await?;
+            set_local_setting(&mut tx, "statement_timeout", FUZZY_SEARCH_TIMEOUT).await?;
             match fuzzy_search_by_trigram_filter(&mut tx, &term, row_limit).await {
                 Ok(users) => users,
                 Err(err) if is_statement_timeout(&err) => {

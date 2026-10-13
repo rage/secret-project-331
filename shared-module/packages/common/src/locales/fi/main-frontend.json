@@ -2111,7 +2111,6 @@
   "text-field-label-search": "Käyttäjän sähköpostiosoite tai nimi",
   "text-field-label-title": "Otsikko",
   "text-field-label-url": "Url",
-  "text-no-results": "Ei tuloksia",
   "text-selection-explain-with-ai": "Olen kurssin \"{{courseName}}\" sivulla \"{{pageTitle}}\". Selittäisitkö tämän valitun tekstinpätkän sisällön selkeällä, totuudenmukaisella ja loogisella tavalla. Valittu tekstinpätkä: \"{{selection}}\"",
   "text-selection-summarize-with-ai": "Olen kurssin \"{{courseName}}\" sivulla \"{{pageTitle}}\". Tiivistäisitkö tämän valitun tekstinpätkän lyhyesti, mutta tarkasti ja totuudenmukaisesti. Valittu tekstinpätkä: \"{{selection}}\"",
   "text-visible-when-feedback-given": "Teksti näkyvillä kun palaute oli annettu",

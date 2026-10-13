@@ -20,7 +20,7 @@ const useSearchUsersLiveRegion = ({
   const lastAnnouncedMessageRef = useRef("")
   const previousSearchQueryRef = useRef(searchQuery)
 
-  const isFailed = !!state.exactError || !!state.fuzzyError
+  const isFailed = state.hasExactFailed || state.hasFuzzyFailed
   const { isSearching, resultCount, hasSimilarTimedOut } = state
 
   useEffect(() => {
@@ -34,7 +34,8 @@ const useSearchUsersLiveRegion = ({
       lastAnnouncedMessageRef.current = ""
       setLiveRegionMessage("")
       return
-    } else if (isTooShort) {
+    }
+    if (isTooShort) {
       nextMessage = t("search-users-too-short")
     } else if (resultCount !== null) {
       if (isFailed) {

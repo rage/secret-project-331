@@ -2,9 +2,10 @@
 
 import { css, cx, keyframes } from "@emotion/css"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import React, { useLayoutEffect, useRef, useState } from "react"
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { UserDetail } from "@/generated/api/types.generated"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
@@ -16,6 +17,11 @@ import {
   type TableColumn,
   TONE,
 } from "@/shared-module/components"
+import {
+  skeletonBlockBaseCss,
+  skeletonBlockDimsCss,
+  skeletonBlockLightCss,
+} from "@/shared-module/components/components/queryResult/queryResultStyles"
 
 import {
   type ResultRow,
@@ -37,11 +43,6 @@ const SIMILAR_GROUP = "similar" as const
 const rowEntrance = keyframes`
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: none; }
-`
-
-const shimmer = keyframes`
-  0% { transform: translateX(-130%); }
-  100% { transform: translateX(130%); }
 `
 
 const rowEntranceCss = css`
@@ -73,39 +74,16 @@ const staleDimmedCss = css`
   pointer-events: none;
 `
 
-const skeletonCss = css`
-  position: relative;
-  overflow: hidden;
-  height: 0.75rem;
-  width: 70%;
-  border-radius: var(--space-2);
-  background: var(--query-skeleton-block-light);
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--query-shimmer-edge) 35%,
-      var(--query-shimmer-mid) 50%,
-      var(--query-shimmer-edge) 65%,
-      transparent 100%
-    );
-    animation: ${shimmer} var(--query-shimmer-duration) linear infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &::after {
-      animation: none;
-    }
-  }
-`
+const skeletonCss = cx(skeletonBlockBaseCss, skeletonBlockLightCss, skeletonBlockDimsCss("70%", 12))
 
 const sectionCss = css`
   display: grid;
   gap: var(--space-3);
+`
+
+const animatedHeightCss = css`
+  overflow: clip;
+  overflow-clip-margin: var(--space-1);
 `
 
 const summaryCss = css`
@@ -135,10 +113,7 @@ const AnimatedHeight: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return (
     <motion.div
-      className={css`
-        overflow: clip;
-        overflow-clip-margin: var(--space-1);
-      `}
+      className={animatedHeightCss}
       animate={{ height }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.22, ease: EASE }}
     >
@@ -146,6 +121,13 @@ const AnimatedHeight: React.FC<React.PropsWithChildren> = ({ children }) => {
     </motion.div>
   )
 }
+
+const skeletonCell = <div className={skeletonCss} />
+
+const userCell = (pick: (user: UserDetail) => React.ReactNode) =>
+  function renderUserCell(row: ResultRow): React.ReactNode {
+    return row.kind === "user" ? pick(row.user) : skeletonCell
+  }
 
 export interface SearchUsersResultsProps {
   state: SearchUsersState
@@ -163,44 +145,35 @@ const SearchUsersResults: React.FC<SearchUsersResultsProps> = ({
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()
 
-  const columns: TableColumn<ResultRow>[] = [
-    {
-      header: t("label-user-id"),
-      width: "24rem",
-      nowrap: true,
-      cell: (row) => (row.kind === "user" ? row.user.user_id : <div className={skeletonCss} />),
-    },
-    {
-      header: t("label-email"),
-      grow: 2,
-      cell: (row) => (row.kind === "user" ? row.user.email : <div className={skeletonCss} />),
-    },
-    {
-      header: t("first-name"),
-      grow: 1,
-      cell: (row) => (row.kind === "user" ? row.user.first_name : <div className={skeletonCss} />),
-    },
-    {
-      header: t("last-name"),
-      grow: 1,
-      cell: (row) => (row.kind === "user" ? row.user.last_name : <div className={skeletonCss} />),
-    },
-    {
-      header: t("button-details"),
-      width: "7rem",
-      cell: (row) =>
-        row.kind === "user" ? (
-          <Link
-            href={manageUserRoute(row.user.user_id)}
-            styledAsButton
-            variant="tertiary"
-            size="small"
-          >
-            {t("button-details")}
-          </Link>
-        ) : null,
-    },
-  ]
+  const columns = useMemo<TableColumn<ResultRow>[]>(
+    () => [
+      {
+        header: t("label-user-id"),
+        width: "24rem",
+        nowrap: true,
+        cell: userCell((user) => user.user_id),
+      },
+      { header: t("label-email"), grow: 2, cell: userCell((user) => user.email) },
+      { header: t("first-name"), grow: 1, cell: userCell((user) => user.first_name) },
+      { header: t("last-name"), grow: 1, cell: userCell((user) => user.last_name) },
+      {
+        header: t("button-details"),
+        width: "7rem",
+        cell: (row) =>
+          row.kind === "user" ? (
+            <Link
+              href={manageUserRoute(row.user.user_id)}
+              styledAsButton
+              variant="tertiary"
+              size="small"
+            >
+              {t("button-details")}
+            </Link>
+          ) : null,
+      },
+    ],
+    [t],
+  )
 
   const isStale = state.previous !== null
   const rows = resultRows(state)
@@ -222,7 +195,7 @@ const SearchUsersResults: React.FC<SearchUsersResultsProps> = ({
           {view === "empty" && <EmptyState title={t("search-users-no-users-found")} />}
           {view === "table" && (
             <div className={sectionCss}>
-              {state.exactError ? (
+              {state.hasExactFailed ? (
                 <Infobox tone={TONE.DANGER}>
                   {t("search-users-exact-failed")}{" "}
                   <Button variant="tertiary" size="small" onClick={onRetryExact}>
@@ -253,7 +226,7 @@ const SearchUsersResults: React.FC<SearchUsersResultsProps> = ({
                   />
                 </div>
               )}
-              {!isStale && (state.hasSimilarTimedOut || state.fuzzyError) ? (
+              {!isStale && (state.hasSimilarTimedOut || state.hasFuzzyFailed) ? (
                 <Infobox tone={TONE.WARNING}>
                   {state.hasSimilarTimedOut
                     ? t("search-users-similar-timed-out")

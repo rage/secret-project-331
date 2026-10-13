@@ -2291,7 +2291,6 @@
   "text-field-label-search": "User email or name",
   "text-field-label-title": "Title",
   "text-field-label-url": "Url",
-  "text-no-results": "No results",
   "text-selection-explain-with-ai": "I'm on page \"{{pageTitle}}\" of the course \"{{courseName}}\". Please explain the content of the following selected text in a clear, accurate and logical way. Selected text: \"{{selection}}\"",
   "text-selection-summarize-with-ai": "I'm on page \"{{pageTitle}}\" of the course \"{{courseName}}\". Please summarize the following selected text in a concise way while keeping it accurate and factual. Selected text: \"{{selection}}\"",
   "text-visible-when-feedback-given": "Text visible when the feedback was given",

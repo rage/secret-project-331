@@ -17,8 +17,8 @@ export interface SearchUsersState {
   similarUsers: UserDetail[] | null
   hasMoreSimilar: boolean
   hasSimilarTimedOut: boolean
-  exactError: unknown
-  fuzzyError: unknown
+  hasExactFailed: boolean
+  hasFuzzyFailed: boolean
   /** The previous query's results, shown dimmed until the exact search for this one answers. */
   previous: { exactUsers: UserDetail[]; similarUsers: UserDetail[] } | null
   /** Distinct users found, once both searches have answered. */
@@ -58,8 +58,8 @@ export const deriveSearchUsersState = (
     similarUsers,
     hasMoreSimilar: fuzzyResults?.has_more ?? false,
     hasSimilarTimedOut: fuzzyResults?.timed_out ?? false,
-    exactError: exactQuery.isError ? exactQuery.error : null,
-    fuzzyError: fuzzyQuery.isError ? fuzzyQuery.error : null,
+    hasExactFailed: exactQuery.isError,
+    hasFuzzyFailed: fuzzyQuery.isError,
     previous,
     resultCount:
       isExactSettled && isFuzzySettled ? exactUsers.length + (similarUsers?.length ?? 0) : null,
@@ -110,6 +110,9 @@ export const resultsView = (state: SearchUsersState, isTooShort: boolean): Resul
     return "too-short"
   }
   const isEmpty =
-    state.resultCount === 0 && !state.exactError && !state.fuzzyError && !state.hasSimilarTimedOut
+    state.resultCount === 0 &&
+    !state.hasExactFailed &&
+    !state.hasFuzzyFailed &&
+    !state.hasSimilarTimedOut
   return isEmpty ? "empty" : "table"
 }

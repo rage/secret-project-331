@@ -1,6 +1,6 @@
 "use client"
 
-import { css, cx, keyframes } from "@emotion/css"
+import { css, keyframes } from "@emotion/css"
 import { motion, useReducedMotion } from "motion/react"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -42,10 +42,6 @@ const fillCss = css`
   }
 `
 
-const fillReducedMotionCss = css`
-  opacity: 0.5;
-`
-
 /** Never reaches the end on its own, so a slow search still looks alive without claiming done. */
 const CREEP_TARGET = 0.9
 const CREEP_DURATION_S = 6
@@ -65,40 +61,33 @@ const SearchProgressBar: React.FC<SearchProgressBarProps> = ({ isSearching, sear
 
   return (
     <div className={slotCss}>
-      {shouldReduceMotion ? (
-        isSearching && (
-          <div
-            role="progressbar"
-            aria-label={t("search-users-progress-label")}
-            className={cx(fillCss, fillReducedMotionCss)}
-          />
-        )
-      ) : (
-        <motion.div
-          key={searchKey}
-          role={isSearching ? "progressbar" : undefined}
-          aria-label={isSearching ? t("search-users-progress-label") : undefined}
-          aria-hidden={!isSearching}
-          className={fillCss}
-          initial={isSearching ? { scaleX: 0, opacity: 1 } : false}
-          animate={
-            isSearching
-              ? {
-                  scaleX: CREEP_TARGET,
-                  opacity: 1,
-                  transition: { duration: CREEP_DURATION_S, ease: CREEP_EASE },
-                }
-              : {
-                  scaleX: 1,
-                  opacity: 0,
-                  transition: {
-                    scaleX: { duration: 0.18, ease: EASE_OUT },
-                    opacity: { duration: 0.2, delay: 0.15 },
-                  },
-                }
-          }
-        />
-      )}
+      <motion.div
+        key={searchKey}
+        role={isSearching ? "progressbar" : undefined}
+        aria-label={isSearching ? t("search-users-progress-label") : undefined}
+        aria-hidden={!isSearching}
+        className={fillCss}
+        initial={isSearching ? { scaleX: 0, opacity: 1 } : false}
+        animate={
+          isSearching
+            ? {
+                scaleX: CREEP_TARGET,
+                opacity: 1,
+                transition: {
+                  duration: shouldReduceMotion ? 0 : CREEP_DURATION_S,
+                  ease: CREEP_EASE,
+                },
+              }
+            : {
+                scaleX: 1,
+                opacity: 0,
+                transition: {
+                  scaleX: { duration: shouldReduceMotion ? 0 : 0.18, ease: EASE_OUT },
+                  opacity: { duration: shouldReduceMotion ? 0 : 0.2, delay: 0.15 },
+                },
+              }
+        }
+      />
     </div>
   )
 }

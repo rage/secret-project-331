@@ -30,6 +30,7 @@ use utoipa::{OpenApi, ToSchema};
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
+    send_teacher_newsletter_email,
     reset_password_token_status,
     reset_user_password,
     change_user_password
@@ -938,6 +939,47 @@ pub async fn send_reset_password_email(
     token.authorized_ok(web::Json(true))
 }
 
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/send-teacher-newsletter-email",
+    operation_id = "sendTeacherNewsletterEmail",
+    tag = "users",
+    responses(
+        (status = 200, description = "Teacher newsletter email successfully sent", body = bool)
+    )
+)]
+pub async fn send_teacher_newsletter_email(
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let newsletter_template = models::email_templates::get_generic_email_template_by_type_and_language(
+        &mut conn,
+        models::email_templates::EmailTemplateType::TeacherNewsletter,
+        "en",
+    )
+    .await
+    .map_err(|_e| {
+        anyhow::anyhow!(
+            "Teacher newsletter email template not configured. Missing template 'teacher-newsletter-email' for language '{}'",
+            "en"
+        )
+    })?;
+
+    let teacher_id = Uuid::parse_str("90643204-7656-4570-bdd9-aad5d297f9ce").unwrap();
+
+    let _ = models::email_deliveries::insert_email_delivery(
+        &mut conn,
+        teacher_id,
+        newsletter_template.id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(true))
+}
+
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct ResetPasswordTokenPayload {
     #[schema(value_type = String)]
@@ -1106,5 +1148,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(reset_password_token_status),
     )
     .route("/reset-password", web::post().to(reset_user_password))
-    .route("/change-password", web::post().to(change_user_password));
+    .route("/change-password", web::post().to(change_user_password))
+    .route(
+        "/send-teacher-newsletter-email",
+        web::post().to(send_teacher_newsletter_email),
+    );
 }

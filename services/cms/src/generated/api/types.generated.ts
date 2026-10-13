@@ -309,6 +309,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "teacher_newsletter"
 
 export type EmailTemplateUpdate = {
   content: unknown

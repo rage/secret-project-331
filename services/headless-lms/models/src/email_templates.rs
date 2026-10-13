@@ -16,6 +16,7 @@ pub enum EmailTemplateType {
     VerifyEmailAddress,
     CreditRegistrationActionNeeded,
     CreditRegistrationRegistered,
+    TeacherNewsletter,
 }
 
 impl EmailTemplateType {
@@ -44,6 +45,9 @@ impl EmailTemplateType {
             Self::DeleteUserEmail | Self::ConfirmEmailCode | Self::VerifyEmailAddress => {
                 vec![("CODE", "123456".to_string())]
             }
+
+            Self::TeacherNewsletter => vec![("COURSE_NAME", "Your course".to_string())],
+
             Self::CreditRegistrationAccountLinking => vec![
                 (
                     "LINK",

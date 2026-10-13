@@ -360,6 +360,7 @@ import {
   searchUserDetailsByOtherDetails,
   searchUserDetailsFuzzyMatch,
   sendResetPasswordEmail,
+  sendTeacherNewsletterEmail,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
   setCourseJoinCode,
@@ -1049,6 +1050,8 @@ import type {
   SearchUserDetailsFuzzyMatchResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
+  SendTeacherNewsletterEmailData,
+  SendTeacherNewsletterEmailResponse,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponse,
   SetCourseChatbotAsNonDefaultData,
@@ -12268,6 +12271,28 @@ export const sendResetPasswordEmailMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await sendResetPasswordEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const sendTeacherNewsletterEmailMutation = (
+  options?: Partial<Options<SendTeacherNewsletterEmailData>>,
+): UseMutationOptions<
+  SendTeacherNewsletterEmailResponse,
+  DefaultError,
+  Options<SendTeacherNewsletterEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendTeacherNewsletterEmailResponse,
+    DefaultError,
+    Options<SendTeacherNewsletterEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendTeacherNewsletterEmail({
         ...options,
         ...fnOptions,
         throwOnError: true,

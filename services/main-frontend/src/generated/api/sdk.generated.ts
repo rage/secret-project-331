@@ -741,6 +741,8 @@ import type {
   SearchUserDetailsFuzzyMatchResponses,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponses,
+  SendTeacherNewsletterEmailData,
+  SendTeacherNewsletterEmailResponses,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponses,
   SetCourseChatbotAsNonDefaultData,
@@ -1129,6 +1131,7 @@ import {
   zSearchUserDetailsByOtherDetailsResponse,
   zSearchUserDetailsFuzzyMatchResponse,
   zSendResetPasswordEmailResponse,
+  zSendTeacherNewsletterEmailResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
@@ -9052,6 +9055,21 @@ export const sendResetPasswordEmail = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+export const sendTeacherNewsletterEmail = <ThrowOnError extends boolean = true>(
+  options?: Options<SendTeacherNewsletterEmailData, ThrowOnError>,
+): RequestResult<SendTeacherNewsletterEmailResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).post<
+    SendTeacherNewsletterEmailResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zSendTeacherNewsletterEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/send-teacher-newsletter-email",
+    ...options,
   })
 
 /**

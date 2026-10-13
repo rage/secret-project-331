@@ -822,6 +822,43 @@ WHERE courses.deleted_at IS NULL
     Ok(courses)
 }
 
+pub async fn all_courses_with_role_teacher_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT *
+FROM courses
+WHERE courses.deleted_at IS NULL
+  AND (
+    id IN (
+      SELECT course_id
+      FROM roles
+      WHERE deleted_at IS NULL
+        AND user_id = $1
+        AND course_id IS NOT NULL
+        AND role = 'teacher'
+    )
+    OR (
+      id IN (
+        SELECT ci.course_id
+        FROM course_instances ci
+          JOIN ROLES r ON r.course_instance_id = ci.id
+        WHERE r.user_id = $1
+          AND r.deleted_at IS NULL
+          AND ci.deleted_at IS NULL
+      )
+    )
+  ) "#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn get_all_language_versions_of_course(
     conn: &mut PgConnection,
     course: &Course,

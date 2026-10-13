@@ -13813,6 +13813,24 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/send-teacher-newsletter-email": {
+      "post": {
+        "tags": ["users"],
+        "operationId": "sendTeacherNewsletterEmail",
+        "responses": {
+          "200": {
+            "description": "Teacher newsletter email successfully sent",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/user-research-consents": {
       "post": {
         "tags": ["users"],
@@ -21229,7 +21247,8 @@
           "credit_registration_account_linking",
           "verify_email_address",
           "credit_registration_action_needed",
-          "credit_registration_registered"
+          "credit_registration_registered",
+          "teacher_newsletter"
         ]
       },
       "EmailVerificationEmailInfo": {

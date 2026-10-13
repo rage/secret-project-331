@@ -174,6 +174,7 @@
   "email-template-type-delete-user-email": "Delete User Email",
   "email-template-type-generic": "Generic",
   "email-template-type-reset-password-email": "Reset Password Email",
+  "email-template-type-teacher-newsletter": "Teacher Newsletter Email",
   "email-template-type-verify-email-address": "Verify Email Address",
   "error": "Error",
   "error-cannot-render-editor-for-exercise-service-x": "Cannot render editor for exercise service {{slug}}.",

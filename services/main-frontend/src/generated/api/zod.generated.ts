@@ -2423,6 +2423,7 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "teacher_newsletter",
 ])
 
 export const zEmailTemplate = z.object({
@@ -9993,6 +9994,11 @@ export const zSendResetPasswordEmailBody = zEmailData
  * Reset password email accepted
  */
 export const zSendResetPasswordEmailResponse = z.boolean()
+
+/**
+ * Teacher newsletter email successfully sent
+ */
+export const zSendTeacherNewsletterEmailResponse = z.boolean()
 
 export const zCreateUserResearchConsentBody = zConsentData
 

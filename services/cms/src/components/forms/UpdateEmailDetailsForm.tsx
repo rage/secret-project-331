@@ -111,6 +111,11 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
                 value: "credit_registration_registered",
                 label: t("email-template-type-credit-registration-registered"),
               },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "teacher_newsletter",
+                label: t("email-template-type-teacher-newsletter"),
+              },
             ]}
           />
           {templateTypeHelperText && (

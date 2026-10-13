@@ -353,6 +353,22 @@ async fn template_replacements(
                 return Ok(TemplateReplacements::Abandoned);
             }
         }
+
+        EmailTemplateType::TeacherNewsletter => {
+            let courses =
+                headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id)
+                    .await?;
+
+            if let Some(course) = courses.first() {
+                replacements.insert("COURSE_NAME".to_string(), course.name.to_string());
+            } else {
+                let msg = anyhow::anyhow!("No courses found for user {}", user_id);
+                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
+                    .await?;
+                return Ok(TemplateReplacements::Abandoned);
+            }
+        }
+
         EmailTemplateType::DeleteUserEmail => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(

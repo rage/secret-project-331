@@ -4,9 +4,11 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
+import { sendTeacherNewsletterEmail } from "@/generated/api/sdk.generated"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import {
   allOrganizationsRoute,
   chatbotCommandCenterRoute,
@@ -32,6 +34,13 @@ const navLinkCss = css`
 const FrontPage = () => {
   const { t } = useTranslation()
   usePageTitle(t("home"))
+
+  const postTeacherNewsletterEmail = useToastMutation(
+    async () => {
+      await sendTeacherNewsletterEmail({})
+    },
+    { notify: true, method: "POST" }, // Muista sulkea useToastMutation-kutsun asetukset tarvittaessa
+  )
 
   return (
     <div>
@@ -148,6 +157,7 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
+      <button onClick={() => postTeacherNewsletterEmail.mutate()}>Send Teacher Newsletter</button>
     </div>
   )
 }

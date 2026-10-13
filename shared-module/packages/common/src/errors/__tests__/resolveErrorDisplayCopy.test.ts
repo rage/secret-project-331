@@ -19,7 +19,7 @@ const translations: Record<string, string> = {
 }
 
 const t = ((key: string, options?: { defaultValue?: string }): string =>
-  translations[key] ?? options?.defaultValue ?? "") as unknown as TFunction
+  translations[key] ?? options?.defaultValue ?? "") as unknown as TFunction<"errors">
 
 describe("resolveErrorDisplayCopy", () => {
   test("prefers localized issue-code message over generic message_key message", () => {

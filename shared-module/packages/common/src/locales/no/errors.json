@@ -1,0 +1,15 @@
+{
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Logg inn for å se eksamensoppgaver.",
+      "title": "Innlogging kreves"
+    },
+    "chapter_not_open_yet": {
+      "message": "Dette kapittelet er ikke åpent ennå.",
+      "title": "Kapittelet er stengt"
+    }
+  },
+  "error-part-of-page-has-crashed-error": "En del av siden har krasjet: {{error}}",
+  "go-to-error": "Gå til feil",
+  "show-error-source": "Vis kilde"
+}

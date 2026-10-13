@@ -8,7 +8,7 @@ import type sharedModule from "@/shared-module/common/locales/en/shared-module.j
 declare module "i18next" {
   interface CustomTypeOptions {
     defaultNS: "main-frontend"
-    fallbackNS: ["main-frontend", "shared-module", "errors"]
+    fallbackNS: ["main-frontend", "shared-module"]
     resources: {
       "main-frontend": typeof ownTranslations
       "credit-registration": typeof creditRegistration

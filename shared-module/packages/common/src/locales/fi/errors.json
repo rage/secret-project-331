@@ -1,0 +1,24 @@
+{
+  "error-code": "Koodi: {{code}}",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
+      "title": "Kirjautuminen vaaditaan"
+    },
+    "chapter_not_open_yet": {
+      "message": "Tämä luku ei ole vielä avoinna.",
+      "title": "Luku on suljettu"
+    },
+    "course_slug_already_taken": {
+      "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
+      "title": "Lyhyt nimi on jo käytössä"
+    },
+    "foreign_key_violation": {
+      "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
+      "title": "Viiteavainvirhe"
+    }
+  },
+  "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
+  "go-to-error": "Siirry virheeseen",
+  "show-error-source": "Näytä lähde"
+}

@@ -68,7 +68,8 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
 
       if (error) {
         const context = (
-          <Translation>
+          // oxlint-disable-next-line i18next/no-literal-string
+          <Translation ns="errors">
             {(t) => (
               <>
                 {t("error-part-of-page-has-crashed-error", { error })}

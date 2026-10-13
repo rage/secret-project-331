@@ -85,17 +85,6 @@
   "email": "E-post",
   "email-templates": "E-postmallar",
   "error-cannot-render-dynamic-content-missing-url": "Kan inte rendera dynamiskt innehåll: saknas URL",
-  "error-message-key": {
-    "authentication_required_for_exam_exercise": {
-      "message": "Logga in för att se tentamensövningar.",
-      "title": "Inloggning krävs"
-    },
-    "chapter_not_open_yet": {
-      "message": "Det här kapitlet är inte öppet ännu.",
-      "title": "Kapitlet är stängt"
-    }
-  },
-  "error-part-of-page-has-crashed-error": "Del av sidan har kraschat: {{error}}",
   "error-status": "Status: {{status}}",
   "error-title": "Fel",
   "error-type": "Typ: {{type}}",
@@ -107,7 +96,6 @@
   "fileField.empty": "Ingen fil vald",
   "fileField.moreFiles": "+{{count}} till",
   "fileField.unnamed": "Namnlös fil",
-  "go-to-error": "Gå till fel",
   "go-to-next-page": "Gå till nästa sida",
   "go-to-page-x": "Gå till sida {{number}}",
   "go-to-previous-page": "Gå till föregående sida",
@@ -172,7 +160,6 @@
   "select-question": "Välj frågetyp",
   "set-field-value": "Ange {{name}}",
   "show": "visa",
-  "show-error-source": "Visa källa",
   "show-trace": "Visa spår",
   "shuffle": "Blanda",
   "skip-to-content": "Hoppa till innehåll",

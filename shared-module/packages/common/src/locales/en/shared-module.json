@@ -92,6 +92,7 @@
       "message": "Missing exercise type for exercise task."
     }
   },
+  "error-status": "Status: {{status}}",
   "error-zod-issue": {
     "invalid_format": "Expected {{format}}",
     "invalid_format_pattern": "Expected format matching {{pattern}}",
@@ -100,7 +101,6 @@
     "too_small": "Must be {{comparator}} {{minimum}}",
     "unrecognized_keys": "Unrecognized keys: {{keys}}"
   },
-  "error-zod-issue-prefix": "Validation issue at",
   "essay": "Essay",
   "exercise-iframe-reload-exhausted-message": "Automatic reload attempts were exhausted. You can try reloading the exercise manually.",
   "exercise-iframe-reload-exhausted-reload-button": "Reload exercise",
@@ -114,7 +114,6 @@
   "fileField.empty": "No file selected",
   "fileField.moreFiles": "+{{count}} more",
   "fileField.unnamed": "Unnamed file",
-  "go-to-error": "Go to error",
   "go-to-next-page": "Go to next page",
   "go-to-page-x": "Go to page {{number}}",
   "go-to-previous-page": "Go to previous page",
@@ -196,7 +195,6 @@
   "select-question": "Select question type",
   "set-field-value": "Set {{name}}",
   "show": "show",
-  "show-error-source": "Show source",
   "show-trace": "Show trace",
   "shuffle": "Shuffle",
   "skip-to-content": "Skip to content",

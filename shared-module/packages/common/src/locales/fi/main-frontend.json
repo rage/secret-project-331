@@ -842,7 +842,6 @@
   "error-cannot-load-with-the-given-inputs": "Ei pysty lataamaan annetuilla syötteillä",
   "error-cannot-render-exercise-task-missing-submission": "Ei pysty näyttämään tehtävän osaa koska tehtäväpalautus puuttuu",
   "error-cannot-render-exercise-task-missing-url": "Tehtävän osaa ei voida näyttää exercise task:istä puuttuu osoite.",
-  "error-code": "Koodi: {{code}}",
   "error-comment-cannot-be-empty": "Kommentti ei voi olla tyhjä",
   "error-comment-too-long": "Kommentti on liian pitkä",
   "error-completion-registration-link-too-short": "Tämä ei näytä kokonaiselta linkiltä.",

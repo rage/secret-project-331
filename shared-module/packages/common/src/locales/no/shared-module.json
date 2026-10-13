@@ -85,17 +85,6 @@
   "email": "Epost",
   "email-templates": "Epostmaler",
   "error-cannot-render-dynamic-content-missing-url": "Kan ikke vise dynamisk innhold fordi URL mangler",
-  "error-message-key": {
-    "authentication_required_for_exam_exercise": {
-      "message": "Logg inn for å se eksamensoppgaver.",
-      "title": "Innlogging kreves"
-    },
-    "chapter_not_open_yet": {
-      "message": "Dette kapittelet er ikke åpent ennå.",
-      "title": "Kapittelet er stengt"
-    }
-  },
-  "error-part-of-page-has-crashed-error": "En del av siden har krasjet: {{error}}",
   "error-status": "Status: {{status}}",
   "error-title": "Feil",
   "error-type": "Type: {{type}}",
@@ -107,7 +96,6 @@
   "fileField.empty": "Ingen fil valgt",
   "fileField.moreFiles": "+{{count}} til",
   "fileField.unnamed": "Fil uten navn",
-  "go-to-error": "Gå til feil",
   "go-to-next-page": "Gå til neste side",
   "go-to-page-x": "Gå til side {{number}}",
   "go-to-previous-page": "Gå til forrige side",
@@ -172,7 +160,6 @@
   "select-question": "Velg spørsmålstype",
   "set-field-value": "Sett {{name}}",
   "show": "vis",
-  "show-error-source": "Vis kilde",
   "show-trace": "Vis spor",
   "shuffle": "Blande",
   "skip-to-content": "Hopp til innholdet",

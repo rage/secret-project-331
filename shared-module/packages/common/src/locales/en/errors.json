@@ -79,5 +79,8 @@
   "error-title": "Error",
   "error-too-many-requests": "Too many requests. Please try again later.",
   "error-type": "Type: {{type}}",
-  "error-unexpected-error": "Unexpected error"
+  "error-unexpected-error": "Unexpected error",
+  "error-zod-issue-prefix": "Validation issue at",
+  "go-to-error": "Go to error",
+  "show-error-source": "Show source"
 }

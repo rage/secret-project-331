@@ -85,8 +85,16 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       breakAnywhere: true,
       cell: (user) => dimIfFuzzyMatch(user, user.email),
     },
-    { header: t("first-name"), cell: (user) => dimIfFuzzyMatch(user, user.first_name) },
-    { header: t("last-name"), cell: (user) => dimIfFuzzyMatch(user, user.last_name) },
+    {
+      header: t("first-name"),
+      breakAnywhere: true,
+      cell: (user) => dimIfFuzzyMatch(user, user.first_name),
+    },
+    {
+      header: t("last-name"),
+      breakAnywhere: true,
+      cell: (user) => dimIfFuzzyMatch(user, user.last_name),
+    },
     {
       header: t("button-details"),
       cell: (user) =>

@@ -64,16 +64,13 @@ fn format_feedback(feedback: &NewFeedback) -> String {
     let start = "\n\nThe feedback to categorize: \n<START>\n".to_string();
     let end = "\n<END>";
     let selected_text = feedback.selected_text.as_ref().map_or("".to_string(), |s| {
-        format!("\n\nAssociated course material text: {s}\n")
+        format!(
+            "\n\nAssociated course material text: {}\n",
+            s.replace("<END>", "").replace("<START>", "")
+        )
     });
 
-    start
-        + &feedback
-            .feedback_given
-            .replace("<END>", "")
-            .replace("<START>", "")
-        + end
-        + &selected_text
+    start + &feedback.feedback_given + &selected_text + end
 }
 
 /// System prompt instructions for generating suggested next messages

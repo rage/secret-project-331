@@ -76,12 +76,12 @@
       ]
     },
     "nullable": [
+      false,
+      false,
       true,
       true,
       true,
-      true,
-      true,
-      false
+      true
     ]
   },
   "hash": "2190092d74488b8cefd7c1bfb2e15a91a77ffac8f01914cbe76d14002d08e363"

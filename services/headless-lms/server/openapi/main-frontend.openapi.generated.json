@@ -7131,7 +7131,7 @@
     "/api/v0/main-frontend/credit-registration-admin/account-linking": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, the\nper-module counters, the send-status totals and the stale-address list.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each\ncourse code's enrolment list, the send-status totals, the recent linking emails, who is waiting for\na student number and the stale-address list.",
         "operationId": "getAccountLinkingStats",
         "parameters": [
           {
@@ -7156,6 +7156,94 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support\ncan send a linking email for by hand.",
+        "operationId": "getAccountLinkingCourses",
+        "responses": {
+          "200": {
+            "description": "By course name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminLinkingCourse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`\n- Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a\nlinking email by hand.\n\nLists the rosters live. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getAccountLinkingUnlinkedEnrolees",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The unlinked people",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUnlinkedEnrolees"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account linking is off, or the course takes no part in credit registration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes\none course code's enrolment list due at its next grid point.\n\nThe fetch still waits for the rate limiter and any failure backoff, like any other.",
+        "operationId": "adminRequestEnrolmentListFetch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminRequestEnrolmentListFetchPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "When the list is now due",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRequestEnrolmentListFetchResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active module has the course code"
           }
         }
       }
@@ -7219,7 +7307,7 @@
             }
           },
           "422": {
-            "description": "An override without a reason, or too soon after the last resend"
+            "description": "An override without a reason"
           }
         }
       }
@@ -7256,27 +7344,56 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -\nTakes a student number clash off the list for good.\n\nThe links stay as they are. A reason is required, so the request carries a body.",
+        "operationId": "adminDismissStudyRegistryConflict",
+        "parameters": [
+          {
+            "name": "conflict_id",
+            "in": "path",
+            "description": "The clash's id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDismissStudyRegistryConflictPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Dismissed"
+          },
+          "404": {
+            "description": "No such clash, or already dismissed"
+          },
+          "422": {
+            "description": "No reason given"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/attention": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one\ndetector wants a human to look at, with the detectors that picked each.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.\n`total_count` is the queue's length under the one definition of \"needs a human\"; `/overview`'s\n`needs_admin_attention_count` is the same number.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows\nthat need a person by timeline phase, and the rows running late, explained by a blocking problem or\nrecently dismissed.\n\nSuperseded attempts are outside every detector: acting on a replaced attempt is never right.\n`total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same\nnumber.",
         "operationId": "getCreditRegistrationAttentionItems",
         "parameters": [
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number, from 1",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          },
-          {
             "name": "limit",
             "in": "query",
-            "description": "Rows per page",
+            "description": "Rows listed per section; the counts cover every row",
             "required": false,
             "schema": {
               "type": "integer",
@@ -7287,7 +7404,7 @@
           {
             "name": "reason",
             "in": "query",
-            "description": "Only rows one of these detectors picked; repeat the parameter for several",
+            "description": "Only rows carrying one of these reasons; repeat the parameter for several",
             "required": false,
             "schema": {
               "type": "array",
@@ -7297,18 +7414,9 @@
             }
           },
           {
-            "name": "without_reason",
-            "in": "query",
-            "description": "Only rows no detector picked, which the pipeline's flag alone put in the queue; selects nothing alongside reason",
-            "required": false,
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
             "name": "sort",
             "in": "query",
-            "description": "time_in_state, next_attempt or course",
+            "description": "time_in_phase, next_attempt or course",
             "required": false,
             "schema": {
               "type": "string"
@@ -7317,7 +7425,7 @@
         ],
         "responses": {
           "200": {
-            "description": "A page of the rows needing a human, and how many for each reason",
+            "description": "The Needs attention sections",
             "content": {
               "application/json": {
                 "schema": {
@@ -7414,6 +7522,16 @@
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "Every action about this student: their registrations, student number links, tokens, and actions naming them or their student number",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
@@ -7557,7 +7675,7 @@
     "/api/v0/main-frontend/credit-registration-admin/enrolment-checks": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population\nand findings of the enrolment checks, and the roster schedule per course code.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population\nand findings of the enrolment checks, and the enrolment list schedule per course code.",
         "operationId": "getCreditRegistrationEnrolmentChecks",
         "parameters": [
           {
@@ -7815,7 +7933,7 @@
     "/api/v0/main-frontend/credit-registration-admin/pipeline-history": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per\nledger state, with what entered and left each state that day.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per\nledger state, with what entered and left each state that day, and the count per timeline step and\nthe Needs attention count from the day those snapshots began.",
         "operationId": "getCreditRegistrationPipelineHistory",
         "parameters": [
           {
@@ -7954,12 +8072,57 @@
             }
           },
           {
-            "name": "needs_admin_attention",
+            "name": "step",
             "in": "query",
-            "description": "Only rows asking for a human",
+            "description": "Timeline steps; repeat the parameter for several. A row waiting for a student number matches only if it completed since account linking began, as the overview counts it",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TimelineStep"
+              }
+            }
+          },
+          {
+            "name": "engagement",
+            "in": "query",
+            "description": "Only rows at a step that waits on the student whose student did this; repeat for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Engagement"
+              }
+            }
+          },
+          {
+            "name": "include_not_started",
+            "in": "query",
+            "description": "Include rows at a step that waits on the student whose student has not started; left out by default",
             "required": false,
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "needs_attention",
+            "in": "query",
+            "description": "Only rows counted in Needs attention",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "attention_reason",
+            "in": "query",
+            "description": "Only rows the Needs attention queue picks for one of these reasons, whatever their section; repeat for several",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+              }
             }
           },
           {
@@ -8003,7 +8166,7 @@
           {
             "name": "sort",
             "in": "query",
-            "description": "last_activity, created, time_in_state or attempts",
+            "description": "last_activity (the default; rows counted in Needs attention first), created, time_in_state or attempts",
             "required": false,
             "schema": {
               "type": "string"
@@ -8118,6 +8281,84 @@
           },
           "404": {
             "description": "No such registration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`\n- Takes a row off the Needs attention queue.\n\nThe dismissal covers the reasons the row carries now; it comes back only when a different one\nfires. Leaves the pipeline's own flag alone.",
+        "operationId": "adminDismissCreditRegistrationAttention",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDismissAttentionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The reasons dismissed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDismissAttentionResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No reason given, or nothing picks the row"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`\n- Who on the code's enrolment list a student stuck waiting for a student number may be.\n\nLists the roster live and keeps the people no account is linked to who enrolled before account\nlinking began, whom no linking email went to. Ranked by resemblance to the student's account, which\nis only a hint. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getCreditRegistrationLinkingCandidates",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The candidates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLinkingCandidates"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account linking is off, or the row is not stuck waiting for a student number"
           }
         }
       }
@@ -8553,7 +8794,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`\n- The caller opened the registration page after completing, and it is showing them how to enrol.\n\nMoves a waiting registration onto the schedule for students who have looked, or restarts that\nschedule at most once a day. Recorded against the completion too, so a visit before there is a\nregistration, or before a student number is linked, still counts once there is. Idempotent enough\nto call on every page load; the page sends it once per load.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`\n- The caller opened the registration page after completing, and it is showing them how to enrol.\n\nMoves a waiting registration onto the schedule for students who have looked, or restarts that\nschedule at most once a day. Recorded against the completion too, so a visit before there is a\nregistration, or before a student number is linked, still counts once there is; an unlinked\ncaller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on\nevery page load; the page sends it once per load.",
         "operationId": "recordMyEnrolmentPageVisit",
         "parameters": [
           {
@@ -8650,7 +8891,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nCounts as a check request: a waiting registration restarts its checks on the check-requested\nschedule, under the limit every check request shares. Recorded against the completion too, so a\nregistration that starts waiting later starts on that schedule. With account linking on, a caller\nwith no linked student number books a roster listing of the course code instead.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`\n- The caller says they have enrolled.\n\nCounts as a check request: a waiting registration restarts its checks on the check-requested\nschedule, under the limit every check request shares. Recorded against the completion too, so a\nregistration that starts waiting later starts on that schedule. For a caller with no linked\nstudent number, it also makes the course code's enrolment list due sooner.",
         "operationId": "confirmMyEnrolment",
         "parameters": [
           {
@@ -14075,6 +14316,201 @@
   },
   "components": {
     "schemas": {
+      "AccountLinkingCodeCounters": {
+        "type": "object",
+        "description": "What one code's last enrolment list that fed account linking did, each person counted once in\nexactly one of the counters after `listed_person_count`. Written whole, so the dashboard never\nmixes two runs.",
+        "required": [
+          "listed_person_count",
+          "already_linked_count",
+          "mailed_count",
+          "suppressed_by_dedup_count",
+          "suppressed_by_rate_cap_count",
+          "no_address_count"
+        ],
+        "properties": {
+          "already_linked_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "listed_person_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Only those enrolled since account linking began."
+          },
+          "mailed_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "no_address_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Persons the registry holds no address for: the one population no remedy here can reach."
+          },
+          "suppressed_by_dedup_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suppressed_by_rate_cap_count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AccountLinkingCodeModule": {
+        "type": "object",
+        "description": "A module on a course code, which shares the code's enrolment list.",
+        "required": ["course_id", "course_name", "course_module_id"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "last_listed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When an enrolment list last fed account linking for the module."
+          }
+        }
+      },
+      "AccountLinkingCourseCode": {
+        "type": "object",
+        "description": "One course code's enrolment list: when it is fetched, and what the last one did for linking.",
+        "required": [
+          "course_code",
+          "modules",
+          "next_fetch_at",
+          "waiting_count",
+          "consecutive_failures",
+          "pressed_waiting_count",
+          "unused_link_count",
+          "is_enrolment_list_empty",
+          "is_fetch_failing"
+        ],
+        "properties": {
+          "consecutive_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_code": {
+            "type": "string"
+          },
+          "fetch_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "An admin's \"Fetch now\" no fetch has served yet."
+          },
+          "is_enrolment_list_empty": {
+            "type": "boolean"
+          },
+          "is_fetch_failing": {
+            "type": "boolean"
+          },
+          "last_error": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              }
+            ]
+          },
+          "last_fetched_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listed_person_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Everyone on the last list, however long ago they enrolled."
+          },
+          "last_mailing_fetch_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The latest fetch that could send linking emails."
+          },
+          "linking": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AccountLinkingCodeCounters",
+                "description": "`None` until a list has fed account linking."
+              }
+            ]
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingCodeModule"
+            }
+          },
+          "next_fetch_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When it is next due, ignoring the failure backoff."
+          },
+          "pressed_waiting_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Pressers on the code's modules still waiting for a student number, since the cutoff."
+          },
+          "retry_not_before": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "unlinked_enrolled_before_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "People on the same list who enrolled before account linking began and are linked to no\naccount, so no linking email went to them."
+          },
+          "unused_link_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Linking emails on the code whose link can still be used."
+          },
+          "waiting_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "People on the code's modules waiting for a student number."
+          }
+        }
+      },
+      "AccountLinkingEngagementCounts": {
+        "type": "object",
+        "description": "Students waiting for a student number since the cutoff, by what they have done. Mutually\nexclusive, uncapped, and equal to the overview's counts for the same step.",
+        "required": ["pressed", "pressed_stuck", "visited", "not_started"],
+        "properties": {
+          "not_started": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pressed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pressed_stuck": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Of `pressed`, those stuck."
+          },
+          "visited": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "AccountLinkingFailureDomain": {
         "type": "object",
         "description": "Hard send failures grouped by recipient domain.",
@@ -14091,7 +14527,7 @@
       },
       "AccountLinkingFunnel": {
         "type": "object",
-        "description": "The account-linking funnel. The `_last_run` steps come from counters the discovery phase overwrites\nwhole, the `_in_window` ones from the window: there is no single denominator.",
+        "description": "The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person\ncounted once per code, and the `_in_window` ones come from the window: there is no single\ndenominator.",
         "required": [
           "persons_discovered_last_run",
           "already_linked_last_run",
@@ -14143,28 +14579,29 @@
           }
         }
       },
-      "AccountLinkingModuleCounters": {
+      "AccountLinkingPresser": {
         "type": "object",
+        "description": "A student waiting for a student number who pressed \"I have enrolled\".",
         "required": [
+          "credit_registration_id",
+          "user_id",
           "course_id",
           "course_name",
-          "course_module_id",
-          "consecutive_listing_failures"
+          "completion_date",
+          "pressed_at",
+          "enrolment_route",
+          "linking_emails_on_code_since_press",
+          "is_enrolment_list_empty",
+          "is_fetch_failing",
+          "is_stuck",
+          "needs_attention"
         ],
         "properties": {
-          "already_linked_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "consecutive_listing_failures": {
-            "type": "integer",
-            "format": "int32"
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
           },
           "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_module_id": {
             "type": "string",
             "format": "uuid"
           },
@@ -14174,49 +14611,148 @@
           "course_name": {
             "type": "string"
           },
-          "last_listed_at": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "When the counters below were collected. Not the last attempt: a failing listing keeps the\nlast roster that arrived."
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
           },
-          "last_listing_attempted_at": {
+          "email": {
+            "type": ["string", "null"]
+          },
+          "enrolment_route": {
+            "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute",
+            "description": "How they enrolled."
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "is_enrolment_list_empty": {
+            "type": "boolean"
+          },
+          "is_fetch_failing": {
+            "type": "boolean"
+          },
+          "is_stuck": {
+            "type": "boolean",
+            "description": "Carries `student_number_stuck`; its actions live on Needs attention."
+          },
+          "last_fetched_at": {
             "type": ["string", "null"],
             "format": "date-time"
           },
-          "last_listing_error": {
+          "last_linking_email_on_code_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_mailing_fetch_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The latest fetch that could send linking emails; the stuck rule counts from here."
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "linking_emails_on_code_since_press": {
+            "type": "integer",
+            "format": "int64",
+            "description": "On any course sharing the code since the press; not attributable to this student."
+          },
+          "needs_attention": {
+            "type": "boolean",
+            "description": "Counted in Needs attention: stuck, and neither dismissed nor explained by a blocking problem."
+          },
+          "next_fetch_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "pressed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AccountLinkingRecentEmail": {
+        "type": "object",
+        "description": "One linking email, newest first in the recent list.",
+        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at"],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "emailed_to": {
+            "type": "string",
+            "description": "In full: support tells the recipients apart by it."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_error_message": {
+            "type": ["string", "null"]
+          },
+          "queued_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the `link-emails` phase handed it to the email worker."
+          },
+          "send_status": {
             "oneOf": [
               {
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/CreditRegistrationErrorCode",
-                "description": "Set while the listing attempts since `last_listed_at` are failing, so an empty course and an\nunreachable one do not read alike."
+                "$ref": "#/components/schemas/EmailSendStatusReport",
+                "description": "`None` until queued."
               }
             ]
-          },
-          "listed_person_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "mailed_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "no_address_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "Persons the registry holds no address for: the one population no remedy here can reach."
-          },
-          "suppressed_by_dedup_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "suppressed_by_rate_cap_count": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "uh_course_code": {
+          }
+        }
+      },
+      "AccountLinkingRecentLink": {
+        "type": "object",
+        "description": "A student number linked by a linking email or by hand.",
+        "required": ["user_id", "verified_at", "verified_via"],
+        "properties": {
+          "email": {
             "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verified_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verified_from_course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "verified_from_course_name": {
+            "type": ["string", "null"]
+          },
+          "verified_via": {
+            "$ref": "#/components/schemas/StudentNumberVerificationMethod"
           }
         }
       },
@@ -14235,12 +14771,15 @@
       },
       "AccountLinkingSendStatusTotals": {
         "type": "object",
-        "required": ["queued", "retrying", "sent", "send_failed"],
+        "required": [
+          "waiting_for_link_emails",
+          "waiting_for_email_worker",
+          "retrying",
+          "sent",
+          "send_failed",
+          "used"
+        ],
         "properties": {
-          "queued": {
-            "type": "integer",
-            "format": "int64"
-          },
           "retrying": {
             "type": "integer",
             "format": "int64"
@@ -14252,6 +14791,21 @@
           "sent": {
             "type": "integer",
             "format": "int64"
+          },
+          "used": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Claimed in the window and used since."
+          },
+          "waiting_for_email_worker": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Queued, but not yet attempted by the email worker."
+          },
+          "waiting_for_link_emails": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Claimed, but not yet queued by the `link-emails` phase."
           }
         }
       },
@@ -14311,19 +14865,41 @@
           "funnel",
           "send_status_totals",
           "hard_failure_domains",
-          "modules",
+          "course_codes",
+          "recent_linking_emails",
           "stale_addresses",
           "links_total_by_method",
           "links_in_window_by_method",
           "waiting_for_student_number_count",
+          "waiting_students",
+          "waiting_students_total",
           "max_mails_per_person_and_course",
           "quiet_period_secs",
-          "study_registry_conflicts"
+          "study_registry_conflicts",
+          "processing_phases",
+          "pressers",
+          "engagement_counts",
+          "unused_links",
+          "recent_links"
         ],
         "properties": {
           "account_linking_enabled": {
             "type": "boolean",
             "description": "When false, no linking mails are sent and resends are refused."
+          },
+          "account_linking_since": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Discovery mails only people who enrolled at or after this."
+          },
+          "course_codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingCourseCode"
+            }
+          },
+          "engagement_counts": {
+            "$ref": "#/components/schemas/AccountLinkingEngagementCounts"
           },
           "funnel": {
             "$ref": "#/components/schemas/AccountLinkingFunnel"
@@ -14350,15 +14926,37 @@
             "type": "integer",
             "format": "int64"
           },
-          "modules": {
+          "pressers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AccountLinkingModuleCounters"
-            }
+              "$ref": "#/components/schemas/AccountLinkingPresser"
+            },
+            "description": "Every presser waiting for a student number since the cutoff, stuck first, then longest\nwaiting."
+          },
+          "processing_phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationPhaseStatus"
+            },
+            "description": "Enrolment discovery and link-emails, the processing phases a linking email goes out\nthrough, for the health banner."
           },
           "quiet_period_secs": {
             "type": "integer",
             "format": "int64"
+          },
+          "recent_linking_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingRecentEmail"
+            },
+            "description": "Newest first, capped."
+          },
+          "recent_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingRecentLink"
+            },
+            "description": "Newest first, capped; study registry links only as `links_total_by_method`."
           },
           "send_status_totals": {
             "$ref": "#/components/schemas/AccountLinkingSendStatusTotals"
@@ -14376,14 +14974,127 @@
             },
             "description": "Newest first, capped."
           },
+          "unused_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingUnusedLink"
+            },
+            "description": "Oldest first, capped."
+          },
           "waiting_for_student_number_count": {
             "type": "integer",
             "format": "int64",
             "description": "Accounts with an eligible completion still waiting for a student number."
           },
+          "waiting_students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountLinkingWaitingStudent"
+            },
+            "description": "Of those, the ones completed since `account_linking_since`, longest waiting first, capped."
+          },
+          "waiting_students_total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "`waiting_students` before the cap."
+          },
           "window_secs": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "AccountLinkingUnusedLink": {
+        "type": "object",
+        "description": "A link that can still be used, and how old it is.",
+        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at", "expires_at"],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "emailed_to": {
+            "type": "string",
+            "description": "In full: support tells the recipients apart by it."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "AccountLinkingWaitingStudent": {
+        "type": "object",
+        "description": "A student whose registration waits for a student number.",
+        "required": [
+          "credit_registration_id",
+          "user_id",
+          "course_id",
+          "course_name",
+          "completion_date",
+          "engagement"
+        ],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "engagement": {
+            "$ref": "#/components/schemas/Engagement",
+            "description": "Pressed means their \"I have enrolled\" press stands."
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_check_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The latest check request the student made themselves."
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "last_visited_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -14532,11 +15243,13 @@
         "required": [
           "attention_thresholds",
           "registration",
+          "journey",
           "attempts",
           "events",
           "suotar_api_calls",
           "actions",
           "linking_emails",
+          "manual_linking_email_sends",
           "notification_emails"
         ],
         "properties": {
@@ -14554,6 +15267,17 @@
             },
             "description": "Every attempt for the same completion, newest first, this one included."
           },
+          "attention": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdminRegistrationAttention",
+                "description": "`None` when nothing picks the row."
+              }
+            ]
+          },
           "attention_thresholds": {
             "$ref": "#/components/schemas/AdminAttentionThresholds"
           },
@@ -14561,7 +15285,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AdminCreditRegistrationEvent"
-            }
+            },
+            "description": "Every attempt's events, oldest first, so one timeline covers the whole completion."
+          },
+          "journey": {
+            "$ref": "#/components/schemas/AdminCreditRegistrationJourney",
+            "description": "Read from the newest attempt, whichever attempt was asked for."
           },
           "linking_emails": {
             "type": "array",
@@ -14569,6 +15298,24 @@
               "$ref": "#/components/schemas/AdminLinkingEmail"
             },
             "description": "Every mail addressed to this person, on any course."
+          },
+          "linking_schedule": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdminLinkingSchedule",
+                "description": "Of the newest attempt, as `journey` is, and only while it waits for a student number after an\n\"I have enrolled\" press."
+              }
+            ]
+          },
+          "manual_linking_email_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Linking emails sent by hand as a guess for this row's student, newest first."
           },
           "not_improved_attainment": {
             "oneOf": [
@@ -14586,7 +15333,7 @@
             "items": {
               "$ref": "#/components/schemas/AdminNotificationEmail"
             },
-            "description": "The terminal-state mails queued for this row, with the same send status the student and the\nteacher are shown."
+            "description": "The student mails queued for every attempt (\"Please register\" is `action_needed`), with the\nsame send status the student and the teacher are shown."
           },
           "registration": {
             "$ref": "#/components/schemas/AdminCreditRegistrationRow"
@@ -14602,7 +15349,7 @@
       },
       "AdminCreditRegistrationEvent": {
         "type": "object",
-        "required": ["id", "created_at", "kind"],
+        "required": ["id", "credit_registration_id", "created_at", "kind"],
         "properties": {
           "actor_user_id": {
             "type": ["string", "null"],
@@ -14611,6 +15358,11 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The attempt the event belongs to."
           },
           "details": {
             "description": "The `{request, response}` pair, scrubbed at write time: names, student numbers and email\naddresses read `[redacted]` while their keys survive. The values we sent are on the row."
@@ -14698,6 +15450,62 @@
           }
         }
       },
+      "AdminCreditRegistrationJourney": {
+        "type": "object",
+        "description": "What the student did around the completion, with full timestamps, for the timeline.",
+        "properties": {
+          "check_request_source": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EnrolmentCheckSource"
+              }
+            ]
+          },
+          "course_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When they first picked any language version of the course."
+          },
+          "enrolment_route": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute",
+                "description": "How they enrolled."
+              }
+            ]
+          },
+          "first_visited_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The first visit to the registration page; a check request recorded before any visit makes\nthis the time of that request instead."
+          },
+          "last_check_requested_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_visited_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Only the latest visit is kept after the first."
+          },
+          "pressed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The latest \"I have enrolled\" press; overwritten by a later one, cleared if taken back."
+          },
+          "sisu_enrolled_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Sisu's own time for the enrolment we found, where Sisu gave one."
+          }
+        }
+      },
       "AdminCreditRegistrationRow": {
         "type": "object",
         "required": [
@@ -14711,7 +15519,13 @@
           "course_module_completion_id",
           "completion_date",
           "state",
+          "timeline_step",
+          "phase",
+          "waits_on",
+          "phase_started_at",
+          "state_changed_at",
           "state_entered_at",
+          "attention_reasons",
           "needs_admin_attention",
           "next_attempt_at",
           "not_registered_reimport_count",
@@ -14726,6 +15540,24 @@
           "attempt_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "attention_reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+            },
+            "description": "Every reason the Needs attention queue picks the row for; empty when it is not picked."
+          },
+          "attention_standing": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AttentionStanding",
+                "description": "Which Needs attention section the row is in; `None` when it is not picked."
+              }
+            ]
           },
           "completion_date": {
             "type": "string",
@@ -14765,6 +15597,17 @@
             "type": ["string", "null"],
             "description": "In full: masking it would leave support unable to answer the question they were asked."
           },
+          "engagement": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Engagement",
+                "description": "Only on the steps that wait on the student."
+              }
+            ]
+          },
           "enrolment_check_due_at": {
             "type": ["string", "null"],
             "format": "date-time",
@@ -14777,6 +15620,16 @@
           "enrolment_checks_stopped_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "enrolment_route": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
+              }
+            ]
           },
           "error_code": {
             "oneOf": [
@@ -14815,6 +15668,10 @@
           "last_name": {
             "type": ["string", "null"]
           },
+          "last_visited_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "needs_admin_attention": {
             "type": "boolean"
           },
@@ -14847,6 +15704,19 @@
               }
             ]
           },
+          "phase": {
+            "$ref": "#/components/schemas/TimelinePhase"
+          },
+          "phase_started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the row entered its timeline phase: what \"In this phase since\" shows."
+          },
+          "pressed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The student's latest \"I have enrolled\" press for the completion."
+          },
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -14868,9 +15738,15 @@
           "state": {
             "$ref": "#/components/schemas/CreditRegistrationState"
           },
+          "state_changed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the row entered its state. Same-state checks move `state_entered_at` but not this."
+          },
           "state_entered_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Moved by every write that keeps the state too, so it is when the row was last touched, not\nhow long it has been where it is."
           },
           "student_number": {
             "type": ["string", "null"],
@@ -14897,6 +15773,9 @@
           "terminal_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "timeline_step": {
+            "$ref": "#/components/schemas/TimelineStep"
           },
           "uh_course_code": {
             "type": ["string", "null"]
@@ -14927,6 +15806,9 @@
           "verify_attempt_count": {
             "type": "integer",
             "format": "int32"
+          },
+          "waits_on": {
+            "$ref": "#/components/schemas/WaitsOn"
           }
         }
       },
@@ -14934,6 +15816,141 @@
         "type": "string",
         "description": "The states an admin may move a row to; everything else is the pipeline's to decide.",
         "enum": ["ready_to_submit", "cancelled"]
+      },
+      "AdminDismissAttentionPayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminDismissAttentionResult": {
+        "type": "object",
+        "required": ["dismissed_reasons"],
+        "properties": {
+          "dismissed_reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+            },
+            "description": "The reasons the dismissal covers; a different one firing brings the row back."
+          }
+        }
+      },
+      "AdminDismissStudyRegistryConflictPayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminLinkingCandidate": {
+        "type": "object",
+        "description": "A person on a course's enrolment list whom no account is linked to, whom support can send a\nlinking email.",
+        "required": ["student_number", "linking_emails_for_course", "manual_sends", "similarities"],
+        "properties": {
+          "email": {
+            "type": ["string", "null"],
+            "description": "In full: support has to tell the candidates apart before mailing one of them."
+          },
+          "enrolled_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` when the study registry gave no enrolment time."
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "linking_emails_for_course": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Linking emails for the course that count toward its cap: replaced ones included, those a\nrate cap override retired not."
+          },
+          "manual_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Every linking email someone sent by hand for the course, newest first. Unlike\n`linking_emails_for_course`, keeps those a rate cap override has since retired."
+          },
+          "similarities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkingCandidateSimilarity"
+            },
+            "description": "What they share with the waiting student's account, by which the linking candidates are\nordered. Always empty in [`AdminUnlinkedEnrolees`]."
+          },
+          "student_number": {
+            "type": "string",
+            "description": "Echoed back to the resend endpoint to mail them."
+          }
+        }
+      },
+      "AdminLinkingCandidates": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "course_code",
+          "account_linking_since",
+          "study_registry_unavailable",
+          "candidates"
+        ],
+        "properties": {
+          "account_linking_since": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingCandidate"
+            },
+            "description": "Most like the student's account first."
+          },
+          "course_code": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer, so an empty `candidates` says nothing."
+          }
+        }
+      },
+      "AdminLinkingCourse": {
+        "type": "object",
+        "description": "A course support can send a linking email for by hand: one taking part in credit registration\nwith a University of Helsinki course code.",
+        "required": ["course_id", "course_name", "course_codes"],
+        "properties": {
+          "course_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Usually one; a course whose modules have different codes has each of them."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          }
+        }
       },
       "AdminLinkingEmail": {
         "type": "object",
@@ -14986,6 +16003,50 @@
           }
         }
       },
+      "AdminLinkingSchedule": {
+        "type": "object",
+        "description": "For a student who pressed \"I have enrolled\" and has no linked student number: their course\ncode's enrolment list schedule, and what went out on the code since the press.",
+        "required": [
+          "course_code",
+          "next_fetch_at",
+          "is_fetch_failing",
+          "is_enrolment_list_empty",
+          "linking_emails_since_press"
+        ],
+        "properties": {
+          "course_code": {
+            "type": "string"
+          },
+          "is_enrolment_list_empty": {
+            "type": "boolean"
+          },
+          "is_fetch_failing": {
+            "type": "boolean"
+          },
+          "last_fetched_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_linking_email_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_mailing_fetch_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The latest fetch that could send linking emails; the stuck rule counts from here."
+          },
+          "linking_emails_since_press": {
+            "type": "integer",
+            "format": "int64",
+            "description": "On any course sharing the code. Not attributable to this student until a link is used."
+          },
+          "next_fetch_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "AdminManualLinkOutcome": {
         "type": "string",
         "enum": [
@@ -14997,6 +16058,34 @@
           "study_registry_unavailable",
           "unexpected_study_registry_answer"
         ]
+      },
+      "AdminManualLinkingEmailSend": {
+        "type": "object",
+        "description": "A linking email someone sent by hand, so others do not send the same one again.",
+        "required": ["sent_at", "sent_by_user_id"],
+        "properties": {
+          "emailed_to": {
+            "type": ["string", "null"],
+            "description": "In full."
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sent_by_email": {
+            "type": ["string", "null"]
+          },
+          "sent_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "sent_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "sent_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "AdminManuallyLinkStudentNumberPayload": {
         "type": "object",
@@ -15062,8 +16151,13 @@
       "AdminNotificationEmail": {
         "type": "object",
         "description": "One of the two student terminal-state mails, in full: `send_status.failure_code` is what drives\nthe decision to look at the relay.",
-        "required": ["kind", "email_delivery_id", "send_status"],
+        "required": ["credit_registration_id", "kind", "email_delivery_id", "send_status"],
         "properties": {
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The attempt the mail was sent for."
+          },
           "email_delivery_id": {
             "type": "string",
             "format": "uuid",
@@ -15100,6 +16194,76 @@
         "properties": {
           "reason": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "AdminRegistrationAttention": {
+        "type": "object",
+        "description": "The row's standing on the Needs attention queue.",
+        "required": ["reasons", "standing"],
+        "properties": {
+          "blocking_problem": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/BlockingProblem"
+              }
+            ]
+          },
+          "dismissal_reason": {
+            "type": ["string", "null"]
+          },
+          "dismissed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "dismissed_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "dismissed_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "dismissed_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "dismissed_reasons": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+            },
+            "description": "The dismissal in force, if any; a row whose reasons all fall under it is `dismissed`."
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+            }
+          },
+          "standing": {
+            "$ref": "#/components/schemas/AttentionStanding"
+          }
+        }
+      },
+      "AdminRequestEnrolmentListFetchPayload": {
+        "type": "object",
+        "required": ["course_code"],
+        "properties": {
+          "course_code": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminRequestEnrolmentListFetchResult": {
+        "type": "object",
+        "required": ["next_fetch_at"],
+        "properties": {
+          "next_fetch_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Ignoring the failure backoff, as on the Linking tab."
           }
         }
       },
@@ -15142,6 +16306,11 @@
             "type": "string",
             "format": "uuid"
           },
+          "credit_registration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The registration whose student the mail is a guess for, from the linking candidates. Must be\non `course_id`; recorded on the audit row."
+          },
           "override_rate_caps": {
             "type": "boolean",
             "description": "Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason."
@@ -15174,6 +16343,17 @@
           "mails_sent_for_this_course": {
             "type": "integer",
             "format": "int64"
+          },
+          "manual_send": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdminManualLinkingEmailSend",
+                "description": "The send this attempt made, as the dialogs list it. `None` unless `outcome` is `queued`."
+              }
+            ]
           },
           "max_mails_per_person_and_course": {
             "type": "integer",
@@ -15360,6 +16540,24 @@
             "type": "integer",
             "format": "int64",
             "description": "Registrations that went back to waiting for a number."
+          }
+        }
+      },
+      "AdminUnlinkedEnrolees": {
+        "type": "object",
+        "description": "Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.",
+        "required": ["study_registry_unavailable", "people"],
+        "properties": {
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingCandidate"
+            },
+            "description": "By last name, then first names, ignoring case; people with no last name last."
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer for some code, so `people` says nothing."
           }
         }
       },
@@ -15696,6 +16894,11 @@
           }
         }
       },
+      "AttentionStanding": {
+        "type": "string",
+        "description": "Which section of the Needs attention tab a picked row belongs to. Exactly one per row.",
+        "enum": ["needs_attention", "running_late", "dismissed", "explained_by_problem"]
+      },
       "AuthorizedClientInfo": {
         "type": "object",
         "required": ["client_id", "client_name", "scopes"],
@@ -15830,6 +17033,24 @@
             "format": "uuid"
           }
         }
+      },
+      "BlockingProblem": {
+        "type": "object",
+        "description": "A problem that holds up many registrations at once.",
+        "required": ["kind", "subject"],
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/BlockingProblemKind"
+          },
+          "subject": {
+            "type": "string"
+          }
+        }
+      },
+      "BlockingProblemKind": {
+        "type": "string",
+        "description": "What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.",
+        "enum": ["processing_phase_stopped", "course_code_failing", "module_misconfigured"]
       },
       "BreakerTarget": {
         "type": "string",
@@ -19306,7 +20527,10 @@
           "resend_link_email",
           "unlink_student_number",
           "manual_link_student_number",
-          "override_rate_cap"
+          "override_rate_cap",
+          "request_enrolment_list_fetch",
+          "dismiss_study_registry_conflict",
+          "dismiss_attention"
         ]
       },
       "CreditRegistrationAdminActionRecord": {
@@ -19496,7 +20720,9 @@
           "course",
           "phase",
           "verified_student_number",
-          "student_number_verification_token"
+          "student_number_verification_token",
+          "roster_schedule",
+          "study_registry_student_number_conflict"
         ]
       },
       "CreditRegistrationAlert": {
@@ -19561,6 +20787,69 @@
         "type": "string",
         "enum": ["info", "warning", "critical"]
       },
+      "CreditRegistrationAttentionDismissal": {
+        "type": "object",
+        "description": "A dismissal made recently, for the \"Dismissed recently\" section.",
+        "required": [
+          "credit_registration_id",
+          "user_id",
+          "course_id",
+          "course_name",
+          "dismissed_reasons",
+          "dismissed_at",
+          "dismissed_by_user_id",
+          "reason"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dismissed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dismissed_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "dismissed_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "dismissed_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dismissed_reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+            }
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "CreditRegistrationAttentionItem": {
         "type": "object",
         "required": [
@@ -19570,17 +20859,35 @@
           "course_name",
           "course_module_id",
           "state",
-          "state_entered_at",
+          "state_changed_at",
+          "phase_started_at",
+          "timeline_step",
+          "phase",
+          "waits_on",
           "attempt_count",
           "next_attempt_at",
           "reasons",
+          "standing",
+          "is_enrolment_list_empty",
           "needs_admin_attention",
-          "hand_actions"
+          "hand_actions",
+          "manual_linking_email_sends"
         ],
         "properties": {
           "attempt_count": {
             "type": "integer",
             "format": "int32"
+          },
+          "blocking_problem": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/BlockingProblem",
+                "description": "Set exactly when `standing` is `explained_by_problem`."
+              }
+            ]
           },
           "course_id": {
             "type": "string",
@@ -19604,6 +20911,27 @@
             "type": ["string", "null"],
             "description": "In full: this is the list support works from."
           },
+          "engagement": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Engagement",
+                "description": "Only on the steps that wait on the student."
+              }
+            ]
+          },
+          "enrolment_route": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
+              }
+            ]
+          },
           "error_code": {
             "oneOf": [
               {
@@ -19621,49 +20949,90 @@
             "$ref": "#/components/schemas/HandActionAvailability",
             "description": "What the bulk hand transition would allow on this row."
           },
+          "is_enrolment_list_empty": {
+            "type": "boolean"
+          },
+          "last_mailing_fetch_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the code's latest enrolment list fetch that could send a linking email started."
+          },
           "last_name": {
             "type": ["string", "null"]
           },
+          "manual_linking_email_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Linking emails sent by hand as a guess for this row's student, newest first."
+          },
           "needs_admin_attention": {
             "type": "boolean",
-            "description": "The pipeline's cached \"a human should look at this\". A fact about the row, never a reason:\nit says nothing about why, so it travels beside `reasons` rather than in them."
+            "description": "The pipeline's own flag; a fact about the row, separate from any dismissal."
           },
           "next_attempt_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/TimelinePhase"
+          },
+          "phase_started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pressed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The student's latest \"I have enrolled\" press."
           },
           "reasons": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
             },
-            "description": "Every detector that picked this row, so the table can group by any of them. Empty on a row\nthe pipeline flagged that no detector explains."
+            "description": "Every reason that picked this row."
+          },
+          "standing": {
+            "$ref": "#/components/schemas/AttentionStanding"
           },
           "state": {
             "$ref": "#/components/schemas/CreditRegistrationState"
           },
-          "state_entered_at": {
+          "state_changed_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the row entered its state; same-state checks do not move it."
           },
           "student_number": {
+            "type": ["string", "null"]
+          },
+          "timeline_step": {
+            "$ref": "#/components/schemas/TimelineStep"
+          },
+          "uh_course_code": {
             "type": ["string", "null"]
           },
           "user_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "waits_on": {
+            "$ref": "#/components/schemas/WaitsOn"
           }
         }
       },
       "CreditRegistrationAttentionItems": {
         "type": "object",
         "required": [
-          "items",
           "total_count",
-          "filtered_count",
-          "total_pages",
           "counts_by_reason",
-          "flagged_without_reason_count"
+          "phases",
+          "running_late",
+          "running_late_count",
+          "explained_by_problem",
+          "dismissed_recently"
         ],
         "properties": {
           "counts_by_reason": {
@@ -19671,47 +21040,85 @@
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionReasonCount"
             },
-            "description": "Over the whole queue, not over the page or the filter, so the counts stay usable as facets."
+            "description": "Over the whole Needs attention section, so the counts stay usable as facets."
           },
-          "filtered_count": {
+          "dismissed_recently": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionDismissal"
+            },
+            "description": "Dismissals of the last 14 days, newest first, whether or not the row has come back since."
+          },
+          "explained_by_problem": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationBlockingProblemRows"
+            },
+            "description": "Rows a blocking problem accounts for, under that problem. Not in the count."
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionPhaseRows"
+            },
+            "description": "The rows needing attention that match `reason`, one entry per timeline phase that has any,\nin timeline order."
+          },
+          "running_late": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
+            },
+            "description": "Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in\nthe count."
+          },
+          "running_late_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Rows matching this request's narrowing, which is what `total_pages` pages through. Equal to\n`total_count` when neither `reason` nor `without_reason` was given."
+            "description": "Every running late row, however many `running_late` lists."
           },
-          "flagged_without_reason_count": {
+          "total_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Queue rows no detector picked, which the pipeline's flag alone put there. No `reason`\nreaches them, so a surface that groups by reason has to offer `without_reason` beside the\nreasons or leave this many rows unreachable."
-          },
+            "description": "The Needs attention count, whatever this request filtered to: the tab badge, the same number\n`/overview` reports."
+          }
+        }
+      },
+      "CreditRegistrationAttentionPhaseRows": {
+        "type": "object",
+        "description": "The rows of one timeline phase that need attention.",
+        "required": ["phase", "total_count", "items"],
+        "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "The requested page of the queue."
+            "description": "The first of them in the requested order, at most `limit`."
+          },
+          "phase": {
+            "$ref": "#/components/schemas/TimelinePhase"
           },
           "total_count": {
             "type": "integer",
             "format": "int64",
-            "description": "The whole queue, whatever this request filtered to: the canonical \"needs a human\" count, the\nsame number `/overview` reports and the tab badge shows."
-          },
-          "total_pages": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
+            "description": "Every row of the phase matching `reason`, however many `items` lists."
           }
         }
       },
       "CreditRegistrationAttentionReason": {
         "type": "string",
-        "description": "Which detector picked a row for the attention queue. A row can carry several.\n\nNot `needs_admin_attention`: that flag is one of the conditions that puts a row in the queue,\nbut it says nothing about why, so it is reported per row rather than as a reason of its own.",
+        "description": "Why a row is picked. A row can carry several.",
         "enum": [
           "stuck_in_state",
           "permanent_error",
           "retry_window_expired",
           "misregistered",
           "too_many_attempts",
-          "outcome_uncertain"
+          "outcome_uncertain",
+          "partly_registered_overdue",
+          "verification_gave_up",
+          "repeatedly_not_registered",
+          "student_number_stuck",
+          "flagged_by_pipeline"
         ]
       },
       "CreditRegistrationAttentionReasonCount": {
@@ -19724,6 +21131,28 @@
           },
           "reason": {
             "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+          }
+        }
+      },
+      "CreditRegistrationBlockingProblemRows": {
+        "type": "object",
+        "description": "One blocking problem and the rows it accounts for.",
+        "required": ["problem", "total_count", "items"],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
+            },
+            "description": "The oldest of them, at most `limit`."
+          },
+          "problem": {
+            "$ref": "#/components/schemas/BlockingProblem"
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Every row the problem accounts for, however many `items` lists."
           }
         }
       },
@@ -19799,11 +21228,19 @@
           "eligible_completion_count",
           "registration_count",
           "success_count",
+          "registered_count",
+          "already_in_sisu_count",
           "in_flight_count",
           "failed_count",
-          "needs_admin_attention_count"
+          "needs_attention_count",
+          "where_registrations_stand"
         ],
         "properties": {
+          "already_in_sisu_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Of `success_count`, already in Sisu or with a better grade there."
+          },
           "check": {
             "$ref": "#/components/schemas/CreditRegistrationCourseConfigCheck",
             "description": "What the current facts say. Recomputed on read, so a configuration fixed a minute ago no\nlonger shows as broken."
@@ -19856,9 +21293,10 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
-          "needs_admin_attention_count": {
+          "needs_attention_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "The module's rows counted in Needs attention: the Registrations list with\n`course_module_id` and `needs_attention=true` holds exactly these."
           },
           "pause_reason": {
             "type": ["string", "null"]
@@ -19866,6 +21304,11 @@
           "paused_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "registered_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Of `success_count`, registered by us."
           },
           "registration_count": {
             "type": "integer",
@@ -19877,7 +21320,8 @@
           },
           "success_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Registered, already in Sisu and better grade in Sisu: the denominator the failure rate is\ntaken against, with `failed_count`."
           },
           "top_error_code": {
             "oneOf": [
@@ -19891,6 +21335,13 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
+          },
+          "where_registrations_stand": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationStepCount"
+            },
+            "description": "The module's \"Where registrations stand\", Not started left out; each count equals the\nRegistrations list filtered by its step, engagement and `course_module_id`."
           }
         }
       },
@@ -19970,7 +21421,7 @@
       },
       "CreditRegistrationErrorCodeTotal": {
         "type": "object",
-        "required": ["error_code", "in_flight_count", "terminal_failure_count"],
+        "required": ["error_code", "live_count", "in_flight_count", "terminal_failure_count"],
         "properties": {
           "error_code": {
             "$ref": "#/components/schemas/CreditRegistrationErrorCode"
@@ -19979,6 +21430,11 @@
             "type": "integer",
             "format": "int64",
             "description": "Rows the pipeline is still working on."
+          },
+          "live_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Every live row carrying the code."
           },
           "terminal_failure_count": {
             "type": "integer",
@@ -19993,6 +21449,7 @@
         "required": [
           "error_code",
           "retryability",
+          "live_count",
           "current_count",
           "previous_count",
           "user_count",
@@ -20024,6 +21481,11 @@
           "last_seen_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "live_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Live rows carrying the code now: what the Registrations list filtered by `error_code`\nshows. The other counts are failure events in the window."
           },
           "previous_count": {
             "type": "integer",
@@ -20113,8 +21575,13 @@
       },
       "CreditRegistrationHistoryDay": {
         "type": "object",
-        "required": ["snapshot_date", "states"],
+        "required": ["snapshot_date", "states", "steps"],
         "properties": {
+          "needs_attention_count": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` on days before the count was snapshotted."
+          },
           "snapshot_date": {
             "type": "string",
             "format": "date",
@@ -20126,6 +21593,13 @@
               "$ref": "#/components/schemas/CreditRegistrationHistoryPoint"
             },
             "description": "Every state, whether or not anything is in it: a missing state would read as a gap in the\nchart rather than as an empty queue."
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationHistoryStepPoint"
+            },
+            "description": "Every step that had live rows, Not started included. Empty on days before step snapshots\nbegan."
           }
         }
       },
@@ -20153,6 +21627,34 @@
           }
         }
       },
+      "CreditRegistrationHistoryStepPoint": {
+        "type": "object",
+        "description": "One timeline step's count on one day.",
+        "required": ["phase", "step", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "engagement": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Engagement",
+                "description": "`None` on a step that does not wait on the student."
+              }
+            ]
+          },
+          "phase": {
+            "$ref": "#/components/schemas/TimelinePhase"
+          },
+          "step": {
+            "$ref": "#/components/schemas/TimelineStep"
+          }
+        }
+      },
       "CreditRegistrationNotificationKind": {
         "type": "string",
         "description": "Which of the two student mails a row is owed, or already holds.",
@@ -20160,7 +21662,7 @@
       },
       "CreditRegistrationOldestNonTerminal": {
         "type": "object",
-        "required": ["credit_registration_id", "state", "state_entered_at", "seconds_in_state"],
+        "required": ["credit_registration_id", "state", "state_changed_at", "seconds_in_state"],
         "properties": {
           "credit_registration_id": {
             "type": "string",
@@ -20174,7 +21676,7 @@
           "state": {
             "$ref": "#/components/schemas/CreditRegistrationState"
           },
-          "state_entered_at": {
+          "state_changed_at": {
             "type": "string",
             "format": "date-time"
           }
@@ -20187,7 +21689,8 @@
           "counts_by_state",
           "pending_by_reason",
           "error_codes",
-          "needs_admin_attention_count",
+          "needs_attention_count",
+          "where_registrations_stand",
           "throughput",
           "throughput_days",
           "stuck",
@@ -20215,10 +21718,10 @@
           "health": {
             "$ref": "#/components/schemas/CreditRegistrationHealth"
           },
-          "needs_admin_attention_count": {
+          "needs_attention_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Live rows a detector picked or the pipeline flagged. The one definition of \"needs a human\":\n`/attention` pages through exactly these rows and reports the same total."
+            "description": "The Needs attention count: the same number as `/attention`'s `total_count` and the tab badge."
           },
           "oldest_non_terminal": {
             "oneOf": [
@@ -20238,7 +21741,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationStuckTotal"
-            }
+            },
+            "description": "The Running late rows per state, which the stuck-registrations alert counts."
           },
           "throughput": {
             "type": "array",
@@ -20249,6 +21753,13 @@
           "throughput_days": {
             "type": "integer",
             "format": "int64"
+          },
+          "where_registrations_stand": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationStepCount"
+            },
+            "description": "\"Where registrations stand\": every step with live rows, Not started left out."
           }
         }
       },
@@ -20264,7 +21775,8 @@
           "heartbeat_interval_multiplier",
           "consecutive_failure_limit",
           "paused_globally",
-          "circuit_breakers"
+          "circuit_breakers",
+          "server_build_commit"
         ],
         "properties": {
           "circuit_breakers": {
@@ -20291,6 +21803,10 @@
               "$ref": "#/components/schemas/CreditRegistrationPhaseRow"
             },
             "description": "In process then pipeline order, so the grouping is a fold over the list."
+          },
+          "server_build_commit": {
+            "type": "string",
+            "description": "The git commit the answering server was built from, or `unknown` for a build without one.\nWorkers may run another build while a rollout is under way."
           }
         }
       },
@@ -20616,15 +22132,44 @@
           }
         }
       },
+      "CreditRegistrationStepCount": {
+        "type": "object",
+        "description": "Live registrations at one timeline step, split by engagement on the steps that wait on the\nstudent. Equal to the Registrations list filtered by `step` and `engagement` (and\n`course_module_id` where the count is per module).",
+        "required": ["phase", "step", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "engagement": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Engagement",
+                "description": "`None` on a step that does not wait on the student."
+              }
+            ]
+          },
+          "phase": {
+            "$ref": "#/components/schemas/TimelinePhase"
+          },
+          "step": {
+            "$ref": "#/components/schemas/TimelineStep"
+          }
+        }
+      },
       "CreditRegistrationStuckTotal": {
         "type": "object",
+        "description": "The Running late rows in one state.",
         "required": ["state", "count", "severely_stuck_count"],
         "properties": {
           "count": {
             "type": "integer",
             "format": "int64"
           },
-          "oldest_state_entered_at": {
+          "oldest_state_changed_at": {
             "type": ["string", "null"],
             "format": "date-time"
           },
@@ -21293,6 +22838,11 @@
           }
         }
       },
+      "Engagement": {
+        "type": "string",
+        "description": "What a student waiting on their own step has done on the registration page. Per completion, so\nevery attempt of one completion shares it. Ordered from most to least engaged.",
+        "enum": ["pressed", "visited", "not_started"]
+      },
       "EnrolmentCheckDashboard": {
         "type": "object",
         "required": [
@@ -21458,11 +23008,11 @@
       },
       "EnrolmentCheckRosterCode": {
         "type": "object",
-        "description": "One course code's roster schedule as it stands.",
+        "description": "One course code's enrolment list schedule as it stands.",
         "required": [
           "course_code",
-          "tier",
-          "triggered_fetch_count_today",
+          "waiting_count",
+          "next_fetch_at",
           "is_fetched_alone",
           "consecutive_failures",
           "module_count"
@@ -21505,20 +23055,18 @@
             "format": "int32"
           },
           "next_fetch_at": {
-            "type": ["string", "null"],
+            "type": "string",
             "format": "date-time",
-            "description": "When a trigger or the tier next makes it due; `None` when neither will."
+            "description": "When it is next due, ignoring the failure backoff."
           },
           "retry_not_before": {
             "type": ["string", "null"],
             "format": "date-time"
           },
-          "tier": {
-            "$ref": "#/components/schemas/RosterTier"
-          },
-          "triggered_fetch_count_today": {
+          "waiting_count": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "People on the code's modules waiting for a student number, who make it due sooner than\nweekly."
           }
         }
       },
@@ -23046,16 +24594,29 @@
           }
         }
       },
+      "LinkingCandidateSimilarity": {
+        "type": "string",
+        "description": "Something a listed person shares with the student's account, strongest first.",
+        "enum": ["email", "email_username", "last_name", "first_name"]
+      },
+      "LinkingEmailLinkState": {
+        "type": "string",
+        "description": "Whether the link in a linking mail can still be opened, and if not, whether a new mail can\nreplace it.",
+        "enum": ["usable", "expired_can_resend", "expired_no_resend", "used"]
+      },
       "LinkingEmailStatus": {
         "type": "object",
         "description": "What we can honestly say about the linking mail: our send status, never a delivery.",
-        "required": ["email_send_status", "emailed_to_masked"],
+        "required": ["email_send_status", "emailed_to_masked", "link_state"],
         "properties": {
           "email_send_status": {
             "$ref": "#/components/schemas/EmailSendStatus"
           },
           "emailed_to_masked": {
             "type": "string"
+          },
+          "link_state": {
+            "$ref": "#/components/schemas/LinkingEmailLinkState"
           },
           "sent_at": {
             "type": ["string", "null"],
@@ -24905,7 +26466,13 @@
                 "course_module_completion_id",
                 "completion_date",
                 "state",
+                "timeline_step",
+                "phase",
+                "waits_on",
+                "phase_started_at",
+                "state_changed_at",
                 "state_entered_at",
+                "attention_reasons",
                 "needs_admin_attention",
                 "next_attempt_at",
                 "not_registered_reimport_count",
@@ -24920,6 +26487,24 @@
                 "attempt_number": {
                   "type": "integer",
                   "format": "int32"
+                },
+                "attention_reasons": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditRegistrationAttentionReason"
+                  },
+                  "description": "Every reason the Needs attention queue picks the row for; empty when it is not picked."
+                },
+                "attention_standing": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AttentionStanding",
+                      "description": "Which Needs attention section the row is in; `None` when it is not picked."
+                    }
+                  ]
                 },
                 "completion_date": {
                   "type": "string",
@@ -24959,6 +26544,17 @@
                   "type": ["string", "null"],
                   "description": "In full: masking it would leave support unable to answer the question they were asked."
                 },
+                "engagement": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Engagement",
+                      "description": "Only on the steps that wait on the student."
+                    }
+                  ]
+                },
                 "enrolment_check_due_at": {
                   "type": ["string", "null"],
                   "format": "date-time",
@@ -24971,6 +26567,16 @@
                 "enrolment_checks_stopped_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
+                },
+                "enrolment_route": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
+                    }
+                  ]
                 },
                 "error_code": {
                   "oneOf": [
@@ -25009,6 +26615,10 @@
                 "last_name": {
                   "type": ["string", "null"]
                 },
+                "last_visited_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
                 "needs_admin_attention": {
                   "type": "boolean"
                 },
@@ -25041,6 +26651,19 @@
                     }
                   ]
                 },
+                "phase": {
+                  "$ref": "#/components/schemas/TimelinePhase"
+                },
+                "phase_started_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the row entered its timeline phase: what \"In this phase since\" shows."
+                },
+                "pressed_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "The student's latest \"I have enrolled\" press for the completion."
+                },
                 "registered_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
@@ -25062,9 +26685,15 @@
                 "state": {
                   "$ref": "#/components/schemas/CreditRegistrationState"
                 },
+                "state_changed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the row entered its state. Same-state checks move `state_entered_at` but not this."
+                },
                 "state_entered_at": {
                   "type": "string",
-                  "format": "date-time"
+                  "format": "date-time",
+                  "description": "Moved by every write that keeps the state too, so it is when the row was last touched, not\nhow long it has been where it is."
                 },
                 "student_number": {
                   "type": ["string", "null"],
@@ -25091,6 +26720,9 @@
                 "terminal_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
+                },
+                "timeline_step": {
+                  "$ref": "#/components/schemas/TimelineStep"
                 },
                 "uh_course_code": {
                   "type": ["string", "null"]
@@ -25121,6 +26753,9 @@
                 "verify_attempt_count": {
                   "type": "integer",
                   "format": "int32"
+                },
+                "waits_on": {
+                  "$ref": "#/components/schemas/WaitsOn"
                 }
               }
             }
@@ -25780,9 +27415,13 @@
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
-        "required": ["completion_count", "student_number_count"],
+        "required": ["completion_count", "student_number_count", "course_code_count"],
         "properties": {
           "completion_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "course_code_count": {
             "type": "integer",
             "format": "int64"
           },
@@ -26326,6 +27965,7 @@
           "queued",
           "already_mailed_to_every_known_address",
           "refused_by_rate_cap",
+          "just_sent",
           "no_address_in_study_registry",
           "not_on_the_course_roster",
           "already_linked",
@@ -26693,11 +28333,6 @@
             "format": "uuid"
           }
         }
-      },
-      "RosterTier": {
-        "type": "string",
-        "description": "How often a code is listed without a trigger.",
-        "enum": ["active", "idle", "dormant", "unlisted"]
       },
       "SaveCourseDesignerScheduleRequest": {
         "type": "object",
@@ -27684,6 +29319,33 @@
         "type": "string",
         "enum": ["Year", "Month", "Day"]
       },
+      "TimelinePhase": {
+        "type": "string",
+        "description": "A column of the admin timeline. Starting registration is not one: it is [`Engagement`] on the\nsteps that wait on the student. Declared, and so ordered, in timeline order.",
+        "enum": ["course", "student_number", "registering", "confirmation", "ended"]
+      },
+      "TimelineStep": {
+        "type": "string",
+        "description": "One step of the admin timeline. The Registrations list, the overview counts and the status card\nall name a row by this. Declared, and so ordered, in timeline order.",
+        "enum": [
+          "course_not_registrable_yet",
+          "waiting_for_student_number",
+          "held_for_course_code",
+          "looking_for_enrolment",
+          "waiting_for_enrolment",
+          "sending",
+          "answer_unclear",
+          "waiting_for_assessment_item",
+          "waiting_for_course_unit",
+          "registered",
+          "already_in_sisu",
+          "better_grade_in_sisu",
+          "recorded_wrongly",
+          "needs_a_person",
+          "not_registering",
+          "no_longer_registrable"
+        ]
+      },
       "ToolCategory": {
         "type": "string",
         "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
@@ -28379,6 +30041,11 @@
         "type": "string",
         "description": "Outcome of submitting a code. Wrong, expired, superseded and spent are one value: they are\nindistinguishable to someone typing digits, and telling them apart only helps a guesser.",
         "enum": ["verified", "already_verified", "invalid"]
+      },
+      "WaitsOn": {
+        "type": "string",
+        "description": "Who a registration waits on. The first line of the status card and of a Needs attention row.",
+        "enum": ["student", "sisu", "support", "course_setup", "nobody"]
       }
     }
   },

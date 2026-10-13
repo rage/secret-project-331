@@ -180,8 +180,14 @@ test("Raising a registered grade starts a new attempt, and the registered one st
     expect(imports).toHaveLength(2)
     const sentItemIds = imports.flatMap((call) => call.items.map((item) => item.requestItemId))
     // What makes a line in the registry's log map to one attempt rather than to the completion.
+    // The details list every attempt's events, so each is narrowed to its own attempt.
     const recordedItemIds = async (registrationId: string) =>
       (await adminRegistrationDetails(adminApi, registrationId)).events
+        .filter(
+          (event) =>
+            (event as { credit_registration_id?: string }).credit_registration_id ===
+            registrationId,
+        )
         .map((event) => event.request_item_id)
         .filter((id) => id !== null && sentItemIds.includes(id))
     const firstItemIds = await recordedItemIds(first.id)

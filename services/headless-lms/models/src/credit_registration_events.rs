@@ -288,6 +288,29 @@ ORDER BY COALESCE(suotar_answered_at, created_at) DESC,
     Ok(res)
 }
 
+/// The timelines of several rows merged into one list, oldest first.
+pub async fn get_by_registration_ids(
+    conn: &mut PgConnection,
+    credit_registration_ids: &[Uuid],
+) -> ModelResult<Vec<CreditRegistrationEvent>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationEvent,
+        r#"
+SELECT *
+FROM credit_registration_events
+WHERE credit_registration_id = ANY($1)
+  AND deleted_at IS NULL
+ORDER BY created_at,
+  COALESCE(suotar_answered_at, created_at) DESC,
+  id DESC
+        "#,
+        credit_registration_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// The per-item timeline entries one study registry call produced, oldest first: what the answer
 /// did to each row it covered.
 pub async fn get_by_suotar_api_call_id(

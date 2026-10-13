@@ -7,6 +7,7 @@ import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
   getCreditRegistrationOverviewQueryKey,
   listCreditRegistrationAdminActionsQueryKey,
@@ -21,11 +22,13 @@ import type {
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
 import {
+  BUTTON_DESTRUCTIVE,
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
@@ -38,6 +41,7 @@ import { noteCss, proseCss, subsectionCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { AdminActionDialog } from "./AdminActionDialog"
+import type { DialogOpenState } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
 import type { HandActionOffer } from "./handActionOffers"
@@ -54,6 +58,11 @@ import {
 
 interface Props {
   registration: AdminCreditRegistrationRow
+  /**
+   * Buttons in one row with housekeeping ones set apart on the right, for a box that already says
+   * what is wrong.
+   */
+  isCompact?: boolean
 }
 
 interface Fields {
@@ -103,6 +112,20 @@ const housekeepingStartCss = css`
   border-top: 1px solid var(--color-clear-300);
 `
 
+const compactCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
+
+/** Pushed to the far end: neither dismissing nor cancelling moves the registration forward. */
+const compactHousekeepingCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-left: auto;
+`
+
 const explanationCss = css`
   display: grid;
   gap: var(--space-1);
@@ -112,7 +135,7 @@ const explanationCss = css`
   }
 `
 
-const CHECK_NOW_COPY = {
+export const CHECK_NOW_COPY = {
   attainment: {
     label: "credit-registration-admin-target-check-attainment",
     description: "credit-registration-admin-check-attainment-description",
@@ -150,13 +173,13 @@ const RISK_COPY = {
   { tone: string; warning: string; confirm: string | null } | null
 >
 
-interface ActionResult {
+export interface ActionResult {
   isApplied: boolean
   message: string
 }
 
 interface TransitionActionProps {
-  registration: AdminCreditRegistrationRow
+  registrationId: string
   choice: TransitionChoice
   label: string
   /** What the action does, as the list shows it beside the button; also the dialog's body. */
@@ -166,10 +189,12 @@ interface TransitionActionProps {
   risk?: ResubmissionRisk
   isDestructive?: boolean
   onResult: (result: ActionResult) => void
+  openState?: DialogOpenState
 }
 
-const TransitionAction: React.FC<TransitionActionProps> = ({
-  registration,
+/** One hand transition on one registration: its button, and the reason dialog it opens. */
+export const TransitionAction: React.FC<TransitionActionProps> = ({
+  registrationId,
   choice,
   label,
   explanation,
@@ -178,6 +203,7 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
   risk = "normal",
   isDestructive = false,
   onResult,
+  openState,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
@@ -187,6 +213,7 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
     <AdminActionDialog<Fields, AdminTransitionCreditRegistrationResult>
       triggerLabel={label}
       triggerVariant={triggerVariant}
+      {...includeIf(openState, { openState })}
       dialogTitle={label}
       description={explanation}
       confirmLabel={label}
@@ -194,7 +221,7 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
       defaultValues={{ action: choice, reason: "", riskUnderstood: false }}
       mutationFn={(fields) =>
         adminTransitionCreditRegistration({
-          path: { credit_registration_id: registration.id },
+          path: { credit_registration_id: registrationId },
           body: { action: transitionAction(fields.action), reason: fields.reason },
         })
       }
@@ -206,8 +233,11 @@ const TransitionAction: React.FC<TransitionActionProps> = ({
         void Promise.all([
           queryClient.invalidateQueries({
             queryKey: getCreditRegistrationForAdminQueryKey({
-              path: { credit_registration_id: registration.id },
+              path: { credit_registration_id: registrationId },
             }),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getCreditRegistrationAttentionItemsQueryKey(),
           }),
           queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
@@ -241,19 +271,26 @@ const ActionRow: React.FC<{
   control: React.ReactNode
   explanation: React.ReactNode
   className?: string | undefined
-}> = ({ control, explanation, className }) => (
-  <li className={cx(actionRowCss, className)}>
-    <div>{control}</div>
-    <div className={explanationCss}>{explanation}</div>
-  </li>
-)
+}> = ({ control, explanation, className }) => {
+  const isCompact = React.useContext(CompactContext)
+  return isCompact ? (
+    control
+  ) : (
+    <li className={cx(actionRowCss, className)}>
+      <div>{control}</div>
+      <div className={explanationCss}>{explanation}</div>
+    </li>
+  )
+}
+
+const CompactContext = React.createContext(false)
 
 /**
  * The hand actions an admin has on one row, each beside what it does, led by the one that could
  * fix this failure. Dismissing the flag and cancelling come last, under a rule: neither is a
  * remedy, and cancelling is the only action that ends the registration.
  */
-const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
+const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   // Kept here rather than under its button: an applied action usually changes which actions the
@@ -297,7 +334,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             key={offer}
             control={
               <TransitionAction
-                registration={registration}
+                registrationId={registration.id}
                 choice={READY_TO_SUBMIT}
                 label={t("credit-registration-admin-target-resubmit")}
                 explanation={explanation}
@@ -322,7 +359,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             key={offer}
             control={
               <TransitionAction
-                registration={registration}
+                registrationId={registration.id}
                 choice={CHECK_NOW}
                 label={t(copy.label)}
                 explanation={explanation}
@@ -412,7 +449,13 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
 
   const rows = offers.map((offer) => renderOffer(offer))
   // A resend held back only until a known time is worth showing as such: waiting is the remedy.
-  if (resubmission.kind === "refused" && resubmission.available_at) {
+  const resubmitWaitNote =
+    resubmission.kind === "refused" && resubmission.available_at
+      ? t("credit-registration-admin-resubmit-available-at", {
+          time: formatZonedTimestamp(new Date(resubmission.available_at)),
+        })
+      : null
+  if (resubmitWaitNote !== null) {
     rows.push(
       <ActionRow
         key={RESUBMIT}
@@ -421,11 +464,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
             {t("credit-registration-admin-target-resubmit")}
           </Button>
         }
-        explanation={prose(
-          t("credit-registration-admin-resubmit-available-at", {
-            time: formatZonedTimestamp(new Date(resubmission.available_at)),
-          }),
-        )}
+        explanation={prose(resubmitWaitNote)}
       />,
     )
   }
@@ -454,7 +493,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
         className={housekeepingStart}
         control={
           <TransitionAction
-            registration={registration}
+            registrationId={registration.id}
             choice={CLEAR_ATTENTION}
             label={t("credit-registration-admin-target-clear-attention")}
             explanation={clearAttentionExplanation}
@@ -474,18 +513,47 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
         className={housekeeping.length === 0 ? housekeepingStart : undefined}
         control={
           <TransitionAction
-            registration={registration}
+            registrationId={registration.id}
             choice={CANCELLED}
             label={t("credit-registration-admin-target-cancel")}
             explanation={cancelExplanation}
             appliedMessage={t("credit-registration-admin-cancel-applied")}
-            triggerVariant={BUTTON_TERTIARY}
+            triggerVariant={isCompact ? BUTTON_DESTRUCTIVE : BUTTON_TERTIARY}
             isDestructive
             onResult={setLastResult}
           />
         }
         explanation={cancelExplanation}
       />,
+    )
+  }
+
+  const hasActions = remedies.length > 0 || housekeeping.length > 0
+  const noActionsNote = !hasActions && (
+    <p className={noteCss}>{t("credit-registration-admin-actions-none")}</p>
+  )
+
+  if (isCompact) {
+    return (
+      <CompactContext.Provider value>
+        <div className={subsectionCss}>
+          {lastResult && (
+            <Infobox tone={lastResult.isApplied ? TONE.INFO : TONE.WARNING}>
+              {lastResult.message}
+            </Infobox>
+          )}
+          {noActionsNote}
+          {hasActions && (
+            <div className={compactCss}>
+              {remedies}
+              {housekeeping.length > 0 && (
+                <span className={compactHousekeepingCss}>{housekeeping}</span>
+              )}
+            </div>
+          )}
+          {resubmitWaitNote !== null && <p className={noteCss}>{resubmitWaitNote}</p>}
+        </div>
+      </CompactContext.Provider>
     )
   }
 
@@ -496,10 +564,8 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration }) => {
           {lastResult.message}
         </Infobox>
       )}
-      {remedies.length === 0 && housekeeping.length === 0 && (
-        <p className={noteCss}>{t("credit-registration-admin-actions-none")}</p>
-      )}
-      {(remedies.length > 0 || housekeeping.length > 0) && (
+      {noActionsNote}
+      {hasActions && (
         <ul className={actionListCss}>
           {remedies}
           {housekeeping}

@@ -105,12 +105,6 @@ VALUES (
       SELECT cm.deleted_at IS NULL
         AND cm.enable_credit_registration_via_suotar
         AND cm.register_eligible_new_completions_via_suotar
-        AND EXISTS (
-          SELECT 1
-          FROM verified_student_numbers vsn
-          WHERE vsn.user_id = $4
-            AND vsn.deleted_at IS NULL
-        )
       FROM course_modules cm
       WHERE cm.id = $3
     )
@@ -176,12 +170,6 @@ pub async fn insert_seed_row(
               SELECT cm.deleted_at IS NULL
                 AND cm.enable_credit_registration_via_suotar
                 AND cm.register_eligible_new_completions_via_suotar
-                AND EXISTS (
-                  SELECT 1
-                  FROM verified_student_numbers vsn
-                  WHERE vsn.user_id = $3
-                    AND vsn.deleted_at IS NULL
-                )
               FROM course_modules cm
               WHERE cm.id = $2
             )

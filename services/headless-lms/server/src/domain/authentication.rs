@@ -37,7 +37,7 @@ const SESSION_KEY: &str = "user";
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
 
-fn constant_time_eq_str(left: &str, right: &str) -> bool {
+pub(crate) fn constant_time_eq_str(left: &str, right: &str) -> bool {
     left.as_bytes().ct_eq(right.as_bytes()).into()
 }
 #[derive(Debug, Serialize, Deserialize)]

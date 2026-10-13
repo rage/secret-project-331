@@ -2,7 +2,7 @@
 
 import type { TFunction } from "i18next"
 
-export { ABSENT_LABEL as ABSENT, MIDDLE_DOT, TONE } from "@/shared-module/components"
+export { TONE } from "@/shared-module/components"
 
 /**
  * The namespace every view in this feature reads. Its strings are a third of the service's
@@ -120,4 +120,4 @@ export const openUniversityEnrolmentInfoUrl = (language: string): string =>
     : OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN
 
 /** Kept in one place so every page that names it can change together. */
-export const SUPPORT_EMAIL = "mooc@cs.helsinki.fi"
+export const SUPPORT_EMAIL = "mooc@helsinki.fi"

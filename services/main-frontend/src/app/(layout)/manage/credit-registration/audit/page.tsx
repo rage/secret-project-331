@@ -5,6 +5,7 @@ import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import AbsentValue from "@/components/credit-registration/AbsentValue"
 import {
   actorRoleLabel,
   ADMIN_ACTION_KEYS,
@@ -18,6 +19,7 @@ import {
   useCreditRegistrationAdminActions,
   useCreditRegistrationCourseStats,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import { AUDIT_USER_ID_PARAM } from "@/components/credit-registration/admin/adminLinks"
 import AdminStateLabel, {
   STATE_ICON_SIZE,
 } from "@/components/credit-registration/admin/AdminStateLabel"
@@ -27,7 +29,6 @@ import {
   useFilteredAdminQuery,
 } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
-  ABSENT,
   ADMIN_PAGE_SIZE_OPTIONS,
   BADGE_COMPACT,
   BUTTON_TERTIARY,
@@ -35,24 +36,24 @@ import {
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   LINK_QUIET,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TABLE_STACK,
   TONE,
 } from "@/components/credit-registration/constants"
 import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import {
+  breakAnywhereCss,
   controlCss,
   controlsCss,
   headingCss,
   noteCss,
-  proseCss,
   rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCss,
   stackedCellCss,
-  stateChangeFromCss,
+  stateChangeToCss,
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
@@ -87,6 +88,7 @@ const PARAM_ACTION = "action"
 const PARAM_TARGET_KIND = "target_kind"
 const PARAM_TARGET_ID = "target_id"
 const PARAM_COURSE_ID = "course_id"
+const PARAM_USER_ID = AUDIT_USER_ID_PARAM
 const PARAM_FROM = "from"
 const PARAM_TO = "to"
 const ANY = ""
@@ -114,6 +116,10 @@ const isBeyondActorsRole = (row: CreditRegistrationAdminActionRow): boolean =>
 const filterRowsCss = css`
   display: grid;
   gap: var(--space-4);
+
+  > * {
+    min-width: 0;
+  }
 `
 
 /** Lets the Selects share one row instead of stranding the last of them on a line of its own. */
@@ -124,21 +130,19 @@ const auditControlCss = cx(
   `,
 )
 
-/** From and To read as one control, so they sit on one line and are announced as one group. */
+/** From and To read as one control: side by side wherever both fit, and announced as one group. */
 const dateRangeCss = css`
   display: flex;
   flex: 1 1 20rem;
+  flex-wrap: wrap;
   gap: var(--space-3);
   align-items: end;
+  min-width: 0;
 
+  /* A date field needs this much for its calendar button, so a phone stacks the two. */
   > * {
-    flex: 1 1 9rem;
+    flex: 1 1 11rem;
   }
-`
-
-/** The "On" column's subtitle: a course or module name, which can outrun the column's width. */
-const targetSubtitleCss = css`
-  overflow-wrap: anywhere;
 `
 
 interface FilterFields {
@@ -208,10 +212,13 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
-      <span>{actorName(row)}</span>
-      <span className={noteCss}>
-        {[actorRoleLabel(t, row.actor_role), row.actor_email].filter(Boolean).join(MIDDLE_DOT)}
-      </span>
+      <span className={breakAnywhereCss}>{actorName(row)}</span>
+      <span className={noteCss}>{actorRoleLabel(t, row.actor_role)}</span>
+      {row.actor_email && (
+        <span className={noteCss}>
+          <EmailAddress address={row.actor_email} />
+        </span>
+      )}
     </span>
   )
 }
@@ -228,16 +235,11 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
     row.target_phase ??
     row.course_name ??
     (row.target_id ? row.target_id.slice(0, ID_PREFIX_LENGTH) : null)
-  const kindAndCourse = [
-    adminActionTargetLabel(t, row.target_kind),
-    student ? row.course_name : null,
-  ]
-    .filter(Boolean)
-    .join(MIDDLE_DOT)
   const body = (
-    <span className={stackedCellCss}>
-      <span>{name ?? ABSENT}</span>
-      <span className={cx(noteCss, targetSubtitleCss)}>{kindAndCourse}</span>
+    <span className={cx(stackedCellCss, breakAnywhereCss)}>
+      <span>{name ?? <AbsentValue />}</span>
+      <span className={noteCss}>{adminActionTargetLabel(t, row.target_kind)}</span>
+      {student && row.course_name && <span className={noteCss}>{row.course_name}</span>}
     </span>
   )
   return row.target_kind === REGISTRATION_TARGET && row.target_id ? (
@@ -259,16 +261,12 @@ const StateChangeCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ 
     return null
   }
   return (
-    <span className={rowCss}>
-      {row.before_state && (
-        <span className={stateChangeFromCss}>
-          <AdminStateLabel state={row.before_state} />
-          <span aria-hidden="true">
-            <ArrowRight size={STATE_ICON_SIZE} />
-          </span>
-        </span>
-      )}
-      {row.after_state ? <AdminStateLabel state={row.after_state} /> : <span>{ABSENT}</span>}
+    <span className={stackedCellCss}>
+      {row.before_state && <AdminStateLabel state={row.before_state} />}
+      <span className={stateChangeToCss}>
+        {row.before_state && <ArrowRight size={STATE_ICON_SIZE} aria-hidden />}
+        {row.after_state ? <AdminStateLabel state={row.after_state} /> : <AbsentValue />}
+      </span>
     </span>
   )
 }
@@ -291,6 +289,18 @@ const filteredTargetLabel = (
     ? formatUserName({ first_name: match.target_first_name, last_name: match.target_last_name })
     : ""
   return student || match?.course_name || targetId.slice(0, ID_PREFIX_LENGTH)
+}
+
+/** The student a `user_id` filter is about, named from the rows it matched. */
+const filteredStudentLabel = (
+  userId: string,
+  rows: readonly CreditRegistrationAdminActionRow[],
+): string => {
+  const named = rows.find((row) => row.target_first_name || row.target_last_name)
+  const student = named
+    ? formatUserName({ first_name: named.target_first_name, last_name: named.target_last_name })
+    : ""
+  return student || userId.slice(0, ID_PREFIX_LENGTH)
 }
 
 /**
@@ -328,6 +338,7 @@ const AuditPage: React.FC = () => {
       const action = filters.param(PARAM_ACTION)
       const targetKind = filters.param(PARAM_TARGET_KIND)
       const targetId = filters.param(PARAM_TARGET_ID)
+      const userId = filters.param(PARAM_USER_ID)
       const courseId = filters.param(PARAM_COURSE_ID)
       const from = filters.param(PARAM_FROM)
       const to = filters.param(PARAM_TO)
@@ -343,6 +354,7 @@ const AuditPage: React.FC = () => {
         ...includeIf(validAction, { action: [validAction as CreditRegistrationAdminAction] }),
         ...includeIf(validTargetKind, { target_kind: validTargetKind }),
         ...includeIf(targetId, { target_id: targetId }),
+        ...includeIf(userId, { user_id: userId }),
         ...includeIf(courseId, { course_id: courseId }),
         ...includeIf(from, { from }),
         ...includeIf(to, { to }),
@@ -356,6 +368,7 @@ const AuditPage: React.FC = () => {
 
   const actionsQuery = useCreditRegistrationAdminActions(query)
   const filteredTargetId = param(PARAM_TARGET_ID)
+  const filteredUserId = param(PARAM_USER_ID)
   const filteredActorId = param(PARAM_ACTOR_USER_ID)
 
   // Off the page in view, because the endpoint reports no roster of actors: someone who has not
@@ -377,12 +390,14 @@ const AuditPage: React.FC = () => {
     applyParams({ [PARAM_TARGET_ID]: undefined })
   }
 
-  // The target id is applied on submit rather than on change, so it is not one of the descriptors
-  // the hook counts — and a reader who arrived from a registration has only that one filter set.
-  const narrowedByCount = activeFilterCount + (filteredTargetId ? 1 : 0)
+  const clearUserFilter = () => applyParams({ [PARAM_USER_ID]: undefined })
+
+  // The target id and the student arrive from links rather than from the selects, so they are not
+  // descriptors the hook counts, and a reader who followed one has only that filter set.
+  const narrowedByCount = activeFilterCount + (filteredTargetId ? 1 : 0) + (filteredUserId ? 1 : 0)
   const clearAllFilters = () => {
     setValue(TARGET_ID_FIELD, "")
-    clearFilters([PARAM_TARGET_ID])
+    clearFilters([PARAM_TARGET_ID, PARAM_USER_ID])
   }
 
   return (
@@ -390,9 +405,6 @@ const AuditPage: React.FC = () => {
       <div className={sectionCardHeaderCss}>
         <h2 className={headingCss}>{t("credit-registration-heading-audit")}</h2>
       </div>
-      <p className={cx(noteCss, proseCss)}>
-        {t("credit-registration-admin-audit-two-actor-kinds-note")}
-      </p>
       <form
         className={filterRowsCss}
         onSubmit={handleSubmit((fields) =>
@@ -489,7 +501,6 @@ const AuditPage: React.FC = () => {
           </div>
         </div>
       </form>
-      <p className={cx(noteCss, proseCss)}>{t("credit-registration-admin-actors-on-this-page")}</p>
       {activeFilterCount > 0 && (
         <div className={rowCss}>
           <span className={noteCss}>
@@ -516,8 +527,8 @@ const AuditPage: React.FC = () => {
               )}
               <div className={rowCss}>
                 {/* `Pagination` renders nothing below 2 pages, and repeats this total at 2 or
-                    more: show it only where `Pagination` won't. */}
-                {page.total_pages < 2 && (
+                    more: show it only where `Pagination` won't. An empty table says so itself. */}
+                {page.total_pages < 2 && page.total_count > 0 && (
                   <p className={noteCss}>
                     {t("credit-registration-admin-action-count", { count: page.total_count })}
                   </p>
@@ -532,6 +543,19 @@ const AuditPage: React.FC = () => {
                   >
                     {t("credit-registration-admin-filtered-to", {
                       target: filteredTargetLabel(filteredTargetId, page.data),
+                    })}
+                  </Chip>
+                )}
+                {filteredUserId && (
+                  <Chip
+                    onRemove={clearUserFilter}
+                    removeLabel={t("credit-registration-admin-remove-filter", {
+                      filter: t("label-student"),
+                      value: filteredStudentLabel(filteredUserId, page.data),
+                    })}
+                  >
+                    {t("credit-registration-admin-filtered-to-student", {
+                      student: filteredStudentLabel(filteredUserId, page.data),
                     })}
                   </Chip>
                 )}
@@ -569,7 +593,7 @@ const AuditPage: React.FC = () => {
                   },
                   {
                     header: t("label-actor"),
-                    minWidth: "9rem",
+                    minWidth: "11rem",
                     cell: (row) => <ActorCell row={row} />,
                   },
                   {
@@ -595,7 +619,12 @@ const AuditPage: React.FC = () => {
                     grow: 2,
                     minWidth: "16rem",
                     nowrap: false,
-                    cell: (row) => row.reason ?? ABSENT,
+                    cell: (row) =>
+                      row.reason ? (
+                        <span className={breakAnywhereCss}>{row.reason}</span>
+                      ) : (
+                        <AbsentValue />
+                      ),
                   },
                   {
                     header: t("credit-registration-admin-column-on"),

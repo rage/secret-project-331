@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 import type { CreditRegistrationErrorCode } from "@/generated/api/types.generated"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
-import { registrationErrorShortLabel } from "../creditRegistrationCopy"
 import { codeValueCss, noteCss, stackedCellCss } from "../styles"
+import { adminErrorShortLabel } from "./adminCreditRegistrationCopy"
 
 /**
  * One failure as a table cell: the short reason first, the wire code under it.
@@ -20,7 +20,7 @@ const ErrorCodeCell: React.FC<{ errorCode: CreditRegistrationErrorCode }> = ({ e
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
-      <span>{registrationErrorShortLabel(t, errorCode)}</span>
+      <span>{adminErrorShortLabel(t, errorCode)}</span>
       <code className={cx(noteCss, codeValueCss)}>{errorCode}</code>
     </span>
   )

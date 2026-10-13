@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import {
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   STATE_ACTION_NEEDED,
   STATE_FAILED,
   TIME_DATE,
@@ -96,7 +95,10 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
   })
 
   const subject = registration.course_module_name
-    ? `${registration.course_name}${MIDDLE_DOT}${registration.course_module_name}`
+    ? t("credit-registration-course-and-module", {
+        course: registration.course_name,
+        module: registration.course_module_name,
+      })
     : registration.course_name
 
   return (

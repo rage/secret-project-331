@@ -5,7 +5,20 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 const PREPENDED_PROTOCOL_BEFORE_PLACEHOLDER = /^https?:\/\/(?=\{\{\w+\}\}$)/
 const PREPENDED_PROTOCOL_IN_HREF = /(<a\s[^>]*?href=")https?:\/\/(?=\{\{\w+\}\}")/g
 
+function hasToJSON(value: unknown): value is { toJSON: () => unknown } {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    typeof (value as { toJSON?: unknown }).toJSON === "function"
+  )
+}
+
 function normalizeValue(value: unknown, isPlainUrl: boolean): unknown {
+  // Edited rich text is a RichTextData whose HTML lives in a private field, so copying its own
+  // entries would turn it into `{}`.
+  if (hasToJSON(value)) {
+    return normalizeValue(value.toJSON(), isPlainUrl)
+  }
   if (typeof value === "string") {
     const withoutHrefPrefix = value.replace(PREPENDED_PROTOCOL_IN_HREF, "$1")
     return isPlainUrl

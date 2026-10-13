@@ -151,7 +151,6 @@ pub async fn seed_credit_registration(
         base_course_ns: SUOTAR_COURSE_ID,
     };
 
-    // Linked before any completion exists: a completion's registration path is decided at insert.
     info!("inserting credit registration students");
     let students = seed_linked_students(&mut conn, &cx).await?;
 
@@ -449,7 +448,7 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
 }
 
 /// Turns the module on with an enrolment link unique to its course code, without which the config
-/// check flags the module, and opts its linked students' completions in.
+/// check flags the module, and opts its students' completions in.
 fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
         enrolment_link: Some(format!(
@@ -646,7 +645,7 @@ async fn seed_admin_course(
     seed_eligible_completion(conn, linked, module.id, course.id, None).await?;
 
     for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
-        for suffix in MAILED_ADDRESS_SUFFIXES {
+        for (weeks_ago, suffix) in (1..).zip(MAILED_ADDRESS_SUFFIXES) {
             let address = format!("{suffix}{}", fixture.sisu_email);
             let claimed = credit_registration_account_linking_emails::claim_send_slot(
                 conn,
@@ -660,10 +659,17 @@ async fn seed_admin_course(
                 },
             )
             .await?;
-            anyhow::ensure!(
-                claimed.is_some(),
-                "the dedup key refused a seeded linking mail to {address}"
-            );
+            let Some(claimed) = claimed else {
+                anyhow::bail!("the dedup key refused a seeded linking mail to {address}");
+            };
+            // An override never retires a mail claimed moments ago, and the specs override these
+            // right after seeding.
+            credit_registration_account_linking_emails::backdate(
+                conn,
+                claimed,
+                Duration::weeks(weeks_ago),
+            )
+            .await?;
         }
     }
     Ok(())

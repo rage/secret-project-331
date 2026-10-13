@@ -1,0 +1,199 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT dis.credit_registration_id,\n  cr.user_id,\n  ud.first_name AS \"first_name?\",\n  ud.last_name AS \"last_name?\",\n  ud.email AS \"email?\",\n  cr.course_id,\n  c.name AS course_name,\n  dis.dismissed_reasons AS \"dismissed_reasons: Vec<AttentionReason>\",\n  dis.created_at AS dismissed_at,\n  dis.dismissed_by_user_id,\n  actor.first_name AS \"dismissed_by_first_name?\",\n  actor.last_name AS \"dismissed_by_last_name?\",\n  dis.reason\nFROM credit_registration_attention_dismissals dis\n  JOIN credit_registrations cr ON cr.id = dis.credit_registration_id\n  JOIN courses c ON c.id = cr.course_id\n  LEFT JOIN user_details ud ON ud.user_id = cr.user_id\n  LEFT JOIN user_details actor ON actor.user_id = dis.dismissed_by_user_id\nWHERE dis.deleted_at IS NULL\n  AND dis.created_at >= $1\nORDER BY dis.created_at DESC\nLIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_attention_dismissals",
+            "name": "credit_registration_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "dismissed_reasons: Vec<AttentionReason>",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_attention_reason[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_attention_reason",
+                  "kind": {
+                    "Enum": [
+                      "stuck_in_state",
+                      "permanent_error",
+                      "retry_window_expired",
+                      "misregistered",
+                      "too_many_attempts",
+                      "outcome_uncertain",
+                      "partly_registered_overdue",
+                      "verification_gave_up",
+                      "repeatedly_not_registered",
+                      "student_number_stuck",
+                      "flagged_by_pipeline"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_attention_dismissals",
+            "name": "dismissed_reasons"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "dismissed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_attention_dismissals",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "dismissed_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_attention_dismissals",
+            "name": "dismissed_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "dismissed_by_first_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "dismissed_by_last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_attention_dismissals",
+            "name": "reason"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "b1e288e2fda17097c1b7ccdfe075c771a3f6a463d23a5e74550f231e1e75f312"
+}

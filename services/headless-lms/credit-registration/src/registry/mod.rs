@@ -22,8 +22,10 @@ pub(crate) use requests::{
     AttainmentSubmission, Credits, EnrolmentLookup, PersonLookup, RosterCode, VerificationRequest,
 };
 
-use headless_lms_models::library::credit_registration::study_registry::RegistryErrorKind;
 pub(crate) use headless_lms_models::library::credit_registration::study_registry::RegistryOperation;
+use headless_lms_models::library::credit_registration::study_registry::{
+    RegistryErrorKind, RosterPerson,
+};
 
 /// The study registry a phase iteration asks, through its limiter and breakers. The seam a
 /// use-case test would fake; only the Suotar adapter implements it. Generic rather than `dyn`.
@@ -87,6 +89,10 @@ pub(crate) trait InteractiveStudyRegistry {
         &self,
         student_number: &StudentNumber,
     ) -> Result<Option<RegistryPerson>, PersonLookupError>;
+
+    /// One code's roster, empty for a code the registry holds no realisation of. `None` when the
+    /// registry gave no usable answer.
+    async fn fetch_course_roster(&self, code: &CourseCode) -> Option<Vec<RosterPerson>>;
 
     /// Lists each code's roster in a request of its own, all at once.
     async fn search_course_rosters(

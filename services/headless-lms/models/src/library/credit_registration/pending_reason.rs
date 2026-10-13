@@ -60,6 +60,7 @@ impl PendingPreconditions {
 pub struct PendingReasonCounts {
     pub completion_count: i64,
     pub student_number_count: i64,
+    pub course_code_count: i64,
 }
 
 #[cfg(test)]

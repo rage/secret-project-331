@@ -474,6 +474,7 @@
   "credit-registration-admin-manual-link-preview-required": "Linking needs a checked number, a chosen account and a reason.",
   "credit-registration-admin-manual-link-reason-description": "Stored on the link and in the audit log, permanently. Say why the linking email cannot work.",
   "credit-registration-admin-manual-link-registry-unavailable": "Sisu could not be reached, so nothing was decided.",
+  "credit-registration-admin-manual-link-search-timed-out": "Searching by name took too long. Type more of the name, or the whole email address.",
   "credit-registration-admin-manual-link-sisu-holds": "In Sisu",
   "credit-registration-admin-manual-link-this-account": "This account already holds this number.",
   "credit-registration-admin-manual-link-title": "Link a student number by hand",

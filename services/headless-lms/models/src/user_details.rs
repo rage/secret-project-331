@@ -15,8 +15,9 @@ const FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD: f32 = 0.3;
 
 const FUZZY_SEARCH_TIMEOUT: &str = "2s";
 
-/// Budget for the GiST attempt before falling back to the GIN filter. Common terms finish in ~10ms.
-const DISTANCE_ORDERED_SEARCH_TIMEOUT: &str = "80ms";
+/// Budget for the GiST attempt before falling back to the GIN filter. Common terms finish in ~10ms
+/// with a warm cache; the slack is for a cold one, where the GIN filter would be far slower.
+const DISTANCE_ORDERED_SEARCH_TIMEOUT: &str = "200ms";
 
 /// How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
@@ -164,30 +165,9 @@ pub async fn search_for_user_details_exact(
     search: &str,
 ) -> ModelResult<Vec<UserDetail>> {
     let search = search.trim();
-    if let Ok(user_id) = search.parse::<Uuid>() {
-        let res = sqlx::query_as!(
-            UserDetail,
-            "
-SELECT user_id,
-  created_at,
-  updated_at,
-  email,
-  first_name,
-  last_name,
-  country,
-  email_communication_consent,
-  email_verified_at,
-  email_verified_method
-FROM user_details
-WHERE user_id = $1
-",
-            user_id,
-        )
-        .fetch_all(conn)
-        .await?;
-        return Ok(res);
-    }
-    if !search.contains('@') {
+    let user_id = search.parse::<Uuid>().ok();
+    let email = (user_id.is_none() && search.contains('@')).then_some(search);
+    if user_id.is_none() && email.is_none() {
         return Ok(Vec::new());
     }
     let res = sqlx::query_as!(
@@ -204,9 +184,11 @@ SELECT user_id,
   email_verified_at,
   email_verified_method
 FROM user_details
-WHERE lower(email) = lower($1)
+WHERE user_id = $1
+  OR lower(email) = lower($2)
 ",
-        search,
+        user_id,
+        email,
     )
     .fetch_all(conn)
     .await?;
@@ -275,7 +257,9 @@ pub async fn search_for_user_details_fuzzy(
         }
         Err(err) => return Err(err.into()),
     };
-    tx.commit().await?;
+    // Rolled back rather than committed: it only read, and a commit inside a caller's transaction
+    // would keep the settings above for the rest of that transaction.
+    tx.rollback().await?;
 
     results.has_more = users.len() > FUZZY_SEARCH_RESULT_LIMIT as usize;
     users.truncate(FUZZY_SEARCH_RESULT_LIMIT as usize);
@@ -380,7 +364,7 @@ LIMIT $2
     .await
 }
 
-/// Changes a Postgres setting until the end of the current transaction or savepoint.
+/// Changes a Postgres setting until the transaction ends or is rolled back past this point.
 async fn set_local_setting(conn: &mut PgConnection, name: &str, value: &str) -> sqlx::Result<()> {
     sqlx::query!("SELECT set_config($1, $2, true)", name, value)
         .fetch_one(conn)

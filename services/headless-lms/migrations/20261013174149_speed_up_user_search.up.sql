@@ -27,8 +27,13 @@ SELECT NOT EXISTS (
         OR email_search_helper LIKE '%' || word || '%' ESCAPE '\'
       )
   )
-  OR word_similarity(search_pattern, name_search_helper) >= 0.5
-  OR word_similarity(search_pattern, email_search_helper) >= 0.5
+  OR (
+    search_pattern ~ '[[:alpha:]]'
+    AND (
+      word_similarity(search_pattern, name_search_helper) >= 0.5
+      OR word_similarity(search_pattern, email_search_helper) >= 0.5
+    )
+  )
 $$;
 
-COMMENT ON FUNCTION user_details_matches_search_pattern(TEXT, TEXT, TEXT) IS 'Search box filter for user lists. True when every whitespace-separated word of search_pattern appears in the name or email, in any order, or when the whole pattern is a near match (word similarity at least 0.5) for a misspelled name or email. search_pattern must be lowercased with LIKE metacharacters escaped by backslash.';
+COMMENT ON FUNCTION user_details_matches_search_pattern(TEXT, TEXT, TEXT) IS 'Search box filter for user lists. True when every whitespace-separated word of search_pattern appears in the name or email, in any order, or when a pattern containing a letter is a near match (word similarity at least 0.5) for a misspelled name or email. Digit-only patterns such as student numbers match exactly only. search_pattern must be lowercased with LIKE metacharacters escaped by backslash.';

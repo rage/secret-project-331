@@ -104,7 +104,13 @@ const accountResultsCss = css`
   overflow-y: auto;
 `
 
-const searchAccounts = async (query: string): Promise<UserDetail[]> => {
+interface AccountSearchResults {
+  accounts: UserDetail[]
+  /** The name search ran out of time, so an empty `accounts` does not mean there is no match. */
+  hasTimedOut: boolean
+}
+
+const searchAccounts = async (query: string): Promise<AccountSearchResults> => {
   const [exact, fuzzy] = await Promise.all([
     searchUserDetailsExact({ body: { query } }),
     searchUserDetailsFuzzy({ body: { query } }),
@@ -113,7 +119,10 @@ const searchAccounts = async (query: string): Promise<UserDetail[]> => {
   for (const user of [...exact, ...fuzzy.users]) {
     byUserId.set(user.user_id, user)
   }
-  return Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES)
+  return {
+    accounts: Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES),
+    hasTimedOut: fuzzy.timed_out,
+  }
 }
 
 interface SearchFields {
@@ -154,14 +163,18 @@ const AccountPicker: React.FC<{
           {t("button-text-search")}
         </Button>
       </form>
-      {accountsQuery.data && accountsQuery.data.length === 0 && (
-        <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
+      {accountsQuery.data && accountsQuery.data.accounts.length === 0 && (
+        <p className={noteCss}>
+          {accountsQuery.data.hasTimedOut
+            ? t("credit-registration-admin-manual-link-search-timed-out")
+            : t("credit-registration-admin-manual-link-no-accounts")}
+        </p>
       )}
       {accountsQuery.data &&
-        accountsQuery.data.length > 0 && (
+        accountsQuery.data.accounts.length > 0 && (
           // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
           <ul className={cx(dividedListCss, accountResultsCss)} role="list">
-            {accountsQuery.data.map((user) => (
+            {accountsQuery.data.accounts.map((user) => (
               <li key={user.user_id} className={spacedRowCss}>
                 <StudentCell row={user} />
                 <Button

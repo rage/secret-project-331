@@ -59,7 +59,7 @@ const PROVENANCE_VALUE_KEYS = {
 /** Separates the destructive action from the provenance above it by weight, not just position. */
 const dangerZoneCss = css`
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-clear-300);
 `

@@ -1,40 +1,26 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { Envelope } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link } from "@/shared-module/components"
+import { Infobox, Link, TONE } from "@/shared-module/components"
 
 const EmailVerifiedPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-email-verified"))
   return (
     <>
-      <div
+      <h1>{t("title-email-verified")}</h1>
+      <Infobox
+        tone={TONE.SUCCESS}
         className={css`
-          background-color: ${baseTheme.colors.green[100]};
-          padding: 3rem;
-          margin-bottom: 1rem;
-
-          h1 {
-            font-size: 2rem;
-          }
+          margin-bottom: var(--space-4);
         `}
       >
-        <h1>
-          <Envelope
-            className={css`
-              color: ${baseTheme.colors.green[500]};
-              margin-right: 0.5rem;
-            `}
-          />
-          {t("message-your-email-has-been-verified")}
-        </h1>
-      </div>
+        {t("message-your-email-has-been-verified")}
+      </Infobox>
 
       <Link href="/" styledAsButton size="medium" variant="primary">
         {t("home-page")}

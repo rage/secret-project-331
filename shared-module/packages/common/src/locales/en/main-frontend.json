@@ -1710,6 +1710,7 @@
   "no-course-enrollments": "This user isn't enrolled in any courses.",
   "no-courses-in-org": "There are no courses in this organization.",
   "no-courses-match-the-filter": "No enrolled course matches that name.",
+  "no-courses-yet": "You are not enrolled in any courses yet.",
   "no-data": "No data",
   "no-description-available": "No description available",
   "no-exercise-resets": "No exercises have been reset for this user.",

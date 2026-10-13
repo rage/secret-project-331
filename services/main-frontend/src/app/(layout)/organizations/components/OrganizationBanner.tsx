@@ -121,27 +121,10 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
           </OnlyRenderIfPermissions>
 
           <Link
-            appearance={LINK_INHERIT}
             href={organizationFrontPageRoute(organization.slug)}
-            className={css`
-              background-color: rgba(237, 238, 240, 1);
-              color: rgba(26, 35, 51, 1);
-              border: none;
-              border-radius: 0px;
-              padding: 0.4rem 0.8rem;
-              font-family: ${primaryFont};
-              font-size: 18px;
-              line-height: 100%;
-              letter-spacing: 0;
-              cursor: pointer;
-              text-decoration: none;
-              display: inline-block;
-
-              &:hover {
-                transition: background-color 0.3s;
-                background-color: rgb(216, 216, 216);
-              }
-            `}
+            styledAsButton
+            variant="secondary"
+            size="medium"
           >
             {t("label-select")}
           </Link>

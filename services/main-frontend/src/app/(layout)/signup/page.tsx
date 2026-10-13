@@ -168,8 +168,10 @@ const CreateAccountForm: React.FC = () => {
 
   useEffect(() => {
     setEmailAlreadyTakenError(null)
-    // oxlint-disable-next-line i18next/no-literal-string
-    void trigger("email")
+    if (email) {
+      // oxlint-disable-next-line i18next/no-literal-string
+      void trigger("email")
+    }
   }, [email, trigger])
 
   const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(

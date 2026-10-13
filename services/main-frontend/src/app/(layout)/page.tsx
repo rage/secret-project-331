@@ -41,7 +41,7 @@ const FrontPage = () => {
 
       <h2>{t("heading-navigation")}</h2>
       <div>
-        <a href="https://www.mooc.fi">{t("link-text-find-more-courses")}</a>
+        <Link href="https://www.mooc.fi">{t("link-text-find-more-courses")}</Link>
       </div>
       <OnlyRenderIfPermissions
         action={{ type: "create_courses_or_exams" }}

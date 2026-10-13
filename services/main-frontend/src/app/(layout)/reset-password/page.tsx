@@ -59,7 +59,7 @@ const ResetPassword: React.FC = () => {
   if (emailSent) {
     return (
       <>
-        <h3>{t("password-reset-email-sent")}</h3>
+        <h1>{t("password-reset-email-sent")}</h1>
         <p>{t("password-reset-email-sent-description", { email: sentEmail })}</p>
         <Button
           variant="primary"
@@ -77,13 +77,14 @@ const ResetPassword: React.FC = () => {
 
   return (
     <>
-      <h3
+      <h1>{t("title-reset-password")}</h1>
+      <p
         className={css`
           margin-bottom: 1.5rem;
         `}
       >
         {t("enter-email-for-password-reset-link")}
-      </h3>
+      </p>
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {postResetPassword.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text

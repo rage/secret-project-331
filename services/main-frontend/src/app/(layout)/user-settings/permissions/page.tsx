@@ -184,6 +184,7 @@ const PermissionsSettingsPage: React.FC = () => {
         {openResearchForm && (
           <ResearchOnCoursesForm
             afterSubmit={handleGeneralResearchFormAfterSubmit}
+            onCancel={handleGeneralResearchFormAfterSubmit}
             {...omitUndefined({ initialConsentValue: getUserConsent.data?.research_consent })}
           />
         )}

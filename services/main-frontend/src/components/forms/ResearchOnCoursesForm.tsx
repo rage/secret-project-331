@@ -10,10 +10,13 @@ import { createUserResearchConsent } from "@/generated/api/sdk.generated"
 import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import type { DialogAction } from "@/shared-module/components"
 import { Dialog, Radio, RadioGroup } from "@/shared-module/components"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void
+  /** Makes the dialog dismissable; leave unset where the choice is required. */
+  onCancel?: () => void
   initialConsentValue?: boolean
 }
 
@@ -57,6 +60,7 @@ const contactLinkCss = css`
 
 const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesFormProps>> = ({
   afterSubmit,
+  onCancel,
   initialConsentValue,
 }) => {
   const { t } = useTranslation()
@@ -94,22 +98,24 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     }
   }
 
+  const saveAction: DialogAction = {
+    variant: "primary",
+    onClick: handleOnSubmit,
+    disabled: !consent,
+    label: t("button-text-save"),
+  }
+  const actions: readonly [DialogAction, ...DialogAction[]] = onCancel
+    ? [{ variant: "tertiary", onPress: onCancel, label: t("button-text-cancel") }, saveAction]
+    : [saveAction]
+
   return (
     <Dialog
       open={researchConsentFormOpen}
-      // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
-      onClose={() => {}}
-      showCloseButton={false}
+      onClose={onCancel ?? (() => {})}
+      showCloseButton={onCancel !== undefined}
       title={t("research-consent-title")}
       data-testid="research-consent-dialog"
-      actions={[
-        {
-          variant: "primary",
-          onClick: handleOnSubmit,
-          disabled: !consent,
-          label: t("button-text-save"),
-        },
-      ]}
+      actions={actions}
     >
       <div className={bodyCss}>
         <p>{t("research-consent-educational-research-is-conducted-on-the-courses")}</p>

@@ -145,7 +145,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
           z-index: 1100;
           display: flex;
           flex-direction: column;
-          max-height: 80vh;
+          max-height: calc(100vh - 140px);
           height: auto;
           min-height: 200px;
           overflow-y: auto;
@@ -154,7 +154,6 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
             width: 400px;
             left: auto;
             height: auto;
-            max-height: 60vh;
           }
         `}
       >

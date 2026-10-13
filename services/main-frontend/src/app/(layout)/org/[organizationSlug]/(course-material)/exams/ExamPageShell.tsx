@@ -14,7 +14,7 @@ import Centered from "@/shared-module/common/components/Centering/Centered"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
@@ -193,7 +193,7 @@ export default function ExamPageShell({
         <ExamInfoHeader examData={examData} />
         <div className={timeUpMessageClass}>
           {t("exam-time-up", {
-            "ends-at": humanReadableDateTime(examData.ends_at, i18n.language),
+            "ends-at": dateToString(examData.ends_at),
           })}
         </div>
       </Centered>

@@ -8,7 +8,7 @@ import type {
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
 } from "@/generated/api/types.generated"
-import { humanReadableDate } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL } from "./constants"
 import { missingLinkingEmailSupportMail } from "./studentSupportMail"
@@ -52,7 +52,7 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
   verifiedNumber,
   enrolmentRoute,
 }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const [nowMs] = useState(() => Date.now())
   const band = studentNumberLinkBand(registration, verifiedNumber, {
@@ -138,7 +138,7 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
         <p>
           {t("credit-registration-link-expired-body", {
             email: band.emailMasked,
-            date: humanReadableDate(band.sentAt, i18n.language),
+            date: dateToString(band.sentAt),
           })}
         </p>
       </section>
@@ -152,7 +152,7 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
         <p>
           {t("credit-registration-link-mailed-body", {
             email: band.emailMasked,
-            date: humanReadableDate(band.sentAt, i18n.language),
+            date: dateToString(band.sentAt),
           })}
         </p>
         <p className={noteCss}>

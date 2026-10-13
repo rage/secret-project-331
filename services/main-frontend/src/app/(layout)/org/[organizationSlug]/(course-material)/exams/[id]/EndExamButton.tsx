@@ -39,7 +39,6 @@ export default function EndExamButton({ examId, disabled, onEnded }: EndExamButt
   return (
     <Button
       variant={"primary"}
-      size={"small"}
       onClick={async () => {
         const confirmation = await confirm({
           message: t("message-do-you-want-to-end-the-exam"),

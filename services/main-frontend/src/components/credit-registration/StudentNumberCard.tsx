@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -23,7 +23,7 @@ import {
   profileStudiesRoute,
   userSettingsStudentNumberRoute,
 } from "@/shared-module/common/utils/routes"
-import { humanReadableDate } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   Badge,
@@ -33,6 +33,7 @@ import {
   Link,
   QueryResult,
 } from "@/shared-module/components"
+import { settingsCardCss } from "@/styles/sharedStyles"
 
 import { BUTTON_TERTIARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { LinkingEmailLine, sentLinkingEmail } from "./EmailStatusLine"
@@ -82,7 +83,7 @@ const StudentNumberCard: React.FC = () => {
     )?.linking_email ?? null
 
   return (
-    <section className={sectionCss}>
+    <section className={cx(sectionCss, settingsCardCss)}>
       <h2 className={headingCss}>{t("heading-student-number")}</h2>
       <QueryResult
         query={linkQuery}
@@ -114,7 +115,7 @@ const Linked: React.FC<{
   hasRegisteringCourse: boolean
   isAccountLinkingEnabled: boolean
 }> = ({ link, hasRegisteringCourse, isAccountLinkingEnabled }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
 
@@ -137,7 +138,7 @@ const Linked: React.FC<{
   const items = [
     {
       label: t("label-confirmed-on"),
-      value: humanReadableDate(link.verified_at, i18n.language) ?? "",
+      value: dateToString(link.verified_at),
     },
     {
       label: t("label-confirmed-by"),
@@ -198,7 +199,7 @@ const NotLinked: React.FC<{
   linkingEmail: LinkingEmailStatus | null
   isAccountLinkingEnabled: boolean
 }> = ({ linkingEmail, isAccountLinkingEnabled }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const sent = sentLinkingEmail(linkingEmail)
 
   // A link already sent still works while linking is off; only new ones are not sent.
@@ -218,7 +219,7 @@ const NotLinked: React.FC<{
             {sent
               ? t("credit-registration-student-number-step-open-the-emailed-link", {
                   email: sent.emailMasked,
-                  date: humanReadableDate(sent.sentAt, i18n.language),
+                  date: dateToString(sent.sentAt),
                 })
               : t("student-number-step-link-arrives-by-email")}
           </li>

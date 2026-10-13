@@ -86,6 +86,7 @@ const ChangeUserPasswordForm: React.FC = () => {
       className={css`
         display: flex;
         flex-direction: column;
+        gap: var(--space-4);
       `}
     >
       <TextField
@@ -127,15 +128,10 @@ const ChangeUserPasswordForm: React.FC = () => {
           gap: 10px;
         `}
       >
-        <Button
-          type="submit"
-          disabled={changePasswordMutation.isPending}
-          variant={"primary"}
-          size={"small"}
-        >
+        <Button type="submit" disabled={changePasswordMutation.isPending} variant={"primary"}>
           {t("button-text-save")}
         </Button>
-        <Button type="button" variant="secondary" onClick={handleCancel} size={"small"}>
+        <Button type="button" variant="secondary" onClick={handleCancel}>
           {t("button-text-cancel")}
         </Button>
       </div>

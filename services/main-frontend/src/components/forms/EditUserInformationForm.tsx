@@ -321,6 +321,9 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           font-size: 1.0625rem;
           font-weight: 600;
           color: ${baseTheme.colors.gray[700]};
+          display: flex;
+          align-items: center;
+          min-height: 2rem;
           margin: 0 0 1.25rem 0;
           padding-bottom: 1rem;
           border-bottom: 1px solid ${baseTheme.colors.gray[100]};

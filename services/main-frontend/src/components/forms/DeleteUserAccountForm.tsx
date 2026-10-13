@@ -140,7 +140,7 @@ const DeleteUserAccountForm: React.FC = () => {
     <>
       <Button
         data-testid="delete-account-button"
-        variant="secondary"
+        variant="danger"
         size="small"
         onClick={() => setOpenDialog(true)}
       >

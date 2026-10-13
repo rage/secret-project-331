@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { getCourseMaterialGlossary } from "@/generated/course-material-api/sdk.generated"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult, Table } from "@/shared-module/components"
 
 interface Props {
@@ -14,11 +14,9 @@ interface Props {
 }
 
 const rootCss = css`
+  display: grid;
+  gap: var(--space-4);
   margin: 0 auto;
-
-  ${respondToOrLarger.sm} {
-    padding-top: 100px;
-  }
 `
 
 const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
@@ -36,7 +34,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
 
   const renderGlossary = (data: NonNullable<typeof glossary.data>) => (
     <div className={rootCss}>
-      <h1>{t("glossary")}</h1>
+      <h1 className={pageTitleCss}>{t("glossary")}</h1>
       <Table
         caption={t("glossary")}
         rows={data.toSorted((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))}

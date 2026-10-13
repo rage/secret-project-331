@@ -508,7 +508,6 @@
   "error-status": "Status: {{status}}",
   "error-submission-failed": "Inlämning misslyckades",
   "error-title": "Fel",
-  "error-type": "Typ: {{type}}",
   "error-unauthorized": "Obehörig",
   "error-unknown-in-component": "Okänt fel vid rendering av {{component}}",
   "estimated-number-of-ects-credits-warning": "Varning! Detta baseras på ECTS-poängfältet i kursmodulens konfiguration. Estimatet beräknas genom att ta detta nummer och multiplicera det med antalet personer som är markerade som registrerade sina slutföranden i studiearkivet. Estimatet kan vara felaktigt, till exempel, om ECTS-poängen har matats in fel i kursmodulen, eller om mängden ECTS-poäng ändras under kursen, eller om ECTS-poängen inte registreras med detta system. Om du vill ha exakt statistik om detta, måste du använda Oodikone.",

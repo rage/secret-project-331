@@ -1,4 +1,9 @@
 {
+  "button-text-try-again": "Yritä uudelleen",
+  "default-toast-error-message": "Tapahtui virhe",
+  "default-toast-error-title": "Virhe",
+  "dynamic-import-error-boundary-reload": "Lataa sivu uudelleen",
+  "dynamic-import-error-boundary-title": "Tämän sivun osan lataamisessa tapahtui virhe.",
   "error-code": "Koodi: {{code}}",
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
@@ -19,6 +24,10 @@
     }
   },
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
+  "error-status": "Tila: {{status}}",
+  "error-title": "Virhe",
+  "error-type": "Tyyppi: {{type}}",
   "go-to-error": "Siirry virheeseen",
+  "label-error-loading": "Virhe datan lataamisessa.",
   "show-error-source": "Näytä lähde"
 }

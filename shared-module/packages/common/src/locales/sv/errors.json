@@ -1,4 +1,9 @@
 {
+  "button-text-try-again": "Försök igen",
+  "default-toast-error-message": "Ett fel inträffade",
+  "default-toast-error-title": "Fel",
+  "dynamic-import-error-boundary-reload": "Ladda om sidan",
+  "dynamic-import-error-boundary-title": "Något gick fel när den här delen av sidan skulle läsas in.",
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Logga in för att se tentamensövningar.",
@@ -10,6 +15,10 @@
     }
   },
   "error-part-of-page-has-crashed-error": "Del av sidan har kraschat: {{error}}",
+  "error-status": "Status: {{status}}",
+  "error-title": "Fel",
+  "error-type": "Typ: {{type}}",
   "go-to-error": "Gå till fel",
+  "label-error-loading": "Fel vid laddning av data.",
   "show-error-source": "Visa källa"
 }

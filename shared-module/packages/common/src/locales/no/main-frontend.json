@@ -499,7 +499,6 @@
   "error-status": "Status: {{status}}",
   "error-submission-failed": "Innlevering mislyktes",
   "error-title": "Feil",
-  "error-type": "Type: {{type}}",
   "error-unauthorized": "Uautorisert",
   "error-unknown-in-component": "Ukjent feil ved gjengivelse av {{component}}",
   "estimated-number-of-ects-credits-warning": "dvarsel! Dette estimatet er basert på feltet for ECTS-studiepoeng i kursmodulinnstillingene. Estimatet beregnes ved å multiplisere antall studiepoeng med antall personer som er registrert som fullført i studieprotokollen. Estimatet kan være unøyaktig, for eksempel dersom antall studiepoeng er feil registrert, endres underveis i kurset, eller ikke registreres gjennom dette systemet. For nøyaktig statistikk må du bruke Oodikone.",

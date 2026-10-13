@@ -880,7 +880,6 @@
   "error-status": "Tila: {{status}}",
   "error-submission-failed": "Submission failed",
   "error-title": "Virhe",
-  "error-type": "Tyyppi: {{type}}",
   "error-unauthorized": "Sinulla ei ole oikeuksia tähän.",
   "error-unknown-in-component": "Määrittelemätön virhe komponentissa {{component}}",
   "estimated-number-of-ects-credits-warning": "Varoitus! Tämä perustuu kurssimoduulin asetuksissa olevaan opintopistekenttään. Kerromme sen luvun niiden henkilöiden määrällä, joiden suoritus on merkitty kirjatuksi Sisuun. Arvio voi olla väärä: opintopisteet voi olla asetettu moduuliin väärin, määrä voi muuttua kurssin aikana tai opintopisteitä voidaan kirjata tämän järjestelmän ulkopuolella. Tarkat tilastot saat Oodikoneesta.",

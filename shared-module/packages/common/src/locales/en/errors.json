@@ -1,5 +1,15 @@
 {
+  "button-text-try-again": "Try again",
+  "default-toast-error-message": "An error occurred",
+  "default-toast-error-title": "Error",
+  "dynamic-import-error-boundary-reload": "Reload page",
+  "dynamic-import-error-boundary-title": "Something went wrong loading this part of the page.",
   "error-code": "Code: {{code}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Missing exercise type for exercise task."
+    }
+  },
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Please sign in to view exam exercises.",
@@ -80,7 +90,16 @@
   "error-too-many-requests": "Too many requests. Please try again later.",
   "error-type": "Type: {{type}}",
   "error-unexpected-error": "Unexpected error",
+  "error-zod-issue": {
+    "invalid_format": "Expected {{format}}",
+    "invalid_format_pattern": "Expected format matching {{pattern}}",
+    "invalid_type": "Expected {{expected}}, received {{received}}",
+    "too_big": "Must be {{comparator}} {{maximum}}",
+    "too_small": "Must be {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Unrecognized keys: {{keys}}"
+  },
   "error-zod-issue-prefix": "Validation issue at",
   "go-to-error": "Go to error",
+  "label-error-loading": "Error loading data.",
   "show-error-source": "Show source"
 }

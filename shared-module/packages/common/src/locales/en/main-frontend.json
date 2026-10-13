@@ -1013,7 +1013,6 @@
   "error-status": "Status: {{status}}",
   "error-submission-failed": "Submission failed",
   "error-title": "Error",
-  "error-type": "Type: {{type}}",
   "error-unauthorized": "Unauthorized",
   "error-unknown-in-component": "Unknown error when rendering {{component}}",
   "estimated-number-of-ects-credits-warning": "Warning! This relies on the ECTS credits field in the course module settings. We multiply that number by the number of people marked as having registered their completions in Sisu. The estimate can be wrong: the credits may be set wrong on the module, the amount may change during the course, or the credits may be registered outside this system. For accurate statistics, use Oodikone.",

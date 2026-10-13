@@ -1,4 +1,9 @@
 {
+  "button-text-try-again": "حاول مرة أخرى",
+  "default-toast-error-message": "حدث خطأ",
+  "default-toast-error-title": "خطأ",
+  "dynamic-import-error-boundary-reload": "إعادة تحميل الصفحة",
+  "dynamic-import-error-boundary-title": "حدث خطأ أثناء تحميل هذا الجزء من الصفحة.",
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "يرجى تسجيل الدخول لعرض تمارين الامتحان.",
@@ -10,6 +15,10 @@
     }
   },
   "error-part-of-page-has-crashed-error": "تعطل جزء من الصفحة: {{error}}",
+  "error-status": "الحالة: {{status}}",
+  "error-title": "خطأ",
+  "error-type": "النوع: {{type}}",
   "go-to-error": "اذهب إلى الخطأ",
+  "label-error-loading": "خطأ في تحميل البيانات.",
   "show-error-source": "عرض المصدر"
 }

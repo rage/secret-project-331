@@ -56,6 +56,8 @@ export const headerCellCss = css`
 
 export const bodyCellCss = css`
   color: var(--color-gray-700);
+  /* Unbreakable names and emails would otherwise stretch their column past the viewport. */
+  overflow-wrap: anywhere;
 `
 
 export const nowrapCss = css`

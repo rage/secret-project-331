@@ -48,6 +48,14 @@ export const segmentedPickerGroupCss = css`
   gap: var(--space-2);
 `
 
+export const segmentedZoneLabelCss = css`
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--field-chrome);
+  font-size: 0.85em;
+  white-space: nowrap;
+`
+
 export const segmentedPickerFieldCss = css`
   flex: 0 1 auto;
   min-width: 0;

@@ -124,7 +124,7 @@ export function useSegmentedFieldBase(
     min,
     max,
     step,
-    hourCycle,
+    hourCycle = 24,
     "data-testid": dataTestId,
   } = props
 

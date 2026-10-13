@@ -257,7 +257,8 @@ const footerCss = css`
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
-  padding: 0 var(--dialog-edge-padding) var(--dialog-edge-padding);
+  padding: var(--space-4) var(--dialog-edge-padding) var(--dialog-edge-padding);
+  border-top: 1px solid var(--color-clear-300);
 
   ${below("xs")} {
     flex-direction: column;

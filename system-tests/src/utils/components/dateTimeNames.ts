@@ -102,12 +102,12 @@ export function monthLabel(month: number, locale = DEFAULT_TEMPORAL_LOCALE): str
   )
 }
 
-/** True when the locale (or an explicit override) renders times with an AM/PM part. */
-export function showsDayPeriod(locale = DEFAULT_TEMPORAL_LOCALE, hourCycle?: 12 | 24): boolean {
-  const options: Intl.DateTimeFormatOptions =
-    hourCycle === undefined ? { hour: "numeric" } : { hour: "numeric", hour12: hourCycle === 12 }
-  const resolved = new Intl.DateTimeFormat(locale, options).resolvedOptions().hourCycle
-  return resolved === "h11" || resolved === "h12"
+/** True when the field's `hourCycle` (24 unless a field overrides it) renders times with an AM/PM part. */
+export function showsDayPeriod(
+  _locale = DEFAULT_TEMPORAL_LOCALE,
+  hourCycle: 12 | 24 = 24,
+): boolean {
+  return hourCycle === 12
 }
 
 /** The locale's AM and PM strings, as the day-period buttons and the time panel render them. */

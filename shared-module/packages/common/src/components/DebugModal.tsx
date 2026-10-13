@@ -174,14 +174,20 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         title={`${t("title-data-view")} (${readOnlySpecifier})`}
         {...includeIf(isDownloadable, { actions: [csvDownloadAction] as const })}
       >
-        <MonacoEditor
-          // The dialog caps at 90vh including its header, so a 90vh editor would scroll the body too.
-          height="70vh"
-          defaultLanguage="json"
-          options={{ wordWrap: ON, readOnly, minimap: { enabled: false } }}
-          defaultValue={stringifiedData}
-          onChange={handleEditorChange}
-        />
+        <div
+          className={css`
+            padding-bottom: var(--space-3);
+          `}
+        >
+          <MonacoEditor
+            // The dialog caps at 90vh including its header, so a 90vh editor would scroll the body too.
+            height="65vh"
+            defaultLanguage="json"
+            options={{ wordWrap: ON, readOnly, minimap: { enabled: false } }}
+            defaultValue={stringifiedData}
+            onChange={handleEditorChange}
+          />
+        </div>
       </Dialog>
     </>
   )

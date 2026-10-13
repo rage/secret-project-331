@@ -70,10 +70,10 @@ describe("empty floating segmented field stays reachable", () => {
 
     // Typed at whatever the label activation focused, and at whatever each completed segment advances
     // to, so the whole keyboard-only route is under test rather than the segments in isolation.
-    typeIntoFocusedSegment("9")
+    typeIntoFocusedSegment("2")
+    typeIntoFocusedSegment("1")
     typeIntoFocusedSegment("4")
     typeIntoFocusedSegment("5")
-    typeIntoFocusedSegment("P")
 
     expect(screen.getByTestId("time-value")).toHaveValue("21:45")
   })

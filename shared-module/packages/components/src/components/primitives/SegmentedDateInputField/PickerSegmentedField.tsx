@@ -32,6 +32,7 @@ import {
   segmentedPickerGroupCss,
   segmentedSegmentsRowCss,
   segmentedSegmentsRowRestHiddenCss,
+  segmentedZoneLabelCss,
 } from "./segmentedDateInputFieldStyles"
 import {
   createPointerOpenHandler,
@@ -73,6 +74,7 @@ export interface PickerSegmentedFieldProps {
   resolvedState: ReturnType<typeof resolveFieldState>
   setIsFocused: React.Dispatch<React.SetStateAction<boolean>>
   state: DateFieldState
+  zoneLabel?: string | undefined
   timeSelectorProps?:
     | {
         granularity: "hour" | "minute"
@@ -121,6 +123,7 @@ export function PickerSegmentedField({
   setIsFocused,
   state,
   timeSelectorProps,
+  zoneLabel,
 }: PickerSegmentedFieldProps) {
   const valueTestId = dataTestId ? `${dataTestId}-value` : undefined
   const triggerTestId = dataTestId ? `${dataTestId}-trigger` : undefined
@@ -249,6 +252,9 @@ export function PickerSegmentedField({
             </div>
           </div>
         </div>
+        {zoneLabel && !hideRestSegmentPlaceholders ? (
+          <span className={segmentedZoneLabelCss}>{zoneLabel}</span>
+        ) : null}
         {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
         <PickerTriggerButton
           buttonProps={pickerAria.buttonProps}

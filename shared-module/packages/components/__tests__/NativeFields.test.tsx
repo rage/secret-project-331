@@ -152,7 +152,7 @@ describe("date and time fields", () => {
     expect(within(timeGroup).getByRole("textbox")).toBeInTheDocument()
     expect(within(timeGroup).getByRole("button", { name: "Decrease hour" })).toBeInTheDocument()
     expect(within(timeGroup).getByRole("button", { name: "Decrease minute" })).toBeInTheDocument()
-    expect(within(timeGroup).getByRole("group", { name: "Day period" })).toBeInTheDocument()
+    expect(within(timeGroup).queryByRole("group", { name: "Day period" })).not.toBeInTheDocument()
   })
 
   test("replaces the calendar and time panels while the inline month picker is open", () => {

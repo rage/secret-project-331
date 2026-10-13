@@ -48,8 +48,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
       },
       onError: async (error: Error, variables) => {
         const e = parseError(error, "", t)
-        console.log(e)
         // If we think the error happened in Azure prompt creation, try again.
+        // todo fix this when we have better frontend error types.
         if (e.type === "internal_error" || e.message?.includes("Azure")) {
           const try_again = await confirm(
             <>

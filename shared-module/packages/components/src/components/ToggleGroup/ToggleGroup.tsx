@@ -18,6 +18,12 @@ const buttonGroupCss = css`
   gap: 0.25rem;
 `
 
+const toggleGroupCss = css`
+  display: flex;
+  flex-flow: column wrap;
+  gap: 0.5rem;
+`
+
 /// The name and identifier for a single toggle in a toggle group. The id is used
 /// in the state to identify which toggles are selected.
 export interface ToggleInfo {
@@ -39,8 +45,8 @@ export const ToggleGroup: React.FC<Props> = (props) => {
   let { groupProps } = useToggleButtonGroup(props, state, ref)
 
   return (
-    <>
-      <span id={labelId}>{props.groupLabel}</span>
+    <div className={toggleGroupCss}>
+      <label id={labelId}>{props.groupLabel}</label>
       <div
         {...groupProps}
         ref={ref}
@@ -52,6 +58,6 @@ export const ToggleGroup: React.FC<Props> = (props) => {
           <ToggleGroupToggle key={idx} id={x.id} label={x.name} state={state} />
         ))}
       </div>
-    </>
+    </div>
   )
 }

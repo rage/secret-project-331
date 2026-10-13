@@ -49,29 +49,26 @@ pub async fn insert_or_get_by_name(
         return Ok(c.id);
     };
 
-    let res = sqlx::query!(
+    let res: Option<FeedbackCategory> = sqlx::query_as!(
+        FeedbackCategory,
         r#"
-WITH inserted AS (
-  INSERT INTO feedback_categories (name)
-  VALUES ($1)
-  ON CONFLICT DO NOTHING
-  RETURNING *
-)
-SELECT id AS "id!"
-FROM inserted
-WHERE id IS NOT NULL
-UNION
-SELECT id AS "id!"
-FROM feedback_categories
-WHERE name = $1
-AND deleted_at IS NULL
+INSERT INTO feedback_categories (name)
+VALUES ($1) ON CONFLICT DO NOTHING
+RETURNING *
         "#,
-        normalized_name,
+        &normalized_name,
     )
-    .fetch_one(conn)
+    .fetch_optional(&mut *conn)
     .await?;
 
-    Ok(res.id)
+    if let Some(c) = res {
+        return Ok(c.id);
+    } else {
+        return get_by_name(conn, &normalized_name)
+            .await?
+            .map(|x| x.id)
+            .ok_or(model_err!(RecordNotFound, "Category n"));
+    };
 }
 
 pub async fn get_by_name(

@@ -25,7 +25,7 @@ const buttonCss = (selected: boolean) => css`
   }
 `
 
-const CapitalizedFirstLetter = css`
+const capitalizedFirstLetter = css`
   display: inline-block;
   &::first-letter {
     text-transform: uppercase;
@@ -58,7 +58,7 @@ const ToggleGroupToggle: React.FC<{ id: string; label: string; state: ToggleGrou
       data-focus-visible={isFocusVisible}
       data-disabled={isDisabled}
     >
-      <span className={CapitalizedFirstLetter}>{label}</span>
+      <span className={capitalizedFirstLetter}>{label}</span>
     </button>
   )
 }

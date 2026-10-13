@@ -70,7 +70,13 @@ fn format_feedback(feedback: &NewFeedback) -> String {
         )
     });
 
-    start + &feedback.feedback_given + &selected_text + end
+    start
+        + &feedback
+            .feedback_given
+            .replace("<END>", "")
+            .replace("<START>", "")
+        + &selected_text
+        + end
 }
 
 /// System prompt instructions for generating suggested next messages

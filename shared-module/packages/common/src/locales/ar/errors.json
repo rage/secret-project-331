@@ -4,6 +4,8 @@
   "default-toast-error-title": "خطأ",
   "dynamic-import-error-boundary-reload": "إعادة تحميل الصفحة",
   "dynamic-import-error-boundary-title": "حدث خطأ أثناء تحميل هذا الجزء من الصفحة.",
+  "error-hide-details": "إخفاء التفاصيل",
+  "error-issue": "المشكلة: {{issue}}",
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "يرجى تسجيل الدخول لعرض تمارين الامتحان.",
@@ -14,10 +16,15 @@
       "title": "الفصل مغلق"
     }
   },
+  "error-original-message": "الرسالة الأصلية",
+  "error-page-without-course": "خطأ: الصفحة غير مرتبطة بأي دورة",
   "error-part-of-page-has-crashed-error": "تعطل جزء من الصفحة: {{error}}",
+  "error-request-id": "معرف الطلب: {{requestId}}",
+  "error-show-details": "إظهار التفاصيل",
   "error-status": "الحالة: {{status}}",
   "error-title": "خطأ",
   "error-type": "النوع: {{type}}",
+  "failed-to-send-message": "فشل في إرسال الرسالة",
   "go-to-error": "اذهب إلى الخطأ",
   "label-error-loading": "خطأ في تحميل البيانات.",
   "show-error-source": "عرض المصدر"

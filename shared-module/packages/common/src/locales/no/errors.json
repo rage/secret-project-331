@@ -4,6 +4,8 @@
   "default-toast-error-title": "Feil",
   "dynamic-import-error-boundary-reload": "Last inn siden på nytt",
   "dynamic-import-error-boundary-title": "Noe gikk galt ved lasting av denne delen av siden.",
+  "error-hide-details": "Skjul detaljer",
+  "error-issue": "Problem: {{issue}}",
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Logg inn for å se eksamensoppgaver.",
@@ -14,10 +16,15 @@
       "title": "Kapittelet er stengt"
     }
   },
+  "error-original-message": "Original melding",
+  "error-page-without-course": "Feil: Siden er ikke tilknyttet noe kurs",
   "error-part-of-page-has-crashed-error": "En del av siden har krasjet: {{error}}",
+  "error-request-id": "Forespørsel-ID: {{requestId}}",
+  "error-show-details": "Vis detaljer",
   "error-status": "Status: {{status}}",
   "error-title": "Feil",
   "error-type": "Type: {{type}}",
+  "failed-to-send-message": "Mislyktes å sende melding",
   "go-to-error": "Gå til feil",
   "label-error-loading": "Feil ved innlasting av data.",
   "show-error-source": "Vis kilde"

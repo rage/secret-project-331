@@ -5,6 +5,8 @@
   "dynamic-import-error-boundary-reload": "Reload page",
   "dynamic-import-error-boundary-title": "Something went wrong loading this part of the page.",
   "error-code": "Code: {{code}}",
+  "error-hide-details": "Hide details",
+  "error-issue": "Issue: {{issue}}",
   "error-issue-code": {
     "missing_exercise_type": {
       "message": "Missing exercise type for exercise task."
@@ -78,11 +80,14 @@
   },
   "error-message-key-line": "Message key: {{messageKey}}",
   "error-multiple-errors-occurred": "Multiple errors occurred",
+  "error-original-message": "Original message",
+  "error-page-without-course": "Error: Page is not associated with any course",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
   "error-request-cancelled": "Request was cancelled",
   "error-request-failed": "Request failed",
   "error-request-id": "Request ID: {{requestId}}",
   "error-retry-after": "Retry after: {{seconds}}s",
+  "error-show-details": "Show details",
   "error-source-method": "Method: {{method}}",
   "error-source-url": "URL: {{url}}",
   "error-status": "Status: {{status}}",
@@ -99,6 +104,7 @@
     "unrecognized_keys": "Unrecognized keys: {{keys}}"
   },
   "error-zod-issue-prefix": "Validation issue at",
+  "failed-to-send-message": "Failed to send message",
   "go-to-error": "Go to error",
   "label-error-loading": "Error loading data.",
   "show-error-source": "Show source"

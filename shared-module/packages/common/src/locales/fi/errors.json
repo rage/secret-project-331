@@ -5,6 +5,8 @@
   "dynamic-import-error-boundary-reload": "Lataa sivu uudelleen",
   "dynamic-import-error-boundary-title": "Tämän sivun osan lataamisessa tapahtui virhe.",
   "error-code": "Koodi: {{code}}",
+  "error-hide-details": "Piilota tiedot",
+  "error-issue": "Ongelma: {{issue}}",
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
@@ -23,10 +25,15 @@
       "title": "Viiteavainvirhe"
     }
   },
+  "error-original-message": "Alkuperäinen viesti",
+  "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin",
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
+  "error-request-id": "Pyynnön ID: {{requestId}}",
+  "error-show-details": "Näytä tiedot",
   "error-status": "Tila: {{status}}",
   "error-title": "Virhe",
   "error-type": "Tyyppi: {{type}}",
+  "failed-to-send-message": "Viestin lähettäminen epäonnistui",
   "go-to-error": "Siirry virheeseen",
   "label-error-loading": "Virhe datan lataamisessa.",
   "show-error-source": "Näytä lähde"

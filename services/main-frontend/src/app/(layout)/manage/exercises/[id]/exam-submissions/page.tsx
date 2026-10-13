@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -17,15 +18,7 @@ import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import {
-  Breadcrumbs,
-  Button,
-  EmptyState,
-  Pagination,
-  QueryResult,
-  Table,
-  type BreadcrumbItem,
-} from "@/shared-module/components"
+import { Button, EmptyState, Pagination, QueryResult, Table } from "@/shared-module/components"
 
 const positiveCss = css`
   color: #32bea6;
@@ -58,20 +51,11 @@ const GradingPage: React.FC = () => {
 
   usePageTitle(joinTitleSegments([t("header-submissions"), getExam.data?.name]), { order: 10 })
 
-  const items: BreadcrumbItem[] = useMemo(
-    () => [
-      // oxlint-disable-next-line i18next/no-literal-string
-      { label: t("link-manage"), href: `/manage/exams/${examId}` },
-      // oxlint-disable-next-line i18next/no-literal-string
-      { label: t("questions"), href: `/manage/exams/${examId}/questions` },
-      { label: t("header-submissions") },
-    ],
-    [examId, t],
-  )
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("header-submissions") }], [t])
+  useRegisterBreadcrumbs({ key: `exercise:${id}:exam-submissions`, order: 60, crumbs })
 
   return (
     <div>
-      <Breadcrumbs items={items} />
       <QueryResult query={getSubmissions}>
         {(getSubmissionsData) =>
           getSubmissionsData.data.length === 0 ? (

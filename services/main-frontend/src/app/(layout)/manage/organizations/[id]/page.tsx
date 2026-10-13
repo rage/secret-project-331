@@ -59,13 +59,6 @@ const fieldLabelCss = css`
   flex-shrink: 0;
 `
 
-const organizationFieldCss = css`
-  width: 70%;
-  ${respondToOrLarger.lg} {
-    width: 250px;
-  }
-`
-
 const hiddenCss = css`
   visibility: hidden;
 `
@@ -498,12 +491,7 @@ const designContent = (
           `}
         >
           {editMode ? (
-            <TextField
-              name="name"
-              control={control}
-              label={t("label-name")}
-              className={organizationFieldCss}
-            />
+            <TextField name="name" control={control} label={t("label-name")} />
           ) : (
             <>
               <span className={fieldLabelCss}>{t("label-name")}</span>
@@ -548,7 +536,6 @@ const designContent = (
               name="slug"
               control={control}
               label={t("text-field-label-or-header-slug-or-short-name")}
-              className={organizationFieldCss}
             />
           ) : (
             <>

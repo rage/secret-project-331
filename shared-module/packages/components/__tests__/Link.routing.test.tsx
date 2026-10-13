@@ -103,7 +103,7 @@ describe("Link client-router destinations", () => {
       router,
     )
 
-    const link = screen.getByRole("link", { name: "Manage" })
+    const link = screen.getByRole("link", { name: /^Manage\b/ })
 
     expect(link).toHaveAttribute("target", "_blank")
     expect(link).toHaveAttribute("rel", "noopener noreferrer")

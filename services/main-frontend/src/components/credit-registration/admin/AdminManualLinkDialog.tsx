@@ -13,8 +13,8 @@ import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import {
   adminManuallyLinkStudentNumber,
   adminResolveStudentNumberForLinking,
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
 } from "@/generated/api/sdk.generated"
 import type {
   AdminManuallyLinkStudentNumberResult,
@@ -105,12 +105,12 @@ const accountResultsCss = css`
 `
 
 const searchAccounts = async (query: string): Promise<UserDetail[]> => {
-  const [byEmail, byOtherDetails] = await Promise.all([
-    searchUserDetailsByEmail({ body: { query } }),
-    searchUserDetailsByOtherDetails({ body: { query } }),
+  const [exact, fuzzy] = await Promise.all([
+    searchUserDetailsExact({ body: { query } }),
+    searchUserDetailsFuzzy({ body: { query } }),
   ])
   const byUserId = new Map<string, UserDetail>()
-  for (const user of [...byEmail, ...byOtherDetails]) {
+  for (const user of [...exact, ...fuzzy.users]) {
     byUserId.set(user.user_id, user)
   }
   return Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES)

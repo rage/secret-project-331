@@ -203,14 +203,15 @@ impl ChatbotTool for FindUserTool {
                 "upstream_id",
                 find_by_upstream_id(conn, &arguments.query).await?,
             ),
-            FindUserKind::Email => (
-                "email",
-                user_details::search_for_user_details_by_email(conn, &arguments.query).await?,
-            ),
-            FindUserKind::Name => (
-                "name",
-                user_details::search_for_user_details_fuzzy_match(conn, &arguments.query).await?,
-            ),
+            FindUserKind::Email => {
+                let exact = find_by_exact_email(conn, &arguments.query).await?;
+                if exact.is_empty() {
+                    ("fuzzy", find_by_fuzzy_match(conn, &arguments.query).await?)
+                } else {
+                    ("email", exact)
+                }
+            }
+            FindUserKind::Name => ("fuzzy", find_by_fuzzy_match(conn, &arguments.query).await?),
             FindUserKind::Auto => find_auto(conn, &arguments.query).await?,
         };
 
@@ -269,12 +270,8 @@ impl ChatbotTool for FindUserTool {
             "If exactly one candidate matches, proceed with its user_id. If several match, list them to the admin (email, name, created date) and ask which one is meant before doing anything else. Never guess between candidates. Mention when the matched email differs from what the admin typed (likely a typo).".to_string(),
         ];
 
-        if self.state.matched_as == "email" {
-            notes.push("kind \"email\" is a fuzzy (trigram) match, not an exact lookup: verify the returned email character-by-character against what the admin typed before using a candidate.".to_string());
-        }
-
-        if self.state.matched_as == "name" {
-            notes.push("matched_as \"name\" means an email or ID search found nothing and only the name search matched — this is a weak match; a hit on a common name could be any user with that name.".to_string());
+        if self.state.matched_as == "fuzzy" {
+            notes.push("matched_as \"fuzzy\" means no id or email matched exactly and these are typo-tolerant (trigram) matches on the name or the part of the email before the @ — a weak match: a hit on a common name could be any user with that name, so verify the returned email character-by-character against what the admin typed before using a candidate.".to_string());
         }
 
         if self.state.candidates.len() >= MAX_CANDIDATES {
@@ -318,7 +315,7 @@ impl ChatbotTool for FindUserTool {
                     })
                     .unwrap_or_else(|_| self.state.base_url.clone());
             notes.push(format!(
-                "{search_url} runs the same three searches this tool wraps — open it and compare its row set to the candidates listed here. Each candidate's own page, {base_url}/manage/users/<user_id>, is where to confirm the email before acting on that account id.",
+                "{search_url} runs the same searches this tool wraps — open it and compare its row set to the candidates listed here. Each candidate's own page, {base_url}/manage/users/<user_id>, is where to confirm the email before acting on that account id.",
                 base_url = self.state.base_url
             ));
         }
@@ -359,8 +356,8 @@ async fn find_by_upstream_id(
         .collect())
 }
 
-/// Tries interpretations of `query` in order — UUID, upstream id, email, name — and returns the
-/// first one that yields at least one candidate. Falls back to a (possibly empty) name search.
+/// Tries interpretations of `query` in order — UUID, upstream id, exact email — and returns the
+/// first one that yields at least one candidate. Falls back to a (possibly empty) fuzzy search.
 async fn find_auto(
     conn: &mut PgConnection,
     query: &str,
@@ -379,11 +376,9 @@ async fn find_auto(
         }
     }
 
-    if query.contains('@') {
-        let details = user_details::search_for_user_details_by_email(conn, query).await?;
-        if !details.is_empty() {
-            return Ok(("email", details));
-        }
+    let details = find_by_exact_email(conn, query).await?;
+    if !details.is_empty() {
+        return Ok(("email", details));
     }
 
     if query.chars().count() < MIN_FUZZY_QUERY_LENGTH {
@@ -394,6 +389,32 @@ async fn find_auto(
             )
         ));
     }
-    let details = user_details::search_for_user_details_fuzzy_match(conn, query).await?;
-    Ok(("name", details))
+    Ok(("fuzzy", find_by_fuzzy_match(conn, query).await?))
+}
+
+/// The user whose email equals `query`, ignoring case; empty for anything that is not an email.
+async fn find_by_exact_email(
+    conn: &mut PgConnection,
+    query: &str,
+) -> ChatbotResult<Vec<UserDetail>> {
+    if !query.contains('@') {
+        return Ok(Vec::new());
+    }
+    Ok(user_details::search_for_user_details_exact(conn, query).await?)
+}
+
+/// Users whose name or email local part resembles `query`, best first.
+async fn find_by_fuzzy_match(
+    conn: &mut PgConnection,
+    query: &str,
+) -> ChatbotResult<Vec<UserDetail>> {
+    let results = user_details::search_for_user_details_fuzzy(conn, query).await?;
+    if results.timed_out {
+        return Err(chatbot_err!(
+            ToolUseError,
+            "The search took too long. Ask the admin for a more specific name or the full email address."
+                .to_string()
+        ));
+    }
+    Ok(results.users)
 }

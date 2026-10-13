@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\nFROM user_details\nWHERE user_id = $1 ",
+  "query": "\nUPDATE user_details\nSET email = $1,\n  first_name = $2,\n  last_name = $3,\n  country = $4,\n  email_communication_consent = $5\nWHERE user_id = $6\nRETURNING user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\n",
   "describe": {
     "columns": [
       {
@@ -71,17 +71,6 @@
       },
       {
         "ordinal": 6,
-        "name": "search_helper",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "user_details",
-            "name": "search_helper"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "email_communication_consent",
         "type_info": "Bool",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "email_verified_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -114,7 +103,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "email_verified_method",
         "type_info": {
           "Custom": {
@@ -139,6 +128,11 @@
     ],
     "parameters": {
       "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Bool",
         "Uuid"
       ]
     },
@@ -150,11 +144,10 @@
       true,
       true,
       true,
-      true,
       false,
       true,
       true
     ]
   },
-  "hash": "f2e80bee0d61dbdd7a4988163354ccc43258a41c6edfacb95bf9db6f789ebd3a"
+  "hash": "b19c6bb0ab5834ae0deea42af1902284ce3830c740d945d6f53e8079b1698738"
 }

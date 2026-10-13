@@ -402,8 +402,7 @@ WHERE vsn.deleted_at IS NULL
   AND (
     $2::text IS NULL
     OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR user_details_matches_search_pattern(ud.name_search_helper, ud.email_search_helper, $2)
   )
 ORDER BY vsn.verified_at DESC,
   vsn.id

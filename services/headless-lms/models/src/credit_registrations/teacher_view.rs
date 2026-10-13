@@ -287,8 +287,7 @@ WHERE cr.deleted_at IS NULL
   )
   AND (
     $5::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $5 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $5 || '%' ESCAPE '\'
+    OR user_details_matches_search_pattern(ud.name_search_helper, ud.email_search_helper, $5)
     OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\'
   )
   AND ($6::uuid IS NULL OR cr.course_instance_id = $6)

@@ -12,17 +12,17 @@ test("User search works", async ({ page, headless }, testInfo) => {
   await page.getByLabel("User email or name", { exact: true }).click()
   await page.getByLabel("User email or name", { exact: true }).fill("notexisting")
   await page.getByLabel("User email or name", { exact: true }).press("Enter")
-  await page.getByText("No results").waitFor()
+  await page.getByText("No users found").first().waitFor()
   await page.getByLabel("User email or name", { exact: true }).click()
   await page.getByLabel("User email or name", { exact: true }).fill("language.teacher")
   await page.getByRole("button", { name: "Search" }).click()
-  await page.getByText("Searches completed").waitFor({ state: "hidden" })
+  await page.getByText(/users? found$/).waitFor()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     testInfo,
     headless,
     snapshotName: "search-results",
-    beforeScreenshot: () => page.getByText("Searches completed").waitFor({ state: "hidden" }),
+    beforeScreenshot: () => page.getByRole("progressbar").waitFor({ state: "hidden" }),
   })
   await page.getByLabel("User email or name", { exact: true }).fill("user@example.com")
   await page.getByRole("button", { name: "Search" }).click()
@@ -30,7 +30,7 @@ test("User search works", async ({ page, headless }, testInfo) => {
     .getByRole("row", {
       name: "00e249d8-345f-4eff-aedb-7bdc4c44c1d5 user_1@example.com User1 User1 Details",
     })
-    .getByRole("button", { name: "Details" })
+    .getByRole("link", { name: "Details" })
     .click()
   const courseCard = page
     .getByTestId("course-status-card")

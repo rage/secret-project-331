@@ -6341,9 +6341,17 @@ export const zUserDetail = z.object({
   email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
-  search_helper: z.string().nullish(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
+})
+
+/**
+ * Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
+ */
+export const zFuzzyUserSearchResults = z.object({
+  has_more: z.boolean(),
+  timed_out: z.boolean(),
+  users: z.array(zUserDetail),
 })
 
 export const zPoints = z.object({
@@ -10578,26 +10586,19 @@ export const zGetBulkUserDetailsBody = zBulkUserDetailsRequest
  */
 export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
 
-export const zSearchUserDetailsByEmailBody = zSearchRequest
+export const zSearchUserDetailsExactBody = zSearchRequest
 
 /**
- * User details search results
+ * Users whose id or email equals the query
  */
-export const zSearchUserDetailsByEmailResponse = z.array(zUserDetail)
+export const zSearchUserDetailsExactResponse = z.array(zUserDetail)
 
-export const zSearchUserDetailsByOtherDetailsBody = zSearchRequest
+export const zSearchUserDetailsFuzzyBody = zSearchRequest
 
 /**
- * User details search results
+ * Users whose name or email resembles the query
  */
-export const zSearchUserDetailsByOtherDetailsResponse = z.array(zUserDetail)
-
-export const zSearchUserDetailsFuzzyMatchBody = zSearchRequest
-
-/**
- * User details fuzzy search results
- */
-export const zSearchUserDetailsFuzzyMatchResponse = z.array(zUserDetail)
+export const zSearchUserDetailsFuzzyResponse = zFuzzyUserSearchResults
 
 export const zUpdateUserInfoBody = zUserInfoPayload
 

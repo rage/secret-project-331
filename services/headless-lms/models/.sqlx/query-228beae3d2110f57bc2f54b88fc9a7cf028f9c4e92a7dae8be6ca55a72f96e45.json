@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT distinct (ud.user_id),\n ud.created_at,\n ud.updated_at,\n ud.first_name,\n ud.last_name,\n ud.email,\n ud.search_helper,\n ud.country,\n ud.email_communication_consent,\n ud.email_verified_at,\n ud.email_verified_method\nFROM user_details ud\nJOIN users u\n  ON u.id = ud.user_id\nJOIN user_exercise_states ues\n  ON ud.user_id = ues.user_id\nWHERE ues.course_id = $1\n  AND u.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n        ",
+  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\nFROM user_details\nWHERE $1 <% (name_search_helper || ' ' || split_part(email_search_helper, '@', 1))\nORDER BY $1 <<-> (name_search_helper || ' ' || split_part(email_search_helper, '@', 1)),\n  user_id\nLIMIT $2\n",
   "describe": {
     "columns": [
       {
@@ -38,28 +38,6 @@
       },
       {
         "ordinal": 3,
-        "name": "first_name",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "user_details",
-            "name": "first_name"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
-        "name": "last_name",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "user_details",
-            "name": "last_name"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "email",
         "type_info": "Varchar",
         "origin": {
@@ -70,18 +48,29 @@
         }
       },
       {
-        "ordinal": 6,
-        "name": "search_helper",
-        "type_info": "Text",
+        "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "user_details",
-            "name": "search_helper"
+            "name": "first_name"
           }
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
         "name": "country",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "email_communication_consent",
         "type_info": "Bool",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "email_verified_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -114,7 +103,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "email_verified_method",
         "type_info": {
           "Custom": {
@@ -139,16 +128,16 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text",
+        "Int8"
       ]
     },
     "nullable": [
       false,
       false,
       false,
-      true,
-      true,
       false,
+      true,
       true,
       true,
       false,
@@ -156,5 +145,5 @@
       true
     ]
   },
-  "hash": "2621fa012b1460a4f78e9fff9f500abfb7e5bb3e314d6ff71eac727314045a8f"
+  "hash": "228beae3d2110f57bc2f54b88fc9a7cf028f9c4e92a7dae8be6ca55a72f96e45"
 }

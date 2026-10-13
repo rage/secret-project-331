@@ -49,9 +49,9 @@ pub const GRADE_FILTER_FAILED: &str = "failed";
 ///
 /// `sort_column` (`last_name` | `first_name` | `email` | `total_points`) and `sort_direction` are
 /// narrowed to fixed literals and bound as parameters, never interpolated from raw input. `search`
-/// matches name/email substrings via the trigram `name_search_helper` / `email_search_helper`
-/// columns, plus an exact user-id match when it parses as a UUID. `course_instance_id` narrows to a
-/// single instance.
+/// matches names and emails as `user_details_matches_search_pattern` does (every word, in any order,
+/// or a near match for a typo), plus an exact user-id match when it parses as a UUID.
+/// `course_instance_id` narrows to a single instance.
 ///
 /// `module_id` + `grade` together narrow to students whose *latest* completion of that module matches:
 /// a numeric grade string (sis-0-5 scale), [`GRADE_FILTER_PASSED`]/[`GRADE_FILTER_FAILED`] (the
@@ -82,7 +82,7 @@ pub async fn get_course_students_page(
     let search = search.map(str::trim).filter(|s| !s.is_empty());
     let user_id_exact = search.and_then(|s| Uuid::parse_str(s).ok());
     // The helper columns are lowercased generated columns, so lowercase the term and escape the LIKE
-    // metacharacters (matched literally via `ESCAPE '\'`). The GiST trigram indexes serve LIKE.
+    // metacharacters (matched literally via `ESCAPE '\'`).
     let search_pattern = search.map(|s| escape_like_pattern(&s.to_lowercase()));
     // A `grade` without a `module_id` has nothing to scope it to, so it is dropped rather than
     // matched against every module.
@@ -125,8 +125,7 @@ FROM (
     AND ($2::uuid IS NULL OR cie.course_instance_id = $2)
     AND (
       $3::text IS NULL
-      OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
-      OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
+      OR user_details_matches_search_pattern(ud.name_search_helper, ud.email_search_helper, $3)
       OR ($4::uuid IS NOT NULL AND u.id = $4)
     )
     AND (
@@ -235,8 +234,7 @@ WHERE cie.course_id = $1
   AND ($4::uuid IS NULL OR cie.course_instance_id = $4)
   AND (
     $2::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR user_details_matches_search_pattern(ud.name_search_helper, ud.email_search_helper, $2)
     OR ($3::uuid IS NOT NULL AND u.id = $3)
   )
   AND (

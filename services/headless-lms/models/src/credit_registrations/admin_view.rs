@@ -362,8 +362,7 @@ WHERE cr.deleted_at IS NULL
   AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)
   AND (
     $11::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
+    OR user_details_matches_search_pattern(ud.name_search_helper, ud.email_search_helper, $11)
     OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
     OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
     OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'

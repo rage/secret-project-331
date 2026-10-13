@@ -59,6 +59,10 @@ const fieldLabelCss = css`
   flex-shrink: 0;
 `
 
+const fieldValueCss = css`
+  font-size: 14px;
+`
+
 const hiddenCss = css`
   visibility: hidden;
 `
@@ -495,13 +499,7 @@ const designContent = (
           ) : (
             <>
               <span className={fieldLabelCss}>{t("label-name")}</span>
-              <span
-                className={css`
-                  font-size: 14px;
-                `}
-              >
-                {fields.name}
-              </span>
+              <span className={fieldValueCss}>{fields.name}</span>
             </>
           )}
         </div>
@@ -517,9 +515,11 @@ const designContent = (
           <span className={fieldLabelCss}>{t("visibility")}</span>
 
           {editMode ? (
-            <Checkbox name="hidden" control={control} label={t("hide")} />
+            <Checkbox name="hidden" control={control} label={t("hide")} isInline />
           ) : (
-            <span>{fields.hidden ? t("visibility-false") : t("visibility-true")}</span>
+            <span className={fieldValueCss}>
+              {fields.hidden ? t("visibility-false") : t("visibility-true")}
+            </span>
           )}
         </div>
 

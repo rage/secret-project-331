@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   createRegradingMutation as createNewRegradingMutationOptions,
   getRegradingsCountOptions,
@@ -55,10 +56,6 @@ const headerCss = css`
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
-`
-
-const pageTitleCss = css`
-  margin: 0;
 `
 
 /** A regrading timestamp, or the absent glyph for a step that has not happened yet. */

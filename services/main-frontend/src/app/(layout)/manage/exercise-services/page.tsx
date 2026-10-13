@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   createExerciseServiceMutation as createExerciseServiceMutationOptions,
   getExerciseServicesOptions,
@@ -27,6 +28,10 @@ import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
 const pageCss = css`
   display: grid;
   gap: var(--space-4);
+`
+
+const newButtonCss = css`
+  justify-self: start;
 `
 
 const ExerciseServicePage: React.FC = () => {
@@ -140,8 +145,8 @@ const ExerciseServicePage: React.FC = () => {
 
   return (
     <div className={pageCss}>
-      <h1>{t("title-manage-exercise-services")}</h1>
-      <Button onClick={openModal} variant="primary" size="medium">
+      <h1 className={pageTitleCss}>{t("title-manage-exercise-services")}</h1>
+      <Button className={newButtonCss} onClick={openModal} variant="primary" size="medium">
         {t("button-text-new")}
       </Button>
       <QueryResult query={getExerciseServices} treatEmptyAsData>

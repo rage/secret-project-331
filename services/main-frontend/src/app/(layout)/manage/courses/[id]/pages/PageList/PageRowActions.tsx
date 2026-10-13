@@ -1,15 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
-import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined, includeIf } from "@/shared-module/common/utils/nullability"
-import { Menu } from "@/shared-module/components"
+import { Button, Menu } from "@/shared-module/components"
 
 import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageAudioWidget from "./PageAudioWidget"
@@ -36,20 +34,6 @@ interface PageRowActionsProps {
   chapter: Chapter | undefined
   reload: () => void
 }
-
-const ActionButton = styled.button`
-  color: ${baseTheme.colors.gray[600]};
-  background: #ffffff;
-  border: 1px solid ${baseTheme.colors.clear[400]};
-  border-radius: 5px;
-  margin: 0 0.2rem;
-  padding: 0.2rem 0.5rem;
-  cursor: pointer;
-
-  &:hover {
-    filter: brightness(92%) contrast(110%);
-  }
-`
 
 const PageRowActions: React.FC<PageRowActionsProps> = ({
   page,
@@ -91,11 +75,16 @@ const PageRowActions: React.FC<PageRowActionsProps> = ({
       <div
         className={css`
           display: flex;
+          align-items: center;
           justify-content: flex-end;
+          gap: var(--space-2);
+          white-space: nowrap;
         `}
       >
         <a href={`/cms/pages/${page.id}`}>
-          <ActionButton>{t("button-text-edit-page")}</ActionButton>
+          <Button variant="secondary" size="small">
+            {t("button-text-edit-page")}
+          </Button>
         </a>
         <Menu
           aria-label={t("dropdown-menu")}

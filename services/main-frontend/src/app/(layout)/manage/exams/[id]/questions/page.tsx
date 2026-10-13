@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   getExamExercisesOptions,
   getExamOptions,
@@ -13,21 +14,19 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
-  Breadcrumbs,
-  type BreadcrumbItem,
+  Badge,
   Button,
   Infobox,
   QueryResult,
+  TONE,
   Table,
   useDialog,
 } from "@/shared-module/components"
@@ -107,13 +106,9 @@ const GradingPage: React.FC = () => {
     (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
         return (
-          <div
-            className={css`
-              color: #32bea6;
-            `}
-          >
+          <Badge tone={TONE.SUCCESS} size="compact">
             {t("label-graded-automatically")}
-          </div>
+          </Badge>
         )
       }
 
@@ -122,33 +117,21 @@ const GradingPage: React.FC = () => {
         const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
         if (submissions.length === countGraded) {
           return (
-            <div
-              className={css`
-                color: #32bea6;
-              `}
-            >
+            <Badge tone={TONE.SUCCESS} size="compact">
               {t("status-graded")}
-            </div>
+            </Badge>
           )
         } else if (countGraded === 0) {
           return (
-            <div
-              className={css`
-                color: #f76d82;
-              `}
-            >
+            <Badge tone={TONE.DANGER} size="compact">
               {t("status-ungraded")}
-            </div>
+            </Badge>
           )
         } else if (submissions.length > countGraded) {
           return (
-            <div
-              className={css`
-                color: #ffce54;
-              `}
-            >
+            <Badge tone={TONE.WARNING} size="compact">
               {t("status-in-progress")}
-            </div>
+            </Badge>
           )
         }
       } else {
@@ -203,25 +186,9 @@ const GradingPage: React.FC = () => {
     [allSubmissionsList, getExam.data?.grade_manually],
   )
 
-  const items: BreadcrumbItem[] = useMemo(
-    () => [
-      // oxlint-disable-next-line i18next/no-literal-string
-      { label: t("link-manage"), href: `/manage/exams/${id}` },
-      { label: t("questions") },
-    ],
-    [id, t],
-  )
-
   const questionsContent = (
     <>
-      <h3
-        className={css`
-          font-weight: ${fontWeights.medium};
-          font-family: ${headingFont};
-        `}
-      >
-        {getExam.data?.name}
-      </h3>
+      <h1 className={pageTitleCss}>{getExam.data?.name}</h1>
       <Table
         caption={t("questions")}
         rows={sorted}
@@ -323,9 +290,6 @@ const GradingPage: React.FC = () => {
 
   return (
     <div>
-      <BreakFromCentered sidebar={false}>
-        <Breadcrumbs items={items} />
-      </BreakFromCentered>
       <QueryResult query={getExercises} treatEmptyAsData>
         {() => questionsContent}
       </QueryResult>

@@ -158,11 +158,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     >
       <div>
         <div>
-          <FieldContainer
-            className={css`
-              margin-left: 4px;
-            `}
-          >
+          <FieldContainer>
             <TextField
               isRequired
               name="title"
@@ -170,11 +166,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
               label={t("text-field-label-title")}
             />
           </FieldContainer>
-          <FieldContainer
-            className={css`
-              margin-left: -4px;
-            `}
-          >
+          <FieldContainer>
             <PathFieldWithPrefixElement>
               <span
                 className={css`
@@ -191,7 +183,8 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
                 // wrapper is what lets the cleanup run without the field exposing an onBlur prop.
                 onBlur={() => setValue("path", cleanUrlPath(getValues("path")))}
                 className={css`
-                  width: 100%;
+                  flex: 1 1 auto;
+                  min-width: 0;
                 `}
               >
                 <TextField

@@ -1,12 +1,13 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { LINK_QUIET } from "@/components/credit-registration/constants"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import AddEmailTemplateDialog from "@/components/email-templates/AddEmailTemplateDialog"
 import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
@@ -203,17 +204,16 @@ const EmailTemplatesList: React.FC = () => {
   return (
     <div
       className={css`
-        padding: 2rem;
         max-width: 1400px;
-        margin: 0 auto;
       `}
     >
       <h1
-        className={css`
-          margin-bottom: 2rem;
-          font-size: 2rem;
-          font-weight: 600;
-        `}
+        className={cx(
+          pageTitleCss,
+          css`
+            margin-bottom: var(--space-4);
+          `,
+        )}
       >
         {t("email-templates-title")}
       </h1>

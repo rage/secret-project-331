@@ -134,7 +134,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     <>
       <div
         className={css`
-          margin-top: -1.5rem;
           margin-bottom: 1rem;
         `}
       >
@@ -149,8 +148,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             display: inline-block;
           `}
         >
-          {t("wiki-link-text")}
-          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>
+          {t("wiki-link-text")}{" "}
+          <Link href="https://github.com/rage/secret-project-331/wiki">{t("documentation")}</Link>
         </p>
         <h1
           className={css`
@@ -250,24 +249,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </p>
           <CourseMetadata courseId={course.id} refetch={refetch}></CourseMetadata>
         </div>
-        <div
-          className={css`
-            border: 3px dotted ${baseTheme.colors.gray[300]};
-            padding: 4.5rem 0;
-          `}
-        ></div>
-        <div
-          className={css`
-            border: 3px dotted ${baseTheme.colors.gray[300]};
-            padding: 4.5rem 0;
-          `}
-        ></div>
-        <div
-          className={css`
-            border: 3px dotted ${baseTheme.colors.gray[300]};
-            padding: 4.5rem 0;
-          `}
-        ></div>
       </div>
 
       <OnlyRenderIfPermissions
@@ -327,6 +308,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           )}
           <ul
             className={css`
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--space-3);
+              margin: var(--space-4) 0;
               list-style-type: none;
               padding-left: 0;
             `}
@@ -407,16 +392,22 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         </>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
-        <Link
-          href={`/cms/courses/${course.id}/research-form-edit`}
-          aria-label={t("button-text-create-or-edit-research-form")}
-          isCrossService
-          styledAsButton
-          variant="secondary"
-          size="medium"
+        <div
+          className={css`
+            margin-bottom: var(--space-4);
+          `}
         >
-          {t("button-text-create-or-edit-research-form")}
-        </Link>
+          <Link
+            href={`/cms/courses/${course.id}/research-form-edit`}
+            aria-label={t("button-text-create-or-edit-research-form")}
+            isCrossService
+            styledAsButton
+            variant="secondary"
+            size="medium"
+          >
+            {t("button-text-create-or-edit-research-form")}
+          </Link>
+        </div>
       </OnlyRenderIfPermissions>
       {course.is_joinable_by_code_only && (
         <div>
@@ -433,7 +424,13 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </div>
         </div>
       )}
-      <ModuleCompletionReprocessButton courseId={course.id} />
+      <div
+        className={css`
+          margin: var(--space-4) 0;
+        `}
+      >
+        <ModuleCompletionReprocessButton courseId={course.id} />
+      </div>
     </>
   )
 }

@@ -154,6 +154,7 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
               gap: 1rem;
               align-items: center;
               justify-content: flex-end;
+              margin-bottom: var(--space-4);
             `}
           >
             {rangeMode === CUSTOM_RANGE && (

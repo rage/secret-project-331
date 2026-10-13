@@ -6,6 +6,7 @@ import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -20,6 +21,7 @@ import useSearchUsersQueries from "./useSearchUsersQueries"
 
 const pageCss = css`
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 `
 
@@ -85,7 +87,7 @@ const SearchUsersPage: React.FC = () => {
       elseRender={<ErrorNotice error={t("error-unauthorized")} />}
     >
       <div className={pageCss}>
-        <h1>{t("title-user-search")}</h1>
+        <h1 className={pageTitleCss}>{t("title-user-search")}</h1>
 
         <form
           onSubmit={(e) => {

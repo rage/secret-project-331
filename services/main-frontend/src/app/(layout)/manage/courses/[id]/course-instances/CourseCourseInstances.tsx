@@ -73,21 +73,12 @@ const cardTitleStyles = css`
 
 const actionButtonsContainerStyles = css`
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 `
 
 const buttonGroupStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid ${baseTheme.colors.clear[200]};
-
-  &:last-child {
-    padding-bottom: 0;
-    border-bottom: none;
-  }
+  display: contents;
 `
 
 const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
@@ -136,7 +127,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                         <Link
                           href={viewCourseInstanceCompletionsPageRoute(instance.id)}
                           styledAsButton
-                          variant="tertiary"
+                          variant="secondary"
                           size="medium"
                         >
                           {t("link-view-completions")}
@@ -144,7 +135,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                         <Link
                           href={viewCourseInstancePointsPageRoute(instance.id)}
                           styledAsButton
-                          variant="tertiary"
+                          variant="secondary"
                           size="medium"
                         >
                           {t("link-view-points")}

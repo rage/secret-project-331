@@ -26,7 +26,6 @@ import {
 import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import {
   Button,
@@ -326,30 +325,24 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
-          justify-content: center;
-          margin-top: 1rem;
-
-          ${respondToOrLarger.sm} {
-            flex-direction: row;
-          }
+          gap: var(--space-3);
+          margin: var(--space-4) 0;
         `}
       >
         <div
           className={css`
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            padding-right: 16px;
+            flex: 1 1 16rem;
+            min-width: 0;
           `}
         >
           <TextField name="email" control={addRoleControl} label={t("label-email")} />
         </div>
         <div
           className={css`
-            width: 440px;
-            padding: 0;
-            margin-bottom: 3px;
+            flex: 0 1 20rem;
+            min-width: 12rem;
           `}
         >
           <Select
@@ -360,20 +353,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
             options={options(t)}
           />
         </div>
-      </div>
-
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        `}
-      >
         <Button
-          className={css`
-            width: 144px;
-            padding: 0.7625rem 1.125rem !important;
-          `}
           onClick={() =>
             addMutation.mutate({
               body: {

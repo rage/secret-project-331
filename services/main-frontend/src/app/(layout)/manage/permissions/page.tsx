@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { PermissionPage } from "@/components/PermissionPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -22,7 +23,7 @@ const GlobalPermissions: React.FC = () => {
         }
       `}
     >
-      <h1>{t("global-permissions")}</h1>
+      <h1 className={pageTitleCss}>{t("global-permissions")}</h1>
       <PermissionPage
         domain={{
           // oxlint-disable-next-line i18next/no-literal-string

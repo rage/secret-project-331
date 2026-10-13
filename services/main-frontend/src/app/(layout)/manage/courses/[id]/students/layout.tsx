@@ -78,21 +78,20 @@ const KEY_CERTIFICATES = "certificates"
 // send oversized payloads.
 const ITEMS_PER_PAGE_OPTIONS = [100, 500, 1000]
 
+// Matches the inset of the centred header sections above it, which are 95vw (md) / 90vw (lg+) wide.
 const tableSection = css`
-  /* The roster keeps the page's gutter even while it scrolls sideways: a table running to x=0
-     under filters that are indented reads as a rendering fault. */
   padding-left: 16px;
   padding-right: 16px;
   width: 100%;
 
-  ${respondToOrLarger.lg} {
-    padding-left: 2vw;
-    padding-right: 2vw;
+  ${respondToOrLarger.md} {
+    padding-left: calc(2.5vw + 24px);
+    padding-right: calc(2.5vw + 24px);
   }
 
-  ${respondToOrLarger.xl} {
-    padding-left: 4vw;
-    padding-right: 4vw;
+  ${respondToOrLarger.lg} {
+    padding-left: 5vw;
+    padding-right: 5vw;
   }
 `
 
@@ -353,12 +352,14 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {studentCount > 0 && (
-          <p className={cx(noteCss, rosterCaptionCss)}>
-            {t("roster-student-count", { count: studentCount })}
-          </p>
-        )}
-        <div className={tableSection}>{children}</div>
+        <div className={tableSection}>
+          {studentCount > 0 && (
+            <p className={cx(noteCss, rosterCaptionCss)}>
+              {t("roster-student-count", { count: studentCount })}
+            </p>
+          )}
+          {children}
+        </div>
 
         {totalPages > 1 && (
           <Pagination

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import type { Control } from "react-hook-form"
 import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -39,7 +40,7 @@ const ResetFilter: React.FC<ResetFilterProps> = ({ control }) => {
         <NumberField
           name="pointsThreshold"
           control={control}
-          label={t("label-only-reset-if-less-than")}
+          label={<VisuallyHidden>{t("label-only-reset-if-less-than")}</VisuallyHidden>}
           minValue={0}
           step={1}
           isDisabled={!thresholdCheckBox}

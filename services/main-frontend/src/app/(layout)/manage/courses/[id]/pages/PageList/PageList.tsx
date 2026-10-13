@@ -88,7 +88,14 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
         onDeletePage={(page) => handleDeletePage(page.id, page.title)}
         reload={() => refetch()}
       />
-      <Button size="medium" variant="primary" onClick={() => setShowNewOrEditPageForm(true)}>
+      <Button
+        className={css`
+          margin-top: var(--space-4);
+        `}
+        size="medium"
+        variant="primary"
+        onClick={() => setShowNewOrEditPageForm(true)}
+      >
         {t("button-text-new-page")}
       </Button>
 

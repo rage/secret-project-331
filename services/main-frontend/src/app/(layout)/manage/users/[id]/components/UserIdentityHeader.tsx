@@ -106,8 +106,11 @@ const idButtonRowCss = css`
 // CopyButton's default chrome is a bordered chip, which reads as a Badge once it carries a text
 // label rather than just its glyph.
 const quietCopyButtonCss = css`
+  padding: 0;
   border: none;
   background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 `
 
 /** The number the credits are registered under, or what we last did about getting one confirmed. */

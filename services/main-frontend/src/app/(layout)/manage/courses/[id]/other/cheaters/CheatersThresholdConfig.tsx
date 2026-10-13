@@ -297,7 +297,6 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
       >
         <Table
           caption={t("configure-threshold")}
-          showCaption
           rows={rows}
           rowKey={(row) => row.module.id}
           columns={[
@@ -319,13 +318,15 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                 minHours,
                 inputId,
               }) => (
-                <>
-                  <div
-                    className={css`
-                      display: inline-block;
-                      vertical-align: middle;
-                    `}
-                  >
+                <div
+                  className={css`
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: var(--space-2);
+                  `}
+                >
+                  <div>
                     <TextField
                       id={inputId}
                       name={`durations.${module.id}`}
@@ -346,7 +347,6 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                   {showsImplicitDefault && (
                     <span
                       className={css`
-                        margin-left: 0.5rem;
                         color: ${baseTheme.colors.gray[500]};
                         font-size: 0.875rem;
                       `}
@@ -357,7 +357,6 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                   {disablesCheck && (
                     <span
                       className={css`
-                        margin-left: 0.5rem;
                         color: ${baseTheme.colors.gray[500]};
                         font-size: 0.875rem;
                       `}
@@ -365,7 +364,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                       {t("cheater-detection-disabled")}
                     </span>
                   )}
-                </>
+                </div>
               ),
             },
             {

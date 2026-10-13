@@ -98,6 +98,8 @@ pub struct RosterSchedule {
     pub course_code: String,
     pub last_fetched_at: Option<DateTime<Utc>>,
     pub last_fetch_started_at: Option<DateTime<Utc>>,
+    /// When the latest arrived fetch that could claim linking mail was sent.
+    pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     pub last_fetch_duration_ms: Option<i32>,
     pub last_listed_person_count: Option<i32>,
     pub is_fetched_alone: bool,
@@ -119,6 +121,9 @@ pub struct RosterSchedule {
     pub fetch_requested_at: Option<DateTime<Utc>>,
     /// The last enrolment list that fed account linking.
     pub linking_counters: Option<AccountLinkingCodeCounters>,
+    /// From the same list: people who enrolled before account linking began and are linked to no
+    /// account, so no linking mail went to them.
+    pub unlinked_enrolled_before_count: Option<i32>,
 }
 
 impl RosterSchedule {
@@ -255,6 +260,7 @@ SELECT s.course_code,
   s.linking_suppressed_by_dedup_count,
   s.linking_suppressed_by_rate_cap_count,
   s.linking_no_address_count,
+  s.linking_unlinked_enrolled_before_count,
   CASE
     WHEN s.fetch_day = (now() AT TIME ZONE 'UTC')::date THEN s.fetch_day_count
     ELSE 0
@@ -330,6 +336,7 @@ ORDER BY s.course_code
                 course_code: row.course_code,
                 last_fetched_at: row.last_fetched_at,
                 last_fetch_started_at: row.last_fetch_started_at,
+                last_mailing_fetch_started_at: row.last_mailing_fetch_started_at,
                 last_fetch_duration_ms: row.last_fetch_duration_ms,
                 last_listed_person_count: row.last_listed_person_count,
                 is_fetched_alone: row.is_fetched_alone,
@@ -343,6 +350,7 @@ ORDER BY s.course_code
                 fetches_today: row.fetches_today,
                 fetch_requested_at: row.fetch_requested_at,
                 linking_counters,
+                unlinked_enrolled_before_count: row.linking_unlinked_enrolled_before_count,
             }
         })
         .collect())
@@ -559,10 +567,13 @@ RETURNING previous.last_fetched_at
 }
 
 /// Overwrites the code's linking counters with what its latest enrolment list did.
+/// `unlinked_enrolled_before_count` counts the people the list held outside the counters: enrolled
+/// before account linking began, and linked to no account.
 pub async fn record_linking_counters(
     conn: &mut PgConnection,
     course_code: &str,
     counters: &AccountLinkingCodeCounters,
+    unlinked_enrolled_before_count: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -572,7 +583,8 @@ SET linking_listed_count = $2,
   linking_mailed_count = $4,
   linking_suppressed_by_dedup_count = $5,
   linking_suppressed_by_rate_cap_count = $6,
-  linking_no_address_count = $7
+  linking_no_address_count = $7,
+  linking_unlinked_enrolled_before_count = $8
 WHERE course_code = $1
         "#,
         course_code,
@@ -582,6 +594,7 @@ WHERE course_code = $1
         counters.suppressed_by_dedup_count,
         counters.suppressed_by_rate_cap_count,
         counters.no_address_count,
+        unlinked_enrolled_before_count,
     )
     .execute(conn)
     .await?;

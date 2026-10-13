@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import InlineParts from "@/components/credit-registration/InlineParts"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import { getCourseCreditRegistrationActionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseCreditRegistrationAction,
@@ -14,15 +16,13 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
-import { Badge, Disclosure, Link, QueryResult, RelativeTime } from "@/shared-module/components"
+import { Badge, Disclosure, Link, QueryResult } from "@/shared-module/components"
 
 import {
   BADGE_COMPACT,
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
-  TIME_COMPACT,
   TONE,
 } from "./constants"
 import CreditRegistrationByIdDialog from "./CreditRegistrationByIdDialog"
@@ -132,16 +132,18 @@ const ActionEntry: React.FC<{ courseId: string; action: CourseCreditRegistration
         <span>{actionSentence(t, action.action, action.affected_row_count)}</span>
         <ActionTarget courseId={courseId} action={action} />
       </span>
-      <span className={noteCss}>
-        {actorName}
-        {action.actor_role !== TEACHER_ACTOR_ROLE && (
-          <Badge tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
-            {t("credit-registration-action-by-support")}
-          </Badge>
-        )}
-        {MIDDLE_DOT}
-        <RelativeTime at={action.created_at} absoluteTime={TIME_COMPACT} />
-      </span>
+      <InlineParts
+        className={noteCss}
+        parts={[
+          actorName,
+          action.actor_role !== TEACHER_ACTOR_ROLE && (
+            <Badge key="support" tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
+              {t("credit-registration-action-by-support")}
+            </Badge>
+          ),
+          <ZonedTimestamp key="at" at={action.created_at} />,
+        ]}
+      />
       {action.reason && <span className={noteCss}>{action.reason}</span>}
     </div>
   )

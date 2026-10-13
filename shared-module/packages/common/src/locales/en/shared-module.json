@@ -64,8 +64,6 @@
   "download-csv": "Download CSV",
   "download-file-confirm-button": "Download",
   "dropdown-menu": "Dropdown menu",
-  "dynamic-import-error-boundary-reload": "Reload page",
-  "dynamic-import-error-boundary-title": "Something went wrong loading this part of the page.",
   "dynamic-loading-cause-client-boundary": "A Server/Client boundary issue (for example, a missing \"use client\" on a parent client component).",
   "dynamic-loading-cause-export-mismatch": "The dynamically imported module doesn’t export what the loader expects (default vs named export mismatch).",
   "dynamic-loading-cause-hydration-script": "The chunk downloaded but the client runtime did not finish running or hydrating (for example due to blocked scripts, extensions, or a strict Content Security Policy).",
@@ -87,101 +85,7 @@
   "email": "Email",
   "email-templates": "Email templates",
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
-  "error-code": "Code: {{code}}",
-  "error-issue-code": {
-    "missing_exercise_type": {
-      "message": "Missing exercise type for exercise task."
-    }
-  },
-  "error-message-key": {
-    "authentication_required_for_exam_exercise": {
-      "message": "Please sign in to view exam exercises.",
-      "title": "Sign in required"
-    },
-    "chapter_not_open_yet": {
-      "message": "This chapter is not open yet.",
-      "title": "Chapter is closed"
-    },
-    "course_slug_already_taken": {
-      "message": "Another course is already using this slug. Please choose a different one.",
-      "title": "Slug is already in use"
-    },
-    "forbidden": {
-      "message": "You do not have permission for this action.",
-      "title": "Forbidden"
-    },
-    "foreign_key_violation": {
-      "message": "Insert or update on table '{{table}}' failed due to constraint '{{constraint}}'. Please verify the data related to the constraint and try again.",
-      "title": "Foreign key violation"
-    },
-    "generic_sisu_error": {
-      "message": "Something went wrong in generating description",
-      "title": "Could not generate description"
-    },
-    "internal_error": {
-      "message": "Please try again in a moment.",
-      "title": "Something went wrong"
-    },
-    "invalid_course_code": {
-      "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
-      "title": "Could not generate description"
-    },
-    "not_found": {
-      "message": "The requested resource could not be found.",
-      "title": "Not found"
-    },
-    "oauth_error": {
-      "message": "Please sign in again.",
-      "title": "Authentication failed"
-    },
-    "rate_limited": {
-      "message": "Please wait and try again.",
-      "title": "Too many requests"
-    },
-    "response_validation_error": {
-      "message": "The server responded successfully, but the data was not in the expected format.",
-      "title": "Could not display data"
-    },
-    "sisu_resource_not_found": {
-      "message": "Unable to find resources from Sisu.",
-      "title": "Resources not found"
-    },
-    "unauthorized": {
-      "message": "Please sign in and try again.",
-      "title": "Unauthorized"
-    },
-    "validation_error": {
-      "message": "Please check your input and try again.",
-      "title": "Invalid input"
-    },
-    "validation_error_with_metadata": {
-      "message": "Please check the highlighted content and try again.",
-      "title": "Invalid input"
-    }
-  },
-  "error-message-key-line": "Message key: {{messageKey}}",
-  "error-multiple-errors-occurred": "Multiple errors occurred",
-  "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
-  "error-request-cancelled": "Request was cancelled",
-  "error-request-failed": "Request failed",
-  "error-request-id": "Request ID: {{requestId}}",
-  "error-retry-after": "Retry after: {{seconds}}s",
-  "error-source-method": "Method: {{method}}",
-  "error-source-url": "URL: {{url}}",
-  "error-status": "Status: {{status}}",
   "error-title": "Error",
-  "error-too-many-requests": "Too many requests. Please try again later.",
-  "error-type": "Type: {{type}}",
-  "error-unexpected-error": "Unexpected error",
-  "error-zod-issue": {
-    "invalid_format": "Expected {{format}}",
-    "invalid_format_pattern": "Expected format matching {{pattern}}",
-    "invalid_type": "Expected {{expected}}, received {{received}}",
-    "too_big": "Must be {{comparator}} {{maximum}}",
-    "too_small": "Must be {{comparator}} {{minimum}}",
-    "unrecognized_keys": "Unrecognized keys: {{keys}}"
-  },
-  "error-zod-issue-prefix": "Validation issue at",
   "essay": "Essay",
   "exercise-iframe-reload-exhausted-message": "Automatic reload attempts were exhausted. You can try reloading the exercise manually.",
   "exercise-iframe-reload-exhausted-reload-button": "Reload exercise",
@@ -195,7 +99,6 @@
   "fileField.empty": "No file selected",
   "fileField.moreFiles": "+{{count}} more",
   "fileField.unnamed": "Unnamed file",
-  "go-to-error": "Go to error",
   "go-to-next-page": "Go to next page",
   "go-to-page-x": "Go to page {{number}}",
   "go-to-previous-page": "Go to previous page",
@@ -204,7 +107,6 @@
   "home-page": "Home page",
   "in-this-page": "In this page",
   "instruction": "Instruction",
-  "label-error-loading": "Error loading data.",
   "label-exclude": "Exclude",
   "label-false": "False",
   "label-include": "Include",
@@ -277,7 +179,6 @@
   "select-question": "Select question type",
   "set-field-value": "Set {{name}}",
   "show": "show",
-  "show-error-source": "Show source",
   "show-trace": "Show trace",
   "shuffle": "Shuffle",
   "skip-to-content": "Skip to content",

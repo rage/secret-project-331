@@ -74,7 +74,11 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   )
 }
 
-export default function BreadcrumbRenderer() {
+/**
+ * The registered breadcrumbs, full width under the top bar. Pass `inPage` to render them inside a
+ * page's own container instead, lined up with its content.
+ */
+export default function BreadcrumbRenderer({ inPage = false }: { inPage?: boolean }) {
   const { t } = useTranslation()
   const items = useAtomValue(breadcrumbCrumbsAtom)
   const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
@@ -83,21 +87,25 @@ export default function BreadcrumbRenderer() {
     return null
   }
 
-  return (
+  const nav = (
+    <nav {...navProps} className={breadcrumbNav}>
+      <ol className={cx(breadcrumbList, inPage && inPageListCss)}>
+        {items.map((item, idx) => (
+          <BreadcrumbItem
+            key={`${item.entryKey}-${item.index}`}
+            crumb={item.crumb}
+            isCurrent={idx === items.length - 1}
+          />
+        ))}
+      </ol>
+    </nav>
+  )
+
+  return inPage ? (
+    <div className={inPageWrapper}>{nav}</div>
+  ) : (
     <BreakFromCentered sidebar={false}>
-      <div className={wrapper}>
-        <nav {...navProps} className={breadcrumbNav}>
-          <ol className={breadcrumbList}>
-            {items.map((item, idx) => (
-              <BreadcrumbItem
-                key={`${item.entryKey}-${item.index}`}
-                crumb={item.crumb}
-                isCurrent={idx === items.length - 1}
-              />
-            ))}
-          </ol>
-        </nav>
-      </div>
+      <div className={wrapper}>{nav}</div>
     </BreakFromCentered>
   )
 }
@@ -110,6 +118,10 @@ const wrapper = css`
   &:nth-of-type(n + 2) {
     margin-top: 2.5rem;
   }
+`
+
+const inPageWrapper = css`
+  padding-top: 1rem;
 `
 
 const breadcrumbNav = css`
@@ -126,10 +138,16 @@ const breadcrumbList = css`
   list-style: none;
 `
 
+const inPageListCss = css`
+  margin-bottom: 0;
+`
+
 /* Inline flow rather than a flex row: a flex row pins the separator to the right of the whole
    label, so a label that wraps leaves the separator stranded beside its second line. */
 const breadcrumbItem = css`
   display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
 `
 
 const breadcrumbText = css`

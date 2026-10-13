@@ -25,6 +25,9 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminDismissCreditRegistrationAttentionData,
+  AdminDismissCreditRegistrationAttentionErrors,
+  AdminDismissCreditRegistrationAttentionResponses,
   AdminDismissStudyRegistryConflictData,
   AdminDismissStudyRegistryConflictErrors,
   AdminDismissStudyRegistryConflictResponses,
@@ -122,6 +125,8 @@ import type {
   CreateExerciseRepositoryResponses,
   CreateExerciseServiceData,
   CreateExerciseServiceResponses,
+  CreateExternalCourseData,
+  CreateExternalCourseResponses,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreateOrganizationExamResponses,
@@ -166,6 +171,8 @@ import type {
   DeleteExerciseRepositoryResponses,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponses,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponses,
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
@@ -239,8 +246,13 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponses,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponses,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  GetAccountLinkingUnlinkedEnroleesResponses,
   GetAllChatbotsData,
   GetAllChatbotsResponses,
   GetAllCoursesData,
@@ -420,6 +432,9 @@ import type {
   GetCreditRegistrationForAdminData,
   GetCreditRegistrationForAdminErrors,
   GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationLinkingCandidatesData,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  GetCreditRegistrationLinkingCandidatesResponses,
   GetCreditRegistrationOverviewData,
   GetCreditRegistrationOverviewResponses,
   GetCreditRegistrationPipelineHistoryData,
@@ -475,6 +490,8 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponses,
   GetExerciseSubmissionsResponses,
+  GetExternalCoursesData,
+  GetExternalCoursesResponses,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponses,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
@@ -804,6 +821,8 @@ import type {
   UpdateExerciseRepositoryResponses,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponses,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponses,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponses,
   UpdateGlossaryTermData,
@@ -840,6 +859,7 @@ import {
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminDismissCreditRegistrationAttentionResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
@@ -872,6 +892,7 @@ import {
   zCreateEmailTemplateResponse,
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
+  zCreateExternalCourseResponse,
   zCreatePageAudioFileResponse,
   zCreatePageResponse,
   zCreatePlaygroundExampleResponse,
@@ -884,6 +905,7 @@ import {
   zDeleteEmailTemplateResponse,
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
+  zDeleteExternalCourseResponse,
   zDeleteOauthAuthorizedClientResponse,
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
@@ -910,7 +932,9 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
+  zGetAccountLinkingUnlinkedEnroleesResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
@@ -993,6 +1017,7 @@ import {
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
+  zGetCreditRegistrationLinkingCandidatesResponse,
   zGetCreditRegistrationOverviewResponse,
   zGetCreditRegistrationPipelineHistoryResponse,
   zGetCreditRegistrationReconciliationResponse,
@@ -1020,6 +1045,7 @@ import {
   zGetExerciseSlideSubmissionInfoResponse,
   zGetExerciseSubmissionsForUserResponse,
   zGetExerciseSubmissionsResponse,
+  zGetExternalCoursesResponse,
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
@@ -1155,6 +1181,7 @@ import {
   zUpdateCourseResponse,
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
+  zUpdateExternalCourseResponse,
   zUpdateGeneratedCertificateResponse,
   zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
@@ -4911,6 +4938,52 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingCoursesData, ThrowOnError>,
+): RequestResult<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetAccountLinkingCoursesResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingUnlinkedEnroleesData, ThrowOnError>,
+): RequestResult<
+  GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAccountLinkingUnlinkedEnroleesResponses,
+    GetAccountLinkingUnlinkedEnroleesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingUnlinkedEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees",
+    ...options,
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
  * one course code's enrolment list due at its next grid point.
  *
@@ -5074,12 +5147,13 @@ export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean =
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/attention` - A page of the rows at least one
- * detector wants a human to look at, with the detectors that picked each.
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
  *
  * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
- * `total_count` is the queue's length under the one definition of "needs a human"; `/overview`'s
- * `needs_admin_attention_count` is the same number.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
  */
 export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
@@ -5391,7 +5465,8 @@ export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
 /**
  *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
- * ledger state, with what entered and left each state that day.
+ * ledger state, with what entered and left each state that day, and the count per timeline step and
+ * the Needs attention count from the day those snapshots began.
  */
 export const getCreditRegistrationPipelineHistory = <ThrowOnError extends boolean = true>(
   options?: Options<GetCreditRegistrationPipelineHistoryData, ThrowOnError>,
@@ -5545,6 +5620,69 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
       await zGetCreditRegistrationForAdminResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
+ * - Takes a row off the Needs attention queue.
+ *
+ * The dismissal covers the reasons the row carries now; it comes back only when a different one
+ * fires. Leaves the pipeline's own flag alone.
+ */
+export const adminDismissCreditRegistrationAttention = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissCreditRegistrationAttentionData, ThrowOnError>,
+): RequestResult<
+  AdminDismissCreditRegistrationAttentionResponses,
+  AdminDismissCreditRegistrationAttentionErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissCreditRegistrationAttentionResponses,
+    AdminDismissCreditRegistrationAttentionErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminDismissCreditRegistrationAttentionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+ * - Who on the code's enrolment list a student stuck waiting for a student number may be.
+ *
+ * Lists the roster live and keeps the people no account is linked to who enrolled before account
+ * linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+ * is only a hint. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationLinkingCandidatesData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationLinkingCandidatesResponses,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationLinkingCandidatesResponses,
+    GetCreditRegistrationLinkingCandidatesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationLinkingCandidatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
     ...options,
   })
 
@@ -6829,6 +6967,74 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = tru
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}",
     ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
+ */
+export const getExternalCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetExternalCoursesData, ThrowOnError>,
+): RequestResult<GetExternalCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetExternalCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetExternalCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/all",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
+ */
+export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteExternalCourseData, ThrowOnError>,
+): RequestResult<DeleteExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<DeleteExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zDeleteExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/delete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
+ */
+export const createExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<CreateExternalCourseData, ThrowOnError>,
+): RequestResult<CreateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/new",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
+ */
+export const updateExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateExternalCourseData, ThrowOnError>,
+): RequestResult<UpdateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/update",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

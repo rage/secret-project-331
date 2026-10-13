@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE credit_registration_account_linking_emails SET sent_at = now() - $2::interval WHERE id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9abe559bd0cfb6140c93561f6983545747358f397039e204f9aea0e62fc12a6f"
+}

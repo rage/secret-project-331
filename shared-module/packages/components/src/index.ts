@@ -106,6 +106,7 @@ export type {
   TableDensity,
   TableProps,
   TableResponsive,
+  TableRowGroup,
   TableSelection,
   TableSortDirection,
 } from "./components/Table"

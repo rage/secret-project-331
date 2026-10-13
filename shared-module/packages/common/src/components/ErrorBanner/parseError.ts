@@ -21,7 +21,11 @@ export interface ParsedError {
 /**
  * Parses an unknown error value into a structure suitable for rendering.
  */
-export function parseError(error: unknown, defaultTitle: string, t: TFunction): ParsedError {
+export function parseError(
+  error: unknown,
+  defaultTitle: string,
+  t: TFunction<"errors">,
+): ParsedError {
   const normalized = normalizeErrorForDisplay(error, t)
   const technicalDetails = normalized.technicalDetails ?? undefined
   return {

@@ -75,6 +75,20 @@ RETURNING id
     Ok(res.map(|r| r.id))
 }
 
+/// Moves a mail's `sent_at` `age` into the past, for seeding mails sent before today.
+///
+/// Shifts the row rather than the clock because the caps compare against Postgres `now()`.
+pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: chrono::Duration) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE credit_registration_account_linking_emails SET sent_at = now() - $2::interval WHERE id = $1",
+        id,
+        age as chrono::Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// As much of one existing mail as the dedup guard and the rate caps need to decide on a person.
 #[derive(Debug, Clone)]
 pub struct ExistingLinkingMailFact {
@@ -117,6 +131,38 @@ WHERE e.sisu_person_id = ANY($1::text [])
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// How many linking mails one course has sent each of these people, replaced ones included.
+pub async fn count_mails_per_person_for_course(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+    course_id: Uuid,
+) -> ModelResult<HashMap<String, i64>> {
+    let res = sqlx::query!(
+        r#"
+SELECT sisu_person_id AS "sisu_person_id!",
+  COUNT(*) AS "mail_count!"
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND course_id = $2
+  AND deleted_at IS NULL
+GROUP BY sisu_person_id
+        "#,
+        sisu_person_ids,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res
+        .into_iter()
+        .map(|row| {
+            (
+                row.sisu_person_id.expose_secret().to_owned(),
+                row.mail_count,
+            )
+        })
+        .collect())
 }
 
 /// Marks the rows these new slots would collide with in the dedup key as replaced, where their link
@@ -515,6 +561,8 @@ pub struct LinkingMailSendStatusTotals {
     pub retrying: i64,
     pub sent: i64,
     pub send_failed: i64,
+    /// Of `mails_in_window`, those whose link has been used.
+    pub used: i64,
     /// `None` when nothing failed within the window.
     pub last_send_failed_at: Option<DateTime<Utc>>,
 }
@@ -531,6 +579,7 @@ pub async fn get_send_status_totals_since(
         retryable: Option<bool>,
         first_failed_at: Option<DateTime<Utc>>,
         retry_count: Option<i32>,
+        is_used: bool,
     }
     let rows = sqlx::query_as!(
         Row,
@@ -541,9 +590,11 @@ SELECT
   ed.sent AS "delivery_sent?",
   ed.retryable AS "retryable?",
   ed.first_failed_at AS "first_failed_at?",
-  ed.retry_count AS "retry_count?"
+  ed.retry_count AS "retry_count?",
+  COALESCE(t.used_at IS NOT NULL, FALSE) AS "is_used!"
 FROM credit_registration_account_linking_emails e
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
 WHERE e.sent_at >= $1
   AND e.deleted_at IS NULL
         "#,
@@ -557,6 +608,7 @@ WHERE e.sent_at >= $1
         ..Default::default()
     };
     for row in rows {
+        totals.used += i64::from(row.is_used);
         let status = row.email_delivery_id.map(|_| {
             let facts = EmailSendStatusFacts {
                 sent: row.delivery_sent.unwrap_or(false),
@@ -990,5 +1042,83 @@ LIMIT $1
                 last_error_message: row.error_message,
             }
         })
+        .collect())
+}
+
+/// A linking email whose link can still be used.
+#[derive(Debug, Clone)]
+pub struct UnusedLinkingLink {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    /// The course code of the email's course, where its modules agree on one.
+    pub uh_course_code: Option<String>,
+    pub emailed_to: DbSecret,
+    pub claimed_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+}
+
+/// Linking emails whose link can still be used, oldest first.
+pub async fn get_unused_links(
+    conn: &mut PgConnection,
+    limit: i64,
+) -> ModelResult<Vec<UnusedLinkingLink>> {
+    let res = sqlx::query_as!(
+        UnusedLinkingLink,
+        r#"
+SELECT e.id,
+  e.course_id,
+  c.name AS course_name,
+  (
+    SELECT MIN(TRIM(cm.uh_course_code))
+    FROM course_modules cm
+    WHERE cm.course_id = e.course_id
+      AND cm.deleted_at IS NULL
+      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+  ) AS "uh_course_code?",
+  e.emailed_to,
+  e.sent_at AS claimed_at,
+  t.expires_at
+FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id
+  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+WHERE e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND is_usable_verification_token(t)
+ORDER BY e.sent_at,
+  e.id
+LIMIT $1
+        "#,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// How many links can still be used per course code, over every course with a module on the code.
+pub async fn count_unused_links_by_course_code(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<(String, i64)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT TRIM(cm.uh_course_code) AS "course_code!",
+  COUNT(DISTINCT e.id) AS "count!"
+FROM credit_registration_account_linking_emails e
+  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+  JOIN course_modules cm ON cm.course_id = e.course_id
+  AND cm.deleted_at IS NULL
+  AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+WHERE e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND is_usable_verification_token(t)
+GROUP BY TRIM(cm.uh_course_code)
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.course_code, row.count))
         .collect())
 }

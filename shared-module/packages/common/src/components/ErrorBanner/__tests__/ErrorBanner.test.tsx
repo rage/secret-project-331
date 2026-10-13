@@ -6,6 +6,7 @@ import { createInstance } from "i18next"
 import { I18nextProvider, initReactI18next } from "react-i18next"
 
 import { AppApiError } from "../../../errors/AppApiError"
+import errorTranslations from "../../../locales/en/errors.json"
 import sharedModuleTranslations from "../../../locales/en/shared-module.json"
 import ErrorBanner from "../index"
 
@@ -16,11 +17,13 @@ describe("ErrorBanner", () => {
     await i18n.use(initReactI18next).init({
       lng: "en",
       fallbackLng: "en",
-      ns: ["shared-module"],
+      ns: ["shared-module", "errors"],
       defaultNS: "shared-module",
+      fallbackNS: "errors",
       resources: {
         en: {
           "shared-module": sharedModuleTranslations,
+          errors: errorTranslations,
         },
       },
       interpolation: {

@@ -24,6 +24,8 @@ const rootInlineCss = css`
      unbroken value (a masked address, an id) overflows the value column. */
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   gap: var(--space-2) var(--space-4);
+  /* The label is smaller than its value; top-aligned, it would sit above the value's line. */
+  align-items: baseline;
   margin: 0;
 
   @media (max-width: ${STACK_BELOW}) {

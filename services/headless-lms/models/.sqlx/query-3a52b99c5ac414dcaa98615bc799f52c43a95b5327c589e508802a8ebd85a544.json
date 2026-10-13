@@ -1,0 +1,280 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH modules AS (\n  SELECT TRIM(cm.uh_course_code) AS course_code\n  FROM credit_registration_active_course_modules acm\n    JOIN course_modules cm ON cm.id = acm.course_module_id AND cm.deleted_at IS NULL\n  WHERE TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    AND ($1::uuid IS NULL OR acm.course_id = $1)\n    AND (\n      $4::text IS NULL\n      OR TRIM(cm.uh_course_code) = $4\n    )\n)\nSELECT s.course_code,\n  s.last_fetched_at,\n  s.last_fetch_started_at,\n  s.last_mailing_fetch_started_at,\n  s.last_fetch_duration_ms,\n  s.last_listed_person_count,\n  s.is_fetched_alone,\n  s.consecutive_failures,\n  s.retry_not_before,\n  s.last_error,\n  s.fetch_requested_at,\n  s.linking_listed_count,\n  s.linking_already_linked_count,\n  s.linking_mailed_count,\n  s.linking_suppressed_by_dedup_count,\n  s.linking_suppressed_by_rate_cap_count,\n  s.linking_no_address_count,\n  s.linking_unlinked_enrolled_before_count,\n  CASE\n    WHEN s.fetch_day = (now() AT TIME ZONE 'UTC')::date THEN s.fetch_day_count\n    ELSE 0\n  END AS \"fetches_today!\",\n  (\n    SELECT COUNT(*)\n    FROM modules m\n    WHERE m.course_code = s.course_code\n  ) AS \"module_count!\"\nFROM credit_registration_roster_schedules s\nWHERE s.course_code IN (\n    SELECT course_code\n    FROM modules\n  )\n  AND (\n    NOT $2::boolean\n    OR (\n      (\n        s.retry_not_before IS NULL\n        OR s.retry_not_before <= now()\n      )\n      AND (\n        s.last_fetched_at IS NULL\n        OR s.last_fetched_at < $3\n      )\n    )\n  )\nORDER BY s.course_code\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "last_fetched_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_fetched_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "last_fetch_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_fetch_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "last_mailing_fetch_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_mailing_fetch_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_fetch_duration_ms",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_fetch_duration_ms"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "last_listed_person_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_listed_person_count"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "is_fetched_alone",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "is_fetched_alone"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "consecutive_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "consecutive_failures"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "retry_not_before",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "retry_not_before"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "last_error",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_error_code",
+            "kind": {
+              "Enum": [
+                "person_not_found",
+                "course_code_not_found",
+                "enrolment_not_found",
+                "enrolment_not_accepted",
+                "invalid_grade_for_grade_scale",
+                "grade_scale_mismatch",
+                "course_not_allowed",
+                "invalid_credits",
+                "study_right_not_valid",
+                "sisu_validation_failed",
+                "sisu_timeout",
+                "service_temporarily_unavailable",
+                "misregistered",
+                "not_registered",
+                "unauthorized",
+                "malformed_request",
+                "transport_error",
+                "unexpected_response",
+                "no_grade_scale_mapping",
+                "missing_uh_course_code",
+                "missing_ects_credits",
+                "retry_window_expired",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "last_error"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "fetch_requested_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "fetch_requested_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "linking_listed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_listed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "linking_already_linked_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_already_linked_count"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "linking_mailed_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_mailed_count"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "linking_suppressed_by_dedup_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_suppressed_by_dedup_count"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "linking_suppressed_by_rate_cap_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_suppressed_by_rate_cap_count"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "linking_no_address_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_no_address_count"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "linking_unlinked_enrolled_before_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_roster_schedules",
+            "name": "linking_unlinked_enrolled_before_count"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "fetches_today!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 19,
+        "name": "module_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Timestamptz",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "3a52b99c5ac414dcaa98615bc799f52c43a95b5327c589e508802a8ebd85a544"
+}

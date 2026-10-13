@@ -1,0 +1,95 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  e.sent_at AS \"sent_at!\",\n  e.email_delivery_id,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.retry_count AS \"retry_count?\",\n  COALESCE(t.used_at IS NOT NULL, FALSE) AS \"is_used!\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.sent_at >= $1\n  AND e.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sent_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "email_delivery_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "email_delivery_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "delivery_sent?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "sent"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "retryable?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "first_failed_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "retry_count?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "is_used!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      null
+    ]
+  },
+  "hash": "6daeb98bb02c06164975572145584c80de25f98a61820f9485019fe942d3748b"
+}

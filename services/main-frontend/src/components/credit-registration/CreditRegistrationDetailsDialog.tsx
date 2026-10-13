@@ -23,14 +23,7 @@ import {
 
 import { eventKindLabel } from "./admin/adminCreditRegistrationCopy"
 import ResendLinkingEmailBlock from "./admin/ResendLinkingEmailBlock"
-import {
-  CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
-  PLAIN_DISCLOSURE,
-  STACKED,
-  TIME_COMPACT,
-  TONE,
-} from "./constants"
+import { CREDIT_REGISTRATION_NS, PLAIN_DISCLOSURE, STACKED, TIME_COMPACT, TONE } from "./constants"
 import {
   hasOnlyDefaultModule,
   registrationErrorTeacherHelp,
@@ -181,7 +174,10 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({
       title={
         isCourseOnlyModule
           ? studentName
-          : `${studentName}${MIDDLE_DOT}${registration.course_module_name ?? t("default-module")}`
+          : t("credit-registration-name-and-module", {
+              name: studentName,
+              module: registration.course_module_name ?? t("default-module"),
+            })
       }
     >
       <div className={sectionsCss}>

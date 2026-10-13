@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_daily_attention_snapshots (snapshot_date, needs_attention_count)\nVALUES ($1, $2) ON CONFLICT (snapshot_date, deleted_at) DO\nUPDATE\nSET needs_attention_count = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Date",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f457fc898101a1976ac87cc31615a8ecb74166f6e9cf48c9716129c992f3c87d"
+}

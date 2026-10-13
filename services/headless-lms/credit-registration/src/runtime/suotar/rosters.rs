@@ -2,6 +2,8 @@
 //! search behind a linking mail resend.
 
 use futures::future::join_all;
+use headless_lms_models::credit_registrations::CreditRegistrationErrorCode;
+use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_utils::services::suotar::{
     ListByCourseRequestItem, SuotarEndpoint, SuotarItemStatus, endpoints, new_request_item_id,
 };
@@ -71,6 +73,31 @@ pub(super) async fn list(
             .map(|(code, request_item_id)| roster(&response, request_item_id, &code.course_code))
             .collect(),
     })
+}
+
+pub(super) async fn fetch_one(
+    registry: &InteractiveSuotar<'_>,
+    course_code: &CourseCode,
+) -> Option<Vec<RosterPerson>> {
+    let request_item_id = new_request_item_id();
+    let span = super::request_span(ENDPOINT, 1);
+    let response = registry
+        .client
+        .post::<endpoints::ListByCourse>(
+            registry.call_context(),
+            vec![roster_item(course_code, request_item_id.clone())],
+        )
+        .instrument(span)
+        .await
+        .inspect_err(|error| {
+            warn!(error = %error, "Could not list a course code's roster for an admin");
+        })
+        .ok()?;
+    match roster(&response, &request_item_id, course_code) {
+        Ok(people) => Some(people),
+        Err(CreditRegistrationErrorCode::CourseCodeNotFound) => Some(Vec::new()),
+        Err(_) => None,
+    }
 }
 
 pub(super) async fn search(

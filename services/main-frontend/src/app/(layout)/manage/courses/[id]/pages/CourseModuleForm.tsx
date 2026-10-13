@@ -7,14 +7,11 @@ import type { Path } from "react-hook-form"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
-  TONE,
-} from "@/components/credit-registration/constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
 import CreditRegistrationConfigCallout, {
   hasCreditRegistrationConfigProblem,
 } from "@/components/credit-registration/CreditRegistrationConfigCallout"
+import InlineParts from "@/components/credit-registration/InlineParts"
 import { translateKey } from "@/components/credit-registration/labelFrom"
 import {
   cardCss,
@@ -207,7 +204,11 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   if (parts.length === 0) {
     return null
   }
-  return <p className={noteCss}>{parts.join(MIDDLE_DOT)}</p>
+  return (
+    <p className={noteCss}>
+      <InlineParts parts={parts} />
+    </p>
+  )
 }
 
 /**

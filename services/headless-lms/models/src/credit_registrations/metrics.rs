@@ -1,8 +1,12 @@
 //! The dashboard's and the health alerts' counts over the whole ledger.
 
+use super::attention::{AttentionReason, AttentionRegistration};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState};
+use crate::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
 use crate::library::credit_registration::PendingReasonCounts;
 use crate::prelude::*;
+use chrono::TimeDelta;
+use std::collections::HashMap;
 use utoipa::ToSchema;
 
 /// Live rows per state, for the dashboard funnel. Superseded attempts are excluded, as in the
@@ -117,6 +121,8 @@ pub struct WaitingForStudentNumber {
     pub last_visited_at: Option<DateTime<Utc>>,
     /// The last "I have enrolled" press; `None` when the latest check request came from someone else.
     pub last_check_requested_at: Option<DateTime<Utc>>,
+    /// The student's standing "I have enrolled" press, which is what makes them Pressed.
+    pub pressed_at: Option<DateTime<Utc>>,
 }
 
 /// The rows behind [`PendingReasonCounts::student_number_count`] completed on or after `since`,
@@ -142,6 +148,7 @@ SELECT cr.id AS credit_registration_id,
   CASE
     WHEN sig.check_request_source = 'student_request' THEN sig.last_check_requested_at
   END AS "last_check_requested_at?",
+  route.enrolment_confirmed_at AS "pressed_at?",
   COUNT(*) OVER () AS "total!"
 FROM credit_registrations cr
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
@@ -154,6 +161,8 @@ FROM credit_registrations cr
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
   AND sig.deleted_at IS NULL
+  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  AND route.deleted_at IS NULL
 WHERE cr.state = 'pending'
   AND cr.superseded_by_id IS NULL
   AND cr.deleted_at IS NULL
@@ -185,16 +194,108 @@ LIMIT $2
                 completion_date: row.completion_date,
                 last_visited_at: row.last_visited_at,
                 last_check_requested_at: row.last_check_requested_at,
+                pressed_at: row.pressed_at,
             })
             .collect(),
         total,
     ))
 }
 
+/// A student waiting for a student number who pressed "I have enrolled", with what has happened on
+/// their course code since.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WaitingPresser {
+    pub credit_registration_id: Uuid,
+    pub user_id: Uuid,
+    pub email: Option<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
+    /// The module's code now, trimmed.
+    pub uh_course_code: Option<String>,
+    pub completion_date: DateTime<Utc>,
+    pub pressed_at: DateTime<Utc>,
+    pub enrolment_route: CreditRegistrationEnrolmentRoute,
+    /// Linking emails claimed on any course sharing the code since the press. Not attributable to
+    /// this student: an email is tied to an account only once its link is used.
+    pub linking_emails_on_code_since_press: i64,
+    pub last_linking_email_on_code_at: Option<DateTime<Utc>>,
+}
+
+/// Students waiting for a student number who pressed "I have enrolled" and completed on or after
+/// `since`, longest waiting first. `credit_registration_id` narrows to one row.
+pub async fn get_waiting_pressers(
+    conn: &mut PgConnection,
+    since: Option<DateTime<Utc>>,
+    credit_registration_id: Option<Uuid>,
+) -> ModelResult<Vec<WaitingPresser>> {
+    let res = sqlx::query_as!(
+        WaitingPresser,
+        r#"
+SELECT cr.id AS credit_registration_id,
+  cr.user_id,
+  ud.email AS "email?",
+  ud.first_name AS "first_name?",
+  ud.last_name AS "last_name?",
+  cr.course_id,
+  c.name AS course_name,
+  cr.course_module_id,
+  cm.name AS "course_module_name?",
+  NULLIF(TRIM(cm.uh_course_code), '') AS "uh_course_code?",
+  cmc.completion_date,
+  route.enrolment_confirmed_at AS "pressed_at!",
+  route.route AS "enrolment_route: CreditRegistrationEnrolmentRoute",
+  emails.count AS "linking_emails_on_code_since_press!",
+  emails.last_at AS "last_linking_email_on_code_at?"
+FROM credit_registrations cr
+  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
+  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  AND cmc.deleted_at IS NULL
+  JOIN courses c ON c.id = cr.course_id
+  AND c.deleted_at IS NULL
+  JOIN course_modules cm ON cm.id = cr.course_module_id
+  AND cm.deleted_at IS NULL
+  JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  AND route.deleted_at IS NULL
+  AND route.enrolment_confirmed_at IS NOT NULL
+  LEFT JOIN user_details ud ON ud.user_id = cr.user_id
+  CROSS JOIN LATERAL (
+    SELECT COUNT(*) AS count,
+      MAX(e.sent_at) AS last_at
+    FROM credit_registration_account_linking_emails e
+      JOIN course_modules code_module ON code_module.course_id = e.course_id
+      AND code_module.deleted_at IS NULL
+    WHERE TRIM(code_module.uh_course_code) = TRIM(cm.uh_course_code)
+      AND e.sent_at >= route.enrolment_confirmed_at
+      AND e.deleted_at IS NULL
+  ) emails
+WHERE cr.state = 'pending'
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+  AND p.completion_eligible
+  AND NOT p.has_verified_student_number
+  AND ($1::timestamptz IS NULL OR cmc.completion_date >= $1)
+  AND ($2::uuid IS NULL OR cr.id = $2)
+ORDER BY route.enrolment_confirmed_at,
+  cr.id
+        "#,
+        since,
+        credit_registration_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Live rows carrying an error code, split by whether the pipeline is still working on them.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CreditRegistrationErrorCodeCount {
     pub error_code: CreditRegistrationErrorCode,
+    /// Every live row carrying the code: what the Registrations list filtered by it shows.
+    pub live_count: i64,
     pub in_flight_count: i64,
     pub terminal_failure_count: i64,
 }
@@ -206,6 +307,7 @@ pub async fn count_by_error_code(
     let rows = sqlx::query!(
         r#"
 SELECT error_code AS "error_code!",
+  COUNT(*) AS "live_count!",
   COUNT(*) FILTER (WHERE terminal_at IS NULL) AS "in_flight_count!",
   COUNT(*) FILTER (
     WHERE state = ANY($1::credit_registration_state [])
@@ -225,6 +327,7 @@ ORDER BY COUNT(*) DESC
         .into_iter()
         .map(|row| CreditRegistrationErrorCodeCount {
             error_code: row.error_code,
+            live_count: row.live_count,
             in_flight_count: row.in_flight_count,
             terminal_failure_count: row.terminal_failure_count,
         })
@@ -236,7 +339,7 @@ ORDER BY COUNT(*) DESC
 pub struct OldestNonTerminalRegistration {
     pub id: Uuid,
     pub state: CreditRegistrationState,
-    pub state_entered_at: DateTime<Utc>,
+    pub state_changed_at: DateTime<Utc>,
 }
 
 pub async fn get_oldest_non_terminal(
@@ -247,12 +350,12 @@ pub async fn get_oldest_non_terminal(
         r#"
 SELECT id,
   state,
-  state_entered_at
+  state_changed_at
 FROM credit_registrations
 WHERE terminal_at IS NULL
   AND superseded_by_id IS NULL
   AND deleted_at IS NULL
-ORDER BY state_entered_at
+ORDER BY state_changed_at
 LIMIT 1
         "#,
     )
@@ -352,7 +455,7 @@ pub async fn count_entered_state_since(
 SELECT COUNT(*) AS "count!"
 FROM credit_registrations
 WHERE state = $1
-  AND state_entered_at >= $2
+  AND state_changed_at >= $2
   AND superseded_by_id IS NULL
   AND deleted_at IS NULL
         "#,
@@ -439,9 +542,12 @@ pub struct ModuleRegistrationTotals {
     pub course_module_id: Uuid,
     pub total_count: i64,
     pub success_count: i64,
+    /// Of `success_count`, the ones we registered.
+    pub registered_count: i64,
+    /// Of `success_count`, the ones Sisu already held: duplicate or not improved.
+    pub already_in_sisu_count: i64,
     pub in_flight_count: i64,
     pub failed_count: i64,
-    pub needs_admin_attention_count: i64,
     pub last_registered_at: Option<DateTime<Utc>>,
     /// The code most of the module's failing rows carry, which is usually the whole diagnosis.
     pub top_error_code: Option<CreditRegistrationErrorCode>,
@@ -460,11 +566,14 @@ SELECT cr.course_module_id,
   COUNT(*) FILTER (
     WHERE cr.state = ANY($1::credit_registration_state [])
   ) AS "success_count!",
+  COUNT(*) FILTER (WHERE cr.state = 'registered') AS "registered_count!",
+  COUNT(*) FILTER (
+    WHERE cr.state = ANY($3::credit_registration_state [])
+  ) AS "already_in_sisu_count!",
   COUNT(*) FILTER (WHERE cr.terminal_at IS NULL) AS "in_flight_count!",
   COUNT(*) FILTER (
     WHERE cr.state = ANY($2::credit_registration_state [])
   ) AS "failed_count!",
-  COUNT(*) FILTER (WHERE cr.needs_admin_attention) AS "needs_admin_attention_count!",
   MAX(cr.registered_at) AS "last_registered_at",
   (
     SELECT inner_cr.error_code
@@ -485,6 +594,7 @@ GROUP BY cr.course_module_id
         "#,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::HARD_FAILURE_STATES as &[CreditRegistrationState],
+        &CreditRegistrationState::OTHER_SUCCESS_STATES as &[CreditRegistrationState],
     )
     .fetch_all(conn)
     .await?;
@@ -503,10 +613,29 @@ pub struct StuckThresholds {
     pub stuck_failed_retryable_secs: i64,
 }
 
+/// The longest `submissionPending` asks verify to wait before polling again.
+const SUOTAR_PENDING_WAIT: TimeDelta = TimeDelta::days(1);
+
 impl StuckThresholds {
-    /// The four states this covers, paired with their threshold in seconds, in a fixed order both
-    /// `get_attention_items` and `count_stuck` bind the same way: `UNNEST`ed into a
-    /// state -> threshold lookup rather than each carrying its own copy of the `CASE`.
+    /// The thresholds every detector and alert uses.
+    pub const CURRENT: Self = Self {
+        stuck_ready_to_submit_secs: 2 * 60 * 60,
+        stuck_submitting_secs: 90 * 60,
+        stuck_awaiting_verification_secs: SUOTAR_PENDING_WAIT.num_seconds() + 2 * 60 * 60,
+        stuck_failed_retryable_secs: 3 * 24 * 60 * 60,
+    };
+
+    /// The threshold for `state`, or `None` for a state that waits on a student or a person.
+    pub fn seconds_for(&self, state: CreditRegistrationState) -> Option<i64> {
+        let (states, seconds) = self.state_seconds_arrays();
+        states
+            .iter()
+            .position(|candidate| *candidate == state)
+            .map(|index| seconds[index] as i64)
+    }
+
+    /// The four states this covers, paired with their threshold in seconds, for a query to `UNNEST`
+    /// into a state -> threshold lookup.
     pub(super) fn state_seconds_arrays(&self) -> ([CreditRegistrationState; 4], [f64; 4]) {
         (
             [
@@ -525,43 +654,62 @@ impl StuckThresholds {
     }
 }
 
+const _: () = assert!(
+    StuckThresholds::CURRENT.stuck_failed_retryable_secs
+        < crate::library::credit_registration::backoff::SUBMIT_MAX_RETRY_AGE.num_seconds(),
+    "a row must be considered stuck before backoff gives up retrying it"
+);
+const _: () = assert!(
+    StuckThresholds::CURRENT.stuck_submitting_secs
+        > crate::library::credit_registration::backoff::SUBMITTING_RECOVERY_GRACE.num_seconds(),
+    "the stuck threshold must outlast the grace period that lets a submit recover on its own"
+);
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct StuckRegistrationCount {
     pub state: CreditRegistrationState,
     pub count: i64,
     /// Over three times the threshold, which is what makes the alert critical.
     pub severely_stuck_count: i64,
-    pub oldest_state_entered_at: Option<DateTime<Utc>>,
+    pub oldest_state_changed_at: Option<DateTime<Utc>>,
 }
 
-/// Rows the pipeline should have moved by now, per state. Only the four states with a threshold
-/// count: the rest wait on a student or a human, where an alert would fire on normal operation.
-pub async fn count_stuck(
-    conn: &mut PgConnection,
+/// Rows past their state's threshold, per state, for the stuck-registrations alert. Counted
+/// whatever their Needs attention standing: a dismissal or another reason does not unstick a row.
+pub fn count_stuck_in_state(
+    rows: &[AttentionRegistration],
     thresholds: &StuckThresholds,
-) -> ModelResult<Vec<StuckRegistrationCount>> {
-    let (state_thresholds, threshold_secs) = thresholds.state_seconds_arrays();
-    let rows = sqlx::query_as!(
-        StuckRegistrationCount,
-        r#"
-SELECT cr.state AS "state!",
-  COUNT(*) AS "count!",
-  COUNT(*) FILTER (
-    WHERE now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs * 3)
-  ) AS "severely_stuck_count!",
-  MIN(cr.state_entered_at) AS "oldest_state_entered_at"
-FROM credit_registrations cr
-  JOIN UNNEST($1::credit_registration_state [], $2::double precision []) AS t(state, threshold_secs) ON t.state = cr.state
-WHERE cr.terminal_at IS NULL
-  AND cr.superseded_by_id IS NULL
-  AND cr.deleted_at IS NULL
-  AND now() - cr.state_entered_at > MAKE_INTERVAL(secs => t.threshold_secs)
-GROUP BY cr.state
-        "#,
-        &state_thresholds as &[CreditRegistrationState],
-        &threshold_secs as &[f64],
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(rows)
+    now: DateTime<Utc>,
+) -> Vec<StuckRegistrationCount> {
+    let mut by_state: HashMap<CreditRegistrationState, StuckRegistrationCount> = HashMap::new();
+    for row in rows
+        .iter()
+        .filter(|row| row.reasons.contains(&AttentionReason::StuckInState))
+    {
+        let severe = thresholds
+            .seconds_for(row.state)
+            .is_some_and(|secs| (now - row.state_changed_at).num_seconds() > secs * 3);
+        let count = by_state.entry(row.state).or_insert(StuckRegistrationCount {
+            state: row.state,
+            count: 0,
+            severely_stuck_count: 0,
+            oldest_state_changed_at: None,
+        });
+        count.count += 1;
+        count.severely_stuck_count += i64::from(severe);
+        count.oldest_state_changed_at = Some(
+            count
+                .oldest_state_changed_at
+                .map_or(row.state_changed_at, |oldest| {
+                    oldest.min(row.state_changed_at)
+                }),
+        );
+    }
+    let mut counts: Vec<StuckRegistrationCount> = by_state.into_values().collect();
+    counts.sort_by_key(|count| {
+        CreditRegistrationState::ALL
+            .iter()
+            .position(|state| *state == count.state)
+    });
+    counts
 }

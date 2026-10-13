@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +8,7 @@ import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 
 const BREADCRUMB_KEY_MANAGE_HOME = "manage:home"
+const CREDIT_REGISTRATION_PATH = "/manage/credit-registration"
 
 function ManageLayoutContent({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
@@ -22,9 +24,12 @@ function ManageLayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function ManageLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  // Credit registration renders its own, lined up with its wider content.
+  const ownsBreadcrumb = pathname?.startsWith(CREDIT_REGISTRATION_PATH) ?? false
   return (
     <>
-      <BreadcrumbRenderer />
+      {!ownsBreadcrumb && <BreadcrumbRenderer />}
       <ManageLayoutContent>{children}</ManageLayoutContent>
     </>
   )

@@ -1061,10 +1061,7 @@ mod test {
             1
         );
 
-        // Not a `query!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
-        sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1")
-            .bind(org_id)
-            .execute(&mut **tx.as_mut())
+        crate::organizations::soft_delete(tx.as_mut(), org_id)
             .await
             .unwrap();
 

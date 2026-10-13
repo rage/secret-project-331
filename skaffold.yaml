@@ -19,7 +19,7 @@ build:
       sync:
         manual:
           - src: src/**/*
-            dest: /app
+            dest: /app/source
       docker:
         dockerfile: Dockerfile
     - image: main-frontend
@@ -27,7 +27,7 @@ build:
       sync:
         manual:
           - src: src/**/*
-            dest: /app
+            dest: /app/source
       docker:
         dockerfile: Dockerfile
     - image: example-exercise
@@ -35,7 +35,7 @@ build:
       sync:
         manual:
           - src: src/**/*
-            dest: /app
+            dest: /app/source
       docker:
         dockerfile: Dockerfile
     - image: quizzes
@@ -43,7 +43,7 @@ build:
       sync:
         manual:
           - src: src/**/*
-            dest: /app
+            dest: /app/source
       docker:
         dockerfile: Dockerfile
     - image: tmc
@@ -51,7 +51,7 @@ build:
       sync:
         manual:
           - src: src/**/*
-            dest: /app
+            dest: /app/source
       docker:
         dockerfile: Dockerfile
   tagPolicy:

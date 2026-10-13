@@ -1,4 +1,6 @@
 /* oxlint-disable import/order */
+const path = require("path")
+
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const chatbotEmbedResponseHeaders =
@@ -7,6 +9,11 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
+
+// In Docker, node_modules symlinks into pnpm's global virtual store in the sibling ../pnpm, so
+// tracing and Turbopack need the parent directory as their root to reach it.
+const fileSystemRoot =
+  process.env.PNPM_CONFIG_VIRTUAL_STORE_TYPE === "global" ? path.join(__dirname, "..") : "."
 
 /** @type {import('next').NextConfig} */
 const config = {
@@ -25,7 +32,7 @@ const config = {
     useTypeScriptCli: false,
   },
   output: "standalone",
-  outputFileTracingRoot: ".",
+  outputFileTracingRoot: fileSystemRoot,
   // oxlint-disable-next-line require-await -- Next.js config expects headers() to return a Promise
   async headers() {
     return [
@@ -53,6 +60,7 @@ const config = {
     return webpackConfig
   },
   turbopack: {
+    root: fileSystemRoot,
     rules: {
       "*.svg": {
         loaders: [

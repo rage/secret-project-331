@@ -11,6 +11,11 @@ const normalResponseHeaders = generateNormalResponseHeaders()
 // resolves only through this alias. Imported by src/components/editors/GutenbergEditor.tsx.
 const FORMAT_LIBRARY_STYLESHEET = "@wordpress/format-library/build-style/style.css"
 
+// In Docker, node_modules symlinks into pnpm's global virtual store in the sibling ../pnpm, so
+// tracing and Turbopack need the parent directory as their root to reach it.
+const fileSystemRoot =
+  process.env.PNPM_CONFIG_VIRTUAL_STORE_TYPE === "global" ? path.join(__dirname, "..") : __dirname
+
 /**
  * @type {import('next').NextConfig}
  */
@@ -27,7 +32,7 @@ const config = {
     useTypeScriptCli: false,
   },
   output: "standalone",
-  outputFileTracingRoot: __dirname,
+  outputFileTracingRoot: fileSystemRoot,
   // oxlint-disable-next-line require-await -- Next.js config headers() type expects a Promise-returning function
   async headers() {
     return [
@@ -61,6 +66,7 @@ const config = {
     return webpackConfig
   },
   turbopack: {
+    root: fileSystemRoot,
     resolveAlias: {
       [FORMAT_LIBRARY_STYLESHEET]: `./node_modules/${FORMAT_LIBRARY_STYLESHEET}`,
     },

@@ -5,10 +5,18 @@ linkWorkspacePackages: true
 pmOnFail: download
 
 minimumReleaseAge: 10080
-minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
+minimumReleaseAgeExcludePrune: true
 
-nodeVersion: 24.18.0
+nodeVersion: 24.21.0
+
+packageExtensions:
+  # These import packages their manifests don't declare, which fails without hoisting.
+  "@vectopus/atlas-icons-react":
+    dependencies:
+      "@babel/runtime": "^7.18.3"
+    peerDependencies:
+      react: ">=16"
 
 overrides:
   lodash@<=4.17.23: ">=4.18.0"
@@ -31,16 +39,24 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-allowBuilds:
-  node: false
+permissions:
+  esbuild:
+    build: true
+  node:
+    build: false
 
 trustLockfile: true
 
-confirmModulesPurge: false
-
 updateNotifier: false
-
-verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
   - brace-expansion@5.0.9
+
+# Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
+# so undeclared dependencies fail locally instead of only in image builds.
+hoistPattern: []
+
+autoDedupe: true
+
+lockfile:
+  includeResolutionSettings: true

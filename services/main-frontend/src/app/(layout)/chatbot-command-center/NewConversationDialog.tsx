@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next"
 
 import { useChatbotContext } from "@/components/course-material/chatbot/shared/ChatbotContext"
 import type { ChatbotConfiguration, Course } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Dialog } from "@/shared-module/components"
 import { listBoxEmptyStateCss } from "@/shared-module/components/components/primitives/selectStyles"
 
 interface NewConversationDialogProps {
@@ -186,13 +186,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   )
 
   return (
-    <StandardDialog
-      leftAlignTitle
-      isDismissable
-      open={open}
-      onClose={onClose}
-      title={t("new-conversation-dialog-title")}
-    >
+    <Dialog isDismissable open={open} onClose={onClose} title={t("new-conversation-dialog-title")}>
       <div
         className={css`
           position: relative;
@@ -259,7 +253,7 @@ const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           ))
         )}
       </ul>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

@@ -70,7 +70,7 @@ const linkStyles = css`
 `
 
 const tooltipStyles = css`
-  visibility: hidden;
+  display: none;
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
@@ -85,7 +85,7 @@ const tooltipStyles = css`
   pointer-events: none;
 
   &[data-show="true"] {
-    visibility: visible;
+    display: block;
   }
 `
 
@@ -123,6 +123,8 @@ const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, heading
     const url = event.currentTarget.href
     // Reflects the section in the address bar without the jump that following the link would cause.
     window.history.replaceState(null, "", url)
+    // Lets a copy made while success already shows restart the timer and be announced.
+    setCopyStatus(COPY_STATUS.DEFAULT)
     const copied = await copyTextToClipboard(url)
     setCopyStatus(copied ? COPY_STATUS.SUCCESS : COPY_STATUS.ERROR)
   }, [])

@@ -92,6 +92,21 @@ describe("headingAnchors", () => {
       expect(slugifyHeadingText("Вступ до курсу")).toBe("вступ-до-курсу")
     })
 
+    it("keeps those letters when the heading also has digits or Latin words", () => {
+      expect(slugifyHeadingText("Розділ 1")).toBe("розділ-1")
+      expect(slugifyHeadingText("Вступ до Python")).toBe("вступ-до-python")
+      expect(slugifyHeadingText("Café і кава")).toBe("cafe-і-кава")
+    })
+
+    it("keeps the marks that other scripts spell with", () => {
+      expect(slugifyHeadingText("Йога")).toBe("йога")
+      expect(slugifyHeadingText("हिन्दी पाठ")).toBe("हिन्दी-पाठ")
+    })
+
+    it("folds a Latin letter written with a separate combining mark", () => {
+      expect(slugifyHeadingText("Cafe\u0301")).toBe("cafe")
+    })
+
     it("falls back when nothing usable is left", () => {
       expect(slugifyHeadingText("!!!")).toBe("heading")
       expect(slugifyHeadingText("")).toBe("heading")

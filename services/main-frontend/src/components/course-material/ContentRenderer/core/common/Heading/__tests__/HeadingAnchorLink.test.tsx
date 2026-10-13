@@ -108,6 +108,21 @@ describe("HeadingAnchorLink", () => {
     expect(screen.getByRole("link")).toHaveAttribute("data-status", "default")
   })
 
+  it("restarts the feedback window when the link is copied again", async () => {
+    renderLink()
+    await clickLink()
+    act(() => {
+      jest.advanceTimersByTime(FEEDBACK_VISIBLE_MS - 500)
+    })
+    await clickLink()
+    act(() => {
+      jest.advanceTimersByTime(1000)
+    })
+
+    expect(screen.getByRole("status")).toHaveTextContent("copied")
+    expect(screen.getByRole("link")).toHaveAttribute("data-status", "success")
+  })
+
   it("leaves a modified click to the browser", async () => {
     renderLink()
     await clickLink({ ctrlKey: true })

@@ -71,17 +71,35 @@ function codePointToString(codePoint: number, original: string): string {
   }
 }
 
-function foldToAscii(text: string): string {
-  const spelledOut = [...text]
-    .map((character) => NON_DECOMPOSABLE_LETTERS[character.toLowerCase()] ?? character)
-    .join("")
-  return spelledOut.normalize("NFD").replaceAll(/\p{M}/gu, "")
+const LATIN_LETTER = /\p{Script=Latin}/u
+const COMBINING_MARK = /\p{M}/u
+
+/**
+ * Folds Latin letters to ASCII and leaves every other script as it is. Marks are dropped only from
+ * Latin letters: in scripts such as Devanagari they are part of the spelling.
+ */
+function foldLatinToAscii(text: string): string {
+  let folded = ""
+  let afterLatinLetter = false
+  for (const character of text.normalize("NFD")) {
+    if (COMBINING_MARK.test(character)) {
+      if (!afterLatinLetter) {
+        folded += character
+      }
+      continue
+    }
+    afterLatinLetter = LATIN_LETTER.test(character)
+    folded += afterLatinLetter
+      ? (NON_DECOMPOSABLE_LETTERS[character.toLowerCase()] ?? character)
+      : character
+  }
+  return folded.normalize("NFC")
 }
 
-function toKebabCase(text: string, separators: RegExp): string {
+function toKebabCase(text: string): string {
   return text
     .toLowerCase()
-    .replaceAll(separators, "-")
+    .replaceAll(/[^\p{L}\p{M}\p{N}]+/gu, "-")
     .replaceAll(/^-+|-+$/g, "")
 }
 
@@ -99,18 +117,13 @@ function truncate(slug: string): string {
  * Turns heading text into the readable slug used as the heading's `id`.
  *
  * Accented Latin letters fold to ASCII so that a copied link survives being pasted into chat or
- * email without turning into percent-encoded noise. Scripts that have no ASCII spelling at all
- * (Cyrillic, Arabic, ...) would fold away to nothing, so those keep their own letters instead of
- * degrading to a meaningless anchor.
+ * email without turning into percent-encoded noise. Scripts that have no ASCII spelling (Cyrillic,
+ * Arabic, ...) keep their own letters.
  */
 export function slugifyHeadingText(text: string): string {
-  const withoutApostrophes = text.replaceAll(APOSTROPHES, "")
-  const asciiSlug = truncate(toKebabCase(foldToAscii(withoutApostrophes), /[^a-z0-9]+/g))
-  if (asciiSlug !== "") {
-    return asciiSlug
-  }
-  const unicodeSlug = truncate(toKebabCase(withoutApostrophes, /[^\p{L}\p{N}]+/gu))
-  return unicodeSlug === "" ? FALLBACK_SLUG : unicodeSlug
+  const folded = foldLatinToAscii(text.replaceAll(APOSTROPHES, ""))
+  const slug = truncate(toKebabCase(folded))
+  return slug === "" ? FALLBACK_SLUG : slug
 }
 
 interface HeadingBlockAttributes {

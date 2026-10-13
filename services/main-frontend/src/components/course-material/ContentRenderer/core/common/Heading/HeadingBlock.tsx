@@ -3,7 +3,7 @@
 /* oxlint-disable jsx-a11y/heading-has-content */
 import { css, cx } from "@emotion/css"
 import type { DetailedHTMLProps, HTMLAttributes } from "react"
-import { useContext } from "react"
+import { useContext, useId } from "react"
 
 import type { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
 import { HeadingAnchorsContext } from "@/contexts/course-material/HeadingAnchorsContext"
@@ -34,12 +34,16 @@ const HeadingBlock: React.FC<
 > = ({ data }) => {
   const { content, level, fontSize, textAlign, fitText } = data.attributes
   const anchorId = useContext(HeadingAnchorsContext).get(data.clientId)
+  const contentId = useId()
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
     id: anchorId,
+    // Keeps the anchor link and its status out of the heading's accessible name.
+    "aria-labelledby": anchorId ? contentId : undefined,
     children: (
       <>
         <span
+          id={contentId}
           className={contentStyles}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }}
         />

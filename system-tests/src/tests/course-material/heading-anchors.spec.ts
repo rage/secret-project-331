@@ -28,6 +28,7 @@ test("heading renders its anchor and reveals the copy link on hover", async ({ p
   const heading = page.locator("h2#heading-2")
   const copyLink = heading.getByRole("link")
   await expect(copyLink).toHaveAttribute("href", "#heading-2")
+  await expect(heading).toHaveAccessibleName("Heading 2")
 
   // Only offered once the reader shows interest in the heading, so it cannot be asserted in jsdom.
   await expect(copyLink).toHaveCSS("opacity", "0")
@@ -50,8 +51,11 @@ test("derives a readable anchor for a heading that has none set", async ({ page 
 test("copy link is reachable with the keyboard", async ({ page }) => {
   await page.goto(HEADINGS_PAGE)
 
-  const copyLink = page.locator("h2#heading-2").getByRole("link")
-  await copyLink.focus()
+  const heading = page.locator("h2#heading-2")
+  const copyLink = heading.getByRole("link")
+  // Clicking the heading moves the starting point of Tab navigation there without focusing anything.
+  await heading.click()
+  await page.keyboard.press("Tab")
 
   await expect(copyLink).toBeFocused()
   await expect(copyLink).toHaveCSS("opacity", "1")

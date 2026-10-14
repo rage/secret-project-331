@@ -116,6 +116,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
     await onSubmit(values.code)
     // A refused code is cleared for the next try; an accepted one unmounts the form anyway.
     reset({ code: "" })
+    // oxlint-disable-next-line i18next/no-literal-string
     setFocus("code")
   })
 
@@ -133,9 +134,11 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
             control={control}
             label={t("verification-code-label")}
             length={CODE_LENGTH}
+            // oxlint-disable-next-line i18next/no-literal-string
             fieldSize="lg"
             isFullWidth
             groupSize={3}
+            // oxlint-disable-next-line jsx-a11y/no-autofocus -- the form exists only to take the code just sent
             autoFocus
             autoComplete="one-time-code"
             errorMessage={error ?? undefined}

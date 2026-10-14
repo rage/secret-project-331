@@ -10,7 +10,7 @@ import type { SearchUsersState } from "./searchUsersState"
 
 const slotCss = css`
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr auto;
   height: calc(var(--space-6) + var(--space-2));
   margin: var(--space-2) 0 var(--space-3);
 `
@@ -50,7 +50,8 @@ export interface SearchUsersStatusProps {
 }
 
 /**
- * Fixed-height slot between the search form and the results with the progress bar and a summary.
+ * Fixed-height slot between the search form and the results: a summary, then the progress bar as
+ * a rule above the results.
  * Not a live region: `useSearchUsersLiveRegion` announces the same changes.
  */
 const SearchUsersStatus: React.FC<SearchUsersStatusProps> = ({
@@ -63,10 +64,10 @@ const SearchUsersStatus: React.FC<SearchUsersStatusProps> = ({
 
   return (
     <div className={slotCss}>
-      <SearchProgressBar isSearching={state.isSearching} searchKey={searchQuery} />
       <p className={summaryCss} title={summary || undefined}>
         {summary}
       </p>
+      <SearchProgressBar isSearching={state.isSearching} searchKey={searchQuery} />
     </div>
   )
 }

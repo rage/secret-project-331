@@ -369,11 +369,9 @@ const SearchUsersResults: React.FC<SearchUsersResultsProps> = ({
                   )}
                 </div>
               )}
-              {!isStale && (state.hasSimilarTimedOut || state.hasFuzzyFailed) ? (
+              {!isStale && state.hasFuzzyFailed ? (
                 <Infobox tone={TONE.WARNING}>
-                  {state.hasSimilarTimedOut
-                    ? t("search-users-similar-timed-out")
-                    : t("search-users-similar-failed")}{" "}
+                  {t("search-users-similar-failed")}{" "}
                   <Button variant="tertiary" size="small" onClick={onRetryFuzzy}>
                     {t("try-again")}
                   </Button>

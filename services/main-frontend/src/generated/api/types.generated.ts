@@ -3988,10 +3988,6 @@ export type FuzzyUserSearchResults = {
    * More users matched than `users` holds.
    */
   has_more: boolean
-  /**
-   * The search hit its time limit, so `users` is empty without meaning nobody matched.
-   */
-  timed_out: boolean
   users: Array<UserDetail>
 }
 

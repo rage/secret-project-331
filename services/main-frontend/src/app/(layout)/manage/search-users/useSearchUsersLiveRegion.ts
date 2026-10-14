@@ -21,7 +21,7 @@ const useSearchUsersLiveRegion = ({
   const previousSearchQueryRef = useRef(searchQuery)
 
   const isFailed = state.hasExactFailed || state.hasFuzzyFailed
-  const { isSearching, resultCount, hasSimilarTimedOut } = state
+  const { isSearching, resultCount } = state
 
   useEffect(() => {
     if (previousSearchQueryRef.current !== searchQuery) {
@@ -40,8 +40,6 @@ const useSearchUsersLiveRegion = ({
     } else if (resultCount !== null) {
       if (isFailed) {
         nextMessage = t("search-users-live-region-search-failed")
-      } else if (hasSimilarTimedOut) {
-        nextMessage = t("search-users-similar-timed-out")
       } else if (resultCount === 0) {
         nextMessage = t("search-users-live-region-no-users-found")
       } else if (resultCount === 1) {
@@ -57,7 +55,7 @@ const useSearchUsersLiveRegion = ({
       lastAnnouncedMessageRef.current = nextMessage
       setLiveRegionMessage(nextMessage)
     }
-  }, [hasSimilarTimedOut, isFailed, isSearching, isTooShort, resultCount, searchQuery, t])
+  }, [isFailed, isSearching, isTooShort, resultCount, searchQuery, t])
 
   return liveRegionMessage
 }

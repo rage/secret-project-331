@@ -1235,7 +1235,6 @@
   "search-users-result-count_one": "{{count}} bruker funnet",
   "search-users-result-count_other": "{{count}} brukere funnet",
   "search-users-similar-failed": "Søket etter lignende brukere mislyktes.",
-  "search-users-similar-timed-out": "Søket etter lignende brukere tok for lang tid.",
   "search-users-too-short": "Skriv minst 3 tegn",
   "search-users-user-id": ", bruker-ID {{id}}",
   "seconds": "sekunder",

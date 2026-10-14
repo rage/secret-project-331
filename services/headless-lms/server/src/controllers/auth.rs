@@ -7,7 +7,7 @@ use crate::{
     OAuthClient,
     domain::{
         authentication,
-        authorization::{ActionOnResource, is_permitted, is_user_global_admin, skip_authorize},
+        authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
@@ -488,7 +488,7 @@ pub async fn login(
 
     // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
-        return handle_uuid_login(&session, &mut conn, &email, &app_conf).await;
+        return handle_uuid_login(&session, &mut conn, &email).await;
     }
 
     // Test mode: authenticate using seeded test credentials or stored password
@@ -496,35 +496,20 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    return handle_production_login(
-        &session,
-        &mut conn,
-        &client,
-        &tmc_client,
-        &email,
-        &password,
-        &app_conf,
-    )
-    .await;
+    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
+        .await;
 }
 
 async fn handle_uuid_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Trying development mode UUID login");
     let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
         let user = { models::users::get_by_id(conn, id).await? };
-        let is_admin = is_user_global_admin(conn, user.id).await?;
-
-        if app_conf.enable_admin_email_verification && is_admin {
-            return handle_email_verification(conn, &user).await;
-        }
-
         authentication::remember(session, user)?;
         token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
@@ -586,12 +571,6 @@ async fn handle_test_mode_login(
 
     if is_authenticated {
         info!("Authentication successful");
-        let is_admin = is_user_global_admin(conn, user.id).await?;
-
-        if app_conf.enable_admin_email_verification && is_admin {
-            return handle_email_verification(conn, &user).await;
-        }
-
         authentication::remember(session, user)?;
     } else {
         warn!("Authentication failed");
@@ -612,7 +591,6 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &SecretString,
-    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
     // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
@@ -683,9 +661,7 @@ async fn handle_production_login(
     let token = skip_authorize();
     if is_authenticated {
         if let Some(user) = authenticated_user {
-            let is_admin = is_user_global_admin(conn, user.id).await?;
-
-            if app_conf.enable_admin_email_verification && is_admin {
+            if requires_login_code(conn, user.id).await? {
                 return handle_email_verification(conn, &user).await;
             }
 
@@ -1135,6 +1111,16 @@ pub async fn update_user_information_to_tmc(
     Ok(())
 }
 
+/// Whether a production login must also be confirmed with an emailed code. Any role at any scope
+/// counts: a teacher's account is as worth stealing as an admin's. Test-mode and UUID logins skip
+/// it, since the system tests have no mail capture.
+async fn requires_login_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> Result<bool, ControllerError> {
+    Ok(!models::roles::get_roles(conn, user_id).await?.is_empty())
+}
+
 async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
@@ -1155,7 +1141,7 @@ async fn handle_email_verification(
     user_email_codes::insert_user_email_code(
         conn,
         user.id,
-        UserEmailCodePurpose::AdminLogin,
+        UserEmailCodePurpose::StaffLogin,
         &code,
     )
     .await
@@ -1282,7 +1268,7 @@ pub async fn verify_email(
     user_email_codes::mark_user_email_code_used(
         &mut conn,
         user_id,
-        UserEmailCodePurpose::AdminLogin,
+        UserEmailCodePurpose::StaffLogin,
         &payload.code,
     )
     .await

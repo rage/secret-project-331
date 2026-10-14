@@ -446,7 +446,9 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
         <div className={requestIdCss}>
           <dl className={requestIdListCss}>
             <dt className={requestIdLabelCss}>{t("errorNotice.requestId")}</dt>
-            <dd className={requestIdValueCss}>{view.requestId}</dd>
+            <dd className={requestIdValueCss} data-mask-over-this-in-system-tests="true">
+              {view.requestId}
+            </dd>
           </dl>
         </div>
       ) : null}

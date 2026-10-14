@@ -338,10 +338,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
   className,
   "data-testid": dataTestId,
 }) => {
-  // Not bound to "shared-module": `t` is handed to the error-copy helpers, which callers in other
-  // namespaces share, so it must stay the caller's default `t`. Every host declares "shared-module"
-  // as its fallback namespace, so the keys below still resolve.
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
 
   const view = useMemo(() => normalizeErrorForDisplay(error, t), [error, t])
   const copy = useMemo(() => resolveErrorDisplayCopy(view, t), [view, t])

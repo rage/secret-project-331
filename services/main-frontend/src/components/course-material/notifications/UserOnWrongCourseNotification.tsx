@@ -73,7 +73,7 @@ const UserOnWrongCourseNotification: React.FC<
   if (!getCourseById.data) {
     return (
       <div>
-        <ErrorNotice error={t("label-error-loading")} />
+        <ErrorNotice error={t("label-error-loading", { ns: "errors" })} />
         <Button
           variant="primary"
           size={variant === "compact" ? "small" : "medium"}

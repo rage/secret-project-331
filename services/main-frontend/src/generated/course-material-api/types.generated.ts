@@ -938,10 +938,15 @@ export type NewCourseBackgroundQuestionAnswer = {
 }
 
 export type NewFeedback = {
+  category?: null | NewFeedbackCategory
   feedback_given: string
   page_id: string
   related_blocks: Array<FeedbackBlock>
   selected_text?: string | null
+}
+
+export type NewFeedbackCategory = {
+  name: string
 }
 
 export type NewFlaggedAnswerWithToken = {
@@ -1391,7 +1396,6 @@ export type UserDetail = {
   email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
-  search_helper?: string | null
   updated_at: string
   user_id: string
 }

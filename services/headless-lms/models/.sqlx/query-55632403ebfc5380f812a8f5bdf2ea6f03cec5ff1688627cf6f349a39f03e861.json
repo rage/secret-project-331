@@ -1,0 +1,150 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH name_matches AS (\n  SELECT user_id,\n    $1 <<-> name_search_helper AS distance\n  FROM user_details\n  ORDER BY distance\n  LIMIT $2\n),\nemail_matches AS (\n  SELECT user_id,\n    $1 <<-> split_part(email_search_helper, '@', 1) AS distance\n  FROM user_details\n  ORDER BY distance\n  LIMIT $2\n),\nmatches AS (\n  SELECT user_id,\n    min(distance) AS distance\n  FROM (\n      SELECT *\n      FROM name_matches\n      UNION ALL\n      SELECT *\n      FROM email_matches\n    ) candidates\n  WHERE distance < $3\n  GROUP BY user_id\n)\nSELECT ud.user_id,\n  ud.created_at,\n  ud.updated_at,\n  ud.email,\n  ud.first_name,\n  ud.last_name,\n  ud.country,\n  ud.email_communication_consent,\n  ud.email_verified_at,\n  ud.email_verified_method\nFROM matches\n  JOIN user_details ud ON ud.user_id = matches.user_id\nORDER BY matches.distance,\n  ud.user_id\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "country",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "country"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "email_communication_consent",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_communication_consent"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "email_verified_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_verified_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "email_verified_method",
+        "type_info": {
+          "Custom": {
+            "name": "email_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_code",
+                "password_reset_backfill",
+                "tmc_confirmed",
+                "admin_asserted"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email_verified_method"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Float4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "55632403ebfc5380f812a8f5bdf2ea6f03cec5ff1688627cf6f349a39f03e861"
+}

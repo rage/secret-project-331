@@ -27,7 +27,8 @@
     "@react-stately/toggle": "^3.10.1",
     "@react-types/shared": "^3.36.1",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
-    "react-aria": "^3.51.0"
+    "react-aria": "^3.51.0",
+    "react-aria-components": "^1.20.0"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.102.3",

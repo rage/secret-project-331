@@ -11,7 +11,7 @@ export interface ResolvedErrorDisplayCopy {
   message: string | null
 }
 
-function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction): string | null {
+function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction<"errors">): string | null {
   const firstIssueCode = error.issues.find((issue) => typeof issue.code === "string")?.code
   if (!firstIssueCode) {
     return null
@@ -25,7 +25,7 @@ function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction): string | 
  */
 export function resolveErrorDisplayCopy(
   error: ErrorViewModel,
-  t: TFunction,
+  t: TFunction<"errors">,
 ): ResolvedErrorDisplayCopy {
   const localizedTitle = error.messageKey
     ? t(`error-message-key.${error.messageKey}.title`, { defaultValue: error.title })

@@ -193,6 +193,7 @@ export interface SearchButtonProps {
 
 const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug }) => {
   const { t } = useTranslation()
+  const { t: tErrors } = useTranslation("errors")
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string>("")
   const [debouncedQuery] = useDebounce(query, 200)
@@ -276,7 +277,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         if (isAbortError(e)) {
           return
         }
-        const parsed = normalizeErrorForDisplay(e, t)
+        const parsed = normalizeErrorForDisplay(e, tErrors)
         setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
@@ -287,7 +288,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery, t])
+  }, [courseId, debouncedQuery, tErrors])
 
   useEffect(() => {
     const controller = new AbortController()

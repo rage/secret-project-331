@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT set_config('pg_trgm.word_similarity_threshold', $1, true) AS threshold,\n  set_config('statement_timeout', $2, true) AS statement_timeout",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "threshold",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "statement_timeout",
+        "type_info": "Text",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "4c1e2fa04fe44a370440a5a148c9407cd85d808a8d3ba993320b9b8ffb6cb457"
+}

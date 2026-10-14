@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { Button, TextArea, TextField, useDialog, ErrorNotice } from "@/shared-module/components"
 
@@ -29,6 +30,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   closeEdit,
 }) => {
   const { t } = useTranslation()
+  const { t: te } = useTranslation("errors")
+
   const { confirm } = useDialog()
   const { control, handleSubmit } = useForm<CreateChatbotFields>()
 
@@ -44,20 +47,25 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         closeEdit(data.id)
       },
       onError: async (error, variables) => {
-        const try_again = await confirm({
-          message: (
-            <>
-              <p>{t("create-chatbot-form-fail-dialog")}</p>
-              {/* notify:true already announced this error via the toast when the mutation failed */}
-              {/* oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text */}
-              <ErrorNotice error={error} announce="off" />
-            </>
-          ),
-          title: t("create-chatbot-form-fail-title"),
-        })
-        chatbotCreationMutation.mutate({
-          body: { ...variables.body, skip_azure_stuff: !try_again },
-        })
+        const normalized = normalizeErrorForDisplay(error, te)
+        // If we think the error happened in Azure prompt creation, try again.
+        // todo fix this when we have better frontend error types.
+        if (normalized.type === "internal_error" || normalized.message?.includes("Azure")) {
+          const try_again = await confirm({
+            message: (
+              <>
+                <p>{t("create-chatbot-form-fail-dialog")}</p>
+                {/* notify:true already announced this error via the toast when the mutation failed */}
+                {/* oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text */}
+                <ErrorNotice error={error} announce="off" />
+              </>
+            ),
+            title: t("create-chatbot-form-fail-title"),
+          })
+          chatbotCreationMutation.mutate({
+            body: { ...variables.body, skip_azure_stuff: !try_again },
+          })
+        }
       },
     },
   )

@@ -12,7 +12,7 @@ import SuccessNotification from "./Success"
 
 /** The message a toast should show for an error, resolved through the same display pipeline
  * `ErrorBanner` reads its copy from. */
-export const errorNotificationMessage = (error: unknown, t: TFunction): string => {
+export const errorNotificationMessage = (error: unknown, t: TFunction<"errors">): string => {
   const copy = resolveErrorDisplayCopy(normalizeErrorForDisplay(error, t), t)
   return copy.message ?? copy.title
 }

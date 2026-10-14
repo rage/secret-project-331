@@ -49,9 +49,9 @@ pub const GRADE_FILTER_FAILED: &str = "failed";
 ///
 /// `sort_column` (`last_name` | `first_name` | `email` | `total_points`) and `sort_direction` are
 /// narrowed to fixed literals and bound as parameters, never interpolated from raw input. `search`
-/// matches name/email substrings via the trigram `name_search_helper` / `email_search_helper`
-/// columns, plus an exact user-id match when it parses as a UUID. `course_instance_id` narrows to a
-/// single instance.
+/// matches names and emails as [`crate::user_details::UserListSearch`] describes (every word, in any order,
+/// or a near match for a typo), plus an exact user-id match when it parses as a UUID.
+/// `course_instance_id` narrows to a single instance.
 ///
 /// `module_id` + `grade` together narrow to students whose *latest* completion of that module matches:
 /// a numeric grade string (sis-0-5 scale), [`GRADE_FILTER_PASSED`]/[`GRADE_FILTER_FAILED`] (the
@@ -82,8 +82,9 @@ pub async fn get_course_students_page(
     let search = search.map(str::trim).filter(|s| !s.is_empty());
     let user_id_exact = search.and_then(|s| Uuid::parse_str(s).ok());
     // The helper columns are lowercased generated columns, so lowercase the term and escape the LIKE
-    // metacharacters (matched literally via `ESCAPE '\'`). The GiST trigram indexes serve LIKE.
+    // metacharacters (matched literally via `ESCAPE '\'`).
     let search_pattern = search.map(|s| escape_like_pattern(&s.to_lowercase()));
+    let user_search = crate::user_details::UserListSearch::new(search.unwrap_or_default());
     // A `grade` without a `module_id` has nothing to scope it to, so it is dropped rather than
     // matched against every module.
     let grade_filter = module_id.and(grade);
@@ -125,8 +126,8 @@ FROM (
     AND ($2::uuid IS NULL OR cie.course_instance_id = $2)
     AND (
       $3::text IS NULL
-      OR ud.name_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
-      OR ud.email_search_helper LIKE '%' || $3 || '%' ESCAPE '\'
+      OR (ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($12::text [])
+      OR word_similarity($13::text, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5
       OR ($4::uuid IS NOT NULL AND u.id = $4)
     )
     AND (
@@ -182,6 +183,8 @@ FROM (
         &stages.has_verified_student_number as &[bool],
         &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
+        &user_search.word_patterns,
+        user_search.misspelling_term.as_deref(),
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -235,8 +238,8 @@ WHERE cie.course_id = $1
   AND ($4::uuid IS NULL OR cie.course_instance_id = $4)
   AND (
     $2::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR (ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($16::text [])
+    OR word_similarity($17::text, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5
     OR ($3::uuid IS NOT NULL AND u.id = $3)
   )
   AND (
@@ -320,6 +323,8 @@ LIMIT $5 OFFSET $6
         &stages.has_verified_student_number as &[bool],
         &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
+        &user_search.word_patterns,
+        user_search.misspelling_term.as_deref(),
     )
     .fetch_all(&mut *conn)
     .await?;

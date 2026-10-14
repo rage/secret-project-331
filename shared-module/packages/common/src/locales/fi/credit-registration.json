@@ -475,6 +475,7 @@
   "credit-registration-admin-manual-link-preview-required": "Liittäminen vaatii tarkistetun numeron, valitun tilin ja syyn.",
   "credit-registration-admin-manual-link-reason-description": "Tallennetaan liitokseen ja toimintolokiin pysyvästi. Kerro, miksi liitosviesti ei toimi.",
   "credit-registration-admin-manual-link-registry-unavailable": "Sisua ei saatu kiinni, joten mitään ei päätetty.",
+  "credit-registration-admin-manual-link-search-timed-out": "Nimellä hakeminen kesti liian kauan. Kirjoita nimeä pidemmälle tai koko sähköpostiosoite.",
   "credit-registration-admin-manual-link-sisu-holds": "Sisussa",
   "credit-registration-admin-manual-link-this-account": "Tällä tilillä on jo tämä numero.",
   "credit-registration-admin-manual-link-title": "Liitä opiskelijanumero käsin",

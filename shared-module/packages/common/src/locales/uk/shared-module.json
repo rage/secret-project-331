@@ -88,29 +88,13 @@
   "email": "Електронна адреса",
   "email-templates": "Шаблони електронних листів",
   "error-cannot-render-dynamic-content-missing-url": "Неможливо відобразити динамічний вміст: відсутня URL-адреса",
-  "error-message-key": {
-    "authentication_required_for_exam_exercise": {
-      "message": "Увійдіть, щоб переглядати екзаменаційні завдання.",
-      "title": "Потрібен вхід"
-    },
-    "chapter_not_open_yet": {
-      "message": "Цей розділ ще не відкрито.",
-      "title": "Розділ закрито"
-    }
-  },
-  "error-part-of-page-has-crashed-error": "Частина сторінки аварійно завершила роботу: {{error}}",
-  "error-status": "Статус: {{status}}",
   "error-title": "Помилка",
-  "error-type": "Тип: {{type}}",
-  "errorNotice.status": "Статус",
-  "errorNotice.type": "Тип",
   "essay": "Есе",
   "faq": "FAQ",
   "fileField.chooseFile": "Вибрати файл",
   "fileField.empty": "Файл не вибрано",
   "fileField.moreFiles": "+{{count}} більше",
   "fileField.unnamed": "Файл без назви",
-  "go-to-error": "Перейти до помилки",
   "go-to-next-page": "Перейти на наступну сторінку",
   "go-to-page-x": "Перейдіть на сторінку {{number}}",
   "go-to-previous-page": "Перейти на попередню сторінку",
@@ -119,7 +103,6 @@
   "home-page": "Домашня сторінка",
   "in-this-page": "На цій сторінці",
   "instruction": "Інструкція",
-  "label-error-loading": "Помилка завантаження даних.",
   "label-false": "Брехня",
   "label-items-per-page": "Елементів на сторінці",
   "label-true": "Істина",
@@ -177,7 +160,6 @@
   "select-question": "Виберіть тип питання",
   "set-field-value": "Набір {{name}}",
   "show": "Показати",
-  "show-error-source": "Показати джерело",
   "show-trace": "Показати слід",
   "shuffle": "Перемішування",
   "skip-to-content": "Перейти до вмісту",

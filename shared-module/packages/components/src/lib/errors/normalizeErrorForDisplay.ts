@@ -231,7 +231,10 @@ function isFrontendCrashPayload(value: unknown): value is FrontendCrashPayload {
   )
 }
 
-function normalizeFrontendCrash(payload: FrontendCrashPayload, t: TFunction): ErrorViewModel {
+function normalizeFrontendCrash(
+  payload: FrontendCrashPayload,
+  t: TFunction<"errors">,
+): ErrorViewModel {
   return {
     category: "client",
     severity: "error",
@@ -285,7 +288,7 @@ function parseIssues(value: unknown): ErrorViewIssue[] {
   })
 }
 
-function summarizeZodIssue(issue: ZodIssueLike, t: TFunction): string {
+function summarizeZodIssue(issue: ZodIssueLike, t: TFunction<"errors">): string {
   if (issue.code === "invalid_type" && "expected" in issue && "received" in issue) {
     return t("error-zod-issue.invalid_type", {
       expected: String(issue.expected),
@@ -337,7 +340,7 @@ function isAggregateLike(value: unknown): value is { message?: unknown; errors?:
   return isRecord(value) && value.name === AGGREGATE_ERROR_NAME && Array.isArray(value.errors)
 }
 
-function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewModel {
+function normalizePayload(payload: SimplifiedPayload, t: TFunction<"errors">): ErrorViewModel {
   const messageKey = isBackendMessageKey(payload.message_key) ? payload.message_key : null
   const type = typeof payload.type === "string" ? payload.type : null
   const message = typeof payload.message === "string" ? payload.message : null
@@ -380,7 +383,7 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewMo
   }
 }
 
-function normalizeAppApiError(error: AppApiErrorLike, t: TFunction): ErrorViewModel {
+function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): ErrorViewModel {
   const messageKey = isBackendMessageKey(error.messageKey) ? error.messageKey : null
   const status = error.status ?? null
   const category =
@@ -438,7 +441,7 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction): ErrorViewMo
  * `t` resolves the `shared-module` namespace; the result still holds raw backend copy, so pair it
  * with `resolveErrorDisplayCopy` for the localized title and message a reader should see.
  */
-export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorViewModel {
+export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">): ErrorViewModel {
   if (isAppApiErrorLike(error)) {
     return normalizeAppApiError(error, t)
   }

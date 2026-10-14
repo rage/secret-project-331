@@ -12,7 +12,7 @@ import { courseMaterialAtom } from "@/state/course-material"
 import ChapterGrid from "./ChapterGrid"
 
 const CourseChapterGridBlock: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   const courseMaterialState = useAtomValue(courseMaterialAtom)
 
   if (courseMaterialState.status !== "ready") {

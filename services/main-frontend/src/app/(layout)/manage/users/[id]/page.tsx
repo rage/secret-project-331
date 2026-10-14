@@ -65,7 +65,7 @@ const UserPage: React.FC = () => {
       emptyFallback={
         <div>
           <ErrorNotice
-            error={t("label-error-loading")}
+            error={t("label-error-loading", { ns: "errors" })}
             context={t("label-user-details-query-returned-no-data")}
           />
           <Button

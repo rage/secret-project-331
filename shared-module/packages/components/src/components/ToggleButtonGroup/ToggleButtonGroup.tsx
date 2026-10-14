@@ -9,7 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../../lib/types/rhfField"
 import { omitUndefined } from "../../lib/utils/nullability"
-import type { ButtonSize } from "./toggleButtonStyles"
+import type { ButtonSize } from "../primitives/buttonStyles"
 
 export type ToggleButtonGroupSelectionMode = "single" | "multiple"
 

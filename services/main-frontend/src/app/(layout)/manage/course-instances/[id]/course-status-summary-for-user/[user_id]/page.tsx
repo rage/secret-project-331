@@ -38,7 +38,7 @@ const CourseInstanceStatusSummaryRedirect: React.FC = () => {
   if (!courseInstanceQuery.data) {
     return (
       <div>
-        <ErrorNotice error={t("label-error-loading")} />
+        <ErrorNotice error={t("label-error-loading", { ns: "errors" })} />
         <Button
           variant="primary"
           onClick={() => {

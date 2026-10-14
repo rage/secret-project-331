@@ -170,6 +170,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
   organizationSlug,
 }) => {
   const { t } = useTranslation()
+  const { t: tErrors } = useTranslation("errors")
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string>("")
   const [debouncedQuery] = useDebounce(query, 200)
@@ -246,7 +247,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         if (isAbortError(e)) {
           return
         }
-        const parsed = normalizeErrorForDisplay(e, t)
+        const parsed = normalizeErrorForDisplay(e, tErrors)
         setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
@@ -257,7 +258,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery, t])
+  }, [courseId, debouncedQuery, tErrors])
 
   // Keep the keyboard shortcut functionality
   useEffect(() => {

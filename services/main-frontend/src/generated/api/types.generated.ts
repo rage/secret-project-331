@@ -1199,6 +1199,12 @@ export type BulkUserDetailsRequest = {
   user_ids: Array<string>
 }
 
+export type CategoryFeedbackCount = {
+  category_id: string
+  read_feedback: number
+  unread_feedback: number
+}
+
 export type CertificateAllRequirements = {
   certificate_configuration_id: string
   course_module_ids: Array<string>
@@ -3924,6 +3930,8 @@ export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
   created_at: string
+  feedback_category_id?: string | null
+  feedback_category_name?: string | null
   feedback_given: string
   id: string
   marked_as_read: boolean
@@ -3940,9 +3948,24 @@ export type FeedbackBlock = {
   text?: string | null
 }
 
-export type FeedbackCount = {
-  read: number
-  unread: number
+export type FeedbackCategory = {
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  name: string
+  updated_at: string
+}
+
+export type FeedbackEditProposalCounts = {
+  feedback_categories_counts: Array<CategoryFeedbackCount>
+  handled_edits: number
+  pending_edits: number
+  read_feedback: number
+  /**
+   * pending edits + unread feedback
+   */
+  total_waiting: number
+  unread_feedback: number
 }
 
 export type FlaggedAnswer = {
@@ -3955,6 +3978,21 @@ export type FlaggedAnswer = {
   reason: ReportReason
   submission_id: string
   updated_at: string
+}
+
+/**
+ * Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
+ */
+export type FuzzyUserSearchResults = {
+  /**
+   * More users matched than `users` holds.
+   */
+  has_more: boolean
+  /**
+   * The search hit its time limit, so `users` is empty without meaning nobody matched.
+   */
+  timed_out: boolean
+  users: Array<UserDetail>
 }
 
 export type GeneratedCertificate = {
@@ -5181,11 +5219,6 @@ export type Points = {
   users: Array<UserDetail>
 }
 
-export type ProposalCount = {
-  handled: number
-  pending: number
-}
-
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
@@ -6097,7 +6130,6 @@ export type UserDetail = {
   email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
-  search_helper?: string | null
   updated_at: string
   user_id: string
 }
@@ -8565,6 +8597,10 @@ export type GetCourseFeedbackData = {
      * Page size
      */
     limit?: number
+    /**
+     * Selected category
+     */
+    category_filter?: string
   }
   url: "/api/v0/main-frontend/courses/{course_id}/feedback"
 }
@@ -8577,6 +8613,33 @@ export type GetCourseFeedbackResponses = {
 }
 
 export type GetCourseFeedbackResponse = GetCourseFeedbackResponses[keyof GetCourseFeedbackResponses]
+
+export type GetCourseFeedbackCategoriesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query: {
+    /**
+     * Categories for read/unread status feedback
+     */
+    read: boolean
+  }
+  url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories"
+}
+
+export type GetCourseFeedbackCategoriesResponses = {
+  /**
+   * All feedback categories used in feedback for the course
+   */
+  200: Array<FeedbackCategory>
+}
+
+export type GetCourseFeedbackCategoriesResponse =
+  GetCourseFeedbackCategoriesResponses[keyof GetCourseFeedbackCategoriesResponses]
 
 export type GetCourseFeedbackCountData = {
   body?: never
@@ -8592,9 +8655,9 @@ export type GetCourseFeedbackCountData = {
 
 export type GetCourseFeedbackCountResponses = {
   /**
-   * Feedback counts for the course
+   * Feedback and edit proposal counts for the course
    */
-  200: FeedbackCount
+  200: FeedbackEditProposalCounts
 }
 
 export type GetCourseFeedbackCountResponse =
@@ -14286,28 +14349,6 @@ export type GetEditProposalsResponses = {
 
 export type GetEditProposalsResponse = GetEditProposalsResponses[keyof GetEditProposalsResponses]
 
-export type GetEditProposalCountData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count"
-}
-
-export type GetEditProposalCountResponses = {
-  /**
-   * Edit proposal counts
-   */
-  200: ProposalCount
-}
-
-export type GetEditProposalCountResponse =
-  GetEditProposalCountResponses[keyof GetEditProposalCountResponses]
-
 export type ProcessEditProposalData = {
   body: EditProposalInfo
   path?: never
@@ -14830,56 +14871,39 @@ export type GetBulkUserDetailsResponses = {
 export type GetBulkUserDetailsResponse =
   GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses]
 
-export type SearchUserDetailsByEmailData = {
+export type SearchUserDetailsExactData = {
   body: SearchRequest
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-email"
+  url: "/api/v0/main-frontend/user-details/search-exact"
 }
 
-export type SearchUserDetailsByEmailResponses = {
+export type SearchUserDetailsExactResponses = {
   /**
-   * User details search results
+   * Users whose id or email equals the query
    */
   200: Array<UserDetail>
 }
 
-export type SearchUserDetailsByEmailResponse =
-  SearchUserDetailsByEmailResponses[keyof SearchUserDetailsByEmailResponses]
+export type SearchUserDetailsExactResponse =
+  SearchUserDetailsExactResponses[keyof SearchUserDetailsExactResponses]
 
-export type SearchUserDetailsByOtherDetailsData = {
+export type SearchUserDetailsFuzzyData = {
   body: SearchRequest
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-other-details"
+  url: "/api/v0/main-frontend/user-details/search-fuzzy"
 }
 
-export type SearchUserDetailsByOtherDetailsResponses = {
+export type SearchUserDetailsFuzzyResponses = {
   /**
-   * User details search results
+   * Users whose name or email resembles the query
    */
-  200: Array<UserDetail>
+  200: FuzzyUserSearchResults
 }
 
-export type SearchUserDetailsByOtherDetailsResponse =
-  SearchUserDetailsByOtherDetailsResponses[keyof SearchUserDetailsByOtherDetailsResponses]
-
-export type SearchUserDetailsFuzzyMatchData = {
-  body: SearchRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/search-fuzzy-match"
-}
-
-export type SearchUserDetailsFuzzyMatchResponses = {
-  /**
-   * User details fuzzy search results
-   */
-  200: Array<UserDetail>
-}
-
-export type SearchUserDetailsFuzzyMatchResponse =
-  SearchUserDetailsFuzzyMatchResponses[keyof SearchUserDetailsFuzzyMatchResponses]
+export type SearchUserDetailsFuzzyResponse =
+  SearchUserDetailsFuzzyResponses[keyof SearchUserDetailsFuzzyResponses]
 
 export type UpdateUserInfoData = {
   body: UserInfoPayload

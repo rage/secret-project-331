@@ -4,7 +4,7 @@ import { normalizeErrorForDisplay } from "../src/lib/errors/normalizeErrorForDis
 import "../tests/test-i18n"
 
 // oxlint-disable-next-line import/no-named-as-default-member -- getFixedT is the instance method
-const t = i18next.getFixedT(null, "shared-module")
+const t = i18next.getFixedT(null, "errors")
 
 /**
  * Stand-in for `common`'s `AppApiError`, which this package cannot import. `normalizeErrorForDisplay`

@@ -116,7 +116,7 @@ export const tokensGlobal = injectGlobal`
       "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
       "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono:
-      "Space Mono", ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco,
+      "Commit Mono", ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco,
       Consolas, "Liberation Mono", "Courier New", monospace;
 
     /* focus ring */

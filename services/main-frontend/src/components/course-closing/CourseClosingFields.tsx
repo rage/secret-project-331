@@ -5,7 +5,6 @@ import React, { useMemo } from "react"
 import { useFormContext, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getLocalTimeZone } from "@/shared-module/common/utils/time"
 import {
   DateTimeLocalField,
   Infobox,
@@ -207,7 +206,7 @@ const CourseClosingFields: React.FC<CourseClosingFieldsProps> = ({
             control={control}
             name="closed_at"
             label={t("course-closing-time-label")}
-            description={t("course-closing-time-description", { timeZone: getLocalTimeZone() })}
+            description={t("course-closing-time-description")}
             isRequired
             rules={{ ...nullIfEmpty, required: t("course-closing-time-required") }}
             data-testid="closed-at-field"

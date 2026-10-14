@@ -475,7 +475,7 @@
   "course-closing-switch-description": "Pick a time. Until then the course stays open.",
   "course-closing-switch-label": "Close the course automatically",
   "course-closing-switch-off-description": "Students keep full access. Nothing is scheduled.",
-  "course-closing-time-description": "From this time on, students see a notice that the course has closed. They can still open the material; nothing is locked. Time is in your time zone ({{timeZone}}).",
+  "course-closing-time-description": "From this time on, students see a notice that the course has closed. They can still open the material; nothing is locked.",
   "course-closing-time-label": "Closing time",
   "course-closing-time-required": "Pick a closing time.",
   "course-created-successfully": "Course created successfully",

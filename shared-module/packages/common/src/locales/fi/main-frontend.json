@@ -420,7 +420,7 @@
   "course-closing-switch-description": "Valitse ajankohta. Siihen asti kurssi pysyy avoinna.",
   "course-closing-switch-label": "Sulje kurssi automaattisesti",
   "course-closing-switch-off-description": "Opiskelijat pääsevät kurssille normaalisti. Mitään ei ole ajastettu.",
-  "course-closing-time-description": "Tästä hetkestä alkaen opiskelijat näkevät ilmoituksen kurssin sulkeutumisesta. He voivat silti avata materiaalin; mitään ei lukita. Aika on omassa aikavyöhykkeessäsi ({{timeZone}}).",
+  "course-closing-time-description": "Tästä hetkestä alkaen opiskelijat näkevät ilmoituksen kurssin sulkeutumisesta. He voivat silti avata materiaalin; mitään ei lukita.",
   "course-closing-time-label": "Sulkeutumisaika",
   "course-closing-time-required": "Valitse sulkeutumisaika.",
   "course-created-successfully": "Kurssi luotu onnistuneesti",

@@ -3918,6 +3918,14 @@ export type ExtendStageRequest = {
   months: number
 }
 
+export type ExternalCourseOutput = {
+  description?: string | null
+  id: string
+  name: string
+  on_old_platform: boolean
+  url: string
+}
+
 export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
@@ -3970,6 +3978,21 @@ export type FlaggedAnswer = {
   reason: ReportReason
   submission_id: string
   updated_at: string
+}
+
+/**
+ * Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
+ */
+export type FuzzyUserSearchResults = {
+  /**
+   * More users matched than `users` holds.
+   */
+  has_more: boolean
+  /**
+   * The search hit its time limit, so `users` is empty without meaning nobody matched.
+   */
+  timed_out: boolean
+  users: Array<UserDetail>
 }
 
 export type GeneratedCertificate = {
@@ -4539,6 +4562,13 @@ export type NewExerciseRepository = {
   exam_id?: string | null
   git_url: string
   public_key?: string | null
+}
+
+export type NewExternalCourse = {
+  description?: string | null
+  name: string
+  on_old_platform: boolean
+  url: string
 }
 
 export type NewMaterialReference = {
@@ -6100,7 +6130,6 @@ export type UserDetail = {
   email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
-  search_helper?: string | null
   updated_at: string
   user_id: string
 }
@@ -12922,6 +12951,74 @@ export type GetExerciseSubmissionsForUserResponses = {
 export type GetExerciseSubmissionsForUserResponse =
   GetExerciseSubmissionsForUserResponses[keyof GetExerciseSubmissionsForUserResponses]
 
+export type GetExternalCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/all"
+}
+
+export type GetExternalCoursesResponses = {
+  /**
+   * All external courses
+   */
+  200: Array<ExternalCourseOutput>
+}
+
+export type GetExternalCoursesResponse =
+  GetExternalCoursesResponses[keyof GetExternalCoursesResponses]
+
+export type DeleteExternalCourseData = {
+  body: ExternalCourseOutput
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/delete"
+}
+
+export type DeleteExternalCourseResponses = {
+  /**
+   * Deleted external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type DeleteExternalCourseResponse =
+  DeleteExternalCourseResponses[keyof DeleteExternalCourseResponses]
+
+export type CreateExternalCourseData = {
+  body: NewExternalCourse
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/new"
+}
+
+export type CreateExternalCourseResponses = {
+  /**
+   * Created external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type CreateExternalCourseResponse =
+  CreateExternalCourseResponses[keyof CreateExternalCourseResponses]
+
+export type UpdateExternalCourseData = {
+  body: ExternalCourseOutput
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/update"
+}
+
+export type UpdateExternalCourseResponses = {
+  /**
+   * Updated external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type UpdateExternalCourseResponse =
+  UpdateExternalCourseResponses[keyof UpdateExternalCourseResponses]
+
 export type MarkFeedbackAsReadData = {
   body: MarkAsRead
   path: {
@@ -14774,56 +14871,39 @@ export type GetBulkUserDetailsResponses = {
 export type GetBulkUserDetailsResponse =
   GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses]
 
-export type SearchUserDetailsByEmailData = {
+export type SearchUserDetailsExactData = {
   body: SearchRequest
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-email"
+  url: "/api/v0/main-frontend/user-details/search-exact"
 }
 
-export type SearchUserDetailsByEmailResponses = {
+export type SearchUserDetailsExactResponses = {
   /**
-   * User details search results
+   * Users whose id or email equals the query
    */
   200: Array<UserDetail>
 }
 
-export type SearchUserDetailsByEmailResponse =
-  SearchUserDetailsByEmailResponses[keyof SearchUserDetailsByEmailResponses]
+export type SearchUserDetailsExactResponse =
+  SearchUserDetailsExactResponses[keyof SearchUserDetailsExactResponses]
 
-export type SearchUserDetailsByOtherDetailsData = {
+export type SearchUserDetailsFuzzyData = {
   body: SearchRequest
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-other-details"
+  url: "/api/v0/main-frontend/user-details/search-fuzzy"
 }
 
-export type SearchUserDetailsByOtherDetailsResponses = {
+export type SearchUserDetailsFuzzyResponses = {
   /**
-   * User details search results
+   * Users whose name or email resembles the query
    */
-  200: Array<UserDetail>
+  200: FuzzyUserSearchResults
 }
 
-export type SearchUserDetailsByOtherDetailsResponse =
-  SearchUserDetailsByOtherDetailsResponses[keyof SearchUserDetailsByOtherDetailsResponses]
-
-export type SearchUserDetailsFuzzyMatchData = {
-  body: SearchRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/search-fuzzy-match"
-}
-
-export type SearchUserDetailsFuzzyMatchResponses = {
-  /**
-   * User details fuzzy search results
-   */
-  200: Array<UserDetail>
-}
-
-export type SearchUserDetailsFuzzyMatchResponse =
-  SearchUserDetailsFuzzyMatchResponses[keyof SearchUserDetailsFuzzyMatchResponses]
+export type SearchUserDetailsFuzzyResponse =
+  SearchUserDetailsFuzzyResponses[keyof SearchUserDetailsFuzzyResponses]
 
 export type UpdateUserInfoData = {
   body: UserInfoPayload

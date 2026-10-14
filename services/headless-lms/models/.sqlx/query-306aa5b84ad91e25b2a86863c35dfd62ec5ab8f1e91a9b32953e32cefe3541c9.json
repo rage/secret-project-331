@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\nFROM user_details\nWHERE user_id = $1;\n",
+  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\nFROM user_details\nWHERE user_id = $1\n  OR lower(email) = lower($2)\n",
   "describe": {
     "columns": [
       {
@@ -71,17 +71,6 @@
       },
       {
         "ordinal": 6,
-        "name": "search_helper",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "user_details",
-            "name": "search_helper"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "email_communication_consent",
         "type_info": "Bool",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "email_verified_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -114,7 +103,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "email_verified_method",
         "type_info": {
           "Custom": {
@@ -139,7 +128,8 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Text"
       ]
     },
     "nullable": [
@@ -150,11 +140,10 @@
       true,
       true,
       true,
-      true,
       false,
       true,
       true
     ]
   },
-  "hash": "3009a3077cedd9c31cc2d7d4b4c111a1e04336f8abfe9b02ff834562acab8932"
+  "hash": "306aa5b84ad91e25b2a86863c35dfd62ec5ab8f1e91a9b32953e32cefe3541c9"
 }

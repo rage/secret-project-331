@@ -20,7 +20,7 @@ export interface BannerExtraProps {
 export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
 
 const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   const {
     variant: __variant = "text",
     error: unknownError,

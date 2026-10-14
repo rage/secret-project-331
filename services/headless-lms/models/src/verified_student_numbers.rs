@@ -368,6 +368,7 @@ pub async fn get_admin_page(
         .map(str::trim)
         .filter(|s| !s.is_empty())
         .map(|s| crate::library::students_view::escape_like_pattern(&s.to_lowercase()));
+    let user_search = crate::user_details::UserListSearch::new(search.unwrap_or_default());
     let rows = sqlx::query_as!(
         AdminPageRow,
         r#"
@@ -402,8 +403,8 @@ WHERE vsn.deleted_at IS NULL
   AND (
     $2::text IS NULL
     OR LOWER(vsn.student_number) LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.name_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $2 || '%' ESCAPE '\'
+    OR (ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($5::text [])
+    OR word_similarity($6::text, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5
   )
 ORDER BY vsn.verified_at DESC,
   vsn.id
@@ -413,6 +414,8 @@ LIMIT $3 OFFSET $4
         search_pattern.as_deref(),
         limit,
         offset,
+        &user_search.word_patterns,
+        user_search.misspelling_term.as_deref(),
     )
     .fetch_all(conn)
     .await?;

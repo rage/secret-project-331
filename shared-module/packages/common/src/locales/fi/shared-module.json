@@ -65,8 +65,6 @@
   "download-csv": "Lataa CSV",
   "download-file-confirm-button": "Lataa",
   "dropdown-menu": "Pudotusvalikko",
-  "dynamic-import-error-boundary-reload": "Lataa sivu uudelleen",
-  "dynamic-import-error-boundary-title": "Tämän sivun osan lataamisessa tapahtui virhe.",
   "dynamic-loading-cause-client-boundary": "Palvelimen/asiakasohjelman rajaongelma (esimerkiksi puuttuva \"use client\" vanhemmassa asiakasosan komponentissa).",
   "dynamic-loading-cause-export-mismatch": "Dynaamisesti tuodun moduulin vienti ei vastaa lataajan odotuksia (oletus vs. nimetty vienti ero).",
   "dynamic-loading-cause-hydration-script": "Osio on ladattu, mutta asiakasohjelman suoritus ei ole valmistunut tai sitä ei ole hydratettu (esimerkiksi estettyjen skriptien, laajennusten tai tiukan sisältöturvapolitiikan vuoksi).",
@@ -88,28 +86,7 @@
   "email": "Sähköposti",
   "email-templates": "Sähköposti-pohjat",
   "error-cannot-render-dynamic-content-missing-url": "Dynaamista sisältöä ei voitu esittää: url puuttuu",
-  "error-message-key": {
-    "authentication_required_for_exam_exercise": {
-      "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
-      "title": "Kirjautuminen vaaditaan"
-    },
-    "chapter_not_open_yet": {
-      "message": "Tämä luku ei ole vielä avoinna.",
-      "title": "Luku on suljettu"
-    },
-    "course_slug_already_taken": {
-      "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
-      "title": "Lyhyt nimi on jo käytössä"
-    },
-    "foreign_key_violation": {
-      "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
-      "title": "Viiteavainvirhe"
-    }
-  },
-  "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
-  "error-status": "Tila: {{status}}",
   "error-title": "Virhe",
-  "error-type": "Tyyppi: {{type}}",
   "essay": "Essee",
   "exercise-iframe-reload-exhausted-message": "Automaattiset uudelleenlatausyritykset loppuivat. Voit yrittää ladata tehtävän uudelleen käsin.",
   "exercise-iframe-reload-exhausted-reload-button": "Lataa tehtävä uudelleen",
@@ -123,7 +100,6 @@
   "fileField.empty": "Tiedostoa ei valittu",
   "fileField.moreFiles": "+{{count}} lisää",
   "fileField.unnamed": "Nimetön tiedosto",
-  "go-to-error": "Siirry virheeseen",
   "go-to-next-page": "Mene seuraavalle sivulle",
   "go-to-page-x": "Mene sivulle {{number}}",
   "go-to-previous-page": "Mene edelliselle sivulle",
@@ -132,7 +108,6 @@
   "home-page": "Kotisivu",
   "in-this-page": "Tällä sivulla",
   "instruction": "Ohje",
-  "label-error-loading": "Virhe datan lataamisessa.",
   "label-exclude": "Sulje pois",
   "label-false": "Ei",
   "label-include": "Sisällytä",
@@ -205,7 +180,6 @@
   "select-question": "Valitse kysymyksen tyypiksi",
   "set-field-value": "Aseta {{name}}",
   "show": "Näytä",
-  "show-error-source": "Näytä lähde",
   "show-trace": "Näytä trace",
   "shuffle": "Sekoita",
   "skip-to-content": "Siirry sisältöön",

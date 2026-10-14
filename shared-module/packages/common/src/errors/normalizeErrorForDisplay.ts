@@ -183,7 +183,7 @@ function parseIssues(value: unknown): ErrorViewIssue[] {
 
 type ZodIssue = ZodError["issues"][number]
 
-function summarizeZodIssue(issue: ZodIssue, t: TFunction): string {
+function summarizeZodIssue(issue: ZodIssue, t: TFunction<"errors">): string {
   if (issue.code === "invalid_type" && "expected" in issue && "received" in issue) {
     return t("error-zod-issue.invalid_type", {
       expected: String(issue.expected),
@@ -235,7 +235,7 @@ function isAggregateLike(value: unknown): value is { message?: unknown; errors?:
   return isRecord(value) && value.name === "AggregateError" && Array.isArray(value.errors)
 }
 
-function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewModel {
+function normalizePayload(payload: SimplifiedPayload, t: TFunction<"errors">): ErrorViewModel {
   const messageKey = isBackendMessageKey(payload.message_key) ? payload.message_key : null
   const type = typeof payload.type === "string" ? payload.type : null
   const message = typeof payload.message === "string" ? payload.message : null
@@ -278,7 +278,7 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewMo
   }
 }
 
-function normalizeAppApiError(error: AppApiError, t: TFunction): ErrorViewModel {
+function normalizeAppApiError(error: AppApiError, t: TFunction<"errors">): ErrorViewModel {
   const messageKey = isBackendMessageKey(error.messageKey) ? error.messageKey : null
   const category =
     error.kind === "abort"
@@ -327,7 +327,7 @@ function normalizeAppApiError(error: AppApiError, t: TFunction): ErrorViewModel 
   }
 }
 
-export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorViewModel {
+export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">): ErrorViewModel {
   if (isAppApiError(error)) {
     return normalizeAppApiError(error, t)
   }

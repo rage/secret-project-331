@@ -3,14 +3,50 @@ use std::collections::HashMap;
 use futures::Stream;
 use utoipa::ToSchema;
 
-use crate::{prelude::*, users::User};
+use crate::{library::students_view::escape_like_pattern, prelude::*, users::User};
 
 const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 
-/// Trigram distance floor for [`search_for_user_details_by_email`] and
-/// [`search_for_user_details_fuzzy_match`] (`pg_trgm`'s `<<->` returns 0 for an identical string,
-/// larger for a less similar one). Loose enough that a real typo still matches.
-pub const FUZZY_MATCH_SIMILARITY_THRESHOLD: f32 = 0.7;
+/// Cap on [`FuzzyUserSearchResults::users`].
+pub const FUZZY_SEARCH_RESULT_LIMIT: i64 = 50;
+
+/// Minimum `pg_trgm` word similarity (0..1) for a fuzzy match. Real typos score as low as ~0.35.
+const FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD: f32 = 0.3;
+
+const FUZZY_SEARCH_TIMEOUT: &str = "2s";
+
+/// Budget for the GiST attempt before falling back to the GIN filter. Common terms finish in ~10ms
+/// with a warm cache; the slack is for a cold one, where the GIN filter would be far slower.
+const DISTANCE_ORDERED_SEARCH_TIMEOUT: &str = "200ms";
+
+/// Search box filter for user lists: every word of the search appears in the name or email, in any
+/// order, or the whole search is a near match for a misspelled name or email. Queries apply it as
+/// `(ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($word_patterns)` OR
+/// `word_similarity($misspelling_term, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5`.
+/// [`search_for_user_details_fuzzy`] is the ranked search over all users.
+#[derive(Debug, Clone, Default)]
+pub struct UserListSearch {
+    /// One `%word%` pattern per word, lowercased and LIKE-escaped.
+    pub word_patterns: Vec<String>,
+    /// `None` when the search contains a digit: a near match for a student number or for
+    /// `user_3@example.com` is a different person.
+    pub misspelling_term: Option<String>,
+}
+
+impl UserListSearch {
+    pub fn new(search: &str) -> Self {
+        let search = search.trim().to_lowercase();
+        let word_patterns = search
+            .split_whitespace()
+            .map(|word| format!("%{}%", escape_like_pattern(word)))
+            .collect();
+        let misspelling_term = (!search.chars().any(char::is_numeric)).then_some(search);
+        Self {
+            word_patterns,
+            misspelling_term,
+        }
+    }
+}
 
 /// How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
@@ -32,7 +68,6 @@ pub struct UserDetail {
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub search_helper: Option<String>,
     pub country: Option<String>,
     pub email_communication_consent: Option<bool>,
     /// When the user last proved control of the address in `email`. `None` means unproven. Cleared
@@ -54,7 +89,6 @@ SELECT user_id,
   email,
   first_name,
   last_name,
-  search_helper,
   country,
   email_communication_consent,
   email_verified_at,
@@ -82,7 +116,6 @@ SELECT user_id,
   email,
   first_name,
   last_name,
-  search_helper,
   country,
   email_communication_consent,
   email_verified_at,
@@ -117,7 +150,6 @@ SELECT distinct (ud.user_id),
  ud.first_name,
  ud.last_name,
  ud.email,
- ud.search_helper,
  ud.country,
  ud.email_communication_consent,
  ud.email_verified_at,
@@ -154,66 +186,19 @@ pub async fn get_active_user_id_by_email_case_insensitive(
     Ok(id)
 }
 
-pub async fn search_for_user_details_by_email(
-    conn: &mut PgConnection,
-    email: &str,
-) -> ModelResult<Vec<UserDetail>> {
-    let email = normalize_email_search_term(email);
-    if !is_fuzzy_search_term_long_enough(email) {
-        return Ok(Vec::new());
-    }
-
-    // ORDER BY dist only so the GiST trigram index can serve KNN distance ordering.
-    let res = sqlx::query_as!(
-        UserDetail,
-        "
-SELECT user_id,
-  created_at,
-  updated_at,
-  email,
-  first_name,
-  last_name,
-  search_helper,
-  country,
-  email_communication_consent,
-  email_verified_at,
-  email_verified_method
-FROM (
-    SELECT user_id,
-      created_at,
-      updated_at,
-      email,
-      first_name,
-      last_name,
-      search_helper,
-      country,
-      email_communication_consent,
-      email_verified_at,
-      email_verified_method,
-      lower($1) <<-> email_search_helper AS dist
-    FROM user_details
-    ORDER BY dist
-    LIMIT 100
-  ) search
-WHERE dist < $2;
-",
-        email,
-        FUZZY_MATCH_SIMILARITY_THRESHOLD,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Searches user_details by exact user id.
-pub async fn search_for_user_details_by_other_details(
+/// Users whose id or email equals the search term, ignoring case and surrounding whitespace.
+///
+/// At most one row per kind, and cheap enough to answer before [`search_for_user_details_fuzzy`].
+pub async fn search_for_user_details_exact(
     conn: &mut PgConnection,
     search: &str,
 ) -> ModelResult<Vec<UserDetail>> {
-    let Some(user_id) = parse_exact_user_id_search_term(search) else {
+    let search = search.trim();
+    let user_id = search.parse::<Uuid>().ok();
+    let email = (user_id.is_none() && search.contains('@')).then_some(search);
+    if user_id.is_none() && email.is_none() {
         return Ok(Vec::new());
-    };
-
+    }
     let res = sqlx::query_as!(
         UserDetail,
         "
@@ -223,90 +208,210 @@ SELECT user_id,
   email,
   first_name,
   last_name,
-  search_helper,
   country,
   email_communication_consent,
   email_verified_at,
   email_verified_method
 FROM user_details
-WHERE user_id = $1;
+WHERE user_id = $1
+  OR lower(email) = lower($2)
 ",
         user_id,
+        email,
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn search_for_user_details_fuzzy_match(
+/// Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, ToSchema)]
+pub struct FuzzyUserSearchResults {
+    pub users: Vec<UserDetail>,
+    /// More users matched than `users` holds.
+    pub has_more: bool,
+    /// The search hit its time limit, so `users` is empty without meaning nobody matched.
+    pub timed_out: bool,
+}
+
+/// Users whose name or email local part resembles the search term, best match first, ties by id.
+///
+/// A term containing `@` is matched by its local part. Terms shorter than three characters and
+/// user ids match nothing; [`search_for_user_details_exact`] covers ids and whole emails.
+pub async fn search_for_user_details_fuzzy(
     conn: &mut PgConnection,
     search: &str,
-) -> ModelResult<Vec<UserDetail>> {
-    // If a full email address reaches name search, compare only the local part against names.
-    let search = normalize_name_search_term(search);
-    if !is_fuzzy_search_term_long_enough(search) {
-        return Ok(Vec::new());
-    }
+) -> ModelResult<FuzzyUserSearchResults> {
+    let mut results = FuzzyUserSearchResults::default();
+    let Some(term) = fuzzy_search_term(search) else {
+        return Ok(results);
+    };
+    let row_limit = FUZZY_SEARCH_RESULT_LIMIT + 1;
 
-    // ORDER BY dist only — no secondary tiebreaker. Adding one (e.g. user_id)
-    // would prevent the GiST trigram index from serving the distance ordering,
-    // forcing a full table scan+sort. Ties at exactly equal float distances are
-    // rare enough in practice that non-determinism in the LIMIT 100 is acceptable.
-    let res = sqlx::query_as!(
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        "SELECT set_config('pg_trgm.word_similarity_threshold', $1, true) AS threshold,
+  set_config('statement_timeout', $2, true) AS statement_timeout",
+        FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD.to_string(),
+        DISTANCE_ORDERED_SEARCH_TIMEOUT,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let mut distance_attempt = tx.begin().await?;
+    let mut users = match fuzzy_search_by_distance(&mut distance_attempt, &term, row_limit).await {
+        Ok(users) => {
+            distance_attempt.commit().await?;
+            users
+        }
+        Err(err) if is_statement_timeout(&err) => {
+            distance_attempt.rollback().await?;
+            set_local_setting(&mut tx, "statement_timeout", FUZZY_SEARCH_TIMEOUT).await?;
+            match fuzzy_search_by_trigram_filter(&mut tx, &term, row_limit).await {
+                Ok(users) => users,
+                Err(err) if is_statement_timeout(&err) => {
+                    tx.rollback().await?;
+                    results.timed_out = true;
+                    return Ok(results);
+                }
+                Err(err) => return Err(err.into()),
+            }
+        }
+        Err(err) => return Err(err.into()),
+    };
+    // Rolled back rather than committed: it only read, and a commit inside a caller's transaction
+    // would keep the settings above for the rest of that transaction.
+    tx.rollback().await?;
+
+    results.has_more = users.len() > FUZZY_SEARCH_RESULT_LIMIT as usize;
+    users.truncate(FUZZY_SEARCH_RESULT_LIMIT as usize);
+    results.users = users;
+    Ok(results)
+}
+
+/// Fast for common terms, but a rare or misspelled term makes the GiST scans read most of the
+/// index, which is why [`search_for_user_details_fuzzy`] gives this only a short time budget.
+async fn fuzzy_search_by_distance(
+    conn: &mut PgConnection,
+    term: &str,
+    row_limit: i64,
+) -> sqlx::Result<Vec<UserDetail>> {
+    // No tie-break inside the CTEs: anything after the distance stops the GiST indexes from
+    // serving the ordering.
+    sqlx::query_as!(
         UserDetail,
-        "
+        r#"
+WITH name_matches AS (
+  SELECT user_id,
+    $1 <<-> name_search_helper AS distance
+  FROM user_details
+  ORDER BY distance
+  LIMIT $2
+),
+email_matches AS (
+  SELECT user_id,
+    $1 <<-> split_part(email_search_helper, '@', 1) AS distance
+  FROM user_details
+  ORDER BY distance
+  LIMIT $2
+),
+matches AS (
+  SELECT user_id,
+    min(distance) AS distance
+  FROM (
+      SELECT *
+      FROM name_matches
+      UNION ALL
+      SELECT *
+      FROM email_matches
+    ) candidates
+  WHERE distance < $3
+  GROUP BY user_id
+)
+SELECT ud.user_id,
+  ud.created_at,
+  ud.updated_at,
+  ud.email,
+  ud.first_name,
+  ud.last_name,
+  ud.country,
+  ud.email_communication_consent,
+  ud.email_verified_at,
+  ud.email_verified_method
+FROM matches
+  JOIN user_details ud ON ud.user_id = matches.user_id
+ORDER BY matches.distance,
+  ud.user_id
+LIMIT $2
+"#,
+        term,
+        row_limit,
+        1.0 - FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD,
+    )
+    .fetch_all(conn)
+    .await
+}
+
+/// Fast for rare and misspelled terms, slow for common ones. Needs
+/// `pg_trgm.word_similarity_threshold` set for `<%`.
+async fn fuzzy_search_by_trigram_filter(
+    conn: &mut PgConnection,
+    term: &str,
+    row_limit: i64,
+) -> sqlx::Result<Vec<UserDetail>> {
+    // The search text expression must stay identical to the user_details_search_text_gin index.
+    sqlx::query_as!(
+        UserDetail,
+        r#"
 SELECT user_id,
   created_at,
   updated_at,
   email,
   first_name,
   last_name,
-  search_helper,
   country,
   email_communication_consent,
   email_verified_at,
   email_verified_method
-FROM (
-    SELECT user_id,
-      created_at,
-      updated_at,
-      email,
-      first_name,
-      last_name,
-      search_helper,
-      country,
-      email_communication_consent,
-      email_verified_at,
-      email_verified_method,
-      lower($1) <<-> name_search_helper AS dist
-    FROM user_details
-    ORDER BY dist
-    LIMIT 100
-  ) search
-WHERE dist < $2;
-",
-        search,
-        FUZZY_MATCH_SIMILARITY_THRESHOLD,
+FROM user_details
+WHERE $1 <% (name_search_helper || ' ' || split_part(email_search_helper, '@', 1))
+ORDER BY $1 <<-> (name_search_helper || ' ' || split_part(email_search_helper, '@', 1)),
+  user_id
+LIMIT $2
+"#,
+        term,
+        row_limit,
     )
     .fetch_all(conn)
-    .await?;
-    Ok(res)
+    .await
 }
 
-fn normalize_name_search_term(search: &str) -> &str {
-    search.split('@').next().unwrap_or(search).trim()
+/// Changes a Postgres setting until the transaction ends or is rolled back past this point.
+async fn set_local_setting(conn: &mut PgConnection, name: &str, value: &str) -> sqlx::Result<()> {
+    sqlx::query!("SELECT set_config($1, $2, true)", name, value)
+        .fetch_one(conn)
+        .await?;
+    Ok(())
 }
 
-fn normalize_email_search_term(search: &str) -> &str {
-    search.trim()
+fn is_statement_timeout(err: &sqlx::Error) -> bool {
+    const QUERY_CANCELED: &str = "57014";
+    matches!(err, sqlx::Error::Database(db_err) if db_err.code().as_deref() == Some(QUERY_CANCELED))
 }
 
-fn is_fuzzy_search_term_long_enough(search: &str) -> bool {
-    search.chars().count() >= MIN_FUZZY_SEARCH_TERM_LENGTH
-}
-
-fn parse_exact_user_id_search_term(search: &str) -> Option<Uuid> {
-    search.trim().parse().ok()
+/// The lowercased local part of the search term, or `None` when it should match nothing.
+fn fuzzy_search_term(search: &str) -> Option<String> {
+    let search = search.trim();
+    if search.parse::<Uuid>().is_ok() {
+        return None;
+    }
+    let term = search
+        .split('@')
+        .next()
+        .unwrap_or(search)
+        .trim()
+        .to_lowercase();
+    (term.chars().count() >= MIN_FUZZY_SEARCH_TERM_LENGTH).then_some(term)
 }
 
 /// Retrieves all users enrolled in a specific course
@@ -323,7 +428,6 @@ SELECT d.user_id,
   d.email,
   d.first_name,
   d.last_name,
-  d.search_helper,
   d.country,
   d.email_communication_consent,
   d.email_verified_at,
@@ -355,7 +459,6 @@ SELECT user_id,
   email,
   first_name,
   last_name,
-  search_helper,
   country,
   email_communication_consent,
   email_verified_at,
@@ -386,7 +489,6 @@ SELECT ud.user_id,
   ud.email,
   ud.first_name,
   ud.last_name,
-  ud.search_helper,
   ud.country,
   ud.email_communication_consent,
   ud.email_verified_at,
@@ -421,7 +523,6 @@ SELECT ud.user_id,
   ud.email,
   ud.first_name,
   ud.last_name,
-  ud.search_helper,
   ud.country,
   ud.email_communication_consent,
   ud.email_verified_at,
@@ -509,7 +610,6 @@ RETURNING user_id,
   email,
   first_name,
   last_name,
-  search_helper,
   country,
   email_communication_consent,
   email_verified_at,
@@ -608,34 +708,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn normalizes_name_search_term() {
-        assert_eq!(normalize_name_search_term("  alice@example.com  "), "alice");
-        assert_eq!(normalize_name_search_term("  alice  "), "alice");
-    }
-
-    #[test]
-    fn normalizes_email_search_term_without_removing_domain() {
+    fn fuzzy_search_term_is_the_lowercased_local_part() {
         assert_eq!(
-            normalize_email_search_term("  alice@example.com  "),
-            "alice@example.com"
+            fuzzy_search_term("  Alice.B@example.com  ").as_deref(),
+            Some("alice.b")
         );
+        assert_eq!(fuzzy_search_term(" Alice ").as_deref(), Some("alice"));
     }
 
     #[test]
-    fn rejects_short_fuzzy_search_terms() {
-        assert!(!is_fuzzy_search_term_long_enough("al"));
-        assert!(is_fuzzy_search_term_long_enough("ali"));
-    }
-
-    #[test]
-    fn parses_exact_user_id_search_term() {
-        let user_id = Uuid::parse_str("5b177cc9-fbc3-43b5-8108-63481ff0b0e4").unwrap();
-
+    fn fuzzy_search_term_skips_short_terms_and_user_ids() {
+        assert_eq!(fuzzy_search_term("al"), None);
+        assert_eq!(fuzzy_search_term("al@example.com"), None);
         assert_eq!(
-            parse_exact_user_id_search_term("  5b177cc9-fbc3-43b5-8108-63481ff0b0e4  "),
-            Some(user_id)
+            fuzzy_search_term("5b177cc9-fbc3-43b5-8108-63481ff0b0e4"),
+            None
         );
-        assert_eq!(parse_exact_user_id_search_term("not-a-user-id"), None);
     }
 
     // One test per writer of user_details.email. No call site clears the verification flag itself,

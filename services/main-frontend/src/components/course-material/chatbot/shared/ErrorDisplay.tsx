@@ -18,7 +18,7 @@ interface ErrorDisplayProps {
 /** Formats chatbot errors using normalized display metadata. */
 const formatErrorMessage = (
   error: unknown,
-  t: TFunction,
+  t: TFunction<"errors">,
 ): { boldPart: string; normalPart: string; details: string[]; originalMessage: string } => {
   const normalized = normalizeErrorForDisplay(error, t)
   const details: string[] = []
@@ -68,7 +68,7 @@ const formatOriginalErrorMessage = (originalMessage: string): string => {
 }
 
 const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   const [showDetails, setShowDetails] = useState(false)
 
   const parsed = zStreamEventError.safeParse(error)

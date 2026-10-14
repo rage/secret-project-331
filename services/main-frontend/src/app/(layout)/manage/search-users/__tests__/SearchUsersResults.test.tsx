@@ -1,136 +1,145 @@
 "use client"
 
-import type { UseQueryResult } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import "@testing-library/jest-dom"
-import type React from "react"
 
-import type { UserDetail } from "@/generated/api/types.generated"
+import type { FuzzyUserSearchResults, UserDetail } from "@/generated/api/types.generated"
 
+import {
+  createUser,
+  failed,
+  fetching,
+  fetchingWithPrevious,
+  fuzzyResults,
+  succeeded,
+} from "../__fixtures__/queryFixtures"
 import SearchUsersResults from "../SearchUsersResults"
+import { deriveSearchUsersState } from "../searchUsersState"
 
 jest.mock("react-i18next", () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: { completed?: number }) => {
-      if (key === "search-users-progress") {
-        return `Searches completed: ${options?.completed ?? 0}/3`
-      }
-      return key
-    },
-  }),
+  useTranslation: () => ({ t: (key: string) => key }),
   Translation: ({ children }: { children: (t: (key: string) => string) => React.ReactNode }) =>
     children((key) => key),
 }))
 
-const createUser = (user_id: string, email: string): UserDetail => ({
-  user_id,
-  email,
-  first_name: "Alice",
-  last_name: "Example",
-  created_at: "2026-01-01T00:00:00Z",
-  updated_at: "2026-01-01T00:00:00Z",
-})
-
-const createQuery = (
-  overrides: Partial<UseQueryResult<UserDetail[], unknown>> = {},
-): UseQueryResult<UserDetail[], unknown> =>
-  ({
-    data: [],
-    error: null,
-    isError: false,
-    isFetching: false,
-    isPending: false,
-    ...overrides,
-  }) as UseQueryResult<UserDetail[], unknown>
-
-const renderSearchUsersResults = (
-  overrides: Partial<{
-    searchByEmailQuery: UseQueryResult<UserDetail[], unknown>
-    searchByOtherDetailsQuery: UseQueryResult<UserDetail[], unknown>
-    searchFuzzyMatchQuery: UseQueryResult<UserDetail[], unknown>
-  }> = {},
+const renderResults = (
+  exactQuery: Parameters<typeof deriveSearchUsersState>[0],
+  fuzzyQuery: Parameters<typeof deriveSearchUsersState>[1],
+  { isTooShort = false, onRetryFuzzy = jest.fn() } = {},
 ) =>
   render(
     <SearchUsersResults
-      searchByEmailQuery={overrides.searchByEmailQuery ?? createQuery()}
-      searchByOtherDetailsQuery={overrides.searchByOtherDetailsQuery ?? createQuery()}
-      searchFuzzyMatchQuery={overrides.searchFuzzyMatchQuery ?? createQuery()}
+      state={deriveSearchUsersState(exactQuery, fuzzyQuery)}
+      isTooShort={isTooShort}
+      onRetryExact={jest.fn()}
+      onRetryFuzzy={onRetryFuzzy}
     />,
   )
 
 describe("SearchUsersResults", () => {
-  it("renders partial table rows while a query is still fetching", () => {
-    renderSearchUsersResults({
-      searchByEmailQuery: createQuery({
-        data: [createUser("user-1", "alice@example.com")],
-      }),
-      searchByOtherDetailsQuery: createQuery({ data: undefined, isFetching: true }),
-    })
+  it("shows only placeholder rows until the exact search answers", () => {
+    renderResults(
+      fetching<UserDetail[]>(),
+      succeeded(fuzzyResults([createUser("similar", "similar@example.com")])),
+    )
 
-    expect(screen.getByText("alice@example.com")).toBeInTheDocument()
-    expect(screen.getByText("Searches completed: 2/3")).toBeInTheDocument()
-    expect(screen.queryByText("text-no-results")).not.toBeInTheDocument()
+    expect(screen.queryByText("similar@example.com")).not.toBeInTheDocument()
+    expect(screen.queryByRole("link")).not.toBeInTheDocument()
   })
 
-  it("shows progress while query slots are still completing", () => {
-    const { rerender } = renderSearchUsersResults({
-      searchByEmailQuery: createQuery({ isFetching: true }),
-      searchByOtherDetailsQuery: createQuery({ isFetching: true }),
-    })
+  it("shows exact matches under their own heading while similar users load", () => {
+    renderResults(
+      succeeded([createUser("exact", "exact@example.com")]),
+      fetching<FuzzyUserSearchResults>(),
+    )
 
-    expect(screen.getByText("Searches completed: 1/3")).toBeInTheDocument()
+    expect(screen.getByText("exact@example.com")).toBeInTheDocument()
+    expect(screen.getByText("search-users-group-exact")).toBeInTheDocument()
+    expect(screen.getByText("search-users-group-similar")).toBeInTheDocument()
+  })
+
+  it("lists similar users after the exact matches", () => {
+    renderResults(
+      succeeded([createUser("exact", "exact@example.com")]),
+      succeeded(fuzzyResults([createUser("similar", "similar@example.com")])),
+    )
+
+    const emails = screen.getAllByText(/@example\.com$/).map((cell) => cell.textContent)
+    expect(emails).toEqual(["exact@example.com", "similar@example.com"])
+  })
+
+  it("links each user to their details page", () => {
+    renderResults(
+      succeeded([createUser("user-1", "user1@example.com")]),
+      succeeded(fuzzyResults([])),
+    )
+
+    expect(screen.getByRole("link", { name: /user1@example\.com/ })).toHaveAttribute(
+      "href",
+      "/manage/users/user-1",
+    )
+  })
+
+  it("marks a user without a name", () => {
+    renderResults(
+      succeeded([{ ...createUser("user-1"), first_name: null, last_name: " " }]),
+      succeeded(fuzzyResults([])),
+    )
+
+    expect(screen.getByText("search-users-no-name")).toBeInTheDocument()
+  })
+
+  it("says no users were found only after both searches answered", async () => {
+    const { rerender } = renderResults(succeeded([]), fetching<FuzzyUserSearchResults>())
+
+    expect(screen.queryByText("search-users-no-users-found")).not.toBeInTheDocument()
 
     rerender(
       <SearchUsersResults
-        searchByEmailQuery={createQuery()}
-        searchByOtherDetailsQuery={createQuery({ isFetching: true })}
-        searchFuzzyMatchQuery={createQuery()}
+        state={deriveSearchUsersState(succeeded([]), succeeded(fuzzyResults([])))}
+        isTooShort={false}
+        onRetryExact={jest.fn()}
+        onRetryFuzzy={jest.fn()}
       />,
     )
 
-    expect(screen.getByText("Searches completed: 2/3")).toBeInTheDocument()
-
-    rerender(
-      <SearchUsersResults
-        searchByEmailQuery={createQuery()}
-        searchByOtherDetailsQuery={createQuery()}
-        searchFuzzyMatchQuery={createQuery()}
-      />,
-    )
-
-    expect(screen.queryByText("Searches completed: 3/3")).not.toBeInTheDocument()
+    expect(await screen.findByText("search-users-no-users-found")).toBeInTheDocument()
   })
 
-  it("shows no results only after all query slots have completed", () => {
-    const { rerender } = renderSearchUsersResults({
-      searchByEmailQuery: createQuery({ isFetching: true }),
-    })
+  it("asks for a longer term instead of searching", () => {
+    renderResults(succeeded([]), succeeded(fuzzyResults([])), { isTooShort: true })
 
-    expect(screen.queryByText("text-no-results")).not.toBeInTheDocument()
-
-    rerender(
-      <SearchUsersResults
-        searchByEmailQuery={createQuery()}
-        searchByOtherDetailsQuery={createQuery()}
-        searchFuzzyMatchQuery={createQuery()}
-      />,
-    )
-
-    expect(screen.getByText("text-no-results")).toBeInTheDocument()
+    expect(screen.getByText("search-users-too-short")).toBeInTheDocument()
   })
 
-  it("renders successful partial results when one query errors", () => {
-    renderSearchUsersResults({
-      searchByEmailQuery: createQuery({
-        data: [createUser("user-1", "alice@example.com")],
-      }),
-      searchByOtherDetailsQuery: createQuery({
-        error: new Error("Search failed"),
-        isError: true,
-      }),
-    })
+  it("offers a retry when the similar-user search times out", () => {
+    const onRetryFuzzy = jest.fn()
+    renderResults(
+      succeeded([createUser("exact", "exact@example.com")]),
+      succeeded(fuzzyResults([], { timed_out: true })),
+      { onRetryFuzzy },
+    )
 
-    expect(screen.getByRole("alert")).toBeInTheDocument()
-    expect(screen.getByText("alice@example.com")).toBeInTheDocument()
+    expect(screen.getByText("exact@example.com")).toBeInTheDocument()
+    expect(screen.getByText("search-users-similar-timed-out")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "try-again" }))
+    expect(onRetryFuzzy).toHaveBeenCalled()
+  })
+
+  it("keeps showing exact matches when the similar-user search fails", () => {
+    renderResults(succeeded([createUser("exact", "exact@example.com")]), failed())
+
+    expect(screen.getByText("exact@example.com")).toBeInTheDocument()
+    expect(screen.getByText("search-users-similar-failed")).toBeInTheDocument()
+  })
+
+  it("makes the previous results inert while the new search runs", () => {
+    const { container } = renderResults(
+      fetchingWithPrevious([createUser("old", "old@example.com")]),
+      fetchingWithPrevious(fuzzyResults([])),
+    )
+
+    expect(screen.getByText("old@example.com")).toBeInTheDocument()
+    expect(container.querySelector("[inert]")).not.toBeNull()
   })
 })

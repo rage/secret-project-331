@@ -23,7 +23,7 @@ const useNewConversationMutation = (
   setConvId: React.Dispatch<string | null>,
 ) => {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   return useToastMutation(
     () => {
       if (!chatbotConfigurationId) {

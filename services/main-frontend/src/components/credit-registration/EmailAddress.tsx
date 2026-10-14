@@ -39,15 +39,24 @@ export const EmailAddress: React.FC<{ address: string }> = ({ address }) => {
 }
 
 /** The translations with an `<email/>` tag. */
-type EmailAddressSentenceKey = "credit-registration-admin-journey-emailed-to"
+type EmailAddressSentenceKey =
+  | "credit-registration-admin-journey-emailed-to"
+  | "credit-registration-admin-linking-candidate-sent-by-hand"
+  | "credit-registration-admin-linking-email-sent-by-hand"
 
 /** The `i18nKey` sentence with its `<email/>` tag rendered as `address`. */
 export const sentenceWithEmailAddress = (
   t: CreditRegistrationTFunction,
   i18nKey: EmailAddressSentenceKey,
   address: string,
+  values?: Record<string, string>,
 ): React.ReactElement => (
-  <Trans t={t} i18nKey={i18nKey} components={{ email: <EmailAddress address={address} /> }} />
+  <Trans
+    t={t}
+    i18nKey={i18nKey}
+    values={values}
+    components={{ email: <EmailAddress address={address} /> }}
+  />
 )
 
 /** Free text from the server, such as an event's message, with any email address in it kept whole. */

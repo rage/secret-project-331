@@ -9,8 +9,10 @@ import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getCreditRegistrationAttentionItemsQueryKey,
   getCreditRegistrationForAdminQueryKey,
+  getCreditRegistrationLinkingCandidatesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
+import type { AdminLinkingCandidates } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Badge, Dialog, Infobox, Radio, RadioGroup } from "@/shared-module/components"
 
@@ -24,9 +26,11 @@ import {
   candidateFacts,
   candidateListCss,
   candidateName,
-  ResendOutcomeNotice,
+  SendNotice,
   showsNotEmailed,
+  withSendResult,
 } from "./linkingCandidate"
+import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 
 interface Props extends DialogOpenState {
   registrationId: string
@@ -64,6 +68,20 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
           credit_registration_id: registrationId,
         },
       }),
+    (sent, { fields }) => {
+      queryClient.setQueryData<AdminLinkingCandidates>(
+        getCreditRegistrationLinkingCandidatesQueryKey({
+          path: { credit_registration_id: registrationId },
+        }),
+        (current) =>
+          current && {
+            ...current,
+            candidates: current.candidates.map((candidate) =>
+              withSendResult(candidate, fields.student_number, sent),
+            ),
+          },
+      )
+    },
   )
 
   const closeDialog = () => {
@@ -110,7 +128,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
       actions={actions}
     >
       <div className={dialogFormCss}>
-        {result && <ResendOutcomeNotice result={result} />}
+        <SendNotice result={result} mutation={mutation} />
         {candidatesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}
@@ -144,6 +162,10 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
                   description={
                     <span className={stackedCellCss}>
                       <InlineParts parts={candidateFacts(t, candidate, isNotEmailedShown)} />
+                      <ManualLinkingEmailSendLines
+                        sends={candidate.manual_sends}
+                        variant="candidate"
+                      />
                       {candidate.similarities.length > 0 && (
                         <span className={rowCss}>
                           {candidate.similarities.map((similarity) => (

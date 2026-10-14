@@ -580,9 +580,7 @@ mod tests {
 
         // Soft-delete the token owner. Their still-valid access token must stop
         // authenticating rather than working until it expires.
-        sqlx::query("UPDATE users SET deleted_at = now() WHERE id = $1")
-            .bind(user)
-            .execute(&mut **tx.as_mut())
+        headless_lms_models::users::delete_user(tx.as_mut(), user)
             .await
             .unwrap();
 

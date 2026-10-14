@@ -41,8 +41,9 @@ use headless_lms_utils::secret_string::expose_option;
 use secrecy::{ExposeSecret, SecretString};
 
 use super::{
-    AdminLinkingEmail, attention_rules, authorize_credit_registration_admin, build_linking_emails,
-    required_reason,
+    AdminLinkingEmail, AdminManualLinkingEmailSend, attention_rules,
+    authorize_credit_registration_admin, build_linking_emails,
+    manual_linking_email_sends_by_registration, required_reason,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -271,6 +272,8 @@ pub struct AdminCreditRegistrationDetails {
     pub actions: Vec<CreditRegistrationAdminActionRecord>,
     /// Every mail addressed to this person, on any course.
     pub linking_emails: Vec<AdminLinkingEmail>,
+    /// Linking emails sent by hand as a guess for this row's student, newest first.
+    pub manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
     /// The student mails queued for every attempt ("Please register" is `action_needed`), with the
     /// same send status the student and the teacher are shown.
     pub notification_emails: Vec<AdminNotificationEmail>,
@@ -670,6 +673,12 @@ pub async fn get_credit_registration_for_admin(
         None => Vec::new(),
     };
 
+    let manual_linking_email_sends =
+        manual_linking_email_sends_by_registration(&mut conn, &[registration.course_id])
+            .await?
+            .remove(&id)
+            .unwrap_or_default();
+
     let notification_emails = student_notifications::get_for_registrations(&mut conn, &attempt_ids)
         .await?
         .into_iter()
@@ -735,6 +744,7 @@ pub async fn get_credit_registration_for_admin(
         suotar_api_calls,
         actions,
         linking_emails,
+        manual_linking_email_sends,
         notification_emails,
         not_improved_attainment,
     }))

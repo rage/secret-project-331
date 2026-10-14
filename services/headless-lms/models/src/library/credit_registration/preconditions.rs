@@ -592,10 +592,7 @@ mod tests {
         crate::credit_registrations::testing::set_state_entered_at_for_testing(conn, id, long_ago)
             .await
             .unwrap();
-        sqlx::query("UPDATE credit_registrations SET submitted_at = $2 WHERE id = $1")
-            .bind(id)
-            .bind(long_ago)
-            .execute(conn)
+        crate::credit_registrations::set_submitted_at(conn, id, long_ago)
             .await
             .unwrap();
     }

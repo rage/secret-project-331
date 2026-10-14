@@ -1,41 +1,29 @@
 "use client"
 
-import type { UseQueryResult } from "@tanstack/react-query"
 import { renderHook } from "@testing-library/react"
 
-import type { UserDetail } from "@/generated/api/types.generated"
+import type { FuzzyUserSearchResults, UserDetail } from "@/generated/api/types.generated"
 
+import {
+  createUser,
+  failed,
+  fetching,
+  fuzzyResults,
+  succeeded,
+} from "../__fixtures__/queryFixtures"
+import { deriveSearchUsersState } from "../searchUsersState"
 import useSearchUsersLiveRegion from "../useSearchUsersLiveRegion"
 
-const createUser = (user_id: string): UserDetail =>
-  ({
-    user_id,
-  }) as UserDetail
-
-const createQuery = (
-  overrides: Partial<UseQueryResult<UserDetail[], unknown>> = {},
-): UseQueryResult<UserDetail[], unknown> =>
-  ({
-    data: [],
-    isError: false,
-    isFetching: false,
-    isPending: false,
-    ...overrides,
-  }) as UseQueryResult<UserDetail[], unknown>
+const oneResult = deriveSearchUsersState(
+  succeeded([createUser("user-1")]),
+  succeeded(fuzzyResults([])),
+)
 
 describe("useSearchUsersLiveRegion", () => {
   it("clears stale announcements when search is cleared", () => {
-    const idleQuery = createQuery()
-    const resultQuery = createQuery({ data: [createUser("user-1")] })
-
     const { result, rerender } = renderHook(
       ({ searchQuery }) =>
-        useSearchUsersLiveRegion({
-          searchQuery,
-          searchByEmailQuery: resultQuery,
-          searchByOtherDetailsQuery: idleQuery,
-          searchFuzzyMatchQuery: idleQuery,
-        }),
+        useSearchUsersLiveRegion({ searchQuery, isTooShort: false, state: oneResult }),
       { initialProps: { searchQuery: "alice" } },
     )
 
@@ -50,51 +38,36 @@ describe("useSearchUsersLiveRegion", () => {
     expect(result.current).toBe("search-users-live-region-one-result-found")
   })
 
-  it("does not announce disabled queries as still searching", () => {
-    const settledQuery = createQuery()
-    const disabledPendingQuery = createQuery({ data: undefined, isPending: true })
-
-    const { result } = renderHook(() =>
-      useSearchUsersLiveRegion({
-        searchQuery: "al",
-        searchByEmailQuery: settledQuery,
-        searchByOtherDetailsQuery: settledQuery,
-        searchFuzzyMatchQuery: disabledPendingQuery,
-      }),
+  it("does not announce a result count while the similar-user search runs", () => {
+    const state = deriveSearchUsersState(
+      succeeded([createUser("user-1")]),
+      fetching<FuzzyUserSearchResults>(),
     )
 
-    expect(result.current).toBe("search-users-live-region-no-users-found")
-  })
-
-  it("does not announce no users found while a query is still fetching", () => {
-    const settledQuery = createQuery()
-    const fetchingQuery = createQuery({ data: undefined, isFetching: true, isPending: true })
-
     const { result } = renderHook(() =>
-      useSearchUsersLiveRegion({
-        searchQuery: "alice",
-        searchByEmailQuery: settledQuery,
-        searchByOtherDetailsQuery: fetchingQuery,
-        searchFuzzyMatchQuery: settledQuery,
-      }),
+      useSearchUsersLiveRegion({ searchQuery: "alice", isTooShort: false, state }),
     )
 
     expect(result.current).toBe("search-users-live-region-searching-users")
   })
 
-  it("does not announce final result counts while a query is still fetching", () => {
-    const resultQuery = createQuery({ data: [createUser("user-1")] })
-    const fetchingQuery = createQuery({ data: undefined, isFetching: true, isPending: true })
+  it("announces a too short term", () => {
+    const state = deriveSearchUsersState(succeeded<UserDetail[]>([]), succeeded(fuzzyResults([])))
 
     const { result } = renderHook(() =>
-      useSearchUsersLiveRegion({
-        searchQuery: "alice",
-        searchByEmailQuery: resultQuery,
-        searchByOtherDetailsQuery: fetchingQuery,
-        searchFuzzyMatchQuery: createQuery(),
-      }),
+      useSearchUsersLiveRegion({ searchQuery: "al", isTooShort: true, state }),
     )
 
-    expect(result.current).toBe("search-users-live-region-searching-users")
+    expect(result.current).toBe("search-users-too-short")
+  })
+
+  it("announces a failed search", () => {
+    const state = deriveSearchUsersState(succeeded([createUser("user-1")]), failed())
+
+    const { result } = renderHook(() =>
+      useSearchUsersLiveRegion({ searchQuery: "alice", isTooShort: false, state }),
+    )
+
+    expect(result.current).toBe("search-users-live-region-search-failed")
   })
 })

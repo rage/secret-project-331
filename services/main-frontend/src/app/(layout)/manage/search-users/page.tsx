@@ -1,23 +1,49 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useEffect } from "react"
 import { VisuallyHidden } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { Button, TextField } from "@/shared-module/components"
 
 import SearchUsersResults from "./SearchUsersResults"
+import { deriveSearchUsersState } from "./searchUsersState"
+import SearchUsersStatus from "./SearchUsersStatus"
 import useSearchUsersLiveRegion from "./useSearchUsersLiveRegion"
-import useSearchUsersQueries from "./useSearchUsersQueries"
+import useSearchUsersQueries, { isSearchTermTooShort } from "./useSearchUsersQueries"
+
+const formCss = css`
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+`
+
+const fieldCss = css`
+  flex-grow: 1;
+`
+
+/**
+ * As tall as the md TextField's input box (2rem of padding plus a 1.5 line), so the button centres
+ * on the input and not on any message below it.
+ */
+const buttonSlotCss = css`
+  display: flex;
+  align-items: center;
+  height: calc(2rem + 1.5em);
+`
+
+interface SearchFields {
+  search: string
+}
 
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
@@ -32,15 +58,27 @@ const SearchUsersPage: React.FC = () => {
     paramName: "search",
     delayMs: 250,
   })
-  const queries = useSearchUsersQueries(searchQuery)
-  const { searchByEmailQuery, searchByOtherDetailsQuery, searchFuzzyMatchQuery } = queries
-  const hasActiveSearch = searchQuery !== ""
-  const liveRegionMessage = useSearchUsersLiveRegion({
-    searchQuery,
-    searchByEmailQuery,
-    searchByOtherDetailsQuery,
-    searchFuzzyMatchQuery,
+  const { control, handleSubmit, watch, setValue, getValues } = useForm<SearchFields>({
+    defaultValues: { search: inputValue },
   })
+  const typedSearch = watch("search")
+
+  useEffect(() => {
+    setInputValue(typedSearch)
+  }, [typedSearch, setInputValue])
+
+  // The URL can change the input too, e.g. on back navigation.
+  useEffect(() => {
+    if (getValues("search") !== inputValue) {
+      setValue("search", inputValue)
+    }
+  }, [inputValue, getValues, setValue])
+
+  const { exactQuery, fuzzyQuery } = useSearchUsersQueries(searchQuery)
+  const state = deriveSearchUsersState(exactQuery, fuzzyQuery)
+  const hasActiveSearch = searchQuery !== ""
+  const isTooShort = isSearchTermTooShort(searchQuery)
+  const liveRegionMessage = useSearchUsersLiveRegion({ searchQuery, isTooShort, state })
 
   return (
     <OnlyRenderIfPermissions
@@ -50,43 +88,21 @@ const SearchUsersPage: React.FC = () => {
     >
       <h1>{t("title-user-search")}</h1>
 
-      <div>
-        <div
-          className={css`
-            display: flex;
-          `}
-        >
-          <TextField
-            label={t("text-field-label-search")}
-            className={css`
-              flex-grow: 1;
-            `}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                runImmediate()
-              }
-            }}
-          />
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              margin-left: 1rem;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={runImmediate}
-              disabled={searchByEmailQuery.isFetching}
-            >
-              {t("button-text-search")}
-            </Button>
-          </div>
+      <form className={formCss} onSubmit={handleSubmit(runImmediate)}>
+        <TextField
+          name="search"
+          control={control}
+          label={t("search-users-field-label")}
+          className={fieldCss}
+        />
+        <div className={buttonSlotCss}>
+          <Button type="submit" variant="primary" size="medium">
+            {t("button-text-search")}
+          </Button>
         </div>
-      </div>
+      </form>
+
+      <SearchUsersStatus state={state} searchQuery={searchQuery} isTooShort={isTooShort} />
 
       <VisuallyHidden aria-live="polite" aria-atomic>
         {liveRegionMessage}
@@ -94,9 +110,10 @@ const SearchUsersPage: React.FC = () => {
 
       {hasActiveSearch && (
         <SearchUsersResults
-          searchByEmailQuery={searchByEmailQuery}
-          searchByOtherDetailsQuery={searchByOtherDetailsQuery}
-          searchFuzzyMatchQuery={searchFuzzyMatchQuery}
+          state={state}
+          isTooShort={isTooShort}
+          onRetryExact={() => void exactQuery.refetch()}
+          onRetryFuzzy={() => void fuzzyQuery.refetch()}
         />
       )}
     </OnlyRenderIfPermissions>

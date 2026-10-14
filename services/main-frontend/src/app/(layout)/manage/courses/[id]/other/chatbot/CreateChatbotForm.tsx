@@ -9,6 +9,7 @@ import { createChatbotMutation } from "@/generated/api/@tanstack/react-query.gen
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { parseError } from "@/shared-module/common/components/ErrorBanner/parseError"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { Button, TextArea, TextField } from "@/shared-module/components"
 
@@ -31,6 +32,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   closeEdit,
 }) => {
   const { t } = useTranslation()
+  const { t: te } = useTranslation("errors")
+
   const { confirm } = useDialog()
   const { control, handleSubmit } = useForm<CreateChatbotFields>()
 
@@ -45,17 +48,22 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         getChatbotsList.refetch()
         closeEdit(data.id)
       },
-      onError: async (error, variables) => {
-        const try_again = await confirm(
-          <>
-            <p>{t("create-chatbot-form-fail-dialog")}</p>
-            <ErrorBanner error={error} />
-          </>,
-          t("create-chatbot-form-fail-title"),
-        )
-        chatbotCreationMutation.mutate({
-          body: { ...variables.body, skip_azure_stuff: !try_again },
-        })
+      onError: async (error: Error, variables) => {
+        const e = parseError(error, "", te)
+        // If we think the error happened in Azure prompt creation, try again.
+        // todo fix this when we have better frontend error types.
+        if (e.type === "internal_error" || e.message?.includes("Azure")) {
+          const try_again = await confirm(
+            <>
+              <p>{t("create-chatbot-form-fail-dialog")}</p>
+              <ErrorBanner error={error} />
+            </>,
+            t("create-chatbot-form-fail-title"),
+          )
+          chatbotCreationMutation.mutate({
+            body: { ...variables.body, skip_azure_stuff: !try_again },
+          })
+        }
       },
     },
   )

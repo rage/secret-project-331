@@ -4,7 +4,14 @@ import type { PressEvent } from "react-aria"
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon" | "destructive"
+/** `selected` is a toggle that is on: `primary` that keeps its fill while hovered or focused. */
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "icon"
+  | "destructive"
+  | "selected"
 
 export interface PressHandlers {
   onPress?: (e: PressEvent) => void
@@ -176,32 +183,44 @@ const iconSizeLgCss = css`
  *
  * `insetHoverColor` is the inner ring drawn on hover and focus. It matches the resting fill on the
  * filled variants; `tertiary` has no resting fill to match, so it takes the hover fill instead.
+ * `hoverFill` `resting` keeps the resting colours on hover and focus.
  */
-const variantCss = (variant: string, insetHoverColor: string) => css`
-  background: var(--btn-${variant}-bg);
-  color: var(--btn-${variant}-fg);
-  border-color: var(--btn-${variant}-border);
+const variantCss = (
+  variant: string,
+  insetHoverColor: string,
+  hoverFill: "hover" | "resting" = "hover",
+) => {
+  const hover = hoverFill === "hover" ? "-hover" : ""
+  return css`
+    background: var(--btn-${variant}-bg);
+    color: var(--btn-${variant}-fg);
+    border-color: var(--btn-${variant}-border);
 
-  &:hover:not(:disabled):not([aria-disabled="true"]),
-  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-${variant}-bg-hover);
-    color: var(--btn-${variant}-fg-hover);
-    border-color: var(--btn-${variant}-border-hover);
-    box-shadow:
-      var(--btn-${variant}-shadow-hover),
-      inset 0 0 0 var(--btn-${variant}-outline-width) ${insetHoverColor};
-  }
+    &:hover:not(:disabled):not([aria-disabled="true"]),
+    &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+      background: var(--btn-${variant}-bg${hover});
+      color: var(--btn-${variant}-fg${hover});
+      border-color: var(--btn-${variant}-border${hover});
 
-  &[data-pressed="true"] {
-    background: var(--btn-${variant}-bg-pressed);
-    box-shadow: var(--btn-pressed-shadow);
-  }
-`
+      box-shadow:
+        var(--btn-${variant}-shadow-hover),
+        inset 0 0 0 var(--btn-${variant}-outline-width) ${insetHoverColor};
+    }
+
+    &[data-pressed="true"] {
+      background: var(--btn-${variant}-bg-pressed);
+      box-shadow: var(--btn-pressed-shadow);
+    }
+  `
+}
 
 const primaryCss = variantCss("primary", "var(--btn-primary-bg)")
 const secondaryCss = variantCss("secondary", "var(--btn-secondary-bg)")
 const tertiaryCss = variantCss("tertiary", "var(--btn-tertiary-bg-hover)")
 const destructiveCss = variantCss("destructive", "var(--btn-destructive-bg)")
+// The primary hover inverts to a pale fill, so a toggle just switched on would read as off for as
+// long as the pointer stays on it.
+const selectedCss = variantCss("primary", "var(--btn-primary-bg)", "resting")
 
 const iconCss = css`
   background: var(--btn-icon-bg);
@@ -241,6 +260,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   tertiary: tertiaryCss,
   icon: iconCss,
   destructive: destructiveCss,
+  selected: selectedCss,
 }
 
 const iconSizeStyles: Record<ButtonSize, string> = {

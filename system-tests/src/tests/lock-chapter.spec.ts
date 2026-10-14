@@ -450,6 +450,9 @@ test.describe("Chapter locking feature", () => {
       await selectCourseInstanceIfPrompted(student4Page)
       await student4Page.goto(LOCK_CHAPTER_1_PAGE_URL)
 
+      await student4Page
+        .getByText("This is Chapter 1. You can lock this chapter when you're done.")
+        .waitFor()
       await expect(student4Page.getByRole("button", { name: "Lock Chapter" })).toBeVisible()
       await expect(student4Page.getByRole("heading", { name: "Model Solution" })).toBeHidden()
       await expect(

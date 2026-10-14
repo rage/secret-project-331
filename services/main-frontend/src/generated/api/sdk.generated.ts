@@ -328,6 +328,8 @@ import type {
   GetCourseExercisesResponses,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponses,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponses,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponses,
   GetCourseFeedbackData,
@@ -449,8 +451,6 @@ import type {
   GetCreditRegistrationThresholdsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
-  GetEditProposalCountData,
-  GetEditProposalCountResponses,
   GetEditProposalsData,
   GetEditProposalsResponses,
   GetEmailTemplatesData,
@@ -968,6 +968,7 @@ import {
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
+  zGetCourseFeedbackCategoriesResponse,
   zGetCourseFeedbackCountResponse,
   zGetCourseFeedbackResponse,
   zGetCourseFlaggedSuspectedCheatersCountResponse,
@@ -1023,7 +1024,6 @@ import {
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
-  zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
   zGetEmailVerificationCodeForTestModeResponse,
@@ -3294,6 +3294,25 @@ export const getCourseFeedback = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseFeedbackCategoriesData, ThrowOnError>,
+): RequestResult<GetCourseFeedbackCategoriesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseFeedbackCategoriesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseFeedbackCategoriesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories",
     ...options,
   })
 
@@ -8511,20 +8530,6 @@ export const getEditProposals = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetEditProposalsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/proposed-edits/course/{course_id}",
-    ...options,
-  })
-
-/**
- *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCount = <ThrowOnError extends boolean = true>(
-  options: Options<GetEditProposalCountData, ThrowOnError>,
-): RequestResult<GetEditProposalCountResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetEditProposalCountResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zGetEditProposalCountResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count",
     ...options,
   })
 

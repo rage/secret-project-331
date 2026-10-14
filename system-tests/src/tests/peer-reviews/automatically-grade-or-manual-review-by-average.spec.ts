@@ -72,11 +72,13 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
 
     // Now student 1 and student 3 should see their results.
     await student1Page.reload()
+    await student1Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student1Page.getByTestId("exercise-points")).toContainText("1/1")
     await student1Page
       .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
       .waitFor()
     await student3Page.reload()
+    await student3Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
     await student3Page
       .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
@@ -84,6 +86,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
 
     // Student 2's answer was not liked by the peers so it is waiting for the teacher to review it
     await student2Page.reload()
+    await student2Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
     await student2Page.getByText("Waiting for course staff to review your answer.").waitFor()
 
@@ -112,6 +115,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
 
     // Now student 2 should see their results.
     await student2Page.reload()
+    await student2Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student2Page.getByTestId("exercise-points")).toContainText("0.75/1")
 
     await student2Page

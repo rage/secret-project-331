@@ -11,13 +11,11 @@ import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/Route
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
+import createFeedbackEditProposalCountsHook from "@/hooks/count/useFeedbackEditProposalCounts"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
-import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
-import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
-  manageCourseChangeRequestsRoute,
   manageCourseExercisesRoute,
   manageCourseFeedbackRoute,
   manageCourseInstancesRoute,
@@ -36,8 +34,7 @@ import {
 const KEY_OVERVIEW = "overview"
 const KEY_PAGES = "pages"
 const KEY_MODULES = "modules"
-const KEY_FEEDBACK = "feedback"
-const KEY_CHANGE_REQUESTS = "change-requests"
+const KEY_FEEDBACK_CHANGE_REQUESTS = "feedback-change-requests"
 const KEY_EXERCISES = "exercises"
 const KEY_COURSE_INSTANCES = "course-instances"
 const KEY_STUDENTS = "students"
@@ -87,8 +84,8 @@ export default function CourseManagementLayout({ children }: { children: React.R
 
   useRegisterBreadcrumbs({ key: `course:${courseId}`, order: 20, crumbs })
 
-  const feedbackCountHook = createUnreadFeedbackCountHook(courseId)
-  const changeRequestCountHook = createPendingChangeRequestCountHook(courseId)
+  // oxlint-disable-next-line i18next/no-literal-string
+  const feedbackCountHook = createFeedbackEditProposalCountsHook(courseId, "both")
   const answersCountHook = useCountAnswersRequiringAttentionHook(courseId)
   const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
 
@@ -110,16 +107,10 @@ export default function CourseManagementLayout({ children }: { children: React.R
         href: manageCourseModulesRoute(courseId),
       },
       {
-        key: KEY_FEEDBACK,
+        key: KEY_FEEDBACK_CHANGE_REQUESTS,
         title: t("link-feedback"),
         href: manageCourseFeedbackRoute(courseId),
         countHook: feedbackCountHook,
-      },
-      {
-        key: KEY_CHANGE_REQUESTS,
-        title: t("link-change-requests"),
-        href: manageCourseChangeRequestsRoute(courseId),
-        countHook: changeRequestCountHook,
       },
       {
         key: KEY_EXERCISES,
@@ -167,15 +158,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
       },
     )
     return base
-  }, [
-    courseId,
-    t,
-    canViewStudents,
-    feedbackCountHook,
-    changeRequestCountHook,
-    answersCountHook,
-    flaggedCheaterCountHook,
-  ])
+  }, [courseId, t, canViewStudents, feedbackCountHook, answersCountHook, flaggedCheaterCountHook])
 
   return (
     <RouteTabListProvider tabs={tabs}>

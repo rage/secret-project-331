@@ -96,7 +96,13 @@ test.describe("Students should be able to give extra peer reviews to receive pri
         .first()
       // The card body (with the "Course status summary" link) is inside a collapsed Disclosure; expand it
       // via its trigger (the course name leads its accessible name), then follow the now-visible link.
-      await courseCard.getByRole("button", { name: /Peer review Course/ }).click()
+      // A click that lands while the user page is still loading only focuses the trigger.
+      await expect(async () => {
+        await courseCard.getByRole("button", { name: /Peer review Course/ }).click()
+        await expect(courseCard.getByRole("link", { name: "Course status summary" })).toBeVisible({
+          timeout: 1000,
+        })
+      }).toPass({ timeout: 15000 })
       await courseCard.getByRole("link", { name: "Course status summary" }).click()
 
       const exerciseDetailsComponent = adminPage

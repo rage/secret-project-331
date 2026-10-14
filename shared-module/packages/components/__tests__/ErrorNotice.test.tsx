@@ -73,14 +73,15 @@ describe("ErrorNotice", () => {
     expect(screen.getByText("at Object.save (page.ts:12:3)")).toBeInTheDocument()
   })
 
-  test("copies the request id on its own, and shows it without expanding anything", async () => {
+  test("shows the request id without expanding anything, and copies it in the report", async () => {
     renderUi(<ErrorNotice error={apiError({ requestId: "req-42" })} />)
 
     expect(screen.getByText("req-42")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Copy request ID" })).not.toBeInTheDocument()
 
-    domClick(screen.getByRole("button", { name: "Copy request ID" }))
+    pressCopyReport()
 
-    await expect(copiedText()).resolves.toBe("req-42")
+    await expect(copiedText()).resolves.toContain("req-42")
   })
 
   test("copies a report carrying what the disclosure hides", async () => {
@@ -104,15 +105,11 @@ describe("ErrorNotice", () => {
     expect(report).toContain("Time: ")
   })
 
-  test("puts the stack trace in the report, but only once the disclosure has been opened", async () => {
+  test("puts the stack trace in the report without the disclosure being opened", async () => {
     const crash = new Error("Cannot read properties of undefined")
     crash.stack = "Error: Cannot read properties of undefined\n    at render (App.tsx:8:1)"
     renderUi(<ErrorNotice error={crash} />)
 
-    pressCopyReport()
-    expect(writeText).not.toHaveBeenCalled()
-
-    domClick(screen.getByRole("button", { name: /Technical details/ }))
     pressCopyReport()
     const report = await copiedText()
 

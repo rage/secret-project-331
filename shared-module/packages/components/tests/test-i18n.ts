@@ -105,8 +105,6 @@ void i18next.use(initReactI18next).init({
         },
         "errorNotice.code": "Code",
         "errorNotice.copyReport": "Copy error report",
-        "errorNotice.copyReportRevealFirst": "Expand technical details to review before copying",
-        "errorNotice.copyRequestId": "Copy request ID",
         "errorNotice.detail": "Detail",
         "errorNotice.messageKey": "Message key",
         "errorNotice.method": "Method",

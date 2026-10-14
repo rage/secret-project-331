@@ -2,7 +2,7 @@
 
 import { css, cx, keyframes } from "@emotion/css"
 import { ExclamationTriangle, InfoCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ErrorSeverity, ErrorViewModel } from "../lib/errors/normalizeErrorForDisplay"
@@ -342,7 +342,6 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
 
   const view = useMemo(() => normalizeErrorForDisplay(error, t), [error, t])
   const copy = useMemo(() => resolveErrorDisplayCopy(view, t), [view, t])
-  const [detailsRevealed, setDetailsRevealed] = useState(false)
 
   const details = useMemo(() => {
     const technical = view.technicalDetails
@@ -409,9 +408,6 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
   const HeadingTag = `h${headingLevel}` as "h2" | "h3" | "h4"
   // Several backend payloads carry the same string as both title and message.
   const message = copy.message === copy.title ? null : copy.message
-  // blocks (detail/stack/raw) are the unredacted content the disclosure exists to gate; require it
-  // opened at least once before the one-press report can carry that content off the page.
-  const reportNeedsReveal = blocks.length > 0 && !detailsRevealed
 
   return (
     <div
@@ -452,17 +448,11 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
             <dt className={requestIdLabelCss}>{t("errorNotice.requestId")}</dt>
             <dd className={requestIdValueCss}>{view.requestId}</dd>
           </dl>
-          <CopyButton value={view.requestId} label={t("errorNotice.copyRequestId")} />
         </div>
       ) : null}
 
       <div className={actionsCss}>
-        <CopyButton
-          value={report}
-          label={t("errorNotice.copyReport")}
-          disabled={reportNeedsReveal}
-          disabledReason={t("errorNotice.copyReportRevealFirst")}
-        >
+        <CopyButton value={report} label={t("errorNotice.copyReport")}>
           {t("errorNotice.copyReport")}
         </CopyButton>
         {view.blockId ? (
@@ -473,14 +463,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
       </div>
 
       {details.length > 0 || blocks.length > 0 ? (
-        <Disclosure
-          title={t("errorNotice.technicalDetails")}
-          onExpandedChange={(expanded) => {
-            if (expanded) {
-              setDetailsRevealed(true)
-            }
-          }}
-        >
+        <Disclosure title={t("errorNotice.technicalDetails")}>
           <div
             className={cx(
               detailsPanelCss,

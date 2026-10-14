@@ -72,7 +72,7 @@ export type ResultRow =
   | { kind: "user"; user: UserDetail; isExact: boolean }
   | { kind: "placeholder"; index: number }
 
-export type ResultsView = "too-short" | "empty" | "table"
+export type ResultsView = "too-short" | "empty" | "list"
 
 const placeholderRows: ResultRow[] = Array.from({ length: PLACEHOLDER_ROW_COUNT }, (_, index) => ({
   kind: "placeholder",
@@ -83,7 +83,7 @@ const userRows = (users: UserDetail[], isExact: boolean): ResultRow[] =>
   users.map((user) => ({ kind: "user", user, isExact }))
 
 /**
- * Table rows for the state: exact matches first, then similar users or placeholder rows standing in
+ * Result rows for the state: exact matches first, then similar users or placeholder rows standing in
  * for them. Before the exact search answers, the previous results or only placeholders.
  */
 export const resultRows = (state: SearchUsersState): ResultRow[] => {
@@ -114,5 +114,5 @@ export const resultsView = (state: SearchUsersState, isTooShort: boolean): Resul
     !state.hasExactFailed &&
     !state.hasFuzzyFailed &&
     !state.hasSimilarTimedOut
-  return isEmpty ? "empty" : "table"
+  return isEmpty ? "empty" : "list"
 }

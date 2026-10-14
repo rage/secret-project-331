@@ -13,7 +13,6 @@ const beam = keyframes`
 const slotCss = css`
   position: relative;
   height: 3px;
-  margin: var(--space-2) 0 var(--space-3);
   overflow: hidden;
   border-radius: 999px;
 `
@@ -54,7 +53,7 @@ export interface SearchProgressBarProps {
   searchKey: string
 }
 
-/** Thin indeterminate bar in a fixed-height slot, so showing and hiding it never moves the page. */
+/** Thin indeterminate bar that keeps its height while hidden, so hiding it never moves the page. */
 const SearchProgressBar: React.FC<SearchProgressBarProps> = ({ isSearching, searchKey }) => {
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()

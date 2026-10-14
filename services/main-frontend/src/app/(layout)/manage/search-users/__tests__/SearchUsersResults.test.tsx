@@ -56,7 +56,6 @@ describe("SearchUsersResults", () => {
     expect(screen.getByText("exact@example.com")).toBeInTheDocument()
     expect(screen.getByText("search-users-group-exact")).toBeInTheDocument()
     expect(screen.getByText("search-users-group-similar")).toBeInTheDocument()
-    expect(screen.queryByText("search-users-result-count")).not.toBeInTheDocument()
   })
 
   it("lists similar users after the exact matches", () => {
@@ -67,7 +66,27 @@ describe("SearchUsersResults", () => {
 
     const emails = screen.getAllByText(/@example\.com$/).map((cell) => cell.textContent)
     expect(emails).toEqual(["exact@example.com", "similar@example.com"])
-    expect(screen.getByText("search-users-result-count")).toBeInTheDocument()
+  })
+
+  it("links each user to their details page", () => {
+    renderResults(
+      succeeded([createUser("user-1", "user1@example.com")]),
+      succeeded(fuzzyResults([])),
+    )
+
+    expect(screen.getByRole("link", { name: /user1@example\.com/ })).toHaveAttribute(
+      "href",
+      "/manage/users/user-1",
+    )
+  })
+
+  it("marks a user without a name", () => {
+    renderResults(
+      succeeded([{ ...createUser("user-1"), first_name: null, last_name: " " }]),
+      succeeded(fuzzyResults([])),
+    )
+
+    expect(screen.getByText("search-users-no-name")).toBeInTheDocument()
   })
 
   it("says no users were found only after both searches answered", async () => {

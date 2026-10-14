@@ -250,11 +250,11 @@ export function PickerSegmentedField({
                 <DateSegment key={`${segment.type}-${index}`} segment={segment} state={state} />
               ))}
             </div>
+            {zoneLabel && !hideRestSegmentPlaceholders ? (
+              <span className={segmentedZoneLabelCss}>{zoneLabel}</span>
+            ) : null}
           </div>
         </div>
-        {zoneLabel && !hideRestSegmentPlaceholders ? (
-          <span className={segmentedZoneLabelCss}>{zoneLabel}</span>
-        ) : null}
         {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
         <PickerTriggerButton
           buttonProps={pickerAria.buttonProps}

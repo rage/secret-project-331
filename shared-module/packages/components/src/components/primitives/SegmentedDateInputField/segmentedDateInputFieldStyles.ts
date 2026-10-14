@@ -1,6 +1,9 @@
 import { css } from "@emotion/css"
 
+/** Holds the zone label too, so it shares the floating-label padding and the segments' baseline. */
 export const segmentedFieldShellCss = css`
+  display: flex;
+  align-items: baseline;
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
@@ -50,6 +53,7 @@ export const segmentedPickerGroupCss = css`
 
 export const segmentedZoneLabelCss = css`
   flex: 0 0 auto;
+  margin-inline-start: var(--space-2);
   color: var(--field-chrome);
   font-size: 0.85em;
   white-space: nowrap;

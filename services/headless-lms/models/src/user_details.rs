@@ -238,8 +238,6 @@ pub async fn search_for_user_details_fuzzy(
     let Some(term) = fuzzy_search_term(search) else {
         return Ok(FuzzyUserSearchResults::default());
     };
-    let row_limit = FUZZY_SEARCH_RESULT_LIMIT + 1;
-
     let mut tx = conn.begin().await?;
     sqlx::query!(
         "SELECT set_config('pg_trgm.word_similarity_threshold', $1, true)",
@@ -247,25 +245,10 @@ pub async fn search_for_user_details_fuzzy(
     )
     .fetch_one(&mut *tx)
     .await?;
-    let mut users = fuzzy_search_by_trigram_filter(&mut tx, &term, row_limit).await?;
-    // Rolled back rather than committed: it only read, and a commit inside a caller's transaction
-    // would keep the threshold for the rest of that transaction.
-    tx.rollback().await?;
-
-    let has_more = users.len() > FUZZY_SEARCH_RESULT_LIMIT as usize;
-    users.truncate(FUZZY_SEARCH_RESULT_LIMIT as usize);
-    Ok(FuzzyUserSearchResults { users, has_more })
-}
-
-/// Needs `pg_trgm.word_similarity_threshold` set for `<%`. GiST distance ordering is no faster: a
-/// term close to no name walks most of the name index, 14s on production.
-async fn fuzzy_search_by_trigram_filter(
-    conn: &mut PgConnection,
-    term: &str,
-    row_limit: i64,
-) -> sqlx::Result<Vec<UserDetail>> {
-    // The search text expression must stay identical to the user_details_search_text_gin index.
-    sqlx::query_as!(
+    // `<%` uses the threshold set above. The expression must stay identical to the
+    // user_details_search_text_gin index. Not ordered by GiST trigram distance: a term close to no
+    // name walks most of such an index, 14s on production.
+    let mut users = sqlx::query_as!(
         UserDetail,
         r#"
 SELECT user_id,
@@ -285,10 +268,17 @@ ORDER BY $1 <<-> (name_search_helper || ' ' || split_part(email_search_helper, '
 LIMIT $2
 "#,
         term,
-        row_limit,
+        FUZZY_SEARCH_RESULT_LIMIT + 1,
     )
-    .fetch_all(conn)
-    .await
+    .fetch_all(&mut *tx)
+    .await?;
+    // Rolled back rather than committed: it only read, and a commit inside a caller's transaction
+    // would keep the threshold for the rest of that transaction.
+    tx.rollback().await?;
+
+    let has_more = users.len() > FUZZY_SEARCH_RESULT_LIMIT as usize;
+    users.truncate(FUZZY_SEARCH_RESULT_LIMIT as usize);
+    Ok(FuzzyUserSearchResults { users, has_more })
 }
 
 /// The lowercased local part of the search term, or `None` when it should match nothing.

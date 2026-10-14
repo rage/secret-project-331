@@ -29,10 +29,13 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByText("******").first().waitFor()
   await page.goBack()
   // A click that lands before the restored page hydrates is lost.
-  const pagesTab = page.getByRole("tab", { name: "Pages" })
   await expect(async () => {
-    await pagesTab.click()
-    await expect(pagesTab).toHaveAttribute("aria-selected", "true", { timeout: 1000 })
+    await page.getByRole("tab", { name: "Pages" }).click()
+    await expect(page.getByRole("tab", { name: "Pages" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+      { timeout: 1000 },
+    )
   }).toPass({ timeout: 15000 })
   await waitForSpinnersToDisappear(page)
   await page

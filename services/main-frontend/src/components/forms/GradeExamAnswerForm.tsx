@@ -59,7 +59,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
   const { t } = useTranslation()
   const router = useRouter()
 
-  const { control, handleSubmit, setValue } = useForm<NewTeacherGradingDecision>()
+  const { control, handleSubmit, reset } = useForm<NewTeacherGradingDecision>()
   const [nextSubmissionId, setNextSubmissionId] = useState("")
   const paginationInfo = usePaginationInfo()
 
@@ -87,9 +87,22 @@ const LoadedGradeExamAnswerForm: React.FC<{
   })[0]
 
   useEffect(() => {
-    setValue("justification", currentSubmission?.teacher_grading_decision?.justification ?? null)
-    setValue("manual_points", currentSubmission?.teacher_grading_decision?.score_given ?? null)
-  }, [currentSubmission, setValue])
+    reset({ justification: null, manual_points: null })
+  }, [submissionId, reset])
+
+  // The submissions list can arrive after the teacher has started typing; keep what they typed.
+  useEffect(() => {
+    if (!currentSubmission) {
+      return
+    }
+    reset(
+      {
+        justification: currentSubmission.teacher_grading_decision?.justification ?? null,
+        manual_points: currentSubmission.teacher_grading_decision?.score_given ?? null,
+      },
+      { keepDirtyValues: true },
+    )
+  }, [currentSubmission, reset])
 
   // Get next submission
   if (getSubmissions.isSuccess && nextSubmissionId === "") {

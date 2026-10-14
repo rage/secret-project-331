@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { data } from "motion/react-client"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
@@ -157,6 +158,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
       use_azure_search: oldChatbotConf.use_azure_search,
+      publicly_accessible: oldChatbotConf.publicly_accessible,
       tool_categories: Object.fromEntries(
         TOOL_CATEGORY_LEAVES.map((category) => [
           category,
@@ -239,7 +241,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       },
     },
   )
-
   const onConfigureChatbotWrapper = handleSubmit(async (data, event) => {
     if (!event) {
       throw new Error("handleSubmit triggered without an event")
@@ -279,7 +280,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         ),
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
-        publicly_accessible: oldChatbotConf.publicly_accessible, // not editable in this form
+        publicly_accessible: data.publicly_accessible,
         default_chatbot: oldChatbotConf.default_chatbot, // not editable in this form
         chatbotconf_id: null,
       },
@@ -591,6 +592,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                             label={t("use-semantic-reranking")}
                             name={"use_semantic_reranking"}
                             isDisabled={!useAzureSearchFieldValue}
+                          />
+                          <Checkbox
+                            control={control}
+                            label={t("publicly-accessible")}
+                            name={"publicly_accessible"}
                           />
                         </div>
                       </div>

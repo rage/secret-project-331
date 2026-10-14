@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useParams } from "next/navigation"
 
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
@@ -9,9 +10,15 @@ const ChatbotEmbed = () => {
   const { id } = useParams<{ id: string }>()
 
   return (
-    <ChatbotChat chatbotConfigurationId={id} isAlwaysOpen={true} pageId={null}>
-      <ChatbotChatBox />
-    </ChatbotChat>
+    <div
+      className={css`
+        height: 100vh;
+      `}
+    >
+      <ChatbotChat chatbotConfigurationId={id} isAlwaysOpen={true} pageId={null}>
+        <ChatbotChatBox />
+      </ChatbotChat>
+    </div>
   )
 }
 

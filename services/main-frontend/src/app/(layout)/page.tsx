@@ -155,6 +155,15 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
+      <div>
+        <iframe
+          title={t("course-recommender")}
+          width="1500"
+          height="1500"
+          // sandbox="allow-same-origin"
+          src="http://project-331.local/chatbot-embed/455bd79a-dae7-4746-bb44-f825e3701e8e"
+        ></iframe>
+      </div>
     </div>
   )
 }

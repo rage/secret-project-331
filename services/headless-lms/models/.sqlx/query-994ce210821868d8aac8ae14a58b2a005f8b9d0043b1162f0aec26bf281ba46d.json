@@ -33,7 +33,7 @@
       ]
     },
     "nullable": [
-      false,
+      true,
       null,
       null
     ]

@@ -26,49 +26,58 @@ export interface SearchDialogProps {
   organizationSlug: string
 }
 
-const HeaderBar = styled.div`
-  display: flex;
-  padding: 0.75rem 0;
-  align-items: center;
-  gap: 0.5rem;
-  h1 {
-    font-size: 1.25rem;
-    margin-bottom: 0;
-  }
-`
-
-const SearchContainer = styled.div<{ $hasContent: boolean }>`
-  overflow: hidden;
-  width: 100%;
-  height: ${(props) => (props.$hasContent ? "700px" : "80px")};
-  max-height: 90vh;
+/** Grows with its results up to a cap, so an empty or short result list leaves no blank band. */
+const SearchContainer = styled.div`
   display: flex;
   flex-direction: column;
-  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-height: min(700px, 85vh);
 `
 
-const SearchInputContainer = styled.div`
+/** Holds the close button too, so it lines up with the input instead of floating over it. */
+const HeaderBar = styled.div`
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+`
+
+const InputWrapper = styled.div`
   position: relative;
-  flex-shrink: 0;
-  padding: 0 1rem;
+  flex: 1 1 auto;
+  min-width: 0;
 `
 
-const ResultsContainer = styled.div<{ $hasResults: boolean }>`
-  margin-top: 1rem;
-  padding: 4px 1rem;
+const ResultsContainer = styled.div`
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  max-height: calc(90vh - 90px);
+  padding: 0 var(--space-4) var(--space-4);
+
+  &:empty {
+    display: none;
+  }
 `
 
 const EmptyState = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4) var(--space-4-5);
   color: ${baseTheme.colors.gray[500]};
   text-align: center;
-  transition: padding 0.2s ease;
+
+  h3 {
+    margin: var(--space-3) 0 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+  }
 `
 
 const ResultCard = styled(Link)`
@@ -119,32 +128,36 @@ const ResultCard = styled(Link)`
 `
 
 const StyledInput = styled.input`
-  display: flex;
-  background: #ffffff;
+  display: block;
   width: 100%;
-  padding: 0 3.5rem;
-  height: 56px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  border-radius: 8px;
+  height: 48px;
+  padding: 0 var(--space-4) 0 calc(var(--space-4) + 20px + var(--space-3));
+  background: #ffffff;
   border: none;
+  border-radius: 8px;
   outline: 1px solid ${baseTheme.colors.gray[200]};
-  margin-right: 0.5rem;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: outline-color 0.2s ease;
 
   &:focus {
     outline: 2px solid ${baseTheme.colors.green[400]};
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   }
 `
 
 const SearchIcon = styled(MagnifyingGlass)`
   position: absolute;
-  left: 1.5rem;
+  left: var(--space-4);
   top: 50%;
   transform: translateY(-50%);
   color: ${baseTheme.colors.gray[400]};
-  transition: color 0.2s ease;
+  pointer-events: none;
+`
+
+const CLOSE_SYMBOL = "×"
+
+const closeSymbolCss = css`
+  font-size: 1.5rem;
+  line-height: 1;
 `
 
 const SEARCH_BUTTON_ID = "search-for-pages-button"
@@ -200,12 +213,6 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
   const hasNoResults = useMemo(() => {
     return combinedResults !== null && combinedResults.length === 0 && debouncedQuery.trim() !== ""
   }, [combinedResults, debouncedQuery])
-
-  const hasContent = useMemo(() => {
-    return (
-      isLoading || !!error || debouncedQuery.trim() !== "" || (combinedResults?.length ?? 0) > 0
-    )
-  }, [isLoading, error, debouncedQuery, combinedResults])
 
   useEffect(() => {
     async function innerFunction() {
@@ -304,10 +311,16 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
       >
         <MagnifyingGlass size={16} weight="bold" />
       </Button>
-      <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
-        <SearchContainer $hasContent={hasContent}>
-          <SearchInputContainer>
-            <HeaderBar>
+      <Dialog
+        open={open}
+        onClose={closeModal}
+        padding="none"
+        showCloseButton={false}
+        aria-label={t("title-search-dialog")}
+      >
+        <SearchContainer>
+          <HeaderBar>
+            <InputWrapper>
               <SearchIcon size={20} weight="bold" />
               <StyledInput
                 value={query}
@@ -317,13 +330,17 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                   setError(null)
                   setQuery(e.target.value)
                 }}
-                /* fullWidth */
                 placeholder={t("search-field-placeholder")}
               />
-            </HeaderBar>
-          </SearchInputContainer>
+            </InputWrapper>
+            <Button variant="icon" size="medium" aria-label={t("close")} onClick={closeModal}>
+              <span aria-hidden="true" className={closeSymbolCss}>
+                {CLOSE_SYMBOL}
+              </span>
+            </Button>
+          </HeaderBar>
 
-          <ResultsContainer $hasResults={!!debouncedQuery || isLoading}>
+          <ResultsContainer>
             {error && (
               <div
                 className={css`

@@ -4,6 +4,15 @@ import { useEffect } from "react"
 
 import { tryToScrollToSelector } from "@/utils/course-material/dom"
 
+/** Ids that are not plain ASCII reach us percent-encoded, but the element carries the decoded id. */
+function decodeHash(hash: string): string {
+  try {
+    return decodeURIComponent(hash)
+  } catch {
+    return hash
+  }
+}
+
 /**
  * This hook will see if window.location contains an anchor.
  * If it does, it will try to scroll to the selector with timeouts.
@@ -16,7 +25,7 @@ import { tryToScrollToSelector } from "@/utils/course-material/dom"
 export default function useScrollToSelector(path: string): void {
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
-      const selector = window.location.hash.slice(1)
+      const selector = decodeHash(window.location.hash.slice(1))
       let elementToScrollTo: Element | null = null
       let lastOffsetRelativeToDocument = 0
       const setScrollTimeout = (timeout: number) => {

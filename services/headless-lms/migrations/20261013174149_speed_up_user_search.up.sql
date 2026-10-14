@@ -13,27 +13,3 @@ DROP INDEX IF EXISTS user_details_email_trgm_idx;
 DROP INDEX IF EXISTS user_details_email_search_helper_gist;
 
 ALTER TABLE user_details DROP COLUMN IF EXISTS search_helper;
-
-CREATE FUNCTION user_details_matches_search_pattern(
-  name_search_helper TEXT,
-  email_search_helper TEXT,
-  search_pattern TEXT
-) RETURNS BOOLEAN LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE AS $$
-SELECT NOT EXISTS (
-    SELECT 1
-    FROM regexp_split_to_table(search_pattern, '\s+') AS word
-    WHERE NOT (
-        name_search_helper LIKE '%' || word || '%' ESCAPE '\'
-        OR email_search_helper LIKE '%' || word || '%' ESCAPE '\'
-      )
-  )
-  OR (
-    search_pattern !~ '[[:digit:]]'
-    AND (
-      word_similarity(search_pattern, name_search_helper) >= 0.5
-      OR word_similarity(search_pattern, email_search_helper) >= 0.5
-    )
-  )
-$$;
-
-COMMENT ON FUNCTION user_details_matches_search_pattern(TEXT, TEXT, TEXT) IS 'Search box filter for user lists. True when every whitespace-separated word of search_pattern appears in the name or email, in any order, or when a pattern without digits is a near match (word similarity at least 0.5) for a misspelled name or email. Patterns with digits, such as student numbers or user_3@example.com, match exactly only, since a near match there is a different person. search_pattern must be lowercased with LIKE metacharacters escaped by backslash.';

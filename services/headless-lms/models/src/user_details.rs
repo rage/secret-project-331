@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use futures::Stream;
 use utoipa::ToSchema;
 
-use crate::{prelude::*, users::User};
+use crate::{library::students_view::escape_like_pattern, prelude::*, users::User};
 
 const MIN_FUZZY_SEARCH_TERM_LENGTH: usize = 3;
 
@@ -18,6 +18,35 @@ const FUZZY_SEARCH_TIMEOUT: &str = "2s";
 /// Budget for the GiST attempt before falling back to the GIN filter. Common terms finish in ~10ms
 /// with a warm cache; the slack is for a cold one, where the GIN filter would be far slower.
 const DISTANCE_ORDERED_SEARCH_TIMEOUT: &str = "200ms";
+
+/// Search box filter for user lists: every word of the search appears in the name or email, in any
+/// order, or the whole search is a near match for a misspelled name or email. Queries apply it as
+/// `(ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($word_patterns)` OR
+/// `word_similarity($misspelling_term, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5`.
+/// [`search_for_user_details_fuzzy`] is the ranked search over all users.
+#[derive(Debug, Clone, Default)]
+pub struct UserListSearch {
+    /// One `%word%` pattern per word, lowercased and LIKE-escaped.
+    pub word_patterns: Vec<String>,
+    /// `None` when the search contains a digit: a near match for a student number or for
+    /// `user_3@example.com` is a different person.
+    pub misspelling_term: Option<String>,
+}
+
+impl UserListSearch {
+    pub fn new(search: &str) -> Self {
+        let search = search.trim().to_lowercase();
+        let word_patterns = search
+            .split_whitespace()
+            .map(|word| format!("%{}%", escape_like_pattern(word)))
+            .collect();
+        let misspelling_term = (!search.chars().any(char::is_numeric)).then_some(search);
+        Self {
+            word_patterns,
+            misspelling_term,
+        }
+    }
+}
 
 /// How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]

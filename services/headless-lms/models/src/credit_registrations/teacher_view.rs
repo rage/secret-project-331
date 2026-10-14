@@ -227,6 +227,7 @@ async fn teacher_facing_page(
     offset: i64,
 ) -> ModelResult<Vec<TeacherCreditRegistration>> {
     let search_pattern = filters.search.map(search_pattern_of);
+    let user_search = crate::user_details::UserListSearch::new(filters.search.unwrap_or_default());
     let stages = StageMatch::of(filters.stages);
     let res = sqlx::query_as!(
         TeacherCreditRegistration,
@@ -287,7 +288,8 @@ WHERE cr.deleted_at IS NULL
   )
   AND (
     $5::text IS NULL
-    OR user_details_matches_search_pattern(ud.name_search_helper, ud.email_search_helper, $5)
+    OR (ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($15::text [])
+    OR word_similarity($16::text, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5
     OR LOWER(vsn.student_number) LIKE '%' || $5 || '%' ESCAPE '\'
   )
   AND ($6::uuid IS NULL OR cr.course_instance_id = $6)
@@ -335,6 +337,8 @@ LIMIT $8 OFFSET $9
         &stages.has_verified_student_number as &[bool],
         &stages.course_code_allowed as &[bool],
         &stages.enrolment_resolved as &[bool],
+        &user_search.word_patterns,
+        user_search.misspelling_term.as_deref(),
     )
     .fetch_all(conn)
     .await?;

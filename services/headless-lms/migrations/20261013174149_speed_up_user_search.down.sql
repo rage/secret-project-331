@@ -1,5 +1,3 @@
-DROP FUNCTION IF EXISTS user_details_matches_search_pattern(TEXT, TEXT, TEXT);
-
 ALTER TABLE user_details
 ADD COLUMN IF NOT EXISTS search_helper TEXT GENERATED ALWAYS AS (
     lower(

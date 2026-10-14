@@ -24464,15 +24464,11 @@
       "FuzzyUserSearchResults": {
         "type": "object",
         "description": "Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.",
-        "required": ["users", "has_more", "timed_out"],
+        "required": ["users", "has_more"],
         "properties": {
           "has_more": {
             "type": "boolean",
             "description": "More users matched than `users` holds."
-          },
-          "timed_out": {
-            "type": "boolean",
-            "description": "The search hit its time limit, so `users` is empty without meaning nobody matched."
           },
           "users": {
             "type": "array",

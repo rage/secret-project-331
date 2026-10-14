@@ -1247,7 +1247,6 @@
   "search-users-result-count_one": "{{count}} användare hittades",
   "search-users-result-count_other": "{{count}} användare hittades",
   "search-users-similar-failed": "Sökningen efter liknande användare misslyckades.",
-  "search-users-similar-timed-out": "Sökningen efter liknande användare tog för lång tid.",
   "search-users-too-short": "Skriv minst 3 tecken",
   "search-users-user-id": ", användar-id {{id}}",
   "seconds": "sekunder",

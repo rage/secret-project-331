@@ -1257,7 +1257,6 @@
   "search-users-result-count_two": "تم العثور على مستخدمَين",
   "search-users-result-count_zero": "لم يتم العثور على أي مستخدم",
   "search-users-similar-failed": "فشل البحث عن مستخدمين مشابهين.",
-  "search-users-similar-timed-out": "استغرق البحث عن مستخدمين مشابهين وقتًا طويلاً.",
   "search-users-too-short": "اكتب 3 أحرف على الأقل",
   "search-users-user-id": "، معرّف المستخدم {{id}}",
   "seconds": "ثواني",

@@ -1815,7 +1815,6 @@
   "search-users-result-count_one": "{{count}} käyttäjä löytyi",
   "search-users-result-count_other": "{{count}} käyttäjää löytyi",
   "search-users-similar-failed": "Samankaltaisten käyttäjien haku epäonnistui.",
-  "search-users-similar-timed-out": "Samankaltaisten käyttäjien haku kesti liian kauan.",
   "search-users-too-short": "Kirjoita vähintään 3 merkkiä",
   "search-users-user-id": ", käyttäjätunniste {{id}}",
   "seconds": "sekuntia",

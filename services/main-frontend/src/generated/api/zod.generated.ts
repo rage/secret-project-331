@@ -6374,7 +6374,6 @@ export const zUserDetail = z.object({
  */
 export const zFuzzyUserSearchResults = z.object({
   has_more: z.boolean(),
-  timed_out: z.boolean(),
   users: z.array(zUserDetail),
 })
 

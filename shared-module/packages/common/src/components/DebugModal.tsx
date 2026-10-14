@@ -172,7 +172,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
         size="wide"
         padding="none"
         title={`${t("title-data-view")} (${readOnlySpecifier})`}
-        {...includeIf(isDownloadable, { actions: [csvDownloadAction] as const })}
+        {...includeIf(isDownloadable, { headerActions: [csvDownloadAction] as const })}
       >
         <div
           className={css`

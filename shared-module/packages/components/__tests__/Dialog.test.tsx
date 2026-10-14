@@ -211,6 +211,28 @@ describe("Dialog", () => {
     expect(onCancel).not.toHaveBeenCalled()
   })
 
+  test("renders header actions beside the title, before the close button", () => {
+    const onDownload = jest.fn()
+    renderUi(
+      <Dialog
+        open
+        onClose={jest.fn()}
+        title="Data"
+        headerActions={[{ label: "Download", onPress: onDownload }]}
+      >
+        <p>Content</p>
+      </Dialog>,
+    )
+    const download = screen.getByRole("button", { name: "Download" })
+    const close = screen.getByRole("button", { name: "Close" })
+    expect(download.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText("Content").compareDocumentPosition(download)).toBe(
+      Node.DOCUMENT_POSITION_PRECEDING,
+    )
+    fireEvent.click(download)
+    expect(onDownload).toHaveBeenCalledTimes(1)
+  })
+
   test("disables an action", () => {
     renderUi(
       <Dialog open onClose={jest.fn()} title="Save" actions={[{ label: "Save", disabled: true }]}>

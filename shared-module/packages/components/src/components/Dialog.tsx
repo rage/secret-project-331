@@ -22,15 +22,21 @@ export type DialogLabelling =
       /** Heading rendered at the top of the dialog; also names the dialog via `aria-labelledby`. */
       title: React.ReactNode
       "aria-label"?: undefined
+      /**
+       * Small buttons beside the title, for tools on the body (download, copy) rather than ways to
+       * finish the dialog, which belong in `actions`.
+       */
+      headerActions?: readonly [DialogAction, ...DialogAction[]]
     }
   | {
       title?: undefined
       /** Accessible name for the dialog when no visible `title` is rendered. */
       "aria-label": string
+      headerActions?: undefined
     }
 
 /**
- * One footer button of a dialog.
+ * One footer or header button of a dialog.
  *
  * Accepts the `Button` props that make sense for a dialog action; `size` and layout are owned by
  * the dialog. `label` is the visible text and the accessible name.
@@ -206,6 +212,15 @@ const titleCss = css`
   overflow-wrap: break-word;
 `
 
+/** Centred on the close button's row, which is taller than a small button. */
+const headerActionsCss = css`
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-6);
+`
+
 const closeButtonCss = css`
   flex: none;
   display: flex;
@@ -309,6 +324,7 @@ export const Dialog: React.FC<DialogProps> = (props) => (
 const OpenDialog: React.FC<DialogProps> = ({
   title,
   "aria-label": ariaLabel,
+  headerActions,
   onClose,
   children,
   size = "normal",
@@ -417,6 +433,15 @@ const OpenDialog: React.FC<DialogProps> = ({
                 <h2 id={titleId} className={titleCss}>
                   {title}
                 </h2>
+              )}
+              {headerActions !== undefined && (
+                <div className={headerActionsCss}>
+                  {headerActions.map(({ label, ...buttonProps }, index) => (
+                    <Button key={index} {...buttonProps} size="small">
+                      {label}
+                    </Button>
+                  ))}
+                </div>
               )}
               {showCloseButton && (
                 <button

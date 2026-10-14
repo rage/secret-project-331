@@ -32,6 +32,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   closeEdit,
 }) => {
   const { t } = useTranslation()
+  const { t: te } = useTranslation("errors")
+
   const { confirm } = useDialog()
   const { control, handleSubmit } = useForm<CreateChatbotFields>()
 
@@ -47,7 +49,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
         closeEdit(data.id)
       },
       onError: async (error: Error, variables) => {
-        const e = parseError(error, "", t)
+        const e = parseError(error, "", te)
         // If we think the error happened in Azure prompt creation, try again.
         // todo fix this when we have better frontend error types.
         if (e.type === "internal_error" || e.message?.includes("Azure")) {

@@ -4,15 +4,13 @@
 FROM rust:bookworm AS dep-builder
 
 RUN apt-get update \
-  && apt-get install -yy build-essential git clang cmake libssl-dev zlib1g-dev gcc g++ file sudo \
+  && apt-get install -yy build-essential git clang libssl-dev zlib1g-dev gcc g++ file sudo \
   && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/rui314/mold.git \
-  && mkdir mold/build \
-  && cd mold/build \
-  && git checkout v2.41.0 \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. \
-  && cmake --build . -j $(nproc)
+# RUSTUP_TOOLCHAIN overrides mold's rust-toolchain.toml, which would download a second toolchain
+RUN git clone --depth 1 --branch v3.0.0 https://github.com/rui314/mold.git \
+  && cd mold \
+  && RUSTUP_TOOLCHAIN="$(rustup show active-toolchain | cut -d' ' -f1)" cargo build --release --locked
 
 # Provides a mapping from ip to country
 RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
@@ -42,13 +40,11 @@ RUN icu4x-datagen \
 
 FROM rust:bookworm AS rust-base
 
-COPY --from=dep-builder /mold/build /usr/local/bin/
+COPY --from=dep-builder /mold/target/release/mold /usr/local/bin/
+RUN ln -s mold /usr/local/bin/ld.mold
 
-# Switch to use the mold linker for better compile times
-# Using workaround described in https://github.com/rui314/mold#how-to-use
-RUN mkdir /mold-ld-workaround \
-  && ln -s /usr/local/bin/mold /mold-ld-workaround/ld
-ENV RUSTFLAGS='-C link-arg=-B/mold-ld-workaround'
+# Links about twice as fast as rustc's default rust-lld
+ENV RUSTFLAGS='-C link-arg=-fuse-ld=mold'
 
 RUN apt-get update \
   && apt-get install -yy wait-for-it postgresql-client redis-tools \
@@ -58,7 +54,6 @@ RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \
   cargo install cargo-watch && \
   cargo install systemfd && \
   cargo install cargo-chef --locked && \
-  cargo install sccache --locked && \
   rustup component add clippy
 
 COPY --from=icu4x-builder /icu4x.postcard /icu4x.postcard

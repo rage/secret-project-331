@@ -398,13 +398,7 @@ async fn find_by_fuzzy_match(
     conn: &mut PgConnection,
     query: &str,
 ) -> ChatbotResult<Vec<UserDetail>> {
-    let results = user_details::search_for_user_details_fuzzy(conn, query).await?;
-    if results.timed_out {
-        return Err(chatbot_err!(
-            ToolUseError,
-            "The search took too long. Ask the admin for a more specific name or the full email address."
-                .to_string()
-        ));
-    }
-    Ok(results.users)
+    Ok(user_details::search_for_user_details_fuzzy(conn, query)
+        .await?
+        .users)
 }

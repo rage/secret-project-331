@@ -1257,7 +1257,6 @@
   "search-users-result-count_one": "Знайдено {{count}} користувача",
   "search-users-result-count_other": "Знайдено {{count}} користувача",
   "search-users-similar-failed": "Не вдалося знайти схожих користувачів.",
-  "search-users-similar-timed-out": "Пошук схожих користувачів тривав надто довго.",
   "search-users-too-short": "Введіть щонайменше 3 символи",
   "search-users-user-id": ", ідентифікатор користувача {{id}}",
   "seconds": "секунди",

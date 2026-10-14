@@ -2003,7 +2003,6 @@
   "search-users-result-count_one": "{{count}} user found",
   "search-users-result-count_other": "{{count}} users found",
   "search-users-similar-failed": "Searching for similar users failed.",
-  "search-users-similar-timed-out": "Searching for similar users took too long.",
   "search-users-too-short": "Type at least 3 characters",
   "search-users-user-id": ", user id {{id}}",
   "seconds": "seconds",

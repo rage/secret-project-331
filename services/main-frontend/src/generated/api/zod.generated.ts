@@ -1024,7 +1024,6 @@ export const zCourseAudience = z.object({
 export const zCourseAuditingModuleUpdate = z.object({
   completion_registration_link_override: z.string().nullish(),
   ects_credits: z.number().nullish(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z
@@ -1116,7 +1115,6 @@ export const zCourseCount = z.object({
 export const zCourseCreditRegistrationModuleSummary = z.object({
   course_module_id: z.uuid(),
   course_module_name: z.string().nullish(),
-  enabled: z.boolean(),
   failed_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -1385,8 +1383,6 @@ export const zCourseModule = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z
@@ -1440,8 +1436,8 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
 })
 
 /**
- * Per-module credit-registration configuration: the rollout switch and the module's own fields
- * merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+ * Per-module credit-registration configuration: the module's own fields merged with its
+ * `course_module_suotar_configurations` row. Every field of that row is optional
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export const zCourseModuleCreditRegistrationConfig = z.object({
@@ -1455,7 +1451,6 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
   credit_registration_paused_at: z.iso.datetime().nullish(),
   credit_registration_paused_by_user_id: z.uuid().nullish(),
   ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
   uh_course_code: z.string().nullish(),
 })
 
@@ -2297,7 +2292,6 @@ export const zDailySubmissionCount = z.object({
 export const zCourseModuleInfo = z.object({
   daily_submissions: z.array(zDailySubmissionCount),
   ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
   exercise_count: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -3589,8 +3583,6 @@ export const zModifiedModule = z.object({
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
   ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z
@@ -3840,8 +3832,6 @@ export const zNewModule = z.object({
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
   ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   name: z.string(),
   order_number: z
     .int()
@@ -6272,9 +6262,8 @@ export const zUserCompletionInformation = z.object({
   credit_justification: z.string().nullish(),
   ects_credits: z.number().nullish(),
   email: z.string(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   register_credits_via_suotar: z.boolean(),
+  registers_credits: z.boolean(),
   status_before_registration: zStudentFacingCreditRegistrationStatus,
   uh_course_code: z.string().nullish(),
 })
@@ -8997,7 +8986,7 @@ export const zListCreditRegistrationAdminActionsQuery = z.object({
 export const zListCreditRegistrationAdminActionsResponse = zPageCreditRegistrationAdminActionRow
 
 /**
- * One row per enabled course module
+ * One row per course module with a course code
  */
 export const zGetCreditRegistrationStatsByCourseResponse = zCreditRegistrationStatsByCourse
 

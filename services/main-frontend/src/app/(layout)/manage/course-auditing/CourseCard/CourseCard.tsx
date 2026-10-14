@@ -118,7 +118,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
     showClosedCourseSuccessorId,
     showAdditionalMessage,
     showCompletionRegistrationLink,
-    showEnableRegisterinCompletionToUhOpenUniversity,
     showUhCourseCode,
     showEctsCredits,
   ] = useWatch({
@@ -132,17 +131,12 @@ const CourseCard: React.FC<CourseCardProps> = ({
       "show_closed_course_successor_id",
       "show_additional_message",
       "show_completion_registration_link",
-      "show_enable_registering_completion_to_uh_open_university",
       "show_uh_course_code",
       "show_ects_credits",
     ],
   })
 
-  const showModules =
-    showCompletionRegistrationLink ||
-    showEnableRegisterinCompletionToUhOpenUniversity ||
-    showUhCourseCode ||
-    showEctsCredits
+  const showModules = showCompletionRegistrationLink || showUhCourseCode || showEctsCredits
 
   const defaultModuleUhCourseCode = courseAuditingData.modules.find(
     (module) => module.order_number === 0,
@@ -703,15 +697,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
                       isVisible={showCompletionRegistrationLink}
                     />
                     <div className={contentRowStyles}>
-                      <ContentDisplayBox
-                        label={t("label-enable-registering-completion-to-uh-open-university")}
-                        content={
-                          module.enable_registering_completion_to_uh_open_university
-                            ? t("label-true")
-                            : t("label-false")
-                        }
-                        isVisible={showEnableRegisterinCompletionToUhOpenUniversity}
-                      />
                       <ContentDisplayBox
                         label={t("uh-course-code")}
                         content={module.uh_course_code}

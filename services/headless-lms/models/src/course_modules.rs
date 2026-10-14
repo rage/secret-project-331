@@ -22,9 +22,7 @@ struct CourseModulesSchema {
     automatic_completion_requires_exam: bool,
     completion_registration_link_override: Option<String>,
     ects_credits: Option<f32>,
-    enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
-    enable_credit_registration_via_suotar: bool,
 }
 /// Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
 /// `completion_policy`.
@@ -43,9 +41,7 @@ pub struct CourseModule {
     /// If set, use this link rather than the default one when registering course completions.
     pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<f32>,
-    pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
-    pub enable_credit_registration_via_suotar: bool,
 }
 
 impl CourseModule {
@@ -63,9 +59,7 @@ impl CourseModule {
             completion_policy: CompletionPolicy::Manual,
             completion_registration_link_override: None,
             ects_credits: None,
-            enable_registering_completion_to_uh_open_university: false,
             certification_enabled: false,
-            enable_credit_registration_via_suotar: false,
         }
     }
     pub fn set_timestamps(
@@ -97,15 +91,10 @@ impl CourseModule {
         uh_course_code: Option<String>,
         ects_credits: Option<f32>,
         completion_registration_link_override: Option<String>,
-        enable_registering_completion_to_uh_open_university: bool,
-        enable_credit_registration_via_suotar: bool,
     ) -> Self {
         self.uh_course_code = uh_course_code;
         self.ects_credits = ects_credits;
         self.completion_registration_link_override = completion_registration_link_override;
-        self.enable_registering_completion_to_uh_open_university =
-            enable_registering_completion_to_uh_open_university;
-        self.enable_credit_registration_via_suotar = enable_credit_registration_via_suotar;
         self
     }
 
@@ -145,10 +134,7 @@ impl From<CourseModulesSchema> for CourseModule {
             completion_policy,
             completion_registration_link_override: schema.completion_registration_link_override,
             ects_credits: schema.ects_credits,
-            enable_registering_completion_to_uh_open_university: schema
-                .enable_registering_completion_to_uh_open_university,
             certification_enabled: schema.certification_enabled,
-            enable_credit_registration_via_suotar: schema.enable_credit_registration_via_suotar,
         }
     }
 }
@@ -162,8 +148,6 @@ pub struct NewCourseModule {
     name: Option<String>,
     order_number: i32,
     uh_course_code: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-    enable_credit_registration_via_suotar: bool,
 }
 
 impl NewCourseModule {
@@ -176,8 +160,6 @@ impl NewCourseModule {
             name,
             order_number,
             uh_course_code: None,
-            enable_registering_completion_to_uh_open_university: false,
-            enable_credit_registration_via_suotar: false,
         }
     }
 
@@ -207,23 +189,6 @@ impl NewCourseModule {
         self.ects_credits = ects_credits;
         self
     }
-
-    pub fn set_enable_registering_completion_to_uh_open_university(
-        mut self,
-        enable_registering_completion_to_uh_open_university: bool,
-    ) -> Self {
-        self.enable_registering_completion_to_uh_open_university =
-            enable_registering_completion_to_uh_open_university;
-        self
-    }
-
-    pub fn set_enable_credit_registration_via_suotar(
-        mut self,
-        enable_credit_registration_via_suotar: bool,
-    ) -> Self {
-        self.enable_credit_registration_via_suotar = enable_credit_registration_via_suotar;
-        self
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -235,8 +200,6 @@ pub struct NewModule {
     ects_credits: Option<f32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-    enable_credit_registration_via_suotar: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -248,8 +211,6 @@ pub struct ModifiedModule {
     ects_credits: Option<f32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-    enable_credit_registration_via_suotar: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -260,7 +221,6 @@ pub struct CourseAuditingModuleUpdate {
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub completion_registration_link_override: Option<String>,
-    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -278,14 +238,20 @@ pub struct ModuleSizeCounts {
     pub exercises: i64,
 }
 
-/// Per-module credit-registration configuration: the rollout switch and the module's own fields
-/// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+/// Whether completions of a module with this course code are registered at all. Must match the
+/// `TRIM(cm.uh_course_code) <> ''` predicate the SQL side uses, `credit_registration_eligible_completions`
+/// among others.
+pub fn registers_credits(uh_course_code: Option<&str>) -> bool {
+    uh_course_code.is_some_and(|code| !code.trim().is_empty())
+}
+
+/// Per-module credit-registration configuration: the module's own fields merged with its
+/// `course_module_suotar_configurations` row. Every field of that row is optional
 /// here because a module with no configuration row is a valid, unconfigured module.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseModuleCreditRegistrationConfig {
     pub course_module_id: Uuid,
     pub course_id: Uuid,
-    pub enable_credit_registration_via_suotar: bool,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub credit_registration_paused_at: Option<DateTime<Utc>>,
@@ -387,12 +353,10 @@ INSERT INTO course_modules (
     automatic_completion_number_of_points_treshold,
     automatic_completion_requires_exam,
     ects_credits,
-    enable_registering_completion_to_uh_open_university,
     uh_course_code,
-    enable_credit_registration_via_suotar,
     completion_registration_link_override
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id,
   created_at,
   updated_at,
@@ -408,9 +372,7 @@ RETURNING id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
         ",
         pkey_policy.into_uuid(),
         new_course_module.course_id,
@@ -421,9 +383,7 @@ RETURNING id,
         points_treshold,
         requires_exam,
         new_course_module.ects_credits,
-        new_course_module.enable_registering_completion_to_uh_open_university,
         new_course_module.uh_course_code,
-        new_course_module.enable_credit_registration_via_suotar,
         new_course_module.completion_registration_link_override,
     )
     .fetch_one(conn)
@@ -491,9 +451,7 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
 FROM course_modules
 WHERE deleted_at IS NULL
         ",
@@ -523,9 +481,7 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
@@ -556,9 +512,7 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
 FROM course_modules
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -593,9 +547,7 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -632,9 +584,7 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
 FROM course_modules
 WHERE course_id = ANY($1)
 AND deleted_at IS NULL
@@ -669,9 +619,7 @@ SELECT cm.id,
   cm.automatic_completion_requires_exam,
   cm.completion_registration_link_override,
   cm.ects_credits,
-  cm.enable_registering_completion_to_uh_open_university,
-  cm.certification_enabled,
-  enable_credit_registration_via_suotar
+  cm.certification_enabled
 FROM course_modules as cm
 WHERE EXISTS (
   SELECT 1
@@ -715,9 +663,7 @@ SELECT course_modules.id AS "id!",
   course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
   course_modules.completion_registration_link_override,
   course_modules.ects_credits,
-  course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
-  course_modules.certification_enabled AS "certification_enabled!",
-  course_modules.enable_credit_registration_via_suotar AS "enable_credit_registration_via_suotar!"
+  course_modules.certification_enabled AS "certification_enabled!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
@@ -795,9 +741,7 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
@@ -858,7 +802,6 @@ pub async fn get_all_uh_course_codes_for_open_university(
 SELECT DISTINCT uh_course_code
 FROM course_modules
 WHERE uh_course_code IS NOT NULL
-  AND enable_registering_completion_to_uh_open_university = true
   AND deleted_at IS NULL
 "
     )
@@ -870,109 +813,17 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-/// Ids of the course's modules opted in to credit registration; the flag is not on the
-/// [`CourseModule`] DTO.
-pub async fn get_credit_registration_enabled_ids_for_course(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query_scalar!(
-        "
-SELECT id
-FROM course_modules
-WHERE course_id = $1
-  AND enable_credit_registration_via_suotar
-  AND deleted_at IS NULL
-ORDER BY order_number
-        ",
-        course_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Ids of the courses' modules whose new completions go through credit registration via Suotar when
-/// the student holds a linked student number.
-pub async fn get_ids_registering_eligible_new_completions_via_suotar(
-    conn: &mut PgConnection,
-    course_ids: &[Uuid],
-) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query_scalar!(
-        "
-SELECT id
-FROM course_modules
-WHERE course_id = ANY($1)
-  AND enable_credit_registration_via_suotar
-  AND register_eligible_new_completions_via_suotar
-  AND deleted_at IS NULL
-        ",
-        course_ids
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// The gate for admin actions that are not tied to one course (e.g. resolving or manually
-/// linking a student number), where `get_credit_registration_enabled_ids_for_course` has no
-/// course to check against.
-pub async fn any_credit_registration_enabled(conn: &mut PgConnection) -> ModelResult<bool> {
-    let res = sqlx::query_scalar!(
-        r#"
-SELECT EXISTS(
-  SELECT 1
-  FROM course_modules
-  WHERE enable_credit_registration_via_suotar
-    AND deleted_at IS NULL
-) AS "exists!"
-        "#
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Every course the user is enrolled on that has at least one module opted in to credit
-/// registration, so the profile page can list a course the student was never asked about.
-pub async fn get_credit_registration_course_ids_for_enrolled_user(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query_scalar!(
-        "
-SELECT DISTINCT cm.course_id
-FROM course_modules cm
-  JOIN course_instance_enrollments cie ON cie.course_id = cm.course_id
-  JOIN courses c ON c.id = cm.course_id
-WHERE cie.user_id = $1
-  AND cie.deleted_at IS NULL
-  AND cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
-  AND c.deleted_at IS NULL
-        ",
-        user_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Shared by every getter below, so the 13-column join lives in one place. `enabled_only` isn't a
-/// "this id or any" filter like the other two: the by-id and by-course lookups want every module,
-/// opted in or not, while the all-modules listing wants only the opted-in ones.
+/// Shared by the two getters below, so the join lives in one place.
 async fn credit_registration_configs(
     conn: &mut PgConnection,
     course_module_id: Option<Uuid>,
     course_id: Option<Uuid>,
-    enabled_only: bool,
 ) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
     let res = sqlx::query_as!(
         CourseModuleCreditRegistrationConfig,
         r#"
 SELECT cm.id AS course_module_id,
   cm.course_id,
-  cm.enable_credit_registration_via_suotar,
   cm.uh_course_code,
   cm.ects_credits,
   c.paused_at AS "credit_registration_paused_at?",
@@ -987,14 +838,12 @@ FROM course_modules cm
   AND c.deleted_at IS NULL
 WHERE ($1::uuid IS NULL OR cm.id = $1)
   AND ($2::uuid IS NULL OR cm.course_id = $2)
-  AND (NOT $3::bool OR cm.enable_credit_registration_via_suotar)
   AND cm.deleted_at IS NULL
 ORDER BY cm.course_id,
   cm.order_number
         "#,
         course_module_id,
         course_id,
-        enabled_only,
     )
     .fetch_all(conn)
     .await?;
@@ -1005,7 +854,7 @@ pub async fn get_credit_registration_config(
     conn: &mut PgConnection,
     course_module_id: Uuid,
 ) -> ModelResult<CourseModuleCreditRegistrationConfig> {
-    credit_registration_configs(conn, Some(course_module_id), None, false)
+    credit_registration_configs(conn, Some(course_module_id), None)
         .await?
         .into_iter()
         .next()
@@ -1015,20 +864,12 @@ pub async fn get_credit_registration_config(
         ))
 }
 
-/// Every module of one course with its Suotar configuration, opted in or not: the module editor has
-/// to show an unconfigured module's empty fields.
+/// Every module of one course with its Suotar configuration, configured or not.
 pub async fn get_credit_registration_configs_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
-    credit_registration_configs(conn, None, Some(course_id), false).await
-}
-
-/// Every module opted in to credit registration via Suotar, paused ones included.
-pub async fn get_all_suotar_enabled(
-    conn: &mut PgConnection,
-) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
-    credit_registration_configs(conn, None, None, true).await
+    credit_registration_configs(conn, None, Some(course_id)).await
 }
 
 pub async fn update_automatic_completion_status(
@@ -1063,9 +904,7 @@ RETURNING id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
         ",
         automatic_completion,
         exercises_treshold,
@@ -1105,50 +944,9 @@ RETURNING id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
+  certification_enabled
         ",
         uh_course_code,
-        id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.into())
-}
-
-pub async fn update_enable_registering_completion_to_uh_open_university(
-    conn: &mut PgConnection,
-    id: Uuid,
-    enable_registering_completion_to_uh_open_university: bool,
-) -> ModelResult<CourseModule> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-UPDATE course_modules
-SET enable_registering_completion_to_uh_open_university = $1
-WHERE id = $2
-  AND deleted_at IS NULL
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  name,
-  course_id,
-  order_number,
-  copied_from,
-  uh_course_code,
-  automatic_completion,
-  automatic_completion_number_of_exercises_attempted_treshold,
-  automatic_completion_number_of_points_treshold,
-  automatic_completion_requires_exam,
-  completion_registration_link_override,
-  ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  certification_enabled,
-  enable_credit_registration_via_suotar
-        ",
-        enable_registering_completion_to_uh_open_university,
         id,
     )
     .fetch_one(conn)
@@ -1192,8 +990,6 @@ pub async fn update(
         name,
         uh_course_code,
         completion_registration_link_override,
-        enable_registering_completion_to_uh_open_university,
-        enable_credit_registration_via_suotar,
     } = updated_course_module;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
@@ -1208,11 +1004,7 @@ SET name = COALESCE($2, name),
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
   automatic_completion_requires_exam = $9,
-  completion_registration_link_override = $10,
-  enable_registering_completion_to_uh_open_university = $11,
-  enable_credit_registration_via_suotar = $12,
-  register_eligible_new_completions_via_suotar = register_eligible_new_completions_via_suotar
-  AND $12
+  completion_registration_link_override = $10
 WHERE id = $1
         ",
         id,
@@ -1225,63 +1017,10 @@ WHERE id = $1
         points_treshold,
         requires_exam,
         completion_registration_link_override.as_ref(),
-        enable_registering_completion_to_uh_open_university,
-        enable_credit_registration_via_suotar
     )
     .execute(conn)
     .await?;
     Ok(())
-}
-
-/// Sets `register_eligible_new_completions_via_suotar`, which production sets by hand only. Errors
-/// if the module is not opted in to credit registration via Suotar.
-pub async fn set_register_eligible_new_completions_via_suotar(
-    conn: &mut PgConnection,
-    id: Uuid,
-    value: bool,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE course_modules
-SET register_eligible_new_completions_via_suotar = $2
-WHERE id = $1
-        ",
-        id,
-        value,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-/// Whether applying `updates` to `course_id` would flip `enable_credit_registration_via_suotar` on
-/// any module.
-///
-/// Only support may put a module on the live study registry path, but the module editor round-trips
-/// the flag on every save, so gate on an actual change rather than on the field being sent. A module
-/// the update creates, and one not in the course, count as currently off; [`update_modules`] rejects
-/// the latter.
-pub async fn would_change_credit_registration_via_suotar(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    updates: &ModuleUpdates,
-) -> ModelResult<bool> {
-    if updates
-        .new_modules
-        .iter()
-        .any(|module| module.enable_credit_registration_via_suotar)
-    {
-        return Ok(true);
-    }
-    let stored: HashMap<Uuid, bool> = get_by_course_id(conn, course_id)
-        .await?
-        .into_iter()
-        .map(|module| (module.id, module.enable_credit_registration_via_suotar))
-        .collect();
-    Ok(updates.modified_modules.iter().any(|module| {
-        stored.get(&module.id).copied().unwrap_or(false)
-            != module.enable_credit_registration_via_suotar
-    }))
 }
 
 /// Errors with `InvalidRequest` unless `link` is empty or an absolute `https://` URL. Students get
@@ -1408,19 +1147,13 @@ pub async fn update_modules(
             ects_credits,
             completion_policy,
             completion_registration_link_override,
-            enable_registering_completion_to_uh_open_university,
-            enable_credit_registration_via_suotar,
         } = new;
         // insert with a random order number to avoid conflicts
         let new_course_module = NewCourseModule::new(course_id, Some(name.clone()), rand::random())
             .set_completion_policy(completion_policy.clone())
             .set_completion_registration_link_override(completion_registration_link_override)
             .set_ects_credits(ects_credits)
-            .set_uh_course_code(uh_course_code)
-            .set_enable_registering_completion_to_uh_open_university(
-                enable_registering_completion_to_uh_open_university,
-            )
-            .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar);
+            .set_uh_course_code(uh_course_code);
         let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
         for chapter in chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
@@ -1434,9 +1167,6 @@ pub async fn update_modules(
             ects_credits,
             completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
-            enable_registering_completion_to_uh_open_university: module
-                .enable_registering_completion_to_uh_open_university,
-            enable_credit_registration_via_suotar,
         })
     }
     // update modified and new modules
@@ -1450,8 +1180,6 @@ pub async fn update_modules(
             ects_credits,
             completion_policy,
             completion_registration_link_override,
-            enable_registering_completion_to_uh_open_university,
-            enable_credit_registration_via_suotar,
         } = module;
         update(
             &mut tx,
@@ -1460,11 +1188,7 @@ pub async fn update_modules(
                 .set_completion_policy(completion_policy)
                 .set_completion_registration_link_override(completion_registration_link_override)
                 .set_ects_credits(ects_credits)
-                .set_uh_course_code(uh_course_code)
-                .set_enable_registering_completion_to_uh_open_university(
-                    enable_registering_completion_to_uh_open_university,
-                )
-                .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar),
+                .set_uh_course_code(uh_course_code),
         )
         .await?;
     }

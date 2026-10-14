@@ -368,7 +368,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
   )
 
   const shownModules = (summaryQuery.data?.modules ?? []).filter(
-    (module) => module.enabled && (!moduleId || module.course_module_id === moduleId),
+    (module) => !moduleId || module.course_module_id === moduleId,
   )
   const failedCount = sumBy(shownModules, (module) => module.failed_count)
   const { reasons, retryableCount, isCapped } = useCourseFailureReasons(

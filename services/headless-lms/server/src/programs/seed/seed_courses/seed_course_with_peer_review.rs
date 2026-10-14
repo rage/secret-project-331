@@ -71,7 +71,6 @@ pub async fn seed_peer_review_course(
         .module(
             ModuleBuilder::new()
                 .order(0)
-                .register_to_open_university(false)
                 .automatic_completion(Some(1), Some(1), false)
                 .chapter(
                     ChapterBuilder::new(1, "The Basics")

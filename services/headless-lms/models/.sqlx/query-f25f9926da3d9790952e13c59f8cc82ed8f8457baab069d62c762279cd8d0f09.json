@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\nFROM course_modules\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -170,17 +170,6 @@
       },
       {
         "ordinal": 15,
-        "name": "enable_registering_completion_to_uh_open_university",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "enable_registering_completion_to_uh_open_university"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
         "name": "certification_enabled",
         "type_info": "Bool",
         "origin": {
@@ -189,22 +178,11 @@
             "name": "certification_enabled"
           }
         }
-      },
-      {
-        "ordinal": 17,
-        "name": "enable_credit_registration_via_suotar",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "enable_credit_registration_via_suotar"
-          }
-        }
       }
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -223,10 +201,8 @@
       false,
       true,
       true,
-      false,
-      false,
       false
     ]
   },
-  "hash": "c8ce3e1e23995c10d8916264c70f31015fc86a431215926dbc8b7962c8fac004"
+  "hash": "f25f9926da3d9790952e13c59f8cc82ed8f8457baab069d62c762279cd8d0f09"
 }

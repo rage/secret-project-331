@@ -351,7 +351,7 @@ const RegistrationsPage: React.FC = () => {
   const registrationsQuery = useAdminCreditRegistrations(query, { paused: searchPending })
   const chipFilters = CHIP_PARAMS.flatMap((name) => params(name).map((value) => ({ name, value })))
 
-  // The stats are one row per module, and a course can have several enabled modules: dedupe by
+  // The stats are one row per module, and a course can have several modules: dedupe by
   // course_id or the Select gets two options with the same value and refuses to render at all.
   const courseStatsQuery = useCreditRegistrationCourseStats()
   const courseOptions = useMemo(() => {

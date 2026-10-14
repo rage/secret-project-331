@@ -310,7 +310,7 @@ const filteredStudentLabel = (
 const AuditPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const courseStatsQuery = useCreditRegistrationCourseStats()
-  // The stats are one row per module, and a course can have several Suotar-enabled modules: dedupe
+  // The stats are one row per module, and a course can have several modules: dedupe
   // by course_id or the Select gets two options with the same value and refuses to render at all.
   const courseOptions = useMemo(() => {
     const byCourseId = new Map<string, string>()

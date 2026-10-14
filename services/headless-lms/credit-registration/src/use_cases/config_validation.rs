@@ -1,4 +1,5 @@
-//! The `config-validation` phase: the daily pass over every Suotar-enabled module's configuration.
+//! The `config-validation` phase: the daily pass over the configuration of every module with a
+//! course code.
 //!
 //! Asks Suotar's `course-codes/validate` about every distinct course code; the rest of the check
 //! reads the database.
@@ -44,7 +45,7 @@ pub(crate) async fn run<R: StudyRegistry>(
     if with_problems > 0 {
         warn!(
             modules_with_problems = with_problems,
-            "Suotar-enabled course modules have configuration problems"
+            "Course modules have credit registration configuration problems"
         );
     }
     let modules_checked = modules.len();

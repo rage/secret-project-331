@@ -15,7 +15,10 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
-import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
+import {
+  manageExamQuestionsRoute,
+  submissionGradingRoute,
+} from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, EmptyState, Pagination, QueryResult, Table } from "@/shared-module/components"
@@ -51,7 +54,19 @@ const GradingPage: React.FC = () => {
 
   usePageTitle(joinTitleSegments([t("header-submissions"), getExam.data?.name]), { order: 10 })
 
-  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("header-submissions") }], [t])
+  const crumbs = useMemo(
+    () => [
+      examId
+        ? {
+            isLoading: false as const,
+            label: t("questions"),
+            href: manageExamQuestionsRoute(examId),
+          }
+        : { isLoading: true as const },
+      { isLoading: false as const, label: t("header-submissions") },
+    ],
+    [examId, t],
+  )
   useRegisterBreadcrumbs({ key: `exercise:${id}:exam-submissions`, order: 60, crumbs })
 
   return (

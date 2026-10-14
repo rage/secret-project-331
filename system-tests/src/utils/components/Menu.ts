@@ -53,7 +53,8 @@ export class Menu {
   }
 
   private async open(): Promise<Locator> {
-    await expect(this.trigger).toBeVisible()
+    // Not `expect().toBeVisible()`: its 5s timeout is too short for a page that is still loading.
+    await this.trigger.waitFor()
     if ((await this.trigger.getAttribute("aria-expanded")) !== "true") {
       await this.trigger.click()
     }

@@ -58,7 +58,8 @@ export class Disclosure {
   }
 
   private async setExpanded(expanded: boolean): Promise<void> {
-    await expect(this.trigger).toBeVisible()
+    // Not `expect().toBeVisible()`: its 5s timeout is too short for a page that is still loading.
+    await this.trigger.waitFor()
     if ((await this.trigger.getAttribute("aria-expanded")) !== String(expanded)) {
       await this.trigger.click()
     }

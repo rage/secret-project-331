@@ -148,7 +148,8 @@ export class ComboBox {
   }
 
   private async openIfClosed(): Promise<void> {
-    await expect(this.input).toBeVisible()
+    // Not `expect().toBeVisible()`: its 5s timeout is too short for a page that is still loading.
+    await this.input.waitFor()
     if ((await this.input.getAttribute("aria-expanded")) !== "true") {
       // The popover is non-modal, so any page scroll closes it again. Playwright scrolls before
       // every click, so get the input into view now, while nothing is open to lose, and the list

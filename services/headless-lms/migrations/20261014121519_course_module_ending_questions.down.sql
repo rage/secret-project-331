@@ -1,0 +1,2 @@
+DROP TABLE course_module_ending_questions_answers;
+DROP TABLE course_module_ending_questions;

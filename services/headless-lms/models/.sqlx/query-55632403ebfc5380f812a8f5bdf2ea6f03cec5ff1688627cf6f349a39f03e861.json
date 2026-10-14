@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ud.user_id,\n  ud.created_at,\n  ud.updated_at,\n  ud.email,\n  ud.first_name,\n  ud.last_name,\n  ud.search_helper,\n  ud.country,\n  ud.email_communication_consent,\n  ud.email_verified_at,\n  ud.email_verified_method\nFROM user_details ud\nJOIN user_course_settings ucs ON ud.user_id = ucs.user_id\nWHERE ud.user_id = $1\n  AND ucs.current_course_id = $2\n  AND ucs.deleted_at IS NULL\n        ",
+  "query": "\nWITH name_matches AS (\n  SELECT user_id,\n    $1 <<-> name_search_helper AS distance\n  FROM user_details\n  ORDER BY distance\n  LIMIT $2\n),\nemail_matches AS (\n  SELECT user_id,\n    $1 <<-> split_part(email_search_helper, '@', 1) AS distance\n  FROM user_details\n  ORDER BY distance\n  LIMIT $2\n),\nmatches AS (\n  SELECT user_id,\n    min(distance) AS distance\n  FROM (\n      SELECT *\n      FROM name_matches\n      UNION ALL\n      SELECT *\n      FROM email_matches\n    ) candidates\n  WHERE distance < $3\n  GROUP BY user_id\n)\nSELECT ud.user_id,\n  ud.created_at,\n  ud.updated_at,\n  ud.email,\n  ud.first_name,\n  ud.last_name,\n  ud.country,\n  ud.email_communication_consent,\n  ud.email_verified_at,\n  ud.email_verified_method\nFROM matches\n  JOIN user_details ud ON ud.user_id = matches.user_id\nORDER BY matches.distance,\n  ud.user_id\nLIMIT $2\n",
   "describe": {
     "columns": [
       {
@@ -71,17 +71,6 @@
       },
       {
         "ordinal": 6,
-        "name": "search_helper",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "user_details",
-            "name": "search_helper"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "email_communication_consent",
         "type_info": "Bool",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "email_verified_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -114,7 +103,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "email_verified_method",
         "type_info": {
           "Custom": {
@@ -139,8 +128,9 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid"
+        "Text",
+        "Int8",
+        "Float4"
       ]
     },
     "nullable": [
@@ -151,11 +141,10 @@
       true,
       true,
       true,
-      true,
       false,
       true,
       true
     ]
   },
-  "hash": "ca529ec7c558366f3f4da6c3d9b8d0bdbd5528cca84169b540c3a3eca5146204"
+  "hash": "55632403ebfc5380f812a8f5bdf2ea6f03cec5ff1688627cf6f349a39f03e861"
 }

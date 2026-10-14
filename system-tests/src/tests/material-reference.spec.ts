@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { selectTab } from "@/utils/selectTab"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -18,7 +19,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
   await page.locator("[aria-label=\"Manage course \\'Material references course\\'\"] svg").click()
-  await page.getByRole("tab", { name: "Other" }).click()
+  await selectTab(page, "Other")
   await page.getByRole("tab", { name: "References" }).click()
 
   await expectScreenshotsToMatchSnapshots({

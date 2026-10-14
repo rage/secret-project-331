@@ -365,9 +365,8 @@ import {
   revokeSubmissionShare,
   revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
-  searchUserDetailsFuzzyMatch,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
   sendResetPasswordEmail,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
@@ -1068,12 +1067,10 @@ import type {
   RevokeSubmissionSharesOfSubmissionResponse,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
-  SearchUserDetailsByEmailData,
-  SearchUserDetailsByEmailResponse,
-  SearchUserDetailsByOtherDetailsData,
-  SearchUserDetailsByOtherDetailsResponse,
-  SearchUserDetailsFuzzyMatchData,
-  SearchUserDetailsFuzzyMatchResponse,
+  SearchUserDetailsExactData,
+  SearchUserDetailsExactResponse,
+  SearchUserDetailsFuzzyData,
+  SearchUserDetailsFuzzyResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
   SetCourseChatbotAsDefaultData,
@@ -12066,22 +12063,22 @@ export const getBulkUserDetailsMutation = (
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
-export const searchUserDetailsByEmailMutation = (
-  options?: Partial<Options<SearchUserDetailsByEmailData>>,
+export const searchUserDetailsExactMutation = (
+  options?: Partial<Options<SearchUserDetailsExactData>>,
 ): UseMutationOptions<
-  SearchUserDetailsByEmailResponse,
+  SearchUserDetailsExactResponse,
   DefaultError,
-  Options<SearchUserDetailsByEmailData>
+  Options<SearchUserDetailsExactData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SearchUserDetailsByEmailResponse,
+    SearchUserDetailsExactResponse,
     DefaultError,
-    Options<SearchUserDetailsByEmailData>
+    Options<SearchUserDetailsExactData>
   > = {
     mutationFn: async (fnOptions) =>
-      await searchUserDetailsByEmail({
+      await searchUserDetailsExact({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -12092,48 +12089,22 @@ export const searchUserDetailsByEmailMutation = (
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
+ * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
-export const searchUserDetailsByOtherDetailsMutation = (
-  options?: Partial<Options<SearchUserDetailsByOtherDetailsData>>,
+export const searchUserDetailsFuzzyMutation = (
+  options?: Partial<Options<SearchUserDetailsFuzzyData>>,
 ): UseMutationOptions<
-  SearchUserDetailsByOtherDetailsResponse,
+  SearchUserDetailsFuzzyResponse,
   DefaultError,
-  Options<SearchUserDetailsByOtherDetailsData>
+  Options<SearchUserDetailsFuzzyData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SearchUserDetailsByOtherDetailsResponse,
+    SearchUserDetailsFuzzyResponse,
     DefaultError,
-    Options<SearchUserDetailsByOtherDetailsData>
+    Options<SearchUserDetailsFuzzyData>
   > = {
     mutationFn: async (fnOptions) =>
-      await searchUserDetailsByOtherDetails({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
- */
-export const searchUserDetailsFuzzyMatchMutation = (
-  options?: Partial<Options<SearchUserDetailsFuzzyMatchData>>,
-): UseMutationOptions<
-  SearchUserDetailsFuzzyMatchResponse,
-  DefaultError,
-  Options<SearchUserDetailsFuzzyMatchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SearchUserDetailsFuzzyMatchResponse,
-    DefaultError,
-    Options<SearchUserDetailsFuzzyMatchData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await searchUserDetailsFuzzyMatch({
+      await searchUserDetailsFuzzy({
         ...options,
         ...fnOptions,
         throwOnError: true,

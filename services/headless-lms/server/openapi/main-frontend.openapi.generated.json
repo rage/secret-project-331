@@ -13631,11 +13631,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-email": {
+    "/api/v0/main-frontend/user-details/search-exact": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email",
-        "operationId": "searchUserDetailsByEmail",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query",
+        "operationId": "searchUserDetailsExact",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13648,7 +13648,7 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose id or email equals the query",
             "content": {
               "application/json": {
                 "schema": {
@@ -13663,11 +13663,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-other-details": {
+    "/api/v0/main-frontend/user-details/search-fuzzy": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.",
-        "operationId": "searchUserDetailsByOtherDetails",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email",
+        "operationId": "searchUserDetailsFuzzy",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13680,46 +13680,11 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose name or email resembles the query",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/user-details/search-fuzzy-match": {
-      "post": {
-        "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query",
-        "operationId": "searchUserDetailsFuzzyMatch",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "User details fuzzy search results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
+                  "$ref": "#/components/schemas/FuzzyUserSearchResults"
                 }
               }
             }
@@ -24393,6 +24358,27 @@
           }
         }
       },
+      "FuzzyUserSearchResults": {
+        "type": "object",
+        "description": "Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.",
+        "required": ["users", "has_more", "timed_out"],
+        "properties": {
+          "has_more": {
+            "type": "boolean",
+            "description": "More users matched than `users` holds."
+          },
+          "timed_out": {
+            "type": "boolean",
+            "description": "The search hit its time limit, so `users` is empty without meaning nobody matched."
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            }
+          }
+        }
+      },
       "GeneratedCertificate": {
         "type": "object",
         "required": [
@@ -29919,9 +29905,6 @@
             "type": ["string", "null"]
           },
           "last_name": {
-            "type": ["string", "null"]
-          },
-          "search_helper": {
             "type": ["string", "null"]
           },
           "updated_at": {

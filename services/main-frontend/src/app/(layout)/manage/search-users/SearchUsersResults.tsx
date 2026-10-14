@@ -125,14 +125,14 @@ const nameCss = css`
 
 const noNameCss = css`
   font-weight: 400;
-  color: var(--color-gray-400);
+  color: var(--color-gray-500);
 `
 
 const shortIdCss = css`
   flex: none;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--font-size-0);
-  color: var(--color-gray-400);
+  color: var(--color-gray-500);
 `
 
 const emailCss = css`

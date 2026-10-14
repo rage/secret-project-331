@@ -136,7 +136,7 @@ describe("tokens.ts custom properties", () => {
 
     expect(sansStack[0]).toBe('"Inter Variable"')
     expect(headingStack[0]).toBe("Raleway")
-    expect(monoStack[0]).toBe('"Space Mono"')
+    expect(monoStack[0]).toBe('"Commit Mono"')
 
     // Heading only swaps the lead face; everything from system-ui onward matches --font-sans,
     // so the two stacks degrade identically once neither Inter nor Raleway is available.

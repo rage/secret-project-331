@@ -1,7 +1,8 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectTab } from "@/utils/selectTab"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
@@ -11,7 +12,7 @@ test.use({
 test("Code giveaways work", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByLabel("Manage course 'Giveaway'").click()
-  await page.getByRole("tab", { name: "Other" }).click()
+  await selectTab(page, "Other")
   await page.getByRole("tab", { name: "Code giveaways" }).click()
   await page.getByRole("button", { name: "New", exact: true }).click()
   await page.getByLabel("Name", { exact: true }).fill("Best code giveaway of this generation")
@@ -28,15 +29,7 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByRole("button", { name: "Hide" }).click()
   await page.getByText("******").first().waitFor()
   await page.goBack()
-  // A click that lands before the restored page hydrates is lost.
-  await expect(async () => {
-    await page.getByRole("tab", { name: "Pages" }).click()
-    await expect(page.getByRole("tab", { name: "Pages" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-      { timeout: 1000 },
-    )
-  }).toPass({ timeout: 15000 })
+  await selectTab(page, "Pages")
   await waitForSpinnersToDisappear(page)
   await page
     .getByRole("row", { name: "Giveaway / Edit page Dropdown" })

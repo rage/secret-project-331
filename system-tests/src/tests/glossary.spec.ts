@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { selectTab } from "@/utils/selectTab"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -36,7 +37,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
 
   await test.step("Open course manage menu and switch to Glossary tab", async () => {
     await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
-    await page.getByRole("tab", { name: "Other" }).click()
+    await selectTab(page, "Other")
     await page.getByRole("tab", { name: "Glossary" }).click()
   })
 

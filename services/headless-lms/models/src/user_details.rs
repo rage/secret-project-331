@@ -241,6 +241,7 @@ pub async fn search_for_user_details_fuzzy(
             match fuzzy_search_by_trigram_filter(&mut tx, &term, row_limit).await {
                 Ok(users) => users,
                 Err(err) if is_statement_timeout(&err) => {
+                    tx.rollback().await?;
                     results.timed_out = true;
                     return Ok(results);
                 }

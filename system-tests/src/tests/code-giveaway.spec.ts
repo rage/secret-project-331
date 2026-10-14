@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -28,7 +28,12 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByRole("button", { name: "Hide" }).click()
   await page.getByText("******").first().waitFor()
   await page.goBack()
-  await page.getByRole("tab", { name: "Pages" }).click()
+  // A click that lands before the restored page hydrates is lost.
+  const pagesTab = page.getByRole("tab", { name: "Pages" })
+  await expect(async () => {
+    await pagesTab.click()
+    await expect(pagesTab).toHaveAttribute("aria-selected", "true", { timeout: 1000 })
+  }).toPass({ timeout: 15000 })
   await waitForSpinnersToDisappear(page)
   await page
     .getByRole("row", { name: "Giveaway / Edit page Dropdown" })

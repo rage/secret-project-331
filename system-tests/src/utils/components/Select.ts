@@ -33,7 +33,11 @@ export class Select {
    * with the value.
    */
   public static labelled(page: Page, label: string, scope: Page | Locator = page): Select {
-    return new Select(page, scope.getByLabel(label, { exact: true }), { name: label })
+    // The open listbox carries the same label, so narrow to the trigger.
+    const trigger = scope
+      .getByLabel(label, { exact: true })
+      .and(scope.locator('[aria-haspopup="listbox"]'))
+    return new Select(page, trigger, { name: label })
   }
 
   public constructor(page: Page, trigger: Locator, opts: SelectOptions = {}) {

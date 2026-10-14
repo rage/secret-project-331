@@ -247,6 +247,8 @@ test.describe("Course auditing", () => {
     await successorSelect.search("codes")
     await successorSelect.chooseOptionByValue(SUCCESSOR_COURSE_ID)
     await expect(successorTrigger).toContainText(SUCCESSOR_COURSE_NAME)
+    // The first test saves this same successor, so after it only the note leaves the form dirty.
+    await page.getByRole("textbox", { name: "Note for students" }).fill("Unsaved note")
 
     await page.getByRole("button", { name: "Cancel" }).click()
 

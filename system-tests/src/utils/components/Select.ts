@@ -26,6 +26,16 @@ export class Select {
   private readonly trigger: Locator
   private readonly name: string
 
+  /**
+   * The select labelled exactly `label` within `scope`.
+   *
+   * For selects without a `data-testid`: the label stays put while the trigger's own name changes
+   * with the value.
+   */
+  public static labelled(page: Page, label: string, scope: Page | Locator = page): Select {
+    return new Select(page, scope.getByLabel(label, { exact: true }), { name: label })
+  }
+
   public constructor(page: Page, trigger: Locator, opts: SelectOptions = {}) {
     this.page = page
     this.trigger = trigger
@@ -47,7 +57,7 @@ export class Select {
   /** Closes the listbox without changing the selection. */
   public async close(): Promise<void> {
     await test.step(`${this.name}: close`, async () => {
-      await this.page.keyboard.press("Escape")
+      await this.pressEscapeUntilClosed()
       await expect(this.trigger).toHaveAttribute("aria-expanded", "false")
     })
   }
@@ -165,6 +175,23 @@ export class Select {
     // popover, so it has to be reached through their shared parent.
     const listBox = await this.listBox()
     return listBox.locator("xpath=..").getByRole("searchbox")
+  }
+
+  /** A non-empty search field eats the first Escape to clear itself, so it takes a second one. */
+  private async pressEscapeUntilClosed(): Promise<void> {
+    const hasSearchText = await this.hasSearchText()
+    await this.page.keyboard.press("Escape")
+    if (hasSearchText) {
+      await this.page.keyboard.press("Escape")
+    }
+  }
+
+  private async hasSearchText(): Promise<boolean> {
+    if ((await this.trigger.getAttribute("aria-expanded")) !== "true") {
+      return false
+    }
+    const searchBox = await this.searchBox()
+    return (await searchBox.count()) > 0 && (await searchBox.inputValue()) !== ""
   }
 
   private async expectClosedShowing(label: string): Promise<void> {

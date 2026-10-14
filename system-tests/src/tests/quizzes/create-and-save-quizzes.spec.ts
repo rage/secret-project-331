@@ -3,6 +3,11 @@ import type { Locator, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
 import { createCourse } from "@/utils/flows/newCourse.flow"
+import {
+  createCourseChapter,
+  createCoursePage,
+  openCoursePageInEditor,
+} from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { addQuizFeedbackMessage } from "@/utils/quizFeedbackMessages"
 
@@ -40,27 +45,9 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.getByText("Pages").click()
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-    await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
-
-    // await page.click('input[type="text"]')
-
-    // Fill input[type="text"]
-    await page.fill(`label:has-text("Name")`, "first")
-
-    await page.getByRole("button", { name: "Create", exact: true }).click()
-
-    await page.getByText(`Chapter 1`).waitFor()
-
-    await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-    // await page.click('input[type="text"]')
-
-    // Fill input[type="text"]
-    await page.fill(`label:has-text("Title")`, "first page")
-
-    await page.getByRole("button", { name: "Create", exact: true }).click()
-
-    await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
+    await createCourseChapter(page, "first")
+    await createCoursePage(page, { chapterNumber: 1 }, "first page")
+    await openCoursePageInEditor(page, "first page")
 
     await page.getByLabel("Hero section title...").click()
 

@@ -176,8 +176,8 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByTestId("add-user-button-02364d40-2aac-4763-8a06-2381fd298d79").click()
 
   await adminPage.getByRole("button", { name: "Close" }).click()
-  await adminPage.getByRole("checkbox", { name: "Reset only if gotten less than" }).click()
-  await adminPage.getByRole("spinbutton", { name: "Reset only if gotten less than" }).fill("3")
+  await adminPage.getByRole("checkbox", { name: "Reset only if gotten less than" }).check()
+  await adminPage.getByRole("textbox", { name: "Reset only if gotten less than" }).fill("3")
   await adminPage.getByRole("row", { name: "Multiple task exercise Page" }).getByLabel("").check()
   await adminPage.getByRole("row", { name: "Multiple task quizzes" }).getByLabel("").check()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()

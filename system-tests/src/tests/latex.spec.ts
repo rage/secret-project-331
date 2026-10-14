@@ -2,6 +2,7 @@
 import { test } from "@playwright/test"
 
 import { createCourse } from "@/utils/flows/newCourse.flow"
+import { createCourseChapter, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
@@ -31,14 +32,8 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Name")`, "first page")
-
-  await page.getByRole("button", { name: "Create", exact: true }).click()
-
-  await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
+  await createCourseChapter(page, "first page")
+  await openCoursePageInEditor(page, "first page")
   // - CHAPTER GRID
   await page.getByText("Pages in chapter placeholder").click()
   await page.waitForTimeout(100)

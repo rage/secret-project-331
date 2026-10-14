@@ -2,6 +2,7 @@ import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
+import { Checkbox } from "@/utils/components/Checkbox"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -65,8 +66,8 @@ test.describe("Peer review followed by self review works", () => {
         .first()
         .click()
       await expandPeerAndSelfReviewConfig(teacherPage)
-      await teacherPage.getByText("Add peer review").click()
-      await teacherPage.getByText("Add self review").click()
+      await Checkbox.labelled(teacherPage, "Add peer review").setChecked(true)
+      await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
       await waitForSuccessNotification(teacherPage, async () => {
         await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
       })
@@ -87,8 +88,8 @@ test.describe("Peer review followed by self review works", () => {
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()
       })
-      await page1.getByLabel("Peer reviews to receive *").fill("1")
-      await page1.getByLabel("Peer reviews to give *").fill("2")
+      await page1.getByLabel("Peer reviews to receive", { exact: true }).fill("1")
+      await page1.getByLabel("Peer reviews to give", { exact: true }).fill("2")
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()
       })

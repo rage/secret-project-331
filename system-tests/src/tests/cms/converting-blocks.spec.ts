@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { createCoursePage, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
@@ -14,13 +15,8 @@ test("Can convert blocks", async ({ page }) => {
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await waitForSpinnersToDisappear(page)
-  await page.getByRole("button", { name: "New page" }).nth(2).click()
-  await page.getByLabel("Title", { exact: true }).fill("Test page")
-  await page.getByRole("button", { name: "Create" }).click()
-  await page
-    .getByRole("row", { name: "Test page /chapter-2/test-page Edit page Dropdown menu" })
-    .getByRole("button", { name: "Edit page" })
-    .click()
+  await createCoursePage(page, { chapterNumber: 2 }, "Test page")
+  await openCoursePageInEditor(page, "Test page", { chapterNumber: 2 })
   await page.getByRole("button", { name: "Add block" }).click()
   await page.getByRole("option", { name: "Paragraph" }).click()
   await page

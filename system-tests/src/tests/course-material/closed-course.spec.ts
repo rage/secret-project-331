@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 
 import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
+import { Select } from "@/utils/components/Select"
+import { Switch } from "@/utils/components/Switch"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -9,6 +11,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
+const SELF_REVIEW_COURSE_ID = "3cbaac48-59c4-4e31-9d7e-1f51c017390d"
 const ADDITIONAL_MESSAGE = "THIS COURSE HAS CLOSED UNTIL FURTHER NOTICE"
 
 test("Can close courses and shows warning dialog", async ({ page }) => {
@@ -17,12 +20,12 @@ test("Can close courses and shows warning dialog", async ({ page }) => {
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Manage course 'Closed course'" }).click()
   await page.getByRole("button", { name: "Edit" }).click()
-  await page.getByRole("checkbox", { name: "Set course closed at" }).check()
+  await Switch.labelled(page, "Close the course automatically").setChecked(true)
   await new DateTimeLocalField(page, "closed-at-field").setValue("2025-01-01T13:15")
-  await page.getByRole("textbox", { name: "Additional message on the" }).fill(ADDITIONAL_MESSAGE)
-  await page
-    .getByRole("textbox", { name: "Closed course successor" })
-    .fill("3cbaac48-59c4-4e31-9d7e-1f51c017390d")
+  await page.getByRole("textbox", { name: "Note for students" }).fill(ADDITIONAL_MESSAGE)
+  await new Select(page, page.getByTestId("closed-successor-field"), {
+    name: "Newer version",
+  }).chooseOptionByValue(SELF_REVIEW_COURSE_ID)
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Update" }).click()
   })

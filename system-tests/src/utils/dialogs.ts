@@ -1,5 +1,5 @@
 /* oxlint-disable playwright/no-conditional-in-test */
-import type { Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import {
@@ -133,5 +133,19 @@ export async function fillPromptDialog(
     }
 
     await dialog.waitFor({ state: "hidden" })
+  })
+}
+
+/**
+ * Presses a footer button of a dialog and waits for the dialog to close.
+ *
+ * Get the dialog by its title: `page.getByRole("dialog", { name: title })`. For a dialog opened
+ * through `DialogProvider` (alert, confirm, prompt) use the matching helper above instead.
+ * @param actionLabel - Exact accessible name of the footer button, such as "Create" or "Save"
+ */
+export async function submitDialog(dialog: Locator, actionLabel: string): Promise<void> {
+  await test.step(`Press "${actionLabel}" in dialog`, async () => {
+    await dialog.getByRole("button", { name: actionLabel, exact: true }).click()
+    await expect(dialog).toBeHidden()
   })
 }

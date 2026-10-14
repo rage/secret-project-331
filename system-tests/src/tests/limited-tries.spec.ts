@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Checkbox } from "@/utils/components/Checkbox"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -30,7 +31,7 @@ test("Limited tries work", async ({ page }) => {
   await page.getByLabel("Max points", { exact: true }).click()
   await page.getByLabel("Max points", { exact: true }).fill("8")
 
-  await page.getByText("Limit number of tries").click()
+  await Checkbox.labelled(page, "Limit number of tries").setChecked(true)
 
   await page.getByLabel("Max tries per slide", { exact: true }).click()
   await page.getByLabel("Max tries per slide", { exact: true }).fill("2")

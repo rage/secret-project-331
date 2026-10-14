@@ -264,7 +264,7 @@ test.describe("Course auditing", () => {
   }) => {
     await page.goto("http://project-331.local/")
     await page.getByRole("link", { name: "Course auditing" }).click()
-    await expect(page.getByRole("heading", { name: "Course auditing" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Course auditing", exact: true })).toBeVisible()
     await page.getByRole("switch", { name: "Not closed" }).click()
 
     await page.getByRole("textbox", { name: "Search course" }).fill("auditing")
@@ -306,7 +306,7 @@ test.describe("Course auditing", () => {
   test("Filtering courses by status", async ({ page }) => {
     await page.goto("http://project-331.local/")
     await page.getByRole("link", { name: "Course auditing" }).click()
-    await expect(page.getByRole("heading", { name: "Course auditing" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Course auditing", exact: true })).toBeVisible()
     await page.getByRole("switch", { name: "Not closed" }).click()
 
     await page

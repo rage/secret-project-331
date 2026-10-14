@@ -125,7 +125,7 @@ test("Grade exams manually", async ({}) => {
 
   // Check the first submissions has 0 points and it's ungraded
   await expect(teacherPage.getByRole("cell", { name: "Ungraded" }).first()).toBeVisible()
-  await expect(teacherPage.getByText("0/ 1").first()).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "0 / 1", exact: true }).first()).toBeVisible()
 
   // Grade both submissions
   await teacherPage
@@ -148,9 +148,9 @@ test("Grade exams manually", async ({}) => {
   // Check both submissions are graded
   await teacherPage.getByRole("link", { name: "Submissions" }).click()
   await expect(teacherPage.getByText("Graded").first()).toBeVisible()
-  await expect(teacherPage.getByRole("cell", { name: "1/ 1" }).first()).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "1 / 1", exact: true }).first()).toBeVisible()
   await expect(teacherPage.getByText("Graded").nth(1)).toBeVisible()
-  await expect(teacherPage.getByRole("cell", { name: "0.5/ 1" })).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "0.5 / 1", exact: true })).toBeVisible()
 
   // Navigate back to the questions overview page
   await teacherPage.getByRole("link", { name: "Questions" }).click()

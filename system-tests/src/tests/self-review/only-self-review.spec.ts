@@ -1,6 +1,8 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
+import { Checkbox } from "@/utils/components/Checkbox"
 import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -36,9 +38,11 @@ test.describe("An exercise that has self review but no peer review works", () =>
         .getByRole("button")
         .first()
         .click()
-      await teacherPage.getByText("Peer and self review").click()
-      await teacherPage.getByText("Add self review").click()
-      await teacherPage.getByText("Use course default peer").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
+      await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
+      await Checkbox.labelled(teacherPage, "Use course default peer review config").setChecked(
+        false,
+      )
       await teacherPage.getByLabel("Add default block").click()
       await teacherPage
         .getByLabel("Empty block; start writing or")

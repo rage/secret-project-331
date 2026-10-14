@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { saveCMSPage } from "../../utils/cmsUtils"
@@ -57,7 +58,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   // same tab across different courses) can be told apart from the browser tab.
   await expect(page).toHaveTitle(/Pages - Introduction to history/)
 
-  await page.click(`button:text("Edit page"):right-of(:text("Page One"))`)
+  await openCoursePageInEditor(page, "Page One")
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")

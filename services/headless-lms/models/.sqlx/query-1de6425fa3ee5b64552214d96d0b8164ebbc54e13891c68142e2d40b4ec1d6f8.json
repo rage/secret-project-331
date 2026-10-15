@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE staff_security_verified_browsers\nSET expires_at = now() + interval '6 months'\nWHERE id = $1\n  AND expires_at < now() + interval '6 months' - interval '1 day'\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1de6425fa3ee5b64552214d96d0b8164ebbc54e13891c68142e2d40b4ec1d6f8"
+}

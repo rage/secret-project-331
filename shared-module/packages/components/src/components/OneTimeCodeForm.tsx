@@ -1,14 +1,15 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React from "react"
+import React, { useEffect, useId, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Button, OtpField } from "@/shared-module/components"
+import { Button } from "./Button"
+import { OtpField } from "./OtpField"
 
-interface ResendProps {
+export interface OneTimeCodeResendProps {
   helperText: string
   label: string
   onResend: () => void
@@ -19,27 +20,35 @@ interface ResendProps {
   statusMessage?: React.ReactNode
 }
 
-interface OneTimeCodeFormProps {
+export interface OneTimeCodeFormProps {
   title?: string
   message: React.ReactNode
   onSubmit: (code: string) => void | Promise<void>
-  submitLabel: string
+  /**
+   * Label of the form's own submit button. Leave out to submit from outside instead, such as a
+   * dialog action with `type: "submit"` and `domProps: { form: id }`.
+   */
+  submitLabel?: string
+  /** The form element's id, for a submit button outside it. */
+  id?: string
+  /** The code as typed, for a submit button outside the form to disable itself until complete. */
+  onCodeChange?: (code: string) => void
   error?: string | null
   isSubmitting?: boolean
-  resend?: ResendProps
+  resend?: OneTimeCodeResendProps
   /** Submits as soon as the last digit is in. Leave off where submitting is destructive. */
   submitOnComplete?: boolean
   containerClassName?: string
 }
 
-const CODE_LENGTH = 6
+/** Digits in every code the server mails. */
+export const ONE_TIME_CODE_LENGTH = 6
 const DEFAULT_COOLDOWN_SECONDS = 60
 
 const containerCss = css`
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: 3rem 0rem;
 
   p {
     margin: 0;
@@ -91,18 +100,22 @@ const resendButtonCss = css`
   }
 `
 
-const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
+/** Entry form for a mailed one-time code, with an optional resend line and its cooldown. */
+export const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
   title,
   message,
   onSubmit,
   submitLabel,
+  id,
+  onCodeChange,
   error,
   isSubmitting = false,
   resend,
   submitOnComplete = false,
   containerClassName,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
+  const errorId = useId()
   const { control, handleSubmit, watch, reset, setFocus } = useForm<{ code: string }>({
     defaultValues: { code: "" },
   })
@@ -111,6 +124,10 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
   const [secondsUntilResend, startCooldown] = useCooldown(
     resend?.lastSentAt ? Date.parse(resend.lastSentAt) + cooldownSeconds * 1000 : 0,
   )
+
+  useEffect(() => {
+    onCodeChange?.(code ?? "")
+  }, [code, onCodeChange])
 
   const submit = handleSubmit(async (values) => {
     await onSubmit(values.code)
@@ -121,7 +138,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
   })
 
   return (
-    <form onSubmit={submit} aria-describedby={error ? "code-error" : undefined}>
+    <form id={id} onSubmit={submit} aria-describedby={error ? errorId : undefined}>
       <div className={cx(containerCss, containerClassName)}>
         {title && <h1>{title}</h1>}
         <p>{message}</p>
@@ -133,7 +150,7 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
             name="code"
             control={control}
             label={t("verification-code-label")}
-            length={CODE_LENGTH}
+            length={ONE_TIME_CODE_LENGTH}
             // oxlint-disable-next-line i18next/no-literal-string
             fieldSize="lg"
             isFullWidth
@@ -153,21 +170,23 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
         {/* Live region stays in the DOM so assistive tech registers it before the error text is
             inserted; otherwise the announcement can be missed. */}
         <VisuallyHidden>
-          <div id="code-error" aria-live="assertive">
+          <div id={errorId} aria-live="assertive" data-testid="one-time-code-error">
             {error ?? null}
           </div>
         </VisuallyHidden>
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="medium"
-          isLoading={isSubmitting}
-          disabled={(code?.length ?? 0) !== CODE_LENGTH}
-          className={submitButtonCss}
-        >
-          {submitLabel}
-        </Button>
+        {submitLabel !== undefined && (
+          <Button
+            type="submit"
+            variant="primary"
+            size="medium"
+            isLoading={isSubmitting}
+            disabled={(code?.length ?? 0) !== ONE_TIME_CODE_LENGTH}
+            className={submitButtonCss}
+          >
+            {submitLabel}
+          </Button>
+        )}
 
         {resend && (
           <p className={resendLineCss}>
@@ -196,23 +215,21 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
   )
 }
 
-export default OneTimeCodeForm
-
 const formatMinutesSeconds = (totalSeconds: number) =>
   `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`
 
 /** Seconds left until `until` (epoch ms), ticking; `start` only ever pushes the end later. */
 function useCooldown(initialUntil: number) {
-  const [until, setUntil] = React.useState(initialUntil)
-  const [now, setNow] = React.useState(() => Date.now())
+  const [until, setUntil] = useState(initialUntil)
+  const [now, setNow] = useState(() => Date.now())
 
-  React.useEffect(() => {
+  useEffect(() => {
     setUntil((current) => Math.max(current, initialUntil))
   }, [initialUntil])
 
   const secondsLeft = Math.max(0, Math.ceil((until - now) / 1000))
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (secondsLeft <= 0) {
       return
     }

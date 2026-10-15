@@ -169,6 +169,7 @@
   "email-template-type-generic": "Yleinen",
   "email-template-type-reset-password-email": "Salasanan palautussähköposti",
   "email-template-type-verify-email-address": "Sähköpostiosoitteen vahvistus",
+  "email-template-type-verify-network": "Verkon vahvistuskoodi",
   "error": "Virhe",
   "error-cannot-render-editor-for-exercise-service-x": "En pysty renderöimään editoria tehtäväpalvelulle {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Harjoitustehtävää ei voi renderöidä, URL-osoite puuttuu.",

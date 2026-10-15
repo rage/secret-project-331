@@ -45,6 +45,32 @@ export const zEmailCode = z.object({
   code: z.string(),
 })
 
+/**
+ * Whether a session confirmation code went out, and if not, why.
+ */
+export const zEmailCodeOutcome = z.union([
+  z.object({
+    type: z.enum(["sent"]),
+  }),
+  z.object({
+    type: z.enum(["already_sent"]),
+  }),
+  z.object({
+    retry_after_seconds: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+    type: z.enum(["recently_sent"]),
+  }),
+  z.object({
+    type: z.enum(["daily_limit_reached"]),
+  }),
+])
+
 export const zLogin = z.object({
   email: z.string(),
   password: z.string(),
@@ -163,6 +189,78 @@ export const zSendEmailCodeData = z.object({
   language: z.string(),
   password: z.string(),
 })
+
+/**
+ * How the user can confirm the session.
+ */
+export const zSessionChallengeMethod = z.enum(["email_code"])
+
+/**
+ * Why the session needs confirming.
+ */
+export const zSessionChallengeReason = z.enum(["unrecognized_network"])
+
+/**
+ * One way for the user to prove the session is theirs, and why it is asked for.
+ */
+export const zSessionChallenge = z.object({
+  method: zSessionChallengeMethod,
+  reasons: z.array(zSessionChallengeReason),
+})
+
+export const zSessionEmailCodeRequest = z.object({
+  resend: z.boolean(),
+})
+
+/**
+ * What asking for a session confirmation code did.
+ */
+export const zSessionEmailCodeResult = z.union([
+  z.object({
+    masked_email: z.string(),
+    outcome: zEmailCodeOutcome,
+    type: z.enum(["required"]),
+  }),
+  z.object({
+    type: z.enum(["not_required"]),
+  }),
+])
+
+/**
+ * Whether the current session must be confirmed before the UI lets the user on.
+ */
+export const zSessionStatus = z.object({
+  challenges: z.array(zSessionChallenge),
+  verification_required: z.boolean(),
+})
+
+/**
+ * The emailed code the user typed to confirm the session.
+ */
+export const zSessionVerifyRequest = z.object({
+  code: z.string(),
+})
+
+/**
+ * Outcome of submitting a session confirmation code.
+ */
+export const zSessionVerifyResult = z.union([
+  z.object({
+    type: z.enum(["verified"]),
+  }),
+  z.object({
+    type: z.enum(["invalid_code"]),
+  }),
+  z.object({
+    type: z.enum(["expired_code"]),
+  }),
+  z.object({
+    type: z.enum(["too_many_attempts"]),
+  }),
+  z.object({
+    type: z.enum(["not_required"]),
+  }),
+])
 
 export const zSignupResponse = z.union([
   z.object({
@@ -309,6 +407,25 @@ export const zPostAuthSendEmailCodeBody = zSendEmailCodeData
  * What the request did
  */
 export const zPostAuthSendEmailCodeResponse = zSendDeleteUserEmailCodeResult
+
+/**
+ * Whether the session needs confirming
+ */
+export const zGetAuthSessionStatusResponse = zSessionStatus
+
+export const zPostAuthSessionStatusEmailCodeBody = zSessionEmailCodeRequest
+
+/**
+ * What the request did
+ */
+export const zPostAuthSessionStatusEmailCodeResponse = zSessionEmailCodeResult
+
+export const zPostAuthSessionStatusVerifyBody = zSessionVerifyRequest
+
+/**
+ * Outcome of submitting the code
+ */
+export const zPostAuthSessionStatusVerifyResponse = zSessionVerifyResult
 
 export const zPostAuthSignupBody = zCreateAccountDetails
 

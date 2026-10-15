@@ -1680,7 +1680,6 @@
   "users-with-unregistered": "Користувачі з незареєстрованими",
   "valid-service-info": "Дійсна сервісна інформація",
   "validation-required": "Це поле є обов'язковим",
-  "verification-code-label": "Код підтвердження",
   "verification-code-placeholder": "Введіть 6-значний код",
   "verification-failed": "Недійсний або прострочений код підтвердження",
   "verification-url": "URL для перевірки",

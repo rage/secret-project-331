@@ -256,6 +256,7 @@ pub async fn seed_generic_emails(
     insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
 
     seed_email_ownership_verification_templates(&mut conn).await?;
+    seed_network_verification_template(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
     seed_credit_registration_status_templates(&mut conn).await?;
 
@@ -563,6 +564,60 @@ async fn seed_email_ownership_verification_templates(
             subject: finnish_subject.map(|s| s.to_string()),
         },
         finnish_subject,
+    )
+    .await?;
+
+    Ok(())
+}
+
+/// The code a user with a role types to confirm a session from a browser or network we have not
+/// seen on their account. English only, like the login code: the request has no language to go by.
+async fn seed_network_verification_template(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
+    info!("inserting network verification email");
+
+    let subject = Some("Confirm it's you");
+    let body = json!([
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000001",
+            "attributes": {
+                "content": "Hello, your account was used from a network or browser we have not seen before. To continue, enter this code:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000002",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000003",
+            "attributes": {
+                "content": "If this was not you, do not enter the code. Change your password right away.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::VerifyNetwork,
+            language: Some("en".to_string()),
+            content: Some(body),
+            subject: subject.map(|s| s.to_string()),
+        },
+        subject,
     )
     .await?;
 

@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
@@ -14,9 +13,13 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
-import { Button, Dialog, type DialogAction, ErrorNotice } from "@/shared-module/components"
-
-import OneTimeCodeForm from "./OneTimeCodeForm"
+import {
+  Button,
+  Dialog,
+  type DialogAction,
+  ErrorNotice,
+  OneTimeCodeForm,
+} from "@/shared-module/components"
 import "@/shared-module/common/init/registerAuthApiClients"
 
 import VerifyPasswordForm, { type VerifyPasswordFormHandle } from "./VerifyPasswordForm"
@@ -170,9 +173,6 @@ const DeleteUserAccountForm: React.FC = () => {
 
         {step === VERIFY_CODE_STEP && (
           <OneTimeCodeForm
-            containerClassName={css`
-              padding: 0;
-            `}
             message={t("insert-single-use-code-account-deletion")}
             onSubmit={async (code) => {
               await deleteAccountMutation.mutateAsync(code)

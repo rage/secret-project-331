@@ -114,6 +114,24 @@ export type EmailCode = {
   code: string
 }
 
+/**
+ * Whether a session confirmation code went out, and if not, why.
+ */
+export type EmailCodeOutcome =
+  | {
+      type: "sent"
+    }
+  | {
+      type: "already_sent"
+    }
+  | {
+      retry_after_seconds: number
+      type: "recently_sent"
+    }
+  | {
+      type: "daily_limit_reached"
+    }
+
 export type Login = {
   email: string
   password: string
@@ -227,6 +245,82 @@ export type SendEmailCodeData = {
   language: string
   password: string
 }
+
+/**
+ * One way for the user to prove the session is theirs, and why it is asked for.
+ */
+export type SessionChallenge = {
+  method: SessionChallengeMethod
+  reasons: Array<SessionChallengeReason>
+}
+
+/**
+ * How the user can confirm the session.
+ */
+export type SessionChallengeMethod = "email_code"
+
+/**
+ * Why the session needs confirming.
+ */
+export type SessionChallengeReason = "unrecognized_network"
+
+export type SessionEmailCodeRequest = {
+  /**
+   * The user asked for another mail. Without it, a code that is still usable is not replaced.
+   */
+  resend: boolean
+}
+
+/**
+ * What asking for a session confirmation code did.
+ */
+export type SessionEmailCodeResult =
+  | {
+      /**
+       * Where the code goes.
+       */
+      masked_email: string
+      outcome: EmailCodeOutcome
+      type: "required"
+    }
+  | {
+      type: "not_required"
+    }
+
+/**
+ * Whether the current session must be confirmed before the UI lets the user on.
+ */
+export type SessionStatus = {
+  challenges: Array<SessionChallenge>
+  verification_required: boolean
+}
+
+/**
+ * The emailed code the user typed to confirm the session.
+ */
+export type SessionVerifyRequest = {
+  code: string
+}
+
+/**
+ * Outcome of submitting a session confirmation code.
+ */
+export type SessionVerifyResult =
+  | {
+      type: "verified"
+    }
+  | {
+      type: "invalid_code"
+    }
+  | {
+      type: "expired_code"
+    }
+  | {
+      type: "too_many_attempts"
+    }
+  | {
+      type: "not_required"
+    }
 
 export type SignupResponse =
   | {
@@ -375,6 +469,57 @@ export type PostAuthSendEmailCodeResponses = {
 
 export type PostAuthSendEmailCodeResponse =
   PostAuthSendEmailCodeResponses[keyof PostAuthSendEmailCodeResponses]
+
+export type GetAuthSessionStatusData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/auth/session-status"
+}
+
+export type GetAuthSessionStatusResponses = {
+  /**
+   * Whether the session needs confirming
+   */
+  200: SessionStatus
+}
+
+export type GetAuthSessionStatusResponse =
+  GetAuthSessionStatusResponses[keyof GetAuthSessionStatusResponses]
+
+export type PostAuthSessionStatusEmailCodeData = {
+  body: SessionEmailCodeRequest
+  path?: never
+  query?: never
+  url: "/api/v0/auth/session-status/email-code"
+}
+
+export type PostAuthSessionStatusEmailCodeResponses = {
+  /**
+   * What the request did
+   */
+  200: SessionEmailCodeResult
+}
+
+export type PostAuthSessionStatusEmailCodeResponse =
+  PostAuthSessionStatusEmailCodeResponses[keyof PostAuthSessionStatusEmailCodeResponses]
+
+export type PostAuthSessionStatusVerifyData = {
+  body: SessionVerifyRequest
+  path?: never
+  query?: never
+  url: "/api/v0/auth/session-status/verify"
+}
+
+export type PostAuthSessionStatusVerifyResponses = {
+  /**
+   * Outcome of submitting the code
+   */
+  200: SessionVerifyResult
+}
+
+export type PostAuthSessionStatusVerifyResponse =
+  PostAuthSessionStatusVerifyResponses[keyof PostAuthSessionStatusVerifyResponses]
 
 export type PostAuthSignupData = {
   body: CreateAccountDetails

@@ -36,12 +36,7 @@ APPLIED=""
 if [ "$(psql "$DATABASE_URL" -Atc "SELECT to_regclass('public._sqlx_migrations') IS NOT NULL")" = "t" ]; then
   APPLIED=$(psql "$DATABASE_URL" -Atc "SELECT version || ' ' || encode(checksum, 'hex') || ' ' || success FROM _sqlx_migrations ORDER BY version")
 fi
-LOCAL=$(
-  for MIGRATION in "$MIGRATIONS_PATH"/*.up.sql; do
-    NAME=$(basename "$MIGRATION")
-    echo "${NAME%%_*} $(sha384sum < "$MIGRATION" | cut -d ' ' -f 1)"
-  done
-)
+LOCAL=$(cd "$MIGRATIONS_PATH" && sha384sum -- *.up.sql | sed -E 's/^([0-9a-f]+)  ([0-9]+)_.*/\2 \1/')
 
 APPLIED_VERSIONS=$(cut -d ' ' -f 1 <<< "$APPLIED")
 LOCAL_VERSIONS=$(cut -d ' ' -f 1 <<< "$LOCAL")

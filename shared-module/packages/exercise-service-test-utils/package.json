@@ -72,5 +72,6 @@
     "@playwright/test": {
       "optional": true
     }
-  }
+  },
+  "packageManager": "pnpm@12.11.2"
 }

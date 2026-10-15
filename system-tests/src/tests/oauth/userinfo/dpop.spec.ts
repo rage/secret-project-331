@@ -22,40 +22,40 @@ test.afterAll(async () => {
 
 const DPOP_USER = getOAuthTestUser("dpop")
 
-test.describe("/userinfo endpoint - DPoP Token Validation", () => {
-  async function getDPoPToken(page: Page): Promise<{
-    accessToken: string
-    key: Awaited<ReturnType<typeof createDPoPKey>>
-  }> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(["openid", "profile"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
+async function getDPoPToken(page: Page): Promise<{
+  accessToken: string
+  key: Awaited<ReturnType<typeof createDPoPKey>>
+}> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state } = await oauthUrl(["openid", "profile"], {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
 
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, DPOP_USER.email, DPOP_USER.password)
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    try {
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, ["openid", "profile"])
-      await consent.approve()
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    const key = await createDPoPKey()
-    const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)
-    return { accessToken: tok.access_token, key }
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    await performLogin(page, DPOP_USER.email, DPOP_USER.password)
+  } catch {
+    // Already logged in or consent already granted
   }
 
+  try {
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    const consent = new ConsentPage(page, ["openid", "profile"])
+    await consent.approve()
+  } catch {
+    // Already logged in or consent already granted
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  const key = await createDPoPKey()
+  const tok = await exchangeCodeForToken(code, { kind: "dpop", key }, codeVerifier)
+  return { accessToken: tok.access_token, key }
+}
+
+test.describe("/userinfo endpoint - DPoP Token Validation", () => {
   test("valid DPoP token with DPoP header -> succeed", async ({ page }) => {
     const { accessToken, key } = await getDPoPToken(page)
     const userinfo = await callUserInfo(accessToken, { kind: "dpop", key })

@@ -38,13 +38,19 @@ RUN mkdir -p /tmp/dummy-project && \
   # Setup corepack as the node user so that the build process can find it later on.
   su node -c "corepack install && \
   corepack enable pnpm && \
-  echo 'pnpm version $(pnpm --version)' && \
+  echo pnpm version \$(pnpm --version) && \
   pnpm install --ignore-scripts" && \
   rm -rf /tmp/dummy-project
 
-# Cache pnpm store in a consistent location
 ENV PNPM_HOME="/pnpm"
 RUN mkdir -p $PNPM_HOME && chown -R node:node $PNPM_HOME
+
+# Installs symlink node_modules into the store's prebuilt package directories instead of copying
+# files out of the cache image's store layer (overlayfs copies up anything hardlinked from a lower
+# layer). Services live in /app/source next to the store so the Next.js roots can be /app.
+RUN mkdir -p /app/pnpm && chown node:node /app /app/pnpm
+ENV PNPM_CONFIG_STORE_DIR="/app/pnpm/store"
+ENV PNPM_CONFIG_VIRTUAL_STORE_TYPE="global"
 
 # Downstream images inherit this and must not silently fetch a pnpm version
 # that doesn't match what's baked in above: a version bump in package.json

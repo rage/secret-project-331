@@ -401,7 +401,6 @@ mod tests {
             ExerciseBuilder::Quizzes {
                 deadline,
                 needs_peer_review,
-                teacher_reviews_answer_after_locking: _,
                 ..
             } => {
                 assert_eq!(deadline, None);

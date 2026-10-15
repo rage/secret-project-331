@@ -22,7 +22,7 @@ dotenvy = "0.15"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.28.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.
@@ -32,11 +32,11 @@ hmac.workspace = true
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.151"
+serde_json = "1.0.154"
 # pgvector support for Rust
 pgvector = { version = "0.4.2", features = ["postgres", "serde", "sqlx"] }
 # Code-first OpenAPI schema generation support for shared API models
-utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
+utoipa = { version = "6.0.0", features = ["chrono", "uuid"] }
 # Adds #[derive(x)] macros for more traits
 derive_more = { version = "2.1.1", features = ["full"] }
 # Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -56,16 +56,16 @@ tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.20"
+thiserror = "2.0.21"
 # Email client
 lettre = "0.11.23"
 # Random number generators and other randomness functionality.
-rand = "0.10.2"
+rand = "0.10.3"
 # Core random number generation traits and tools for implementation.
 rand_core = "0.10.1"
 # Flexible concrete Error type built on std::error::Error
 # Zero value on drop for security
-zeroize = { version = "1.9.0", features = ["derive"] }
+zeroize = { version = "1.9.1", features = ["derive"] }
 # Constant-time cryptographic operations for security. (Not O(1), but always the the longest time)
 subtle = "2.6.1"
 # for hex/base64 helpers
@@ -74,7 +74,7 @@ base64 = "0.23"
 serde_bytes = "0.11"
 anyhow = "1.0.104"
 # HTTP client for Rust
-reqwest = { version = "0.13.4", features = ["json"] }
+reqwest = { version = "0.13.5", features = ["json"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Password hashing using Argon2id

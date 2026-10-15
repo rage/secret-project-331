@@ -51,8 +51,14 @@
                   cp -R ./* "$out/"
                   runHook postInstall
                 '';
-                passthru = { inherit (prev.nodejs) pkgs; };
-                meta.mainProgram = "node";
+                passthru = {
+                  inherit (prev.nodejs) pkgs;
+                  python = prev.python3;
+                };
+                meta = {
+                  mainProgram = "node";
+                  platforms = prev.lib.platforms.darwin;
+                };
               };
             in
             {
@@ -72,6 +78,39 @@
         };
 
         lib = pkgs.lib;
+
+        # Must match packageManager in package.json: older pnpm can't parse
+        # lockfile.includeResolutionSettings in pnpm-workspace.yaml, and nixpkgs lags behind.
+        # Bump version+hashes together:
+        # nix-prefetch-url https://registry.npmjs.org/@pnpm/exe.<PLATFORM>/-/exe.<PLATFORM>-<VER>.tgz
+        pnpmVersion = "12.11.2";
+        pnpmPlatforms = {
+          x86_64-linux = { name = "linux-x64"; sha256 = "1gr0dqzcc70vf8s2yw0ishdhxs0m32wfd0a3zshfhpl460qqs03r"; };
+          aarch64-linux = { name = "linux-arm64"; sha256 = "1nzz12xis0riiz651j5i6vxy9p41pjxqp1xxdwx5kx2llaid3df9"; };
+          x86_64-darwin = { name = "darwin-x64"; sha256 = "0zych2hhj4i86qgh31z6llg0jgwkmaq1hpnxgyvk6ya4kscvj3np"; };
+          aarch64-darwin = { name = "darwin-arm64"; sha256 = "184gzjsv565hdr0xhb4g301pb9rf1lclzaih6cnfrwdwlya4likj"; };
+        };
+        pnpm = pkgs.stdenv.mkDerivation {
+          pname = "pnpm";
+          version = pnpmVersion;
+          src = pkgs.fetchurl (
+            let platform = pnpmPlatforms.${system}; in
+            {
+              url = "https://registry.npmjs.org/@pnpm/exe.${platform.name}/-/exe.${platform.name}-${pnpmVersion}.tgz";
+              inherit (platform) sha256;
+            }
+          );
+          nativeBuildInputs = [ pkgs.makeWrapper ] ++ lib.optional pkgs.stdenv.isLinux pkgs.autoPatchelfHook;
+          buildInputs = lib.optional pkgs.stdenv.isLinux pkgs.stdenv.cc.cc.lib;
+          installPhase = ''
+            runHook preInstall
+            install -Dm755 pnpm "$out/bin/pnpm"
+            ln -s "$out/bin/pnpm" "$out/bin/pn"
+            makeWrapper "$out/bin/pnpm" "$out/bin/pnpx" --add-flag dlx
+            runHook postInstall
+          '';
+          meta.mainProgram = "pnpm";
+        };
         rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
         opensslPkgConfigPath = lib.makeSearchPath "lib/pkgconfig" [
@@ -259,7 +298,7 @@
           pkgs.moreutils
           pkgs.openssl
           pkgs.pkg-config
-          pkgs.pnpm
+          pnpm
           pkgs.postgresql
           pkgs.python3
           pkgs.redis
@@ -325,7 +364,7 @@
         # takes minutes to fetch on a runner with an empty Nix store.
         devShells.node = pkgs.mkShell {
           packages = nodeShellPathPriorityPackages ++ [
-            pkgs.pnpm
+            pnpm
             pkgs.rsync
           ];
           shellHook = ''
@@ -343,7 +382,7 @@
               pkgs.git-lfs
               pkgs.jq
               pkgs.moreutils
-              pkgs.pnpm
+              pnpm
               pkgs.rsync
             ];
           shellHook = ''

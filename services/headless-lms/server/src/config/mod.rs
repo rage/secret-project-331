@@ -224,7 +224,7 @@ impl ServerConfigBuilder {
         let json_config = web::JsonConfig::default().limit(2_097_152).error_handler(
             |err, _req| -> actix_web::Error {
                 info!("Bad request: {}", &err);
-                let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);
+                let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", err);
                 // create custom error response
                 let response = HttpResponse::with_body(StatusCode::BAD_REQUEST, body.boxed());
                 InternalError::from_response(err, response).into()

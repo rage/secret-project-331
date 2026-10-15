@@ -4,19 +4,18 @@
 FROM rust:bookworm AS dep-builder
 
 RUN apt-get update \
-  && apt-get install -yy build-essential git clang cmake libssl-dev zlib1g-dev gcc g++ file sudo \
+  && apt-get install -yy build-essential git clang libssl-dev zlib1g-dev gcc g++ file sudo \
   && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/rui314/mold.git \
-  && mkdir mold/build \
-  && cd mold/build \
-  && git checkout v2.41.0 \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ .. \
-  && cmake --build . -j $(nproc)
+# RUSTUP_TOOLCHAIN overrides mold's rust-toolchain.toml, which would download a second toolchain
+RUN git clone --depth 1 --branch v3.0.0 https://github.com/rui314/mold.git \
+  && cd mold \
+  && RUSTUP_TOOLCHAIN="$(rustup show active-toolchain | cut -d' ' -f1)" cargo build --release --locked
 
 # Provides a mapping from ip to country
-RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
-  && echo "deb     https://packages.ipfire.org/location bookworm/" > /etc/apt/sources.list.d/location.list \
+RUN mkdir -p /etc/apt/keyrings \
+  && curl -fsSL -o /etc/apt/keyrings/ipfire-libloc.asc https://packages.ipfire.org/debian/libloc/E4D20FA6FAA108D54ABDFC6541836ADF9D5E2AD9.asc \
+  && echo "deb [signed-by=/etc/apt/keyrings/ipfire-libloc.asc] https://packages.ipfire.org/debian/libloc bookworm main" > /etc/apt/sources.list.d/location.list \
   && apt-get update \
   && apt-get install -yy location \
   && rm -rf /var/lib/apt/lists/*
@@ -42,13 +41,11 @@ RUN icu4x-datagen \
 
 FROM rust:bookworm AS rust-base
 
-COPY --from=dep-builder /mold/build /usr/local/bin/
+COPY --from=dep-builder /mold/target/release/mold /usr/local/bin/
+RUN ln -s mold /usr/local/bin/ld.mold
 
-# Switch to use the mold linker for better compile times
-# Using workaround described in https://github.com/rui314/mold#how-to-use
-RUN mkdir /mold-ld-workaround \
-  && ln -s /usr/local/bin/mold /mold-ld-workaround/ld
-ENV RUSTFLAGS='-C link-arg=-B/mold-ld-workaround'
+# Links about twice as fast as rustc's default rust-lld
+ENV RUSTFLAGS='-C link-arg=-fuse-ld=mold'
 
 RUN apt-get update \
   && apt-get install -yy wait-for-it postgresql-client redis-tools \
@@ -72,32 +69,17 @@ RUN useradd -ms /usr/sbin/nologin user
 ENV CARGO_HOME=/home/user/.cargo \
   PATH=/home/user/.cargo/bin:$PATH
 
-# Cache Rust dependencies using cargo chef
-FROM rust-base AS chef-planner
+# Downloads only: prebuilt dependencies go stale with the next Cargo.lock change, and service builds cook anyway
+FROM rust-base AS dependency-fetcher
 
-COPY . /app/
-RUN chown -R user:user /app
-
-USER user
-
-WORKDIR /app
-RUN cargo chef prepare --recipe-path recipe.json
-
-FROM rust-base AS chef-builder
-
-COPY --from=chef-planner --chown=user:user /app/recipe.json recipe.json
-RUN chown -R user:user /app
+COPY --chown=user:user . /app/
 
 USER user
 
-# Cache both debug and release dependencies
-RUN cargo chef cook --recipe-path recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo fetch --locked
 
-# Create final stage with cached dependencies
 FROM rust-base
 
-# Copy the cached dependencies
-COPY --from=chef-builder --chown=user:user /home/user/.cargo /home/user/.cargo
+COPY --from=dependency-fetcher --chown=user:user /home/user/.cargo /home/user/.cargo
 
 USER root

@@ -5,10 +5,18 @@ linkWorkspacePackages: true
 pmOnFail: download
 
 minimumReleaseAge: 10080
-minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
+minimumReleaseAgeExcludePrune: true
 
-nodeVersion: 24.18.0
+nodeVersion: 24.21.0
+
+packageExtensions:
+  # These import packages their manifests don't declare, which fails without hoisting.
+  "@vectopus/atlas-icons-react":
+    dependencies:
+      "@babel/runtime": "^7.18.3"
+    peerDependencies:
+      react: ">=16"
 
 overrides:
   dompurify@<3.3.2: ">=3.3.2"
@@ -45,33 +53,28 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-allowBuilds:
-  node: false
-  sharp: false
-  unrs-resolver: true
+permissions:
+  node:
+    build: false
+  sharp:
+    build: false
+  unrs-resolver:
+    build: true
 
 trustLockfile: true
 
-confirmModulesPurge: false
-
 updateNotifier: false
-
-verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
   - "typescript@7.0.2"
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"
-  - webpack@5.104.0 || 5.104.1
-  - postcss@8.5.10 || 8.5.18 || 8.5.23
-  - "@babel/plugin-transform-modules-systemjs@7.29.4"
-  - ip-address@10.1.1 || 10.2.1 || 10.2.2 || 10.3.1
-  - ws@8.20.1
-  - qs@6.15.2
-  - "@babel/core@7.29.1"
-  - dompurify@3.4.6 || 3.4.7 || 3.4.8 || 3.4.9 || 3.4.11 || 3.4.12 || 3.4.13
-  - js-yaml@3.15.1 || 4.1.2 || 4.3.0 || 4.3.1
-  - elliptic@6.6.2
-  - brace-expansion@5.0.7 || 5.0.8 || 5.0.9
-  - image-size@2.0.3
-  - nanoid@3.3.16 || 3.3.17 || 3.3.18
+
+# Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
+# so undeclared dependencies fail locally instead of only in image builds.
+hoistPattern: []
+
+autoDedupe: true
+
+lockfile:
+  includeResolutionSettings: true

@@ -15,6 +15,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { monospaceFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Infobox, LoadingRegion, TextField } from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
@@ -29,6 +30,16 @@ const denyButtonStyles = css`
   --btn-secondary-fg: var(--color-red-700);
   --btn-secondary-bg-hover: var(--color-red-700);
   --btn-secondary-border-hover: var(--color-red-700);
+`
+
+const userCodeStyles = css`
+  font-family: ${monospaceFont};
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--color-gray-300);
+  border-radius: 4px;
 `
 
 const DeviceVerificationPage: React.FC = () => {
@@ -123,7 +134,16 @@ const DeviceVerificationPage: React.FC = () => {
 
       {verification.isSuccess && (
         <>
-          <h2>{verification.data.client_name}</h2>
+          <h2>
+            {t("oauth-device-client-requesting-access", {
+              clientName: verification.data.client_name,
+            })}
+          </h2>
+          {/* RFC 8628 §5.4: the user can only spot a phished code if they can compare it. */}
+          <p>{t("oauth-device-compare-code")}</p>
+          <p className={userCodeStyles} dir="ltr" data-testid="oauth-device-user-code">
+            {verification.data.user_code}
+          </p>
           <p>{t("oauth-application-requesting-access")}</p>
           <ul>
             {verification.data.scopes.map((scope) => (

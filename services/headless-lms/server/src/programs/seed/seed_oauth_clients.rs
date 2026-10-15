@@ -135,7 +135,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     let exercise_services_scopes = vec!["exercise-services".to_string()];
     let tmc_vscode_params = oauth_client::NewClientParams {
         client_id: "tmc-vscode",
-        client_name: "TMC VSCode extension",
+        client_name: "TestMyCode for VS Code",
         application_type: oauth_client::ApplicationType::Native,
         token_endpoint_auth_method: oauth_client::TokenEndpointAuthMethod::None,
         client_secret: None,

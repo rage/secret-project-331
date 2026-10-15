@@ -10,7 +10,7 @@ license.workspace = true
 headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
-rust-i18n = "4.2.1"
+rust-i18n = "4.2.4"
 
 # An SVG rendering library.
 resvg = "0.48.1"
@@ -37,7 +37,7 @@ anyhow = "1.0.104"
 # Date and time library for Rust
 chrono = "0.4.45"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.28.0", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.34"
 # supports loading ICU4X data from a single serialized blob

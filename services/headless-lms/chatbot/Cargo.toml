@@ -25,22 +25,22 @@ futures-util = "0.3.34"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Utilities for working with Tokio.
-tokio-util = "0.7.19"
+tokio-util = "0.7.20"
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream.workspace = true
 # higher level HTTP client library
-reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
+reqwest = { version = "0.13.5", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.151"
+serde_json = "1.0.154"
 # Hash map that keeps insertion order, so serialized tool and response schemas are byte-stable and
 # Azure's prompt cache can match on them.
-indexmap = { version = "2.14.1", features = ["serde"] }
+indexmap = { version = "2.14.2", features = ["serde"] }
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.28.0", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.104"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -64,10 +64,10 @@ tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
 # Utilities for random number generation
-rand = "0.10.2"
+rand = "0.10.3"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
-jsonschema = { version = "0.47.0", default-features = false }
+jsonschema = { version = "0.58.6", default-features = false }
 
 [dev-dependencies]
 # `#[tokio::test]`, for the tool permission tests, which need a database connection.

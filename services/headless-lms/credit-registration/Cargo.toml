@@ -14,7 +14,7 @@ headless-lms-models = { path = "../models" }
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { workspace = true, features = ["macros", "signal", "time"] }
 # Utilities for working with Tokio.
-tokio-util = "0.7.19"
+tokio-util = "0.7.20"
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.34"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -22,11 +22,11 @@ sqlx.workspace = true
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde"] }
+uuid = { version = "1.28.0", features = ["serde"] }
 # A generic serialization/deserialization framework
 serde = "1.0.229"
 # A JSON serialization file format
-serde_json = "1.0.151"
+serde_json = "1.0.154"
 # Wrapper types (SecretString/SecretBox) for sensitive values such as student numbers.
 secrecy.workspace = true
 # Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -44,7 +44,7 @@ backtrace = "0.3.76"
 # HTTP mocking for Rust.
 mockito = "1.7.2"
 # Random ids for test rows.
-uuid = { version = "1.26.0", features = ["v4"] }
+uuid = { version = "1.28.0", features = ["v4"] }
 # Lets the contract tests send to a plain-http mock server.
 headless-lms-utils = { path = "../utils", features = ["test-support"] }
 

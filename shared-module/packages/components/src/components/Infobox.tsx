@@ -24,6 +24,7 @@ export interface InfoboxProps {
   /** Live region; only for boxes that appear after a user action, not on first paint. */
   announce?: boolean
   className?: string
+  "data-testid"?: string | undefined
 }
 
 /** Below this the icon shares the heading's line instead of holding a column of its own. */
@@ -126,6 +127,7 @@ export const Infobox: React.FC<InfoboxProps> = ({
   children,
   announce = false,
   className,
+  "data-testid": dataTestId,
 }) => {
   const { icon: Icon, css: toneCss } = tones[tone]
 
@@ -135,6 +137,7 @@ export const Infobox: React.FC<InfoboxProps> = ({
       // `alert` interrupts a screen reader, `status` waits for a pause; only a tone that asks for
       // action is worth an interruption.
       role={announce ? (tone === "warning" || tone === "danger" ? "alert" : "status") : undefined}
+      data-testid={dataTestId}
     >
       <span className={iconCss} aria-hidden="true">
         <Icon />

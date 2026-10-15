@@ -9,9 +9,8 @@ import {
   listCreditRegistrationPhasesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Menu, type MenuItemDescriptor } from "@/shared-module/components"
+import { Menu, type MenuItemDescriptor, useDialog } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { usePauseResumeAction } from "./usePauseResumeAction"
@@ -66,11 +65,10 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => 
     label: t("button-text-credit-registration-phase-run-now"),
     isDisabled: runNowMutation.isPending,
     onAction: async () => {
-      const confirmed = await confirm(
-        t("credit-registration-admin-phase-run-now-confirm", { phase }),
-        undefined,
-        { yesButtonLabel: t("button-text-credit-registration-phase-run-now") },
-      )
+      const confirmed = await confirm({
+        message: t("credit-registration-admin-phase-run-now-confirm", { phase }),
+        confirmLabel: t("button-text-credit-registration-phase-run-now"),
+      })
       if (confirmed) {
         runNowMutation.mutate()
       }

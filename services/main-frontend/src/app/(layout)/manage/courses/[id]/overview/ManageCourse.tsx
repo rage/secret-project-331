@@ -18,24 +18,29 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { Course } from "@/generated/api/types.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import { Button, Link, useDialog } from "@/shared-module/components"
 import {
-  courseSubmissionsCsvHref,
-  courseUserDetailsCsvHref,
   courseExerciseTasksCsvHref,
   courseInstancesCsvHref,
+  courseSubmissionsCsvHref,
   courseUserConsentsCsvHref,
+  courseUserDetailsCsvHref,
   courseUserExerciseStatesCsvHref,
 } from "@/utils/exportDownloadUrls"
 
 import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
+
+const actionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
 
 interface Props {
   course: Course
@@ -129,7 +134,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     <>
       <div
         className={css`
-          margin-top: -1.5rem;
           margin-bottom: 1rem;
         `}
       >
@@ -144,8 +148,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             display: inline-block;
           `}
         >
-          {t("wiki-link-text")}
-          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>
+          {t("wiki-link-text")}{" "}
+          <Link href="https://github.com/rage/secret-project-331/wiki">{t("documentation")}</Link>
         </p>
         <h1
           className={css`
@@ -164,36 +168,39 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           <b>{t("text-field-label-description")}</b>: {course.description}
         </p>
       </div>
-      <OnlyRenderIfPermissions
-        action={{
-          type: "usually_unacceptable_deletion",
-        }}
-        resource={{
-          type: "course",
-          id: course.id,
-        }}
-      >
-        <Button
-          variant="secondary"
-          size="medium"
-          onClick={async () => {
-            const confirmation = await confirm(
-              // oxlint-disable-next-line i18next/no-literal-string
-              `${t("delete-course-confirmation")}\n\n${t(
-                "delete-course-confirmation-explanation",
-              )}`,
-            )
-            if (confirmation) {
-              deleteCourseMutation.mutate()
-            }
+      <div className={actionsCss}>
+        <OnlyRenderIfPermissions
+          action={{
+            type: "usually_unacceptable_deletion",
+          }}
+          resource={{
+            type: "course",
+            id: course.id,
           }}
         >
-          {t("button-text-delete")}
+          <Button
+            variant="secondary"
+            size="medium"
+            onClick={async () => {
+              const confirmation = await confirm({
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: `${t("delete-course-confirmation")}\n\n${t(
+                  "delete-course-confirmation-explanation",
+                )}`,
+                isDestructive: true,
+              })
+              if (confirmation) {
+                deleteCourseMutation.mutate()
+              }
+            }}
+          >
+            {t("button-text-delete")}
+          </Button>
+        </OnlyRenderIfPermissions>
+        <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
+          {t("edit")}
         </Button>
-      </OnlyRenderIfPermissions>
-      <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
-        {t("edit")}
-      </Button>
+      </div>
       <EditCourseForm
         course={course}
         onSubmitForm={handleOnUpdateCourse}
@@ -206,11 +213,14 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             margin: 1rem 0;
           `}
         >
-          <a href={courseMaterialFrontPageHref(organizationSlug, course.slug)}>
-            <Button variant="secondary" size="medium">
-              {t("button-text-open-course-front-page")}
-            </Button>
-          </a>
+          <Link
+            href={courseMaterialFrontPageHref(organizationSlug, course.slug)}
+            styledAsButton
+            variant="secondary"
+            size="medium"
+          >
+            {t("button-text-open-course-front-page")}
+          </Link>
         </div>
       )}
       <div
@@ -239,24 +249,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </p>
           <CourseMetadata courseId={course.id} refetch={refetch}></CourseMetadata>
         </div>
-        <div
-          className={css`
-            border: 3px dotted ${baseTheme.colors.gray[300]};
-            padding: 4.5rem 0;
-          `}
-        ></div>
-        <div
-          className={css`
-            border: 3px dotted ${baseTheme.colors.gray[300]};
-            padding: 4.5rem 0;
-          `}
-        ></div>
-        <div
-          className={css`
-            border: 3px dotted ${baseTheme.colors.gray[300]};
-            padding: 4.5rem 0;
-          `}
-        ></div>
       </div>
 
       <OnlyRenderIfPermissions
@@ -279,9 +271,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
               variant="secondary"
               size="medium"
               onClick={async () => {
-                const sure = await confirm(
-                  t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
-                )
+                const sure = await confirm({
+                  message: t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
+                  isDestructive: true,
+                })
                 if (sure) {
                   teacherResetCourseProgressForThemselvesMutation.mutate()
                 }
@@ -300,9 +293,10 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 variant="secondary"
                 size="medium"
                 onClick={async () => {
-                  const sure = await confirm(
-                    t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
-                  )
+                  const sure = await confirm({
+                    message: t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
+                    isDestructive: true,
+                  })
                   if (sure) {
                     teacherResetCourseProgressForEveryoneMutation.mutate()
                   }
@@ -314,88 +308,106 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           )}
           <ul
             className={css`
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--space-3);
+              margin: var(--space-4) 0;
               list-style-type: none;
               padding-left: 0;
             `}
           >
             <li>
-              <a
+              <Link
                 href={courseSubmissionsCsvHref(course.id)}
                 aria-label={t("link-export-submissions")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-submissions")}
-                </Button>
-              </a>
+                {t("link-export-submissions")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={courseUserDetailsCsvHref(course.id)}
                 aria-label={t("link-export-user-details")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-user-details")}
-                </Button>
-              </a>
+                {t("link-export-user-details")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={courseExerciseTasksCsvHref(course.id)}
                 aria-label={t("link-export-exercise-tasks")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-exercise-tasks")}
-                </Button>
-              </a>
+                {t("link-export-exercise-tasks")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={courseInstancesCsvHref(course.id)}
                 aria-label={t("link-export-course-instances")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-course-instances")}
-                </Button>
-              </a>
+                {t("link-export-course-instances")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={courseUserConsentsCsvHref(course.id)}
                 aria-label={t("link-export-course-user-consents")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-course-user-consents")}
-                </Button>
-              </a>
+                {t("link-export-course-user-consents")}
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href={courseUserExerciseStatesCsvHref(course.id)}
                 aria-label={t("link-export-user-exercise-states")}
                 download
+                styledAsButton
+                variant="secondary"
+                size="medium"
               >
-                <Button variant="secondary" size="medium" type="button">
-                  {t("link-export-user-exercise-states")}
-                </Button>
-              </a>
+                {t("link-export-user-exercise-states")}
+              </Link>
             </li>
           </ul>
         </>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
-        <a
-          href={`/cms/courses/${course.id}/research-form-edit`}
-          aria-label={t("button-text-create-or-edit-research-form")}
+        <div
+          className={css`
+            margin-bottom: var(--space-4);
+          `}
         >
-          <Button variant="secondary" size="medium">
+          <Link
+            href={`/cms/courses/${course.id}/research-form-edit`}
+            aria-label={t("button-text-create-or-edit-research-form")}
+            isCrossService
+            styledAsButton
+            variant="secondary"
+            size="medium"
+          >
             {t("button-text-create-or-edit-research-form")}
-          </Button>
-        </a>
+          </Link>
+        </div>
       </OnlyRenderIfPermissions>
       {course.is_joinable_by_code_only && (
         <div>
@@ -412,7 +424,13 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </div>
         </div>
       )}
-      <ModuleCompletionReprocessButton courseId={course.id} />
+      <div
+        className={css`
+          margin: var(--space-4) 0;
+        `}
+      >
+        <ModuleCompletionReprocessButton courseId={course.id} />
+      </div>
     </>
   )
 }

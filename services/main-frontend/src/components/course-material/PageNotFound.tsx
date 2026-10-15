@@ -3,7 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { ErrorNotice } from "@/shared-module/components"
 
 import PublicPageList from "./PublicPageList"
 
@@ -21,9 +21,8 @@ const PageNotFound: React.FC<React.PropsWithChildren<PageNotFoundProps>> = ({
   const { t } = useTranslation()
   return (
     <>
-      <ErrorBanner
+      <ErrorNotice
         error={new Error(`${t("404-not-found")} ${t("course-has-no-page-at-path", { path })}`)}
-        variant="readOnly"
       />
       {path === "/" && (
         <>

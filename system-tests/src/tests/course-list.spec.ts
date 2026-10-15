@@ -19,6 +19,6 @@ test("course list renders", async ({ page, headless }, testInfo) => {
     testInfo,
     screenshotTarget: page,
     snapshotName: "course-listing",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Courses:")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Courses", exact: true })],
   })
 })

@@ -1,7 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -12,12 +13,10 @@ import {
   useTotalUsersStartedCourseQuery,
   useTotalUsersStartedCourseQueryCustomTimePeriod,
 } from "@/hooks/stats"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { DateField, Select, ErrorNotice } from "@/shared-module/components"
 
 interface TotalStatsProps {
   courseId: string
@@ -72,11 +71,24 @@ const statTitleStyles = css`
 export const CUSTOM_RANGE = "custom" as const
 export const TOTAL_RANGE = "total" as const
 
+const FIELD_START_DATE = "startDate" as const
+const FIELD_END_DATE = "endDate" as const
+const FIELD_RANGE_MODE = "rangeMode" as const
+
+interface TotalStatsFilterValues {
+  startDate: string
+  endDate: string
+  rangeMode: "total" | "custom"
+}
+
 const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ courseId }) => {
   const { t, i18n } = useTranslation()
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
-  const [rangeMode, setRangeMode] = useState<"total" | "custom">(TOTAL_RANGE)
+  const { control: filterControl } = useForm<TotalStatsFilterValues>({
+    defaultValues: { startDate: "", endDate: "", rangeMode: TOTAL_RANGE },
+  })
+  const startDate = useWatch({ control: filterControl, name: FIELD_START_DATE })
+  const endDate = useWatch({ control: filterControl, name: FIELD_END_DATE })
+  const rangeMode = useWatch({ control: filterControl, name: FIELD_RANGE_MODE })
 
   const totalUsersNormal = useTotalUsersStartedCourseQuery(courseId, {
     enabled: rangeMode === TOTAL_RANGE,
@@ -91,24 +103,24 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
   const customEnabled = rangeMode === CUSTOM_RANGE && startDate && endDate && startDate <= endDate
   const totalUsersCustom = useTotalUsersStartedCourseQueryCustomTimePeriod(
     courseId,
-    startDate ?? "",
-    endDate ?? "",
+    startDate,
+    endDate,
     {
       enabled: !!customEnabled,
     },
   )
   const totalReturnedCustom = useTotalUsersReturnedExercisesQueryCustomTimePeriod(
     courseId,
-    startDate ?? "",
-    endDate ?? "",
+    startDate,
+    endDate,
     {
       enabled: !!customEnabled,
     },
   )
   const totalCompletionsCustom = useTotalUsersCompletedCourseQueryCustomTimePeriod(
     courseId,
-    startDate ?? "",
-    endDate ?? "",
+    startDate,
+    endDate,
     {
       enabled: !!customEnabled,
     },
@@ -133,10 +145,7 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
       `}
     >
       {hasError ? (
-        <ErrorBanner
-          variant="readOnly"
-          error={usersQuery.error || returnedQuery.error || completionsQuery.error}
-        />
+        <ErrorNotice error={usersQuery.error || returnedQuery.error || completionsQuery.error} />
       ) : (
         <div>
           <div
@@ -145,6 +154,7 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
               gap: 1rem;
               align-items: center;
               justify-content: flex-end;
+              margin-bottom: var(--space-4);
             `}
           >
             {rangeMode === CUSTOM_RANGE && (
@@ -155,32 +165,32 @@ const TotalStats: React.FC<React.PropsWithChildren<TotalStatsProps>> = ({ course
                   padding-bottom: 15px;
                 `}
               >
-                <DatePickerField
+                <DateField
+                  control={filterControl}
+                  name={FIELD_START_DATE}
                   label={t("stats-start-date")}
-                  value={startDate ?? ""}
-                  onChangeByValue={(value) => setStartDate(value)}
                 />
-                <DatePickerField
+                <DateField
+                  control={filterControl}
+                  name={FIELD_END_DATE}
                   label={t("stats-end-date")}
-                  value={endDate ?? ""}
-                  onChangeByValue={(value) => setEndDate(value)}
                 />
               </div>
             )}
 
-            <SelectMenu
+            <Select
               id="period-select"
+              control={filterControl}
+              name={FIELD_RANGE_MODE}
+              label={t("stats-date-range-selector-label")}
               options={[
                 { value: TOTAL_RANGE, label: t("stats-period-total") },
                 { value: CUSTOM_RANGE, label: t("stats-period-custom") },
               ]}
-              value={rangeMode}
-              onChange={(e) => setRangeMode(e.currentTarget.value as "total" | "custom")}
               className={css`
                 margin-bottom: 0;
                 min-width: 120px;
               `}
-              showDefaultOption={false}
             />
           </div>
 

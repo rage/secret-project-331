@@ -83,6 +83,7 @@ const moduleRowCss = css`
 const courseTitleCss = css`
   margin: 0;
   min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--color-gray-700);
   font-size: var(--font-size-3);
   font-weight: 600;

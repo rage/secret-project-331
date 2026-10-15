@@ -19,7 +19,6 @@
     "@fontsource/inter": "^5.3.0",
     "@fontsource/raleway": "^5.3.0",
     "@fontsource/roboto-mono": "^5.3.0",
-    "@fontsource/space-mono": "^5.3.0",
     "@internationalized/date": "^3.12.3",
     "@json2csv/plainjs": "^7.0.8",
     "@monaco-editor/react": "^4.7.0",

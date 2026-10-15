@@ -2,15 +2,14 @@
 
 import { css } from "@emotion/css"
 import { useMemo, useState } from "react"
+import { VisuallyHidden } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
-import Spinner from "@/shared-module/common/components/Spinner"
 import SearchIcon from "@/shared-module/common/img/search-icon.svg"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { Button, Dialog, LoadingRegion, Table, TextField } from "@/shared-module/components"
 
 interface Props {
   users?: UserDetail[]
@@ -23,7 +22,10 @@ interface Props {
 const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers, isLoading }) => {
   const { t } = useTranslation()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const { control, watch } = useForm<{ searchTerm: string }>({
+    defaultValues: { searchTerm: "" },
+  })
+  const searchTerm = watch("searchTerm")
 
   const isAdded = (user: UserDetail) => selectedUsers.some((u) => u.user_id === user.user_id)
 
@@ -60,25 +62,19 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
       `}
     >
       <div>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          variant="primary"
-          size={"small"}
-          transform={"capitalize"}
-        >
+        <Button onClick={() => setIsModalOpen(true)} variant="primary" size={"small"}>
           {t("button-add-students")}
         </Button>
       </div>
 
-      <StandardDialog
+      <Dialog
         onClose={() => setIsModalOpen(false)}
         title={t("button-add-students")}
         open={isModalOpen}
-        leftAlignTitle={true}
-        width={"wide"}
+        size="wide"
       >
         {isLoading ? (
-          <Spinner variant="medium" />
+          <LoadingRegion />
         ) : (
           <div>
             <div
@@ -91,82 +87,53 @@ const UserSearch: React.FC<Props> = ({ users, addUser, removeUser, selectedUsers
               {t("label-list-of-all-students")}
             </div>
 
-            <TextFieldWithIcon
-              type="text"
-              placeholder={t("placeholder-search-users")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+            <TextField
+              name="searchTerm"
+              control={control}
+              label={t("label-search-students")}
               className={css`
                 margin-top: 1rem;
                 margin-bottom: 2rem;
                 width: 45%;
               `}
-              icon={<SearchIcon />}
+              iconStart={<SearchIcon />}
             />
             <div>
-              <table
-                className={css`
-                  border-collapse: collapse;
-                  width: 100%;
-                  td,
-                  th {
-                    white-space: nowrap;
-                    height: 60px;
-                    padding-left: 2rem;
-                    padding-top: 1rem;
-                    padding-bottom: 1rem;
-
-                    text-align: left;
-                    color: ${baseTheme.colors.gray[700]};
-                    font-size: ${baseTheme.fontSizes[0]}px;
-                    opacity: 0.8;
-                  }
-                  tr {
-                    border-bottom: 1.5px solid #ced1d7;
-                  }
-                  th {
-                    font-weight: ${fontWeights.medium};
-                  }
-                `}
-              >
-                <thead>
-                  <tr>
-                    <th>{t("text-field-label-name")}</th>
-                    <th>{t("label-email")}</th>
-                    <th>{t("label-user-id")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(searchTerm.trim() ? filteredUsers : users || []).map((user) => (
-                    <tr key={user.user_id}>
-                      <td>
-                        {user.first_name} {user.last_name}
-                      </td>
-                      <td>{user.email}</td>
-                      <td>{user.user_id}</td>
-                      <td>
-                        <Button
-                          onClick={() =>
-                            isAdded(user) ? handleRemoveUser(user) : handleAddUser(user)
-                          }
-                          variant={"secondary"}
-                          size={"small"}
-                          data-testid={`add-user-button-${user.user_id}`}
-                          transform={"capitalize"}
-                        >
-                          {t(isAdded(user) ? "button-remove" : "button-add")}
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Table
+                caption={t("label-list-of-all-students")}
+                emptyState={null}
+                rows={searchTerm.trim() ? filteredUsers : users || []}
+                rowKey={(user) => user.user_id}
+                columns={[
+                  {
+                    header: t("text-field-label-name"),
+                    cell: (user) => `${user.first_name ?? ""} ${user.last_name ?? ""}`,
+                  },
+                  { header: t("label-email"), cell: (user) => user.email },
+                  { header: t("label-user-id"), cell: (user) => user.user_id },
+                  {
+                    header: <VisuallyHidden>{t("button-add")}</VisuallyHidden>,
+                    cell: (user) => (
+                      <Button
+                        onClick={() =>
+                          isAdded(user) ? handleRemoveUser(user) : handleAddUser(user)
+                        }
+                        variant={"secondary"}
+                        size={"small"}
+                        data-testid={`add-user-button-${user.user_id}`}
+                      >
+                        {t(isAdded(user) ? "button-remove" : "button-add")}
+                      </Button>
+                    ),
+                  },
+                ]}
+              />
             </div>
 
             {searchTerm.trim() && filteredUsers.length === 0 && <p>{t("label-no-users-found")}</p>}
           </div>
         )}
-      </StandardDialog>
+      </Dialog>
     </div>
   )
 }

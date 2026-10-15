@@ -8,8 +8,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 
 /**
- * Whether this student's credits register through this service, which decides whether their student
- * number is shown to them at all. `undefined` until known.
+ * Whether this student's credits register through this service. `undefined` until known.
  *
  * A linked number alone does not count: the old flow's registrar reports link one for everyone it
  * ever registered.

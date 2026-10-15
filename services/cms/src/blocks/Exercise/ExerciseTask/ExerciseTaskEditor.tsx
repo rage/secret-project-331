@@ -9,10 +9,10 @@ import React, { useContext, useState } from "react"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -150,8 +150,7 @@ const ExerciseTaskEditor: React.FC<
     if (exerciseType && !url) {
       return (
         <>
-          <ErrorBanner
-            variant="readOnly"
+          <ErrorNotice
             error={t("error-cannot-render-editor-for-exercise-service-x", {
               slug: exerciseType,
             })}
@@ -198,7 +197,7 @@ const ExerciseTaskEditor: React.FC<
                 <XmarkCircle
                   size={16}
                   className={css`
-                    color: ${baseTheme.colors.gray[100]};
+                    color: ${baseTheme.colors.gray[700]};
                     margin: 1.5rem;
                   `}
                 />
@@ -206,7 +205,7 @@ const ExerciseTaskEditor: React.FC<
                 <PencilBox
                   size={16}
                   className={css`
-                    color: ${baseTheme.colors.gray[100]};
+                    color: ${baseTheme.colors.gray[700]};
                     margin: 1.5rem;
                   `}
                 />

@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
@@ -50,7 +51,13 @@ const AuthorEditor: React.FC<
 > = () => {
   return (
     <BlockWrapper>
-      <div>
+      <div
+        className={css`
+          .wp-block-columns {
+            gap: var(--space-5);
+          }
+        `}
+      >
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={AUTHOR_BLOCK_TEMPLATE} />
       </div>
     </BlockWrapper>

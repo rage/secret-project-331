@@ -375,7 +375,7 @@ async fn template_replacements(
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
                     conn,
                     user_id,
-                    UserEmailCodePurpose::AdminLogin,
+                    UserEmailCodePurpose::StaffLogin,
                 )
                 .await?
             {

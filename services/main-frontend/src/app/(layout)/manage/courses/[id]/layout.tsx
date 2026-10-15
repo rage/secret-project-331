@@ -16,6 +16,7 @@ import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSusp
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
+  courseStatsRoute,
   manageCourseExercisesRoute,
   manageCourseFeedbackRoute,
   manageCourseInstancesRoute,
@@ -147,6 +148,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
         key: KEY_STATS,
         title: t("link-stats"),
         href: manageCourseStatsOverviewRoute(courseId),
+        pathPrefix: courseStatsRoute(courseId),
       },
       {
         key: KEY_OTHER,

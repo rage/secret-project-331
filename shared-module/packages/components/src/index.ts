@@ -62,11 +62,35 @@ export type { ToggleInfo } from "./components/ToggleGroup/ToggleGroup"
 export { ConfirmDialog } from "./components/ConfirmDialog"
 export type { ConfirmDialogProps, ConfirmDialogReason } from "./components/ConfirmDialog"
 export { Dialog } from "./components/Dialog"
-export type { DialogAction, DialogProps, DialogSize } from "./components/Dialog"
+export type {
+  DialogAction,
+  DialogExit,
+  DialogPadding,
+  DialogProps,
+  DialogRole,
+  DialogSize,
+} from "./components/Dialog"
 export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps, DisclosureVariant } from "./components/Disclosure"
 export { EmptyState } from "./components/EmptyState"
 export type { EmptyStateProps } from "./components/EmptyState"
+export { ErrorNotice } from "./components/ErrorNotice"
+export type {
+  ErrorNoticeAnnouncement,
+  ErrorNoticeDensity,
+  ErrorNoticeProps,
+} from "./components/ErrorNotice"
+export { normalizeErrorForDisplay } from "./lib/errors/normalizeErrorForDisplay"
+export type {
+  BackendMessageKey,
+  ErrorCategory,
+  ErrorSeverity,
+  ErrorViewIssue,
+  ErrorViewModel,
+  ErrorViewTechnicalDetails,
+} from "./lib/errors/normalizeErrorForDisplay"
+export { resolveErrorDisplayCopy } from "./lib/errors/resolveErrorDisplayCopy"
+export type { ResolvedErrorDisplayCopy } from "./lib/errors/resolveErrorDisplayCopy"
 export { Infobox } from "./components/Infobox"
 export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Menu } from "./components/Menu"
@@ -134,7 +158,6 @@ export {
   AnimatedQueryFrame,
   DefaultBlockingError,
   DefaultStaleError,
-  useDelayedFlag,
 } from "./components/queryResult/AnimatedQueryFrame"
 export type {
   AnimatedQueryFrameProps,
@@ -160,3 +183,43 @@ export type {
   SingleQueryState,
   SuccessData,
 } from "./components/queryResult/queryResultState"
+
+export { LoadingRegion } from "./components/LoadingRegion"
+export type { LoadingRegionProps } from "./components/LoadingRegion"
+export { Spinner } from "./components/Spinner"
+export type { SpinnerProps } from "./components/Spinner"
+export { spinnerGlyphCss } from "./components/primitives/spinnerStyles"
+export type { SpinnerSize, SpinnerTone } from "./components/primitives/spinnerStyles"
+export { useLoadingAffordance } from "./lib/utils/loading"
+export type { UseLoadingAffordanceOptions } from "./lib/utils/loading"
+
+export { Breadcrumbs } from "./components/Breadcrumbs"
+export type { BreadcrumbItem, BreadcrumbsProps } from "./components/Breadcrumbs"
+
+export { DialogProvider, useDialog } from "./components/dialogProvider/DialogProvider"
+export type { DialogProviderProps } from "./components/dialogProvider/DialogProvider"
+export type {
+  AlertRequest,
+  ConfirmRequest,
+  CustomPromptRequest,
+  DialogApi,
+  PromptControls,
+  PromptResult,
+  TextPromptRequest,
+} from "./components/dialogProvider/dialogRequests"
+export {
+  ALERT_DIALOG_OK_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+  DIALOG_PROVIDER_DIALOG_TEST_ID,
+  PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+  PROMPT_DIALOG_INPUT_TEST_ID,
+  PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+} from "./components/dialogProvider/testIds"
+export {
+  LOADING_REGION_TEST_ID,
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+  SPINNER_TEST_ID,
+} from "./components/loadingTestIds"

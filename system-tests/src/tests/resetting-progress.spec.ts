@@ -82,7 +82,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
 
     // Chang the course to a draft course
     await page.getByRole("button", { name: "Edit", exact: true }).click()
-    await page.getByLabel("Draft").check()
+    await page.getByRole("checkbox", { name: "Draft" }).check()
     await page.getByRole("button", { name: "Update", exact: true }).click()
     await page.getByRole("heading", { name: "Reset progress (Draft)" }).waitFor()
 
@@ -95,7 +95,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await page.getByText("Successfully deleted").waitFor()
     // Change the course back to a non-draft course so that the student can access it
     await page.getByRole("button", { name: "Edit", exact: true }).click()
-    await page.getByLabel("Draft").uncheck()
+    await page.getByRole("checkbox", { name: "Draft" }).uncheck()
     await page.getByRole("button", { name: "Update", exact: true }).click()
     await page.getByRole("heading", { name: "Reset progress (Draft)" }).waitFor({ state: "hidden" })
 

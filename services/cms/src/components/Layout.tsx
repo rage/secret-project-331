@@ -86,7 +86,15 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         </main>
       </div>
       <DynamicToaster />
-      <Footer />
+      <div
+        className={css`
+          ${respondToOrLarger.xl} {
+            margin-right: ${SIDEBAR_WIDTH_PX}px;
+          }
+        `}
+      >
+        <Footer />
+      </div>
     </>
   )
 }

@@ -5,7 +5,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { pageTitleCss } from "@/components/credit-registration/styles"
-import { useIsInCreditRegistrationPipeline } from "@/components/credit-registration/useIsInCreditRegistrationPipeline"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
@@ -17,8 +16,6 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
   // Low baseline order: nested pages (account, permissions) register a higher order and win, and
   // this only shows for the section's redirect stub. Mirrors the course-material layout pattern.
   usePageTitle(t("user-settings"), { order: 0 })
-
-  const showStudentNumberTab = useIsInCreditRegistrationPipeline() === true
 
   return (
     <div
@@ -48,10 +45,8 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
       <Tabs>
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="account">{t("user-settings-account-tab")}</Tab>
-        {showStudentNumberTab ? (
-          /* oxlint-disable-next-line i18next/no-literal-string */
-          <Tab tabName="student-number">{t("user-settings-student-number-tab")}</Tab>
-        ) : null}
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
+        <Tab tabName="student-number">{t("user-settings-student-number-tab")}</Tab>
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="permissions">{t("user-settings-permissions-tab")}</Tab>
         <TabPanel>{children}</TabPanel>

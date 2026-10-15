@@ -40,9 +40,23 @@ const fieldsetCss = css`
   border: 0;
 `
 
+/**
+ * A rendered `<legend>` sits outside its fieldset's formatting context, so the grid `gap` never
+ * lands under it and the options end up flush against the label. The UA's 2px inline padding
+ * would also push it off the options' left edge.
+ *
+ * It captions a block of rows rather than labelling one control, so it gets more room beneath it
+ * than a field label does.
+ */
+const legendCss = css`
+  padding: 0;
+  margin-bottom: var(--space-3);
+`
+
+/** Roomy enough that an option's description does not read as part of the option below it. */
 const radioListCss = css`
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 `
 
 const radioListHorizontalCss = css`
@@ -165,6 +179,8 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
   "aria-label"?: string
   className?: string
   children?: React.ReactNode
+  /** Lands on the group element; give each `Radio` its own id to address the inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -188,6 +204,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     className,
     children,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -261,8 +278,12 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       ref={fieldsetRef}
       className={cx(fieldRootCss, fieldsetCss, className)}
       disabled={state.isDisabled}
+      data-testid={dataTestId}
     >
-      <legend {...labelProps} className={isSegmented ? questionLegendCss : stackedLabelCss}>
+      <legend
+        {...labelProps}
+        className={cx(isSegmented ? questionLegendCss : stackedLabelCss, legendCss)}
+      >
         {label}
       </legend>
 

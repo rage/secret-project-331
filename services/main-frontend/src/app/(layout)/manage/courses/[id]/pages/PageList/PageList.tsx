@@ -7,20 +7,13 @@ import { useTranslation } from "react-i18next"
 import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, useDialog } from "@/shared-module/components"
 
 import NewOrEditPageForm from "../NewOrEditPageForm"
-import PageListItem, {
-  MOVING_ALLOWED,
-  MOVING_ALLOWED_ONLY_DOWN,
-  MOVING_ALLOWED_ONLY_UP,
-  MOVING_NOT_ALLOWED,
-} from "./PageListItem"
-import TableWrapper from "./TableWrapper"
+import PagesTable from "./PagesTable"
 
 interface Props {
   data: Page[]
@@ -52,7 +45,10 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const handleDeletePage = async (pageId: string, title: string) => {
-    const result = await confirm(t("page-deletion-confirmation-message", { title }))
+    const result = await confirm({
+      message: t("page-deletion-confirmation-message", { title }),
+      isDestructive: true,
+    })
     if (result) {
       deletePageMutation.mutate({
         path: {
@@ -63,6 +59,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   const items = data.filter((page) => !page.deleted_at)
+  const caption = chapter ? t("heading-pages-in-this-chapter") : t("heading-top-level-pages")
   return (
     <div
       className={css`
@@ -81,35 +78,24 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
           font-weight: 550;
         `}
       >
-        {chapter ? t("heading-pages-in-this-chapter") : t("heading-top-level-pages")}
+        {caption}
       </h3>
-      <TableWrapper>
-        {items.map((page: Page, n) => {
-          let moving = MOVING_ALLOWED
-          if (n === 0) {
-            moving = MOVING_ALLOWED_ONLY_DOWN
-          }
-          if (n === items.length - 1) {
-            moving = MOVING_ALLOWED_ONLY_UP
-          }
-          if (items.length - 1 === 0) {
-            moving = MOVING_NOT_ALLOWED
-          }
-
-          return (
-            <PageListItem
-              page={page}
-              chapter={chapter}
-              key={page.id}
-              pageOrderDispatch={pageOrderDispatch}
-              onDeletePage={() => handleDeletePage(page.id, page.title)}
-              moving={moving}
-              reload={() => refetch()}
-            />
-          )
-        })}
-      </TableWrapper>
-      <Button size="medium" variant="primary" onClick={() => setShowNewOrEditPageForm(true)}>
+      <PagesTable
+        caption={caption}
+        pages={items}
+        chapter={chapter}
+        pageOrderDispatch={pageOrderDispatch}
+        onDeletePage={(page) => handleDeletePage(page.id, page.title)}
+        reload={() => refetch()}
+      />
+      <Button
+        className={css`
+          margin-top: var(--space-4);
+        `}
+        size="medium"
+        variant="primary"
+        onClick={() => setShowNewOrEditPageForm(true)}
+      >
         {t("button-text-new-page")}
       </Button>
 

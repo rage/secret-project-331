@@ -8,7 +8,7 @@ use crate::prelude::*;
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Type)]
 #[sqlx(type_name = "user_email_code_purpose", rename_all = "snake_case")]
 pub enum UserEmailCodePurpose {
-    AdminLogin,
+    StaffLogin,
     AccountDeletion,
     EmailOwnershipVerification,
 }

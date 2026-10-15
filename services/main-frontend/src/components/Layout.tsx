@@ -67,7 +67,12 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           currentPagePath={pathname}
         />
 
-        <main id="maincontent">
+        <main
+          id="maincontent"
+          className={css`
+            padding-top: var(--space-4);
+          `}
+        >
           <Centered variant="default">{children}</Centered>
         </main>
       </div>

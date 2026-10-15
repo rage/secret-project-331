@@ -24,6 +24,8 @@
   "error-status": "Status: {{status}}",
   "error-title": "Fel",
   "error-type": "Typ: {{type}}",
+  "errorNotice.status": "Status",
+  "errorNotice.type": "Typ",
   "failed-to-send-message": "Misslyckades med att skicka meddelande",
   "go-to-error": "Gå till fel",
   "label-error-loading": "Fel vid laddning av data.",

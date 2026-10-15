@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import React from "react"
 
 import SelectCourseLanguage from "../SelectCourseLanguage"
@@ -30,6 +30,7 @@ jest.mock("@/hooks/course-material/useCourseLanguageVersionNavigationInfos", () 
 }))
 
 jest.mock("@/shared-module/components", () => ({
+  ...jest.requireActual("@/shared-module/components"),
   QueryResult: ({ children }: { children: (data: unknown) => React.ReactNode }) => (
     <>{children([])}</>
   ),
@@ -61,10 +62,11 @@ const renderComponent = () =>
 describe("SelectCourseLanguage accessibility (issues #48, #62)", () => {
   it("marks each language option with the lang attribute of its language", () => {
     renderComponent()
+    fireEvent.click(screen.getByTestId("change-course-language"))
     const options = screen.getAllByRole("option")
     expect(options).toHaveLength(2)
-    expect(options[0]).toHaveAttribute("lang", "en-US")
-    expect(options[1]).toHaveAttribute("lang", "fi-FI")
+    expect(options[0]?.querySelector("[lang]")).toHaveAttribute("lang", "en-US")
+    expect(options[1]?.querySelector("[lang]")).toHaveAttribute("lang", "fi-FI")
   })
 
   it("keeps the select fluid so the row can reflow at narrow viewports", () => {

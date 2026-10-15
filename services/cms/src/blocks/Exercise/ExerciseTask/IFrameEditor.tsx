@@ -6,9 +6,6 @@ import { v5 } from "uuid"
 
 import PageContext from "@/contexts/PageContext"
 import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
@@ -16,6 +13,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   ExerciseIframeState,
@@ -69,13 +67,11 @@ const ExerciseTaskIFrameEditor: React.FC<
   }, [privateSpec])
 
   if (!url || url.trim() === "") {
-    return (
-      <ErrorBanner variant="readOnly" error={t("error-cannot-render-exercise-task-missing-url")} />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
   }
 
   if (!userInfo.data) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { MagnifyingGlass, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
@@ -14,14 +14,12 @@ import {
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
+import { Button, Dialog, Spinner } from "@/shared-module/components"
 
 import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
@@ -49,7 +47,8 @@ const SearchContainer = styled.div<{ $hasContent: boolean }>`
 const SearchInputContainer = styled.div`
   position: relative;
   flex-shrink: 0;
-  padding: 0 1rem;
+  /* Clears the dialog's floating close button. */
+  padding: 0 3.5rem 0 1rem;
 `
 
 const ResultsContainer = styled.div<{ $hasResults: boolean }>`
@@ -181,32 +180,11 @@ const StyledIcon = css`
   }
 `
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  padding: 2px;
-  margin: 0;
-  cursor: pointer;
-  color: ${baseTheme.colors.gray[400]};
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-
-  &:hover {
-    color: ${baseTheme.colors.gray[600]};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[400]};
-    outline-offset: 2px;
-  }
-`
-
 const KEYS = {
   SHORTCUT: "k",
 }
+
+const SEARCH_BUTTON_ID = "search-for-pages-button"
 
 export interface SearchButtonProps {
   courseId?: string | null
@@ -356,24 +334,16 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
   return (
     <>
       <Button
-        tabIndex={0}
-        id="search-for-pages-button"
+        domProps={{ tabIndex: 0, id: SEARCH_BUTTON_ID, "aria-hidden": false }}
         className={StyledIcon}
         aria-label={t("button-label-search-for-pages")}
-        aria-hidden={false}
         size="small"
         variant="icon"
         onClick={openModal}
       >
         <MagnifyingGlass size={16} weight="bold" />
       </Button>
-      <Dialog
-        open={open}
-        onClose={closeModal}
-        noPadding
-        preventBackgroundScroll
-        aria-label={t("title-search-dialog")}
-      >
+      <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
         <SearchContainer $hasContent={hasContent}>
           {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
           <VisuallyHidden aria-live="polite" aria-atomic role="status">
@@ -391,9 +361,6 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                 }}
                 placeholder={t("search-field-placeholder")}
               />
-              <CloseButton type="button" aria-label={t("close")} onClick={closeModal}>
-                <XmarkCircle size={18} />
-              </CloseButton>
             </HeaderBar>
           </SearchInputContainer>
 
@@ -413,9 +380,10 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
               </div>
             )}
 
+            {/* Decorative: useSearchPagesLiveRegion above already announces the searching state. */}
             {isLoading && (
               <LoadingContainer>
-                <Spinner variant="medium" />
+                <Spinner size="md" />
               </LoadingContainer>
             )}
 

@@ -60,9 +60,11 @@ const COUNT_TONE = {
 interface RouteTabProps {
   item: RouteTabDefinition
   state: TabListState<object>
+  /** False when the current route matches no tab; see `RouteTabList`'s `isCurrentRouteATab`. */
+  isCurrentRouteATab: boolean
 }
 
-export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
+export const RouteTab: React.FC<RouteTabProps> = ({ item, state, isCurrentRouteATab }) => {
   const ref = useRef<HTMLAnchorElement>(null)
 
   const { tabProps, isSelected, isDisabled } = useTab(
@@ -73,6 +75,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
     state,
     ref,
   )
+  const isCurrent = isSelected && isCurrentRouteATab
 
   const { focusProps, isFocusVisible } = useFocusRing()
   const { hoverProps, isHovered } = useHover({})
@@ -105,8 +108,9 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
       href={item.href}
       replace
       aria-disabled={isDisabled}
+      aria-selected={isCurrent}
       className={cx(
-        tabPillCss({ isSelected, isFocusVisible, isHovered, isDisabled }),
+        tabPillCss({ isSelected: isCurrent, isFocusVisible, isHovered, isDisabled }),
         css`
           font-size: 0.875rem;
           ${respondToOrLarger.sm} {

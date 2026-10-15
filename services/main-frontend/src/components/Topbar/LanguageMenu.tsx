@@ -53,21 +53,21 @@ const itemRow = css`
 `
 
 const selectedItem = css`
-  background: #3b82f6 !important;
-  border-color: #2563eb !important;
+  background: var(--color-green-75);
+  border-color: var(--color-green-300);
 
   &:where([data-hovered], [data-focused]) {
-    background: #2563eb !important;
-    border-color: #1d4ed8 !important;
+    background: var(--color-green-100);
+    border-color: var(--color-green-400);
   }
 `
 
 const selectedText = css`
-  color: #ffffff !important;
+  color: var(--color-green-800);
 `
 
 const selectedSubtext = css`
-  color: #dbeafe !important;
+  color: var(--color-green-600);
 `
 
 const textCol = css`
@@ -102,7 +102,7 @@ const checkCell = css`
   flex: 0 0 20px;
   font-size: 14px;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--color-green-700);
 `
 
 const footerMessage = css`

@@ -6,19 +6,17 @@ import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import CourseClosingFields from "@/components/course-closing/CourseClosingFields"
+import { useOrganizationClosingSuccessorCandidates } from "@/components/course-closing/useClosingSuccessorCandidates"
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Checkbox, Dialog, TextArea, TextField } from "@/shared-module/components"
 
 import AiPolicyFields from "./AiPolicyFields"
-import ClosedSectionFields from "./ClosedSectionFields"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -68,19 +66,14 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
     defaultValues: buildFormValues(course),
   })
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    reset,
-  } = methods
+  const { control, handleSubmit, watch, reset } = methods
 
   useEffect(() => {
     reset(buildFormValues(course))
   }, [course, reset])
 
   const draftStatus = watch("is_draft")
+  const closingCandidates = useOrganizationClosingSuccessorCandidates(course.organization_id, open)
 
   const updateCourseMutation = useToastMutation(
     async (data: EditCourseFormValues) => {
@@ -131,14 +124,14 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
 
   return (
     <FormProvider {...methods}>
-      <StandardDialog
+      <Dialog
         open={open}
         onClose={onClose}
         title={t("edit-course")}
-        buttons={[
+        actions={[
           {
-            onClick: onSubmit,
-            children: t("button-text-update"),
+            onClick: () => void onSubmit(),
+            label: t("button-text-update"),
             variant: "primary",
             disabled: updateCourseMutation.isPending,
           },
@@ -147,80 +140,94 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
         <div>
           <FieldContainer>
             <TextField
-              required
+              isRequired
+              name="name"
+              control={control}
               label={t("text-field-label-name")}
-              {...includeIf(errors.name?.message, { error: errors.name?.message })}
-              {...register("name", { required: t("required-field") })}
+              rules={{ required: t("required-field") }}
             />
           </FieldContainer>
           <FieldContainer>
-            <TextAreaField label={t("text-field-label-description")} {...register("description")} />
+            <TextArea
+              name="description"
+              control={control}
+              label={t("text-field-label-description")}
+            />
           </FieldContainer>
           <FieldContainer>
-            <CheckBox label={t("draft")} {...register("is_draft")} />
+            <Checkbox name="is_draft" control={control} label={t("draft")} />
           </FieldContainer>
 
           {!draftStatus && (
             <FieldContainer>
-              <CheckBox label={t("unlisted")} {...register("is_unlisted")} />
+              <Checkbox name="is_unlisted" control={control} label={t("unlisted")} />
             </FieldContainer>
           )}
           <FieldContainer>
-            <CheckBox label={t("test-course")} {...register("is_test_mode")} />
+            <Checkbox name="is_test_mode" control={control} label={t("test-course")} />
           </FieldContainer>
           <OnlyRenderIfPermissions
             action={{ type: "teach" }}
             resource={{ type: "global_permissions" }}
           >
             <FieldContainer>
-              <CheckBox label={t("can-enable-chatbot")} {...register("can_add_chatbot")} />
+              <Checkbox name="can_add_chatbot" control={control} label={t("can-enable-chatbot")} />
             </FieldContainer>
           </OnlyRenderIfPermissions>
           <FieldContainer>
-            <CheckBox
+            <Checkbox
+              name="is_joinable_by_code_only"
+              control={control}
               label={t("joinable-by-code-only")}
-              {...register("is_joinable_by_code_only")}
             />
           </FieldContainer>
           <FieldContainer>
-            <CheckBox
+            <Checkbox
+              name="ask_marketing_consent"
+              control={control}
               label={t("label-ask-for-marketing-consent")}
-              {...register("ask_marketing_consent")}
             />
           </FieldContainer>
           <FieldContainer>
-            <CheckBox
+            <Checkbox
+              name="chapter_locking_enabled"
+              control={control}
               label={t("label-chapter-locking-enabled")}
-              {...register("chapter_locking_enabled")}
             />
           </FieldContainer>
           <FieldContainer>
             <TextField
               type={"number"}
               min={0}
-              step={1}
+              // oxlint-disable-next-line i18next/no-literal-string
+              step="1"
+              name="flagged_answers_threshold"
+              control={control}
               label={t("label-threshold-to-move-flagged-answer-to-manual-review")}
-              {...includeIf(errors.flagged_answers_threshold?.message, {
-                error: errors.flagged_answers_threshold?.message,
-              })}
-              {...register("flagged_answers_threshold", {
-                valueAsNumber: true,
+              rules={{
                 min: { value: 0, message: t("threshold-must-be-non-negative") },
-              })}
+              }}
             />
           </FieldContainer>
           <FieldContainer>
-            <CheckBox
+            <Checkbox
+              name="flagged_answers_skip_manual_review_and_allow_retry"
+              control={control}
               label={t("label-flagged-answers-skip-manual-review-and-allow-retry")}
-              {...register("flagged_answers_skip_manual_review_and_allow_retry")}
             />
           </FieldContainer>
 
           <AiPolicyFields />
 
-          <ClosedSectionFields />
+          <CourseClosingFields
+            candidates={closingCandidates.candidates}
+            isLoadingCandidates={closingCandidates.isLoading}
+            currentCourseId={course.id}
+            currentOrganizationId={course.organization_id}
+            currentLanguageCode={course.language_code}
+          />
         </div>
-      </StandardDialog>
+      </Dialog>
     </FormProvider>
   )
 }

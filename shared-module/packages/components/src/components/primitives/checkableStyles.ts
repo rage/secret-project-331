@@ -31,9 +31,17 @@ export const switchRowCss = css`
   align-items: center;
 `
 
+/**
+ * The transparent input covering the whole row, which is what a press anywhere on it must hit.
+ *
+ * `z-index` because the indicator is a later positioned sibling and would otherwise paint over it,
+ * taking the press on a row that has no visible label — a selection checkbox in a table header or
+ * cell, where the indicator is the entire row.
+ */
 export const checkableInputCss = css`
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   margin: 0;

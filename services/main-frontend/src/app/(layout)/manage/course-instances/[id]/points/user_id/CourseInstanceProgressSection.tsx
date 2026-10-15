@@ -7,9 +7,8 @@ import { useTranslation } from "react-i18next"
 import { useCourseInstanceProgress } from "@/hooks/useCourseInstanceProgress"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, ErrorNotice } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -146,7 +145,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
       }
       renderData={([courseInstanceProgressesData, courseStructureData]) => {
         if (!courseStructureData) {
-          return <ErrorBanner error={new Error("Course structure not found")} />
+          return <ErrorNotice error={new Error("Course structure not found")} />
         }
 
         const isSingleModule = courseInstanceProgressesData.length === 1

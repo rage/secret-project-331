@@ -6,14 +6,14 @@ import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, ErrorNotice, TextField } from "@/shared-module/components"
 
 import SearchUsersResults from "./SearchUsersResults"
 import { deriveSearchUsersState } from "./searchUsersState"
@@ -84,9 +84,9 @@ const SearchUsersPage: React.FC = () => {
     <OnlyRenderIfPermissions
       action={{ type: "view_user_progress_or_details" }}
       resource={{ type: "global_permissions" }}
-      elseRender={<ErrorBanner variant="readOnly" error={t("error-unauthorized")} />}
+      elseRender={<ErrorNotice error={t("error-unauthorized")} />}
     >
-      <h1>{t("title-user-search")}</h1>
+      <h1 className={pageTitleCss}>{t("title-user-search")}</h1>
 
       <form className={formCss} onSubmit={handleSubmit(runImmediate)}>
         <TextField

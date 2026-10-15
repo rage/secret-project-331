@@ -131,6 +131,37 @@ The plugin therefore needs a **`/<base-path>/api/status/up` health endpoint** (e
 > `tmc` has RBAC extras (service accounts, user-sync manifests) — those are TMC-specific and **not**
 > required for a generic new service.
 
+## Standalone plugin in the local dev cluster
+
+To try a Track A plugin in the CMS and on real course pages before it is hosted, route the
+minikube cluster to its dev server on the host. `kubectl port-forward` is the wrong direction: the
+backend pod must call the plugin, so a selector-less Service is backed by an EndpointSlice holding
+the host's address (`host.minikube.internal`, `192.168.49.1` with the docker driver).
+
+1. Run the dev server under the slug's base path, e.g. in tmux:
+   `PUBLIC_BASE_PATH=/<slug> NEXT_PUBLIC_SERVICE_SLUG=<slug> pnpm run dev`.
+2. Apply the Service, EndpointSlice and `project-331.local/<slug>` Ingress (undo with
+   `kubectl delete -f -` on the same output):
+   `node <skill-dir>/scripts/dev-cluster-route.mjs <slug> <port> | kubectl apply -f -`.
+   Check with `curl http://project-331.local/<slug>/api/service-info`.
+3. Insert the `exercise_services` row into the database the backend actually uses —
+   `kubectl exec deploy/headless-lms -- printenv DATABASE_URL` tells `bin/psql` (`headless_lms_dev`)
+   from `bin/psql-test` (`headless_lms_test`):
+
+   ```sql
+   insert into exercise_services
+     (name, slug, public_url, internal_url, max_reprocessing_submissions_at_once)
+   values ('<Display name>', '<slug>', 'http://project-331.local/<slug>/api/service-info',
+     'http://<slug>.default.svc.cluster.local:<port>/<slug>/api/service-info', 5);
+   ```
+
+   The service-info fetcher fills `exercise_service_info` within seconds.
+
+Every Playwright system-test run's globalSetup reseeds the test database and deletes the row, and a
+type added while a system-test run is in progress can leak into its screenshots, so don't register
+against a database another run is using. While this dev server holds the port, the plugin's own
+Playwright suite cannot start its root-path server (see `08`, Execution).
+
 ## Backend + infra checklist (condensed)
 
 1. Plugin exposes `GET /<base-path>/api/service-info` (+ the referenced grade / public-spec /

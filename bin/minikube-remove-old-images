@@ -46,4 +46,8 @@ for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do
   done <<< "$IMAGE_LIST"
 done
 
+# Rebuilding a commit that already has an image retags it and leaves the old image without a tag.
+REMOVED=$((REMOVED + $(docker images --filter dangling=true -q | sort -u | wc -l)))
+docker image prune -f > /dev/null
+
 echo "Removed $REMOVED old images from minikube."

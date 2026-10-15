@@ -46,13 +46,13 @@
     "which": "^7.0.0"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.63.0",
-    "@playwright/test": "^1.63.0",
+    "@playwright/browser-chromium": "^1.64.0",
+    "@playwright/test": "^1.64.0",
     "@types/node": "^26.6.4",
     "@types/tar-fs": "^2.0.4",
     "@types/which": "^3.0.4",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "playwright": "^1.63.0",
+    "playwright": "^1.64.0",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   }
 }

@@ -172,7 +172,7 @@ importers:
     dependencies:
       '@axe-core/playwright':
         specifier: ^4.13.0
-        version: 4.13.0(playwright-core@1.63.0)
+        version: 4.13.0(playwright-core@1.64.0)
       axe-core:
         specifier: ^4.14.0
         version: 4.14.0
@@ -193,11 +193,11 @@ importers:
         version: 7.0.0
     devDependencies:
       '@playwright/browser-chromium':
-        specifier: ^1.63.0
-        version: 1.63.0
+        specifier: ^1.64.0
+        version: 1.64.0
       '@playwright/test':
-        specifier: ^1.63.0
-        version: 1.63.0
+        specifier: ^1.64.0
+        version: 1.64.0
       '@types/node':
         specifier: ^26.6.4
         version: 26.6.4
@@ -214,8 +214,8 @@ importers:
         specifier: runtime:24.21.0
         version: runtime:24.21.0
       playwright:
-        specifier: ^1.63.0
-        version: 1.63.0
+        specifier: ^1.64.0
+        version: 1.64.0
       typescript:
         specifier: npm:@typescript/typescript6@^6.0.2
         version: '@typescript/typescript6@6.0.2'
@@ -227,12 +227,12 @@ packages:
     peerDependencies:
       playwright-core: '>= 1.0.0'
 
-  '@playwright/browser-chromium@1.63.0':
-    resolution: {integrity: sha512-m2daAx2QmBFeO8iqVjeCrYlihlhw1FchLQayCCZsZ2IdvA7Uk7sFsjNm7RleAt2rDARH/ZEtXQi7e65WB1VGPQ==}
+  '@playwright/browser-chromium@1.64.0':
+    resolution: {integrity: sha512-vnkDCrnSwdXdB+lNlqyBbLS7+iuw7IRn2vAbu+Hf7d+aXdRW2nRDZGZbqu7nezDUOKRDKc0135pnO3HG936clQ==}
     engines: {node: '>=20'}
 
-  '@playwright/test@1.63.0':
-    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+  '@playwright/test@1.64.0':
+    resolution: {integrity: sha512-oTN9FNYuN6bqQMwiho6jJKLCG2/QOYCixGXuCjRmzOq23eODeukuY2XiAVoVpAECbuezMt1MHQjAiQxK8F+Y+g==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -587,13 +587,13 @@ packages:
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
 
-  playwright-core@1.63.0:
-    resolution: {integrity: sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==}
+  playwright-core@1.64.0:
+    resolution: {integrity: sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==}
     engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.63.0:
-    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+  playwright@1.64.0:
+    resolution: {integrity: sha512-kVzTnYFYEyQ9RGzBjNCd2+yEqWmVbxl3AHPynv3qQ6JTjv4a+kwRcnqQwIpuP3NnrnIrE/Q6wWAIAvMfIE2/Yg==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -641,18 +641,18 @@ packages:
 
 snapshots:
 
-  '@axe-core/playwright@4.13.0(playwright-core@1.63.0)':
+  '@axe-core/playwright@4.13.0(playwright-core@1.64.0)':
     dependencies:
       axe-core: 4.13.0
-      playwright-core: 1.63.0
+      playwright-core: 1.64.0
 
-  '@playwright/browser-chromium@1.63.0':
+  '@playwright/browser-chromium@1.64.0':
     dependencies:
-      playwright-core: 1.63.0
+      playwright-core: 1.64.0
 
-  '@playwright/test@1.63.0':
+  '@playwright/test@1.64.0':
     dependencies:
-      playwright: 1.63.0
+      playwright: 1.64.0
 
   '@types/node@26.6.4':
     dependencies:
@@ -800,11 +800,11 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  playwright-core@1.63.0: {}
+  playwright-core@1.64.0: {}
 
-  playwright@1.63.0:
+  playwright@1.64.0:
     dependencies:
-      playwright-core: 1.63.0
+      playwright-core: 1.64.0
 
   png-metadata@1.0.2: {}
 
@@ -893,8 +893,8 @@ snapshots:
 
 time:
   '@axe-core/playwright@4.13.0': '2026-08-11T17:07:40.763Z'
-  '@playwright/browser-chromium@1.63.0': '2026-09-04T22:44:39.412Z'
-  '@playwright/test@1.63.0': '2026-09-04T22:44:00.304Z'
+  '@playwright/browser-chromium@1.64.0': '2026-10-07T20:47:27.506Z'
+  '@playwright/test@1.64.0': '2026-10-07T20:44:27.702Z'
   '@types/node@26.6.4': '2026-10-01T22:39:22.769Z'
   '@types/tar-fs@2.0.4': '2023-11-07T17:40:09.496Z'
   '@types/which@3.0.4': '2024-05-30T17:36:03.133Z'
@@ -902,7 +902,7 @@ time:
   axe-core@4.14.0: '2026-10-05T17:43:36.099Z'
   jose@6.2.12: '2026-09-05T09:17:12.608Z'
   js-yaml@5.4.3: '2026-10-05T22:13:55.389Z'
-  playwright@1.63.0: '2026-09-04T22:45:21.732Z'
+  playwright@1.64.0: '2026-10-07T20:42:55.791Z'
   png-metadata@1.0.2: '2018-09-13T10:05:00.505Z'
   tar-fs@3.1.3: '2026-06-27T10:28:19.953Z'
   typescript@7.0.2: '2026-07-08T15:55:18.431Z'

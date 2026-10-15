@@ -10,15 +10,32 @@ import { withBrowserDiagnostics } from "../fixtures/diagnostics"
 
 const test = withBrowserDiagnostics(base)
 
-test("delivers state through a sandboxed distinct-origin iframe", async ({ page, baseURL }) => {
+test("delivers state through a sandboxed distinct-origin iframe", async ({
+  page,
+  baseURL,
+  browserName,
+}) => {
   if (!baseURL) {
     throw new Error("The iframe-boundary project requires a Playwright baseURL")
   }
 
   const pluginUrl = new URL("/iframe", baseURL)
-  const hostUrl = new URL(baseURL)
-  // localhost and 127.0.0.1 are distinct origins while using the same local development server.
+  // localhost and 127.0.0.1 are distinct origins while using the same local development server. The
+  // host is a blank page rather than this service's own index page, whose scripts would run (and
+  // hydrate) beside the emulator.
+  const hostUrl = new URL("/emulated-host", baseURL)
   hostUrl.hostname = hostUrl.hostname === "localhost" ? "127.0.0.1" : "localhost"
+  await page.route(hostUrl.toString(), (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: "<!doctype html><html><head><title>Host</title></head><body></body></html>",
+    }),
+  )
+  // A fulfilled page has no address, so Chromium treats it as public and would block it from
+  // framing localhost. WebKit has no such check.
+  if (browserName !== "webkit") {
+    await page.context().grantPermissions(["local-network-access"], { origin: hostUrl.origin })
+  }
 
   const host = await createNestedHostEmulator(page, {
     hostUrl: hostUrl.toString(),

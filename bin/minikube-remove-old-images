@@ -21,7 +21,7 @@ eval "$MINIKUBE_DOCKER_ENV"
 # Containers refer to images by id, so Docker would untag a tag a workload still names and its next pod
 # could not start. Finished pods are left out, as they never start again.
 POD_IMAGES=$(kubectl --context minikube get pods -A --field-selector=status.phase!=Succeeded,status.phase!=Failed -o jsonpath='{..image}')
-WORKLOAD_IMAGES=$(kubectl --context minikube get deployments,statefulsets,daemonsets,cronjobs -A -o jsonpath='{..image}')
+WORKLOAD_IMAGES=$(kubectl --context minikube get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath='{..image}')
 IMAGES_IN_USE=$(printf '%s %s' "$POD_IMAGES" "$WORKLOAD_IMAGES" | tr ' ' '\n' | sort -u)
 
 REMOVED=0

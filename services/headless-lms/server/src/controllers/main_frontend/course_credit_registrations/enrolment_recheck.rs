@@ -5,7 +5,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
-use headless_lms_models::credit_registrations::CreditRegistrationState;
+use headless_lms_models::credit_registrations::{CreditRegistrationState, SubjectId};
 
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::enrolment_checks::CheckRequestOutcome;
@@ -67,7 +67,7 @@ pub async fn recheck_credit_registration_enrolment(
         user.id,
         RecheckTarget {
             registration_id: id,
-            course_module_completion_id: row.course_module_completion_id,
+            subject: SubjectId::CourseModuleCompletion(row.course_module_completion_id),
         },
         EnrolmentCheckSource::TeacherRequest,
         CreditRegistrationEventKind::AdminAction,

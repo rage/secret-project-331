@@ -50,19 +50,27 @@ impl CreditRegistrationNotificationKind {
     }
 }
 
+/// The page a student follows a registration on, which the mails link to.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RegistrationStatusPage {
+    CourseModule { course_module_id: Uuid },
+    Moocfi { moocfi_course_id: Uuid },
+}
+
 /// One row owed a mail, with everything the message renders.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StudentNotificationToQueue {
     pub credit_registration_id: Uuid,
     pub kind: CreditRegistrationNotificationKind,
     pub user_id: Uuid,
-    pub course_module_id: Uuid,
+    pub status_page: RegistrationStatusPage,
+    /// The course's name, or a mooc.fi target's.
     pub course_name: String,
     pub course_language_code: String,
     pub course_module_name: Option<String>,
     pub first_name: Option<String>,
     /// The credits frozen on the row, which may have been clamped to the enrolment's range, else the
-    /// module's.
+    /// module's or target's.
     pub credits: Option<f32>,
     pub enrolment_link: Option<String>,
 }
@@ -70,9 +78,9 @@ pub struct StudentNotificationToQueue {
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
 /// pass a transaction. Never claims `cancelled`, `blocked` or any failure state: those get
 /// nothing. Nor a `duplicate` or `not_improved` row whose student already has, or is owed, the
-/// registered mail for another row of the module. A `pending` row is owed the action-needed mail
-/// only while its student has no student number and `is_account_linking_enabled`, since only then
-/// does enrolling lead to one.
+/// registered mail for another row of the module or target. A `pending` row is owed the
+/// action-needed mail only while its student has no student number and
+/// `is_account_linking_enabled`, since only then does enrolling lead to one.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -84,18 +92,31 @@ pub async fn claim_unnotified(
 SELECT cr.id AS "credit_registration_id!",
   cr.state AS "state!: CreditRegistrationState",
   cr.user_id AS "user_id!",
-  cr.course_module_id AS "course_module_id!",
-  c.name AS "course_name!",
-  c.language_code AS "course_language_code!",
+  cr.course_module_id,
+  t.moocfi_course_id AS "moocfi_course_id?",
+  COALESCE(c.name, t.name) AS "course_name!",
+  COALESCE(c.language_code, t.language_code) AS "course_language_code!",
   cm.name AS "course_module_name?",
   ud.first_name AS "first_name?",
-  COALESCE(cr.credits, cm.ects_credits) AS "credits?",
-  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?"
+  COALESCE(cr.credits, cm.ects_credits, t.ects_credits) AS "credits?",
+  NULLIF(
+    TRIM(
+      COALESCE(
+        cm.completion_registration_link_override,
+        t.enrolment_link
+      )
+    ),
+    ''
+  ) AS "enrolment_link?"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL
-  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
 WHERE cr.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+  AND t.deleted_at IS NULL
   AND (
     (
       cr.state = 'no_usable_enrolment'
@@ -122,7 +143,7 @@ WHERE cr.deleted_at IS NULL
           SELECT 1
           FROM credit_registrations told
           WHERE told.user_id = cr.user_id
-            AND told.course_module_id = cr.course_module_id
+            AND told.credit_unit_id = cr.credit_unit_id
             AND told.id <> cr.id
             AND told.deleted_at IS NULL
             AND (
@@ -134,6 +155,7 @@ WHERE cr.deleted_at IS NULL
     )
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
+  AND ($8::uuid IS NULL OR cr.external_credit_target_id = $8)
   AND ($3::uuid IS NULL OR cr.user_id = $3)
   AND (
     cardinality($4::uuid []) = 0
@@ -150,18 +172,31 @@ LIMIT $1
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::OTHER_SUCCESS_STATES as &[CreditRegistrationState],
         is_account_linking_enabled,
+        scope.external_credit_target_id,
     )
     .fetch_all(conn)
     .await?;
 
     Ok(res
         .into_iter()
-        .map(|row| StudentNotificationToQueue {
+        .filter_map(|row| {
+            let status_page = match (row.course_module_id, row.moocfi_course_id) {
+                (Some(course_module_id), _) => {
+                    RegistrationStatusPage::CourseModule { course_module_id }
+                }
+                (None, Some(moocfi_course_id)) => {
+                    RegistrationStatusPage::Moocfi { moocfi_course_id }
+                }
+                (None, None) => return None,
+            };
+            Some((row, status_page))
+        })
+        .map(|(row, status_page)| StudentNotificationToQueue {
             kind: CreditRegistrationNotificationKind::for_state(row.state)
                 .unwrap_or(CreditRegistrationNotificationKind::Registered),
             credit_registration_id: row.credit_registration_id,
             user_id: row.user_id,
-            course_module_id: row.course_module_id,
+            status_page,
             course_name: row.course_name,
             course_language_code: row.course_language_code,
             course_module_name: row.course_module_name,

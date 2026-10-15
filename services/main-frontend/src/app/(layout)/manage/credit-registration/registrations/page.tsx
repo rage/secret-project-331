@@ -18,6 +18,7 @@ import {
   useCreditRegistrationOverview,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
+import { courseFacetOptions } from "@/components/credit-registration/admin/courseFacet"
 import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
 import {
   ALL_STATES,
@@ -351,29 +352,26 @@ const RegistrationsPage: React.FC = () => {
   const registrationsQuery = useAdminCreditRegistrations(query, { paused: searchPending })
   const chipFilters = CHIP_PARAMS.flatMap((name) => params(name).map((value) => ({ name, value })))
 
-  // The stats are one row per module, and a course can have several modules: dedupe by
-  // course_id or the Select gets two options with the same value and refuses to render at all.
   const courseStatsQuery = useCreditRegistrationCourseStats()
-  const courseOptions = useMemo(() => {
-    const byCourseId = new Map<string, string>()
-    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
-      byCourseId.set(courseModule.course_id, courseModule.course_name)
-    }
-    return Array.from(byCourseId, ([value, label]) => ({ value, label }))
-  }, [courseStatsQuery.data?.modules])
+  const courseOptions = useMemo(
+    () => courseFacetOptions(courseStatsQuery.data?.credit_units ?? []),
+    [courseStatsQuery.data?.credit_units],
+  )
 
   // Naming the module only tells the reader something where a course has more than one.
   const manyModuleCourseIds = useMemo(() => {
     const counts = new Map<string, number>()
-    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
-      counts.set(courseModule.course_id, (counts.get(courseModule.course_id) ?? 0) + 1)
+    for (const unit of courseStatsQuery.data?.credit_units ?? []) {
+      if (unit.course_id) {
+        counts.set(unit.course_id, (counts.get(unit.course_id) ?? 0) + 1)
+      }
     }
     return new Set(
       Array.from(counts)
         .filter(([, count]) => count > 1)
         .map(([courseId]) => courseId),
     )
-  }, [courseStatsQuery.data?.modules])
+  }, [courseStatsQuery.data?.credit_units])
 
   // The live ledger's codes, so the filter never offers one no row could match.
   const overviewQuery = useCreditRegistrationOverview()
@@ -667,7 +665,7 @@ const RegistrationsPage: React.FC = () => {
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <span className={breakAnywhereCss}>{row.course_name}</span>
-                          {manyModuleCourseIds.has(row.course_id) && (
+                          {row.course_id && manyModuleCourseIds.has(row.course_id) && (
                             <span className={noteCss}>{row.course_module_name}</span>
                           )}
                           {row.uh_course_code && (

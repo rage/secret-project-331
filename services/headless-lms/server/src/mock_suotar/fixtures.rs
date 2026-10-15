@@ -85,6 +85,16 @@ pub const ADMIN_COURSE_SLUG: &str = "credit-registration-admin";
 pub const STATES_COURSE_SLUG: &str = "credit-registration-states";
 pub const RETRY_COURSE_SLUG: &str = "credit-registration-retry";
 
+/// The mooc.fi courses whose credits the seeded external credit targets register. Their Suotar
+/// course units are owned by the mooc.fi course slug, since no courses course stands behind them.
+pub const MOOCFI_COURSE_SLUG: &str = "credit-registration-moocfi";
+pub const MOOCFI_TIERED_COURSE_SLUG: &str = "credit-registration-moocfi-tiered";
+pub const MOOCFI_PAUSED_COURSE_SLUG: &str = "credit-registration-moocfi-paused";
+pub const CRS_MOOCFI_101: &str = "CRS-MOOCFI-101";
+pub const CRS_MOOCFI_TIER_2: &str = "CRS-MOOCFI-202";
+pub const CRS_MOOCFI_TIER_3: &str = "CRS-MOOCFI-303";
+pub const CRS_MOOCFI_PAUSED_101: &str = "CRS-MOOCFI-PAUSED-101";
+
 /// A Sisu person, and the seeded account it belongs to if any. The database rows and the pushed
 /// persons must carry the same identifiers, so both are built from here.
 pub struct MockPersonFixture {
@@ -281,6 +291,16 @@ pub const LANE_COMPLETIONS: [LaneCompletion; 17] = [
     },
 ];
 
+/// Drives a mooc.fi completion through the whole pipeline in `moocfi-pipeline.spec.ts`. Its account
+/// holds no number at seed time: the spec links this one with a seeded linking token.
+pub const MOOCFI_PIPELINE_STUDENT: MockPersonFixture = MockPersonFixture {
+    student_number: "090003017",
+    first_names: "Zzyzx",
+    last_name: "Moocfipipeline",
+    sisu_email: "zzyzx.moocfipipeline@helsinki.example.com",
+    account_email: Some("moocfi-student-2@example.com"),
+};
+
 /// Mailed to the cap, never claimed, no account: the stale-address population is the only place the
 /// resend and manual-link actions render.
 pub const ADMIN_STALE: MockPersonFixture = MockPersonFixture {
@@ -369,6 +389,7 @@ pub fn mock_suotar_world() -> WorldPush {
     let mut persons: Vec<PersonUpsert> = seeded_students
         .iter()
         .chain(&link_token_people)
+        .chain(&[&MOOCFI_PIPELINE_STUDENT])
         .map(|fixture| person(fixture))
         .collect();
     for fixture in [&ADMIN_STALE, &TEACHER_RESEND_CAPPED] {
@@ -399,6 +420,7 @@ pub fn mock_suotar_world() -> WorldPush {
             .map(|course_code| degree(&STUDENT_8, course_code)),
     );
     enrolments.push(degree(&CREDIT_REGISTRATION_STUDENT_2, CRS_GRADED_101));
+    enrolments.push(degree(&MOOCFI_PIPELINE_STUDENT, CRS_MOOCFI_101));
 
     let import_outcomes = [
         CourseUnitShape {
@@ -454,6 +476,17 @@ pub fn mock_suotar_world() -> WorldPush {
         }
         .build(&wide),
     ];
+    course_units.extend(
+        [
+            (CRS_MOOCFI_101, MOOCFI_COURSE_SLUG),
+            (CRS_MOOCFI_TIER_2, MOOCFI_TIERED_COURSE_SLUG),
+            (CRS_MOOCFI_TIER_3, MOOCFI_TIERED_COURSE_SLUG),
+            (CRS_MOOCFI_PAUSED_101, MOOCFI_PAUSED_COURSE_SLUG),
+        ]
+        .map(|(course_code, course_slug)| {
+            CourseUnitShape::new(course_code, course_slug, 5.0).build(&wide)
+        }),
+    );
     course_units.extend(STATES_COURSE_CODES.iter().map(|course_code| {
         CourseUnitShape::new(course_code, STATES_COURSE_SLUG, 5.0).build(&wide)
     }));

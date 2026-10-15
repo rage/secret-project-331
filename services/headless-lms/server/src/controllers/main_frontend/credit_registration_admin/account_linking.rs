@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
-    self, StaleUnclaimedLinkingMails,
+    self, LinkingMailSource, StaleUnclaimedLinkingMails,
 };
 use headless_lms_models::credit_registration_admin_actions::{
     self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
@@ -39,7 +39,7 @@ use crate::domain::credit_registration::linking_candidates::{
     AccountIdentity, LinkingCandidateSimilarity, similarities, similarity_score,
 };
 use crate::domain::credit_registration::linking_mail_resend::{
-    ResendOutcome, ensure_resend_possible,
+    ResendOutcome, ensure_resend_possible, resolve_linking_mail_source,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -107,14 +107,16 @@ pub struct AccountLinkingFailureDomain {
     pub count: i64,
 }
 
-/// A module on a course code, which shares the code's enrolment list.
+/// A module or mooc.fi target on a course code, which shares the code's enrolment list.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingCodeModule {
-    pub course_id: Uuid,
+    /// The module's or target's id.
+    pub credit_unit_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    /// `None` for a mooc.fi target.
     pub course_module_name: Option<String>,
-    /// When an enrolment list last fed account linking for the module.
+    /// When an enrolment list last fed account linking for the module or target.
     pub last_listed_at: Option<DateTime<Utc>>,
 }
 
@@ -158,7 +160,8 @@ pub struct AccountLinkingPresser {
     pub email: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub course_id: Uuid,
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
@@ -196,7 +199,9 @@ pub struct AccountLinkingEngagementCounts {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingUnusedLink {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target the mail was sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub uh_course_code: Option<String>,
     /// In full: support tells the recipients apart by it.
@@ -222,7 +227,9 @@ pub struct AccountLinkingRecentLink {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingRecentEmail {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target the mail was sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     /// In full: support tells the recipients apart by it.
     pub emailed_to: String,
@@ -242,7 +249,8 @@ pub struct AccountLinkingWaitingStudent {
     pub email: Option<String>,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub course_id: Uuid,
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
@@ -261,12 +269,14 @@ pub struct AccountLinkingSendOutcome {
     pub send_status: EmailSendStatus,
 }
 
-/// A person mailed to the cap for one course whose number was never claimed.
+/// A person mailed to the cap for one course or mooc.fi target whose number was never claimed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingStaleAddress {
     pub student_number: String,
     pub sisu_person_id: String,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target the mails were sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub mail_count: i64,
     pub first_sent_at: DateTime<Utc>,
@@ -367,12 +377,13 @@ pub struct AdminDismissStudyRegistryConflictPayload {
 pub struct AdminResendAccountLinkingEmailPayload {
     #[schema(value_type = String)]
     pub student_number: SecretString,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target to mail for.
+    pub course_or_target_id: Uuid,
     /// Retires the mails a cap is counting, then runs the ordinary send path. Requires a reason.
     pub override_rate_caps: bool,
     pub reason: Option<String>,
     /// The registration whose student the mail is a guess for, from the linking candidates. Must be
-    /// on `course_id`; recorded on the audit row.
+    /// on the course or target; recorded on the audit row.
     pub credit_registration_id: Option<Uuid>,
 }
 
@@ -414,7 +425,9 @@ pub struct AdminLinkingCandidate {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminLinkingCandidates {
-    pub course_id: Uuid,
+    /// The registration's course or mooc.fi target, which mails to a candidate are sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub course_code: String,
     pub account_linking_since: DateTime<Utc>,
@@ -634,7 +647,7 @@ pub async fn get_account_linking_stats(
             email: row.email,
             first_name: row.first_name,
             last_name: row.last_name,
-            course_id: row.course_id,
+            course_or_target_id: row.course_or_target_id,
             course_name: row.course_name,
             course_module_name: row.course_module_name,
             uh_course_code: row.uh_course_code,
@@ -652,7 +665,7 @@ pub async fn get_account_linking_stats(
     .into_iter()
     .map(|row| AccountLinkingRecentEmail {
         id: row.id,
-        course_id: row.course_id,
+        course_or_target_id: row.course_or_target_id,
         course_name: row.course_name,
         emailed_to: row.emailed_to.expose_secret().to_owned(),
         claimed_at: row.claimed_at,
@@ -733,7 +746,7 @@ pub async fn get_account_linking_stats(
                 email: row.email,
                 first_name: row.first_name,
                 last_name: row.last_name,
-                course_id: row.course_id,
+                course_or_target_id: row.course_or_target_id,
                 course_name: row.course_name,
                 course_module_name: row.course_module_name,
                 uh_course_code: row.uh_course_code.clone(),
@@ -794,7 +807,7 @@ pub async fn get_account_linking_stats(
             .into_iter()
             .map(|row| AccountLinkingUnusedLink {
                 id: row.id,
-                course_id: row.course_id,
+                course_or_target_id: row.course_or_target_id,
                 course_name: row.course_name,
                 uh_course_code: row.uh_course_code,
                 emailed_to: row.emailed_to.expose_secret().to_owned(),
@@ -1003,7 +1016,8 @@ pub async fn admin_resend_account_linking_email(
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-    ensure_resend_possible(&mut conn, &app_conf, payload.course_id).await?;
+    let source = resolve_linking_mail_source(&mut conn, payload.course_or_target_id).await?;
+    ensure_resend_possible(&mut conn, &app_conf, source).await?;
 
     let student_number = required_student_number(&payload.student_number)?;
     let override_reason = if payload.override_rate_caps {
@@ -1012,16 +1026,18 @@ pub async fn admin_resend_account_linking_email(
         None
     };
 
-    if let Some(credit_registration_id) = payload.credit_registration_id
-        && credit_registrations::get_by_id(&mut conn, credit_registration_id)
-            .await?
-            .course_id
-            != payload.course_id
-    {
-        return Err(controller_err!(
-            BadRequest,
-            "The registration is on another course.".to_string()
-        ));
+    if let Some(credit_registration_id) = payload.credit_registration_id {
+        let registration =
+            credit_registrations::get_by_id(&mut conn, credit_registration_id).await?;
+        if !source.is_named_by(
+            registration.course_id,
+            registration.external_credit_target_id,
+        ) {
+            return Err(controller_err!(
+                BadRequest,
+                "The registration is on another course.".to_string()
+            ));
+        }
     }
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, RESEND_CALLER);
@@ -1029,7 +1045,7 @@ pub async fn admin_resend_account_linking_email(
     drop(conn);
     info!(
         actor = %user.id,
-        course_id = %payload.course_id,
+        source_id = %source.id(),
         override_rate_caps = payload.override_rate_caps,
         "Admin requested a linking mail resend"
     );
@@ -1039,22 +1055,15 @@ pub async fn admin_resend_account_linking_email(
         reason,
     });
     let attempt =
-        resend_linking_mail_for_target(&ctx, payload.course_id, &student_number, rate_cap_override)
-            .await?;
+        resend_linking_mail_for_target(&ctx, source, &student_number, rate_cap_override).await?;
     let mut conn = pool.acquire().await?;
-    let outcome = ResendOutcome::from(attempt.outcome);
-    info!(
-        ?outcome,
-        retired_mail_count = attempt.retired_mail_count,
-        "Admin linking mail resend finished"
-    );
 
     finish_resend(
         &mut conn,
         &user,
+        source,
         &payload,
         &student_number,
-        outcome,
         &attempt,
         token,
     )
@@ -1125,7 +1134,7 @@ pub async fn get_credit_registration_linking_candidates(
 
     let study_registry_unavailable = people.is_none();
     let people = people.unwrap_or_default();
-    let history = linking_email_history(&mut conn, &people, row.course_id).await?;
+    let history = linking_email_history(&mut conn, &people, row.course_or_target_id).await?;
 
     let account = AccountIdentity {
         first_name: row.first_name.as_deref(),
@@ -1143,7 +1152,7 @@ pub async fn get_credit_registration_linking_candidates(
     ranked.sort_by(|(a_score, a), (b_score, b)| b_score.cmp(a_score).then_with(|| by_name(a, b)));
 
     token.authorized_ok(web::Json(AdminLinkingCandidates {
-        course_id: row.course_id,
+        course_or_target_id: row.course_or_target_id,
         course_name: row.course_name,
         course_code,
         account_linking_since: since,
@@ -1176,6 +1185,9 @@ pub async fn get_account_linking_courses(
     let mut courses: IndexMap<Uuid, AdminLinkingCourse> = IndexMap::new();
     let mut seen_codes: HashSet<(Uuid, String)> = HashSet::new();
     for row in course_module_suotar_configurations::get_active_discovery_reports(&mut conn).await? {
+        let Some(course_id) = row.course_id else {
+            continue;
+        };
         let Some(code) = row
             .uh_course_code
             .as_deref()
@@ -1185,13 +1197,13 @@ pub async fn get_account_linking_courses(
             continue;
         };
         let course = courses
-            .entry(row.course_id)
+            .entry(course_id)
             .or_insert_with(|| AdminLinkingCourse {
-                course_id: row.course_id,
+                course_id,
                 course_name: row.course_name.clone(),
                 course_codes: Vec::new(),
             });
-        if seen_codes.insert((row.course_id, code.to_string())) {
+        if seen_codes.insert((course_id, code.to_string())) {
             course.course_codes.push(code.to_string());
         }
     }
@@ -1229,7 +1241,7 @@ pub async fn get_account_linking_unlinked_enrolees(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
     let course_id = course_id.into_inner();
-    ensure_resend_possible(&mut conn, &app_conf, course_id).await?;
+    ensure_resend_possible(&mut conn, &app_conf, LinkingMailSource::Course(course_id)).await?;
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, UNLINKED_ENROLEES_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
@@ -1589,22 +1601,22 @@ struct LinkingEmailHistory {
 async fn linking_email_history(
     conn: &mut PgConnection,
     people: &[RosterPerson],
-    course_id: Uuid,
+    source_id: Uuid,
 ) -> Result<LinkingEmailHistory, ControllerError> {
     let person_ids: Vec<String> = people
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
     let mail_counts =
-        credit_registration_account_linking_emails::count_mails_per_person_for_course(
+        credit_registration_account_linking_emails::count_mails_per_person_for_source(
             conn,
             &person_ids,
-            course_id,
+            source_id,
         )
         .await?;
     let mut manual_sends: HashMap<String, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
     for send in
-        credit_registration_admin_actions::get_manual_linking_email_sends(conn, &[course_id])
+        credit_registration_admin_actions::get_manual_linking_email_sends(conn, &[source_id])
             .await?
     {
         if let Some(student_number) = send.student_number.clone() {
@@ -1666,15 +1678,21 @@ fn by_name(a: &AdminLinkingCandidate, b: &AdminLinkingCandidate) -> std::cmp::Or
 async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
+    source: LinkingMailSource,
     payload: &AdminResendAccountLinkingEmailPayload,
     student_number: &SecretString,
-    outcome: ResendOutcome,
     attempt: &ResendAttempt,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<AdminResendAccountLinkingEmailResult>> {
+    let outcome = ResendOutcome::from(attempt.outcome);
+    let retired_mail_count = attempt.retired_mail_count;
+    info!(
+        ?outcome,
+        retired_mail_count, "Admin linking mail resend finished"
+    );
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
-        payload.course_id,
+        source,
         Some(student_number.expose_secret()),
         user.id,
         GLOBAL_ADMIN_ROLE,
@@ -1735,9 +1753,8 @@ async fn build_course_codes(
             .entry(code.to_string())
             .or_default()
             .push(AccountLinkingCodeModule {
-                course_id: row.course_id,
+                credit_unit_id: row.credit_unit_id,
                 course_name: row.course_name,
-                course_module_id: row.course_module_id,
                 course_module_name: row.course_module_name,
                 last_listed_at: row.last_listed_at,
             });
@@ -1810,7 +1827,7 @@ async fn build_stale_addresses(
                 sends,
                 student_number: row.student_number.expose_secret().to_owned(),
                 sisu_person_id: row.sisu_person_id.expose_secret().to_owned(),
-                course_id: row.course_id,
+                course_or_target_id: row.course_or_target_id,
                 course_name: row.course_name,
                 mail_count: row.mail_count,
                 first_sent_at: row.first_sent_at,

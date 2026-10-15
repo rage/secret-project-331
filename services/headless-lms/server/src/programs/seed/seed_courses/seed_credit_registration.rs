@@ -7,7 +7,7 @@
 use std::collections::HashMap;
 
 use anyhow::Result;
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 use headless_lms_base::config::{
     ApplicationConfiguration, SuotarConfiguration, bool_env_false_by_default,
 };
@@ -16,8 +16,9 @@ use headless_lms_models::{
     PKeyPolicy,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_module_completions::{self, NewCourseModuleCompletionSeed},
+    course_module_suotar_configurations::SuotarPause,
     course_modules,
-    credit_registration_account_linking_emails::{self, NewAccountLinkingEmail},
+    credit_registration_account_linking_emails::{self, LinkingMailSource, NewAccountLinkingEmail},
     credit_registration_admin_actions::{
         self, COURSE_TEACHER_ROLE, CreditRegistrationAdminAction,
         CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE, NewCreditRegistrationAdminAction,
@@ -25,7 +26,11 @@ use headless_lms_models::{
     credit_registration_enrolment_check_signals,
     credit_registrations::{
         self, CreditRegistrationErrorCode, CreditRegistrationState, NewCreditRegistration,
-        PayloadSnapshot, Transition,
+        NewRegistrationSubject, PayloadSnapshot, SubjectId, Transition,
+    },
+    external_completions::{self, ExternalCompletionFacts},
+    external_credit_targets::{
+        self, ExternalCreditTargetConfiguration, ExternalGrading, TierRange,
     },
     open_university_registration_links,
     roles::UserRole,
@@ -101,6 +106,47 @@ pub const LINKING_TOKEN_CONFLICT: &str = concat!(
     "44444444-4444-4444-4444-444444444444",
     "44444444-4444-4444-4444-444444444444",
     "44444444-4444-4444-4444-444444444444",
+);
+
+/// The mooc.fi handler courses the seeded external credit targets register, as the mock mooc.fi
+/// keys its completions on them.
+pub const MOOCFI_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0011_4a5e_9e6e_c0de00000011);
+/// Tiers 2 and 3 register different course codes; tier 1 has no target.
+pub const MOOCFI_TIERED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0012_4a5e_9e6e_c0de00000012);
+pub const MOOCFI_PAUSED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0013_4a5e_9e6e_c0de00000013);
+
+pub const MOOCFI_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a01_4a5e_9e6e_c0de00000a01);
+pub const MOOCFI_TIER_2_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a02_4a5e_9e6e_c0de00000a02);
+pub const MOOCFI_TIER_3_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a03_4a5e_9e6e_c0de00000a03);
+/// Enabled but paused, with one completion and ledger row nothing may move, which also makes its
+/// cutoff fixed.
+pub const MOOCFI_PAUSED_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a04_4a5e_9e6e_c0de00000a04);
+/// The paused target's completion on mooc.fi. A spec must seed the mock with it before syncing, or
+/// the sync marks the row removed upstream.
+pub const MOOCFI_PAUSED_COMPLETION_ID: Uuid =
+    Uuid::from_u128(0xc5ed17ea_0a11_4a5e_9e6e_c0de00000a11);
+pub const MOOCFI_PAUSED_REGISTRATION_ID: Uuid =
+    Uuid::from_u128(0xc5ed17ea_0a21_4a5e_9e6e_c0de00000a21);
+
+/// Every seeded target's cutoff. Fixed rather than relative to the seed, so a spec's dates fall on
+/// the side of it they mean to whenever the database was seeded.
+pub const MOOCFI_CUTOFF: &str = "2025-01-01T00:00:00Z";
+
+/// The seeded accounts with a TMC user id, which `test-token-moocfi-student-N` signs in as student
+/// N. Each spec owns one; see `system-tests/src/utils/mockMoocfi.ts`.
+pub const MOOCFI_STUDENTS: [(&str, i32); 4] = [
+    ("moocfi-student-1@example.com", 9_100_001),
+    ("moocfi-student-2@example.com", 9_100_002),
+    ("moocfi-student-3@example.com", 9_100_003),
+    ("moocfi-student-4@example.com", 9_100_004),
+];
+
+/// Links [`MOOCFI_PIPELINE_STUDENT`]'s number to whoever opens it.
+pub const MOOCFI_LINKING_TOKEN: &str = concat!(
+    "55555555-5555-5555-5555-555555555555",
+    "55555555-5555-5555-5555-555555555555",
+    "55555555-5555-5555-5555-555555555555",
+    "55555555-5555-5555-5555-555555555555",
 );
 
 /// Enrolled on the general Suotar course and nothing else, for the studies page's empty state.
@@ -242,7 +288,7 @@ pub async fn seed_credit_registration(
         if lane.student.student_number == STUDENT_6.student_number {
             credit_registration_enrolment_check_signals::record_check_request(
                 &mut conn,
-                completion_id,
+                SubjectId::CourseModuleCompletion(completion_id),
                 EnrolmentCheckSource::StudentRequest,
             )
             .await?;
@@ -297,6 +343,9 @@ pub async fn seed_credit_registration(
 
     info!("inserting credit registration admin actions");
     seed_admin_actions(&mut conn, &cx, suotar.course_id, teacher_user_id).await?;
+
+    info!("inserting mooc.fi credit registration targets");
+    seed_moocfi(&mut conn, &cx, teacher_user_id).await?;
 
     push_mock_suotar_world(&base_url).await?;
 
@@ -451,12 +500,16 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
 /// module, and its seeded completions on the push path.
 fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
-        enrolment_link: Some(format!(
-            "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}"
-        )),
+        enrolment_link: Some(seeded_enrolment_link(course_code)),
         paused_reason: None,
         registers_seeded_completions: true,
     }
+}
+
+/// The enrolment link the seed gives a course code; `seededEnrolmentLink` in the system tests must
+/// match.
+fn seeded_enrolment_link(course_code: &str) -> String {
+    format!("https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=seed-{course_code}")
 }
 
 fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
@@ -650,7 +703,7 @@ async fn seed_admin_course(
                 &NewAccountLinkingEmail {
                     student_number: DbSecret::new(fixture.student_number),
                     sisu_person_id: DbSecret::new(fixture.sisu_person_id()),
-                    course_id: course.id,
+                    source: LinkingMailSource::Course(course.id),
                     emailed_to: DbSecret::new(address.clone()),
                     student_number_verification_token_id: None,
                     email_delivery_id: None,
@@ -857,11 +910,13 @@ async fn seed_frozen_registration(
             cx.v5(format!("credit-registration:{}:{course_module_id}", student.email).as_bytes()),
         ),
         &NewCreditRegistration {
-            course_module_completion_id: completion_id,
+            subject: NewRegistrationSubject::CourseModule {
+                course_module_completion_id: completion_id,
+                course_id: course.course_id,
+                course_module_id,
+                course_instance_id: course.course_instance_id,
+            },
             user_id: student.user_id,
-            course_id: course.course_id,
-            course_module_id,
-            course_instance_id: course.course_instance_id,
             attempt_number: 1,
         },
         Some("Seeded fixture"),
@@ -1070,6 +1125,163 @@ async fn insert_student(
     })
 }
 
+/// The mooc.fi targets, the accounts the mooc.fi specs sign in as through a handoff, and the paused
+/// target's frozen row. The mooc.fi side has no seed: each spec puts its completions in the mock.
+async fn seed_moocfi(
+    conn: &mut PgConnection,
+    cx: &SeedContext,
+    teacher_user_id: Uuid,
+) -> Result<()> {
+    let cutoff: DateTime<Utc> = MOOCFI_CUTOFF.parse()?;
+    let mut student_ids = Vec::new();
+    for (email, upstream_id) in MOOCFI_STUDENTS {
+        let user = users::insert_with_upstream_id_and_moocfi_id(
+            conn,
+            email,
+            Some("Zzyzx"),
+            Some("Moocfi"),
+            upstream_id,
+            cx.v5(email.as_bytes()),
+        )
+        .await?;
+        user_details::update_user_country(conn, user.id, "fi").await?;
+        student_ids.push(user.id);
+    }
+
+    let target = |moocfi_course_id: Uuid,
+                  moocfi_course_slug: &str,
+                  name: &str,
+                  tiers: Option<TierRange>,
+                  uh_course_code: &str| ExternalCreditTargetConfiguration {
+        moocfi_course_id,
+        moocfi_course_slug: moocfi_course_slug.to_string(),
+        name: name.to_string(),
+        language_code: "fi-FI".to_string(),
+        tiers,
+        uh_course_code: uh_course_code.to_string(),
+        ects_credits: 5.0,
+        grading: ExternalGrading::PassFail,
+        enrolment_link: Some(seeded_enrolment_link(uh_course_code)),
+        delegated_at: cutoff,
+        enabled_at: Some(cutoff),
+    };
+    let tier = |tier: i32| {
+        Some(TierRange {
+            lowest: Some(tier),
+            highest: Some(tier),
+        })
+    };
+    for (id, configuration) in [
+        (
+            MOOCFI_TARGET_ID,
+            target(
+                MOOCFI_COURSE_ID,
+                MOOCFI_COURSE_SLUG,
+                "Delegated course",
+                None,
+                CRS_MOOCFI_101,
+            ),
+        ),
+        (
+            MOOCFI_TIER_2_TARGET_ID,
+            target(
+                MOOCFI_TIERED_COURSE_ID,
+                MOOCFI_TIERED_COURSE_SLUG,
+                "Tiered course, intermediate",
+                tier(2),
+                CRS_MOOCFI_TIER_2,
+            ),
+        ),
+        (
+            MOOCFI_TIER_3_TARGET_ID,
+            target(
+                MOOCFI_TIERED_COURSE_ID,
+                MOOCFI_TIERED_COURSE_SLUG,
+                "Tiered course, advanced",
+                tier(3),
+                CRS_MOOCFI_TIER_3,
+            ),
+        ),
+        (
+            MOOCFI_PAUSED_TARGET_ID,
+            target(
+                MOOCFI_PAUSED_COURSE_ID,
+                MOOCFI_PAUSED_COURSE_SLUG,
+                "Paused course",
+                None,
+                CRS_MOOCFI_PAUSED_101,
+            ),
+        ),
+    ] {
+        external_credit_targets::insert(conn, PKeyPolicy::Fixed(id), &configuration).await?;
+    }
+    external_credit_targets::set_paused(
+        conn,
+        MOOCFI_PAUSED_TARGET_ID,
+        Some(SuotarPause {
+            paused_at: Utc::now(),
+            paused_by_user_id: teacher_user_id,
+            reason: Some("Seeded fixture"),
+        }),
+    )
+    .await?;
+
+    let paused_course_student = student_ids[2];
+    let external_completion_id = external_completions::upsert(
+        conn,
+        &ExternalCompletionFacts {
+            external_credit_target_id: MOOCFI_PAUSED_TARGET_ID,
+            user_id: paused_course_student,
+            moocfi_completion_id: MOOCFI_PAUSED_COMPLETION_ID,
+            moocfi_user_upstream_id: MOOCFI_STUDENTS[2].1,
+            completion_date: Utc::now() - Duration::days(2),
+            completion_language: Some("fi_FI".to_string()),
+            tier: None,
+            eligible_for_ects: true,
+            raw_grade: Some("hyväksytty".to_string()),
+            passed: Some(true),
+            grade: None,
+            is_registered_upstream: false,
+            is_reported: false,
+        },
+    )
+    .await?;
+    credit_registrations::insert(
+        conn,
+        PKeyPolicy::Fixed(MOOCFI_PAUSED_REGISTRATION_ID),
+        &NewCreditRegistration {
+            subject: NewRegistrationSubject::Moocfi {
+                external_completion_id,
+                external_credit_target_id: MOOCFI_PAUSED_TARGET_ID,
+            },
+            user_id: paused_course_student,
+            attempt_number: 1,
+        },
+        Some("Seeded fixture"),
+    )
+    .await?;
+
+    let now = Utc::now();
+    student_number_verification_tokens::insert_seed_row(
+        conn,
+        PKeyPolicy::Fixed(cx.v5(b"linking-token:moocfi")),
+        &SeedStudentNumberVerificationToken {
+            token: MOOCFI_LINKING_TOKEN.to_string(),
+            student_number: MOOCFI_PIPELINE_STUDENT.student_number.to_string(),
+            sisu_person_id: MOOCFI_PIPELINE_STUDENT.sisu_person_id(),
+            first_names: Some(MOOCFI_PIPELINE_STUDENT.first_names.to_string()),
+            last_name: Some(MOOCFI_PIPELINE_STUDENT.last_name.to_string()),
+            emailed_to: MOOCFI_PIPELINE_STUDENT.sisu_email.to_string(),
+            course_id: None,
+            expires_at: now + Duration::days(14),
+            used_at: None,
+            claimed_by_user_id: None,
+        },
+    )
+    .await?;
+    Ok(())
+}
+
 /// `emailed_to` matches no seeded account on purpose: tokens are unbound, and bind to whoever opens
 /// the link while logged in.
 async fn seed_linking_tokens(
@@ -1222,11 +1434,13 @@ async fn insert_registered_attempt(
         conn,
         PKeyPolicy::Fixed(id),
         &NewCreditRegistration {
-            course_module_completion_id,
+            subject: NewRegistrationSubject::CourseModule {
+                course_module_completion_id,
+                course_id: course.course_id,
+                course_module_id,
+                course_instance_id: course.course_instance_id,
+            },
             user_id,
-            course_id: course.course_id,
-            course_module_id,
-            course_instance_id: course.course_instance_id,
             attempt_number,
         },
         Some("Seeded fixture"),

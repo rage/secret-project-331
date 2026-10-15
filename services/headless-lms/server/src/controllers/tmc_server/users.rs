@@ -50,12 +50,13 @@ Returns the created user and a boolean indicating whether the password was succe
 
 Only works if the authorization header is set to a valid shared secret between systems.
 */
-#[instrument(skip(pool, tmc_client))]
+#[instrument(skip(pool, tmc_client, app_conf))]
 pub async fn create_user(
     request: HttpRequest,
     pool: web::Data<PgPool>,
     payload: web::Json<CreateUserRequest>,
     tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CreateUserResponse>> {
     let token = authenticate_tmc_server(&request).await?;
 
@@ -82,6 +83,7 @@ pub async fn create_user(
 
     let user = get_or_create_user_from_tmc_mooc_fi_response(
         &mut tx,
+        &app_conf.moocfi_configuration,
         tmc_user,
         tmc_client.get_admin_access_token(),
     )

@@ -58,6 +58,11 @@ use secrecy::ExposeSecret;
     courses::get_credit_registration_stats_by_course,
     courses::admin_pause_course_module_credit_registration,
     courses::admin_resume_course_module_credit_registration,
+    courses::admin_create_external_credit_target,
+    courses::admin_update_external_credit_target,
+    courses::admin_delete_external_credit_target,
+    courses::admin_pause_external_credit_target,
+    courses::admin_resume_external_credit_target,
     reconciliation::get_credit_registration_reconciliation,
     audit::list_credit_registration_admin_actions,
     history::get_credit_registration_pipeline_history,
@@ -121,7 +126,9 @@ fn required_reason(reason: &str) -> Result<&str, ControllerError> {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminLinkingEmail {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// `None` for a mooc.fi target's mail.
+    pub course_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     pub student_number: String,
     pub sisu_person_id: String,
     /// In full.
@@ -158,18 +165,18 @@ impl From<ManualLinkingEmailSend> for AdminManualLinkingEmailSend {
     }
 }
 
-/// The linking emails sent by hand on these courses as a guess for a registration's student, newest
-/// first, by registration id.
+/// The linking emails sent by hand for these courses or mooc.fi targets as a guess for a
+/// registration's student, newest first, by registration id.
 async fn manual_linking_email_sends_by_registration(
     conn: &mut PgConnection,
-    course_ids: &[Uuid],
+    source_ids: &[Uuid],
 ) -> Result<HashMap<Uuid, Vec<AdminManualLinkingEmailSend>>, ControllerError> {
     let mut by_registration: HashMap<Uuid, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
-    if course_ids.is_empty() {
+    if source_ids.is_empty() {
         return Ok(by_registration);
     }
     let sends =
-        credit_registration_admin_actions::get_manual_linking_email_sends(conn, course_ids).await?;
+        credit_registration_admin_actions::get_manual_linking_email_sends(conn, source_ids).await?;
     for send in sends {
         if let Some(id) = send.credit_registration_id {
             by_registration.entry(id).or_default().push(send.into());
@@ -204,6 +211,7 @@ async fn build_linking_emails(
                 ),
                 id: mail.id,
                 course_id: mail.course_id,
+                external_credit_target_id: mail.external_credit_target_id,
                 student_number: mail.student_number.expose_secret().to_owned(),
                 sisu_person_id: mail.sisu_person_id.expose_secret().to_owned(),
                 emailed_to: mail.emailed_to.expose_secret().to_owned(),

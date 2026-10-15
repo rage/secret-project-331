@@ -48,10 +48,13 @@ pub struct CreditRegistrationAttentionItem {
     pub last_name: Option<String>,
     /// In full: this is the list support works from.
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi registration, as is `course_module_id`.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
+    pub course_or_target_id: Uuid,
     pub uh_course_code: Option<String>,
     pub state: CreditRegistrationState,
     /// When the row entered its state; same-state checks do not move it.
@@ -119,8 +122,11 @@ pub struct CreditRegistrationAttentionDismissal {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi registration.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
+    pub external_credit_target_id: Option<Uuid>,
     pub dismissed_reasons: Vec<AttentionReason>,
     pub dismissed_at: DateTime<Utc>,
     pub dismissed_by_user_id: Uuid,
@@ -275,13 +281,13 @@ pub async fn get_credit_registration_attention_items(
     let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let rules = attention_rules(&mut conn, &app_conf).await?;
     let rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
-    let course_ids: Vec<Uuid> = rows
+    let source_ids: Vec<Uuid> = rows
         .iter()
-        .map(|row| row.course_id)
+        .map(|row| row.course_or_target_id)
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect();
-    let mut sends = manual_linking_email_sends_by_registration(&mut conn, &course_ids).await?;
+    let mut sends = manual_linking_email_sends_by_registration(&mut conn, &source_ids).await?;
     let dismissed_recently = credit_registrations::get_dismissals_since(
         &mut conn,
         Utc::now() - chrono::Duration::days(RECENT_DISMISSAL_DAYS),
@@ -550,6 +556,7 @@ pub(super) fn to_attention_item(
         course_name: row.course_name,
         course_module_id: row.course_module_id,
         course_module_name: row.course_module_name,
+        course_or_target_id: row.course_or_target_id,
         uh_course_code: row.uh_course_code,
         state: row.state,
         state_changed_at: row.state_changed_at,
@@ -577,6 +584,7 @@ fn to_dismissal(row: AttentionDismissal) -> CreditRegistrationAttentionDismissal
         email: row.email,
         course_id: row.course_id,
         course_name: row.course_name,
+        external_credit_target_id: row.external_credit_target_id,
         dismissed_reasons: row.dismissed_reasons,
         dismissed_at: row.dismissed_at,
         dismissed_by_user_id: row.dismissed_by_user_id,

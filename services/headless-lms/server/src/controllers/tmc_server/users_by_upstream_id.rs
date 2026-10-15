@@ -18,12 +18,13 @@ GET `/api/v0/tmc-server/users-by-upstream-id/:id` Endpoint that TMC server uses 
 
 Only works if the authorization header is set to a secret value.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 pub async fn get_user_by_upstream_id(
     upstream_id: web::Path<i32>,
     pool: web::Data<PgPool>,
     request: HttpRequest,
     tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<User>> {
     let mut conn = pool.acquire().await?;
     let token = authenticate_tmc_server(&request).await?;
@@ -41,6 +42,7 @@ pub async fn get_user_by_upstream_id(
     );
     let user = get_or_create_user_from_tmc_mooc_fi_response(
         &mut conn,
+        &app_conf.moocfi_configuration,
         tmc_user,
         tmc_client.get_admin_access_token(),
     )

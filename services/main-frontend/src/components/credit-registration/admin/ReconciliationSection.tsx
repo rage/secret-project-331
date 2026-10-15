@@ -129,7 +129,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
         <Table
           caption={t("credit-registration-heading-never-entered")}
           density={DENSITY_COMPACT}
-          rowKey={(row) => row.course_module_completion_id}
+          rowKey={(row) => row.course_module_completion_id ?? row.external_completion_id ?? ""}
           rows={reconciliation.never_entered}
           columns={[
             {

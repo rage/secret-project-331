@@ -331,6 +331,7 @@ const ATTENTION_REASON_KEYS = {
   repeatedly_not_registered: "credit-registration-admin-reason-repeatedly-not-registered",
   student_number_stuck: "credit-registration-admin-reason-student-number-stuck",
   flagged_by_pipeline: "credit-registration-admin-reason-flagged-by-pipeline",
+  report_back_overdue: "credit-registration-admin-reason-report-back-overdue",
 } as const satisfies Record<CreditRegistrationAttentionReason, string>
 
 const ATTENTION_REASON_UNKNOWN_KEY = "credit-registration-admin-reason-unknown"
@@ -410,6 +411,10 @@ export const ADMIN_ACTION_KEYS = {
   dismiss_study_registry_conflict:
     "credit-registration-admin-action-dismiss-study-registry-conflict",
   dismiss_attention: "credit-registration-admin-action-dismiss-attention",
+  configure_external_credit_target:
+    "credit-registration-admin-action-configure-external-credit-target",
+  pause_external_credit_target: "credit-registration-admin-action-pause-external-credit-target",
+  resume_external_credit_target: "credit-registration-admin-action-resume-external-credit-target",
 } as const satisfies Record<CreditRegistrationAdminAction, string>
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"
@@ -429,6 +434,7 @@ export const ADMIN_TARGET_KEYS = {
   roster_schedule: "credit-registration-admin-action-target-roster-schedule",
   study_registry_student_number_conflict:
     "credit-registration-admin-action-target-study-registry-conflict",
+  external_credit_target: "credit-registration-admin-action-target-external-credit-target",
 } as const satisfies Record<CreditRegistrationAdminActionTarget, string>
 
 const ADMIN_TARGET_UNKNOWN_KEY = "credit-registration-admin-action-target-unknown"

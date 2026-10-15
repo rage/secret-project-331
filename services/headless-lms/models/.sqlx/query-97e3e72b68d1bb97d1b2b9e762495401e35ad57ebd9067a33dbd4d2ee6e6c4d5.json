@@ -37,7 +37,8 @@
                       "verification_gave_up",
                       "repeatedly_not_registered",
                       "student_number_stuck",
-                      "flagged_by_pipeline"
+                      "flagged_by_pipeline",
+                      "report_back_overdue"
                     ]
                   }
                 }

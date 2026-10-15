@@ -45,7 +45,7 @@ const registration = (overrides: Partial<MyCreditRegistration> = {}): MyCreditRe
 })
 
 const route = (overrides: Partial<MyEnrolmentRoute> = {}): MyEnrolmentRoute => ({
-  course_module_completion_id: "completion",
+  subject_id: "completion",
   route: "university_of_helsinki",
   enrolment_confirmed_at: null,
   can_change: true,

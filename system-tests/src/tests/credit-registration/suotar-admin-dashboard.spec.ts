@@ -500,7 +500,7 @@ test("The errors tab shows what needs a human, and the overview the verdicts", a
 
 test("The courses tab reports each enabled module's configuration", async ({ page }) => {
   const stats = await creditRegistrationCourseStats(page.request)
-  const mine = stats.modules.find((module) => module.course_id === ADMIN_COURSE_ID)
+  const mine = stats.credit_units.find((unit) => unit.course_id === ADMIN_COURSE_ID)
   expect(mine, "the admin course has no module with credit registration enabled").toBeDefined()
 
   await page.goto(COURSES_URL)

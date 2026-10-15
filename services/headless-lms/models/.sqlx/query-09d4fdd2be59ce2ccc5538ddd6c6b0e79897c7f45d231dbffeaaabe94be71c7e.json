@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_account_linking_emails (\n    student_number,\n    sisu_person_id,\n    course_id,\n    external_credit_target_id,\n    emailed_to,\n    student_number_verification_token_id,\n    email_delivery_id\n  )\nVALUES ($1, $2, $3, $7, $4, $5, $6) ON CONFLICT DO NOTHING\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "09d4fdd2be59ce2ccc5538ddd6c6b0e79897c7f45d231dbffeaaabe94be71c7e"
+}

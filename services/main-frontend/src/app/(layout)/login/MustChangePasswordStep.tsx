@@ -34,6 +34,20 @@ const headingRowCss = css`
   gap: 0.75rem;
 `
 
+const sentHeadingRowCss = cx(
+  headingRowCss,
+  css`
+    color: ${baseTheme.colors.green[600]};
+  `,
+)
+
+const pendingHeadingRowCss = cx(
+  headingRowCss,
+  css`
+    color: ${baseTheme.colors.blue[600]};
+  `,
+)
+
 const headingCss = css`
   margin: 0;
   font-size: 1.5rem;
@@ -94,14 +108,7 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
   if (emailSent) {
     return (
       <div className={stepContainerCss}>
-        <div
-          className={cx(
-            headingRowCss,
-            css`
-              color: ${baseTheme.colors.green[600]};
-            `,
-          )}
-        >
+        <div className={sentHeadingRowCss}>
           <CheckCircle aria-hidden size={28} />
           <h1 ref={headingRef} tabIndex={-1} className={headingCss}>
             {t("password-reset-email-sent")}
@@ -117,14 +124,7 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
 
   return (
     <div className={stepContainerCss}>
-      <div
-        className={cx(
-          headingRowCss,
-          css`
-            color: ${baseTheme.colors.blue[600]};
-          `,
-        )}
-      >
+      <div className={pendingHeadingRowCss}>
         <Padlock aria-hidden size={28} />
         <h1 ref={headingRef} tabIndex={-1} className={headingCss}>
           {t("must-change-password-title")}

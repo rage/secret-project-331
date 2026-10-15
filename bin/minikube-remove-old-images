@@ -38,8 +38,10 @@ for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do
     if [ "$IMAGE_ID" = "$NEWEST_IMAGE_ID" ] || [ "$IMAGE" = "$REPOSITORY:latest" ] || grep -qxF "$IMAGE" <<< "$IMAGES_IN_USE"; then
       continue
     fi
-    if docker rmi "$IMAGE" > /dev/null 2>&1; then
+    if REMOVE_ERROR=$(docker rmi "$IMAGE" 2>&1 > /dev/null); then
       REMOVED=$((REMOVED + 1))
+    elif ! grep -qE 'being used|must be forced' <<< "$REMOVE_ERROR"; then
+      echo "Could not remove $IMAGE: $REMOVE_ERROR" >&2
     fi
   done <<< "$IMAGE_LIST"
 done

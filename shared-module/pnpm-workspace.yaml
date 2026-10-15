@@ -47,3 +47,6 @@ autoDedupe: true
 
 lockfile:
   includeResolutionSettings: true
+
+allowBuilds:
+  '@parcel/watcher': false

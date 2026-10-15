@@ -213,14 +213,14 @@ pub struct ManualLinkingEmailSend {
     pub emailed_to: Option<String>,
 }
 
-/// The linking emails sent by hand on these courses, newest first.
+/// The linking emails sent by hand for these courses or mooc.fi targets, newest first.
 ///
 /// An action without `details.emailed_to`, as the earliest ones are, is matched to the ledger row its
 /// send claimed: the newest one for the same course and student number claimed at most a minute before
 /// the action. The per person and course quiet period leaves no other row in that window.
 pub async fn get_manual_linking_email_sends(
     conn: &mut PgConnection,
-    course_ids: &[Uuid],
+    source_ids: &[Uuid],
 ) -> ModelResult<Vec<ManualLinkingEmailSend>> {
     let res = sqlx::query_as!(
         ManualLinkingEmailSend,
@@ -241,14 +241,17 @@ FROM credit_registration_admin_actions a
     SELECT e.emailed_to
     FROM credit_registration_account_linking_emails e
     WHERE a.details->>'emailed_to' IS NULL
-      AND e.course_id = a.target_id
+      AND (
+        e.course_id = a.target_id
+        OR e.external_credit_target_id = a.target_id
+      )
       AND e.student_number = a.details->>'student_number'
       AND e.sent_at <= a.created_at
       AND e.sent_at > a.created_at - INTERVAL '1 minute'
     ORDER BY e.sent_at DESC
     LIMIT 1
   ) claimed ON TRUE
-WHERE a.target_kind = 'course'
+WHERE a.target_kind IN ('course', 'external_credit_target')
   AND a.target_id = ANY($1)
   AND a.action = 'resend_link_email'
   AND a.details->>'outcome' = 'queued'
@@ -256,7 +259,7 @@ WHERE a.target_kind = 'course'
 ORDER BY a.created_at DESC,
   a.id
         "#,
-        course_ids,
+        source_ids,
     )
     .fetch_all(conn)
     .await?;

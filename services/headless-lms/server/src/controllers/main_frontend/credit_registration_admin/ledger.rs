@@ -705,8 +705,11 @@ pub async fn get_credit_registration_for_admin(
         None => Vec::new(),
     };
 
+    let source_id = registration
+        .course_id
+        .or(registration.external_credit_target_id);
     let manual_linking_email_sends =
-        manual_linking_email_sends_by_registration(&mut conn, registration.course_id.as_slice())
+        manual_linking_email_sends_by_registration(&mut conn, source_id.as_slice())
             .await?
             .remove(&id)
             .unwrap_or_default();

@@ -281,13 +281,13 @@ pub async fn get_credit_registration_attention_items(
     let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let rules = attention_rules(&mut conn, &app_conf).await?;
     let rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
-    let course_ids: Vec<Uuid> = rows
+    let source_ids: Vec<Uuid> = rows
         .iter()
-        .filter_map(|row| row.course_id)
+        .map(|row| row.course_or_target_id)
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect();
-    let mut sends = manual_linking_email_sends_by_registration(&mut conn, &course_ids).await?;
+    let mut sends = manual_linking_email_sends_by_registration(&mut conn, &source_ids).await?;
     let dismissed_recently = credit_registrations::get_dismissals_since(
         &mut conn,
         Utc::now() - chrono::Duration::days(RECENT_DISMISSAL_DAYS),

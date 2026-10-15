@@ -165,18 +165,18 @@ impl From<ManualLinkingEmailSend> for AdminManualLinkingEmailSend {
     }
 }
 
-/// The linking emails sent by hand on these courses as a guess for a registration's student, newest
-/// first, by registration id.
+/// The linking emails sent by hand for these courses or mooc.fi targets as a guess for a
+/// registration's student, newest first, by registration id.
 async fn manual_linking_email_sends_by_registration(
     conn: &mut PgConnection,
-    course_ids: &[Uuid],
+    source_ids: &[Uuid],
 ) -> Result<HashMap<Uuid, Vec<AdminManualLinkingEmailSend>>, ControllerError> {
     let mut by_registration: HashMap<Uuid, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
-    if course_ids.is_empty() {
+    if source_ids.is_empty() {
         return Ok(by_registration);
     }
     let sends =
-        credit_registration_admin_actions::get_manual_linking_email_sends(conn, course_ids).await?;
+        credit_registration_admin_actions::get_manual_linking_email_sends(conn, source_ids).await?;
     for send in sends {
         if let Some(id) = send.credit_registration_id {
             by_registration.entry(id).or_default().push(send.into());

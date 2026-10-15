@@ -21,6 +21,7 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
+import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
@@ -142,6 +143,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
         `}
       >
         <DynamicToaster />
+        <SessionVerificationDialog />
         {courseId && <PartnersSectionBlock courseId={courseId} />}
         <Footer privacyLinks={customPrivacyLinks} />
       </div>

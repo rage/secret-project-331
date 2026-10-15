@@ -953,6 +953,7 @@
   "email-template-type-generic": "Generic",
   "email-template-type-reset-password-email": "Reset Password Email",
   "email-template-type-verify-email-address": "Verify email address",
+  "email-template-type-verify-network": "Network verification code",
   "email-templates-course-specific": "Course-Specific Templates",
   "email-templates-global": "Global Templates",
   "email-templates-title": "Email Templates",

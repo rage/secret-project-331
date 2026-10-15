@@ -439,6 +439,7 @@
   "email-template-type-delete-user-email": "E-post för borttagning av användare",
   "email-template-type-generic": "Generisk",
   "email-template-type-reset-password-email": "E-post för återställning av lösenord",
+  "email-template-type-verify-network": "Nätverksverifieringskod",
   "email-templates-course-specific": "Kurspecifika mallar",
   "email-templates-global": "Globala mallar",
   "email-templates-title": "E-postmallar",

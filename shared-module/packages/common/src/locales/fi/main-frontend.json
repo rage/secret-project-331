@@ -818,6 +818,7 @@
   "email-template-type-generic": "Yleinen",
   "email-template-type-reset-password-email": "Salasanan palautusviesti",
   "email-template-type-verify-email-address": "Sähköpostiosoitteen vahvistus",
+  "email-template-type-verify-network": "Verkon vahvistuskoodi",
   "email-templates-course-specific": "Kurssikohtaiset pohjat",
   "email-templates-global": "Yleiset pohjat",
   "email-templates-title": "Sähköpostipohjat",

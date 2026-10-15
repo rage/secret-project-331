@@ -49,9 +49,6 @@ trustLockfile: true
 
 updateNotifier: false
 
-minimumReleaseAgeExclude:
-  - brace-expansion@5.0.9
-
 # Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
 # so undeclared dependencies fail locally instead of only in image builds.
 hoistPattern: []

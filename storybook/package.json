@@ -2,18 +2,10 @@
   "name": "secret-project-storybook",
   "version": "1.0.0",
   "description": "",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "main": "index.js",
-  "packageManager": "pnpm@12.11.2",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.21.0"
-    }
-  },
   "scripts": {
     "build-storybook": "storybook build --docs",
     "storybook": "storybook dev -p 6006 --docs"
@@ -21,7 +13,7 @@
   "dependencies": {
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@internationalized/date": "^3.12.4",
     "@react-aria/dialog": "^3.6.1",
     "@react-aria/focus": "^3.22.1",
@@ -70,5 +62,13 @@
     "react-dom": "^19.3.0",
     "storybook": "^10.6.1",
     "vite": "^8.3.3"
-  }
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.21.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.11.2"
 }

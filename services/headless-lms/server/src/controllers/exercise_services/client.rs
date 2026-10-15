@@ -3654,10 +3654,32 @@ mod route_tests {
         let mut conn = PgConnection::connect(&test_database_url())
             .await
             .expect("connection");
-        models::courses::set_course_ai_policy(
+        let course = models::courses::get_course(&mut conn, fixture.course)
+            .await
+            .expect("course");
+        models::courses::update_course(
             &mut conn,
+            &upload_tests::app_conf(),
             fixture.course,
-            models::courses::CourseAiPolicy::FullUse,
+            models::courses::CourseUpdate {
+                name: course.name,
+                description: course.description,
+                is_draft: course.is_draft,
+                is_test_mode: course.is_test_mode,
+                can_add_chatbot: course.can_add_chatbot,
+                is_unlisted: course.is_unlisted,
+                is_joinable_by_code_only: course.is_joinable_by_code_only,
+                ask_marketing_consent: course.ask_marketing_consent,
+                flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or_default(),
+                flagged_answers_skip_manual_review_and_allow_retry: course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: course.closed_at,
+                closed_additional_message: course.closed_additional_message,
+                closed_course_successor_id: course.closed_course_successor_id,
+                chapter_locking_enabled: course.chapter_locking_enabled,
+                ai_policy: models::courses::CourseAiPolicy::FullUse,
+                course_material_ai_instructions: course.course_material_ai_instructions,
+            },
         )
         .await
         .expect("set ai_policy");

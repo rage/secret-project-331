@@ -1255,27 +1255,6 @@ WHERE id = $2
     Ok(())
 }
 
-/// Sets only the course's AI policy, leaving every other course setting untouched.
-pub async fn set_course_ai_policy(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    ai_policy: CourseAiPolicy,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE courses
-SET ai_policy = $1
-WHERE id = $2
-  AND deleted_at IS NULL
-        ",
-        ai_policy as CourseAiPolicy,
-        course_id,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
 pub async fn update_course_base_module_completion_count_requirement(
     conn: &mut PgConnection,
     id: Uuid,

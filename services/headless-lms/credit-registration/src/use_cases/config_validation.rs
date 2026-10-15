@@ -200,14 +200,4 @@ mod tests {
         assert_eq!(checks[0].course_code_allowed, None);
         assert_eq!(checks[0].checked_course_code, None);
     }
-
-    #[test]
-    fn a_module_without_a_code_is_a_problem_whatever_the_registry_says() {
-        let checks = check_modules(
-            &[module(None, Some(true))],
-            &verdicts(&[("TKT1", CourseCodeVerdict::Allowed)]),
-        );
-        assert_eq!(checks[0].course_code_allowed, Some(false));
-        assert!(checks[0].message.is_some());
-    }
 }

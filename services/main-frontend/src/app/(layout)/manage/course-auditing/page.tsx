@@ -9,6 +9,7 @@ import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseAuditingData } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -54,7 +55,6 @@ export interface CourseDataFilter {
   show_closed_course_successor_id: boolean
   show_additional_message: boolean
   show_completion_registration_link: boolean
-  show_enable_registering_completion_to_uh_open_university: boolean
   show_uh_course_code: boolean
   show_ects_credits: boolean
 }
@@ -124,7 +124,6 @@ const CourseAuditing = () => {
       show_closed_course_successor_id: true,
       show_additional_message: true,
       show_completion_registration_link: true,
-      show_enable_registering_completion_to_uh_open_university: true,
       show_uh_course_code: true,
       show_ects_credits: true,
     },
@@ -250,7 +249,7 @@ const CourseAuditing = () => {
         gap: 1rem;
       `}
     >
-      <h1>{t("title-course-auditing")}</h1>
+      <h1 className={pageTitleCss}>{t("title-course-auditing")}</h1>
       <FieldSet>
         <Legend>{t("course-auditing-filter-courses-title")}</Legend>
         <div className={contentRowStyles}>

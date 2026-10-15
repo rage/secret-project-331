@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { MagnifyingGlass, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -14,13 +14,11 @@ import {
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Button, Dialog, LoadingRegion } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
@@ -28,55 +26,58 @@ export interface SearchDialogProps {
   organizationSlug: string
 }
 
-const HeaderBar = styled.div`
-  display: flex;
-  padding: 0.75rem 0;
-  align-items: center;
-  gap: 0.5rem;
-  h1 {
-    font-size: 1.25rem;
-    margin-bottom: 0;
-  }
-`
-
-const SearchContainer = styled.div<{ $hasContent: boolean }>`
-  overflow: hidden;
-  width: 100%;
-  height: ${(props) => (props.$hasContent ? "700px" : "80px")};
-  max-height: 90vh;
+/** Grows with its results up to a cap, so an empty or short result list leaves no blank band. */
+const SearchContainer = styled.div`
   display: flex;
   flex-direction: column;
-  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  max-height: min(700px, 85vh);
 `
 
-const SearchInputContainer = styled.div`
-  position: relative;
-  flex-shrink: 0;
-  padding: 0 1rem;
-`
-
-const ResultsContainer = styled.div<{ $hasResults: boolean }>`
-  margin-top: 1rem;
-  padding: 4px 1rem;
-  overflow-y: auto;
-  max-height: calc(90vh - 90px);
-`
-
-const LoadingContainer = styled.div`
+/** Holds the close button too, so it lines up with the input instead of floating over it. */
+const HeaderBar = styled.div`
+  flex: none;
   display: flex;
-  justify-content: center;
-  padding: 2rem 0;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+`
+
+const InputWrapper = styled.div`
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+`
+
+const ResultsContainer = styled.div`
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--space-4) var(--space-4);
+
+  &:empty {
+    display: none;
+  }
 `
 
 const EmptyState = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4) var(--space-4-5);
   color: ${baseTheme.colors.gray[500]};
   text-align: center;
-  transition: padding 0.2s ease;
+
+  h3 {
+    margin: var(--space-3) 0 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+  }
 `
 
 const ResultCard = styled(Link)`
@@ -127,33 +128,39 @@ const ResultCard = styled(Link)`
 `
 
 const StyledInput = styled.input`
-  display: flex;
-  background: #ffffff;
+  display: block;
   width: 100%;
-  padding: 0 3.5rem;
-  height: 56px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  border-radius: 8px;
+  height: 48px;
+  padding: 0 var(--space-4) 0 calc(var(--space-4) + 20px + var(--space-3));
+  background: #ffffff;
   border: none;
+  border-radius: 8px;
   outline: 1px solid ${baseTheme.colors.gray[200]};
-  margin-right: 0.5rem;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: outline-color 0.2s ease;
 
   &:focus {
     outline: 2px solid ${baseTheme.colors.green[400]};
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   }
 `
 
 const SearchIcon = styled(MagnifyingGlass)`
   position: absolute;
-  left: 1.5rem;
+  left: var(--space-4);
   top: 50%;
   transform: translateY(-50%);
   color: ${baseTheme.colors.gray[400]};
-  transition: color 0.2s ease;
+  pointer-events: none;
 `
+
+const CLOSE_SYMBOL = "×"
+
+const closeSymbolCss = css`
+  font-size: 1.5rem;
+  line-height: 1;
+`
+
+const SEARCH_BUTTON_ID = "search-for-pages-button"
 
 const StyledIcon = css`
   right: -8px;
@@ -167,30 +174,6 @@ const StyledIcon = css`
   }
 `
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  padding: 2px;
-  margin: 0;
-  cursor: pointer;
-  color: ${baseTheme.colors.gray[400]};
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-
-  &:hover {
-    color: ${baseTheme.colors.gray[600]};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[400]};
-    outline-offset: 2px;
-  }
-`
-
-// Keep the KEYS constant for the shortcut handler
 const KEYS = {
   SHORTCUT: "k",
 }
@@ -200,6 +183,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
   organizationSlug,
 }) => {
   const { t } = useTranslation()
+  const { t: tErrors } = useTranslation("errors")
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string>("")
   const [debouncedQuery] = useDebounce(query, 200)
@@ -229,12 +213,6 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
   const hasNoResults = useMemo(() => {
     return combinedResults !== null && combinedResults.length === 0 && debouncedQuery.trim() !== ""
   }, [combinedResults, debouncedQuery])
-
-  const hasContent = useMemo(() => {
-    return (
-      isLoading || !!error || debouncedQuery.trim() !== "" || (combinedResults?.length ?? 0) > 0
-    )
-  }, [isLoading, error, debouncedQuery, combinedResults])
 
   useEffect(() => {
     async function innerFunction() {
@@ -276,7 +254,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         if (isAbortError(e)) {
           return
         }
-        const parsed = normalizeErrorForDisplay(e, t)
+        const parsed = normalizeErrorForDisplay(e, tErrors)
         setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
@@ -287,7 +265,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery, t])
+  }, [courseId, debouncedQuery, tErrors])
 
   // Keep the keyboard shortcut functionality
   useEffect(() => {
@@ -324,11 +302,9 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
   return (
     <>
       <Button
-        tabIndex={0}
-        id="search-for-pages-button"
+        domProps={{ tabIndex: 0, id: SEARCH_BUTTON_ID, "aria-hidden": false }}
         className={StyledIcon}
         aria-label={t("button-label-search-for-pages")}
-        aria-hidden={false}
         size="small"
         variant="icon"
         onClick={openModal}
@@ -338,13 +314,13 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
       <Dialog
         open={open}
         onClose={closeModal}
-        noPadding
-        preventBackgroundScroll
+        padding="none"
+        showCloseButton={false}
         aria-label={t("title-search-dialog")}
       >
-        <SearchContainer $hasContent={hasContent}>
-          <SearchInputContainer>
-            <HeaderBar>
+        <SearchContainer>
+          <HeaderBar>
+            <InputWrapper>
               <SearchIcon size={20} weight="bold" />
               <StyledInput
                 value={query}
@@ -354,16 +330,17 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                   setError(null)
                   setQuery(e.target.value)
                 }}
-                /* fullWidth */
                 placeholder={t("search-field-placeholder")}
               />
-              <CloseButton type="button" aria-label={t("close")} onClick={closeModal}>
-                <XmarkCircle size={18} />
-              </CloseButton>
-            </HeaderBar>
-          </SearchInputContainer>
+            </InputWrapper>
+            <Button variant="icon" size="medium" aria-label={t("close")} onClick={closeModal}>
+              <span aria-hidden="true" className={closeSymbolCss}>
+                {CLOSE_SYMBOL}
+              </span>
+            </Button>
+          </HeaderBar>
 
-          <ResultsContainer $hasResults={!!debouncedQuery || isLoading}>
+          <ResultsContainer>
             {error && (
               <div
                 className={css`
@@ -379,11 +356,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
               </div>
             )}
 
-            {isLoading && (
-              <LoadingContainer>
-                <Spinner variant="medium" />
-              </LoadingContainer>
-            )}
+            {isLoading && <LoadingRegion />}
 
             {hasNoResults && (
               <EmptyState>

@@ -685,7 +685,12 @@ export const zNewCourseBackgroundQuestionAnswer = z.object({
   course_background_question_id: z.uuid(),
 })
 
+export const zNewFeedbackCategory = z.object({
+  name: z.string(),
+})
+
 export const zNewFeedback = z.object({
+  category: zNewFeedbackCategory.nullish(),
   feedback_given: z.string(),
   page_id: z.uuid(),
   related_blocks: z.array(zFeedbackBlock),
@@ -1456,7 +1461,6 @@ export const zUserDetail = z.object({
   email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
-  search_helper: z.string().nullish(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -1494,8 +1498,6 @@ export const zUserModuleCompletionStatus = z.object({
   certification_enabled: z.boolean(),
   completed: z.boolean(),
   default: z.boolean(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   grade: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1510,6 +1512,7 @@ export const zUserModuleCompletionStatus = z.object({
   passed: z.boolean().nullish(),
   prerequisite_modules_completed: z.boolean(),
   register_credits_via_suotar: z.boolean(),
+  registers_credits: z.boolean(),
 })
 
 export const zUserPointsUpdateStrategy = z.enum([

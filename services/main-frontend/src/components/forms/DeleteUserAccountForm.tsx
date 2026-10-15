@@ -4,12 +4,9 @@ import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
-import React, { useContext, useState } from "react"
+import React, { useContext, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
   postAuthDeleteUserAccount,
@@ -17,11 +14,12 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
+import { Button, Dialog, type DialogAction, ErrorNotice } from "@/shared-module/components"
 
 import OneTimeCodeForm from "./OneTimeCodeForm"
 import "@/shared-module/common/init/registerAuthApiClients"
 
-import VerifyPasswordForm from "./VerifyPasswordForm"
+import VerifyPasswordForm, { type VerifyPasswordFormHandle } from "./VerifyPasswordForm"
 
 const PASSWORD_STEP = "password"
 const VERIFY_CODE_STEP = "verifyCode"
@@ -40,6 +38,8 @@ const DeleteUserAccountForm: React.FC = () => {
   const [incorrectPassword, setIncorrectPassword] = useState(false)
   const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
+  const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
+  const closeDialog = () => setOpenDialog(false)
 
   const sendEmailCodeMutation = useToastMutation(
     async (passwordInput: string) =>
@@ -118,36 +118,52 @@ const DeleteUserAccountForm: React.FC = () => {
     }
   }
 
+  const cancelAction: DialogAction = {
+    label: t("button-text-cancel"),
+    variant: "tertiary",
+    onPress: closeDialog,
+  }
+  const actions: readonly [DialogAction, ...DialogAction[]] =
+    step === PASSWORD_STEP
+      ? [
+          cancelAction,
+          {
+            label: t("confirm"),
+            variant: "danger",
+            disabled: sendEmailCodeMutation.isPending,
+            onPress: () => verifyPasswordFormRef.current?.submit(),
+          },
+        ]
+      : [cancelAction]
+
   return (
     <>
       <Button
         data-testid="delete-account-button"
-        variant="secondary"
+        variant="danger"
         size="small"
         onClick={() => setOpenDialog(true)}
       >
         {t("title-delete-account")}
       </Button>
 
-      <StandardDialog
+      <Dialog
         open={openDialog}
         title={t("title-delete-account")}
-        showCloseButton
-        // oxlint-disable-next-line i18next/no-literal-string
-        aria-modal="true"
-        onClose={() => setOpenDialog(false)}
+        onClose={closeDialog}
+        actions={actions}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
-          <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+          <ErrorNotice error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
         )}
 
         {step === PASSWORD_STEP && (
           <VerifyPasswordForm
+            ref={verifyPasswordFormRef}
             onSubmit={async (passwordValue) => {
               setPassword(passwordValue)
               await requestDeletionCode(passwordValue)
             }}
-            isPending={sendEmailCodeMutation.isPending}
             credentialsError={incorrectPassword}
           />
         )}
@@ -171,7 +187,7 @@ const DeleteUserAccountForm: React.FC = () => {
             }}
           />
         )}
-      </StandardDialog>
+      </Dialog>
     </>
   )
 }

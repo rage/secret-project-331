@@ -18,12 +18,12 @@ import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 const useNewConversationMutation = (
   chatbotConfigurationId: string | null,
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>,
+  resetComposerMessage: () => void,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
   setConvId: React.Dispatch<string | null>,
 ) => {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   return useToastMutation(
     () => {
       if (!chatbotConfigurationId) {
@@ -55,7 +55,7 @@ const useNewConversationMutation = (
         queryClient.refetchQueries({
           queryKey: allUserConversationsQueryKey(),
         })
-        setNewMessage("")
+        resetComposerMessage()
         setConvId(null)
         setError(null) // Clear any existing errors when starting a new conversation
       },

@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 
+import { below } from "../../../styles/breakpoints"
+
 export const dialogCss = css`
   outline: none;
 `
@@ -11,12 +13,7 @@ export const pickerRootCss = css`
   --picker-accent-hover: var(--color-green-50);
   --picker-focus-ring: rgba(31, 105, 100, 0.4);
   --picker-focus-ring-strong: rgba(31, 105, 100, 0.55);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--font-sans);
 `
 
 export const pickerLayoutCss = css`
@@ -33,7 +30,7 @@ export const pickerLayoutWithTimeCss = css`
   column-gap: var(--space-3);
 
   /* On narrow (mobile) viewports the calendar + time panel can't fit side by side, so stack them. */
-  @media (max-width: 480px) {
+  ${below("xs")} {
     grid-template-columns: 1fr;
     row-gap: var(--space-3);
   }
@@ -415,11 +412,17 @@ export const timePanelCss = css`
   background: transparent;
 
   /* When stacked below the calendar on mobile, the divider becomes a top border. */
-  @media (max-width: 480px) {
+  ${below("xs")} {
     padding: var(--space-3) 0 0 0;
     border-left: 0;
     border-top: 1px solid rgba(31, 105, 100, 0.12);
   }
+`
+
+/** Drops the divider that separates the time panel from the calendar when it stands alone. */
+export const standaloneTimePanelCss = css`
+  padding: 0;
+  border: 0;
 `
 
 export const timePanelHeadingCss = css`

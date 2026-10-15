@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test"
 
-import { respondToConfirmDialog } from "@/utils/dialogs"
+import { respondToConfirmDialog, submitDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -10,16 +10,14 @@ test.use({
 test("can-create-new-external-course", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "External courses" }).click()
-  await page.getByRole("button", { name: "Create" }).click()
-  await page.getByRole("textbox", { name: "Name" }).click()
-  await page.getByRole("textbox", { name: "Name" }).fill("test course")
-  await page.getByRole("textbox", { name: "Name" }).press("Tab")
-  await page.getByRole("textbox", { name: "Description" }).fill("external course")
-  await page.getByRole("textbox", { name: "Description" }).press("Tab")
-  await page.getByRole("textbox", { name: "Url" }).fill("http://mooc.fi")
-  await page.getByLabel("Is the course hosted on the old version of the mooc.fi platform").click()
+  await page.getByRole("button", { name: "Create", exact: true }).click()
+  const dialog = page.getByRole("dialog", { name: "New course" })
+  await dialog.getByRole("textbox", { name: "Name" }).fill("test course")
+  await dialog.getByRole("textbox", { name: "Description" }).fill("external course")
+  await dialog.getByRole("textbox", { name: "Url" }).fill("http://mooc.fi")
+  await dialog.getByLabel("Is the course hosted on the old version of the mooc.fi platform").click()
   await waitForSuccessNotification(page, async () => {
-    await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
+    await submitDialog(dialog, "Create")
   })
   await expect(page.getByRole("heading", { name: "test course" })).toBeVisible()
 })

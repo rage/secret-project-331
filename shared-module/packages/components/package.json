@@ -1,28 +1,11 @@
 {
   "name": "components",
   "version": "0.0.0",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "private": true,
   "keywords": [],
   "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "main": "src/index.ts",
-  "packageManager": "pnpm@12.11.2",
-  "private": true,
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.21.0"
-    }
-  },
-  "peerDependencies": {
-    "@tanstack/react-query": "^5.0.0",
-    "i18next": ">=23.0.0",
-    "motion": "^12.0.0 || ^13.0.0",
-    "next": "^16.1.5",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-i18next": "^15.0.0 || ^16.0.0 || ^17.0.0"
-  },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
@@ -44,7 +27,8 @@
     "@react-stately/toggle": "^3.10.1",
     "@react-types/shared": "^3.37.0",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
-    "react-aria": "^3.53.0"
+    "react-aria": "^3.53.0",
+    "react-aria-components": "^1.22.0"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.104.1",
@@ -66,5 +50,22 @@
     "react-hook-form": "^7.89.0",
     "react-i18next": "^17.0.16",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
-  }
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "i18next": ">=23.0.0",
+    "motion": "^12.0.0 || ^13.0.0",
+    "next": "^16.1.5",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-i18next": "^15.0.0 || ^16.0.0 || ^17.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.21.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.11.2"
 }

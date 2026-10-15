@@ -218,6 +218,7 @@ async fn admin_facing_page(
     offset: i64,
 ) -> ModelResult<Vec<AdminCreditRegistration>> {
     let search_pattern = filters.search.map(search_pattern_of);
+    let user_search = crate::user_details::UserListSearch::new(filters.search.unwrap_or_default());
     let step_match = StepMatch::all();
     let res = sqlx::query_as!(
         AdminCreditRegistration,
@@ -362,8 +363,8 @@ WHERE cr.deleted_at IS NULL
   AND ($10::timestamptz IS NULL OR cr.submitted_at <= $10)
   AND (
     $11::text IS NULL
-    OR ud.name_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
-    OR ud.email_search_helper LIKE '%' || $11 || '%' ESCAPE '\'
+    OR (ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($30::text [])
+    OR word_similarity($31::text, ud.name_search_helper || ' ' || ud.email_search_helper) >= 0.5
     OR LOWER(cr.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
     OR LOWER(vsn.student_number) LIKE '%' || $11 || '%' ESCAPE '\'
     OR LOWER(cr.submitted_attainment_id) LIKE '%' || $11 || '%' ESCAPE '\'
@@ -426,6 +427,8 @@ LIMIT $15 OFFSET $16
         filters.hide_not_started,
         filters.first_ids as Option<&[Uuid]>,
         filters.account_linking_since,
+        &user_search.word_patterns,
+        user_search.misspelling_term.as_deref(),
     )
     .fetch_all(conn)
     .await?;

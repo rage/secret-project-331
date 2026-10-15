@@ -13,8 +13,8 @@ import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import {
   adminManuallyLinkStudentNumber,
   adminResolveStudentNumberForLinking,
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
 } from "@/generated/api/sdk.generated"
 import type {
   AdminManuallyLinkStudentNumberResult,
@@ -104,13 +104,9 @@ const accountResultsCss = css`
   overflow-y: auto;
 `
 
-const searchAccounts = async (query: string): Promise<UserDetail[]> => {
-  const [byEmail, byOtherDetails] = await Promise.all([
-    searchUserDetailsByEmail({ body: { query } }),
-    searchUserDetailsByOtherDetails({ body: { query } }),
-  ])
+const mergeAccounts = (exact: UserDetail[], similar: UserDetail[]): UserDetail[] => {
   const byUserId = new Map<string, UserDetail>()
-  for (const user of [...byEmail, ...byOtherDetails]) {
+  for (const user of [...exact, ...similar]) {
     byUserId.set(user.user_id, user)
   }
   return Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES)
@@ -129,11 +125,21 @@ const AccountPicker: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, handleSubmit } = useForm<SearchFields>({ defaultValues: { term: "" } })
   const [query, setQuery] = useState("")
-  const accountsQuery = useQuery({
-    queryKey: ["manualLinkAccountSearch", query],
-    queryFn: () => searchAccounts(query),
+  // Separate queries so an exact match shows without waiting for the slower similar-user search.
+  const exactQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchExact", query],
+    queryFn: () => searchUserDetailsExact({ body: { query } }),
     enabled: query !== "",
   })
+  const fuzzyQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchFuzzy", query],
+    queryFn: () => searchUserDetailsFuzzy({ body: { query } }),
+    enabled: query !== "",
+  })
+  const accounts = exactQuery.data
+    ? mergeAccounts(exactQuery.data, fuzzyQuery.data?.users ?? [])
+    : null
+  const hasNoAccounts = accounts?.length === 0 && fuzzyQuery.isSuccess
 
   return (
     <div className={dialogFormCss}>
@@ -149,19 +155,19 @@ const AccountPicker: React.FC<{
           variant={isCurrentStep ? BUTTON_PRIMARY : BUTTON_SECONDARY}
           size="medium"
           className={fieldActionCss}
-          disabled={accountsQuery.isFetching}
+          disabled={exactQuery.isFetching}
         >
           {t("button-text-search")}
         </Button>
       </form>
-      {accountsQuery.data && accountsQuery.data.length === 0 && (
+      {hasNoAccounts && (
         <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
       )}
-      {accountsQuery.data &&
-        accountsQuery.data.length > 0 && (
+      {accounts &&
+        accounts.length > 0 && (
           // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
           <ul className={cx(dividedListCss, accountResultsCss)} role="list">
-            {accountsQuery.data.map((user) => (
+            {accounts.map((user) => (
               <li key={user.user_id} className={spacedRowCss}>
                 <StudentCell row={user} />
                 <Button

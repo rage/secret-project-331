@@ -3,12 +3,11 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import EditExamForm from "@/components/forms/EditExamForm"
+import EditExamForm, { EDIT_EXAM_FORM_ID } from "@/components/forms/EditExamForm"
 import { editExamMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Dialog, ErrorNotice } from "@/shared-module/components"
 
 interface ExamDialogProps {
   initialData: Exam
@@ -46,14 +45,27 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   }
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("edit-exam")}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("edit-exam")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: EDIT_EXAM_FORM_ID },
+        },
+      ]}
+    >
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {createExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={createExamMutation.error} announce="off" />
       )}
       <EditExamForm
         initialData={initialData}
         organizationId={organizationId}
-        onCancel={close}
         onEditExam={(exam: NewExam) =>
           createExamMutation.mutate({
             path: {
@@ -63,7 +75,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
           })
         }
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

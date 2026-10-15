@@ -1,6 +1,6 @@
 "use client"
 
-import { cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 
@@ -23,6 +23,16 @@ import type { RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
+
+/** On its own line like a `RadioGroup` item, so sibling radios stack instead of running together. */
+const standaloneRowCss = css`
+  display: flex;
+  width: fit-content;
+
+  & + & {
+    margin-block-start: var(--space-2);
+  }
+`
 
 /** Renders a standalone radio input outside of `RadioGroup`. */
 export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
@@ -74,7 +84,12 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
 
   return (
     <label
-      className={cx(checkableRowCss, resolveCheckableSizeCss(resolvedFieldSize), className)}
+      className={cx(
+        checkableRowCss,
+        standaloneRowCss,
+        resolveCheckableSizeCss(resolvedFieldSize),
+        className,
+      )}
       data-disabled={String(standaloneState.isDisabled)}
     >
       <input {...mergedInputProps} ref={inputRef} />

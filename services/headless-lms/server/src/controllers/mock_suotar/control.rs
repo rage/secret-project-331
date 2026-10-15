@@ -470,32 +470,6 @@ async fn enrolment_check_schedule(
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RegisterNewCompletionsViaSuotarPayload {
-    pub course_module_id: Uuid,
-}
-
-/// Opts a module's new completions into Suotar, which only support can do by
-/// hand: a spec that creates its own course needs its completions on the pipeline.
-async fn register_new_completions_via_suotar(
-    app_conf: web::Data<ApplicationConfiguration>,
-    pool: web::Data<PgPool>,
-    payload: web::Json<RegisterNewCompletionsViaSuotarPayload>,
-) -> ControllerResult<HttpResponse> {
-    super::assert_enabled(&app_conf);
-    let token = skip_authorize();
-
-    let mut conn = pool.acquire().await?;
-    models::course_modules::set_register_eligible_new_completions_via_suotar(
-        &mut conn,
-        payload.course_module_id,
-        true,
-    )
-    .await?;
-    token.authorized_ok(HttpResponse::Ok().json(()))
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct QueuedEmailsQuery {
     pub user_email: String,
 }
@@ -650,10 +624,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/make-roster-listings-due",
             web::post().to(make_roster_listings_due),
-        )
-        .route(
-            "/register-new-completions-via-suotar",
-            web::post().to(register_new_completions_via_suotar),
         )
         .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);

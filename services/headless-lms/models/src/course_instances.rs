@@ -4,6 +4,7 @@ use utoipa::ToSchema;
 use crate::{
     chapters,
     chapters::DatabaseChapter,
+    courses::CourseAiPolicy,
     exercises,
     prelude::*,
     user_details::UserDetail,
@@ -562,21 +563,36 @@ WHERE cie.user_id = $1
     Ok(course_instances)
 }
 
+/// [`CourseInstanceWithCourseInfo`] plus the course's AI policy.
+#[derive(Debug)]
+pub struct CourseInstanceWithCourseInfoAndAiPolicy {
+    pub course_id: Uuid,
+    pub course_slug: String,
+    pub course_name: String,
+    pub course_description: Option<String>,
+    pub course_ai_policy: CourseAiPolicy,
+    pub course_instance_id: Uuid,
+    pub course_instance_name: Option<String>,
+    pub course_instance_description: Option<String>,
+    pub organization_name: String,
+}
+
 /// Course instances the user is enrolled on that contain at least one task of any of the
 /// given exercise types. An empty `exercise_types` matches nothing.
 pub async fn get_enrolled_course_instances_for_user_with_exercise_types(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_types: &[String],
-) -> ModelResult<Vec<CourseInstanceWithCourseInfo>> {
+) -> ModelResult<Vec<CourseInstanceWithCourseInfoAndAiPolicy>> {
     let course_instances = sqlx::query_as!(
-        CourseInstanceWithCourseInfo,
+        CourseInstanceWithCourseInfoAndAiPolicy,
         r#"
 SELECT DISTINCT ON (ci.id)
     c.id AS "course_id!",
     c.slug AS "course_slug!",
     c.name AS "course_name!",
     c.description AS course_description,
+    c.ai_policy AS "course_ai_policy!",
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,

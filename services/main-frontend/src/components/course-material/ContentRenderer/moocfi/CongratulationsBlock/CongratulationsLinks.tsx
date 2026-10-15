@@ -55,9 +55,7 @@ export interface CongratulationsLinksProps {
 
 export const moduleOffersCreditOrCompletionRegistration = (
   module: UserModuleCompletionStatus,
-): boolean =>
-  module.enable_credit_registration_via_suotar ||
-  module.enable_registering_completion_to_uh_open_university
+): boolean => module.registers_credits
 
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
   certificateConfigurationId,

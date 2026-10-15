@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { groupBy } from "lodash"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -27,7 +26,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { courseExerciseResetToolRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, Link } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 
 const CourseExerciseStatusList: React.FC = () => {

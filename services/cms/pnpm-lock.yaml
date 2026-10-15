@@ -220,9 +220,6 @@ importers:
       '@fontsource/roboto-mono':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/space-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@internationalized/date':
         specifier: ^3.12.4
         version: 3.12.4
@@ -301,6 +298,9 @@ importers:
       '@react-types/dialog':
         specifier: ^3.6.0
         version: 3.6.0(@react-spectrum/provider@3.11.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@react-types/shared':
+        specifier: ^3.37.0
+        version: 3.37.0(react@19.3.0)
       '@tanstack/react-query':
         specifier: ^5.104.1
         version: 5.104.1(react@19.3.0)
@@ -1695,9 +1695,6 @@ packages:
 
   '@fontsource/roboto-mono@5.3.0':
     resolution: {integrity: sha512-yhwplHMHW9dCk+1pZuERfcJe+K3rosGVZEoK0XktkxRSqQ9qsipSwwiuW2/8Qmtp9lzu3Ixa/ie4BMH3i8CkZQ==}
-
-  '@fontsource/space-mono@5.3.0':
-    resolution: {integrity: sha512-FrpBMOVWn3PRdRHlrZWC55X3kZG/2BTH7SM5ZyS/bky3iKya2BturI5lk+t0RoDQL2JyHzURsVq/EisCsxpI5A==}
 
   '@formatjs/ecma402-abstract@2.3.6':
     resolution: {integrity: sha512-HJnTFeRM2kVFVr5gr5kH1XP6K0JcJtE7Lzvtr3FS/so5f1kpsqqqxy5JF+FRaO6H2qmcMfAUIox7AJteieRtVw==}
@@ -11283,8 +11280,6 @@ snapshots:
   '@fontsource/raleway@5.3.0': {}
 
   '@fontsource/roboto-mono@5.3.0': {}
-
-  '@fontsource/space-mono@5.3.0': {}
 
   '@formatjs/ecma402-abstract@2.3.6':
     dependencies:
@@ -21307,7 +21302,6 @@ time:
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
   '@fontsource/raleway@5.3.0': '2026-07-19T03:45:34.357Z'
   '@fontsource/roboto-mono@5.3.0': '2026-07-19T03:45:49.869Z'
-  '@fontsource/space-mono@5.3.0': '2026-07-19T03:46:52.213Z'
   '@internationalized/date@3.12.4': '2026-09-01T14:27:23.965Z'
   '@jest/globals@30.5.2': '2026-09-18T13:57:20.684Z'
   '@json2csv/plainjs@7.0.8': '2026-08-06T07:19:15.059Z'
@@ -21335,6 +21329,7 @@ time:
   '@react-stately/tabs@3.9.1': '2026-05-28T17:28:36.045Z'
   '@react-stately/toggle@3.10.1': '2026-05-28T17:28:36.333Z'
   '@react-types/dialog@3.6.0': '2026-04-14T22:43:55.173Z'
+  '@react-types/shared@3.37.0': '2026-10-08T01:00:02.830Z'
   '@svgr/webpack@8.1.0': '2023-08-15T06:46:24.158Z'
   '@tanstack/react-query@5.104.1': '2026-10-02T10:04:57.020Z'
   '@testing-library/react@16.3.3': '2026-08-27T17:41:18.735Z'

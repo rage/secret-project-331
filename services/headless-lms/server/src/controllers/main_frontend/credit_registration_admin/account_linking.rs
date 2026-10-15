@@ -1281,13 +1281,6 @@ pub async fn admin_resolve_student_number_for_linking(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    if !models::course_modules::any_credit_registration_enabled(&mut conn).await? {
-        return Err(controller_err!(
-            BadRequest,
-            "No course has credit registration configured.".to_string()
-        ));
-    }
-
     let student_number = typed_student_number(&payload.student_number)?;
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
@@ -1411,13 +1404,6 @@ pub async fn admin_manually_link_student_number(
 ) -> ControllerResult<web::Json<AdminManuallyLinkStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-
-    if !models::course_modules::any_credit_registration_enabled(&mut conn).await? {
-        return Err(controller_err!(
-            BadRequest,
-            "No course has credit registration configured.".to_string()
-        ));
-    }
 
     let ManualLinkRequest {
         reason,

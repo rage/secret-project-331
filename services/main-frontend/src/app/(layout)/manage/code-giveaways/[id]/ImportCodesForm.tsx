@@ -1,13 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { addCodeGiveawayCodesMutation as addCodeGiveawayCodesMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Button, Dialog, TextArea } from "@/shared-module/components"
 
 interface ImportCodesFormProps {
   codeGiveawayId: string
@@ -22,7 +21,8 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
   setDialogOpen,
   onCreated,
 }) => {
-  const [input, setInput] = useState("")
+  const { control, watch, reset } = useForm<{ input: string }>({ defaultValues: { input: "" } })
+  const input = watch("input")
   const parsedCodes = useMemo(
     () =>
       input
@@ -44,7 +44,7 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
     },
     {
       onSuccess: () => {
-        setInput("")
+        reset()
         setDialogOpen(false)
         if (onCreated) {
           onCreated()
@@ -56,14 +56,8 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
     return null
   }
   return (
-    <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-      <h1>{t("heading-add-codes")}</h1>
-      <TextAreaField
-        label={t("label-codes-one-per-line")}
-        value={input}
-        rows={20}
-        onChange={(e) => setInput(e.target.value)}
-      />
+    <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title={t("heading-add-codes")}>
+      <TextArea name="input" control={control} label={t("label-codes-one-per-line")} rows={20} />
       <div>
         <Button
           size="medium"
@@ -79,9 +73,6 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
           disabled={!valid || importCodesMutation.isPending}
         >
           {t("button-text-create")}
-        </Button>
-        <Button size="medium" variant="secondary" onClick={() => setDialogOpen(false)}>
-          {t("button-text-close")}
         </Button>
       </div>
     </Dialog>

@@ -2,12 +2,11 @@
 
 import { css } from "@emotion/css"
 import { useAtom } from "jotai"
-import React, { useCallback, useEffect, useRef } from "react"
-import { useButton } from "react-aria"
+import React, { useCallback, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -19,6 +18,21 @@ import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTypeDialog from "./FeedbackTypeDialog"
 import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 import TextSelectionTooltip from "./TextSelectionTooltip"
+
+const FEEDBACK_BUTTON_INSET = "10px"
+
+const feedbackButtonCss = css`
+  position: fixed;
+  bottom: ${FEEDBACK_BUTTON_INSET};
+  right: ${FEEDBACK_BUTTON_INSET};
+  z-index: 1100;
+`
+
+// Lets the end of the page be scrolled clear of the fixed button. Goes on <body> because what
+// sits under the button is the footer, not this component's subtree.
+const feedbackButtonClearanceCss = css`
+  padding-bottom: calc(var(--control-height-md) + ${FEEDBACK_BUTTON_INSET} * 2);
+`
 
 interface Props {
   courseId: string
@@ -38,7 +52,6 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection] = useAtom(selectionAtom)
-  const feedbackButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleGiveFeedbackClick = () => {
     // oxlint-disable-next-line i18next/no-literal-string
@@ -71,29 +84,23 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
     }
   }, [focusDialog])
 
-  const { buttonProps } = useButton(
-    {
-      onPress: handleGiveFeedbackClick,
-      "aria-label": t("give-feedback"),
-    },
-    feedbackButtonRef,
-  )
+  // Held for the whole mount, not just while the button shows, so opening a dialog does not
+  // reflow the page behind it.
+  useEffect(() => {
+    const { body } = document
+    body.classList.add(feedbackButtonClearanceCss)
+    return () => {
+      body.classList.remove(feedbackButtonClearanceCss)
+    }
+  }, [])
 
   const showFeedbackButton = type === null && !selection.text
 
   return (
     <>
       {showFeedbackButton && (
-        <div
-          data-testid="give-feedback-button"
-          className={css`
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            z-index: 1100;
-          `}
-        >
-          <Button ref={feedbackButtonRef} variant="primary" size="medium" {...buttonProps}>
+        <div data-testid="give-feedback-button" className={feedbackButtonCss}>
+          <Button variant="primary" size="medium" onPress={handleGiveFeedbackClick}>
             {t("give-feedback")}
           </Button>
         </div>

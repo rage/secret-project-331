@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { groupBy, mapValues } from "lodash"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -13,7 +12,7 @@ import {
   exerciseAnswersRequiringAttentionRoute,
   exerciseSubmissionsRoute,
 } from "@/shared-module/common/utils/routes"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, Link } from "@/shared-module/components"
 
 export interface ExerciseListProps {
   courseId: string

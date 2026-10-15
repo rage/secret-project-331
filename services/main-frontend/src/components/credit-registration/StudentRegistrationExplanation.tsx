@@ -5,7 +5,7 @@ import { Trans, useTranslation } from "react-i18next"
 
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import { userSettingsStudentNumberRoute } from "@/shared-module/common/utils/routes"
-import { humanReadableDate } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { TransLink } from "@/shared-module/components"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
@@ -32,7 +32,7 @@ const MISREGISTERED = "misregistered"
 
 /** The sentence, or the steps, that the state itself wants said. */
 const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const status = registration.student_facing_status
 
@@ -56,7 +56,7 @@ const MainExplanation: React.FC<{ registration: MyCreditRegistration }> = ({ reg
           <li>
             {t("credit-registration-student-number-step-open-the-emailed-link", {
               email: sent.emailMasked,
-              date: humanReadableDate(sent.sentAt, i18n.language),
+              date: dateToString(sent.sentAt),
             })}
           </li>
           <li>{t("credit-registration-student-number-step-stay-logged-in")}</li>

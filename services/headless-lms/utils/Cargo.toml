@@ -56,13 +56,6 @@ tracing = "0.1.44"
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
-# generate typescript bindings from rust types
-ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
-  "chrono-impl",
-  "serde-compat",
-  "serde-json-impl",
-  "uuid-impl",
-], optional = true }
 # An implementation of regular expressions for Rust.
 regex = "1.13.1"
 # Single assignment cells and lazy values.

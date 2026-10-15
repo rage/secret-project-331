@@ -1058,8 +1058,6 @@ INSERT INTO course_modules (
     certification_enabled,
     completion_registration_link_override,
     ects_credits,
-    enable_registering_completion_to_uh_open_university,
-    enable_credit_registration_via_suotar,
     uh_course_code
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -1074,8 +1072,6 @@ SELECT uuid_generate_v5($1, id::text),
   certification_enabled,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  enable_credit_registration_via_suotar,
   uh_course_code
 FROM course_modules
 WHERE course_id = $2

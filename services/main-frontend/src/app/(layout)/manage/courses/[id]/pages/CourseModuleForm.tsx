@@ -12,7 +12,7 @@ import CreditRegistrationConfigCallout, {
   hasCreditRegistrationConfigProblem,
 } from "@/components/credit-registration/CreditRegistrationConfigCallout"
 import InlineParts from "@/components/credit-registration/InlineParts"
-import { translateKey } from "@/components/credit-registration/labelFrom"
+import { registersCredits } from "@/components/credit-registration/registersCredits"
 import {
   cardCss,
   headingCss,
@@ -21,20 +21,9 @@ import {
 } from "@/components/credit-registration/styles"
 import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import {
-  Badge,
-  Button,
-  Checkbox,
-  NumberField,
-  Radio,
-  RadioGroup,
-  Select,
-  TextField,
-} from "@/shared-module/components"
+import { Badge, Button, Checkbox, NumberField, Select, TextField } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
-import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
-import { EMPTY_CREDIT_REGISTRATION_FIELDS } from "./creditRegistrationModuleFields"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
@@ -45,8 +34,6 @@ interface Props {
   module: ModuleView
   chapters: number[]
   creditRegistrationConfig: CourseModuleCreditRegistrationConfig | undefined
-  /** Only support may turn the study registry path on or off; a teacher still sees which one is in use. */
-  canConfigureStudyRegistry: boolean
   /** Whether the module carries edits that the page-level save has not sent yet. */
   hasUnsavedChanges?: boolean
   onSubmitForm: (id: string, fields: CourseModuleFormFields) => void
@@ -70,26 +57,13 @@ export interface CourseModuleFormFields {
   automatic_completion_requires_exam: boolean
   override_completion_link: boolean
   completion_registration_link_override: string
-  enable_registering_completion_to_uh_open_university: boolean
-  credit_registration: CreditRegistrationModuleFields
 }
-
-/**
- * How students register a passed completion of this module themselves. Registration in Sisu is a
- * separate switch: it only takes the completions opted in to it, so it runs beside either of these.
- */
-const REGISTRATION_PATHS = ["none", "open_university"] as const
-type RegistrationPath = (typeof REGISTRATION_PATHS)[number]
-
-const [NO_REGISTRATION, OPEN_UNIVERSITY] = REGISTRATION_PATHS
-
-const STUDY_REGISTRY_FIELD = "credit_registration.enabled" as const
 
 /** Shorter than this is a fragment, not a link a student can follow. */
 const MIN_COMPLETION_LINK_LENGTH = 10
 
-/** Sisu rejects a registration missing either of these. */
-const SISU_REQUIRED_FIELDS: Path<CourseModuleFormState>[] = ["uh_course_code", "ects_credits"]
+/** Sisu rejects a registration without credits. */
+const CREDITS_FIELD: Path<CourseModuleFormState> = "ects_credits"
 
 const COMPLETION_LINK_FIELD: Path<CourseModuleFormState> = "completion_registration_link_override"
 
@@ -101,14 +75,10 @@ const VALIDATE_ON_COMMIT = "validate" as const
 /** Flags what the Sisu path requires as the teacher edits, rather than only on save. */
 const VALIDATE_ON_CHANGE = "onChange" as const
 
-interface CourseModuleFormState extends Omit<
-  CourseModuleFormFields,
-  "enable_registering_completion_to_uh_open_university" | "starts" | "ends"
-> {
+interface CourseModuleFormState extends Omit<CourseModuleFormFields, "starts" | "ends"> {
   /** Chapter numbers as the select holds them; `onSubmitForm` gets them back as numbers. */
   starts: string
   ends: string
-  registration_path: RegistrationPath
 }
 
 const formCss = css`
@@ -162,9 +132,6 @@ const actionsCss = css`
   margin-left: auto;
 `
 
-const registrationPathOf = (module: ModuleView): RegistrationPath =>
-  module.enable_registering_completion_to_uh_open_university ? OPEN_UNIVERSITY : NO_REGISTRATION
-
 const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModuleFormState => ({
   name: module.name,
   starts: String(module.firstChapter ?? chapters[0] ?? 1),
@@ -179,14 +146,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   automatic_completion_requires_exam: module.automatic_completion_requires_exam,
   override_completion_link: module.completion_registration_link_override !== null,
   completion_registration_link_override: module.completion_registration_link_override ?? "",
-  registration_path: registrationPathOf(module),
-  credit_registration: module.credit_registration,
 })
-
-const REGISTRATION_PATH_BADGE_KEYS = {
-  [NO_REGISTRATION]: "badge-no-completion-registration",
-  [OPEN_UNIVERSITY]: "badge-registers-to-open-university",
-} as const satisfies Record<RegistrationPath, string>
 
 /** What the collapsed card says about a module, so "is this set up right?" needs no editor. */
 const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
@@ -198,7 +158,10 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   if (module.ects_credits !== null) {
     parts.push(t("module-summary-credits", { count: module.ects_credits }))
   }
-  if (module.credit_registration.enabled && !module.completion_registration_link_override?.trim()) {
+  if (
+    registersCredits(module.uh_course_code) &&
+    !module.completion_registration_link_override?.trim()
+  ) {
     parts.push(t("module-summary-no-enrolment-link"))
   }
   if (parts.length === 0) {
@@ -214,15 +177,14 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
 /**
  * One module's settings, whether it exists yet or not.
  *
- * The same card creates and edits, so a module can be given its study registry path at birth
- * instead of being created and then handed to support to configure.
+ * The same card creates and edits, so a module can be given its course code, and with it the study
+ * registry path, at birth.
  */
 const CourseModuleForm: React.FC<Props> = ({
   mode,
   module,
   chapters,
   creditRegistrationConfig,
-  canConfigureStudyRegistry,
   hasUnsavedChanges = false,
   onSubmitForm,
   onDeleteModule,
@@ -248,22 +210,17 @@ const CourseModuleForm: React.FC<Props> = ({
   }, [reset, module, chapters])
   const automaticCompletion = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
-  const registersToStudyRegistry = watch(STUDY_REGISTRY_FIELD)
-  // Without this, picking the Sisu path shows up only as a disabled Done button, and leaving it
+  const registersToStudyRegistry = registersCredits(watch("uh_course_code"))
+  // Without this, adding a course code shows up only as a disabled Done button, and removing it
   // again leaves the message it raised under a field nothing requires any more.
   useEffect(() => {
-    trigger(SISU_REQUIRED_FIELDS)
+    trigger(CREDITS_FIELD)
   }, [registersToStudyRegistry, trigger])
   useEffect(() => {
     trigger(COMPLETION_LINK_FIELD)
   }, [overrideLink, trigger])
 
-  const onSubmitFormWrapper = ({
-    registration_path,
-    starts,
-    ends,
-    ...fields
-  }: CourseModuleFormState): void => {
+  const onSubmitFormWrapper = ({ starts, ends, ...fields }: CourseModuleFormState): void => {
     setEditing(isCreate)
     onSubmitForm(module.id, {
       ...fields,
@@ -273,12 +230,6 @@ const CourseModuleForm: React.FC<Props> = ({
       automatic_completion_requires_exam: fields.automatic_completion
         ? fields.automatic_completion_requires_exam
         : false,
-      enable_registering_completion_to_uh_open_university: registration_path === OPEN_UNIVERSITY,
-      // The study registry fields stay in form state once their section is hidden, so a module that
-      // has left that path is saved with them blanked rather than with what it used to hold.
-      credit_registration: fields.credit_registration.enabled
-        ? fields.credit_registration
-        : EMPTY_CREDIT_REGISTRATION_FIELDS,
     })
     onCancel?.()
   }
@@ -287,14 +238,9 @@ const CourseModuleForm: React.FC<Props> = ({
     value: chapter.toString(),
     label: chapter.toString(),
   }))
-  const savedPath = registrationPathOf(module)
-  // A teacher who cannot switch this on has no business learning the path exists, so anything
-  // naming it appears only for support, or on a module support has already put on it.
-  const showsStudyRegistryOption = canConfigureStudyRegistry || module.credit_registration.enabled
   const hasConfigProblem = hasCreditRegistrationConfigProblem(creditRegistrationConfig)
   const courseCodeFoundInSisu =
-    showsStudyRegistryOption &&
-    module.uh_course_code !== null &&
+    registersCredits(module.uh_course_code) &&
     creditRegistrationConfig?.credit_registration_course_code_allowed === true
   const nameIsEditable = isCreate || module.name !== null
 
@@ -325,12 +271,7 @@ const CourseModuleForm: React.FC<Props> = ({
           {hasUnsavedChanges && <Badge tone={TONE.WARNING}>{t("badge-unsaved-changes")}</Badge>}
           {!editing && (
             <>
-              {savedPath !== NO_REGISTRATION && (
-                <Badge tone={TONE.NEUTRAL}>
-                  {translateKey(t, REGISTRATION_PATH_BADGE_KEYS[savedPath])}
-                </Badge>
-              )}
-              {module.credit_registration.enabled && (
+              {registersCredits(module.uh_course_code) && (
                 <Badge tone={TONE.INFO}>{t("badge-registers-to-study-registry")}</Badge>
               )}
               {hasConfigProblem && (
@@ -429,19 +370,7 @@ const CourseModuleForm: React.FC<Props> = ({
           <fieldset className={groupCss}>
             <legend className={subheadingCss}>{t("heading-module-credits")}</legend>
             <div className={fieldRowCss}>
-              <TextField
-                name="uh_course_code"
-                control={control}
-                label={t("uh-course-code")}
-                isRequired={registersToStudyRegistry}
-                // `register` merges each render's options over the ones it holds, so a key left
-                // out keeps the rule it had: one that comes and goes is spelled out in both states.
-                rules={{
-                  required: registersToStudyRegistry
-                    ? t("error-course-code-required-for-sisu")
-                    : false,
-                }}
-              />
+              <TextField name="uh_course_code" control={control} label={t("uh-course-code")} />
               <NumberField
                 name="ects_credits"
                 control={control}
@@ -479,32 +408,6 @@ const CourseModuleForm: React.FC<Props> = ({
 
           <fieldset className={groupCss}>
             <legend className={subheadingCss}>{t("heading-credit-registration")}</legend>
-            <RadioGroup
-              name="registration_path"
-              control={control}
-              label={t("label-module-registration-path")}
-            >
-              <Radio value={NO_REGISTRATION} label={t("registration-path-none")} />
-              <Radio
-                value={OPEN_UNIVERSITY}
-                label={t("registration-path-open-university")}
-                description={t("description-registration-path-open-university")}
-              />
-            </RadioGroup>
-            {showsStudyRegistryOption && (
-              <Checkbox
-                name={STUDY_REGISTRY_FIELD}
-                control={control}
-                label={t("label-register-opted-in-completions-to-study-registry")}
-                description={
-                  canConfigureStudyRegistry
-                    ? t("description-enable-credit-registration-via-suotar")
-                    : t("description-registration-path-support-only")
-                }
-                isDisabled={!canConfigureStudyRegistry}
-              />
-            )}
-
             <Checkbox
               name="override_completion_link"
               control={control}

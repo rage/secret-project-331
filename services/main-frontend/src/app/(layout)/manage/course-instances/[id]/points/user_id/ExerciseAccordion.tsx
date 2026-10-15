@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -17,6 +16,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { Link } from "@/shared-module/components"
 
 import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
 

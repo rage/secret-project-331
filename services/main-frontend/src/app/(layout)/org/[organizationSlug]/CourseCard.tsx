@@ -35,7 +35,7 @@ const StyledCourseCard = styled.div`
   position: relative;
   max-width: 100%;
   width: 100%;
-  height: 300px;
+  min-height: 220px;
   background: #f5f6f7;
   border-radius: 6px;
 
@@ -53,7 +53,6 @@ const StyledCourseCard = styled.div`
 
 const CourseWrapper = styled.div`
   width: 100%;
-  height: 100%;
   background: #f5f6f7;
   border-radius: 6px;
   :hover {
@@ -63,7 +62,7 @@ const CourseWrapper = styled.div`
 `
 
 const CourseContent = styled.div`
-  padding: 2rem 1.5rem;
+  padding: 2rem 1.5rem 4.5rem;
 `
 
 const CourseHeading = styled.div`
@@ -78,7 +77,6 @@ const CourseHeading = styled.div`
 const CourseDescription = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 300px;
 
   /* Limit line count to 3 */
   display: -webkit-box;

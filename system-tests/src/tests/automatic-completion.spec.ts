@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test"
 
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
@@ -51,19 +50,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   })
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
-  await page.getByRole("link", { name: "Register", exact: true }).click()
-
-  // The page still has to load its completion data; clicking "No" before that resolves races
-  // the control being replaced under the click, which can drop the click.
-  await page
-    .getByText("Are you a student or an exchange student at the University of Helsinki?")
-    .waitFor()
-  await page.getByRole("radio", { name: "No", exact: true }).check()
-  await page
-    .getByText(
-      "Completions of this course are registered through the Open University of the University of Helsinki.",
-    )
-    .waitFor()
+  await page.getByRole("link", { name: "Register completion", exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -72,61 +59,4 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     snapshotName: "automatic-completion-registration-page",
     waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Register completion" })],
   })
-
-  await page.getByText("Go to the enrolment form").click()
-  await page.waitForURL("https://www.example.com", { waitUntil: "commit" })
-
-  await page.goto("http://project-331.local/organizations")
-  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-
-  await page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click()
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/overview",
-  )
-
-  await page.getByRole("tab", { name: "Modules" }).click()
-  await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/modules",
-  )
-
-  // Change default module options
-  await page
-    .locator('form:has-text("Default module")')
-    .getByRole("button", { name: "Edit" })
-    .click()
-  await page.getByLabel("Override completion registration link").check()
-  await page
-    .getByLabel("Completion registration link", { exact: true })
-    .fill("https://www.example.com/override")
-  await page.getByRole("button", { name: "Done" }).click()
-  await waitForSuccessNotification(page, async () => {
-    await page.getByRole("button", { name: "Save changes" }).click()
-  })
-
-  await page.goto("http://project-331.local/organizations")
-  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-
-  await page.getByText("Automatic Completions").click()
-  await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
-  await page.getByText("Congratulations!").waitFor()
-
-  // Only the completed module's CTA is an enabled link; others render as disabled buttons
-  await page.getByRole("link", { name: "Register", exact: true }).click()
-
-  // The page still has to load its completion data; clicking "No" before that resolves races
-  // the control being replaced under the click, which can drop the click.
-  await page
-    .getByText("Are you a student or an exchange student at the University of Helsinki?")
-    .waitFor()
-  await page.getByRole("radio", { name: "No", exact: true }).check()
-  await page
-    .getByText(
-      "Completions of this course are registered through the Open University of the University of Helsinki.",
-    )
-    .waitFor()
-
-  await page.getByText("Use this email address on the enrolment form").first().waitFor()
-  await page.getByText("Go to the enrolment form").click()
-  // Wait for the redirection
-  await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })
 })

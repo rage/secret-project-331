@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import BottomPanel from "@/components/BottomPanel"
+import { registersCredits } from "@/components/credit-registration/registersCredits"
 import {
   dividedListCss,
   pageTitleCss,
@@ -22,7 +23,6 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
-import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
@@ -32,11 +32,6 @@ import { Button, QueryResults } from "@/shared-module/components"
 import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
 import type { CourseModuleFormFields, CourseModuleFormMode } from "./CourseModuleForm"
 import CourseModuleForm from "./CourseModuleForm"
-import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
-import {
-  creditRegistrationFieldsOf,
-  EMPTY_CREDIT_REGISTRATION_FIELDS,
-} from "./creditRegistrationModuleFields"
 import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
 
 const AUTOMATIC = "automatic"
@@ -47,10 +42,6 @@ const REGISTRATION_VIEW_FAILED = "failed"
 
 const CREATE: CourseModuleFormMode = "create"
 const EDIT: CourseModuleFormMode = "edit"
-
-const CONFIGURE_STUDY_REGISTRY = [
-  { action: { type: "administrate" }, resource: { type: "global_permissions" } },
-] as const
 
 interface Props {
   courseId: string
@@ -70,8 +61,6 @@ export interface ModuleView {
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
-  enable_registering_completion_to_uh_open_university: boolean
-  credit_registration: CreditRegistrationModuleFields
 }
 
 interface ChapterView {
@@ -123,8 +112,6 @@ const blankModule = (chapters: number[]): ModuleView => ({
   automatic_completion_number_of_exercises_attempted_treshold: null,
   automatic_completion_requires_exam: false,
   completion_registration_link_override: null,
-  enable_registering_completion_to_uh_open_university: false,
-  credit_registration: EMPTY_CREDIT_REGISTRATION_FIELDS,
 })
 
 /** The completions roster, filtered to one module and, when `failed`, to its failed registrations. */
@@ -164,8 +151,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const [edited, setEdited] = useState(false)
   const [moduleList, setModuleList] = useState<ModuleList | null>(null)
   const [newModule, setNewModule] = useState<ModuleView | null>(null)
-  const canConfigureStudyRegistry =
-    useAuthorizeMultiple([...CONFIGURE_STUDY_REGISTRY]).data?.[0] === true
 
   // helper functions
   const validateModuleList = (modules: ModuleView[], chapters: ChapterView[]): string | null => {
@@ -234,8 +219,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const creditRegistrationConfigs = creditRegistrationConfigsQuery.data
   // A registration carries the student's Sisu identity, so the counts need their own permission.
   const canViewCreditRegistrations = useCanViewCreditRegistrations(courseId)
-  const courseUsesStudyRegistry = (creditRegistrationConfigs ?? []).some(
-    (module) => module.enable_credit_registration_via_suotar,
+  const courseUsesStudyRegistry = (creditRegistrationConfigs ?? []).some((module) =>
+    registersCredits(module.uh_course_code),
   )
   const registrationSummaryQuery = useQuery({
     ...getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
@@ -284,9 +269,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               automatic_completion_requires_exam: m.completion_policy.requires_exam,
               completion_registration_link_override:
                 m.completion_registration_link_override ?? null,
-              enable_registering_completion_to_uh_open_university:
-                m.enable_registering_completion_to_uh_open_university,
-              credit_registration: creditRegistrationFieldsOf(creditRegistrationConfigs, m.id),
             }
           }
           return {
@@ -303,9 +285,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             automatic_completion_number_of_exercises_attempted_treshold: null,
             automatic_completion_requires_exam: false,
             completion_registration_link_override: m.completion_registration_link_override ?? null,
-            enable_registering_completion_to_uh_open_university:
-              m.enable_registering_completion_to_uh_open_university,
-            credit_registration: creditRegistrationFieldsOf(creditRegistrationConfigs, m.id),
           }
         })
         const error = validateModuleList(modules, chapters)
@@ -320,14 +299,13 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   })
   const initialModuleList = courseStructureQuery.data?.initialModuleList
   useEffect(() => {
-    // Waits for the configuration too, or the staged list would save credit registration off.
-    if (!courseStructureQuery.data || !creditRegistrationConfigs) {
+    if (!courseStructureQuery.data) {
       return
     }
     if (moduleList === null) {
       setModuleList(courseStructureQuery.data.moduleList)
     }
-  }, [courseStructureQuery.data, creditRegistrationConfigs, moduleList])
+  }, [courseStructureQuery.data, moduleList])
 
   const moduleUpdatesMutation = useToastMutation(
     () => {
@@ -361,9 +339,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
             completion_registration_link_override:
               courseModule.completion_registration_link_override,
-            enable_registering_completion_to_uh_open_university:
-              courseModule.enable_registering_completion_to_uh_open_university,
-            enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
           })
         } else if (
           initialModule !== undefined &&
@@ -380,10 +355,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             courseModule.automatic_completion_requires_exam !==
               initialModule.automatic_completion_requires_exam ||
             courseModule.completion_registration_link_override !==
-              initialModule.completion_registration_link_override ||
-            courseModule.enable_registering_completion_to_uh_open_university !==
-              initialModule.enable_registering_completion_to_uh_open_university ||
-            !isEqual(courseModule.credit_registration, initialModule.credit_registration))
+              initialModule.completion_registration_link_override)
         ) {
           modifiedModules.push({
             id: courseModule.id,
@@ -394,9 +366,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
             completion_registration_link_override:
               courseModule.completion_registration_link_override,
-            enable_registering_completion_to_uh_open_university:
-              courseModule.enable_registering_completion_to_uh_open_university,
-            enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
           })
         }
       }
@@ -472,8 +441,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       automatic_completion_requires_exam,
       completion_registration_link_override,
       override_completion_link,
-      enable_registering_completion_to_uh_open_university,
-      credit_registration,
     }: CourseModuleFormFields,
   ) => {
     setEdited(true)
@@ -507,8 +474,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         firstChapter: null,
         lastChapter: null,
         isNew: existing?.isNew ?? true,
-        enable_registering_completion_to_uh_open_university,
-        credit_registration,
       }
       const upserted = existing
         ? old.modules.map((m) => (m.id === id ? saved : m))
@@ -582,7 +547,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                     creditRegistrationConfig={creditRegistrationConfigs?.find(
                       (config) => config.course_module_id === module.id,
                     )}
-                    canConfigureStudyRegistry={canConfigureStudyRegistry}
                     hasUnsavedChanges={
                       edited &&
                       (initialModule === undefined ||
@@ -618,7 +582,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 module={newModule}
                 chapters={data.chapterNumbers}
                 creditRegistrationConfig={undefined}
-                canConfigureStudyRegistry={canConfigureStudyRegistry}
                 onSubmitForm={handleSaveModule}
                 onCancel={() => setNewModule(null)}
               />

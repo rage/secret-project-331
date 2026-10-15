@@ -269,3 +269,12 @@ describe("TextField - size variants", () => {
     expect(input.getAttribute("class")).toBeTruthy()
   })
 })
+
+describe("TextField - data-testid", () => {
+  test("lands on the input", () => {
+    renderStringField((control) => (
+      <TextField name="f" control={control} label="Email" data-testid="email-field" />
+    ))
+    expect(screen.getByTestId("email-field")).toBe(screen.getByRole("textbox", { name: "Email" }))
+  })
+})

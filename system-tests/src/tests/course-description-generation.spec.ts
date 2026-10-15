@@ -46,7 +46,7 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "1. Another module" })
-        .getByRole("button", { name: "Edit" })
+        .getByRole("button", { name: "Edit", exact: true })
         .click()
       await expect(
         page
@@ -57,7 +57,7 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "Default module" })
-        .getByRole("button", { name: "Edit" })
+        .getByRole("button", { name: "Edit", exact: true })
         .click()
       await expect(
         page
@@ -79,13 +79,19 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "Default module" })
-        .getByRole("button", { name: "Edit" })
+        .getByRole("button", { name: "Edit", exact: true })
         .click()
       await page
         .locator("form")
         .filter({ hasText: "Default" })
         .getByLabel("University of Helsinki course code")
         .fill("TEST001")
+      await page
+        .locator("form")
+        .filter({ hasText: "Default" })
+        .getByLabel("ECTS credits", { exact: true })
+        .fill("5")
+      await page.keyboard.press("Tab")
       await page
         .locator("form")
         .filter({ hasText: "Default" })

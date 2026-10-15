@@ -3,15 +3,16 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
-import { useContext } from "react"
+import React, { useContext } from "react"
+import { useWatch } from "react-hook-form"
 
+import type { ExerciseAttributes } from "@/blocks/Exercise"
 import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Accordion from "@/shared-module/common/components/Accordion"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Checkbox, Disclosure, TextField } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
@@ -19,6 +20,129 @@ import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
 import PageContext from "../../../contexts/PageContext"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
+
+interface SettingsValues {
+  name: string
+  scoreMaximum: string
+  limitNumberOfTries: boolean
+  maxTriesPerSlide: string
+  teacherReviewsAnswerAfterLocking: boolean
+}
+
+const parseOptionalInt = (value: string): number | undefined => {
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+  const parsed = parseInt(value, 10)
+  return isNaN(parsed) ? undefined : parsed
+}
+
+interface SettingsFieldsProps {
+  attributes: ExerciseAttributes
+  setAttributes: (attributes: Partial<ExerciseAttributes>) => void
+  showTeacherReview: boolean
+}
+
+const SettingsFields: React.FC<SettingsFieldsProps> = ({
+  attributes,
+  setAttributes,
+  showTeacherReview,
+}) => {
+  const { t } = useTranslation()
+  const { control } = useAttributeForm<SettingsValues>(
+    {
+      name: attributes.name,
+      scoreMaximum: attributes.score_maximum?.toString() ?? "",
+      limitNumberOfTries: Boolean(attributes.limit_number_of_tries),
+      maxTriesPerSlide: attributes.max_tries_per_slide?.toString() ?? "",
+      teacherReviewsAnswerAfterLocking: attributes.teacher_reviews_answer_after_locking ?? true,
+    },
+    (values, changedName) => {
+      switch (changedName) {
+        case "name":
+          setAttributes({ name: values.name })
+          break
+        case "scoreMaximum":
+          // @ts-expect-error -- score_maximum is required on ExerciseAttributes (used in API payloads); resetting to undefined at runtime is intentional
+          setAttributes({ score_maximum: parseOptionalInt(values.scoreMaximum) })
+          break
+        case "limitNumberOfTries":
+          setAttributes({ limit_number_of_tries: values.limitNumberOfTries })
+          break
+        case "maxTriesPerSlide":
+          setAttributes({ max_tries_per_slide: parseOptionalInt(values.maxTriesPerSlide) })
+          break
+        case "teacherReviewsAnswerAfterLocking":
+          setAttributes({
+            teacher_reviews_answer_after_locking: values.teacherReviewsAnswerAfterLocking,
+          })
+          break
+      }
+    },
+  )
+  const limitNumberOfTries = useWatch({ control, name: "limitNumberOfTries" })
+
+  return (
+    <>
+      <TextField
+        name="name"
+        control={control}
+        label={t("exercise-name")}
+        className={css`
+          margin-bottom: 1rem !important;
+        `}
+      />
+      <TextField
+        name="scoreMaximum"
+        control={control}
+        label={t("exercise-max-points")}
+        type="number"
+        className={css`
+          margin-bottom: 1rem !important;
+        `}
+      />
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 1rem;
+          ${respondToOrLarger.md} {
+            align-items: center;
+            flex-direction: row;
+          }
+        `}
+      >
+        <Checkbox
+          name="limitNumberOfTries"
+          control={control}
+          label={t("limit-number-of-tries")}
+          className={css`
+            flex: 1;
+            padding-top: 0.4rem;
+          `}
+        />
+        <TextField
+          name="maxTriesPerSlide"
+          control={control}
+          label={t("tries-per-slide")}
+          isDisabled={!limitNumberOfTries}
+          type="number"
+          className={css`
+            flex: 1;
+          `}
+        />
+      </div>
+      {showTeacherReview && (
+        <Checkbox
+          name="teacherReviewsAnswerAfterLocking"
+          control={control}
+          label={t("teacher-reviews-answer-after-locking")}
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        />
+      )}
+    </>
+  )
+}
 
 const ExerciseSettingsEditor = () => {
   const { t } = useTranslation()
@@ -55,113 +179,31 @@ const ExerciseSettingsEditor = () => {
 
   return (
     <div {...blockProps}>
-      <TextField
-        label={t("exercise-name")}
-        placeholder={t("exercise-name")}
-        value={attributes.name}
-        onChangeByValue={(value) => setAttributes({ name: value })}
-        className={css`
-          margin-bottom: 1rem !important;
-        `}
+      <SettingsFields
+        attributes={attributes}
+        setAttributes={setAttributes}
+        showTeacherReview={Boolean(courseId && chapterLockingEnabled)}
       />
-      <TextField
-        label={t("exercise-max-points")}
-        placeholder={t("exercise-max-points")}
-        value={attributes.score_maximum?.toString() ?? ""}
-        type="number"
-        onChangeByValue={(value) => {
-          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-          const parsed = parseInt(value, 10)
-          if (isNaN(parsed)) {
-            // empty
-            // @ts-expect-error -- score_maximum is required on ExerciseAttributes (used in API payloads); resetting to undefined at runtime is intentional
-            setAttributes({ score_maximum: undefined })
-            return
-          }
-          setAttributes({ score_maximum: parsed })
-        }}
-        className={css`
-          margin-bottom: 1rem !important;
-        `}
-      />
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          margin-bottom: 1rem;
-          ${respondToOrLarger.md} {
-            align-items: center;
-            flex-direction: row;
-          }
-        `}
-      >
-        <CheckBox
-          label={t("limit-number-of-tries")}
-          checked={attributes.limit_number_of_tries}
-          onChangeByValue={function (checked: boolean): void {
-            setAttributes({ limit_number_of_tries: checked })
-          }}
-          className={css`
-            flex: 1;
-            padding-top: 1.3rem;
-          `}
-        />
-        <TextField
-          label={t("tries-per-slide")}
-          placeholder={t("tries-per-slide")}
-          value={attributes.max_tries_per_slide?.toString() ?? ""}
-          disabled={!attributes.limit_number_of_tries}
-          type="number"
-          onChangeByValue={(value) => {
-            // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-            const parsed = parseInt(value, 10)
-            if (isNaN(parsed)) {
-              // empty
-              setAttributes({ max_tries_per_slide: undefined })
-              return
-            }
-            setAttributes({ max_tries_per_slide: parsed })
-          }}
-          className={css`
-            flex: 1;
-          `}
-        />
-      </div>
-      {courseId && chapterLockingEnabled && (
-        <CheckBox
-          label={t("teacher-reviews-answer-after-locking")}
-          checked={attributes.teacher_reviews_answer_after_locking ?? true}
-          onChangeByValue={(checked: boolean) => {
-            setAttributes({ teacher_reviews_answer_after_locking: checked })
-          }}
-          className={css`
-            margin-bottom: 1rem;
-          `}
-        />
-      )}
       {courseId && (
-        <Accordion>
-          <details>
-            <summary>{t("peer-and-self-review-configuration")}</summary>
-            <PeerReviewEditor
-              attributes={attributes}
-              setAttributes={setAttributes}
-              exerciseId={attributes.id}
-              courseId={courseId}
-              courseGlobalEditor={false}
-              instructionsEditor={
-                <div
-                  className={css`
-                    border: 1px solid ${baseTheme.colors.gray[100]};
-                    padding: 1rem;
-                  `}
-                >
-                  <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
-                </div>
-              }
-            />
-          </details>
-        </Accordion>
+        <Disclosure title={t("peer-and-self-review-configuration")}>
+          <PeerReviewEditor
+            attributes={attributes}
+            setAttributes={setAttributes}
+            exerciseId={attributes.id}
+            courseId={courseId}
+            courseGlobalEditor={false}
+            instructionsEditor={
+              <div
+                className={css`
+                  border: 1px solid ${baseTheme.colors.gray[100]};
+                  padding: 1rem;
+                `}
+              >
+                <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
+              </div>
+            }
+          />
+        </Disclosure>
       )}
     </div>
   )

@@ -3128,7 +3128,6 @@ dependencies = [
  "listenfd",
  "mime",
  "mockito",
- "oauth2",
  "once_cell",
  "p256 0.14.0",
  "pkcs8 0.11.0",

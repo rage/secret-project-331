@@ -20,7 +20,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
 ///
 /// This is **best-effort and never fails the caller**: by the time it runs the password has
 /// already been stored locally, so a transient TMC outage must not turn a successful
-/// signup/login/migration into an error. It retries a few times inline (so common blips are
+/// signup/migration into an error. It retries a few times inline (so common blips are
 /// resolved before the HTTP response) and, if those are exhausted, hands off to a background
 /// task that keeps retrying with backoff.
 pub async fn notify_password_managed_with_retry(

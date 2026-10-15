@@ -70,6 +70,7 @@ export type LoginResponse =
   | { type: "success" }
   | { type: "requires_email_verification"; email_verification_token: string }
   | { type: "failed" }
+  | { type: "must_change_password" }
 
 export interface UserInfo {
   user_id: string
@@ -82,7 +83,7 @@ export const isLoginResponse = (value: unknown): value is LoginResponse => {
     return false
   }
   const type = (value as { type?: unknown }).type
-  if (type === "success" || type === "failed") {
+  if (type === "success" || type === "failed" || type === "must_change_password") {
     return true
   }
   return (

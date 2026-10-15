@@ -6,6 +6,7 @@ import { useCallback, useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CredentialsForm } from "@/app/(layout)/login/CredentialsForm"
+import { MustChangePasswordStep } from "@/app/(layout)/login/MustChangePasswordStep"
 import { VerificationForm } from "@/app/(layout)/login/VerificationForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { useLoginFlow } from "@/hooks/useLoginFlow"
@@ -40,6 +41,7 @@ const Login: React.FC = () => {
     submitVerification,
     cancelVerification,
     onConsentSubmitted,
+    backToCredentials,
   } = useLoginFlow(redirect, t)
 
   useEffect(() => {
@@ -64,6 +66,7 @@ const Login: React.FC = () => {
 
       {(step.step === "credentials" || step.step === "verification") && (
         <CredentialsForm
+          initialEmail={step.step === "credentials" ? step.email : undefined}
           onSubmit={submitCredentials}
           error={credentialsError}
           isSubmitting={isSubmittingCredentials}
@@ -81,6 +84,10 @@ const Login: React.FC = () => {
           isSubmitting={isSubmittingVerification}
         />
       </Dialog>
+
+      {step.step === "must_change_password" && (
+        <MustChangePasswordStep email={step.email} onBack={backToCredentials} />
+      )}
 
       {step.step === "awaiting_consent_check" && <LoadingRegion />}
 

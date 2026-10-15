@@ -186,7 +186,7 @@ export const getAuthLoggedInOptions = (options?: Options<GetAuthLoggedInData>) =
 /**
  *
  * POST `/api/v0/auth/login` Logs in to the system.
- * Returns LoginResponse indicating success, email verification required, or failure.
+ * Returns LoginResponse indicating success, email verification required, password reset required, or failure.
  * *
  */
 export const postAuthLoginMutation = (

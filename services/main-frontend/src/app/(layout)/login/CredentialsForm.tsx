@@ -13,6 +13,7 @@ import { signUpRoute } from "@/shared-module/common/utils/routes"
 import { Button, TextField, Link } from "@/shared-module/components"
 
 interface CredentialsFormProps {
+  initialEmail?: string | undefined
   onSubmit: (email: string, password: string) => Promise<void>
   error: boolean
   isSubmitting: boolean
@@ -25,6 +26,7 @@ interface CredentialsFields {
 
 // CredentialsForm renders the login credentials form for email and password.
 export const CredentialsForm: React.FC<CredentialsFormProps> = ({
+  initialEmail,
   onSubmit,
   error,
   isSubmitting,
@@ -35,7 +37,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   const { control, handleSubmit, watch, setFocus } = useForm<CredentialsFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: initialEmail ?? "", password: "" },
   })
 
   useEffect(() => {

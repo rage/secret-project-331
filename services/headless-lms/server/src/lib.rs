@@ -31,16 +31,7 @@ pub use headless_lms_base::tracing::setup_tracing;
 use headless_lms_utils::file_store::{
     FileStore, google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
 };
-use oauth2::{EndpointNotSet, EndpointSet};
 use std::sync::Arc;
-
-pub type OAuthClient = oauth2::basic::BasicClient<
-    EndpointSet,
-    EndpointNotSet,
-    EndpointNotSet,
-    EndpointNotSet,
-    EndpointSet,
->;
 
 /**
 Setups file store so that it can be passed to actix web as data.

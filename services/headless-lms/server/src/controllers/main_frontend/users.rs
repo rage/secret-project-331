@@ -1033,9 +1033,15 @@ pub async fn change_user_password(
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
     let mut tx = conn.begin().await?;
-    let recognition =
-        session_verification::recognize(&mut tx, &ip_to_country_mapper, &app_conf, user.id, &req)
-            .await?;
+    let recognition = session_verification::check_session(
+        &mut tx,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_recognition();
     let res = models::user_passwords::change_user_password_with_old_password(
         &mut tx,
         user.id,

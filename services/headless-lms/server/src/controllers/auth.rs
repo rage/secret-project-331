@@ -15,10 +15,7 @@ use crate::{
     prelude::*,
 };
 use actix_session::Session;
-use actix_web::{
-    cookie::Cookie,
-    http::header::{CacheControl, CacheDirective},
-};
+use actix_web::http::header::{CacheControl, CacheDirective};
 use anyhow::Error;
 use anyhow::anyhow;
 use chrono::Duration;
@@ -403,15 +400,20 @@ async fn handle_test_mode_signup(
     )
     .await;
 
-    let browser_token = session_verification::remember_test_mode_browser(conn, user.id).await?;
-    authentication::remember(session, user)?;
+    sign_in_test_mode(conn, session, user, SignupResponse::Success).await
+}
 
-    let token = skip_authorize();
-    token.authorized_ok(
-        HttpResponse::Ok()
-            .cookie(session_verification::browser_cookie(&browser_token))
-            .json(SignupResponse::Success),
-    )
+/// Signs `user` in for a test-mode or UUID login, remembering the browser so that the session
+/// check passes without a mailed code.
+async fn sign_in_test_mode(
+    conn: &mut PgConnection,
+    session: &Session,
+    user: headless_lms_models::users::User,
+    body: impl Serialize,
+) -> ControllerResult<HttpResponse> {
+    let cookie = session_verification::remember_test_mode_browser(conn, user.id).await?;
+    authentication::remember(session, user)?;
+    skip_authorize().authorized_ok(HttpResponse::Ok().cookie(cookie).json(body))
 }
 
 fn is_duplicate_email_error_message(message: &str) -> bool {
@@ -515,10 +517,7 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     }
 
-    let response =
-        handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
-            .await?;
-    skip_authorize().authorized_ok(HttpResponse::Ok().json(response.data.into_inner()))
+    handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password).await
 }
 
 async fn handle_uuid_login(
@@ -527,20 +526,13 @@ async fn handle_uuid_login(
     email: &str,
 ) -> ControllerResult<HttpResponse> {
     warn!("Trying development mode UUID login");
-    let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
-        let user = { models::users::get_by_id(conn, id).await? };
-        let browser_token = session_verification::remember_test_mode_browser(conn, user.id).await?;
-        authentication::remember(session, user)?;
-        token.authorized_ok(
-            HttpResponse::Ok()
-                .cookie(session_verification::browser_cookie(&browser_token))
-                .json(LoginResponse::Success),
-        )
+        let user = models::users::get_by_id(conn, id).await?;
+        sign_in_test_mode(conn, session, user, LoginResponse::Success).await
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
+        skip_authorize().authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -595,19 +587,12 @@ async fn handle_test_mode_login(
     let is_authenticated =
         authenticate_by_password(conn, user.id, email, password, app_conf).await?;
 
-    let token = skip_authorize();
     if is_authenticated {
         info!("Authentication successful");
-        let browser_token = session_verification::remember_test_mode_browser(conn, user.id).await?;
-        authentication::remember(session, user)?;
-        token.authorized_ok(
-            HttpResponse::Ok()
-                .cookie(session_verification::browser_cookie(&browser_token))
-                .json(LoginResponse::Success),
-        )
+        sign_in_test_mode(conn, session, user, LoginResponse::Success).await
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
+        skip_authorize().authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -618,7 +603,7 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &SecretString,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
     // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
     let email = email.trim();
@@ -696,10 +681,10 @@ async fn handle_production_login(
 
             authentication::remember(session, user)?;
         }
-        token.authorized_ok(web::Json(LoginResponse::Success))
+        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(LoginResponse::Failed))
+        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -1143,7 +1128,7 @@ pub async fn update_user_information_to_tmc(
 async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     let code = user_email_codes::generate_code();
 
     let email_verification_token =
@@ -1207,12 +1192,14 @@ async fn handle_email_verification(
         })?;
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(LoginResponse::RequiresEmailVerification {
-        // Re-wrap for the wire boundary: redacted in Debug/logs, serialized once in the response.
-        email_verification_token: OutboundSecret::new(
-            email_verification_token.expose_secret().to_string(),
-        ),
-    }))
+    token.authorized_ok(
+        HttpResponse::Ok().json(LoginResponse::RequiresEmailVerification {
+            // Re-wrap for the wire boundary: redacted in Debug/logs, serialized once in the response.
+            email_verification_token: OutboundSecret::new(
+                email_verification_token.expose_secret().to_string(),
+            ),
+        }),
+    )
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -1384,21 +1371,20 @@ pub async fn session_status(
     let mut conn = pool.acquire().await?;
     session_verification::delete_expired_occasionally(&mut conn).await?;
 
-    let check = match user {
-        Some(user) => {
-            check_session(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req).await?
-        }
-        None => SessionCheck::NotRequired {
-            renewed_cookie: None,
-        },
+    let ok_response = match user {
+        Some(user) => session_verification::check_session(
+            &mut conn,
+            &ip_to_country_mapper,
+            &app_conf,
+            user.id,
+            &req,
+        )
+        .await?
+        .into_ok_response(),
+        None => Some(HttpResponse::Ok()),
     };
-    let (mut response, verification_required) = match check {
-        SessionCheck::NotRequired { renewed_cookie } => (
-            session_verification::ok_with_renewed_cookie(renewed_cookie),
-            false,
-        ),
-        SessionCheck::Required => (HttpResponse::Ok(), true),
-    };
+    let verification_required = ok_response.is_none();
+    let mut response = ok_response.unwrap_or_else(HttpResponse::Ok);
     response.insert_header(CacheControl(vec![CacheDirective::NoStore]));
     let challenges = if verification_required {
         vec![SessionChallenge {
@@ -1414,63 +1400,20 @@ pub async fn session_status(
     }))
 }
 
-/// Whether [`session_status`] asks the user to confirm the session.
-enum SessionCheck {
-    /// The response must set `renewed_cookie` when there is one.
-    NotRequired {
-        renewed_cookie: Option<Cookie<'static>>,
-    },
-    Required,
-}
-
-async fn check_session(
-    conn: &mut PgConnection,
-    ip_to_country_mapper: &IpToCountryMapper,
-    app_conf: &ApplicationConfiguration,
-    user_id: Uuid,
-    req: &HttpRequest,
-) -> Result<SessionCheck, ControllerError> {
-    if !session_verification::applies_to(conn, user_id).await? {
-        return Ok(SessionCheck::NotRequired {
-            renewed_cookie: None,
-        });
-    }
-    Ok(
-        match session_verification::recognize(conn, ip_to_country_mapper, app_conf, user_id, req)
-            .await?
-        {
-            Some(recognition) => SessionCheck::NotRequired {
-                renewed_cookie: recognition.renewed_cookie,
-            },
-            None => SessionCheck::Required,
-        },
-    )
-}
-
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct SessionEmailCodeRequest {
     /// The user asked for another mail. Without it, a code that is still usable is not replaced.
     pub resend: bool,
 }
 
-/// What asking for a session confirmation code did. `masked_email` is where the code goes.
+/// What asking for a session confirmation code did.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SessionEmailCodeResult {
-    Sent {
+    Required {
+        /// Where the code goes.
         masked_email: String,
-    },
-    /// A usable code was mailed earlier; nothing was sent.
-    AlreadySent {
-        masked_email: String,
-    },
-    /// Refused resend: the outstanding code is younger than the resend interval.
-    RecentlySent {
-        masked_email: String,
-        retry_after_seconds: i64,
-    },
-    DailyLimitReached {
-        masked_email: String,
+        outcome: EmailCodeOutcome,
     },
     NotRequired,
 }
@@ -1500,32 +1443,26 @@ pub async fn send_session_email_code(
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
-    if let SessionCheck::NotRequired { renewed_cookie } =
-        check_session(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req).await?
+    if let Some(mut response) = session_verification::check_session(
+        &mut conn,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_ok_response()
     {
-        return token.authorized_ok(
-            session_verification::ok_with_renewed_cookie(renewed_cookie)
-                .json(SessionEmailCodeResult::NotRequired),
-        );
+        return token.authorized_ok(response.json(SessionEmailCodeResult::NotRequired));
     }
 
     let email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
         .await?
         .email;
-    let masked_email = session_verification::mask_email(&email);
     let outcome = session_verification::send_email_code(&mut conn, user.id, payload.resend).await?;
-    token.authorized_ok(HttpResponse::Ok().json(match outcome {
-        EmailCodeOutcome::Sent => SessionEmailCodeResult::Sent { masked_email },
-        EmailCodeOutcome::AlreadySent => SessionEmailCodeResult::AlreadySent { masked_email },
-        EmailCodeOutcome::RecentlySent {
-            retry_after_seconds,
-        } => SessionEmailCodeResult::RecentlySent {
-            masked_email,
-            retry_after_seconds,
-        },
-        EmailCodeOutcome::DailyLimitReached => {
-            SessionEmailCodeResult::DailyLimitReached { masked_email }
-        }
+    token.authorized_ok(HttpResponse::Ok().json(SessionEmailCodeResult::Required {
+        masked_email: session_verification::mask_email(&email),
+        outcome,
     }))
 }
 
@@ -1574,13 +1511,17 @@ pub async fn verify_session(
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
-    if let SessionCheck::NotRequired { renewed_cookie } =
-        check_session(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req).await?
+    if let Some(mut response) = session_verification::check_session(
+        &mut conn,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_ok_response()
     {
-        return token.authorized_ok(
-            session_verification::ok_with_renewed_cookie(renewed_cookie)
-                .json(SessionVerifyResult::NotRequired),
-        );
+        return token.authorized_ok(response.json(SessionVerifyResult::NotRequired));
     }
 
     let mut tx = conn.begin().await?;
@@ -1643,6 +1584,7 @@ pub async fn verify_session(
         SessionChallengeReason,
         SessionEmailCodeRequest,
         SessionEmailCodeResult,
+        EmailCodeOutcome,
         SessionVerifyRequest,
         SessionVerifyResult,
         headless_lms_models::roles::UserRole,

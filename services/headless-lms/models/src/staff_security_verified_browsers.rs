@@ -15,15 +15,25 @@ fn token_digest(token: &SecretString) -> Vec<u8> {
     Sha256::digest(token.expose_secret().as_bytes()).to_vec()
 }
 
-/// The id of the user's unexpired browser that holds `token`, if any.
-pub async fn get_unexpired_id(
+/// One of the user's remembered browsers that has not expired.
+#[derive(Debug, Clone, Copy)]
+pub struct UnexpiredBrowser {
+    pub id: Uuid,
+    /// Whether [`renew`] would push the expiry back.
+    pub renewal_due: bool,
+}
+
+/// The user's unexpired browser that holds `token`, if any.
+pub async fn get_unexpired(
     conn: &mut PgConnection,
     user_id: Uuid,
     token: &SecretString,
-) -> ModelResult<Option<Uuid>> {
-    let id = sqlx::query_scalar!(
+) -> ModelResult<Option<UnexpiredBrowser>> {
+    let browser = sqlx::query_as!(
+        UnexpiredBrowser,
         r#"
-SELECT id
+SELECT id,
+  expires_at < now() + interval '6 months' - interval '1 day' AS "renewal_due!"
 FROM staff_security_verified_browsers
 WHERE user_id = $1
   AND token_digest = $2
@@ -34,7 +44,7 @@ WHERE user_id = $1
     )
     .fetch_optional(conn)
     .await?;
-    Ok(id)
+    Ok(browser)
 }
 
 /// Remembers a new browser for six months.
@@ -137,6 +147,15 @@ WHERE user_id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Forgets every browser and network the user has verified.
+pub async fn delete_all_for_user_with_networks(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    crate::staff_security_verified_networks::delete_all_for_user_except(conn, user_id, &[]).await?;
+    delete_all_for_user_except(conn, user_id, None).await
 }
 
 /// Hard-deletes every expired browser. Returns how many.

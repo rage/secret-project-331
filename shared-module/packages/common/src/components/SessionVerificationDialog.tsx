@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import React, { useEffect, useId, useState } from "react"
+import React, { useCallback, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Dialog } from "@/shared-module/components/components/Dialog"
@@ -25,6 +25,12 @@ const HTTP_TOO_MANY_REQUESTS = 429
 /** The server refuses a resend for two minutes after a code went out. */
 const RESEND_COOLDOWN_SECONDS = 120
 
+interface EmailCodeState {
+  maskedEmail: string | null
+  lastSentAt: string | null
+  resendNotice: string | null
+}
+
 /**
  * Blocking "is it really you" dialog; renders nothing unless the session needs verification.
  * Mount once inside the login-state and query providers of a normal page layout.
@@ -34,9 +40,11 @@ const SessionVerificationDialog: React.FC = () => {
   const queryClient = useQueryClient()
   const { logout } = useLogout()
   const isVerificationRequired = useSessionVerificationRequired()
-  const [maskedEmail, setMaskedEmail] = useState<string | null>(null)
-  const [resendNotice, setResendNotice] = useState<string | null>(null)
-  const [lastSentAt, setLastSentAt] = useState<string | null>(null)
+  const [emailCode, setEmailCode] = useState<EmailCodeState>({
+    maskedEmail: null,
+    lastSentAt: null,
+    resendNotice: null,
+  })
   const [codeError, setCodeError] = useState<string | null>(null)
   const [code, setCode] = useState("")
   const formId = useId()
@@ -48,31 +56,34 @@ const SessionVerificationDialog: React.FC = () => {
         void queryClient.invalidateQueries({ queryKey: getAuthSessionStatusQueryKey() })
         return
       }
-      setMaskedEmail(result.masked_email)
-      switch (result.type) {
-        case "recently_sent":
-          setLastSentAt(
-            new Date(
-              Date.now() + (result.retry_after_seconds - RESEND_COOLDOWN_SECONDS) * 1000,
-            ).toISOString(),
-          )
-          setResendNotice(
-            t("session-verification-recently-sent", { seconds: result.retry_after_seconds }),
-          )
-          break
-        case "daily_limit_reached":
-          setResendNotice(t("session-verification-daily-limit-reached"))
-          break
-        case "sent":
-          setLastSentAt(new Date().toISOString())
-          setResendNotice(null)
-          break
-        case "already_sent":
-          setResendNotice(null)
-          break
-      }
+      const { masked_email: maskedEmail, outcome } = result
+      setEmailCode((previous) => {
+        switch (outcome.type) {
+          case "recently_sent":
+            return {
+              maskedEmail,
+              lastSentAt: new Date(
+                Date.now() + (outcome.retry_after_seconds - RESEND_COOLDOWN_SECONDS) * 1000,
+              ).toISOString(),
+              resendNotice: t("session-verification-recently-sent", {
+                seconds: outcome.retry_after_seconds,
+              }),
+            }
+          case "daily_limit_reached":
+            return {
+              ...previous,
+              maskedEmail,
+              resendNotice: t("session-verification-daily-limit-reached"),
+            }
+          case "sent":
+            return { maskedEmail, lastSentAt: new Date().toISOString(), resendNotice: null }
+          case "already_sent":
+            return { ...previous, maskedEmail, resendNotice: null }
+        }
+      })
     },
-    onError: (error) => setResendNotice(errorMessage(error)),
+    onError: (error) =>
+      setEmailCode((previous) => ({ ...previous, resendNotice: errorMessage(error) })),
   })
   const { mutate: sendCode } = requestEmailCode
 
@@ -94,11 +105,12 @@ const SessionVerificationDialog: React.FC = () => {
     }
   }, [isVerificationRequired, sendCode])
 
-  useEffect(() => {
-    if (code.length > 0) {
+  const handleCodeChange = useCallback((typedCode: string) => {
+    setCode(typedCode)
+    if (typedCode.length > 0) {
       setCodeError(null)
     }
-  }, [code])
+  }, [])
 
   const errorMessage = (error: unknown) =>
     isAppApiError(error) && error.status === HTTP_TOO_MANY_REQUESTS
@@ -141,15 +153,15 @@ const SessionVerificationDialog: React.FC = () => {
       <OneTimeCodeForm
         id={formId}
         message={
-          maskedEmail === null
+          emailCode.maskedEmail === null
             ? t("session-verification-unrecognized-network")
-            : `${t("session-verification-unrecognized-network")} ${t("session-verification-code-sent-to", { email: maskedEmail })}`
+            : `${t("session-verification-unrecognized-network")} ${t("session-verification-code-sent-to", { email: emailCode.maskedEmail })}`
         }
         onSubmit={async (submittedCode) => {
           // Failures are shown through the mutation's own callbacks.
           await verifyCode.mutateAsync({ body: { code: submittedCode } }).catch(() => undefined)
         }}
-        onCodeChange={setCode}
+        onCodeChange={handleCodeChange}
         error={codeError}
         isSubmitting={verifyCode.isPending}
         resend={{
@@ -157,8 +169,8 @@ const SessionVerificationDialog: React.FC = () => {
           label: t("session-verification-send-again"),
           onResend: () => sendCode({ body: { resend: true } }),
           cooldownSeconds: RESEND_COOLDOWN_SECONDS,
-          lastSentAt,
-          statusMessage: resendNotice,
+          lastSentAt: emailCode.lastSentAt,
+          statusMessage: emailCode.resendNotice,
         }}
       />
     </Dialog>

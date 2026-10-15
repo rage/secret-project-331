@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  country,\n  network >>= $2::text::inet AS \"contains_ip!\"\nFROM staff_security_verified_networks\nWHERE user_id = $1\n  AND expires_at > now()\n  AND family(network) = family($2::text::inet)\n  AND (\n    network >>= $2::text::inet\n    OR (\n      verified_by_browser_id = $3\n      AND verified_at > now() - interval '24 hours'\n      AND country IS NOT NULL\n      AND network <<= network(set_masklen($2::text::inet, $4))\n    )\n  )\n        ",
+  "query": "\nSELECT id,\n  country,\n  network >>= $2::text::inet AS \"contains_ip!\",\n  expires_at < now() + interval '3 months' AS \"renewal_due!\"\nFROM staff_security_verified_networks\nWHERE user_id = $1\n  AND expires_at > now()\n  AND family(network) = family($2::text::inet)\n  AND (\n    network >>= $2::text::inet\n    OR (\n      verified_by_browser_id = $3\n      AND verified_at > now() - interval '24 hours'\n      AND country IS NOT NULL\n      AND network <<= network(set_masklen($2::text::inet, $4))\n    )\n  )\n        ",
   "describe": {
     "columns": [
       {
@@ -30,6 +30,12 @@
         "name": "contains_ip!",
         "type_info": "Bool",
         "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "renewal_due!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -43,8 +49,9 @@
     "nullable": [
       false,
       true,
+      null,
       null
     ]
   },
-  "hash": "daac69940057ba62018782ffb269ee0fbb32a46fb160687a9963581a26a63347"
+  "hash": "f6f98aeac52b7ec6c7aaa3e9218e95e26d29f4f9448b6d8f43bbd6616d0946fc"
 }

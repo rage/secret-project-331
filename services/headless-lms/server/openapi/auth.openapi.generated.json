@@ -699,6 +699,57 @@
           }
         }
       },
+      "EmailCodeOutcome": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A usable code is already out; nothing was sent.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["already_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Refused resend: the outstanding code is younger than the resend interval.",
+            "required": ["retry_after_seconds", "type"],
+            "properties": {
+              "retry_after_seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["recently_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["daily_limit_reached"]
+              }
+            }
+          }
+        ],
+        "description": "Whether a session confirmation code went out, and if not, why."
+      },
       "Login": {
         "type": "object",
         "required": ["email", "password"],
@@ -1078,59 +1129,18 @@
         "oneOf": [
           {
             "type": "object",
-            "required": ["masked_email", "type"],
+            "required": ["masked_email", "outcome", "type"],
             "properties": {
               "masked_email": {
-                "type": "string"
+                "type": "string",
+                "description": "Where the code goes."
+              },
+              "outcome": {
+                "$ref": "#/components/schemas/EmailCodeOutcome"
               },
               "type": {
                 "type": "string",
-                "enum": ["sent"]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "description": "A usable code was mailed earlier; nothing was sent.",
-            "required": ["masked_email", "type"],
-            "properties": {
-              "masked_email": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string",
-                "enum": ["already_sent"]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "description": "Refused resend: the outstanding code is younger than the resend interval.",
-            "required": ["masked_email", "retry_after_seconds", "type"],
-            "properties": {
-              "masked_email": {
-                "type": "string"
-              },
-              "retry_after_seconds": {
-                "type": "integer",
-                "format": "int64"
-              },
-              "type": {
-                "type": "string",
-                "enum": ["recently_sent"]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "required": ["masked_email", "type"],
-            "properties": {
-              "masked_email": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string",
-                "enum": ["daily_limit_reached"]
+                "enum": ["required"]
               }
             }
           },
@@ -1145,7 +1155,7 @@
             }
           }
         ],
-        "description": "What asking for a session confirmation code did. `masked_email` is where the code goes."
+        "description": "What asking for a session confirmation code did."
       },
       "SessionStatus": {
         "type": "object",

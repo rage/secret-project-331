@@ -1,7 +1,7 @@
 //! Whether a session of a user with a role comes from a browser and a network the user has confirmed
 //! with an emailed code, and confirming new ones.
 
-use std::net::IpAddr;
+use std::net::{IpAddr, SocketAddr};
 
 use actix_web::{
     HttpResponseBuilder,
@@ -9,8 +9,7 @@ use actix_web::{
 };
 use chrono::Duration;
 use headless_lms_models::{
-    email_deliveries,
-    email_templates::{self, EmailTemplateType},
+    email_templates::EmailTemplateType,
     staff_security_verified_browsers as verified_browsers,
     staff_security_verified_networks as verified_networks, user_email_codes,
     user_email_codes::{CodeCheck, UserEmailCodePurpose},
@@ -20,7 +19,7 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::config::server_runtime_config;
 use crate::domain::email_ownership_verification::{
-    FALLBACK_EMAIL_LANGUAGE, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES,
+    FALLBACK_EMAIL_LANGUAGE, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES, mail_new_code,
 };
 use crate::prelude::*;
 
@@ -35,7 +34,7 @@ const EXPIRED_CLEANUP_PROBABILITY: f64 = 0.001;
 /// Whether the user is subject to the check at all: any role at any scope counts, as for the login
 /// code, since a teacher's account is as worth stealing as an admin's.
 pub async fn applies_to(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
-    Ok(!models::roles::get_roles(conn, user_id).await?.is_empty())
+    models::roles::has_any_role(conn, user_id).await
 }
 
 /// The client address as the ingress saw it: the rightmost `X-Forwarded-For` entry, which the
@@ -54,18 +53,13 @@ pub fn client_ip(req: &HttpRequest) -> Option<IpAddr> {
     }
 }
 
+/// An address, with or without a port.
 fn parse_forwarded_ip(entry: &str) -> Option<IpAddr> {
     let entry = entry.trim();
-    if let Ok(ip) = entry.parse::<IpAddr>() {
-        return Some(ip.to_canonical());
-    }
-    if let Ok(addr) = entry.parse::<std::net::SocketAddr>() {
-        return Some(addr.ip().to_canonical());
-    }
     entry
-        .strip_prefix('[')
-        .and_then(|rest| rest.split_once(']'))
-        .and_then(|(ip, _)| ip.parse::<IpAddr>().ok())
+        .parse::<IpAddr>()
+        .or_else(|_| entry.parse::<SocketAddr>().map(|addr| addr.ip()))
+        .ok()
         .map(|ip| ip.to_canonical())
 }
 
@@ -113,10 +107,60 @@ pub struct Recognition {
     pub renewed_cookie: Option<Cookie<'static>>,
 }
 
+/// Where a session stands with the check.
+#[derive(Debug)]
+pub enum SessionCheck {
+    /// The user has no role.
+    Exempt,
+    Recognized(Recognition),
+    /// The user must confirm the session with an emailed code.
+    Unrecognized,
+}
+
+impl SessionCheck {
+    /// A 200 response that sets any renewed cookie, or `None` when the user must confirm.
+    pub fn into_ok_response(self) -> Option<HttpResponseBuilder> {
+        match self {
+            SessionCheck::Exempt => Some(HttpResponse::Ok()),
+            SessionCheck::Recognized(recognition) => {
+                Some(ok_with_renewed_cookie(recognition.renewed_cookie))
+            }
+            SessionCheck::Unrecognized => None,
+        }
+    }
+
+    pub fn into_recognition(self) -> Option<Recognition> {
+        match self {
+            SessionCheck::Recognized(recognition) => Some(recognition),
+            SessionCheck::Exempt | SessionCheck::Unrecognized => None,
+        }
+    }
+}
+
+/// Whether the user must confirm the session: one with a role must, unless the request comes from
+/// a remembered browser on a verified network.
+pub async fn check_session(
+    conn: &mut PgConnection,
+    ip_to_country: &IpToCountryMapper,
+    app_conf: &ApplicationConfiguration,
+    user_id: Uuid,
+    req: &HttpRequest,
+) -> ModelResult<SessionCheck> {
+    if !applies_to(conn, user_id).await? {
+        return Ok(SessionCheck::Exempt);
+    }
+    Ok(
+        match recognize(conn, ip_to_country, app_conf, user_id, req).await? {
+            Some(recognition) => SessionCheck::Recognized(recognition),
+            None => SessionCheck::Unrecognized,
+        },
+    )
+}
+
 /// Whether the request comes from one of the user's remembered browsers on one of their verified
 /// networks. Widens a freshly verified network to cover the request where allowed, and renews what
 /// the request matched.
-pub async fn recognize(
+async fn recognize(
     conn: &mut PgConnection,
     ip_to_country: &IpToCountryMapper,
     app_conf: &ApplicationConfiguration,
@@ -128,7 +172,7 @@ pub async fn recognize(
     let Some(token) = browser_token(req) else {
         return Ok(None);
     };
-    let Some(browser_id) = verified_browsers::get_unexpired_id(conn, user_id, &token).await? else {
+    let Some(browser) = verified_browsers::get_unexpired(conn, user_id, &token).await? else {
         return Ok(None);
     };
     let Some(ip) = client_ip(req) else {
@@ -138,23 +182,31 @@ pub async fn recognize(
     let network_ids = if is_development && is_local(ip) {
         Vec::new()
     } else {
-        let candidates = verified_networks::get_candidates(conn, user_id, ip, browser_id).await?;
+        let candidates = verified_networks::get_candidates(conn, user_id, ip, browser.id).await?;
         if candidates.is_empty() {
             return Ok(None);
         }
         // Only now: the lookup is a linear scan over every country's list.
-        let country = ip_to_country.map_ip_to_country_quietly(&ip);
-        let matched: Vec<Uuid> = candidates
+        let country = ip_to_country.map_ip_to_country(&ip);
+        let matched: Vec<_> = candidates
             .iter()
             // The dev and test lists are truncated, so countries there are unreliable.
             .filter(|c| c.contains_ip && (is_development || c.country.as_deref() == country))
-            .map(|c| c.id)
             .collect();
         if !matched.is_empty() {
-            matched
+            let due: Vec<Uuid> = matched
+                .iter()
+                .filter(|c| c.renewal_due)
+                .map(|c| c.id)
+                .collect();
+            if !due.is_empty() {
+                verified_networks::renew_if_expiring(conn, &due).await?;
+            }
+            matched.iter().map(|c| c.id).collect()
         } else if let Some(country) = country {
+            // Widening needs a verification within the last day, so these are never due a renewal.
             let widened =
-                verified_networks::widen_to_cover(conn, user_id, browser_id, ip, country).await?;
+                verified_networks::widen_to_cover(conn, user_id, browser.id, ip, country).await?;
             if widened.is_empty() {
                 return Ok(None);
             }
@@ -164,12 +216,15 @@ pub async fn recognize(
         }
     };
 
-    verified_networks::renew_if_expiring(conn, &network_ids).await?;
-    let renewed_cookie = verified_browsers::renew(conn, browser_id)
-        .await?
-        .then(|| browser_cookie(&token));
+    let renewed_cookie = if browser.renewal_due {
+        verified_browsers::renew(conn, browser.id)
+            .await?
+            .then(|| browser_cookie(&token))
+    } else {
+        None
+    };
     Ok(Some(Recognition {
-        browser_id,
+        browser_id: browser.id,
         network_ids,
         renewed_cookie,
     }))
@@ -187,22 +242,20 @@ pub async fn record_verification(
     req: &HttpRequest,
 ) -> ModelResult<Cookie<'static>> {
     let mut tx = conn.begin().await?;
-    let existing = match browser_token(req) {
-        Some(token) => match verified_browsers::get_unexpired_id(&mut tx, user_id, &token).await? {
-            Some(browser_id) => {
-                verified_browsers::renew(&mut tx, browser_id).await?;
-                Some((browser_id, token))
-            }
-            None => {
-                verified_browsers::delete_by_token(&mut tx, &token).await?;
-                None
-            }
-        },
+    let token = browser_token(req);
+    let browser = match &token {
+        Some(token) => verified_browsers::get_unexpired(&mut tx, user_id, token).await?,
         None => None,
     };
-    let (browser_id, token) = match existing {
-        Some(existing) => existing,
-        None => {
+    let (browser_id, token) = match (browser, token) {
+        (Some(browser), Some(token)) => {
+            verified_browsers::renew(&mut tx, browser.id).await?;
+            (browser.id, token)
+        }
+        (_, stale_token) => {
+            if let Some(stale_token) = stale_token {
+                verified_browsers::delete_by_token(&mut tx, &stale_token).await?;
+            }
             let token = verified_browsers::generate_token();
             (
                 verified_browsers::insert(&mut tx, user_id, &token).await?,
@@ -211,7 +264,7 @@ pub async fn record_verification(
         }
     };
     if let Some(ip) = client_ip(req) {
-        let country = ip_to_country.map_ip_to_country_quietly(&ip);
+        let country = ip_to_country.map_ip_to_country(&ip);
         verified_networks::record_verification(&mut tx, user_id, browser_id, ip, country).await?;
     } else {
         warn!("Could not tell the client address; verified the browser of {user_id} only");
@@ -229,14 +282,11 @@ pub async fn forget_after_password_change(
     user_id: Uuid,
     kept: Option<&Recognition>,
 ) -> ModelResult<()> {
-    verified_networks::delete_all_for_user_except(
-        conn,
-        user_id,
-        kept.map(|r| r.network_ids.as_slice()).unwrap_or_default(),
-    )
-    .await?;
-    verified_browsers::delete_all_for_user_except(conn, user_id, kept.map(|r| r.browser_id))
-        .await?;
+    let Some(kept) = kept else {
+        return verified_browsers::delete_all_for_user_with_networks(conn, user_id).await;
+    };
+    verified_networks::delete_all_for_user_except(conn, user_id, &kept.network_ids).await?;
+    verified_browsers::delete_all_for_user_except(conn, user_id, Some(kept.browser_id)).await?;
     Ok(())
 }
 
@@ -246,14 +296,15 @@ fn test_mode_browser_token(user_id: Uuid) -> SecretString {
     SecretString::from(format!("test-mode-browser-{user_id}"))
 }
 
-/// Remembers the user's [`test_mode_browser_token`] and returns it. Never removes another user's
-/// row: a saved login of the previous user of the same browser context must stay valid.
+/// Remembers the user's [`test_mode_browser_token`] and returns the cookie that carries it. Never
+/// removes another user's row: a saved login of the previous user of the same browser context must
+/// stay valid.
 pub async fn remember_test_mode_browser(
     conn: &mut PgConnection,
     user_id: Uuid,
-) -> ModelResult<SecretString> {
+) -> ModelResult<Cookie<'static>> {
     remember_test_mode_browsers(conn, &[user_id]).await?;
-    Ok(test_mode_browser_token(user_id))
+    Ok(browser_cookie(&test_mode_browser_token(user_id)))
 }
 
 /// [`remember_test_mode_browser`] for many users in one statement.
@@ -290,12 +341,14 @@ pub fn mask_email(email: &str) -> String {
     }
 }
 
-/// What [`send_email_code`] did.
-#[derive(Debug, PartialEq, Eq)]
+/// Whether a session confirmation code went out, and if not, why.
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum EmailCodeOutcome {
     Sent,
     /// A usable code is already out; nothing was sent.
     AlreadySent,
+    /// Refused resend: the outstanding code is younger than the resend interval.
     RecentlySent {
         retry_after_seconds: i64,
     },
@@ -354,21 +407,14 @@ pub async fn send_email_code(
         return Ok(EmailCodeOutcome::DailyLimitReached);
     }
 
-    let template = email_templates::get_generic_email_template_by_type_and_language(
+    mail_new_code(
         &mut tx,
+        user_id,
+        PURPOSE,
         EmailTemplateType::VerifyNetwork,
         FALLBACK_EMAIL_LANGUAGE,
     )
-    .await
-    .map_err(|e| {
-        anyhow::anyhow!(
-            "The verify_network email template is missing: {}",
-            e.message()
-        )
-    })?;
-    let code = user_email_codes::generate_code();
-    user_email_codes::insert_user_email_code(&mut tx, user_id, PURPOSE, &code).await?;
-    email_deliveries::insert_email_delivery(&mut tx, user_id, template.id).await?;
+    .await?;
     tx.commit().await?;
     Ok(EmailCodeOutcome::Sent)
 }

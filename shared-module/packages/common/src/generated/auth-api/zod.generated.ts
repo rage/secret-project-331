@@ -45,6 +45,32 @@ export const zEmailCode = z.object({
   code: z.string(),
 })
 
+/**
+ * Whether a session confirmation code went out, and if not, why.
+ */
+export const zEmailCodeOutcome = z.union([
+  z.object({
+    type: z.enum(["sent"]),
+  }),
+  z.object({
+    type: z.enum(["already_sent"]),
+  }),
+  z.object({
+    retry_after_seconds: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+    type: z.enum(["recently_sent"]),
+  }),
+  z.object({
+    type: z.enum(["daily_limit_reached"]),
+  }),
+])
+
 export const zLogin = z.object({
   email: z.string(),
   password: z.string(),
@@ -187,32 +213,13 @@ export const zSessionEmailCodeRequest = z.object({
 })
 
 /**
- * What asking for a session confirmation code did. `masked_email` is where the code goes.
+ * What asking for a session confirmation code did.
  */
 export const zSessionEmailCodeResult = z.union([
   z.object({
     masked_email: z.string(),
-    type: z.enum(["sent"]),
-  }),
-  z.object({
-    masked_email: z.string(),
-    type: z.enum(["already_sent"]),
-  }),
-  z.object({
-    masked_email: z.string(),
-    retry_after_seconds: z.coerce
-      .bigint()
-      .min(BigInt("-9223372036854775808"), {
-        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-      })
-      .max(BigInt("9223372036854775807"), {
-        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-      }),
-    type: z.enum(["recently_sent"]),
-  }),
-  z.object({
-    masked_email: z.string(),
-    type: z.enum(["daily_limit_reached"]),
+    outcome: zEmailCodeOutcome,
+    type: z.enum(["required"]),
   }),
   z.object({
     type: z.enum(["not_required"]),

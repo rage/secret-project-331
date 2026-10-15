@@ -5,22 +5,27 @@ use std::net::IpAddr;
 
 use crate::prelude::*;
 
-/// Prefix of the block a code verifies when the address has a country.
-const VERIFIED_PREFIX_V4: i32 = 16;
-const VERIFIED_PREFIX_V6: i32 = 32;
-/// Prefix of the block a code verifies when the address has no country: the address alone.
-const COUNTRYLESS_PREFIX_V4: i32 = 32;
-const COUNTRYLESS_PREFIX_V6: i32 = 64;
-/// Widest a network may grow by widening.
-const WIDENING_LIMIT_PREFIX_V4: i32 = 12;
-const WIDENING_LIMIT_PREFIX_V6: i32 = 29;
+/// A prefix length for each address family.
+struct PrefixLen {
+    v4: i32,
+    v6: i32,
+}
 
-fn prefix_for(ip: IpAddr, v4: i32, v6: i32) -> i32 {
-    match ip {
-        IpAddr::V4(_) => v4,
-        IpAddr::V6(_) => v6,
+impl PrefixLen {
+    fn for_ip(&self, ip: IpAddr) -> i32 {
+        match ip {
+            IpAddr::V4(_) => self.v4,
+            IpAddr::V6(_) => self.v6,
+        }
     }
 }
+
+/// The block a code verifies when the address has a country.
+const VERIFIED: PrefixLen = PrefixLen { v4: 16, v6: 32 };
+/// The block a code verifies when the address has no country: the address alone.
+const COUNTRYLESS: PrefixLen = PrefixLen { v4: 32, v6: 64 };
+/// Widest a network may grow by widening.
+const WIDENING_LIMIT: PrefixLen = PrefixLen { v4: 12, v6: 29 };
 
 /// An unexpired network that either contains an address or could widen to cover it.
 #[derive(Debug, Clone)]
@@ -28,6 +33,8 @@ pub struct NetworkCandidate {
     pub id: Uuid,
     pub country: Option<String>,
     pub contains_ip: bool,
+    /// Whether [`renew_if_expiring`] would push the expiry back.
+    pub renewal_due: bool,
 }
 
 /// The user's unexpired networks of `ip`'s family that contain `ip`, plus those `browser_id` could
@@ -44,7 +51,8 @@ pub async fn get_candidates(
         r#"
 SELECT id,
   country,
-  network >>= $2::text::inet AS "contains_ip!"
+  network >>= $2::text::inet AS "contains_ip!",
+  expires_at < now() + interval '3 months' AS "renewal_due!"
 FROM staff_security_verified_networks
 WHERE user_id = $1
   AND expires_at > now()
@@ -62,7 +70,7 @@ WHERE user_id = $1
         user_id,
         ip.to_string(),
         browser_id,
-        prefix_for(ip, WIDENING_LIMIT_PREFIX_V4, WIDENING_LIMIT_PREFIX_V6),
+        WIDENING_LIMIT.for_ip(ip),
     )
     .fetch_all(conn)
     .await?;
@@ -99,7 +107,7 @@ RETURNING id
         browser_id,
         ip.to_string(),
         country,
-        prefix_for(ip, WIDENING_LIMIT_PREFIX_V4, WIDENING_LIMIT_PREFIX_V6),
+        WIDENING_LIMIT.for_ip(ip),
     )
     .fetch_all(conn)
     .await?;
@@ -135,8 +143,8 @@ pub async fn record_verification(
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
     let prefix = match country {
-        Some(_) => prefix_for(ip, VERIFIED_PREFIX_V4, VERIFIED_PREFIX_V6),
-        None => prefix_for(ip, COUNTRYLESS_PREFIX_V4, COUNTRYLESS_PREFIX_V6),
+        Some(_) => VERIFIED.for_ip(ip),
+        None => COUNTRYLESS.for_ip(ip),
     };
     let renewed = sqlx::query!(
         r#"

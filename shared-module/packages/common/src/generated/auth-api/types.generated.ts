@@ -114,6 +114,24 @@ export type EmailCode = {
   code: string
 }
 
+/**
+ * Whether a session confirmation code went out, and if not, why.
+ */
+export type EmailCodeOutcome =
+  | {
+      type: "sent"
+    }
+  | {
+      type: "already_sent"
+    }
+  | {
+      retry_after_seconds: number
+      type: "recently_sent"
+    }
+  | {
+      type: "daily_limit_reached"
+    }
+
 export type Login = {
   email: string
   password: string
@@ -254,25 +272,16 @@ export type SessionEmailCodeRequest = {
 }
 
 /**
- * What asking for a session confirmation code did. `masked_email` is where the code goes.
+ * What asking for a session confirmation code did.
  */
 export type SessionEmailCodeResult =
   | {
+      /**
+       * Where the code goes.
+       */
       masked_email: string
-      type: "sent"
-    }
-  | {
-      masked_email: string
-      type: "already_sent"
-    }
-  | {
-      masked_email: string
-      retry_after_seconds: number
-      type: "recently_sent"
-    }
-  | {
-      masked_email: string
-      type: "daily_limit_reached"
+      outcome: EmailCodeOutcome
+      type: "required"
     }
   | {
       type: "not_required"

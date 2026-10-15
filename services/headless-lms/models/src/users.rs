@@ -329,8 +329,7 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<D
     sqlx::query!("DELETE FROM user_passwords WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;
-    crate::staff_security_verified_networks::delete_all_for_user_except(&mut tx, id, &[]).await?;
-    crate::staff_security_verified_browsers::delete_all_for_user_except(&mut tx, id, None).await?;
+    crate::staff_security_verified_browsers::delete_all_for_user_with_networks(&mut tx, id).await?;
     sqlx::query!(
         "UPDATE users set deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
         id,

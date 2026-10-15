@@ -116,27 +116,14 @@ impl IpToCountryMapper {
         Ok(Self { lists })
     }
 
+    /// The lowercase country code of the list containing `ip`, if any.
     pub fn map_ip_to_country(&self, ip: &IpAddr) -> Option<&str> {
-        let country = self.find_country(ip);
-        match country {
-            Some(country) => info!("Mapped ip {} to country {}.", ip, country),
-            None => info!("Ip {} did not resolve to a country.", ip),
-        }
-        country
-    }
-
-    /// [`Self::map_ip_to_country`] logging only at debug level, for callers that look up on every
-    /// request of a session.
-    pub fn map_ip_to_country_quietly(&self, ip: &IpAddr) -> Option<&str> {
-        let country = self.find_country(ip);
-        debug!(?ip, ?country, "Mapped ip to country");
-        country
-    }
-
-    fn find_country(&self, ip: &IpAddr) -> Option<&str> {
-        self.lists
+        let country = self
+            .lists
             .iter()
             .find(|(_, list)| list.iter().any(|ipnet| ipnet.contains(ip)))
-            .map(|(country, _)| country.as_str())
+            .map(|(country, _)| country.as_str());
+        debug!(?ip, ?country, "Mapped ip to country");
+        country
     }
 }

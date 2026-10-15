@@ -604,8 +604,9 @@ impl ChatbotTool for CourseConfigurationTool {
             }
             notes.push(
                 "Credits are registered only for modules with a uh_course_code; without one \
-                 the student cannot register credits at all. certification_enabled alone is not sufficient for a certificate to exist — a \
-                 certificate_configuration must also reference the module."
+                 the student cannot register credits at all. certification_enabled alone is not \
+                 sufficient for a certificate to exist — a certificate_configuration must also \
+                 reference the module."
                     .to_string(),
             );
             notes.push(format!(

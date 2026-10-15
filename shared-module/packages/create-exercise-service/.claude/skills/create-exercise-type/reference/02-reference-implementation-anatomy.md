@@ -213,21 +213,22 @@ name/port.
 - **`rsbuild.config.ts`**: `tanstackStart({ spa: { enabled: true, maskPath: `${BASE_PATH}/` } })`;
   binds dev server to `0.0.0.0` (so k8s probes/ingress reach it); sets `output.assetPrefix` to the
   base path (the opaque-origin iframe can't resolve relative URLs); stamps `IFRAME_HEADERS` on the
-  dev server; inlines `NEXT_PUBLIC_SERVICE_SLUG` for the vendored error reporter; public source maps.
+  dev server and answers CORS preflights ahead of rsbuild's localhost-only CORS middleware;
+  `strictPort`, so a taken port fails instead of silently moving; inlines `NEXT_PUBLIC_SERVICE_SLUG`
+  for the vendored error reporter; public source maps.
 - **`iframe-headers.mjs`**: the CSP/CORS/embedding headers. Permissive CSP
   (`default-src *`) is safe _because the iframe sandbox provides isolation_.
   `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Private-Network: true` because the
-  iframe fetches its own API/fonts/assets cross-origin. **Known gap:** no `Allow-Methods` /
-  `Allow-Headers`, and `server.mjs` answers no `OPTIONS`, so a browser's JSON POST to the spec
-  endpoints (the Playground does this) fails preflight; headless-lms's server-to-server calls hide it.
-  A generated project should add both.
+  iframe fetches its own API/fonts/assets cross-origin. `Allow-Methods` / `Allow-Headers` /
+  `Max-Age` plus `answerPreflight()` serve the Playground's browser-side JSON POSTs to the spec
+  endpoints; headless-lms calls server-to-server and never preflights.
 - **`server.mjs`**: zero-dependency production Node server (the slim image ships no `node_modules`).
-  It (1) serves `dist/client` static assets under the base path, (2) strips the base and forwards
-  `/{base}/api/*` and `/{base}/_serverFn/*` to the built TanStack server-entry fetch handler —
-  server routes are declared at logical paths (`/api/grade`) and don't inherit the router basepath,
-  (3) serves the prerendered SPA shell `_shell.html` for navigations, (4) **re-stamps
-  `IFRAME_HEADERS` on every response** including static assets (Start middleware skips static
-  responses, which is the whole reason this file exists), (5) binds `0.0.0.0:$PORT`.
+  After answering CORS preflights, it (1) serves `dist/client` static assets under the base path,
+  (2) strips the base and forwards `/{base}/api/*` and `/{base}/_serverFn/*` to the built TanStack
+  server-entry fetch handler — server routes are declared at logical paths (`/api/grade`) and don't
+  inherit the router basepath, (3) serves the prerendered SPA shell `_shell.html` for navigations,
+  (4) **re-stamps `IFRAME_HEADERS` on every response** including static assets (Start middleware
+  skips static responses, which is the whole reason this file exists), (5) binds `0.0.0.0:$PORT`.
 - **`Dockerfile`** (dev) and **`Dockerfile.production.slim.dockerfile`** (prod). Dev image just runs
   `pnpm run dev`; prod builds then runs `node server.mjs`.
 

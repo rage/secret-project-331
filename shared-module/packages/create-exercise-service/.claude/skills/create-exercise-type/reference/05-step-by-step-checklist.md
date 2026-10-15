@@ -127,9 +127,9 @@ blobs instead of migrating them.
 Verify against the **Playground** (courses.mooc.fi/playground-tabs): point it at your
 `http://localhost:<port>/<base-path>/api/service-info` and exercise all views + spec generation +
 grading. The Playground POSTs your spec endpoints from the browser, so this is also the only place a
-missing CORS preflight (`OPTIONS` + `Allow-Methods`/`Allow-Headers`, which the template lacks) shows
-up — do not shim those headers away in a test. Run `pnpm test` (the endpoint tests double as an
-envelope spec).
+broken CORS preflight shows up — do not shim those headers away in a test. Run `pnpm test` (the
+endpoint tests double as an envelope spec). For a Track A plugin, also try it in the local dev
+cluster before hosting (`04`, "Standalone plugin in the local dev cluster").
 
 ## Step 5 (Track B) — Keep the vendored shared-module synced
 

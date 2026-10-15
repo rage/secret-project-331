@@ -44,7 +44,10 @@ Cover the complete authored behavior, not only happy paths:
 - view-submission with answer, grading and feedback, plus empty and unknown-data cases;
 - old stored versions entering through `set-state` and emitting the current migrated shape;
 - host errors, malformed/missing response data, delays, and concurrent response correlation where
-  the protocol interaction can overlap.
+  the protocol interaction can overlap;
+- if teacher or student content renders as markup, injection payloads rendered inert, with the
+  assertions scoped to the rich-text container (mark it with a data attribute) — the UI's own icons
+  are `<svg>` too.
 
 The emulator may return deterministic URLs so the plugin can finish its state transition. That
 proves only how the plugin handles a host response.
@@ -54,7 +57,9 @@ proves only how the plugin handles a host response.
 Use `createNestedHostEmulator()` (or the shared equivalent) with host and plugin on **distinct
 origins**. Exercise the actual sandboxed iframe handshake, transferred `MessagePort`, and transport
 through the real browser boundary. Do not replace this with direct page injection or a same-origin
-component mount.
+component mount. Host the emulator on a blank page fulfilled by `page.route`, not on this service's
+own index page, whose scripts would hydrate beside it; Chromium and Firefox then need the
+`local-network-access` permission for that origin. The template's `nested-host.spec.ts` does both.
 
 Run this level in Chromium, Firefox, and WebKit. For file upload, prove that the exact selected file
 metadata and bytes survive the nested boundary in all three engines. This level establishes browser
@@ -66,6 +71,15 @@ after receiving the message.
 Use the deployed `https://courses.mooc.fi/playground-tabs` Playground as the host and start only the
 local plugin. Configure the Playground with the local service-info URL. Do not substitute an
 emulator, a local copy of host code, or a fabricated upload-success message.
+
+The template's `system-chromium` project grants `local-network-access`, without which Chromium
+blocks the public page from reaching localhost. Fill Settings' "Service info URL" with
+`http://localhost:<port>/api/service-info` (no base path) and wait for "Valid service info". The
+Playground's first spec requests answer 400 while its private spec is still `null`, so assert on
+failed requests to the plugin rather than on console errors. Paste into code editors through the
+clipboard (grant `clipboard-read`/`clipboard-write`) — typed text gets auto-closed brackets — and
+scroll Playground buttons into view before clicking, or the click can be lost. This level is also
+the only real proof of the CORS preflight: capture the `OPTIONS` request and assert its `204`.
 
 For a host-mediated upload claim, inspect the real `/api/v0/files/playground` multipart request and
 assert its UUID field name, original filename, MIME type, length, exact bytes, and SHA-256. Then
@@ -130,7 +144,11 @@ Keep page errors, console errors, request failures, trace, screenshot, and video
 failure. After the initial full run, focused runs are useful diagnostics; they are not the final
 verification. Correct the failure and finish with the unfiltered suite. Playwright's `webServer`
 normally starts the service, so do not start a second server unless the inspected configuration
-requires it. Locators target rendered translated strings, not locale keys.
+requires it. A dev server already on the port under a base path (the dev-cluster setup in `04`)
+makes the `webServer` fail to start, by design; stop it for the run. In the moocfi Nix shell,
+Firefox and WebKit (and `playwright install firefox webkit`, which needs no root) only launch with
+`PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1`, because the host check misreads the system
+libraries. Locators target rendered translated strings, not locale keys.
 
 If browser installation, service startup, network access, a test, or any required layer fails,
 report the exact failure and say verification is incomplete. Never turn unavailable evidence into a

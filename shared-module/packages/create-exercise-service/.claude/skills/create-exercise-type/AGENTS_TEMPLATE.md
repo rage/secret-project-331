@@ -81,11 +81,11 @@ Design **one master type (the private spec) and two projections**, not three ind
 **Don't attempt what the plugin contract forbids.** Some asks aren't hard, they're impossible here —
 name why and redesign around them rather than trying. Impossible under this contract: grading that
 needs a live DB, a session, or a call to another course service (grade runs from `private_spec +
-answer` alone, save the one client-URL-fetch exception above); storing uploaded files or minting
-their IDs (the plugin only receives host-assigned IDs and URLs); changing a stored blob's shape in
-place without a version bump +
-a migration step (see "your specs are stored forever" below); making view-submission depend on
-server-only data it is never sent; or anything that would require the host to migrate its database.
+answer` alone, save the one client-URL-fetch exception above); storing files in the plugin itself or
+minting their IDs (the host stores answer and spec uploads and hands back IDs and URLs, so files are
+available); changing a stored blob's shape in place without a version bump + a migration step
+(see "your specs are stored forever" below); making view-submission depend on server-only data it
+is never sent; or anything that would require the host to migrate its database.
 
 ---
 
@@ -376,12 +376,19 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   stream with a byte cap, and fail closed when the variable is unset. The file-submission plugin's
   `src/server/fileProxy.ts` (`ALLOWED_FILE_ORIGINS`) is the worked shape.
 - **Browser callers need a real CORS preflight.** The Playground POSTs your spec endpoints as JSON
-  from the browser; `Access-Control-Allow-Origin: *` alone fails that preflight. The template ships
-  only `Allow-Origin` and no `OPTIONS` handler, so add `Access-Control-Allow-Methods` /
-  `-Allow-Headers: Content-Type` / `-Max-Age` to `iframe-headers.mjs` and answer `OPTIONS` with
-  `204` in `server.mjs` before routing (otherwise it falls through to the SPA shell as a `200` HTML
-  body, which the browser reports as a CORS error). A real course never hits this — headless-lms
-  calls server-to-server — so only the Playground and browser tests reveal it.
+  from the browser. `answerPreflight()` (`iframe-headers.mjs`) answers it in `server.mjs` and in
+  the rsbuild dev server's `server.setup`; keep it ahead of routing in both, or the `OPTIONS`
+  reaches the SPA shell or rsbuild's localhost-only CORS and the browser blocks the POST. A real
+  course never hits this — headless-lms calls server-to-server — so only the Playground and browser
+  tests reveal it.
+- **Bundle browser libraries; load nothing from a CDN.** For a code editor, import only the Monaco
+  contributions you use, create its worker with `new Worker(new URL(...), { type: "module" })`,
+  keep the editor uncontrolled (a controlled one drops keystrokes during fast typing), and
+  `await document.fonts.load(...)` for its font before mounting — Monaco measures glyphs once.
+- **Rich content inside a choice row** (block HTML, maths, code): make the whole row a visually
+  hidden input named with `aria-labelledby` pointing at a `div`, never wrap the content in a
+  `<label>` or `<span>`, which only allow phrasing content; raise links in it above the input so
+  they stay clickable.
 - **Crash reports go to this service's own origin.** The template's `withErrorBoundary` only logs.
   If you switch to `exercise-react`'s reporting boundary, its reporter POSTs to `/api/v0/errors`
   relative to the iframe — this service — so add that route and forward to the platform

@@ -65,11 +65,11 @@ and propose the nearest feasible design rather than attempting it. Grounded in t
 that needs a live DB, a session, or a network call to another course service can't exist — grade runs
 from `private_spec + answer` alone (reference/07 §6), and the *only* sanctioned grading I/O is
 fetching a client-supplied URL, which is hostile input to be guarded, not a data source (§8). The
-plugin cannot store uploaded files or mint their IDs — it only receives host-assigned IDs and URLs
-(see the file-upload gotcha below). You cannot mutate a stored blob's shape in place without a
-version bump + a migration
-step (migrate-on-read, reference/07 §1); you cannot make view-submission depend on server-only data
-it is never sent; and nothing you build may require the host to migrate its database. When an ask
+plugin cannot store files itself or mint their IDs — but files *are* available: the host stores
+answer and spec uploads and hands back IDs and URLs (see the file-upload gotchas below). You cannot
+mutate a stored blob's shape in place without a version bump + a migration step (migrate-on-read,
+reference/07 §1); you cannot make view-submission depend on server-only data it is never sent; and
+nothing you build may require the host to migrate its database. When an ask
 lands here, refuse the impossible part explicitly and redesign around it.
 
 **Sign-off is its own final round.** Never bundle the confirmation/sign-off question with open
@@ -118,6 +118,11 @@ and fold it into v1 only on explicit confirmation it's needed now. Also settle s
 optional machinery now: **ask whether CSV export is wanted** (keeping it means rewriting both
 handlers + tests for your data; dropping it means deleting files per reference/05 step 3 — neither
 is free).
+
+**If the type ports an external format or system** (a quiz format, another LMS's question type),
+settle the parity policy here: default to the source's semantics, support the format completely or
+name what is deferred, and surface every deviation from the source for explicit confirmation —
+including ones you discover later while implementing.
 
 **For any exercise that ingests user content or files, settle the abuse/threat surface here in
 Gate 1**, not Gate 2: malicious, oversized, or executable content; whether grading must *fetch and
@@ -179,6 +184,27 @@ and iterate until the user explicitly confirms one. Behavior you invent during i
 wasn't in the confirmed design (a preview-file-types list, an inline-vs-download rule) goes back for
 a quick confirm — it's part of the design, not an implementation detail.
 
+**Look and feel is part of this gate — decide it before any view code.** Default to the platform's
+own look, restrained and minimal, never the look of a system the format came from (a port that
+imitated Moodle's UI had to be redone):
+
+- **Student views** follow the quizzes widgets (`services/quizzes/src/components/exercise-service-
+  views/`: `AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles.tsx`, `ViewSubmission/impl-by-
+  quiz-item-type/MultipleChoice.tsx`): bordered option rows, CORRECT/INCORRECT badges, feedback
+  blocks with a coloured left bar, white item cards. The iframe paints no background, so cards must
+  read on both white and the host's gray.
+- **Editor controls** follow `shared-module/packages/components` (`primitives/buttonStyles.ts`,
+  `primitives/checkableStyles.ts`, `styles/tokens.ts`). A standalone plugin copies the tokens and
+  styles onto native controls rather than vendoring that react-aria package.
+- **Ask which source wording and semantics survive** (e.g. a port kept Moodle's "Mark 0.50 out of
+  1.00" while taking everything else from quizzes), and make counters show the unit their limit
+  enforces.
+- **Show a mockup and get explicit approval before implementing it**: static HTML using the real
+  token values, rendered to PNG, the new design shown above the current one when restyling.
+- **Feature completeness beats mockup fidelity.** Where a format feature doesn't fit the look (rich
+  text or maths in options, inline blanks, per-option feedback, limits and counters), adjust the
+  look, never drop the feature, and list each such deviation for the user.
+
 ## Implement the confirmed design
 
 **Hard rule: never `cat` a file you intend to edit — the editor requires a prior `Read`.** A `cat`
@@ -222,7 +248,8 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   is cut from the *monorepo* (the CWD repo), not the plugin's separate git root, so the agent sees
   none of the plugin's files — it will stall, or worse, fabricate fixes to code it can't see. Spawn
   plain agents with the plugin's absolute path and run them sequentially (they share one working
-  tree).
+  tree). Have each commit typecheck on its own: shared code (theme tokens, types) lands with its
+  first user.
 - **Keep the template's guard rails wired, don't just keep their files**: `publicSpec.ts` /
   `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve, and every stored-blob
   door goes through the `migrate*ToLatest` chain (`src/util/migration/` in the template) — adapt
@@ -254,11 +281,11 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   plain action and don't give it a pending state.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
-- **The template's CORS headers fail a browser preflight.** `iframe-headers.mjs` sets only
-  `Allow-Origin`, and `server.mjs` has no `OPTIONS` handler, so the Playground's browser-side JSON
-  POSTs to your spec endpoints are refused while a real course (server-to-server) works. Add
-  `Allow-Methods`/`Allow-Headers`/`Max-Age` and answer `OPTIONS` before routing; the project guide
-  has the details.
+- **Keep `answerPreflight` first** in `server.mjs` and the rsbuild `server.setup` middleware when
+  editing either: the Playground POSTs your spec endpoints from the browser, and an unanswered
+  `OPTIONS` fails there while a real course (server-to-server) still works.
+- **Bundle every browser library into the service** (Monaco, KaTeX, editors): load nothing from a
+  CDN at runtime. The project guide lists the view-level traps.
 
 ## Verify
 
@@ -321,6 +348,9 @@ required level, ending with the complete unfiltered suite:
 node <skill-dir>/scripts/run-generated-playwright.mjs
 ```
 
+To try the plugin inside the local dev cluster (CMS, real course pages, regrading) before it is
+hosted, follow reference/04's "Standalone plugin in the local dev cluster".
+
 Do not merely add or list tests. Any missing browser, zero-test level, legacy path, required failing
 layer, or incomplete run means verification is incomplete and must be reported plainly. Focused
 runs are diagnostic only. `drive-view.mjs` is exploratory only and is never verification evidence.
@@ -332,7 +362,8 @@ Bundled in **`reference/`** (start at `reference/README.md`), alongside the ship
 `docs/plugin-system.md`:
 
 - `01` protocol (a delta over `docs/plugin-system.md`), `02` the template's file-by-file anatomy +
-  change-vs-keep list, `03` the scaffolder internals, `04` backend/infra wiring (first-party plugins).
+  change-vs-keep list, `03` the scaffolder internals, `04` backend/infra wiring (first-party
+  plugins, and a standalone one in the local dev cluster).
 - `05` the end-to-end checklist — **mandatory reading at the implementation step above**.
 - `06` the design rationale.
 - `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.
@@ -470,7 +501,7 @@ After any scaffold — maintainer or authoring — ship the plugin guide into th
 
 ## Test
 
-The CLI's own suite scaffolds into a temp dir and asserts the output (15 tests):
+The CLI's own suite scaffolds into a temp dir and asserts the output:
 
 ```bash
 pnpm --dir shared-module/packages/create-exercise-service test

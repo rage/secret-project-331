@@ -2,9 +2,8 @@
 
 import React, { useState } from "react"
 
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import type { MenuItemDescriptor } from "@/shared-module/components"
+import { type MenuItemDescriptor, useDialog } from "@/shared-module/components"
 
 import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
 

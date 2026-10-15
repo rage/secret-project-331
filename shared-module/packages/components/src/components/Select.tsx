@@ -71,6 +71,8 @@ export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   className?: string
   searchEnabled?: boolean
   searchPlaceholder?: string
+  /** Lands on the trigger button; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
 
 const selectRootCss = css`
@@ -140,6 +142,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyUp,
     searchEnabled = false,
     searchPlaceholder = "search",
+    "data-testid": dataTestId,
   } = props
 
   const [filterValue, setFilterValue] = useState("")
@@ -213,6 +216,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   // oxlint-disable-next-line i18next/no-literal-string
   const collectionProps = omit(collectionPropsWrong, ["aria-label"])
 
+  // The collection id belongs to the listbox alone. Spreading it into useSelect below would land it
+  // on the trigger too, dropping the caller's id and leaving aria-controls pointing at the trigger.
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionPropsWithoutId = omit(collectionProps, ["id"])
+
   const {
     triggerProps,
     valueProps,
@@ -234,7 +242,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      ...collectionProps,
+      ...collectionPropsWithoutId,
       ...omitUndefined({ autoComplete }),
     },
     state,
@@ -314,6 +322,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(buttonRef, field.ref)}
           className={resolveSelectTriggerCss(fieldSize)}
           type="button"
+          data-testid={dataTestId}
         >
           <span
             {...valueProps}

@@ -121,6 +121,7 @@ export const headingCss = css`
 /** An h3 or h4 inside a section, and dialog sub-heads. */
 export const subheadingCss = css`
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--color-gray-700);
   font-size: var(--font-size-2);
   font-weight: 600;

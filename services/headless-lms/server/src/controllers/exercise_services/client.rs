@@ -1841,7 +1841,6 @@ mod upload_tests {
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock Suotar configuration"),
             development_uuid_login: false,
-            enable_admin_email_verification: false,
             enable_email_ownership_verification: false,
             azure_configuration: None,
             tmc_account_creation_origin: None,

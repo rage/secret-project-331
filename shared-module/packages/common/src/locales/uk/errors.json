@@ -22,6 +22,8 @@
   "error-status": "Статус: {{status}}",
   "error-title": "Помилка",
   "error-type": "Тип: {{type}}",
+  "errorNotice.status": "Статус",
+  "errorNotice.type": "Тип",
   "failed-to-send-message": "Не вдалося надіслати повідомлення",
   "go-to-error": "Перейти до помилки",
   "label-error-loading": "Помилка завантаження даних.",

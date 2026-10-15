@@ -5,10 +5,7 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Dialog, Select, TextField } from "@/shared-module/components"
 
 interface CreateOrganizationForm {
   name: string
@@ -28,12 +25,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   onCreate,
 }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreateOrganizationForm>({
+  const { control, handleSubmit, reset } = useForm<CreateOrganizationForm>({
     defaultValues: {
       name: "",
       // oxlint-disable-next-line i18next/no-literal-string
@@ -56,20 +48,20 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   })
 
   return (
-    <StandardDialog
+    <Dialog
       open={show}
       onClose={onClose}
       title={t("create-organization-title")}
-      buttons={[
+      actions={[
         {
-          children: t("create"),
-          onClick: submitForm,
-          variant: "primary",
-        },
-        {
-          children: t("button-text-cancel"),
+          label: t("button-text-cancel"),
           onClick: onClose,
           variant: "secondary",
+        },
+        {
+          label: t("create"),
+          onClick: () => void submitForm(),
+          variant: "primary",
         },
       ]}
     >
@@ -83,31 +75,41 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
       </p>
 
       <form onSubmit={submitForm}>
-        <TextField
-          {...register("name", { required: true })}
-          label={t("label-organization-name")}
-          {...includeIf(errors.name, { error: t("validation-required") })}
-        />
+        <div
+          className={css`
+            display: grid;
+            gap: var(--space-4);
+          `}
+        >
+          <TextField
+            name="name"
+            control={control}
+            rules={{ required: t("validation-required") }}
+            label={t("label-organization-name")}
+          />
 
-        <SelectField
-          {...register("visibility")}
-          id="org-visibility"
-          label={t("label-visibility")}
-          options={[
-            // oxlint-disable-next-line i18next/no-literal-string
-            { value: "public", label: t("label-visible") }, // uses internal value
-            // oxlint-disable-next-line i18next/no-literal-string
-            { value: "private", label: t("label-hidden") }, // uses internal value
-          ]}
-        />
+          <Select
+            name="visibility"
+            control={control}
+            id="org-visibility"
+            label={t("label-visibility")}
+            options={[
+              // oxlint-disable-next-line i18next/no-literal-string
+              { value: "public", label: t("label-visible") }, // uses internal value
+              // oxlint-disable-next-line i18next/no-literal-string
+              { value: "private", label: t("label-hidden") }, // uses internal value
+            ]}
+          />
 
-        <TextField
-          {...register("slug", { required: true })}
-          label={t("label-slug")}
-          {...includeIf(errors.slug, { error: t("validation-required") })}
-        />
+          <TextField
+            name="slug"
+            control={control}
+            rules={{ required: t("validation-required") }}
+            label={t("label-slug")}
+          />
+        </div>
       </form>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

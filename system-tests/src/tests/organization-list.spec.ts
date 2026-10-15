@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { manageOrganization } from "@/utils/organizationUtils"
 
@@ -20,7 +22,10 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("textbox", { name: "Slug" }).fill("newslug")
 
     await waitForSuccessNotification(page, async () => {
-      await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
+      await page
+        .getByRole("dialog", { name: "Create a new organization" })
+        .getByRole("button", { name: "Create" })
+        .click()
     })
   })
 
@@ -43,38 +48,45 @@ test("Organization workflow", async ({ page }) => {
     await page.getByLabel("General").getByText("newslugedited").waitFor()
   })
 
+  // Scoped to the panel: the role popup animates out after saving, so for a moment its own role
+  // select carries the same text as the row it just updated.
+  const permissionsPanel = page.getByRole("tabpanel", { name: "Permissions" })
+
   await test.step("Add user permissions", async () => {
     await page.getByRole("tab", { name: "Permissions" }).click()
     await page.getByRole("button", { name: "Add user" }).click()
     await page.getByRole("textbox", { name: "Email" }).click()
     await page.getByRole("textbox", { name: "Email" }).fill("teacher@example.com")
-    await page.getByLabel("Role").selectOption("Teacher")
+    await new Select(page, page.locator("#add-user-role"), { name: "Role" }).chooseOption("Teacher")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.getByText("Teacher", { exact: true }).click()
+    await expect(permissionsPanel.getByText("Teacher", { exact: true })).toBeVisible()
   })
 
   await test.step("Edit user permissions", async () => {
     await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
-    await page.getByTestId("dialog").getByLabel("Role").selectOption("Reviewer")
+    await new Select(page, page.locator("#edit-user-role"), {
+      name: "Role being edited",
+    }).chooseOption("Reviewer")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
-    await page.getByText("Reviewer").click()
-    page.once("dialog", (dialog) => {
-      console.log(`Dialog message: ${dialog.message()}`)
-      dialog.dismiss().catch(() => {})
-    })
+    await expect(permissionsPanel.getByText("Reviewer", { exact: true })).toBeVisible()
   })
 
   await test.step("Delete user permissions and organization", async () => {
     await page.getByRole("button", { name: "Delete user Teacher Example" }).click()
+    await respondToConfirmDialog(page, true, "Are you sure you want to delete user")
+    await expect(page.getByRole("button", { name: "Delete user Teacher Example" })).toHaveCount(0)
     await page.getByRole("tab", { name: "General" }).click()
     await page.getByRole("button", { name: "Edit" }).click()
     await page.getByRole("button", { name: "Delete organization" }).click()
-    await page.getByTestId("dialog").getByRole("textbox").click()
-    await page.getByTestId("dialog").getByRole("textbox").fill("delete")
+    const deleteConfirmation = page
+      .getByRole("dialog", { name: "Delete organization" })
+      .getByRole("textbox")
+    await deleteConfirmation.click()
+    await deleteConfirmation.fill("delete")
     await waitForSuccessNotification(
       page,
       async () => {

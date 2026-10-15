@@ -11,7 +11,7 @@
             "name": "user_email_code_purpose",
             "kind": {
               "Enum": [
-                "admin_login",
+                "staff_login",
                 "account_deletion",
                 "email_ownership_verification"
               ]

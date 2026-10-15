@@ -8,18 +8,16 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { Exam, NewExam } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+
+// Shared with EditExamDialog.tsx, whose footer submit button targets this form by id.
+export const EDIT_EXAM_FORM_ID = "edit-exam-form"
 
 interface EditExamFormProps {
   initialData: Exam
   organizationId: string
   onEditExam: (form: NewExam) => void
-  onCancel: () => void
 }
 
 interface EditExamFields {
@@ -35,7 +33,6 @@ interface EditExamFields {
 const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   initialData,
   onEditExam,
-  onCancel: _onCancel,
   organizationId,
 }) => {
   const { t } = useTranslation()
@@ -43,17 +40,13 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
   const initialStartsAt = formatDateForDateTimeLocalInputs(initialData.starts_at)
   const initialEndsAt = formatDateForDateTimeLocalInputs(initialData.ends_at)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<EditExamFields>({
+  const { control, handleSubmit, watch } = useForm<EditExamFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: initialData.name,
-      ...omitUndefined({ startsAt: initialStartsAt, endsAt: initialEndsAt }),
+      startsAt: initialStartsAt ?? "",
+      endsAt: initialEndsAt ?? "",
       timeMinutes: initialData.time_minutes,
       automaticCompletionEnabled: initialData.minimum_points_treshold !== 0,
       minimumPointsTreshold: initialData.minimum_points_treshold,
@@ -82,58 +75,55 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
 
   return (
     <div>
-      <form onSubmit={onEditExamWrapper}>
+      <form id={EDIT_EXAM_FORM_ID} onSubmit={onEditExamWrapper}>
         <div
           className={css`
-            margin-bottom: 2rem;
+            display: grid;
+            gap: var(--space-4);
           `}
         >
           <TextField
+            name="name"
+            control={control}
+            rules={{ required: t("required-field") }}
             id={"name"}
-            {...omitUndefined({ error: errors.name?.message })}
             label={t("label-name")}
-            {...register("name", { required: t("required-field") })}
           />
-          <DateTimeLocal
-            {...omitUndefined({ error: errors.startsAt?.message })}
+          <DateTimeLocalField
+            name="startsAt"
+            control={control}
             label={t("label-starts-at")}
-            {...register("startsAt", { required: t("required-field") })}
+            rules={{ required: t("required-field") }}
           />
-          <DateTimeLocal
-            {...omitUndefined({ error: errors.endsAt?.message })}
+          <DateTimeLocalField
+            name="endsAt"
+            control={control}
             label={t("label-ends-at")}
-            {...register("endsAt", { required: t("required-field"), validate: validateDates })}
+            rules={{ required: t("required-field"), validate: validateDates }}
           />
           <TextField
+            name="timeMinutes"
+            control={control}
+            rules={{ required: t("required-field") }}
             id={"timeMinutes"}
-            {...omitUndefined({ error: errors.timeMinutes?.message })}
             label={t("label-time-minutes")}
-            {...register("timeMinutes", { required: t("required-field") })}
           />
-          <CheckBox label={t("label-grade-exam-manually")} {...register("gradeManually")} />
-          <CheckBox
+          <Checkbox name="gradeManually" control={control} label={t("label-grade-exam-manually")} />
+          <Checkbox
+            name="automaticCompletionEnabled"
+            control={control}
             label={t("label-related-courses-can-be-completed-automatically")}
-            {...register("automaticCompletionEnabled")}
           />
           {automaticEnabled && (
             <TextField
+              name="minimumPointsTreshold"
+              control={control}
+              rules={{ required: t("required-field") }}
               id={"minimumPointsTreshold"}
-              {...omitUndefined({ error: errors.minimumPointsTreshold?.message })}
               label={t("label-exam-minimum-points")}
-              {...register("minimumPointsTreshold", { required: t("required-field") })}
             />
           )}
         </div>
-
-        <Button
-          variant="primary"
-          size="medium"
-          type="submit"
-          value={t("button-text-submit")}
-          fullWidth
-        >
-          {t("button-text-submit")}
-        </Button>
       </form>
     </div>
   )

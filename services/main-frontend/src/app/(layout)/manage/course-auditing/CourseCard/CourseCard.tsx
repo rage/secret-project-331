@@ -16,6 +16,9 @@ import {
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
+import CourseClosingFields from "@/components/course-closing/CourseClosingFields"
+import CourseClosingStatus from "@/components/course-closing/CourseClosingStatus"
+import { useAllClosingSuccessorCandidates } from "@/components/course-closing/useClosingSuccessorCandidates"
 import {
   getCoursesForAuditingQueryKey,
   updateCourseAuditingDataMutation,
@@ -25,8 +28,6 @@ import type {
   CourseAuditingDataUpdate,
   CourseAuditingModuleUpdate,
 } from "@/generated/api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -43,13 +44,14 @@ import {
   nullIfEmpty,
   TextArea,
   TextField,
+  useDialog,
   TONE,
+  ErrorNotice,
 } from "@/shared-module/components"
 
 import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
 import ContentDisplayBox from "./ContentDisplayBox"
 import CourseMetadata from "./CourseMetadata"
-import ClosedSectionFields from "./EditClosedFields"
 import EditModuleFields from "./EditModuleFields"
 
 const linkStyles = css`
@@ -103,6 +105,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const { t } = useTranslation()
 
   const [editing, setEditing] = useState<boolean>(false)
+  const closingCandidates = useAllClosingSuccessorCandidates(
+    editing || Boolean(courseAuditingData.closed_course_successor_id),
+  )
+  const currentLanguageCode =
+    closingCandidates.candidates.find((candidate) => candidate.id === courseAuditingData.id)
+      ?.languageCode ?? ""
+  const closingSuccessor = closingCandidates.candidates.find(
+    (candidate) => candidate.id === courseAuditingData.closed_course_successor_id,
+  )
   const queryClient = useQueryClient()
 
   const methods = useForm<EditCourseAuditingData>({
@@ -173,10 +184,11 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   const cancelEdit = async () => {
     if (isDirty) {
-      const confirmed = await confirm(
-        t("course-auditing-edit-unsaved-dialog-message"),
-        t("course-auditing-edit-unsaved-dialog-title"),
-      )
+      const confirmed = await confirm({
+        message: t("course-auditing-edit-unsaved-dialog-message"),
+        title: t("course-auditing-edit-unsaved-dialog-title"),
+        isDestructive: true,
+      })
       if (confirmed) {
         reset()
         updateMutation.reset()
@@ -394,8 +406,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
               gap: 1rem;
             `}
           >
+            {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
             {updateMutation.isError && (
-              <ErrorBanner error={updateMutation.error} variant="readOnly" />
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorNotice error={updateMutation.error} announce="off" />
             )}
             <TextArea
               control={control}
@@ -535,7 +549,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
               name={"is_joinable_by_code_only"}
             />
 
-            <ClosedSectionFields />
+            <CourseClosingFields
+              candidates={closingCandidates.candidates}
+              isLoadingCandidates={closingCandidates.isLoading}
+              currentCourseId={courseAuditingData.id}
+              currentOrganizationId={courseAuditingData.organization_id}
+              currentLanguageCode={currentLanguageCode}
+              groupByOrganization
+            />
 
             <div
               className={css`
@@ -659,22 +680,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
             >
               <div className={contentRowStyles}>
                 <ContentDisplayBox
-                  label={t("closed-at")}
+                  label={t("course-closing-time-label")}
                   content={
                     courseAuditingData.closed_at && (
-                      <TimeComponent date={parseISO(courseAuditingData.closed_at)} />
+                      <CourseClosingStatus closedAt={courseAuditingData.closed_at} />
                     )
                   }
                   isVisible={showClosedAt}
                 />
                 <ContentDisplayBox
-                  label={t("closed-course-successor-id")}
-                  content={courseAuditingData.closed_course_successor_id}
+                  label={t("course-closing-successor-label")}
+                  content={
+                    courseAuditingData.closed_course_successor_id && (
+                      <Link
+                        href={manageCourseByIdRoute(courseAuditingData.closed_course_successor_id)}
+                      >
+                        {closingSuccessor?.name ?? courseAuditingData.closed_course_successor_id}
+                      </Link>
+                    )
+                  }
                   isVisible={Boolean(courseAuditingData.closed_at) && showClosedCourseSuccessorId}
                 />
               </div>
               <ContentDisplayBox
-                label={t("closed-additional-message")}
+                label={t("course-closing-note-label")}
                 content={courseAuditingData.closed_additional_message}
                 isVisible={Boolean(courseAuditingData.closed_at) && showAdditionalMessage}
               />

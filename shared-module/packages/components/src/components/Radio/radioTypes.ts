@@ -9,6 +9,7 @@ export type RadioProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> &
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
   isDisabled?: boolean
+  "data-testid"?: string | undefined
 }
 
 export type RadioContextValue = NonNullable<React.ContextType<typeof RadioGroupContext>>

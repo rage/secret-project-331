@@ -35,18 +35,9 @@ function wrongCode(code: string): string {
   return Array.from(code, (digit) => String((Number(digit) + 1) % 10)).join("")
 }
 
-/**
- * Clears the field before typing: after a refused attempt every slot still holds a digit, and each
- * slot takes one character only. Backspace walks backwards from the last slot.
- */
+/** The form submits itself on the last digit and clears a refused code, so typing is the whole step. */
 async function enterCode(page: Page, code: string): Promise<void> {
-  const slots = page.getByTestId("one-time-code-field").getByRole("textbox")
-  const slotCount = await slots.count()
-  await slots.nth(slotCount - 1).click()
-  for (let index = 0; index < slotCount; index++) {
-    await page.keyboard.press("Backspace")
-  }
-  await slots.first().click()
+  await page.getByTestId("one-time-code-field").getByRole("textbox").first().click()
   await page.keyboard.type(code)
 }
 
@@ -71,12 +62,9 @@ test("Email ownership verification: the emailed code proves the address and an e
     await expect(section.getByText("Code sent")).toBeVisible()
   })
 
-  await test.step("Opening the code dialog and asking for another code right away is refused by the resend cap", async () => {
+  await test.step("Opening the code dialog right after signing up offers no resend until the cap lifts", async () => {
     await page.getByRole("button", { name: "Enter verification code" }).click()
-    await page.getByRole("button", { name: "Resend" }).click()
-    await expect(page.getByTestId("email-verification-request-outcome")).toContainText(
-      "went to your email address a moment ago",
-    )
+    await expect(page.getByRole("button", { name: /^Resend in \d:\d\d$/ })).toBeDisabled()
   })
 
   let spentCode = ""
@@ -85,11 +73,9 @@ test("Email ownership verification: the emailed code proves the address and an e
     spentCode = await pendingVerificationCode(page)
 
     await enterCode(page, wrongCode(spentCode))
-    await page.getByRole("button", { name: "Verify" }).click()
-    await expect(page.locator("#code-error")).toContainText("Incorrect code")
+    await expect(page.locator("#code-error")).toContainText("That code didn't work")
 
     await enterCode(page, spentCode)
-    await page.getByRole("button", { name: "Verify" }).click()
 
     const section = page.getByTestId("email-verification-section")
     await expect(section.getByText("Email verified", { exact: true })).toBeVisible()
@@ -122,7 +108,6 @@ test("Email ownership verification: the emailed code proves the address and an e
     expect(newCode).not.toBe(spentCode)
 
     await enterCode(page, newCode)
-    await page.getByRole("button", { name: "Verify" }).click()
 
     await expect(
       page.getByTestId("email-verification-section").getByText("Email verified", { exact: true }),

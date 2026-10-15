@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
+import { Infobox } from "@/shared-module/components"
 
 interface DeletedUserNoticeProps {
   userId: string
@@ -26,14 +26,14 @@ const DeletedUserNotice: React.FC<DeletedUserNoticeProps> = ({ userId, className
 
   return (
     <div className={className}>
-      <GenericInfobox>
+      <Infobox>
         <div className={textContainerStyle}>
           <span>{t("message-user-likely-deleted")}</span>
           <span className={userIdStyle}>
             {t("label-user-id")}: {userId}
           </span>
         </div>
-      </GenericInfobox>
+      </Infobox>
     </div>
   )
 }

@@ -76,7 +76,11 @@ export type FileFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   summaryFormatter?: (files: File[] | null) => React.ReactNode
   id?: string
   className?: string
+  /** Native `accept` picker hint (e.g. `"image/*"`, `".svg"`); does not validate the selected file. */
+  accept?: string
   multiple?: boolean
+  /** Lands on the visible button; the hidden file input gets the same data-testid suffixed with `-input`. */
+  "data-testid"?: string | undefined
 }
 
 export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -96,7 +100,9 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     summaryFormatter,
     className,
+    accept,
     multiple,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -159,11 +165,13 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             ref={composeRefs(inputRef, field.ref)}
             type="file"
             name={field.name}
+            accept={accept}
             multiple={multiple}
             disabled={isDisabled}
             required={isRequired}
             aria-hidden="true"
             tabIndex={-1}
+            data-testid={dataTestId === undefined ? undefined : `${dataTestId}-input`}
             onChange={(event) => {
               const next = fileListToArray(event.currentTarget.files)
               setFileSummary(summaryFormatter?.(next) ?? summarizeFiles(next, fileSummaryLabels))
@@ -177,6 +185,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
           type="button"
           disabled={isDisabled}
           data-invalid={isInvalid ? "true" : undefined}
+          data-testid={dataTestId}
           aria-describedby={buttonDescribedBy}
           aria-labelledby={
             typeof fieldProps["aria-labelledby"] === "string"

@@ -189,7 +189,8 @@ function uniqueIdPart(clientId: string, taken: Set<string>): string {
  *
  * An author-set HTML anchor replaces the whole thing. Duplicating a heading block copies that
  * attribute along with the rest, so only the first block claiming an anchor keeps it; later ones
- * fall back to their generated anchor rather than rendering a second element with the same id.
+ * fall back to their generated anchor rather than rendering a second element with the same id. A
+ * generated anchor that an author-set one already uses gets a numeric suffix.
  *
  * @param blocks The page's block tree. Inner blocks are walked, so headings nested in columns or
  * expandable content are included.
@@ -215,7 +216,12 @@ export function buildHeadingAnchorIds(blocks: HeadingAnchorBlock[]): Map<string,
     const idPart = uniqueIdPart(heading.clientId, takenIdParts)
     takenIdParts.add(idPart)
     const slug = slugifyHeadingText(headingTextFromHtml(heading.content))
-    anchorIds.set(heading.clientId, `${idPart}-${slug}`)
+    let anchor = `${idPart}-${slug}`
+    for (let suffix = 2; takenAnchors.has(anchor); suffix++) {
+      anchor = `${idPart}-${slug}-${suffix}`
+    }
+    takenAnchors.add(anchor)
+    anchorIds.set(heading.clientId, anchor)
   }
 
   return anchorIds

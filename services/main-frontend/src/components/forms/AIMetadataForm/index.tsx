@@ -12,10 +12,8 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseMetadata } from "@/generated/api/types.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResults } from "@/shared-module/components"
+import { Dialog, QueryResults, ErrorNotice } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import AIMetadataFormFields from "./AIMetadataFormFields"
@@ -93,16 +91,17 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   )
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={t("ai-metadata-form-title")}
-      buttons={[
+      actions={[
         {
-          children: t("button-text-replace-metadata"),
+          label: t("button-text-replace-metadata"),
           variant: "primary",
+          type: "submit",
           // oxlint-disable-next-line i18next/no-literal-string
-          form: "ai-metadata-form",
+          domProps: { form: "ai-metadata-form" },
           disabled:
             courseQuery.isFetching ||
             courseQuery.isError ||
@@ -142,11 +141,11 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             )
           }}
           renderBlockingError={({ error, retry: _retry }) => {
-            return <ErrorBanner variant={"readOnly"} error={error} />
+            return <ErrorNotice error={error} />
           }}
         />
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

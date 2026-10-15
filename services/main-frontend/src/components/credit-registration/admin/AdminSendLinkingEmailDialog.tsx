@@ -20,8 +20,7 @@ import type { DialogAction } from "@/shared-module/components"
 import { ComboBox, Dialog, Infobox, Radio, RadioGroup, TextField } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
-import { RESEND_QUEUED } from "../resendOutcome"
-import { dialogFormCss, noteCss, proseCss } from "../styles"
+import { dialogFormCss, noteCss, proseCss, stackedCellCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import {
@@ -34,9 +33,11 @@ import {
   candidateFullName,
   candidateListCss,
   candidateName,
-  ResendOutcomeNotice,
+  SendNotice,
   showsNotEmailed,
+  withSendResult,
 } from "./linkingCandidate"
+import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 
 interface Fields {
   course_id: string | null
@@ -95,18 +96,13 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
         },
       }),
     (sent, target) => {
-      if (sent.outcome !== RESEND_QUEUED) {
-        return
-      }
       queryClient.setQueryData<AdminUnlinkedEnrolees>(
         getAccountLinkingUnlinkedEnroleesQueryKey({ path: { course_id: target.course_id } }),
         (current) =>
           current && {
             ...current,
             people: current.people.map((person) =>
-              person.student_number === target.student_number
-                ? { ...person, linking_emails_for_course: person.linking_emails_for_course + 1 }
-                : person,
+              withSendResult(person, target.student_number, sent),
             ),
           },
       )
@@ -152,14 +148,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
       actions={actions}
     >
       <div className={dialogFormCss}>
-        {result && !mutation.isPending && !mutation.isError && (
-          <ResendOutcomeNotice result={result} />
-        )}
-        {mutation.isError && (
-          <Infobox tone={TONE.DANGER} announce>
-            {t("credit-registration-admin-send-linking-email-send-failed")}
-          </Infobox>
-        )}
+        <SendNotice result={result} mutation={mutation} />
         {coursesQuery.isError && (
           <Infobox tone={TONE.DANGER}>
             {t("credit-registration-admin-send-linking-email-courses-failed")}
@@ -226,7 +215,13 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
                     value={person.student_number}
                     label={candidateName(t, person)}
                     description={
-                      <InlineParts parts={candidateFacts(t, person, isNotEmailedShown)} />
+                      <span className={stackedCellCss}>
+                        <InlineParts parts={candidateFacts(t, person, isNotEmailedShown)} />
+                        <ManualLinkingEmailSendLines
+                          sends={person.manual_sends}
+                          variant="candidate"
+                        />
+                      </span>
                     }
                   />
                 ))}

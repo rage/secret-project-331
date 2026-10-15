@@ -51,6 +51,7 @@ test("Playground views works", async ({ page }) => {
       `"name": "b",
         "correct": false,`,
     )
+    .first()
     .waitFor()
   await page
     .getByText(

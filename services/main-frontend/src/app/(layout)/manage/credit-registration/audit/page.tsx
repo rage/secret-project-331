@@ -62,7 +62,6 @@ import type {
   CreditRegistrationAdminActionTarget,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
@@ -74,6 +73,7 @@ import {
   EmptyState,
   Infobox,
   Link,
+  Pagination,
   QueryResult,
   Select,
   Table,
@@ -635,7 +635,10 @@ const AuditPage: React.FC = () => {
                 ]}
               />
               <Pagination
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
                 totalPages={page.total_pages}
                 totalItems={page.total_count}
                 itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}

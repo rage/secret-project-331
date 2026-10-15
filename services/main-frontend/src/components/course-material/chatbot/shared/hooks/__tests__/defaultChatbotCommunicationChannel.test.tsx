@@ -18,7 +18,7 @@ jest.mock("react-i18next", () => {
   const translation = { t: (key: string) => key, i18n: { changeLanguage: () => Promise.resolve() } }
   return { useTranslation: () => translation }
 })
-jest.mock("@/shared-module/common/components/dialogs/DialogProvider", () => {
+jest.mock("@/shared-module/components", () => {
   const dialog = { confirm: jest.fn() }
   return { useDialog: () => dialog }
 })

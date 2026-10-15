@@ -125,6 +125,8 @@ import type {
   CreateExerciseRepositoryResponses,
   CreateExerciseServiceData,
   CreateExerciseServiceResponses,
+  CreateExternalCourseData,
+  CreateExternalCourseResponses,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreateOrganizationExamResponses,
@@ -169,6 +171,8 @@ import type {
   DeleteExerciseRepositoryResponses,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponses,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponses,
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
@@ -324,6 +328,8 @@ import type {
   GetCourseExercisesResponses,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponses,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponses,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponses,
   GetCourseFeedbackData,
@@ -445,8 +451,6 @@ import type {
   GetCreditRegistrationThresholdsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
-  GetEditProposalCountData,
-  GetEditProposalCountResponses,
   GetEditProposalsData,
   GetEditProposalsResponses,
   GetEmailTemplatesData,
@@ -486,6 +490,8 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponses,
   GetExerciseSubmissionsResponses,
+  GetExternalCoursesData,
+  GetExternalCoursesResponses,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponses,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
@@ -750,12 +756,10 @@ import type {
   RevokeSubmissionSharesOfSubmissionResponses,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponses,
-  SearchUserDetailsByEmailData,
-  SearchUserDetailsByEmailResponses,
-  SearchUserDetailsByOtherDetailsData,
-  SearchUserDetailsByOtherDetailsResponses,
-  SearchUserDetailsFuzzyMatchData,
-  SearchUserDetailsFuzzyMatchResponses,
+  SearchUserDetailsExactData,
+  SearchUserDetailsExactResponses,
+  SearchUserDetailsFuzzyData,
+  SearchUserDetailsFuzzyResponses,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponses,
   SetCourseChatbotAsDefaultData,
@@ -815,6 +819,8 @@ import type {
   UpdateExerciseRepositoryResponses,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponses,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponses,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponses,
   UpdateGlossaryTermData,
@@ -884,6 +890,7 @@ import {
   zCreateEmailTemplateResponse,
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
+  zCreateExternalCourseResponse,
   zCreatePageAudioFileResponse,
   zCreatePageResponse,
   zCreatePlaygroundExampleResponse,
@@ -896,6 +903,7 @@ import {
   zDeleteEmailTemplateResponse,
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
+  zDeleteExternalCourseResponse,
   zDeleteOauthAuthorizedClientResponse,
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
@@ -960,6 +968,7 @@ import {
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
+  zGetCourseFeedbackCategoriesResponse,
   zGetCourseFeedbackCountResponse,
   zGetCourseFeedbackResponse,
   zGetCourseFlaggedSuspectedCheatersCountResponse,
@@ -1015,7 +1024,6 @@ import {
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
-  zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
   zGetEmailVerificationCodeForTestModeResponse,
@@ -1035,6 +1043,7 @@ import {
   zGetExerciseSlideSubmissionInfoResponse,
   zGetExerciseSubmissionsForUserResponse,
   zGetExerciseSubmissionsResponse,
+  zGetExternalCoursesResponse,
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
@@ -1147,9 +1156,8 @@ import {
   zRevokeSubmissionShareResponse,
   zRevokeSubmissionSharesOfSubmissionResponse,
   zSaveCourseDesignerScheduleResponse,
-  zSearchUserDetailsByEmailResponse,
-  zSearchUserDetailsByOtherDetailsResponse,
-  zSearchUserDetailsFuzzyMatchResponse,
+  zSearchUserDetailsExactResponse,
+  zSearchUserDetailsFuzzyResponse,
   zSendResetPasswordEmailResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
@@ -1170,6 +1178,7 @@ import {
   zUpdateCourseResponse,
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
+  zUpdateExternalCourseResponse,
   zUpdateGeneratedCertificateResponse,
   zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
@@ -3285,6 +3294,25 @@ export const getCourseFeedback = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseFeedbackCategoriesData, ThrowOnError>,
+): RequestResult<GetCourseFeedbackCategoriesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseFeedbackCategoriesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseFeedbackCategoriesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories",
     ...options,
   })
 
@@ -6959,6 +6987,74 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = tru
 
 /**
  *
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
+ */
+export const getExternalCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetExternalCoursesData, ThrowOnError>,
+): RequestResult<GetExternalCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetExternalCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetExternalCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/all",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
+ */
+export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteExternalCourseData, ThrowOnError>,
+): RequestResult<DeleteExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<DeleteExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zDeleteExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/delete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
+ */
+export const createExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<CreateExternalCourseData, ThrowOnError>,
+): RequestResult<CreateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/new",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
+ */
+export const updateExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateExternalCourseData, ThrowOnError>,
+): RequestResult<UpdateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/update",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
  */
 export const markFeedbackAsRead = <ThrowOnError extends boolean = true>(
@@ -8439,20 +8535,6 @@ export const getEditProposals = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCount = <ThrowOnError extends boolean = true>(
-  options: Options<GetEditProposalCountData, ThrowOnError>,
-): RequestResult<GetEditProposalCountResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetEditProposalCountResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zGetEditProposalCountResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count",
-    ...options,
-  })
-
-/**
- *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
  */
 export const processEditProposal = <ThrowOnError extends boolean = true>(
@@ -8911,41 +8993,15 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
-export const searchUserDetailsByEmail = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsByEmailData, ThrowOnError>,
-): RequestResult<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, "data">(
-    {
-      responseValidator: async (data) => await zSearchUserDetailsByEmailResponse.parseAsync(data),
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/user-details/search-by-email",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-    },
-  )
-
-/**
- *
- * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
- */
-export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsByOtherDetailsData, ThrowOnError>,
-): RequestResult<SearchUserDetailsByOtherDetailsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    SearchUserDetailsByOtherDetailsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zSearchUserDetailsByOtherDetailsResponse.parseAsync(data),
+export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
+  options: Options<SearchUserDetailsExactData, ThrowOnError>,
+): RequestResult<SearchUserDetailsExactResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SearchUserDetailsExactResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSearchUserDetailsExactResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/user-details/search-by-other-details",
+    url: "/api/v0/main-frontend/user-details/search-exact",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -8955,20 +9011,15 @@ export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = t
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
+ * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
-export const searchUserDetailsFuzzyMatch = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsFuzzyMatchData, ThrowOnError>,
-): RequestResult<SearchUserDetailsFuzzyMatchResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    SearchUserDetailsFuzzyMatchResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zSearchUserDetailsFuzzyMatchResponse.parseAsync(data),
+export const searchUserDetailsFuzzy = <ThrowOnError extends boolean = true>(
+  options: Options<SearchUserDetailsFuzzyData, ThrowOnError>,
+): RequestResult<SearchUserDetailsFuzzyResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SearchUserDetailsFuzzyResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSearchUserDetailsFuzzyResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/user-details/search-fuzzy-match",
+    url: "/api/v0/main-frontend/user-details/search-fuzzy",
     ...options,
     headers: {
       "Content-Type": "application/json",

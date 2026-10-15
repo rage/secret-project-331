@@ -113,7 +113,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     },
     {
       label: confirmLabel,
-      variant: isDestructive ? "destructive" : "primary",
+      variant: isDestructive ? "danger" : "primary",
       isLoading: isSubmitting,
       disabled: isConfirmDisabled,
       onPress: handlePrimaryPress,

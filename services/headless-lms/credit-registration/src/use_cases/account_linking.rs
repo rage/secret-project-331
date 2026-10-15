@@ -9,7 +9,7 @@ use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, LinkingMailClaim, claim_linking_mail, retire_capped_mails,
+    DiscoveredPerson, LinkingMailClaim, RetiredMails, claim_linking_mail, retire_capped_mails,
 };
 use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_models::verified_student_numbers;
@@ -31,6 +31,8 @@ pub enum ResendOutcome {
     AlreadyMailedToEveryKnownAddress,
     /// A cap refused it: either the quiet period or the per-course lifetime limit.
     RefusedByRateCap,
+    /// An override left a mail claimed moments ago in place, and the caps counting it refused.
+    JustSent,
     NoAddressInStudyRegistry,
     /// The study registry does not list them under any course code of this course.
     NotOnTheCourseRoster,
@@ -45,6 +47,8 @@ pub struct ResendAttempt {
     pub outcome: ResendOutcome,
     /// Always zero without an override; only the admin-facing endpoint can pass one.
     pub retired_mail_count: i64,
+    /// Where the queued mail goes; `None` unless `outcome` is `Queued`.
+    pub emailed_to: Option<SecretString>,
 }
 
 /// An admin's go-ahead to get past the linking-mail caps by retiring the mails they count; see
@@ -73,6 +77,7 @@ pub(crate) async fn resend_for_target<R: InteractiveStudyRegistry>(
         return Ok(ResendAttempt {
             outcome: ResendOutcome::AlreadyLinked,
             retired_mail_count: 0,
+            emailed_to: None,
         });
     }
     resend_linking_mail(
@@ -99,6 +104,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
     let not_retired = |outcome| ResendAttempt {
         outcome,
         retired_mail_count: 0,
+        emailed_to: None,
     };
     let course_codes = active_course_codes(pool, course_id).await?;
     if course_codes.is_empty() {
@@ -123,7 +129,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
 
     let mut conn = pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let retired_mail_count = match rate_cap_override {
+    let retired = match rate_cap_override {
         Some(rate_cap_override) => {
             retire_capped_mails(
                 &mut tx,
@@ -135,20 +141,28 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
             )
             .await?
         }
-        None => 0,
+        None => RetiredMails {
+            retired_count: 0,
+            kept_just_claimed: false,
+        },
     };
     let claim = claim_linking_mail(&mut tx, &discovered).await?;
     tx.commit().await?;
     debug!(course_id = %course_id, ?claim, "Linking mail resend claim result");
     let outcome = match claim {
         LinkingMailClaim::Claimed => ResendOutcome::Queued,
+        _ if retired.kept_just_claimed => ResendOutcome::JustSent,
         LinkingMailClaim::SuppressedByRateCap => ResendOutcome::RefusedByRateCap,
         LinkingMailClaim::SuppressedByDedup => ResendOutcome::AlreadyMailedToEveryKnownAddress,
         LinkingMailClaim::NoAddress => ResendOutcome::NoAddressInStudyRegistry,
     };
+    let emailed_to = (outcome == ResendOutcome::Queued)
+        .then(|| discovered.address.clone().map(SecretString::from))
+        .flatten();
     Ok(ResendAttempt {
         outcome,
-        retired_mail_count,
+        retired_mail_count: retired.retired_count,
+        emailed_to,
     })
 }
 

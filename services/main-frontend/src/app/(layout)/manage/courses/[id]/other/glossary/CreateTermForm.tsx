@@ -1,15 +1,23 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { createCourseGlossaryTermMutation } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button, TextArea, TextField } from "@/shared-module/components"
+
+const formCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
+
+/** Grid items stretch by default, which would run the button the full width of the form. */
+const submitCss = css`
+  justify-self: start;
+`
 
 interface NewTermForm {
   newTerm: string
@@ -24,9 +32,9 @@ interface CreateTermFormProps {
 const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) => {
   const { t } = useTranslation()
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
     reset,
     // oxlint-disable-next-line i18next/no-literal-string
   } = useForm<NewTermForm>({ mode: "onChange" })
@@ -58,32 +66,38 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
   }
 
   return (
-    <form onSubmit={handleSubmit(onCreate)}>
+    <form onSubmit={handleSubmit(onCreate)} className={formCss}>
       <TextField
+        name="newTerm"
+        control={control}
         label={t("new-term")}
-        placeholder={t("new-term")}
-        {...register("newTerm", {
+        rules={{
           required: true,
           pattern: {
             value: /\S+/,
             message: t("required"),
           },
-        })}
-        {...includeIf(errors.newTerm, { error: t("required") })}
+        }}
       />
-      <TextAreaField
-        placeholder={t("new-definition")}
+      <TextArea
+        name="newDefinition"
+        control={control}
         label={t("new-definition")}
-        {...register("newDefinition", {
+        rules={{
           required: true,
           pattern: {
             value: /\S+/,
             message: t("required"),
           },
-        })}
-        {...includeIf(errors.newDefinition, { error: t("required") })}
+        }}
       />
-      <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
+      <Button
+        variant="primary"
+        size="medium"
+        type="submit"
+        disabled={!isValid}
+        className={submitCss}
+      >
         {t("button-text-save")}
       </Button>
     </form>

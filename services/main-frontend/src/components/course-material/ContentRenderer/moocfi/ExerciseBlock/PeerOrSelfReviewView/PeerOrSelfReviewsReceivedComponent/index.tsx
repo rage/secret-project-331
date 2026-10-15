@@ -1,6 +1,5 @@
 "use client"
 
-import { keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
@@ -11,85 +10,13 @@ import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { Button, Disclosure, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
-const openAnimation = keyframes`
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-`
-
-const slideDown = keyframes`
-  from { opacity: 0; height: 0; padding: 0;}
-  to { opacity: 1; height: 100%; padding: 10px;}
-`
-
-const Wrapper = styled.div`
-  details {
-    transition: all 0.3s ease-in-out;
-  }
-
-  details[open] summary ~ * {
-    animation: ${openAnimation} 0.3s ease-in-out;
-    color: ${baseTheme.colors.gray[700]};
-  }
-
-  details[open] > div {
-    animation-name: ${slideDown};
-    animation-duration: 0.3s;
-    animation-fill-mode: forwards;
-    padding: 1rem 1rem 1rem 1rem;
-  }
-
-  details summary {
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    position: relative;
-    cursor: pointer;
-    font-weight: 500;
-    font-family: ${headingFont};
-    list-style: none;
-    color: ${baseTheme.colors.gray[700]};
-    outline: 0;
-    background: ${baseTheme.colors.clear[100]};
-  }
-
-  details summary::-webkit-details-marker {
-    display: none;
-  }
-
-  details[open] > summary {
-    color: ${baseTheme.colors.gray[700]};
-  }
-
-  details summary:after {
-    content: "+";
-    position: absolute;
-    font-size: 2.4rem;
-    color: ${baseTheme.colors.gray[700]};
-    line-height: 0;
-    margin-top: 0.75rem;
-    top: 18px;
-    right: 4%;
-    font-weight: 200;
-    transform-origin: center;
-    transition: all 200ms linear;
-  }
-  details[open] summary:after {
-    transform: rotate(45deg);
-    font-size: 2.4rem;
-  }
-  details[open] summary {
-    opacity: 0.9;
-  }
-`
-const Notification = styled.div`
+const Notification = styled.span`
   display: inline-block;
   width: 22px;
   height: 22px;
@@ -190,7 +117,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
       treatNullAsEmpty
       emptyFallback={
         <div>
-          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <ErrorNotice error={t("error-loading-exercise")} />
           <Button
             variant={"primary"}
             size={"medium"}
@@ -204,38 +131,38 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
       }
     >
       {(queryData) => (
-        <Wrapper>
-          <details>
-            <summary>
+        <Disclosure
+          title={
+            <>
               {t("received-reviews")}
               <Notification>{numReceivedReviews}</Notification>
-            </summary>
+            </>
+          }
+        >
+          {(data["self"] ?? []).map((items, index) => {
+            return (
+              <ReceivedPeerOrSelfReview
+                orderNumber={index}
+                key={index}
+                reviews={items}
+                questions={queryData.peer_or_self_review_questions}
+                selfReview
+              />
+            )
+          })}
 
-            {(data["self"] ?? []).map((items, index) => {
-              return (
-                <ReceivedPeerOrSelfReview
-                  orderNumber={index}
-                  key={index}
-                  reviews={items}
-                  questions={queryData.peer_or_self_review_questions}
-                  selfReview
-                />
-              )
-            })}
-
-            {(data["peer"] ?? []).map((items, index) => {
-              return (
-                <ReceivedPeerOrSelfReview
-                  orderNumber={index}
-                  key={index}
-                  reviews={items}
-                  questions={queryData.peer_or_self_review_questions}
-                  selfReview={false}
-                />
-              )
-            })}
-          </details>
-        </Wrapper>
+          {(data["peer"] ?? []).map((items, index) => {
+            return (
+              <ReceivedPeerOrSelfReview
+                orderNumber={index}
+                key={index}
+                reviews={items}
+                questions={queryData.peer_or_self_review_questions}
+                selfReview={false}
+              />
+            )
+          })}
+        </Disclosure>
       )}
     </QueryResult>
   )

@@ -13,13 +13,20 @@ import {
   type ButtonVariant,
   contentCss,
   contentLoadingCss,
+  disabledPlainLinkCss,
   type IconPosition,
   iconSlotCss,
   type PressHandlers,
   resolveButtonRootCss,
-  spinnerCss,
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
+import { spinnerGlyphCss } from "./primitives/spinnerStyles"
+
+// oxlint-disable-next-line i18next/no-literal-string
+const SAME_TAB_TARGET = "_self"
+
+/** Scheme-qualified (`https:`, `mailto:`) or protocol-relative (`//host/path`) hrefs. */
+const ABSOLUTE_HREF = /^(?:[a-zA-Z][a-zA-Z\d+.-]*:|\/\/)/
 
 /**
  * How a plain (non-button) link is drawn.
@@ -72,6 +79,16 @@ type CommonLinkExtras = PressHandlers & {
   isDisabled?: boolean
   isLoading?: boolean
   loadingLabel?: string
+  /**
+   * Marks an `href` that another service in this deployment serves, such as `/cms/...` linked from
+   * main-frontend. Such a path is same-origin but is not a route of this Next app, so the client
+   * router must not claim the click, prepend `basePath` to the href, or prefetch it on scroll.
+   *
+   * Only for paths the component cannot classify on its own: `download`, a `target` other than
+   * `_self`, and absolute URLs already skip the router without it.
+   */
+  isCrossService?: boolean
+  "data-testid"?: string | undefined
 }
 
 interface ButtonLikeStyling {
@@ -83,21 +100,27 @@ interface ButtonLikeStyling {
 
 type NextProps = React.ComponentProps<typeof NextLink>
 
+/** `href` is narrowed to a string: a `UrlObject` cannot be handed to a plain anchor. */
+type LinkSharedProps = Omit<NextProps, "href"> & CommonLinkExtras & { href: string }
+
 // `Trans` clones the element it is given in `components` and injects the sentence's parsed inner
 // content as children, so a plain (non-button) `Link` written as `<Link href="…" />` never actually
 // renders without children — but next/link's own type requires them. Widen just this variant so
 // that call site type-checks.
-type NextPropsOptionalChildren = Omit<NextProps, "children"> & { children?: React.ReactNode }
+type LinkPlainProps = Omit<LinkSharedProps, "children"> & {
+  children?: React.ReactNode
+  styledAsButton?: false | undefined
+  appearance?: LinkAppearance
+}
 
-type LinkPlainProps = NextPropsOptionalChildren &
-  CommonLinkExtras & {
-    styledAsButton?: false | undefined
-    appearance?: LinkAppearance
-  }
-
-type LinkButtonProps = NextProps &
-  CommonLinkExtras &
+type LinkButtonProps = LinkSharedProps &
   ButtonLikeStyling & {
+    /**
+     * Paints the link with `Button`'s variant and size styling, and enables `variant`, `size`,
+     * `icon` and `iconPosition`.
+     *
+     * The element stays a link however it looks: Enter activates it and Space scrolls the page.
+     */
     styledAsButton: true
   }
 
@@ -120,6 +143,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       isLoading: isLoadingProp,
       isDisabled: isDisabledProp,
       loadingLabel: loadingLabelProp,
+      isCrossService,
       onPress,
       onPressStart,
       onPressEnd,
@@ -139,6 +163,18 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       className,
       children,
       tabIndex,
+      href,
+      as: routerAs,
+      replace,
+      scroll,
+      shallow,
+      passHref,
+      prefetch,
+      locale,
+      legacyBehavior,
+      onNavigate,
+      transitionTypes,
+      "data-testid": dataTestId,
       ...rest
     } = props as LinkProps & ButtonLikeStyling & { appearance?: LinkAppearance }
 
@@ -206,16 +242,17 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
           ? 0
           : linkProps.tabIndex
 
-    const rootClassName =
-      cx(
-        styledAsButtonResolved
-          ? resolveButtonRootCss({
-              size: (styledAsButtonResolved ? size : undefined) ?? "medium",
-              variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
-            })
-          : plainLinkCss[appearance ?? DEFAULT_APPEARANCE],
-        className,
-      ) || undefined
+    const stateCss = styledAsButtonResolved
+      ? resolveButtonRootCss({
+          size: (styledAsButtonResolved ? size : undefined) ?? "medium",
+          variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
+        })
+      : cx(
+          plainLinkCss[appearance ?? DEFAULT_APPEARANCE],
+          isInteractivelyDisabled && disabledPlainLinkCss,
+        )
+
+    const rootClassName = cx(stateCss, className) || undefined
 
     const resolvedIcon = styledAsButtonResolved ? icon : undefined
     // oxlint-disable-next-line i18next/no-literal-string
@@ -223,62 +260,50 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     const resolvedIconPosition =
       (styledAsButtonResolved ? iconPosition : undefined) ?? defaultIconPosition
 
-    const mergedLinkProps = mergeProps(linkProps, {
-      onClick: isInteractivelyDisabled ? undefined : onClick,
-      onPointerDown,
-      onPointerUp,
-      onPointerCancel,
-      onKeyDown,
-      onKeyUp,
-      onFocus,
-      onBlur,
-    })
+    // oxlint-disable-next-line i18next/no-literal-string
+    const disabledReason = isLoading ? "loading" : isInteractivelyDisabled ? "disabled" : undefined
 
-    return (
-      <NextLink
-        {...(mergedLinkProps as Partial<NextProps>)}
-        {...rest}
-        ref={ref}
-        className={rootClassName}
-        data-pressed={isPressed ? "true" : "false"}
-        data-disabled-reason={
-          isLoading ? "loading" : isInteractivelyDisabled ? "disabled" : undefined
-        }
-        // oxlint-disable-next-line i18next/no-literal-string
-        aria-busy={isLoading ? "true" : undefined}
-        tabIndex={finalTabIndex}
-      >
-        {styledAsButtonResolved ? (
-          <>
-            <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
-              {resolvedIcon && resolvedIconPosition === "start" ? (
-                <span className={iconSlotCss}>{resolvedIcon}</span>
-              ) : null}
-              <span id={labelledBy === labelId ? labelId : undefined}>
-                {children}
-                {opensInNewTab && !ariaLabelProp ? (
-                  <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
-                    {" "}
-                    {opensInNewTabLabel}
-                  </VisuallyHidden>
-                ) : null}
-              </span>
-              {resolvedIcon && resolvedIconPosition === "end" ? (
-                <span className={iconSlotCss}>{resolvedIcon}</span>
-              ) : null}
-            </span>
+    // next/link claims every same-origin href: it cancels the click, prefetches the URL on scroll
+    // and prepends basePath. A destination it does not route must render as a plain anchor instead.
+    const opensAnotherBrowsingContext =
+      typeof props.target === "string" && props.target !== SAME_TAB_TARGET
+    const isDownload = props.download !== undefined && props.download !== false
+    const usesClientRouter =
+      isCrossService !== true &&
+      !isDownload &&
+      !opensAnotherBrowsingContext &&
+      !ABSOLUTE_HREF.test(href)
 
-            {isLoading ? (
-              <>
-                <span className={spinnerOverlayCss} aria-hidden="true">
-                  <span className={spinnerCss} />
-                </span>
-                <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
-              </>
-            ) : null}
-          </>
-        ) : (
-          <>
+    const anchorProps = mergeProps(
+      linkProps,
+      {
+        onClick: isInteractivelyDisabled ? undefined : onClick,
+        onPointerDown,
+        onPointerUp,
+        onPointerCancel,
+        onKeyDown,
+        onKeyUp,
+        onFocus,
+        onBlur,
+      },
+      rest,
+      {
+        className: rootClassName,
+        tabIndex: finalTabIndex,
+        "data-pressed": isPressed,
+        "data-disabled-reason": disabledReason,
+        "data-testid": dataTestId,
+        "aria-busy": isLoading || undefined,
+      },
+    )
+
+    const content = styledAsButtonResolved ? (
+      <>
+        <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
+          {resolvedIcon && resolvedIconPosition === "start" ? (
+            <span className={iconSlotCss}>{resolvedIcon}</span>
+          ) : null}
+          <span id={labelledBy === labelId ? labelId : undefined}>
             {children}
             {opensInNewTab && !ariaLabelProp ? (
               <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
@@ -286,8 +311,67 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
                 {opensInNewTabLabel}
               </VisuallyHidden>
             ) : null}
+          </span>
+          {resolvedIcon && resolvedIconPosition === "end" ? (
+            <span className={iconSlotCss}>{resolvedIcon}</span>
+          ) : null}
+        </span>
+
+        {isLoading ? (
+          <>
+            <span className={spinnerOverlayCss} aria-hidden="true">
+              <span className={spinnerGlyphCss("sm", "current")} />
+            </span>
+            <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
           </>
-        )}
+        ) : null}
+      </>
+    ) : (
+      <>
+        {children}
+        {opensInNewTab && !ariaLabelProp ? (
+          <VisuallyHidden elementType={VISUALLY_HIDDEN_INLINE} id={opensInNewTabId}>
+            {" "}
+            {opensInNewTabLabel}
+          </VisuallyHidden>
+        ) : null}
+      </>
+    )
+
+    if (!usesClientRouter) {
+      return (
+        <a
+          {...(anchorProps as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+          href={href}
+          ref={ref}
+        >
+          {content}
+        </a>
+      )
+    }
+
+    // Router-only props: not anchor attributes, so they must never reach the plain-anchor path.
+    const clientRouterProps = omitUndefined({
+      as: routerAs,
+      replace,
+      scroll,
+      shallow,
+      passHref,
+      prefetch,
+      locale,
+      legacyBehavior,
+      onNavigate,
+      transitionTypes,
+    })
+
+    return (
+      <NextLink
+        {...(anchorProps as Partial<NextProps>)}
+        {...clientRouterProps}
+        href={href}
+        ref={ref}
+      >
+        {content}
       </NextLink>
     )
   },

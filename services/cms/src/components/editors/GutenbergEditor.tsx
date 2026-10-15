@@ -48,11 +48,11 @@ import { dispatch, select } from "@wordpress/data"
 import { addFilter, removeFilter } from "@wordpress/hooks"
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { toast } from "react-hot-toast"
 
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { LoadingRegion, Select } from "@/shared-module/components"
 import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -150,6 +150,15 @@ interface GutenbergEditorChangeOptions {
 interface EditorCanvasProps {
   contentRef: React.RefObject<HTMLDivElement | null>
 }
+
+type SidebarView = "block-props" | "block-list" | "block-menu"
+
+interface SidebarViewFormFields {
+  sidebarView: SidebarView
+}
+
+const DEFAULT_SIDEBAR_VIEW: SidebarView = "block-props"
+const SIDEBAR_VIEW_FIELD_NAME = "sidebarView"
 
 /**
  * The editable block canvas.
@@ -365,12 +374,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     }
   }
 
-  const [sidebarView, setSidebarView] = useState<
-    "block-props" | "block-list" | "block-menu" | string
-  >(
-    // oxlint-disable-next-line i18next/no-literal-string
-    "block-props",
-  )
+  const { control: sidebarViewControl } = useForm<SidebarViewFormFields>({
+    defaultValues: { sidebarView: DEFAULT_SIDEBAR_VIEW },
+  })
+  const sidebarView = useWatch({ control: sidebarViewControl, name: SIDEBAR_VIEW_FIELD_NAME })
 
   useEffect(() => {
     addFilter(
@@ -461,7 +468,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [showEditor])
 
   if (!showEditor) {
-    return <Spinner variant="large" />
+    return <LoadingRegion size="lg" />
   }
 
   return (
@@ -552,13 +559,14 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                   </div>
                   <div
                     className={css`
-                      margin: 1rem;
-                      margin-bottom: 0;
+                      margin: var(--space-4);
+                      margin-bottom: var(--space-3);
                     `}
                   >
-                    <SelectField
-                      id={"select-sidebar-view"}
-                      value={sidebarView}
+                    <Select
+                      id="select-sidebar-view"
+                      name={SIDEBAR_VIEW_FIELD_NAME}
+                      control={sidebarViewControl}
                       label={t("editor-select-sidebar-view")}
                       options={[
                         // oxlint-disable-next-line i18next/no-literal-string
@@ -568,13 +576,12 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                         // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-menu", label: t("block-menu") },
                       ]}
-                      onChangeByValue={(val) => setSidebarView(val)}
                     />
                   </div>
                   {inspectorButtons && (
                     <div
                       className={css`
-                        margin: 1rem;
+                        margin: var(--space-4);
                         margin-top: 0;
                       `}
                     >

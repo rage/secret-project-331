@@ -125,21 +125,21 @@ test("Grade exams manually", async ({}) => {
 
   // Check the first submissions has 0 points and it's ungraded
   await expect(teacherPage.getByRole("cell", { name: "Ungraded" }).first()).toBeVisible()
-  await expect(teacherPage.getByText("0/ 1").first()).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "0 / 1", exact: true }).first()).toBeVisible()
 
   // Grade both submissions
   await teacherPage
     .getByRole("row", { name: "Grade 02364d40-2aac-4763-8a06" })
     .getByRole("button")
     .click()
-  await teacherPage.locator("#Justification").fill("Ok")
+  await teacherPage.getByRole("textbox", { name: "Justification / Feedback" }).fill("Ok")
   await teacherPage.getByLabel("Score", { exact: true }).fill("1")
   await waitForSuccessNotification(teacherPage, async () => {
     await teacherPage.getByRole("button", { name: "Save and next" }).click()
   })
   await waitForMessageChannelIframesToBeReady(teacherPage)
 
-  await teacherPage.locator("#Justification").fill("Good")
+  await teacherPage.getByRole("textbox", { name: "Justification / Feedback" }).fill("Good")
   await teacherPage.getByLabel("Score", { exact: true }).fill("0.5")
   await waitForSuccessNotification(teacherPage, async () => {
     await teacherPage.getByRole("button", { name: "Submit" }).click()
@@ -148,9 +148,9 @@ test("Grade exams manually", async ({}) => {
   // Check both submissions are graded
   await teacherPage.getByRole("link", { name: "Submissions" }).click()
   await expect(teacherPage.getByText("Graded").first()).toBeVisible()
-  await expect(teacherPage.getByRole("cell", { name: "1/ 1" }).first()).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "1 / 1", exact: true }).first()).toBeVisible()
   await expect(teacherPage.getByText("Graded").nth(1)).toBeVisible()
-  await expect(teacherPage.getByRole("cell", { name: "0.5/ 1" })).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "0.5 / 1", exact: true })).toBeVisible()
 
   // Navigate back to the questions overview page
   await teacherPage.getByRole("link", { name: "Questions" }).click()

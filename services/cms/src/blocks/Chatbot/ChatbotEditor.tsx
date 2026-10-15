@@ -6,10 +6,11 @@ import { InnerBlocks } from "@wordpress/block-editor"
 import React, { useContext, useEffect } from "react"
 
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { Select } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ChatbotBlockAttributes } from "."
@@ -51,7 +52,16 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
       .find((v) => v === chatbotConfigurationId) ?? chatbotConfigurationSelectOptions.at(0)?.value
   const resolvedCourseId = courseId ?? undefined
 
-  // The dropdown never fires onChangeByValue when it holds a single option, so the attributes have
+  const { control } = useAttributeForm(
+    { chatbotConfigurationId: initialSelected ?? "" },
+    (values) =>
+      setAttributes({
+        chatbotConfigurationId: values.chatbotConfigurationId,
+        courseId: resolvedCourseId,
+      }),
+  )
+
+  // The dropdown never reports a change when it holds a single option, so the attributes have
   // to be seeded here. Writing only on a real change keeps this out of the undo history and off the
   // unsaved-changes flag; waiting for the query keeps it from clearing a stored id while loading.
   useEffect(() => {
@@ -81,19 +91,14 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
         emptyFallback={<p>{t("no-chatbots-for-course")}</p>}
       >
         {() => (
-          <SelectField
+          <Select
+            name="chatbotConfigurationId"
+            control={control}
             className={css`
               width: inherit;
             `}
             label={t("select-an-option")}
             options={chatbotConfigurationSelectOptions}
-            defaultValue={initialSelected}
-            onChangeByValue={(v) => {
-              setAttributes({
-                chatbotConfigurationId: v,
-                courseId: courseId ?? undefined,
-              })
-            }}
           />
         )}
       </QueryResult>

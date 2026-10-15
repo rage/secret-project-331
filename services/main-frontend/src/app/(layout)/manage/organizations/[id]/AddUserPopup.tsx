@@ -6,11 +6,23 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { USER_ROLES } from "@/constants/roles"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Dialog, Select, TextField } from "@/shared-module/components"
+
+const descriptionCss = css`
+  margin-bottom: var(--space-4);
+`
+
+const fieldsCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+
+  ${respondToOrLarger.lg} {
+    flex-direction: row;
+  }
+`
 
 type RoleValue = (typeof USER_ROLES)[number]["value"]
 
@@ -27,12 +39,7 @@ interface AddUserPopupProps {
 
 const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<AddUserForm>({
+  const { control, handleSubmit, reset } = useForm<AddUserForm>({
     defaultValues: {
       email: "",
       role: "",
@@ -52,46 +59,26 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
   })
 
   return (
-    <StandardDialog
+    <Dialog
       open={show}
       onClose={onClose}
       title={t("add-user-title")}
-      buttons={[
+      actions={[
         {
-          children: t("save"),
-          onClick: submitForm,
-          variant: "primary",
-        },
-        {
-          children: t("button-text-cancel"),
+          label: t("button-text-cancel"),
           onClick: onClose,
           variant: "secondary",
         },
+        {
+          label: t("save"),
+          onClick: () => void submitForm(),
+          variant: "primary",
+        },
       ]}
     >
-      <p
-        className={css`
-          font-size: 16px;
-          margin-bottom: 32px;
-        `}
-      >
-        {t("add-user-description")}
-      </p>
+      <p className={descriptionCss}>{t("add-user-description")}</p>
 
-      <form
-        onSubmit={submitForm}
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-          margin-bottom: 32px;
-          width: 100%;
-
-          ${respondToOrLarger.lg} {
-            flex-direction: row;
-          }
-        `}
-      >
+      <form onSubmit={submitForm} className={fieldsCss}>
         <div
           className={css`
             flex: 1;
@@ -99,10 +86,11 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
           `}
         >
           <TextField
-            {...register("email", { required: true })}
+            name="email"
+            control={control}
             id="add-user-email"
             label={t("label-email")}
-            {...includeIf(errors.email, { error: t("validation-required") })}
+            rules={{ required: t("validation-required") }}
           />
         </div>
 
@@ -112,21 +100,23 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ show, onClose, onSave }) =>
             min-width: 0;
           `}
         >
-          <SelectField
-            {...register("role", { required: true })}
+          <Select
+            name="role"
+            control={control}
             id="add-user-role"
             label={t("label-role")}
+            rules={{ required: t("validation-required") }}
             options={[
               { value: "", label: t("button-select-role") },
               ...USER_ROLES.map((role) => ({
                 value: role.value,
-                label: role.value,
+                label: t(role.translationKey),
               })),
             ]}
           />
         </div>
       </form>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

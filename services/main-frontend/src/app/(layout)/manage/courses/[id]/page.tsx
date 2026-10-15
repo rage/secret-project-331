@@ -1,15 +1,13 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { redirect, useParams } from "next/navigation"
 
 import { manageCourseOverviewRoute } from "@/shared-module/common/utils/routes"
 
+/** Sends a course's bare management URL to its overview tab. */
 export default function CourseManagementIndexPage() {
   const params = useParams<{ id: string }>()
-  const router = useRouter()
-  useEffect(() => {
-    router.replace(manageCourseOverviewRoute(params.id))
-  }, [params.id, router])
-  return null
+  // During render, not in an effect: a replace landing after hydration would undo a tab picked
+  // meanwhile.
+  redirect(manageCourseOverviewRoute(params.id))
 }

@@ -1,13 +1,13 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { useParams } from "next/navigation"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import AllSubmissionsList from "@/components/AllSubmissionsList"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import DeletedUserNotice from "@/components/DeletedUserNotice"
 import ExerciseGradingCard from "@/components/ExerciseGradingCard"
 import KeyValueCard from "@/components/KeyValueCard"
@@ -16,12 +16,7 @@ import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack
 import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
@@ -31,7 +26,16 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import {
+  ABSENT_LABEL,
+  Breadcrumbs,
+  type BreadcrumbItem,
+  Infobox,
+  Link,
+  LoadingRegion,
+  QueryResult,
+  ErrorNotice,
+} from "@/shared-module/components"
 
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -93,22 +97,18 @@ const Submission: React.FC = () => {
     .map((task) => task.previous_submission_grading?.score_given)
     .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
 
-  // Construct breadcrumb pieces
-  const breadcrumbPieces = React.useMemo(() => {
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
     if (!getSubmissionInfo.data) {
       return []
     }
 
     return [
+      { label: t("home"), href: "/" },
       {
-        text: t("header-submissions"),
-        url: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
+        label: t("header-submissions"),
+        href: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
       },
-      {
-        text: t("title-submission-id", { id }),
-        // oxlint-disable-next-line i18next/no-literal-string
-        url: `/submissions/${id}`,
-      },
+      { label: t("title-submission-id", { id }) },
     ]
   }, [getSubmissionInfo.data, id, t])
 
@@ -117,26 +117,24 @@ const Submission: React.FC = () => {
       <QueryResult query={getSubmissionInfo}>
         {(submissionInfo) => (
           <>
-            {breadcrumbPieces.length > 0 && <Breadcrumbs pieces={breadcrumbPieces} />}
+            {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
             {submissionInfo.tasks.some((task) => task.deleted_at !== null) && (
-              <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
+              <Infobox>{t("message-this-task-has-been-deleted")}</Infobox>
             )}
 
             <h1
-              className={css`
-                margin-bottom: 2rem;
-              `}
+              className={cx(
+                pageTitleCss,
+                css`
+                  margin-bottom: var(--space-5);
+                `,
+              )}
             >
-              <HideTextInSystemTests
-                text={t("title-submission-id", { id })}
-                testPlaceholder={t("title-submission-id", {
-                  id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                })}
-              />
+              {submissionInfo.exercise.name}
             </h1>
 
             {/* User Information Section */}
-            {userDetails.isLoading && <Spinner variant="medium" />}
+            {userDetails.isLoading && <LoadingRegion />}
             {userDetails.isSuccess && (
               <KeyValueCard
                 sections={[
@@ -166,7 +164,7 @@ const Submission: React.FC = () => {
                         // oxlint-disable-next-line i18next/no-literal-string
                         key: "points",
                         label: t("points-from-whole-exercise"),
-                        value: pointsFromWholeExercise,
+                        value: pointsFromWholeExercise ?? ABSENT_LABEL,
                         colSpan: 2,
                       },
                       {
@@ -226,10 +224,11 @@ const Submission: React.FC = () => {
                             submissionInfo.exercise.course_id,
                             submissionInfo.exercise_slide_submission.user_id,
                           )}
+                          styledAsButton
+                          variant="tertiary"
+                          size="medium"
                         >
-                          <Button variant="tertiary" size="medium">
-                            {t("course-status-summary")}
-                          </Button>
+                          {t("course-status-summary")}
                         </Link>,
                       ]
                     : []
@@ -249,8 +248,7 @@ const Submission: React.FC = () => {
 
             {/* User Details Error Banner */}
             {userDetails.isError && (
-              <ErrorBanner
-                variant="readOnly"
+              <ErrorNotice
                 error={userDetails.error}
                 className={css`
                   max-width: ${narrowContainerWidthRem}rem;

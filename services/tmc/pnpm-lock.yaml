@@ -53,9 +53,6 @@ importers:
       '@fontsource/roboto-mono':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/space-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@internationalized/date':
         specifier: ^3.12.3
         version: 3.12.3
@@ -577,9 +574,6 @@ packages:
 
   '@fontsource/roboto-mono@5.3.0':
     resolution: {integrity: sha512-yhwplHMHW9dCk+1pZuERfcJe+K3rosGVZEoK0XktkxRSqQ9qsipSwwiuW2/8Qmtp9lzu3Ixa/ie4BMH3i8CkZQ==}
-
-  '@fontsource/space-mono@5.3.0':
-    resolution: {integrity: sha512-FrpBMOVWn3PRdRHlrZWC55X3kZG/2BTH7SM5ZyS/bky3iKya2BturI5lk+t0RoDQL2JyHzURsVq/EisCsxpI5A==}
 
   '@internationalized/date@3.12.3':
     resolution: {integrity: sha512-fuLX+3ZKLsxI73y8b01EG/WjHb6gE6weCqlfawPO27kBWGMh9G1yH6Csv1uU7/cac9H2GHmOMt6CjmuQ1aia4Q==}
@@ -4555,8 +4549,6 @@ snapshots:
 
   '@fontsource/roboto-mono@5.3.0': {}
 
-  '@fontsource/space-mono@5.3.0': {}
-
   '@internationalized/date@3.12.3':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -8476,7 +8468,6 @@ time:
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
   '@fontsource/raleway@5.3.0': '2026-07-19T03:45:34.357Z'
   '@fontsource/roboto-mono@5.3.0': '2026-07-19T03:45:49.869Z'
-  '@fontsource/space-mono@5.3.0': '2026-07-19T03:46:52.213Z'
   '@internationalized/date@3.12.3': '2026-07-31T15:26:08.695Z'
   '@json2csv/plainjs@7.0.8': '2026-08-06T07:19:15.059Z'
   '@kubernetes/client-node@2.0.0': '2026-08-12T19:00:18.461Z'

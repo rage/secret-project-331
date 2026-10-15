@@ -451,13 +451,6 @@ export const checkboxRowStyles = css`
   margin-top: 1rem;
 `
 
-export const openPeriodAllRowStyles = css`
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2, 0.5rem);
-  cursor: pointer;
-`
-
 export const contributorsListStyles = css`
   display: flex;
   flex-direction: column;

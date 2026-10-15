@@ -20,6 +20,7 @@ import { auditForStudentHref } from "@/components/credit-registration/admin/admi
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import { buildJourney } from "@/components/credit-registration/admin/journeyPhases"
 import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
+import ManualLinkingEmailSendLines from "@/components/credit-registration/admin/ManualLinkingEmailSendLines"
 import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
 import RegistrationProblemActions from "@/components/credit-registration/admin/RegistrationProblemActions"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
@@ -787,6 +788,10 @@ const RegistrationDetailPage: React.FC = () => {
                 problem && !loaded.registration.superseded ? (
                   <>
                     <DismissalNote attention={loaded.attention} />
+                    <ManualLinkingEmailSendLines
+                      sends={loaded.manual_linking_email_sends}
+                      variant="registration"
+                    />
                     <RegistrationProblemActions
                       registration={loaded.registration}
                       isStudentNumberStuck={problem.isStudentNumberStuck}

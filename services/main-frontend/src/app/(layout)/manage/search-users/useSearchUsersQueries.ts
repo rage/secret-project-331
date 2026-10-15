@@ -1,59 +1,44 @@
 "use client"
 
-import { useQuery, type UseQueryResult } from "@tanstack/react-query"
+import { keepPreviousData, useQuery, type UseQueryResult } from "@tanstack/react-query"
 
-import {
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
-  searchUserDetailsFuzzyMatch,
-} from "@/generated/api/sdk.generated"
-import type { UserDetail } from "@/generated/api/types.generated"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { searchUserDetailsExact, searchUserDetailsFuzzy } from "@/generated/api/sdk.generated"
+import type { FuzzyUserSearchResults, UserDetail } from "@/generated/api/types.generated"
+
+/** Matches MIN_FUZZY_SEARCH_TERM_LENGTH in the headless-lms user_details model. */
+const MIN_SEARCH_TERM_LENGTH = 3
 
 export interface SearchUsersQueries {
-  searchByEmailQuery: UseQueryResult<UserDetail[], unknown>
-  searchByOtherDetailsQuery: UseQueryResult<UserDetail[], unknown>
-  searchFuzzyMatchQuery: UseQueryResult<UserDetail[], unknown>
+  exactQuery: UseQueryResult<UserDetail[], unknown>
+  fuzzyQuery: UseQueryResult<FuzzyUserSearchResults, unknown>
 }
 
-/** Runs the three user-search API queries for the given executed query string. */
+/** True for a term that cannot match anything, so it is not sent at all. */
+export const isSearchTermTooShort = (searchQuery: string): boolean =>
+  searchQuery.trim().length < MIN_SEARCH_TERM_LENGTH
+
+/**
+ * Runs the exact and the typo-tolerant user search for the executed query string. Both keep the
+ * previous query's data as placeholder data while a new query runs, and abort a superseded request.
+ */
 const useSearchUsersQueries = (searchQuery: string): SearchUsersQueries => {
-  const hasActiveSearch = searchQuery !== ""
+  const enabled = searchQuery !== "" && !isSearchTermTooShort(searchQuery)
 
-  const searchByEmailQuery = useQuery({
-    queryKey: ["searchUsersByEmail", searchQuery],
-    queryFn: () =>
-      searchUserDetailsByEmail({
-        body: {
-          query: assertNotNullOrUndefined(searchQuery),
-        },
-      }),
-    enabled: hasActiveSearch,
+  const exactQuery = useQuery({
+    queryKey: ["searchUsersExact", searchQuery],
+    queryFn: ({ signal }) => searchUserDetailsExact({ body: { query: searchQuery }, signal }),
+    enabled,
+    placeholderData: keepPreviousData,
   })
 
-  const searchByOtherDetailsQuery = useQuery({
-    queryKey: ["searchUsersByOtherDetails", searchQuery],
-    queryFn: () =>
-      searchUserDetailsByOtherDetails({
-        body: {
-          query: assertNotNullOrUndefined(searchQuery),
-        },
-      }),
-    enabled: hasActiveSearch,
+  const fuzzyQuery = useQuery({
+    queryKey: ["searchUsersFuzzy", searchQuery],
+    queryFn: ({ signal }) => searchUserDetailsFuzzy({ body: { query: searchQuery }, signal }),
+    enabled,
+    placeholderData: keepPreviousData,
   })
 
-  const searchFuzzyMatchQuery = useQuery({
-    queryKey: ["searchUsersFuzzyMatch", searchQuery],
-    queryFn: () =>
-      searchUserDetailsFuzzyMatch({
-        body: {
-          query: assertNotNullOrUndefined(searchQuery),
-        },
-      }),
-    enabled: hasActiveSearch,
-  })
-
-  return { searchByEmailQuery, searchByOtherDetailsQuery, searchFuzzyMatchQuery }
+  return { exactQuery, fuzzyQuery }
 }
 
 export default useSearchUsersQueries

@@ -34,9 +34,6 @@ importers:
       '@fontsource/commit-mono':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/space-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@react-aria/overlays':
         specifier: ^3.32.1
         version: 3.32.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -557,9 +554,6 @@ packages:
 
   '@fontsource/commit-mono@5.3.0':
     resolution: {integrity: sha512-Bs+zlEWHDgk/cCVWEMJJaA7LbBU3Ixi5Zums+SSwMKdm2N7RJ4P7jCJTwsMHRt5WFiXYB0tu0q9HMfkn0YsLsQ==}
-
-  '@fontsource/space-mono@5.3.0':
-    resolution: {integrity: sha512-FrpBMOVWn3PRdRHlrZWC55X3kZG/2BTH7SM5ZyS/bky3iKya2BturI5lk+t0RoDQL2JyHzURsVq/EisCsxpI5A==}
 
   '@internationalized/date@3.12.2':
     resolution: {integrity: sha512-FY1Y+H64NDs+HAF6omlnWxm3mEpfgaCSWtL5l551ZZfImA+kGjPFgrnJrGjH6lfmLL0g8Z/mBu1R3kufeCp6Jw==}
@@ -3132,8 +3126,6 @@ snapshots:
 
   '@fontsource/commit-mono@5.3.0': {}
 
-  '@fontsource/space-mono@5.3.0': {}
-
   '@internationalized/date@3.12.2':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -5006,7 +4998,6 @@ time:
   '@emotion/styled@11.14.1': '2025-06-26T10:49:15.752Z'
   '@fontsource-variable/inter@5.3.0': '2026-07-19T03:50:25.793Z'
   '@fontsource/commit-mono@5.3.0': '2026-07-19T03:48:28.058Z'
-  '@fontsource/space-mono@5.3.0': '2026-07-19T03:46:52.213Z'
   '@playwright/test@1.62.1': '2026-07-30T16:36:55.324Z'
   '@react-aria/overlays@3.32.1': '2026-05-28T17:28:41.787Z'
   '@rsbuild/core@2.1.13': '2026-08-13T11:53:33.095Z'

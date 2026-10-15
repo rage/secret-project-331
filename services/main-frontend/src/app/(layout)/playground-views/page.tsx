@@ -9,16 +9,13 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import HideChildrenInSystemTests from "@/shared-module/common/components/system-tests/HideChildrenInSystemTests"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -26,7 +23,7 @@ import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
-import { QueryResult } from "@/shared-module/components"
+import { Button, Checkbox, QueryResult, TextArea, TextField } from "@/shared-module/components"
 import type {
   CurrentStateMessage,
   IframeViewType,
@@ -88,9 +85,13 @@ const StyledPre = styled.pre<{ fullWidth: boolean }>`
 `
 
 const GridContainer = styled.div`
-  padding: 2rem;
+  padding: 2rem 0;
   max-width: 1800px;
   margin: 0 auto;
+
+  ${respondToOrLarger.md} {
+    padding: 2rem;
+  }
 
   display: grid;
   gap: 0;
@@ -130,6 +131,15 @@ const GridContainer = styled.div`
 
 const ServiceInfoUrlGridArea = styled.div`
   grid-area: service-info-url;
+`
+
+const serviceInfoStatusRow = css`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+  padding-left: 1rem;
 `
 
 const MiscSettingsGridArea = styled.div`
@@ -176,13 +186,18 @@ const IframeViewPlayground: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<PlaygroundUploadedFiles>({})
   // oxlint-disable-next-line i18next/no-literal-string
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
-  const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
-    useState(true)
-  const [answerExerciseViewSendPreviousSubmission, setAnswerExerciseViewSendPreviousSubmission] =
-    useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const { register, setValue, watch } = useForm<PlaygroundFields>({
+  const { control: previewOptionsControl, watch: watchPreviewOptions } = useForm<{
+    sendPreviousSubmission: boolean
+    sendModelSolutionSpec: boolean
+  }>({
+    defaultValues: { sendPreviousSubmission: false, sendModelSolutionSpec: true },
+  })
+  const answerExerciseViewSendPreviousSubmission = watchPreviewOptions("sendPreviousSubmission")
+  const submissionViewSendModelsolutionSpec = watchPreviewOptions("sendModelSolutionSpec")
+
+  const { control, setValue, watch } = useForm<PlaygroundFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
@@ -406,33 +421,24 @@ const IframeViewPlayground: React.FC = () => {
 
   return (
     <>
-      <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
+      <h1 id="heading-playground-exercise-iframe" className={pageTitleCss}>
+        {t("title-playground-exercise-iframe")}
+      </h1>
       <br />
 
       <BreakFromCentered sidebar={false}>
         <GridContainer>
           <ServiceInfoUrlGridArea>
-            <TextField label={t("service-info-url")} {...register("url")} />
+            <TextField name="url" control={control} label={t("service-info-url")} />
             {serviceInfoQuery.isError && t("error-fetching-service-info")}
             {!serviceInfoQuery.isLoading && (
-              <div
-                className={css`
-                  margin-top: -0.7rem;
-                  margin-bottom: 0.2rem;
-                  padding-left: 1rem;
-                `}
-              >
+              <div className={serviceInfoStatusRow}>
                 {isValidServiceInfo ? (
                   <CheckCircle color={baseTheme.colors.green[400]} size={16} />
                 ) : (
                   <BellXmark color={baseTheme.colors.red[500]} size={16} />
                 )}
-
-                <span
-                  className={css`
-                    margin: 0 0.5rem;
-                  `}
-                >
+                <span>
                   {isValidServiceInfo ? t("valid-service-info") : t("invalid-service-info")}
                 </span>
                 <DebugModal data={serviceInfoQuery.data} buttonSize="small" />
@@ -440,9 +446,6 @@ const IframeViewPlayground: React.FC = () => {
                   <Button
                     variant={"secondary"}
                     size={"small"}
-                    className={css`
-                      margin-left: 0.5rem;
-                    `}
                     onClick={() => {
                       setValue("url", DEFAULT_SERVICE_INFO_URL)
                     }}
@@ -454,23 +457,21 @@ const IframeViewPlayground: React.FC = () => {
             )}
           </ServiceInfoUrlGridArea>
           <MiscSettingsGridArea>
-            <CheckBox label={t("show-iframe-borders")} {...register("showIframeBorders")} />
-            <CheckBox label={t("disable-sandbox")} {...register("disableSandbox")} />
+            <Checkbox name="showIframeBorders" control={control} label={t("show-iframe-borders")} />
+            <Checkbox name="disableSandbox" control={control} label={t("disable-sandbox")} />
             <TextField
-              placeholder={t("label-pseudonymous-user-id")}
+              name="pseudonymousUserId"
+              control={control}
               label={t("label-pseudonymous-user-id")}
-              {...register("pseudonymousUserId")}
             />
-            <CheckBox label={t("button-text-signed-in")} {...register("signedIn")} />
+            <Checkbox name="signedIn" control={control} label={t("button-text-signed-in")} />
           </MiscSettingsGridArea>
 
           <PrivateSpecGridArea>
-            <TextAreaField
-              id="heading-private-spec"
-              rows={20}
-              spellCheck={false}
-              label={t("private-spec")}
-              {...register("private_spec", {
+            <TextArea
+              name="private_spec"
+              control={control}
+              rules={{
                 validate: (value) => {
                   try {
                     JSON.parse(value)
@@ -479,13 +480,18 @@ const IframeViewPlayground: React.FC = () => {
                     return false
                   }
                 },
-              })}
+              }}
+              id="heading-private-spec"
+              rows={20}
+              label={t("private-spec")}
               className={css`
                 margin-bottom: 1rem;
                 textarea {
                   width: 100%;
-                  max-width: 50vw;
                   height: 700px;
+                  ${respondToOrLarger.xl} {
+                    max-width: 50vw;
+                  }
                   font-family: ${monospaceFont} !important;
                   resize: vertical;
                   font-size: 13px !important;
@@ -735,14 +741,10 @@ const IframeViewPlayground: React.FC = () => {
               )}
               {currentView === "answer-exercise" && (
                 <>
-                  <CheckBox
+                  <Checkbox
+                    name="sendPreviousSubmission"
+                    control={previewOptionsControl}
                     label={t("label-send-previous-submission")}
-                    checked={answerExerciseViewSendPreviousSubmission}
-                    onChange={() => {
-                      setAnswerExerciseViewSendPreviousSubmission(
-                        !answerExerciseViewSendPreviousSubmission,
-                      )
-                    }}
                   />
                   <PlaygroundExerciseIframe
                     url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
@@ -784,12 +786,10 @@ const IframeViewPlayground: React.FC = () => {
               )}
               {currentView === "view-submission" && (
                 <>
-                  <CheckBox
+                  <Checkbox
+                    name="sendModelSolutionSpec"
+                    control={previewOptionsControl}
                     label={t("label-send-model-solution-spec")}
-                    checked={submissionViewSendModelsolutionSpec}
-                    onChange={() => {
-                      setSubmissionViewSendModelsolutionSpec(!submissionViewSendModelsolutionSpec)
-                    }}
                   />
                   <PlaygroundViewSubmissionIframe
                     url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
@@ -820,6 +820,7 @@ const IframeViewPlayground: React.FC = () => {
         <div
           className={css`
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             h3 {
               margin-right: 0.5rem;

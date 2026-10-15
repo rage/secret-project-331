@@ -1,14 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Collapsible from "@/components/Collapsible"
 import type { ManualCompletionPreview } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { Button, Checkbox, Infobox } from "@/shared-module/components"
 
 import PreviewUserList from "./PreviewUserList"
 
@@ -25,7 +24,10 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
   manualCompletionPreview,
   onSubmit,
 }) => {
-  const [skipDuplicateCompletions, setSkipDuplicateCompletions] = useState(false)
+  const { control, watch } = useForm<{ skipDuplicateCompletions: boolean }>({
+    defaultValues: { skipDuplicateCompletions: false },
+  })
+  const skipDuplicateCompletions = watch("skipDuplicateCompletions")
   const { t } = useTranslation()
 
   return (
@@ -34,7 +36,7 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
         margin: 1rem 0;
       `}
     >
-      <GenericInfobox>
+      <Infobox>
         <p>{t("please-check-the-following-preview-results-before-submitting")}</p>
         <div
           className={css`
@@ -84,21 +86,20 @@ const CompletionRegistrationPreview: React.FC<CompletionRegistrationPreviewProps
             <PreviewUserList users={manualCompletionPreview.already_completed_users} />
           </Collapsible>
         </div>
-        <CheckBox
+        <Checkbox
+          name="skipDuplicateCompletions"
+          control={control}
           label={t("do-not-add-duplicate-completions-for-these-users")}
-          checked={skipDuplicateCompletions}
-          onChangeByValue={setSkipDuplicateCompletions}
         />
         <Button
           variant="primary"
           size="medium"
           type="button"
-          value={t("button-text-submit")}
           onClick={() => onSubmit({ skipDuplicateCompletions })}
         >
           {t("button-text-submit")}
         </Button>
-      </GenericInfobox>
+      </Infobox>
     </div>
   )
 }

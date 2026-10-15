@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
@@ -16,14 +15,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, Link, QueryResult, useDialog } from "@/shared-module/components"
 
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
 import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
@@ -326,28 +325,6 @@ const stageContextActionRowStyles = css`
   margin-top: 0.35rem;
 `
 
-const stageContextActionButtonStyles = css`
-  background: transparent;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: ${baseTheme.colors.green[700]};
-  cursor: pointer;
-  text-decoration: underline;
-
-  &:hover,
-  &:focus-visible {
-    color: ${baseTheme.colors.green[800]};
-    outline: none;
-  }
-
-  &:focus-visible {
-    text-decoration-thickness: 2px;
-  }
-`
-
 const welcomeDialogBodyStyles = css`
   display: flex;
   flex-direction: column;
@@ -514,7 +491,7 @@ function CoursePlanWorkspacePage() {
   const params = useParams<{ id: string }>()
   const planId = params.id ?? ""
   const queryClient = useQueryClient()
-  const { alert: showDialogAlert } = useDialog()
+  const { alert: showDialogAlert, confirm } = useDialog()
   const planQuery = useQuery(
     getCourseDesignerPlanOptions({
       path: {
@@ -569,6 +546,7 @@ function CoursePlanWorkspacePage() {
     welcomeDialogGoalItemStyles,
     welcomeDialogHintStyles,
     showDialogAlert,
+    confirmDiscardUnsavedAnalysis: (message) => confirm({ message, isDestructive: true }),
     advanceStage: () => advanceMutation.mutateAsync({ path: { plan_id: planId } }),
   })
 
@@ -613,11 +591,7 @@ function CoursePlanWorkspacePage() {
 
               const lastEditedText = plan.updated_at
                 ? t("course-plans-last-edited", {
-                    time: new Date(plan.updated_at).toLocaleDateString(undefined, {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    }),
+                    time: dateToString(plan.updated_at),
                   })
                 : null
 
@@ -777,15 +751,15 @@ function CoursePlanWorkspacePage() {
                           </p>
                           {currentStage && (
                             <div className={stageContextActionRowStyles}>
-                              <button
-                                type="button"
-                                className={stageContextActionButtonStyles}
+                              <Button
+                                variant="tertiary"
+                                size="small"
                                 onClick={() => handleSelectedStageChange(currentStage)}
                               >
                                 {t("course-plans-stage-context-go-to-active", {
                                   activeStage: activeStageNameForCopy,
                                 })}
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </aside>
@@ -810,15 +784,15 @@ function CoursePlanWorkspacePage() {
                           </p>
                           {currentStage && (
                             <div className={stageContextActionRowStyles}>
-                              <button
-                                type="button"
-                                className={stageContextActionButtonStyles}
+                              <Button
+                                variant="tertiary"
+                                size="small"
                                 onClick={() => handleSelectedStageChange(currentStage)}
                               >
                                 {t("course-plans-stage-context-go-to-active", {
                                   activeStage: activeStageNameForCopy,
                                 })}
-                              </button>
+                              </Button>
                             </div>
                           )}
                         </aside>

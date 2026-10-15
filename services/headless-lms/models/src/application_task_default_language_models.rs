@@ -9,6 +9,7 @@ pub enum ApplicationTask {
     SisuDescriptionSummary,
     ChartSpecGeneration,
     PromptCreation,
+    FeedbackCategorization,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

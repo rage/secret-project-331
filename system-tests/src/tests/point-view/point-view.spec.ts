@@ -21,7 +21,10 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await page.getByText("Page One").first().click()
+  await page
+    .getByTestId("pages-in-chapter-container")
+    .getByRole("link", { name: "Page One" })
+    .click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await frame.getByText("b").click()

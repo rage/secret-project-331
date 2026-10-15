@@ -10,11 +10,10 @@ import {
   hideCourseFromMyCoursesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCourseByIdRoute, navigateToCourseRoute } from "@/shared-module/common/utils/routes"
-import { QueryResults } from "@/shared-module/components"
+import { EmptyState, QueryResults, useDialog } from "@/shared-module/components"
 
 const MyCourses: React.FC = () => {
   const { t } = useTranslation()
@@ -33,10 +32,10 @@ const MyCourses: React.FC = () => {
     },
   )
   const handleHideCourse = async (courseId: string, courseName: string) => {
-    const confirmed = await confirm(
-      t("hide-course-confirmation-message", { name: courseName }),
-      t("hide-course-confirmation-title"),
-    )
+    const confirmed = await confirm({
+      message: t("hide-course-confirmation-message", { name: courseName }),
+      title: t("hide-course-confirmation-title"),
+    })
     if (confirmed) {
       hideCourseMutation.mutate({ path: { course_id: courseId } })
     }
@@ -51,34 +50,38 @@ const MyCourses: React.FC = () => {
     <QueryResults
       queries={[myCoursesQuery, allOrganizationsQuery] as const}
       treatEmptyAsData
-      renderData={([myCourses, allOrganizations]) => (
-        <CourseGrid>
-          {myCourses.map((course, n) => {
-            const organization = allOrganizations.find((org) => org.id === course.organization_id)
-            return (
-              <CourseCard
-                key={course.id}
-                title={course.name}
-                isDraft={course.is_draft}
-                isUnlisted={course.is_unlisted}
-                description={course.description ?? t("no-description-available")}
-                languageCode={course.language_code}
-                manageHref={manageCourseByIdRoute(course.id)}
-                navigateToCourseHref={navigateToCourseRoute(
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  organization?.slug || "undefined",
-                  course.slug,
-                )}
-                id={course.id}
-                showManageButton={canMangeCourse.data?.[n] === true}
-                {...(course.can_hide
-                  ? { onHide: () => handleHideCourse(course.id, course.name) }
-                  : {})}
-              />
-            )
-          })}
-        </CourseGrid>
-      )}
+      renderData={([myCourses, allOrganizations]) =>
+        myCourses.length === 0 ? (
+          <EmptyState title={t("no-courses-yet")} />
+        ) : (
+          <CourseGrid>
+            {myCourses.map((course, n) => {
+              const organization = allOrganizations.find((org) => org.id === course.organization_id)
+              return (
+                <CourseCard
+                  key={course.id}
+                  title={course.name}
+                  isDraft={course.is_draft}
+                  isUnlisted={course.is_unlisted}
+                  description={course.description ?? t("no-description-available")}
+                  languageCode={course.language_code}
+                  manageHref={manageCourseByIdRoute(course.id)}
+                  navigateToCourseHref={navigateToCourseRoute(
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    organization?.slug || "undefined",
+                    course.slug,
+                  )}
+                  id={course.id}
+                  showManageButton={canMangeCourse.data?.[n] === true}
+                  {...(course.can_hide
+                    ? { onHide: () => handleHideCourse(course.id, course.name) }
+                    : {})}
+                />
+              )
+            })}
+          </CourseGrid>
+        )
+      }
     />
   )
 }

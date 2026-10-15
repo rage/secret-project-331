@@ -117,6 +117,39 @@ describe("RouteFocusManager", () => {
     expect(document.activeElement).toBe(input)
   })
 
+  test("marks the focused heading so the injected rule can suppress its outline", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/about"
+    rerender(<App heading="About" />)
+
+    const heading = document.querySelector("h1")
+    expect(heading).toHaveAttribute("data-route-focus-manager-active", "")
+  })
+
+  test("clears the focus marker once the managed element loses focus", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/about"
+    rerender(<App heading="About" />)
+
+    const heading = document.querySelector("h1")
+    heading?.blur()
+    expect(heading).not.toHaveAttribute("data-route-focus-manager-active")
+  })
+
+  test("does not re-mark an element that regains focus after a real user tab", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/about"
+    rerender(<App heading="About" />)
+
+    const heading = document.querySelector("h1")
+    heading?.blur()
+    heading?.focus()
+    expect(heading).not.toHaveAttribute("data-route-focus-manager-active")
+  })
+
   test("respects a custom target selector", () => {
     function CustomApp() {
       return (

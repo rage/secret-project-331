@@ -3,9 +3,11 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Link } from "../src/components/Link"
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { pressEnter, renderUi } from "./testUtils"
 
-jest.mock("next/link")
+// The manual mock in __mocks__/next/link.tsx applies without a jest.mock call.
+jest.unmock("next/link")
 
 type Variant = "primary" | "secondary" | "tertiary"
 type Size = "small" | "medium" | "large"
@@ -58,6 +60,20 @@ describe("Link", () => {
     const loadingId = loadingText.getAttribute("id")
     expect(typeof loadingId).toBe("string")
     expect(loadingId && describedBy ? describedBy.split(" ").includes(loadingId) : false).toBe(true)
+  })
+
+  test("loading glyph is the shared spinnerGlyphCss ring", () => {
+    renderUi(
+      <Link href="/billing" styledAsButton isLoading loadingLabel="Loading billing page">
+        Billing
+      </Link>,
+    )
+
+    const link = screen.getByRole("link", { name: "Billing" })
+    const glyph = link.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`)[0]
+
+    expect(glyph).toBeInTheDocument()
+    expect(glyph?.closest('[aria-hidden="true"]')).toBeInTheDocument()
   })
 
   test("merges user aria-describedby with loading reason", () => {
@@ -164,6 +180,44 @@ describe("Link", () => {
     expect(onPress).toHaveBeenCalledTimes(0)
   })
 
+  test("disabled plain link gets a disabled affordance", () => {
+    renderUi(
+      <Link href="/settings" isDisabled>
+        Settings
+      </Link>,
+    )
+
+    // The appearance and the disabled rules are composed into one emotion class, so the affordance
+    // shows up in the computed style rather than as a class of its own.
+    const style = getComputedStyle(screen.getByRole("link", { name: "Settings" }))
+    expect(style.pointerEvents).toBe("none")
+    expect(style.cursor).toBe("default")
+  })
+
+  test("a caller mouse handler chains with react-aria press handling", () => {
+    const onMouseDown = jest.fn()
+    const onPress = jest.fn()
+
+    renderUi(
+      <Link href="/checkout" styledAsButton onMouseDown={onMouseDown} onPress={onPress}>
+        Continue
+      </Link>,
+    )
+
+    const link = screen.getByRole("link", { name: "Continue" })
+
+    fireEvent.mouseDown(link)
+
+    expect(onMouseDown).toHaveBeenCalledTimes(1)
+    expect(link).toHaveAttribute("data-pressed", "true")
+
+    fireEvent.mouseUp(link)
+    fireEvent.click(link, { detail: 1 })
+
+    expect(onPress).toHaveBeenCalledTimes(1)
+    expect(link).toHaveAttribute("data-pressed", "false")
+  })
+
   test("data-pressed toggles during pointer press when styledAsButton", () => {
     renderUi(
       <Link href="/checkout" styledAsButton>
@@ -180,6 +234,16 @@ describe("Link", () => {
 
     fireEvent.keyUp(link, { key: "Enter" })
     expect(link).toHaveAttribute("data-pressed", "false")
+  })
+
+  test("puts data-testid on the anchor", () => {
+    renderUi(
+      <Link href="/settings" data-testid="settings-link">
+        Settings
+      </Link>,
+    )
+
+    expect(screen.getByTestId("settings-link")).toBe(screen.getByRole("link", { name: "Settings" }))
   })
 })
 

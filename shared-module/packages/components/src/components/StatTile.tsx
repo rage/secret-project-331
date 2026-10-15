@@ -26,6 +26,8 @@ export interface StatTileProps {
   deltaTone?: StatTileDeltaTone
   /** Recent values, oldest first, drawn as a small sparkline. Decorative — pair it with `delta` or `ariaLabel` for what a screen reader gets. */
   trend?: number[]
+  className?: string
+  "data-testid"?: string | undefined
 }
 
 const rootCss = css`
@@ -160,8 +162,11 @@ export const StatTile: React.FC<StatTileProps> = ({
   delta,
   deltaTone = "neutral",
   trend,
+  className,
+  "data-testid": dataTestId,
 }) => {
   const isAlert = alertWhenNonZero && typeof value === "number" && value > 0
+  const classes = cx(rootCss, toneCss[tone], href && linkCss, className)
   const body = (
     <>
       <span className={valueRowCss}>
@@ -191,7 +196,7 @@ export const StatTile: React.FC<StatTileProps> = ({
   )
   if (href) {
     return (
-      <a className={cx(rootCss, toneCss[tone], linkCss)} href={href} aria-label={ariaLabel}>
+      <a className={classes} href={href} aria-label={ariaLabel} data-testid={dataTestId}>
         {body}
         <span className={arrowCss} aria-hidden="true">
           <ArrowRight size={16} />
@@ -201,9 +206,10 @@ export const StatTile: React.FC<StatTileProps> = ({
   }
   return (
     <div
-      className={cx(rootCss, toneCss[tone])}
+      className={classes}
       aria-label={ariaLabel}
       role={ariaLabel ? "group" : undefined}
+      data-testid={dataTestId}
     >
       {body}
     </div>

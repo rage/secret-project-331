@@ -1,6 +1,9 @@
 import { css } from "@emotion/css"
 
+/** Holds the zone label too, so it shares the floating-label padding and the segments' baseline. */
 export const segmentedFieldShellCss = css`
+  display: flex;
+  align-items: baseline;
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
@@ -23,7 +26,6 @@ export const segmentedSegmentsRowCss = css`
      box, which made the field a pixel or two taller than an input showing the same text. */
   align-items: center;
   justify-content: flex-start;
-  gap: 2px;
   white-space: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
@@ -49,6 +51,14 @@ export const segmentedPickerGroupCss = css`
   gap: var(--space-2);
 `
 
+export const segmentedZoneLabelCss = css`
+  flex: 0 0 auto;
+  margin-inline-start: var(--space-2);
+  color: var(--field-chrome);
+  font-size: 0.85em;
+  white-space: nowrap;
+`
+
 export const segmentedPickerFieldCss = css`
   flex: 0 1 auto;
   min-width: 0;
@@ -57,10 +67,15 @@ export const segmentedPickerFieldCss = css`
 export const segmentCss = css`
   position: relative;
   flex: 0 0 auto;
-  min-width: 1ch;
-  border-radius: 4px;
   color: inherit;
   outline: none;
+`
+
+/** The negative margin cancels the padding, so the focus tint gets room without spacing the text. */
+export const segmentEditableCss = css`
+  padding-inline: 1px;
+  margin-inline: -1px;
+  border-radius: 4px;
   font-variant-numeric: tabular-nums;
 
   &[data-focus-visible="true"] {
@@ -72,13 +87,11 @@ export const segmentPlaceholderCss = css`
   color: var(--field-placeholder);
 `
 
+/** Keeps the locale's own spacing (", ", " ") that line-end whitespace collapsing would drop. */
 export const segmentLiteralCss = css`
   color: var(--field-chrome);
+  white-space: pre;
   user-select: none;
-`
-
-export const kloSegmentLiteralCss = css`
-  visibility: hidden;
 `
 
 export const datePickerButtonCss = css`
@@ -126,10 +139,17 @@ export const segmentedPickerTriggerCss = css`
   margin-inline-start: auto;
 `
 
-/** Hides the placeholder glyphs while the resting label sits over them. The row keeps its box:
- *  collapsing it here is what made the field jump when the label floated and the glyphs returned. */
+/**
+ * Hides the placeholder glyphs while the resting label sits over them.
+ *
+ * Fades rather than `visibility: hidden`: react-aria's `isFocusable` rejects hidden elements, so
+ * hiding strands an empty field — `useDateField` puts `focusManager.focusFirst()` on the label's
+ * click, and it would find no segment to focus. The row keeps its box; collapsing it is what made
+ * the field jump when the label floated and the glyphs returned. `pointer-events: none` keeps the
+ * row, still painted and hit-testable, from swallowing clicks meant for the field.
+ */
 export const segmentedSegmentsRowRestHiddenCss = css`
-  visibility: hidden;
+  opacity: 0;
   pointer-events: none;
 `
 
@@ -149,5 +169,12 @@ export const dateTimePickerPopoverCss = css`
   && {
     width: min(720px, calc(100vw - 32px));
     min-width: min(320px, calc(100vw - 32px));
+  }
+`
+
+export const timePickerPopoverCss = css`
+  && {
+    width: min(280px, calc(100vw - 32px));
+    min-width: min(240px, calc(100vw - 32px));
   }
 `

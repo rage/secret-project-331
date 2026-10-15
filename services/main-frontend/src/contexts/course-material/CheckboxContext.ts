@@ -1,13 +1,9 @@
 import React from "react"
+import type { Control } from "react-hook-form"
 
 export interface ContextProps {
-  questionIdsAndAnswers: Record<string, boolean> | undefined
-  setQuestionIdsAndAnswers: (questionIdsAndAnswers: Record<string, boolean>) => void
+  /** Undefined outside a `SelectResearchConsentForm` provider; consumers should render nothing. */
+  control: Control<Record<string, boolean>> | undefined
 }
 
-export const CheckboxContext = React.createContext<ContextProps>({
-  questionIdsAndAnswers: {},
-  setQuestionIdsAndAnswers: () => {
-    throw new Error("setAnswers called outside provider.")
-  },
-})
+export const CheckboxContext = React.createContext<ContextProps>({ control: undefined })

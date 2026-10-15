@@ -92,4 +92,4 @@ lockfile:
   includeResolutionSettings: true
 
 allowBuilds:
-  '@parcel/watcher': false
+  "@parcel/watcher": false

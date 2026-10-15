@@ -163,30 +163,29 @@ const AccountPicker: React.FC<{
       {hasNoAccounts && (
         <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
       )}
-      {accounts &&
-        accounts.length > 0 && (
-          // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
-          <ul className={cx(dividedListCss, accountResultsCss)} role="list">
-            {accounts.map((user) => (
-              <li key={user.user_id} className={spacedRowCss}>
-                <StudentCell row={user} />
-                <Button
-                  variant={BUTTON_TERTIARY}
-                  size="small"
-                  onClick={() =>
-                    onChoose({
-                      userId: user.user_id,
-                      name: formatUserName(user),
-                      email: user.email,
-                    })
-                  }
-                >
-                  {t("credit-registration-admin-manual-link-choose-account")}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+      {accounts && accounts.length > 0 && (
+        // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+        <ul className={cx(dividedListCss, accountResultsCss)} role="list">
+          {accounts.map((user) => (
+            <li key={user.user_id} className={spacedRowCss}>
+              <StudentCell row={user} />
+              <Button
+                variant={BUTTON_TERTIARY}
+                size="small"
+                onClick={() =>
+                  onChoose({
+                    userId: user.user_id,
+                    name: formatUserName(user),
+                    email: user.email,
+                  })
+                }
+              >
+                {t("credit-registration-admin-manual-link-choose-account")}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

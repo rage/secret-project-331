@@ -3459,6 +3459,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "verify_network"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we
@@ -12089,7 +12090,12 @@ export type GetMyEmailVerificationStatusResponse =
 export type GetEmailVerificationCodeForTestModeData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+     * Which of the caller's codes to return. Email ownership verification when left out.
+     */
+    purpose?: "email_ownership_verification" | "network_verification"
+  }
   url: "/api/v0/main-frontend/email-verification/test-mode-code"
 }
 

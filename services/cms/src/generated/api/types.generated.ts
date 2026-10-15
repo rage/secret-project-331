@@ -307,6 +307,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "verify_network"
 
 export type EmailTemplateUpdate = {
   content: unknown

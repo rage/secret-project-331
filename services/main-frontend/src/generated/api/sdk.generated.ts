@@ -6326,7 +6326,7 @@ export const getMyEmailVerificationStatus = <ThrowOnError extends boolean = true
 /**
  *
  * GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
- * verification code.
+ * code for `purpose`, email ownership verification by default.
  *
  * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
  * caller's own account, so an accidentally open gate only ever hands you your own code.

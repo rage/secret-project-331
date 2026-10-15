@@ -196,6 +196,83 @@
         }
       }
     },
+    "/api/v0/auth/session-status": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "\nGET `/api/v0/auth/session-status` Whether the signed-in user must confirm this session with an\nemailed code: a user with a role on a browser or network they have not confirmed. Only the UI\nenforces it.",
+        "operationId": "getAuthSessionStatus",
+        "responses": {
+          "200": {
+            "description": "Whether the session needs confirming",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/session-status/email-code": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/session-status/email-code` Mails the signed-in user a code for confirming the\nsession, when [`session_status`] asks for one and no usable code is out already.",
+        "operationId": "postAuthSessionStatusEmailCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionEmailCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the request did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionEmailCodeResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/session-status/verify": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/session-status/verify` Confirms the session with the emailed code, remembering\nthis browser and network for the signed-in user.",
+        "operationId": "postAuthSessionStatusVerify",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Outcome of submitting the code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionVerifyResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/auth/signup": {
       "post": {
         "tags": ["auth"],
@@ -960,6 +1037,191 @@
             "type": "string"
           }
         }
+      },
+      "SessionChallenge": {
+        "type": "object",
+        "description": "One way for the user to prove the session is theirs, and why it is asked for.",
+        "required": ["method", "reasons"],
+        "properties": {
+          "method": {
+            "$ref": "#/components/schemas/SessionChallengeMethod"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionChallengeReason"
+            }
+          }
+        }
+      },
+      "SessionChallengeMethod": {
+        "type": "string",
+        "enum": ["email_code"]
+      },
+      "SessionChallengeReason": {
+        "type": "string",
+        "enum": ["unrecognized_network"]
+      },
+      "SessionEmailCodeRequest": {
+        "type": "object",
+        "required": ["resend"],
+        "properties": {
+          "resend": {
+            "type": "boolean",
+            "description": "The user asked for another mail. Without it, a code that is still usable is not replaced."
+          }
+        }
+      },
+      "SessionEmailCodeResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["masked_email", "type"],
+            "properties": {
+              "masked_email": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A usable code was mailed earlier; nothing was sent.",
+            "required": ["masked_email", "type"],
+            "properties": {
+              "masked_email": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["already_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Refused resend: the outstanding code is younger than the resend interval.",
+            "required": ["masked_email", "retry_after_seconds", "type"],
+            "properties": {
+              "masked_email": {
+                "type": "string"
+              },
+              "retry_after_seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["recently_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["masked_email", "type"],
+            "properties": {
+              "masked_email": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["daily_limit_reached"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["not_required"]
+              }
+            }
+          }
+        ]
+      },
+      "SessionStatus": {
+        "type": "object",
+        "description": "Whether the current session must be confirmed before the UI lets the user on.",
+        "required": ["verification_required", "challenges"],
+        "properties": {
+          "challenges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionChallenge"
+            }
+          },
+          "verification_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SessionVerifyRequest": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "SessionVerifyResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["verified"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["invalid_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["expired_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["too_many_attempts"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["not_required"]
+              }
+            }
+          }
+        ]
       },
       "SignupResponse": {
         "oneOf": [

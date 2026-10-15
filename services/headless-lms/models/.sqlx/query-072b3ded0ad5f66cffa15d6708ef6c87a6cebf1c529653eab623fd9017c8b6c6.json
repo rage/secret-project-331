@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id\nFROM staff_security_verified_browsers\nWHERE user_id = $1\n  AND token_digest = $2\n  AND expires_at > now()\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "staff_security_verified_browsers",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "072b3ded0ad5f66cffa15d6708ef6c87a6cebf1c529653eab623fd9017c8b6c6"
+}

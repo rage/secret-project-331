@@ -11,7 +11,7 @@ use headless_lms_models::{
     user_email_codes::{self, UserEmailCodePurpose},
 };
 use secrecy::ExposeSecret;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::{IntoParams, OpenApi, ToSchema};
 
 use crate::domain::{
     email_ownership_verification::{
@@ -247,9 +247,24 @@ pub async fn verify_email_ownership(
     token.authorized_ok(web::Json(result))
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum TestModeCodePurpose {
+    EmailOwnershipVerification,
+    NetworkVerification,
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct TestModeCodeQuery {
+    /// Which of the caller's codes to return. Email ownership verification when left out.
+    #[param(inline)]
+    pub purpose: Option<TestModeCodePurpose>,
+}
+
 /**
 GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
-verification code.
+code for `purpose`, email ownership verification by default.
 
 Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
 caller's own account, so an accidentally open gate only ever hands you your own code.
@@ -260,6 +275,7 @@ caller's own account, so an accidentally open gate only ever hands you your own 
     path = "/test-mode-code",
     operation_id = "getEmailVerificationCodeForTestMode",
     tag = "email-verification",
+    params(TestModeCodeQuery),
     responses(
         (status = 200, description = "The caller's pending verification code", body = String),
         (status = 404, description = "Not in test mode, or no pending code")
@@ -269,6 +285,7 @@ pub async fn get_email_verification_code_for_test_mode(
     user: AuthUser,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
+    query: web::Query<TestModeCodeQuery>,
 ) -> ControllerResult<web::Json<String>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
@@ -277,12 +294,14 @@ pub async fn get_email_verification_code_for_test_mode(
         return Err(controller_err!(NotFound, "Not found.".to_string()));
     }
 
+    let purpose = match query.purpose {
+        None | Some(TestModeCodePurpose::EmailOwnershipVerification) => PURPOSE,
+        Some(TestModeCodePurpose::NetworkVerification) => UserEmailCodePurpose::NetworkVerification,
+    };
     let live_code =
-        user_email_codes::get_unused_user_email_code_with_user_id(&mut conn, user.id, PURPOSE)
+        user_email_codes::get_unused_user_email_code_with_user_id(&mut conn, user.id, purpose)
             .await?
-            .ok_or_else(|| {
-                controller_err!(NotFound, "No pending email verification code.".to_string())
-            })?;
+            .ok_or_else(|| controller_err!(NotFound, "No pending code.".to_string()))?;
 
     token.authorized_ok(web::Json(live_code.code.expose_secret().to_string()))
 }

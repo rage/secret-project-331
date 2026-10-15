@@ -11,6 +11,7 @@ pub enum UserEmailCodePurpose {
     StaffLogin,
     AccountDeletion,
     EmailOwnershipVerification,
+    NetworkVerification,
 }
 
 #[derive(sqlx::FromRow, Debug, Clone)]
@@ -215,4 +216,44 @@ RETURNING deleted_at IS NOT NULL AS "retired!"
     .await?;
 
     Ok(record.is_some_and(|record| record.retired))
+}
+
+/// Serializes the rest of the caller's transaction with other transactions that take this lock
+/// for the same user and purpose, so a check for a live code and the insert after it cannot race.
+pub async fn lock_for_user_and_purpose(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+        format!("user_email_codes:{user_id}:{purpose:?}")
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// How many codes for `purpose` the user has been sent since `since`, spent and retired ones included.
+pub async fn count_created_since(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+    since: DateTime<Utc>,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM user_email_codes
+WHERE user_id = $1
+  AND purpose = $2
+  AND created_at > $3
+        "#,
+        user_id,
+        purpose as UserEmailCodePurpose,
+        since,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
 }

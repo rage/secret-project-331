@@ -10,6 +10,11 @@ use walkdir::WalkDir;
 
 use headless_lms_base::config::ApplicationConfiguration;
 
+/// IPFire location codes that flag networks (anonymous proxies, satellite providers, anycast,
+/// hostile) rather than name a country. Their lists overlap the countries' lists, and with them
+/// loaded a lookup would depend on hash map iteration order.
+const NON_COUNTRY_CODES: [&str; 4] = ["A1", "A2", "A3", "XD"];
+
 pub struct IpToCountryMapper {
     lists: HashMap<String, Vec<ipnet::IpNet>>,
 }
@@ -58,6 +63,9 @@ impl IpToCountryMapper {
                 }
 
                 if let Some(country_code) = parts.next() {
+                    if NON_COUNTRY_CODES.contains(&country_code.to_uppercase().as_str()) {
+                        continue;
+                    }
                     let list = lists
                         .entry(country_code.to_lowercase())
                         .or_insert_with(Vec::new);
@@ -92,20 +100,43 @@ impl IpToCountryMapper {
             warn!(
                 "IP_TO_COUNTRY_MAPPING_DIRECTORY not specified, not loading ip to country mappings."
             );
-            // Not failing to allow running the backend without the lists
+        }
+
+        // The staff session check compares countries, and treats an address without one as a
+        // single-address network, so running without lists would quietly weaken it.
+        if lists.values().all(Vec::is_empty)
+            && !app_conf.test_mode
+            && !app_conf.development_uuid_login
+        {
+            bail!(
+                "No ip to country mappings loaded. Set IP_TO_COUNTRY_MAPPING_DIRECTORY to a folder with the lists."
+            );
         }
 
         Ok(Self { lists })
     }
 
     pub fn map_ip_to_country(&self, ip: &IpAddr) -> Option<&str> {
-        for (country, list) in &self.lists {
-            if list.iter().any(|ipnet| ipnet.contains(ip)) {
-                info!("Mapped ip {} to country {}.", ip, country);
-                return Some(country);
-            }
+        let country = self.find_country(ip);
+        match country {
+            Some(country) => info!("Mapped ip {} to country {}.", ip, country),
+            None => info!("Ip {} did not resolve to a country.", ip),
         }
-        info!("Ip {} did not resolve to a country.", ip);
-        None
+        country
+    }
+
+    /// [`Self::map_ip_to_country`] logging only at debug level, for callers that look up on every
+    /// request of a session.
+    pub fn map_ip_to_country_quietly(&self, ip: &IpAddr) -> Option<&str> {
+        let country = self.find_country(ip);
+        debug!(?ip, ?country, "Mapped ip to country");
+        country
+    }
+
+    fn find_country(&self, ip: &IpAddr) -> Option<&str> {
+        self.lists
+            .iter()
+            .find(|(_, list)| list.iter().any(|ipnet| ipnet.contains(ip)))
+            .map(|(country, _)| country.as_str())
     }
 }

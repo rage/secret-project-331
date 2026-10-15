@@ -1,6 +1,7 @@
+use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
-use headless_lms_utils::services::tmc::TmcClient;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
     course_module_completions::CourseModuleCompletion, courses::Course,
@@ -1007,7 +1008,7 @@ pub struct ChangePasswordData {
     pub new_password: SecretString,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
 #[utoipa::path(
     post,
     path = "/change-password",
@@ -1019,7 +1020,10 @@ pub struct ChangePasswordData {
     )
 )]
 pub async fn change_user_password(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<ChangePasswordData>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
@@ -1028,13 +1032,27 @@ pub async fn change_user_password(
     let password_hash = models::user_passwords::hash_password(&payload.new_password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
+    let mut tx = conn.begin().await?;
+    let recognition = session_verification::recognize(
+        &mut tx,
+        &ip_to_country_mapper,
+        app_conf.test_mode,
+        user.id,
+        &req,
+    )
+    .await?;
     let res = models::user_passwords::change_user_password_with_old_password(
-        &mut conn,
+        &mut tx,
         user.id,
         &payload.old_password,
         &password_hash,
     )
     .await?;
+    if res {
+        session_verification::forget_after_password_change(&mut tx, user.id, recognition.as_ref())
+            .await?;
+    }
+    tx.commit().await?;
 
     token.authorized_ok(web::Json(res))
 }

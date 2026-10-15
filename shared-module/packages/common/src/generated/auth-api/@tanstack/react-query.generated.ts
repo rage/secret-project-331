@@ -8,6 +8,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 import { client } from "../client.generated"
 import {
   getAuthLoggedIn,
+  getAuthSessionStatus,
   getAuthUserInfo,
   type Options,
   postAuthAuthorize,
@@ -16,12 +17,16 @@ import {
   postAuthLogin,
   postAuthLogout,
   postAuthSendEmailCode,
+  postAuthSessionStatusEmailCode,
+  postAuthSessionStatusVerify,
   postAuthSignup,
   postAuthVerifyEmail,
 } from "../sdk.generated"
 import type {
   GetAuthLoggedInData,
   GetAuthLoggedInResponse,
+  GetAuthSessionStatusData,
+  GetAuthSessionStatusResponse,
   GetAuthUserInfoData,
   GetAuthUserInfoResponse,
   PostAuthAuthorizeData,
@@ -35,6 +40,10 @@ import type {
   PostAuthLogoutData,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponse,
+  PostAuthSessionStatusEmailCodeData,
+  PostAuthSessionStatusEmailCodeResponse,
+  PostAuthSessionStatusVerifyData,
+  PostAuthSessionStatusVerifyResponse,
   PostAuthSignupData,
   PostAuthSignupResponse,
   PostAuthVerifyEmailData,
@@ -245,6 +254,86 @@ export const postAuthSendEmailCodeMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await postAuthSendEmailCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAuthSessionStatusQueryKey = (options?: Options<GetAuthSessionStatusData>) =>
+  createQueryKey("getAuthSessionStatus", options)
+
+/**
+ *
+ * GET `/api/v0/auth/session-status` Whether the signed-in user must confirm this session with an
+ * emailed code: a user with a role on a browser or network they have not confirmed. Only the UI
+ * enforces it.
+ */
+export const getAuthSessionStatusOptions = (options?: Options<GetAuthSessionStatusData>) =>
+  queryOptions<
+    GetAuthSessionStatusResponse,
+    DefaultError,
+    GetAuthSessionStatusResponse,
+    ReturnType<typeof getAuthSessionStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAuthSessionStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAuthSessionStatusQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/auth/session-status/email-code` Mails the signed-in user a code for confirming the
+ * session, when [`session_status`] asks for one and no usable code is out already.
+ */
+export const postAuthSessionStatusEmailCodeMutation = (
+  options?: Partial<Options<PostAuthSessionStatusEmailCodeData>>,
+): UseMutationOptions<
+  PostAuthSessionStatusEmailCodeResponse,
+  DefaultError,
+  Options<PostAuthSessionStatusEmailCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSessionStatusEmailCodeResponse,
+    DefaultError,
+    Options<PostAuthSessionStatusEmailCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSessionStatusEmailCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/auth/session-status/verify` Confirms the session with the emailed code, remembering
+ * this browser and network for the signed-in user.
+ */
+export const postAuthSessionStatusVerifyMutation = (
+  options?: Partial<Options<PostAuthSessionStatusVerifyData>>,
+): UseMutationOptions<
+  PostAuthSessionStatusVerifyResponse,
+  DefaultError,
+  Options<PostAuthSessionStatusVerifyData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSessionStatusVerifyResponse,
+    DefaultError,
+    Options<PostAuthSessionStatusVerifyData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSessionStatusVerify({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -164,6 +164,82 @@ export const zSendEmailCodeData = z.object({
   password: z.string(),
 })
 
+export const zSessionChallengeMethod = z.enum(["email_code"])
+
+export const zSessionChallengeReason = z.enum(["unrecognized_network"])
+
+/**
+ * One way for the user to prove the session is theirs, and why it is asked for.
+ */
+export const zSessionChallenge = z.object({
+  method: zSessionChallengeMethod,
+  reasons: z.array(zSessionChallengeReason),
+})
+
+export const zSessionEmailCodeRequest = z.object({
+  resend: z.boolean(),
+})
+
+export const zSessionEmailCodeResult = z.union([
+  z.object({
+    masked_email: z.string(),
+    type: z.enum(["sent"]),
+  }),
+  z.object({
+    masked_email: z.string(),
+    type: z.enum(["already_sent"]),
+  }),
+  z.object({
+    masked_email: z.string(),
+    retry_after_seconds: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+    type: z.enum(["recently_sent"]),
+  }),
+  z.object({
+    masked_email: z.string(),
+    type: z.enum(["daily_limit_reached"]),
+  }),
+  z.object({
+    type: z.enum(["not_required"]),
+  }),
+])
+
+/**
+ * Whether the current session must be confirmed before the UI lets the user on.
+ */
+export const zSessionStatus = z.object({
+  challenges: z.array(zSessionChallenge),
+  verification_required: z.boolean(),
+})
+
+export const zSessionVerifyRequest = z.object({
+  code: z.string(),
+})
+
+export const zSessionVerifyResult = z.union([
+  z.object({
+    type: z.enum(["verified"]),
+  }),
+  z.object({
+    type: z.enum(["invalid_code"]),
+  }),
+  z.object({
+    type: z.enum(["expired_code"]),
+  }),
+  z.object({
+    type: z.enum(["too_many_attempts"]),
+  }),
+  z.object({
+    type: z.enum(["not_required"]),
+  }),
+])
+
 export const zSignupResponse = z.union([
   z.object({
     type: z.enum(["success"]),
@@ -309,6 +385,25 @@ export const zPostAuthSendEmailCodeBody = zSendEmailCodeData
  * What the request did
  */
 export const zPostAuthSendEmailCodeResponse = zSendDeleteUserEmailCodeResult
+
+/**
+ * Whether the session needs confirming
+ */
+export const zGetAuthSessionStatusResponse = zSessionStatus
+
+export const zPostAuthSessionStatusEmailCodeBody = zSessionEmailCodeRequest
+
+/**
+ * What the request did
+ */
+export const zPostAuthSessionStatusEmailCodeResponse = zSessionEmailCodeResult
+
+export const zPostAuthSessionStatusVerifyBody = zSessionVerifyRequest
+
+/**
+ * Outcome of submitting the code
+ */
+export const zPostAuthSessionStatusVerifyResponse = zSessionVerifyResult
 
 export const zPostAuthSignupBody = zCreateAccountDetails
 

@@ -396,14 +396,14 @@ const CoursesPage: React.FC = () => {
             // The banner's chip is the only control for this, so a banner that stops rendering —
             // an admin fixed enough modules, say — must not leave the table narrowed for good.
             const activeReason = bannerFailure?.reason === reasonFilter ? reasonFilter : null
-            const shown = units.filter((module) => {
-              const isProblem = courseModuleStatus(module) !== "ok" || module.paused_at !== null
+            const shown = units.filter((unit) => {
+              const isProblem = courseModuleStatus(unit) !== "ok" || unit.paused_at !== null
               if (problemsOnly && !isProblem) {
                 return false
               }
-              return activeReason === null || configFailureReason(module) === activeReason
+              return activeReason === null || configFailureReason(unit) === activeReason
             })
-            const modules = shown.toSorted(SORT_COMPARATORS[sort])
+            const sortedUnits = shown.toSorted(SORT_COMPARATORS[sort])
             const isNothingChecked =
               units.length > 0 && units.every((module) => courseModuleStatus(module) === UNCHECKED)
 
@@ -487,7 +487,7 @@ const CoursesPage: React.FC = () => {
                   density={DENSITY_COMPACT}
                   responsive={TABLE_STACK}
                   rowKey={(row) => row.credit_unit_id}
-                  rows={modules}
+                  rows={sortedUnits}
                   emptyState={t("credit-registration-admin-no-enabled-modules")}
                   expandableRow={(row) =>
                     row.where_registrations_stand.some((count) => count.count > 0) ? (
@@ -525,7 +525,7 @@ const CoursesPage: React.FC = () => {
                       cell: (row) => {
                         const isPaused = row.paused_at !== null
                         const target = row.external_credit_target
-                        const isOff = Boolean(target) && !target?.enabled_at
+                        const isOff = target != null && !target.enabled_at
                         const heldCount = heldForCourseSetupCount(row)
                         return (
                           <span className={stackedCellCss}>

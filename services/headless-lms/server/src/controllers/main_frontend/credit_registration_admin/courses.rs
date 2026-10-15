@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_models::course_module_suotar_configurations::SuotarConfigCheck;
 use headless_lms_models::course_module_suotar_configurations::{
     self, SuotarModuleOverview, get_config_facts_for_enabled_modules,
 };
@@ -179,13 +180,7 @@ pub async fn get_credit_registration_stats_by_course(
             .into_iter()
             .map(|facts| {
                 let check = check_module_config(&facts, CourseCodeVerdict::stored(&facts).as_ref());
-                (
-                    facts.course_module_id,
-                    CreditRegistrationCourseConfigCheck {
-                        course_code_allowed: check.course_code_allowed,
-                        message: check.message,
-                    },
-                )
+                (facts.course_module_id, config_check_stats(check))
             })
             .collect();
     let mut totals: HashMap<Uuid, _> = credit_registrations::count_by_credit_unit(&mut conn)
@@ -240,13 +235,7 @@ pub async fn get_credit_registration_stats_by_course(
                     &facts,
                     CourseCodeVerdict::stored_for_target(&facts).as_ref(),
                 );
-                (
-                    facts.external_credit_target_id,
-                    CreditRegistrationCourseConfigCheck {
-                        course_code_allowed: check.course_code_allowed,
-                        message: check.message,
-                    },
-                )
+                (facts.external_credit_target_id, config_check_stats(check))
             })
             .collect();
     let mut eligible_counts =
@@ -395,21 +384,23 @@ async fn record_module_action(
     actor_user_id: Uuid,
     reason: Option<&str>,
 ) -> Result<(), ControllerError> {
-    models::credit_registration_admin_actions::record(
+    record_action(
         tx,
-        &NewCreditRegistrationAdminAction {
-            target_id: Some(course_module_id),
-            reason: reason.map(str::to_string),
-            ..NewCreditRegistrationAdminAction::new(
-                action,
-                CreditRegistrationAdminActionTarget::CourseModule,
-                actor_user_id,
-                GLOBAL_ADMIN_ROLE,
-            )
-        },
+        action,
+        CreditRegistrationAdminActionTarget::CourseModule,
+        course_module_id,
+        actor_user_id,
+        reason,
+        None,
     )
-    .await?;
-    Ok(())
+    .await
+}
+
+fn config_check_stats(check: SuotarConfigCheck) -> CreditRegistrationCourseConfigCheck {
+    CreditRegistrationCourseConfigCheck {
+        course_code_allowed: check.course_code_allowed,
+        message: check.message,
+    }
 }
 
 fn to_course_stats(
@@ -417,6 +408,7 @@ fn to_course_stats(
     check: CreditRegistrationCourseConfigCheck,
     totals: Option<credit_registrations::CreditUnitRegistrationTotals>,
 ) -> CreditRegistrationCourseStats {
+    let totals = totals.unwrap_or_default();
     CreditRegistrationCourseStats {
         credit_unit_id: overview.course_module_id,
         course_id: Some(overview.course_id),
@@ -434,16 +426,16 @@ fn to_course_stats(
         config_checked_at: overview.config_checked_at,
         stored_config_check_message: overview.config_check_message,
         eligible_completion_count: overview.eligible_completion_count,
-        registration_count: totals.as_ref().map_or(0, |row| row.total_count),
-        success_count: totals.as_ref().map_or(0, |row| row.success_count),
-        registered_count: totals.as_ref().map_or(0, |row| row.registered_count),
-        already_in_sisu_count: totals.as_ref().map_or(0, |row| row.already_in_sisu_count),
-        in_flight_count: totals.as_ref().map_or(0, |row| row.in_flight_count),
-        failed_count: totals.as_ref().map_or(0, |row| row.failed_count),
+        registration_count: totals.total_count,
+        success_count: totals.success_count,
+        registered_count: totals.registered_count,
+        already_in_sisu_count: totals.already_in_sisu_count,
+        in_flight_count: totals.in_flight_count,
+        failed_count: totals.failed_count,
         needs_attention_count: 0,
         where_registrations_stand: Vec::new(),
-        last_registered_at: totals.as_ref().and_then(|row| row.last_registered_at),
-        top_error_code: totals.and_then(|row| row.top_error_code),
+        last_registered_at: totals.last_registered_at,
+        top_error_code: totals.top_error_code,
     }
 }
 
@@ -453,6 +445,7 @@ fn target_course_stats(
     eligible_completion_count: i64,
     totals: Option<credit_registrations::CreditUnitRegistrationTotals>,
 ) -> CreditRegistrationCourseStats {
+    let totals = totals.unwrap_or_default();
     CreditRegistrationCourseStats {
         credit_unit_id: target.id,
         course_id: None,
@@ -469,16 +462,16 @@ fn target_course_stats(
         config_checked_at: target.config_checked_at,
         stored_config_check_message: target.config_check_message.clone(),
         eligible_completion_count,
-        registration_count: totals.as_ref().map_or(0, |row| row.total_count),
-        success_count: totals.as_ref().map_or(0, |row| row.success_count),
-        registered_count: totals.as_ref().map_or(0, |row| row.registered_count),
-        already_in_sisu_count: totals.as_ref().map_or(0, |row| row.already_in_sisu_count),
-        in_flight_count: totals.as_ref().map_or(0, |row| row.in_flight_count),
-        failed_count: totals.as_ref().map_or(0, |row| row.failed_count),
+        registration_count: totals.total_count,
+        success_count: totals.success_count,
+        registered_count: totals.registered_count,
+        already_in_sisu_count: totals.already_in_sisu_count,
+        in_flight_count: totals.in_flight_count,
+        failed_count: totals.failed_count,
         needs_attention_count: 0,
         where_registrations_stand: Vec::new(),
-        last_registered_at: totals.as_ref().and_then(|row| row.last_registered_at),
-        top_error_code: totals.and_then(|row| row.top_error_code),
+        last_registered_at: totals.last_registered_at,
+        top_error_code: totals.top_error_code,
         external_credit_target: Some(target),
     }
 }
@@ -828,15 +821,36 @@ async fn record_target_action(
     reason: Option<&str>,
     details: Option<serde_json::Value>,
 ) -> Result<(), ControllerError> {
+    record_action(
+        tx,
+        action,
+        CreditRegistrationAdminActionTarget::ExternalCreditTarget,
+        external_credit_target_id,
+        actor_user_id,
+        reason,
+        details,
+    )
+    .await
+}
+
+async fn record_action(
+    tx: &mut PgConnection,
+    action: CreditRegistrationAdminAction,
+    target: CreditRegistrationAdminActionTarget,
+    target_id: Uuid,
+    actor_user_id: Uuid,
+    reason: Option<&str>,
+    details: Option<serde_json::Value>,
+) -> Result<(), ControllerError> {
     models::credit_registration_admin_actions::record(
         tx,
         &NewCreditRegistrationAdminAction {
-            target_id: Some(external_credit_target_id),
+            target_id: Some(target_id),
             reason: reason.map(str::to_string),
             details,
             ..NewCreditRegistrationAdminAction::new(
                 action,
-                CreditRegistrationAdminActionTarget::ExternalCreditTarget,
+                target,
                 actor_user_id,
                 GLOBAL_ADMIN_ROLE,
             )

@@ -565,7 +565,7 @@ WHERE state = 'registered'
 }
 
 /// Live volumes per module or mooc.fi target, for the Courses tab's one row per unit.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct CreditUnitRegistrationTotals {
     pub credit_unit_id: Uuid,
     pub total_count: i64,

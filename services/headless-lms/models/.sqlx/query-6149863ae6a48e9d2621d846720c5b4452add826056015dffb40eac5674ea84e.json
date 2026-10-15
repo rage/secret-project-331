@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ccmtc.id, ccmtc.tool_call_id, ccm.conversation_id\nFROM chatbot_conversation_message_tool_calls AS ccmtc\n  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmtc.chatbot_conversation_message_id\nWHERE ccmtc.id = $1\n  AND ccmtc.deleted_at IS NULL\nFOR UPDATE OF ccmtc\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "tool_call_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_calls",
+            "name": "tool_call_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "conversation_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_messages",
+            "name": "conversation_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6149863ae6a48e9d2621d846720c5b4452add826056015dffb40eac5674ea84e"
+}

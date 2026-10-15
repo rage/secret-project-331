@@ -6,7 +6,7 @@ describe("setExerciseServiceReloadBridge", () => {
   })
 
   test("registers a global callback that posts request-iframe-reload and cleans up", () => {
-    const messages: Array<unknown> = []
+    const messages: unknown[] = []
     ;(global as { window: unknown }).window = {}
 
     const cleanup = setExerciseServiceReloadBridge({

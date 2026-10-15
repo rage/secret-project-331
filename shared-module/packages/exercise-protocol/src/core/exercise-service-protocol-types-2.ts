@@ -5,18 +5,36 @@
  *
  * to: exercise service
  */
-export type GradingRequest<S = unknown, D = unknown> = {
+export interface GradingRequest<S = unknown, D = unknown> {
   grading_update_url: string
   exercise_spec: S
+  /** The whole answer for a JSON-typed submission; the plugin's metadata for a file-typed one. */
   submission_data: D
+  /** The answer's files, in answer order. Empty for a JSON-typed submission. */
+  submission_files: GradingRequestFile[]
 }
 
-export type GradingResult<F = unknown> = {
+/** One file of a file-typed answer, as an exercise service is handed it for grading. */
+export interface GradingRequestFile {
+  /** `file_uploads.id`; the same value the plugin put in `CurrentStateMessage.files`. */
+  id: string
+  name: string
+  mime: string
+  /**
+   * `null` for a file stored before the size was recorded; never a substitute zero, so a service
+   * enforcing a size limit can tell an unknown size from an empty file.
+   */
+  size_bytes: number | null
+  /** Host-minted and short-lived; do not persist it. */
+  download_url: string
+}
+
+export interface GradingResult<F = unknown> {
   grading_progress: "FullyGraded" | "Pending" | "PendingManual" | "Failed"
   score_given: number
   score_maximum: number
   feedback_text: string | null
   feedback_json: F
   /** Variables set here will be visible to the iframe views for this user on this course. Can be used to remember things like remembering names. */
-  set_user_variables?: { [key: string]: unknown }
+  set_user_variables?: Record<string, unknown>
 }

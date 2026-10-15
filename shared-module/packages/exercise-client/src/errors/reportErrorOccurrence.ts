@@ -2,10 +2,10 @@ export type ErrorSource = "backend" | "frontend"
 export type ErrorOccurrenceTransport = "default" | "exit"
 type ErrorOccurrenceRequestHeaders =
   | Headers
-  | ReadonlyArray<readonly [string, string]>
+  | readonly (readonly [string, string])[]
   | Readonly<Record<string, string>>
 
-export type ErrorOccurrenceReport = {
+export interface ErrorOccurrenceReport {
   service?: string
   error_source?: ErrorSource
   message: string
@@ -15,7 +15,7 @@ export type ErrorOccurrenceReport = {
   details?: unknown
 }
 
-export type ErrorOccurrenceRequestContext = {
+export interface ErrorOccurrenceRequestContext {
   headers?: ErrorOccurrenceRequestHeaders | null
   url?: string | URL | null
 }
@@ -25,7 +25,7 @@ const DEFAULT_INTERNAL_ERRORS_BASE_URL = "http://headless-lms:3001"
 const PENDING_ERROR_REPORTS_STORAGE_KEY = "pending_error_occurrence_reports"
 const MAX_PENDING_ERROR_REPORTS = 20
 
-type PendingErrorReportRecord = {
+interface PendingErrorReportRecord {
   id: string
   body: string
 }
@@ -223,7 +223,7 @@ async function sendWithFetch(
   body: string,
   options?: {
     credentials?: RequestInit["credentials"]
-    headers?: Record<string, string>
+    headers?: Record<string, string> | undefined
   },
 ): Promise<boolean> {
   try {

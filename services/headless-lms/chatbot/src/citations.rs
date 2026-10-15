@@ -4,6 +4,7 @@ use secrecy::SecretString;
 
 use crate::{llm_utils::build_llm_headers, prelude::*};
 
+use futures::{StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages_citations::{
     self, ChatbotConversationMessageCitation,
 };
@@ -21,6 +22,29 @@ pub struct CourseMaterialDocument {
     pub title: String,
     pub url: String,
     pub filepath: String,
+}
+
+pub struct DocumentProperties {
+    pub page_id: Uuid,
+}
+
+/// Parse the filepath of a document from the Azure search index and return the page_id of
+/// the document. The page id is the same as the id of the page in our DB.
+pub fn parse_document_filepath(filepath: &str) -> ChatbotResult<DocumentProperties> {
+    let mut page_path = PathBuf::from(filepath);
+    page_path.set_extension("");
+    let page_id_str = page_path.file_name().ok_or(chatbot_err!(
+        ToolUseError,
+        "Failed to parse document filepath"
+    ))?;
+    let page_id = Uuid::parse_str(page_id_str.to_string_lossy().as_ref()).map_err(|_| {
+        chatbot_err!(
+            ToolUseError,
+            format!("Failed to parse document page id: {:?}", page_id_str)
+        )
+    })?;
+
+    Ok(DocumentProperties { page_id })
 }
 
 impl CourseMaterialDocument {
@@ -46,12 +70,9 @@ impl CourseMaterialDocument {
         let decoded_url = url_decode(&self.url)?;
 
         // Get the page id
-        let mut page_path = PathBuf::from(&self.filepath);
-        page_path.set_extension("");
-        let page_id_str = page_path.file_name();
-        let page_id =
-            page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-
+        let page_id = parse_document_filepath(&self.filepath)
+            .ok()
+            .map(|x| x.page_id);
         Ok((
             ChatbotConversationMessageCitation {
                 conversation_message_id,
@@ -72,17 +93,24 @@ impl CourseMaterialDocument {
 pub async fn chatbot_cited_documents_to_citations(
     conn: &mut PgConnection,
     test_chatbot: bool,
-    mut document_urls: Vec<Url>,
+    document_urls: Vec<Url>,
     api_key: &SecretString,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
-    let mut documents: Vec<(CourseMaterialDocument, i32)> = vec![];
-    for (idx, url) in document_urls.iter_mut().enumerate() {
-        let document = get_course_material_document(url, api_key).await?;
-        let citation_number = (idx + 1) as i32;
-        documents.push((document, citation_number));
-    }
+) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
+    // Buffered rather than one at a time: a search returns up to fifteen documents and the learner
+    // waits for all of them. `buffered` keeps the results in the order the citation numbers follow.
+    let documents: Vec<(CourseMaterialDocument, i32)> =
+        futures::stream::iter(document_urls.into_iter().enumerate().map(
+            |(index, url)| async move {
+                get_course_material_document(url, api_key)
+                    .await
+                    .map(|document| (document, index as i32))
+            },
+        ))
+        .buffered(CONCURRENT_CITED_DOCUMENT_FETCHES)
+        .try_collect()
+        .await?;
     let res = save_documents(
         conn,
         test_chatbot,
@@ -95,19 +123,24 @@ pub async fn chatbot_cited_documents_to_citations(
     Ok(res)
 }
 
+/// How many cited documents are fetched at once, bounding what one search round asks of the search
+/// index at the same time.
+const CONCURRENT_CITED_DOCUMENT_FETCHES: usize = 5;
+
 /// Get a document from the search index with a LLM-provided get url
 async fn get_course_material_document(
-    endpoint: &mut Url,
+    mut endpoint: Url,
     api_key: &SecretString,
-) -> anyhow::Result<CourseMaterialDocument> {
+) -> ChatbotResult<CourseMaterialDocument> {
     endpoint.set_query(Some(
         "api-version=2024-07-01&$select=chunk_id,parent_id,chunk,title,url,filepath,course_id",
     ));
     let headers = build_llm_headers(api_key)?;
 
     let response = REQWEST_CLIENT
-        .get(endpoint.clone())
+        .get(endpoint)
         .headers(headers)
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
         .send()
         .await?;
 
@@ -117,7 +150,7 @@ async fn get_course_material_document(
 #[instrument(skip(response), fields(status = %response.status()))]
 async fn process_course_material_document_response(
     response: Response,
-) -> anyhow::Result<CourseMaterialDocument> {
+) -> ChatbotResult<CourseMaterialDocument> {
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
@@ -126,10 +159,12 @@ async fn process_course_material_document_response(
             error = %error_text,
             "Error fetching document from search index."
         );
-        return Err(anyhow::anyhow!(
-            "Error fetching document from search index: Status: {}. Error: {}",
-            status,
-            error_text
+        return Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error fetching document from search index: Status: {}. Error: {}",
+                status, error_text
+            )
         ));
     }
 
@@ -147,7 +182,7 @@ async fn save_documents(
     documents_with_citation_numbers: Vec<(CourseMaterialDocument, i32)>,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
     let (citations, page_ids): (Vec<ChatbotConversationMessageCitation>, Vec<Option<Uuid>>) =
         documents_with_citation_numbers
             .iter()
@@ -173,7 +208,7 @@ async fn save_documents(
 async fn save_documents_mock(
     conn: &mut PgConnection,
     citations: Vec<ChatbotConversationMessageCitation>,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+) -> ChatbotResult<Vec<ChatbotConversationMessageCitation>> {
     let mut res = vec![];
     for input in citations {
         let a = chatbot_conversation_messages_citations::insert(conn, input).await?;

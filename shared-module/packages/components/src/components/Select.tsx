@@ -1,15 +1,28 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useAutocompleteState } from "@react-stately/autocomplete"
+import { useSearchFieldState } from "@react-stately/searchfield"
 import { useSelectState } from "@react-stately/select"
-import React, { useId, useMemo, useRef } from "react"
-import { mergeProps, useButton, useSelect } from "react-aria"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import { omit } from "lodash"
+import React, { useId, useMemo, useRef, useState, type RefObject } from "react"
+import {
+  mergeProps,
+  useButton,
+  useSelect,
+  useSearchField,
+  useFilter,
+  useAutocomplete,
+  FocusScope,
+} from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   buildSelectCollectionNodes,
   type NormalizedSelectOption,
@@ -17,8 +30,6 @@ import {
   type SelectOption,
   type SelectOptionGroup,
 } from "../lib/utils/select"
-
-import { ListBox } from "./primitives/ListBox"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -28,6 +39,7 @@ import {
   resolveSelectTriggerCss,
   selectTriggerValuePlaceholderCss,
 } from "./primitives/fieldStyles"
+import { ListBox } from "./primitives/ListBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 
@@ -57,6 +69,10 @@ export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
   className?: string
+  searchEnabled?: boolean
+  searchPlaceholder?: string
+  /** Lands on the trigger button; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
 
 const selectRootCss = css`
@@ -82,6 +98,28 @@ const triggerChevronCss = css`
   color: var(--field-chrome);
 `
 
+const searchfieldCss = css`
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  padding: 0 2rem;
+  width: 100%;
+  outline: none;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  min-height: 2.5rem;
+  &:focus-visible {
+    box-shadow: none;
+    outline: 2px solid var(--field-border-color-focus);
+  }
+`
+
+function isRefObjectHTMLUListElementOrNull(
+  ref: RefObject<HTMLElement | null>,
+): ref is RefObject<HTMLUListElement | null> {
+  return ref.current === null || ref.current instanceof HTMLUListElement
+}
+
 export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   props: SelectProps<T, N>,
 ) {
@@ -102,35 +140,49 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoComplete,
     onKeyDown,
     onKeyUp,
+    searchEnabled = false,
+    searchPlaceholder = "search",
+    "data-testid": dataTestId,
   } = props
+
+  const [filterValue, setFilterValue] = useState("")
+
+  let { contains } = useFilter({
+    // oxlint-disable-next-line i18next/no-literal-string
+    sensitivity: "base",
+  })
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
 
   const generatedInputId = useId()
   const triggerId = id ?? generatedInputId
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
+  const listBoxRef = useRef(null)
   const hasFocusWithinRef = useRef(false)
 
   const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
-  const collectionChildren = useMemo(
-    () => buildSelectCollectionNodes(normalizedCollection),
-    [normalizedCollection],
-  )
+
+  const collectionChildren = buildSelectCollectionNodes({
+    ...normalizedCollection,
+    options:
+      searchRef.current === document.activeElement
+        ? normalizedCollection.options.filter((option) => contains(option.textValue, filterValue))
+        : normalizedCollection.options,
+  })
   const optionsByKey = useMemo(
     () => new Map(normalizedCollection.options.map((option) => [option.key, option])),
     [normalizedCollection.options],
   )
 
-  const controlledString = toInputValue(field.value)
-  const selectedKey = normalizedCollection.valueToKey.get(controlledString) ?? null
-
+  const selectedKey = normalizedCollection.valueToKey.get(toInputValue(field.value)) ?? null
   const state = useSelectState<NormalizedSelectOption>({
     children: collectionChildren as never,
     disabledKeys: normalizedCollection.disabledKeys,
     value: selectedKey,
     onSelectionChange: (key) => {
-      const selectedOption = key != null ? optionsByKey.get(String(key)) : undefined
+      const selectedOption = key !== null ? optionsByKey.get(String(key)) : undefined
       const nextValue = selectedOption?.value ?? ""
       field.onChange(nextValue)
     },
@@ -142,10 +194,37 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     errorMessage: resolvedError,
   })
 
+  const searchFieldState = useSearchFieldState({
+    value: filterValue,
+    onChange: setFilterValue,
+  })
+
+  const autoCompleteState = useAutocompleteState({})
+
   const {
-    labelProps,
+    inputProps: autoCompleteInputProps,
+    collectionProps: collectionPropsWrong,
+    collectionRef: mergedCollectionRef,
+  } = useAutocomplete(
+    {
+      inputRef: searchRef,
+      collectionRef: listBoxRef,
+    },
+    autoCompleteState,
+  )
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionProps = omit(collectionPropsWrong, ["aria-label"])
+
+  // The collection id belongs to the listbox alone. Spreading it into useSelect below would land it
+  // on the trigger too, dropping the caller's id and leaving aria-controls pointing at the trigger.
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionPropsWithoutId = omit(collectionProps, ["id"])
+
+  const {
     triggerProps,
     valueProps,
+    labelProps: useSelectLabelProps,
     menuProps,
     descriptionProps,
     errorMessageProps,
@@ -163,13 +242,21 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       description,
       errorMessage: resolvedError,
       name: field.name,
-      autoComplete,
+      ...collectionPropsWithoutId,
+      ...omitUndefined({ autoComplete }),
     },
     state,
     buttonRef,
   )
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
+  const { labelProps: useSearchFieldLabelProps, inputProps } = useSearchField(
+    { ...autoCompleteInputProps, placeholder: searchPlaceholder, "aria-label": searchPlaceholder },
+    searchFieldState,
+    searchRef,
+  )
+
+  const labelProps = mergeProps(useSelectLabelProps, useSearchFieldLabelProps)
 
   const emitCompositeBlur = (relatedTarget: EventTarget | null) => {
     const nextFocusedNode = relatedTarget as Node | null
@@ -196,7 +283,6 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
 
     hasFocusWithinRef.current = true
   }
-
   const mergedButtonProps = mergeProps(buttonProps, {
     onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
       emitCompositeBlur(event.relatedTarget)
@@ -213,11 +299,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     hookIsInvalid,
     validationErrors,
   )
-  const selectedOption =
-    state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
-  const isPlaceholderState = selectedOption == null
-  const isFloated = state.isOpen || selectedOption != null
 
+  const selectedOption = optionsByKey.get(String(state.value))
+  const isPlaceholderState = selectedOption === undefined
+  // A placeholder is drawn in the same band as the resting label, so one has to give way.
+  const isFloated = state.isOpen || selectedOption !== undefined || placeholder !== undefined
   return (
     <div className={cx(fieldRootCss, className)}>
       <div
@@ -230,9 +316,13 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       >
         <button
           {...mergedButtonProps}
+          // react-aria merges its own generated id over the one given to `useSelect`, so the
+          // caller's `id` only reaches the DOM if it is set here.
+          id={triggerId}
           ref={composeRefs(buttonRef, field.ref)}
           className={resolveSelectTriggerCss(fieldSize)}
           type="button"
+          data-testid={dataTestId}
         >
           <span
             {...valueProps}
@@ -267,7 +357,41 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               },
             }}
           >
-            <ListBox {...menuProps} state={state} />
+            {/*oxlint-disable-next-line jsx-a11y/no-autofocus*/}
+            <FocusScope autoFocus>
+              {searchEnabled && (
+                <div
+                  className={css`
+                    position: relative;
+                    padding: 0 6px;
+                  `}
+                >
+                  <span
+                    className={css`
+                      display: inline-block;
+                      position: absolute;
+                      left: 1rem;
+                      top: 1.125rem;
+                    `}
+                  >
+                    <MagnifyingGlass size={16} weight="bold" />
+                  </span>
+                  <input className={searchfieldCss} {...inputProps} ref={searchRef} />
+                </div>
+              )}
+              {isRefObjectHTMLUListElementOrNull(mergedCollectionRef) && (
+                <ListBox
+                  {...mergeProps(menuProps, collectionProps)}
+                  // useSelect asks for native-select behaviour, where the press that opens the
+                  // listbox also selects whatever it is released over. A long listbox is clamped
+                  // to the viewport and can then cover the trigger, so that release picks an
+                  // option the user never aimed at. Selecting needs its own press instead.
+                  shouldSelectOnPressUp={false}
+                  state={state}
+                  listBoxRef={mergedCollectionRef}
+                />
+              )}
+            </FocusScope>
           </Popover>
         ) : null}
       </div>

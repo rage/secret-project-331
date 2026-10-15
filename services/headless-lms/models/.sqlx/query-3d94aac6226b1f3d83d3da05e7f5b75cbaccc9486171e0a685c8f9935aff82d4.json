@@ -112,6 +112,17 @@
             "name": "status"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "suspected_cheaters",
+            "name": "course_module_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -129,7 +140,8 @@
       true,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "3d94aac6226b1f3d83d3da05e7f5b75cbaccc9486171e0a685c8f9935aff82d4"

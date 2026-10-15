@@ -1,0 +1,69 @@
+"use client"
+
+import type { UseQueryResult } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
+
+import NewReferenceForm, { NEW_REFERENCE_FORM_ID } from "@/components/forms/NewReferenceForm"
+import { createCourseReferences } from "@/generated/api/sdk.generated"
+import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Dialog } from "@/shared-module/components"
+
+interface NewReferenceModalProps {
+  onClose: () => void
+  open: boolean
+  courseId: string
+  fetchCourseReferences: UseQueryResult<MaterialReference[], Error>
+}
+
+const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProps>> = ({
+  onClose,
+  open,
+  courseId,
+  fetchCourseReferences,
+}) => {
+  const { t } = useTranslation()
+  const createReferenceMutation = useToastMutation(
+    (references: NewMaterialReference[]) =>
+      createCourseReferences({
+        body: references,
+        path: {
+          course_id: courseId,
+        },
+      }),
+    {
+      notify: true,
+      successMessage: t("reference-added-successfully"),
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        fetchCourseReferences.refetch()
+        onClose()
+      },
+    },
+  )
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("new-reference")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: NEW_REFERENCE_FORM_ID },
+        },
+      ]}
+    >
+      <NewReferenceForm
+        onCancel={onClose}
+        onCreateNewReference={(newReference) => createReferenceMutation.mutate(newReference)}
+      />
+    </Dialog>
+  )
+}
+
+export default NewReferenceDialog

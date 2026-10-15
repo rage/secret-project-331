@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -26,7 +24,7 @@ interface ActionButtonsProps {
   onTest: () => Promise<void>
   onResetClick: () => void
   /** When Test is disabled because the server could not build the test script (e.g. template missing test/tmc). */
-  testUnavailableReason?: string
+  testUnavailableReason?: string | undefined
 }
 
 export const ActionButtons: React.FC<ActionButtonsProps> = (p) => {

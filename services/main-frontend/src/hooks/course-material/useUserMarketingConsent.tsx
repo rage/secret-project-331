@@ -21,11 +21,11 @@ const useUserMarketingConsent = (
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: loginState.signedIn === true && enabled,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
         getCourseMaterialUserMarketingConsentOptions({
           path: {
-            course_id: courseId,
+            course_id: resolvedCourseId,
           },
         }),
     }),

@@ -3,28 +3,28 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
-import CourseContext from "../../../contexts/CourseContext"
-
-import { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
+import type { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
 import { getCmsCourseResearchFormOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
   upsertCmsCourseResearchForm,
   upsertCmsCourseResearchFormQuestions,
 } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
@@ -48,11 +48,11 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   const getResearchForm = useQuery({
     ...optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCmsCourseResearchFormOptions({
           path: {
-            course_id: courseId,
+            course_id: id,
           },
         }),
     }),
@@ -109,12 +109,12 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
           }
           questions.push(newResearchQuestion)
         }
-        upsertCmsCourseResearchFormQuestions({
-          path: {
-            course_id: researchForm.id,
-          },
-          body: questions,
-        })
+      })
+      await upsertCmsCourseResearchFormQuestions({
+        path: {
+          course_id: researchForm.course_id,
+        },
+        body: questions,
       })
     },
     {
@@ -131,27 +131,30 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   }
 
   return (
-    <QueryResult query={getResearchForm}>
-      {(data) => (
-        <>
-          {data !== null && (
-            <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
-              <ResearchFormEditor
-                data={data}
-                handleSave={handleSave}
-                needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-                setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-              />
-            </CourseContext.Provider>
-          )}
-          {data === null && (
-            <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
-              {t("button-text-create")}
-            </Button>
-          )}
-        </>
-      )}
-    </QueryResult>
+    <>
+      <CmsPageTitle title={t("edit-research-form")} />
+      <QueryResult query={getResearchForm}>
+        {(data) => (
+          <>
+            {data !== null && (
+              <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
+                <ResearchFormEditor
+                  data={data}
+                  handleSave={handleSave}
+                  needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+                  setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+                />
+              </CourseContext.Provider>
+            )}
+            {data === null && (
+              <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
+                {t("button-text-create")}
+              </Button>
+            )}
+          </>
+        )}
+      </QueryResult>
+    </>
   )
 }
 

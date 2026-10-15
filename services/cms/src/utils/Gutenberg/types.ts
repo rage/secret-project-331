@@ -11,7 +11,7 @@ import type {
 } from "@wordpress/blocks"
 import type { ComponentType } from "react"
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable typescript/no-explicit-any */
 type UnknownAttributes = Record<string, unknown>
 type CreateBlock = typeof import("@wordpress/blocks").createBlock
 type CreateBlocksFromInnerBlocksTemplate =
@@ -74,6 +74,9 @@ export type BlockDeprecation<
 
 export type BlockConfiguration<Attributes extends object = any> = Omit<
   GutenbergBlockConfiguration<UnknownAttributes>,
+  // `name` is supplied separately at registration (registerBlockType(name, config)),
+  // so our config objects omit it even though upstream now requires it.
+  | "name"
   | "attributes"
   | "deprecated"
   | "edit"
@@ -125,4 +128,4 @@ type UpstreamTemplateInput = NonNullable<Parameters<CreateBlocksFromInnerBlocksT
 export type Template = Exclude<UpstreamTemplateInput[number], GutenbergBlock<UnknownAttributes>>
 
 export type TemplateArray = Template[]
-/* eslint-enable @typescript-eslint/no-explicit-any */
+/* oxlint-enable typescript/no-explicit-any */

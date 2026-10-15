@@ -82,7 +82,7 @@ export const queryClient = new QueryClient({
 
         const statusCode: number | undefined = isAppApiError(error)
           ? (error.status ?? undefined)
-          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          : // oxlint-disable-next-line typescript/no-explicit-any
             ((error as any)?.request?.status ?? (error as any)?.status)
         if (statusCode && Math.floor(statusCode / 100) === 4) {
           if (statusCode === 429) {

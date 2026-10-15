@@ -4,24 +4,19 @@ import { act, render } from "@testing-library/react"
 import { Provider } from "jotai"
 import React from "react"
 
+import PageTitleManager from "../../components/PageTitle/PageTitleManager"
+import { usePageTitle } from "../usePageTitle"
+
 const mockState = { pathname: "/" }
-const announceMock = jest.fn()
+const mockAnnounce = jest.fn()
 
-type JestWithMockModule = typeof jest & {
-  unstable_mockModule: (moduleName: string, moduleFactory: () => unknown) => typeof jest
-}
-const jestWithMockModule = jest as JestWithMockModule
-
-jestWithMockModule.unstable_mockModule("next/navigation", () => ({
+jest.mock("next/navigation", () => ({
   usePathname: () => mockState.pathname,
 }))
 
-jestWithMockModule.unstable_mockModule("@react-aria/live-announcer", () => ({
-  announce: announceMock,
+jest.mock("@react-aria/live-announcer", () => ({
+  announce: (...args: unknown[]) => mockAnnounce(...args),
 }))
-
-const { default: PageTitleManager } = await import("../../components/PageTitle/PageTitleManager")
-const { usePageTitle } = await import("../usePageTitle")
 
 const SITE = "Test Site"
 
@@ -63,7 +58,7 @@ function App({ children }: { children?: React.ReactNode }) {
 describe("usePageTitle + PageTitleManager", () => {
   beforeEach(() => {
     mockState.pathname = "/"
-    announceMock.mockClear()
+    mockAnnounce.mockClear()
   })
 
   afterEach(() => {
@@ -226,7 +221,7 @@ describe("usePageTitle + PageTitleManager", () => {
         <TitleSetter title="Home" />
       </App>,
     )
-    expect(announceMock).not.toHaveBeenCalled()
+    expect(mockAnnounce).not.toHaveBeenCalled()
   })
 
   test("announces an async (post-navigation, same-route) title change politely, exactly once", async () => {
@@ -247,9 +242,11 @@ describe("usePageTitle + PageTitleManager", () => {
 
     // Let the post-navigation settle window close (the setTimeout(0) in the manager fires).
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
     })
-    announceMock.mockClear()
+    mockAnnounce.mockClear()
 
     // Data resolves on the same route -> announce the late title.
     rerender(
@@ -258,8 +255,8 @@ describe("usePageTitle + PageTitleManager", () => {
       </App>,
     )
     expect(document.title).toBe("Course X - Test Site")
-    expect(announceMock).toHaveBeenCalledTimes(1)
-    expect(announceMock).toHaveBeenCalledWith("Course X", "polite")
+    expect(mockAnnounce).toHaveBeenCalledTimes(1)
+    expect(mockAnnounce).toHaveBeenCalledWith("Course X", "polite")
   })
 
   test("does not announce a navigation-time title change (Next's built-in announcer owns it)", async () => {
@@ -271,9 +268,11 @@ describe("usePageTitle + PageTitleManager", () => {
     // Close the initial-mount settle window FIRST, so the suppression asserted below is caused by
     // the navigation-detection branch and not by a still-open initial window.
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
     })
-    announceMock.mockClear()
+    mockAnnounce.mockClear()
 
     // Navigation: both the pathname and the title change in the same step.
     mockState.pathname = "/about"
@@ -283,7 +282,7 @@ describe("usePageTitle + PageTitleManager", () => {
       </App>,
     )
     expect(document.title).toBe("About - Test Site")
-    expect(announceMock).not.toHaveBeenCalled()
+    expect(mockAnnounce).not.toHaveBeenCalled()
   })
 
   test("does not re-announce when the title blips to null and back (e.g. a refetch)", async () => {
@@ -293,9 +292,11 @@ describe("usePageTitle + PageTitleManager", () => {
       </App>,
     )
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
     })
-    announceMock.mockClear()
+    mockAnnounce.mockClear()
 
     // An async title change on the same route is announced once.
     rerender(
@@ -303,7 +304,7 @@ describe("usePageTitle + PageTitleManager", () => {
         <TitleSetter title="Course X" />
       </App>,
     )
-    expect(announceMock).toHaveBeenCalledTimes(1)
+    expect(mockAnnounce).toHaveBeenCalledTimes(1)
 
     // The title transiently goes null (a refetch) ...
     rerender(
@@ -317,6 +318,6 @@ describe("usePageTitle + PageTitleManager", () => {
         <TitleSetter title="Course X" />
       </App>,
     )
-    expect(announceMock).toHaveBeenCalledTimes(1)
+    expect(mockAnnounce).toHaveBeenCalledTimes(1)
   })
 })

@@ -1,5 +1,14 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { createCourse } from "@/utils/flows/newCourse.flow"
+import {
+  createCourseChapter,
+  createCoursePage,
+  openCoursePageInEditor,
+} from "@/utils/manageCoursePages"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
@@ -9,9 +18,6 @@ import {
   waitForExerciseServiceIframeToBeStable,
 } from "../utils/iframeLocators"
 
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
-import { selectOrganization } from "@/utils/organizationUtils"
-
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -19,72 +25,30 @@ test.use({
 test("Creating a course an returning an exercise works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  await page.click(`button:text("Create")`)
-
-  await page.click('input[type="radio"]')
-
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Introduction to System Level Testing")
-
-  await page.fill("text=Teacher in charge name", "teacher")
-  await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-  await page.fill('textarea:below(:text("Description"))', "Course description")
-
-  await page.click(`button:text("Create"):below(:text("Course language"))`)
+  await createCourse(page, {
+    name: "Introduction to System Level Testing",
+    language: "English",
+    teacherInChargeName: "teacher",
+    teacherInChargeEmail: "teacher@example.com",
+    description: "Course description",
+  })
 
   await page
-    .locator("[aria-label=\"Manage course 'Introduction to System Level Testing'\"] svg")
+    .getByRole("link", { name: "Manage course 'Introduction to System Level Testing'" })
     .click()
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
 
-  await page.locator(`button:has-text("New chapter")`).last().click()
+  await createCourseChapter(page, "The Levels of Testing")
+  await createCourseChapter(page, "Unit testing")
+  for (const pageTitle of ["Integration Testing", "System Testing", "Acceptance Testing"]) {
+    await createCoursePage(page, { chapterNumber: 1 }, pageTitle)
+  }
 
-  // Fill input[type="text"]
-  await page.fill("text=Name", "The Levels of testing")
-
-  await page.press("text=Chapter number", "ArrowRight")
-
-  // Fill input[type="text"]
-  await page.fill("text=Name", "The Levels of Testing")
-
-  await page.click('button:text("Create")')
-
-  await page.locator(`button:has-text("New")`).last().click()
-
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Unit testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Title")`, "Integration Testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Title")`, "System Testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`:nth-match(button:has-text("New page"):below(:text("Chapter 1")), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Title")`, "Acceptance Testing")
-
-  await page.click('button:text("Create")')
-
-  await page.click(`button:text("Edit page"):right-of(:text("System Testing"))`)
+  await openCoursePageInEditor(page, "System Testing")
 
   await page.click('[aria-label="Add block"]')
   await page.keyboard.type("/paragraph")
@@ -95,13 +59,14 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await page.click(`button:text("Exercise")`)
 
-  await page.click('[placeholder="Exercise name"]')
-  // Fill [placeholder="Exercise name"]
-  await page.fill('[placeholder="Exercise name"]', "What is system testing")
+  await page.getByLabel("Exercise name", { exact: true }).click()
+  await page.getByLabel("Exercise name", { exact: true }).fill("What is system testing")
 
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
-  await page.getByText("Type / to choose a block").click()
+  // Gutenberg 16.2's empty state is a ghost block whose placeholder is CSS-generated content,
+  // which getByText cannot match. Match the block by role instead.
+  await page.getByRole("document", { name: "Add default block" }).click()
 
   await page.keyboard.type("Please select the most correct alternative.")
 
@@ -146,7 +111,7 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await waitForSuccessNotification(page, async () => {
-    await page.click('button:text-is("Save") >> visible=true')
+    await page.getByRole("button", { name: "Save", exact: true }).click()
   })
 
   // Check that the assignment still displays after saving

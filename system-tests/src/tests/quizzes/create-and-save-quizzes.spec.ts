@@ -1,13 +1,21 @@
-/* eslint-disable playwright/prefer-locator */
-import { Locator, Page, test } from "@playwright/test"
+/* oxlint-disable playwright/prefer-locator */
+import type { Locator, Page } from "@playwright/test"
+import { test } from "@playwright/test"
+
+import { createCourse } from "@/utils/flows/newCourse.flow"
+import {
+  createCourseChapter,
+  createCoursePage,
+  openCoursePageInEditor,
+} from "@/utils/manageCoursePages"
+import { selectOrganization } from "@/utils/organizationUtils"
+import { addQuizFeedbackMessage } from "@/utils/quizFeedbackMessages"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollElementInsideIframeToView,
 } from "../../utils/iframeLocators"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -17,24 +25,16 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
   await test.step("Create page with an exercise block", async () => {
     await page.goto("http://project-331.local/organizations")
 
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-    await page.click(`button:text("Create")`)
-
-    await page.click('input[type="radio"]')
-
-    // Fill input[type="text"]
-    await page.getByRole("textbox", { name: "Name (Required)", exact: true }).fill("exercise test")
-
-    await page.fill("text=Teacher in charge name", "teacher")
-    await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-    await page.fill('textarea:below(:text("Description"))', "Course description")
-
-    await page.click(`button:text("Create"):below(:text("Course language"))`)
+    await createCourse(page, {
+      name: "exercise test",
+      language: "English",
+      teacherInChargeName: "teacher",
+      teacherInChargeEmail: "teacher@example.com",
+      description: "Course description",
+    })
 
     await page.getByText("Course created successfully").waitFor()
 
@@ -45,27 +45,9 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.getByText("Pages").click()
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-    await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
-
-    // await page.click('input[type="text"]')
-
-    // Fill input[type="text"]
-    await page.fill(`label:has-text("Name")`, "first")
-
-    await page.click(`button:text("Create")`)
-
-    await page.getByText(`Chapter 1`).waitFor()
-
-    await page.click(`:nth-match(button:text("New page"):below(:text("Chapter 1")), 1)`)
-
-    // await page.click('input[type="text"]')
-
-    // Fill input[type="text"]
-    await page.fill(`label:has-text("Title")`, "first page")
-
-    await page.click(`button:text("Create")`)
-
-    await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
+    await createCourseChapter(page, "first")
+    await createCoursePage(page, { chapterNumber: 1 }, "first page")
+    await openCoursePageInEditor(page, "first page")
 
     await page.getByLabel("Hero section title...").click()
 
@@ -84,10 +66,9 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await page.click('[aria-label="Block: Exercise"]')
 
-    await page.click('[placeholder="Exercise name"]')
+    await page.getByLabel("Exercise name", { exact: true }).click()
 
-    // Fill [placeholder="Exercise name"]
-    await page.fill('[placeholder="Exercise name"]', "quizzes test")
+    await page.getByLabel("Exercise name", { exact: true }).fill("quizzes test")
 
     // The test will add a task later on
     await page.getByLabel("Delete").click()
@@ -100,11 +81,11 @@ const addNewQuiz = async (page: Page) => {
     do {
       steps++
       await page.getByText("Add task").click()
-      // eslint-disable-next-line playwright/no-wait-for-timeout
+      // oxlint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(100)
       // Sometimes the add task button doesn't respond due to lag
-      // eslint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit"]').count()) == 0 && steps < 10)
+      // oxlint-disable-next-line playwright/no-conditional-in-test
+    } while ((await page.locator('[aria-label="Edit"]').count()) === 0 && steps < 10)
 
     await page.locator('[aria-label="Edit"]').nth(0).click()
     await page.getByText("Quizzes").click()
@@ -152,22 +133,19 @@ const createMultipleChoice = async (frame: Locator) => {
     await frame
       .getByRole("combobox", { name: "Multiple options grading policy" })
       .selectOption("points-off-incorrect-options")
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .click()
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .fill("Success message for feedback")
-    await frame.getByLabel("Failure message", { exact: true }).click()
-    await frame.getByLabel("Failure message", { exact: true }).fill("Failure message for feedback")
+    const advancedOptions = frame.getByRole("group").filter({
+      hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
+    })
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After a correct answer",
+      "Success message for feedback",
+    )
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After an incorrect answer",
+      "Failure message for feedback",
+    )
   })
 }
 
@@ -198,22 +176,19 @@ const createMultipleChoiceDropdown = async (frame: Locator) => {
       .locator("summary")
       .click()
 
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .click()
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
-      })
-      .getByLabel("Success message", { exact: true })
-      .fill("success message for feedback")
-    await frame.getByLabel("Failure message", { exact: true }).click()
-    await frame.getByLabel("Failure message", { exact: true }).fill("failure message for feedback")
+    const advancedOptions = frame.getByRole("group").filter({
+      hasText: "Advanced options Layout options Choose the direction the quiz item options will ",
+    })
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After a correct answer",
+      "success message for feedback",
+    )
+    await addQuizFeedbackMessage(
+      advancedOptions,
+      "After an incorrect answer",
+      "failure message for feedback",
+    )
   })
 }
 
@@ -246,14 +221,16 @@ const createChooseN = async (frame: Locator) => {
       .first()
     await advancedOptionsAccordion.locator("summary").click()
     await scrollElementInsideIframeToView(advancedOptionsAccordion)
-    await advancedOptionsAccordion.getByLabel("Success message", { exact: true }).click()
-    await advancedOptionsAccordion
-      .getByLabel("Success message", { exact: true })
-      .fill("Success message for feedback")
-    await advancedOptionsAccordion.getByLabel("Failure message", { exact: true }).click()
-    await advancedOptionsAccordion
-      .getByLabel("Failure message", { exact: true })
-      .fill("Failure message for feedback")
+    await addQuizFeedbackMessage(
+      advancedOptionsAccordion,
+      "After a correct answer",
+      "Success message for feedback",
+    )
+    await addQuizFeedbackMessage(
+      advancedOptionsAccordion,
+      "After an incorrect answer",
+      "Failure message for feedback",
+    )
   })
 }
 
@@ -275,41 +252,17 @@ const createClosedEndedQuestion = async (frame: Locator) => {
         name: "Closed-ended question Student writes a specific answer, validated with regex",
       })
       .click()
+    // The redesigned editor stores the grading rule as a discriminated strategy. A fresh item has no
+    // strategy and cannot be saved, so pick "Regex" and give it a pattern.
+    await frame.getByRole("radio", { name: "Regex", exact: true }).click()
+    await frame.getByLabel("Regex pattern", { exact: true }).click()
+    await frame.getByLabel("Regex pattern", { exact: true }).fill("\\d{2}\\.\\d{2}\\.\\d{4}")
     await frame
-      .getByRole("combobox", { name: "Format regular expression" })
-      .selectOption("\\d{2}\\.\\d{2}\\.\\d{4}")
-    await frame.getByLabel("Correct answer", { exact: true }).click()
-    await frame.getByLabel("Correct answer", { exact: true }).fill("20.20.2020")
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Test string .plus-circle_svg__cls-1{fill:none;stroke:currentCol",
-      })
-      .locator("summary")
-      .click()
-    await frame.getByLabel("Test string", { exact: true }).click()
-    await frame.getByLabel("Test string", { exact: true }).fill("20.09.2010")
-    await frame
-      .getByRole("group")
-      .filter({
-        hasText: "Advanced options Test string .plus-circle_svg__cls-1{fill:none;stroke:currentCol",
-      })
-      .locator("button")
-      .click()
-    await frame.getByLabel("Test string").nth(3).click()
-    await frame.getByLabel("Test string").nth(3).fill("20.20.2020")
-    await frame.getByRole("combobox", { name: "Format regular expression" }).selectOption("\\d+")
-    await frame
-      .getByRole("combobox", { name: "Format regular expression" })
-      .selectOption("\\d+\\,\\d+")
-    await frame.getByRole("combobox", { name: "Format regular expression" }).selectOption("\\S+")
-    await frame.getByLabel("Regex").check()
-    await frame
-      .getByText("Grading strategy Exact stringRegexValidity regular expression Format regular exp")
-      .click()
-    await frame.getByLabel("Format regular expression", { exact: true }).click()
-    await frame.getByLabel("Format regular expression", { exact: true }).fill("\\d+")
-    await frame.getByLabel("Validity regular expression", { exact: true }).fill("200")
+      .getByLabel("Example correct answer (shown to students)", { exact: true })
+      .fill("20.09.2010")
+    // The optional input-format check is separate from grading. Choosing a preset mirrors its regex
+    // into the free-text "Format regular expression" field.
+    await frame.getByLabel("Format", { exact: true }).selectOption("\\d{2}\\.\\d{2}\\.\\d{4}")
   })
 }
 
@@ -378,22 +331,22 @@ const createTimeline = async (frame: Locator) => {
     await frame.getByPlaceholder("1994").fill("100")
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("event 1")
-    await frame.getByRole("button", { name: "Add" }).click()
+    await frame.getByRole("button", { name: "Add", exact: true }).click()
     await frame.getByPlaceholder("1994").click()
     await frame.getByPlaceholder("1994").fill("200")
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("event 2")
-    await frame.getByRole("button", { name: "Add" }).click()
+    await frame.getByRole("button", { name: "Add", exact: true }).click()
     await frame.getByPlaceholder("1994").click()
     await frame.getByPlaceholder("1994").fill("300")
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("not real event")
-    await frame.getByRole("button", { name: "Add" }).click()
+    await frame.getByRole("button", { name: "Add", exact: true }).click()
     await frame.getByPlaceholder("1994").click()
     await frame.getByPlaceholder("1994").fill("5000")
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("event 3")
-    await frame.getByRole("button", { name: "Add" }).click()
+    await frame.getByRole("button", { name: "Add", exact: true }).click()
     await frame.getByLabel("Delete").nth(1).click()
   })
 }
@@ -464,7 +417,7 @@ test("Create quizzes in page", async ({ page }) => {
   await scrollToFrame(page, timelineIframe)
   await createTimeline(timelineIframe)
 
-  await page.click(`button:text-is("Save") >> visible=true`)
+  await page.getByRole("button", { name: "Save", exact: true }).click()
 })
 
 async function scrollToFrame(page: Page, locator: Locator) {
@@ -477,7 +430,7 @@ async function scrollToFrame(page: Page, locator: Locator) {
     throw new Error("Frame had no bounding box")
   }
   const y = boundingBox.y
-  await page.evaluate((y) => {
-    window.scrollTo(0, window.scrollY + y)
+  await page.evaluate((offsetY) => {
+    window.scrollTo(0, window.scrollY + offsetY)
   }, y)
 }

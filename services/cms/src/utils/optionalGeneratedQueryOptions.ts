@@ -29,7 +29,7 @@ const DISABLED_GENERATED_QUERY_KEY: GeneratedQueryKey = [
 ]
 
 const isNonNullish = <TValue>(value: TValue | null | undefined): value is NonNullable<TValue> =>
-  value != null
+  value !== null && value !== undefined
 
 /** Builds generated query options that disable safely until required params are ready. */
 export const optionalGeneratedQueryOptions = <

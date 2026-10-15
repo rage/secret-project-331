@@ -25,6 +25,20 @@ export const supportedCoreBlocks: string[] = [
   "core/verse",
 ]
 
+/**
+ * Core blocks handed to `registerCoreBlocks`. Wider than the allow lists here, because a block type
+ * must be registered for stored content to parse into it even when no inserter offers it.
+ */
+export const coreBlocksToRegister: string[] = [
+  ...supportedCoreBlocks,
+  // registerCoreBlocks names these as the unregistered-type and grouping handlers no matter which
+  // blocks it is asked to register, so they have to exist.
+  "core/missing",
+  "core/group",
+  // moocfi/lock-chapter allows this as a nested block, so stored content can contain it.
+  "core/video",
+]
+
 export const allowedBlockVariants: Record<string, string[]> = {
   "core/embed": [
     "twitter",
@@ -43,6 +57,7 @@ export const allowedBlockVariants: Record<string, string[]> = {
   ],
 }
 
+/** Must match `EmailBlockName` in headless-lms `email_processor.rs`, which refuses to send any other block. */
 export const allowedEmailCoreBlocks: string[] = [
   "core/paragraph",
   "core/image",
@@ -50,6 +65,12 @@ export const allowedEmailCoreBlocks: string[] = [
   "core/list",
   "core/list-item",
   "core/table",
+  "core/buttons",
+  "core/button",
+  "core/quote",
+  "core/separator",
+  "core/spacer",
+  "core/code",
 ]
 
 export const allowedPartnerCoreBlocks: string[] = ["core/image"]

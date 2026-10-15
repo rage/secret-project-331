@@ -10,8 +10,8 @@ const runWorkerPath = path.join(root, "public/runWorker.js")
 const browserTestWorkerPath = path.join(root, "public/browserTestWorker.js")
 
 const { version, baseUrl } = JSON.parse(fs.readFileSync(configPath, "utf8"))
-// NEXT_PUBLIC_BASE_PATH is set in Docker builds (e.g. "/tmc"), and Next serves static files under it.
-const basePathEnv = process.env.NEXT_PUBLIC_BASE_PATH
+// PUBLIC_BASE_PATH is set in Docker builds (e.g. "/tmc"), and static files are served under it.
+const basePathEnv = process.env.PUBLIC_BASE_PATH
 const basePath = basePathEnv
   ? basePathEnv.endsWith("/")
     ? basePathEnv.slice(0, -1)

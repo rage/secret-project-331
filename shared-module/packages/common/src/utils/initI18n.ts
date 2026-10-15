@@ -5,6 +5,7 @@ import { initReactI18next } from "react-i18next"
 // One of the great powers of Next.js is that it allows us to choose our preferred rendering strategy for each page.
 // next-i18next requires either `getStaticProps` or `getServerSideProps` on each page, and we don't want to limit ourselves to those two options.
 const initI18n = (defaultNS: string): typeof i18n => {
+  // oxlint-disable-next-line import/no-named-as-default-member
   i18n
     .use(initReactI18next) // passes i18n down to react-i18next
     .use({
@@ -35,7 +36,8 @@ const initI18n = (defaultNS: string): typeof i18n => {
     })
     .init({
       ns: [defaultNS, "shared-module"],
-      fallbackNS: ["shared-module"],
+      // A feature that splits its strings into its own namespace still reads the service's.
+      fallbackNS: [defaultNS, "shared-module"],
       defaultNS,
       fallbackLng: "en",
       interpolation: {

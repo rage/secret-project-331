@@ -1,15 +1,14 @@
-/* eslint-disable playwright/prefer-locator */
-import {
+import type {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
   PlaywrightWorkerOptions,
-  test,
 } from "@playwright/test"
-
-import { logout } from "../../utils/logout"
+import { test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { logout } from "../../utils/logout"
 
 test.describe("Login session with Playwright", () => {
   /// Login state to use
@@ -70,24 +69,17 @@ test.describe("Login return_to", () => {
   )
 
   test("works after succesful login", async ({ page }) => {
-    await Promise.all([
-      await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-    ])
+    await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.waitForURL(/http:\/\/project-331\.local\/org\/.*/)
     const currentUrl = page.url()
 
     const returnTo = encodeURIComponent(currentUrl)
     await page.goto(`http://project-331.local/login?return_to=${returnTo}`)
-    await page.locator(`label:has-text("Password")`).waitFor()
+    await page.getByRole("textbox", { name: "Password", exact: true }).waitFor()
     await page.waitForURL(/http:\/\/project-331\.local\/login\?return_to=.*/)
 
-    await page.click(`label:has-text("Email")`)
-    // Fill input[name="email"]
-    await page.fill(`label:has-text("Email")`, "admin@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    // Fill input[name="password"]
-    await page.fill(`label:has-text("Password")`, "admin")
+    await page.getByRole("textbox", { name: "Email" }).fill("admin@example.com")
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill("admin")
 
     await Promise.all([
       page.locator("id=login-button").click(),

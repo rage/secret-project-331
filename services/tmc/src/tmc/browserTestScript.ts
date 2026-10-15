@@ -94,12 +94,15 @@ function wrap(source: string, presentlyImported: string[], files: FileEntry[]): 
   const lines = sourceLines.map((line, num) => {
     const importAllMatch = line.match(importAllPattern)
     if (importAllMatch) {
-      return replaceImportAll(importAllMatch[1], presentlyImported, files)
+      return replaceImportAll(importAllMatch[1] ?? "", presentlyImported, files)
     }
     const importSomeMatch = line.match(importSomePattern)
     if (importSomeMatch) {
       return replaceImportSome(
-        { pkg: importSomeMatch[1], names: importSomeMatch[2].split(",").map((s) => s.trim()) },
+        {
+          pkg: importSomeMatch[1] ?? "",
+          names: (importSomeMatch[2] ?? "").split(",").map((s) => s.trim()),
+        },
         num,
         presentlyImported,
         files,
@@ -176,9 +179,9 @@ function countIndentationDepth(line: string): number {
 }
 
 function findBlockEnd(lines: string[], at: number): number {
-  const startDepth = countIndentationDepth(lines[at])
+  const startDepth = countIndentationDepth(lines[at] ?? "")
   let end = at + 1
-  while (end < lines.length && countIndentationDepth(lines[end]) > startDepth) {
+  while (end < lines.length && countIndentationDepth(lines[end] ?? "") > startDepth) {
     end++
   }
   return end
@@ -224,7 +227,7 @@ function patchTmcUtilsPy(source: string): string {
   let i = 0
 
   while (i < lines.length) {
-    const line = lines[i]
+    const line = lines[i] ?? ""
     if (line.startsWith("_stdout_pointer")) {
       stdOutPointerFound = true
       i++
@@ -275,12 +278,12 @@ function stripMainGuard(lines: string[]): string[] {
   const out: string[] = []
   let i = 0
   while (i < lines.length) {
-    const m = lines[i].match(/^(\s*)if\s+__name__\s*==\s*['"]__main__['"]\s*:\s*$/)
+    const m = lines[i]?.match(/^(\s*)if\s+__name__\s*==\s*['"]__main__['"]\s*:\s*$/)
     if (m) {
       const baseIndent = (m[1] ?? "").length
       i++
       while (i < lines.length) {
-        const line = lines[i]
+        const line = lines[i] ?? ""
         const trimmed = line.trimStart()
         if (trimmed === "" || line.length - trimmed.length > baseIndent) {
           i++
@@ -290,7 +293,7 @@ function stripMainGuard(lines: string[]): string[] {
       }
       continue
     }
-    out.push(lines[i])
+    out.push(lines[i] ?? "")
     i++
   }
   return out
@@ -306,7 +309,7 @@ function patchTestSource(
     .map((line) => {
       const importMatches = line.match(/^from tmc import ([\w,\s]+)/)
       if (importMatches) {
-        return importMatches[1]
+        return (importMatches[1] ?? "")
           .split(",")
           .map((pkg) => `from tmc_${pkg.trim()} import ${pkg.trim()}`)
           .join("\n")

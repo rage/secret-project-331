@@ -1,13 +1,15 @@
 "use client"
 
-import { ReactElement, useContext, useMemo } from "react"
+import type { ReactElement } from "react"
+import { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useLogout from "@/shared-module/common/hooks/useLogout"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import "@/shared-module/common/init/registerAuthApiClients"
-import { userSettingsRoute } from "@/shared-module/common/utils/routes"
+import { profileStudiesRoute, userSettingsRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserMenuItem {
   id: string
@@ -20,14 +22,16 @@ export interface UserMenuItem {
 }
 
 export interface UseUserMenuItemsProps {
-  menuOptions?: Array<{
-    type: "link" | "action" | "separator"
-    label?: string
-    href?: string
-    onAction?: () => void
-    icon?: ReactElement
-    isDestructive?: boolean
-  }>
+  menuOptions?:
+    | {
+        type: "link" | "action" | "separator"
+        label?: string
+        href?: string
+        onAction?: () => void
+        icon?: ReactElement
+        isDestructive?: boolean
+      }[]
+    | undefined
   onMenuClose?: () => void
 }
 
@@ -76,7 +80,8 @@ export function useUserMenuItems({
 
   const displayInitial = useMemo(() => {
     if (displayName.length > 0) {
-      return displayName[0].toUpperCase()
+      // safe: length > 0 checked above
+      return displayName[0]?.toUpperCase() ?? "?"
     }
     return "?"
   }, [displayName])
@@ -100,6 +105,7 @@ export function useUserMenuItems({
   }
 
   const defaultUserMenuItems = [
+    { type: "link" as const, href: profileStudiesRoute(), label: t("heading-my-studies") },
     { type: "link" as const, href: userSettingsRoute(), label: t("user-settings") },
     {
       type: "action" as const,
@@ -115,27 +121,27 @@ export function useUserMenuItems({
     return userMenuItems.map((item, i) => {
       if (item.type === "separator") {
         return {
-          // eslint-disable-next-line i18next/no-literal-string
           id: `user-sep-${i}`,
           type: "separator" as const,
         }
       }
 
       return {
-        // eslint-disable-next-line i18next/no-literal-string
         id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
-        label: "label" in item ? item.label : undefined,
-        href: "href" in item ? item.href : undefined,
-        onAction:
-          "onAction" in item && item.onAction
-            ? () => {
-                item.onAction?.()
-                onMenuClose?.()
-              }
-            : undefined,
-        icon: "icon" in item ? item.icon : undefined,
-        isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
+        ...omitUndefined({
+          label: "label" in item ? item.label : undefined,
+          href: "href" in item ? item.href : undefined,
+          onAction:
+            "onAction" in item && item.onAction
+              ? () => {
+                  item.onAction?.()
+                  onMenuClose?.()
+                }
+              : undefined,
+          icon: "icon" in item ? item.icon : undefined,
+          isDestructive: "isDestructive" in item ? item.isDestructive : undefined,
+        }),
       }
     })
   }, [userMenuItems, onMenuClose])

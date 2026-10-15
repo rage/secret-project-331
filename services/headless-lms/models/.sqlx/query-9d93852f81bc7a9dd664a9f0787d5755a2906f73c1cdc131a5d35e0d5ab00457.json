@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM credit_registrations cr\nWHERE cr.course_id = $1\n  AND cr.state = 'submission_uncertain'\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "9d93852f81bc7a9dd664a9f0787d5755a2906f73c1cdc131a5d35e0d5ab00457"
+}

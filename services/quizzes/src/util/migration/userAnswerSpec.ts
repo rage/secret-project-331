@@ -1,6 +1,5 @@
-import { OldQuizAnswer, OldQuizItemAnswer } from "../../../types/oldQuizTypes"
-import {
-  UserAnswer,
+import type { OldQuizAnswer, OldQuizItemAnswer } from "../../../types/oldQuizTypes"
+import type {
   UserItemAnswer,
   UserItemAnswerCheckbox,
   UserItemAnswerChooseN,
@@ -12,17 +11,22 @@ import {
   UserItemAnswerScale,
   UserItemAnswerTimeline,
 } from "../../../types/quizTypes/answer"
-import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
+import type { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../types/quizTypes/privateSpec"
+import type { PublicSpecQuiz, PublicSpecQuizItem } from "../../../types/quizTypes/publicSpec"
+import type { UserAnswerV2 } from "../../../types/quizTypes/v2"
 
 const convertIntDataForScale = (quizItemAnswer: OldQuizItemAnswer) => {
-  if (!quizItemAnswer.intData) {
-    if (quizItemAnswer.optionAnswers && quizItemAnswer.optionAnswers.length > 0) {
-      try {
-        return Number.parseInt(quizItemAnswer.optionAnswers[0])
-      } catch (_e) {
-        console.error("Scale does not have int data: ", quizItemAnswer)
-      }
+  if (
+    !quizItemAnswer.intData &&
+    quizItemAnswer.optionAnswers &&
+    quizItemAnswer.optionAnswers.length > 0
+  ) {
+    try {
+      // guarded above by optionAnswers.length > 0
+      // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+      return Number.parseInt(quizItemAnswer.optionAnswers[0] ?? "", 10)
+    } catch (_e) {
+      console.error("Scale does not have int data: ", quizItemAnswer)
     }
   }
   return quizItemAnswer.intData
@@ -61,7 +65,7 @@ const migrateQuizItemAnswer = (
       return {
         id: quizItemAnswer.id,
         type: "checkbox",
-        checked: quizItemAnswer.intData == 1,
+        checked: quizItemAnswer.intData === 1,
         quizItemId: quizItemAnswer.quizItemId,
         valid: quizItemAnswer.valid,
       } as UserItemAnswerCheckbox
@@ -111,16 +115,16 @@ const migrateQuizItemAnswer = (
 const migrateQuizAnswer = (
   quizAnswer: OldQuizAnswer | null,
   privateSpecQuiz: PrivateSpecQuiz | PublicSpecQuiz | null,
-): UserAnswer | null => {
+): UserAnswerV2 | null => {
   if (quizAnswer === null || privateSpecQuiz === null) {
     return null
   }
-  const userAnswer: UserAnswer = {
+  const userAnswer: UserAnswerV2 = {
     itemAnswers: [],
     version: "2",
   }
 
-  const privateSpecQuizItems: { [id: string]: PrivateSpecQuizItem | PublicSpecQuizItem } = {}
+  const privateSpecQuizItems: Record<string, PrivateSpecQuizItem | PublicSpecQuizItem> = {}
   privateSpecQuiz.items.forEach((item) => {
     privateSpecQuizItems[item.id] = item as unknown as PublicSpecQuizItem
   })

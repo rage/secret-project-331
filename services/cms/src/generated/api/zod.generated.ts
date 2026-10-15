@@ -20,6 +20,19 @@ export const zAutomaticCompletionRequirements = z.object({
   requires_exam: z.boolean(),
 })
 
+export const zChartSpecGenerationRequest = z.object({
+  current_spec: z.string().nullish(),
+  data_format: z.string().nullish(),
+  data_sample: z.string().nullish(),
+  data_url: z.string().nullish(),
+  page_id: z.uuid().nullish(),
+  prompt: z.string(),
+})
+
+export const zChartSpecGenerationResponse = z.object({
+  spec: z.string(),
+})
+
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -39,6 +52,7 @@ export const zCmsPageExerciseTask = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
+  private_spec_files: z.array(z.uuid()).optional(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -132,8 +146,8 @@ export const zCourseInstance = z.object({
 })
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
@@ -144,6 +158,7 @@ export const zCourseModule = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
@@ -175,11 +190,32 @@ export const zDatabaseChapter = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * A template rendered as it would be sent, with sample placeholder values.
+ */
+export const zEmailTemplatePreview = z.object({
+  html: z.string(),
+  plain_text: z.string(),
+  subject: z.string(),
+})
+
+/**
+ * The editor's unsaved subject and body.
+ */
+export const zEmailTemplatePreviewRequest = z.object({
+  content: z.unknown(),
+  subject: z.string(),
+})
+
 export const zEmailTemplateType = z.enum([
   "reset_password_email",
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "credit_registration_account_linking",
+  "verify_email_address",
+  "credit_registration_action_needed",
+  "credit_registration_registered",
 ])
 
 export const zEmailTemplate = z.object({
@@ -238,6 +274,15 @@ export const zExerciseServiceIframeRenderingInfo = z.object({
   name: z.string(),
   public_iframe_url: z.string(),
   slug: z.string(),
+})
+
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export const zExerciseServiceUploadResultEntry = z.object({
+  id: z.uuid(),
+  url: z.string(),
 })
 
 export const zGutenbergBlock = z.object({
@@ -457,6 +502,7 @@ export const zCmsPageUpdate = z.object({
   exercise_slides: z.array(zCmsPageExerciseSlide),
   exercise_tasks: z.array(zCmsPageExerciseTask),
   exercises: z.array(zCmsPageExercise),
+  hidden: z.boolean(),
   title: z.string(),
   url_path: z.string(),
 })
@@ -510,6 +556,22 @@ export const zResearchFormQuestion = z.object({
 })
 
 /**
+ * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+ * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+ * this kind of tool", not "may this caller use it".
+ */
+export const zToolCategory = z.enum([
+  "course_material",
+  "course_info",
+  "course_catalog",
+  "interaction",
+  "admin_support_accounts",
+  "admin_support_courses",
+  "admin_support_learning_progress",
+  "admin_support_academic_integrity",
+])
+
+/**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
  */
 export const zUploadResult = z.object({
@@ -520,7 +582,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
-  course_id: z.uuid(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
     .int()
@@ -529,6 +591,7 @@ export const zChatbotConfiguration = z.object({
   default_chatbot: z.boolean(),
   deleted_at: z.iso.datetime().nullish(),
   enabled_to_students: z.boolean(),
+  enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
   hide_citations: z.boolean(),
   id: z.uuid(),
@@ -542,6 +605,7 @@ export const zChatbotConfiguration = z.object({
   model_id: z.uuid(),
   presence_penalty: z.number(),
   prompt: z.string(),
+  publicly_accessible: z.boolean(),
   reasoning_effort: zReasoningEffortLevel,
   suggest_next_messages: z.boolean(),
   temperature: z.number(),
@@ -549,13 +613,19 @@ export const zChatbotConfiguration = z.object({
   updated_at: z.iso.datetime(),
   use_azure_search: z.boolean(),
   use_semantic_reranking: z.boolean(),
-  use_tools: z.boolean(),
   verbosity: zVerbosityLevel,
   weekly_tokens_per_user: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
+
+export const zRequestChartSpecGenerationBody = zChartSpecGenerationRequest
+
+/**
+ * Generated Vega-Lite chart specification
+ */
+export const zRequestChartSpecGenerationResponse = zChartSpecGenerationResponse
 
 export const zRequestParagraphSuggestionsBody = zParagraphSuggestionRequest
 
@@ -760,6 +830,28 @@ export const zUpdateCmsEmailTemplatePath = z.object({
  */
 export const zUpdateCmsEmailTemplateResponse = zEmailTemplate
 
+export const zPreviewCmsEmailTemplateBody = zEmailTemplatePreviewRequest
+
+export const zPreviewCmsEmailTemplatePath = z.object({
+  email_template_id: z.uuid(),
+})
+
+/**
+ * Rendered email
+ */
+export const zPreviewCmsEmailTemplateResponse = zEmailTemplatePreview
+
+export const zSendCmsEmailTemplateTestBody = zEmailTemplatePreviewRequest
+
+export const zSendCmsEmailTemplateTestPath = z.object({
+  email_template_id: z.uuid(),
+})
+
+/**
+ * Id of the queued test delivery
+ */
+export const zSendCmsEmailTemplateTestResponse = z.uuid()
+
 export const zGetCmsExamInstructionsPath = z.object({
   exam_id: z.uuid(),
 })
@@ -816,6 +908,17 @@ export const zUpdateCmsPagePath = z.object({
  */
 export const zUpdateCmsPageResponse = zContentManagementPage
 
+export const zGetExercisesWithSubmissionsBody = z.array(z.uuid())
+
+export const zGetExercisesWithSubmissionsPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * Exercise ids, among the given ones, that have submissions
+ */
+export const zGetExercisesWithSubmissionsResponse = z.array(z.uuid())
+
 export const zGetCmsPageInfoPath = z.object({
   page_id: z.uuid(),
 })
@@ -842,3 +945,14 @@ export const zGetCmsRepositoryExercisesForCoursePath = z.object({
  * Repository exercises for course
  */
 export const zGetCmsRepositoryExercisesForCourseResponse = z.array(zRepositoryExercise)
+
+export const zUploadFilesFromExerciseServiceBody = z.record(z.string(), z.string())
+
+export const zUploadFilesFromExerciseServicePath = z.object({
+  exercise_service_slug: z.string(),
+})
+
+/**
+ * Uploaded files
+ */
+export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)

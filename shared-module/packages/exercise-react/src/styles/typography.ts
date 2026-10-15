@@ -6,12 +6,12 @@
 const fallbackFontsSansSerif = `system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
 const fallbackFontsMonospace = `ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`
 
-// Exercise services ship only the Inter (variable) and Space Mono fonts to keep the
+// Exercise services ship only the Inter (variable) and Commit Mono fonts to keep the
 // dependency footprint minimal; headings reuse Inter rather than a separate display font.
 export const secondaryFont = `"Inter Variable", Inter, ${fallbackFontsSansSerif}`
 export const primaryFont = `"Inter Variable", Inter, ${fallbackFontsSansSerif}`
 export const headingFont = `"Inter Variable", Inter, ${fallbackFontsSansSerif}`
-export const monospaceFont = `"Space Mono", ${fallbackFontsMonospace}`
+export const monospaceFont = `"Commit Mono", ${fallbackFontsMonospace}`
 
 export const typography = {
   h1: "clamp(40px, 8vw, 90px)",

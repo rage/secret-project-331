@@ -258,7 +258,7 @@ mod tests {
                     "GOOGLE_APPLICATION_CREDENTIALS_JSON",
                     r#"{
                         "type": "service_account",
-                        "client_email": "json-creds@example.iam.gserviceaccount.com",
+                        "client_email": "json-creds@test-project.iam.example.com",
                         "private_key_id": "test-private-key-id",
                         "private_key": "not-a-real-private-key",
                         "project_id": "test-project-id"
@@ -276,6 +276,6 @@ mod tests {
             .client_email()
             .await
             .expect("service account signer should expose client email without IAM API");
-        assert_eq!(client_email, "json-creds@example.iam.gserviceaccount.com");
+        assert_eq!(client_email, "json-creds@test-project.iam.example.com");
     }
 }

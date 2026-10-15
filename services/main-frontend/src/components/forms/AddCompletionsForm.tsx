@@ -1,18 +1,21 @@
 "use client"
 
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import Papa from "papaparse"
-import React, { useState } from "react"
+import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseModule, TeacherManualCompletionRequest } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import DatePicker from "@/shared-module/common/components/InputFields/DatePickerField"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { makeDateStringTimezoneErrorsLessLikely } from "@/shared-module/common/utils/dateUtil"
+import { Button, DateField, Select, TextArea } from "@/shared-module/components"
+
+const DateHint = styled.p`
+  margin: 1.5rem 0 0.5rem;
+  color: ${baseTheme.colors.gray[700]};
+`
 
 const FormatInstructions = styled.div`
   margin-top: 1.5rem;
@@ -42,7 +45,7 @@ const ExampleTitle = styled.p`
   color: ${baseTheme.colors.gray[700]};
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const CodeExample = styled.pre`
   background-color: ${baseTheme.colors.clear[200]};
   padding: 0.75rem;
@@ -59,21 +62,14 @@ const Note = styled.p`
   color: ${baseTheme.colors.gray[600]};
 `
 
-const ErrorMessage = styled.p`
-  color: ${baseTheme.colors.red[600]};
-  margin-bottom: 0.5rem;
-`
-
 const COMPLETIONS = "completions"
-const CSV_HEADER_FORMAT = "user_id,grade[,completion_date]"
-const DATE = "date"
 
 const CSV_EXAMPLE = `user_id,grade,completion_date
 00000000-0000-0000-0000-000000000000,5,2024-03-15
 00000000-0000-0000-0000-000000000001,pass,2024-03-16`
 
 interface AddCompletionsFormProps {
-  courseModules: Array<CourseModule>
+  courseModules: CourseModule[]
   onSubmit: (data: TeacherManualCompletionRequest) => void
   /* Text shown in place of the submit button. */
   submitText?: string
@@ -82,6 +78,7 @@ interface AddCompletionsFormProps {
 interface AddCompletionsFields {
   completions: string
   course_module_id: string
+  date: string
 }
 
 interface RawTeacherManualCompletion {
@@ -98,14 +95,9 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
   onSubmit,
   submitText,
 }) => {
-  const {
-    clearErrors,
-    handleSubmit,
-    register,
-    setError,
-    formState: { errors },
-  } = useForm<AddCompletionsFields>()
-  const [date, setDate] = useState<string | null>(null)
+  const { clearErrors, handleSubmit, control, setError } = useForm<AddCompletionsFields>({
+    defaultValues: { date: "" },
+  })
   const { t } = useTranslation()
 
   const onWrapper = handleSubmit((data) => {
@@ -136,11 +128,12 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
       })
 
       if (parsed.errors.length > 0) {
-        setError(COMPLETIONS, { message: parsed.errors[0].message })
+        const parseErrorMessage = parsed.errors[0]?.message
+        setError(COMPLETIONS, parseErrorMessage !== undefined ? { message: parseErrorMessage } : {})
         return
       }
 
-      const defaultDate = date ? makeDateStringTimezoneErrorsLessLikely(date) : null
+      const defaultDate = data.date ? makeDateStringTimezoneErrorsLessLikely(data.date) : null
 
       const newCompletions = parsed.data.map((entry) => {
         const { user_id, grade, completion_date } = entry as RawTeacherManualCompletion
@@ -153,6 +146,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         // Validate the grade field.
         let validatedGrade = null
         if (grade) {
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number()/Math.trunc differ
           const numericGrade = parseInt(grade, 10)
           if (!isNaN(numericGrade)) {
             if (numericGrade < 0 || numericGrade > 5) {
@@ -199,19 +193,24 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
 
   return (
     <form onSubmit={onWrapper}>
-      <p>{t("label-course-module")}</p>
-      <SelectField
-        id="select-course-module"
+      <Select
+        name="course_module_id"
+        control={control}
+        rules={{ required: t("required-field") }}
+        label={t("label-course-module")}
         options={courseModules.map((x) => ({
           value: x.id,
           label: x.name ?? t("label-default"),
         }))}
-        {...register("course_module_id", { required: t("required-field") })}
-        aria-label={t("select-course-module")}
       />
 
-      <p>{t("label-csv-completion-date")}</p>
-      <DatePicker label={DATE} onChangeByValue={(value) => setDate(value)} />
+      <DateHint>{t("label-csv-completion-date")}</DateHint>
+      <DateField
+        control={control}
+        name="date"
+        label={t("date")}
+        data-testid="completion-date-field"
+      />
 
       <FormatInstructions>
         <FormatTitle>{t("label-csv-completions-format")}</FormatTitle>
@@ -226,14 +225,21 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         <Note>{t("label-csv-completions-note")}</Note>
       </FormatInstructions>
 
-      {errors.completions?.message && <ErrorMessage>{errors.completions.message}</ErrorMessage>}
-      <TextAreaField
-        placeholder={CSV_HEADER_FORMAT}
+      <TextArea
+        name="completions"
+        control={control}
+        rules={{ required: t("required-field") }}
         label={t("label-csv")}
         autoResize
-        {...register("completions", { required: t("required-field") })}
       />
-      <Button variant="primary" size="medium" type="submit" value={t("button-text-submit")}>
+      <Button
+        variant="primary"
+        size="medium"
+        type="submit"
+        className={css`
+          margin-top: var(--space-4);
+        `}
+      >
         {submitText ?? t("button-text-submit")}
       </Button>
     </form>

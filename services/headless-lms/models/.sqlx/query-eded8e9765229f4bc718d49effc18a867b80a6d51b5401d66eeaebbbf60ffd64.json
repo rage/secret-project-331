@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM suotar_api_calls\nWHERE id IN (\n    SELECT id\n    FROM suotar_api_calls\n    WHERE started_at < $1\n    ORDER BY started_at\n    LIMIT $2\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eded8e9765229f4bc718d49effc18a867b80a6d51b5401d66eeaebbbf60ffd64"
+}

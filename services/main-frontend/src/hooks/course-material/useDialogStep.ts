@@ -25,7 +25,8 @@ export interface DialogStepInputs {
 
 /**
  * Returns exactly one active dialog step based on the required priority:
- * 1) Missing info -> 2) Select course instance -> 3) AI-usage notice -> 4) Research consent
+ * 1) Missing info -> 2) Select course instance -> 3) AI-usage notice ->
+ * 4) Research consent
  */
 export default function useDialogStep({
   shouldAnswerMissingInfoForm,

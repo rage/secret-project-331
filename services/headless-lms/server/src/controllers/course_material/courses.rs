@@ -6,7 +6,10 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
+use headless_lms_chatbot::feedback_categorization::categorize_feedback;
+use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
+use headless_lms_models::feedback_categories::NewFeedbackCategory;
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
     marketing_consents::UserMarketingConsent,
@@ -41,8 +44,8 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::{
     domain::authorization::{
-        Action, Resource, authorize_access_to_course_material,
-        authorize_with_fetched_list_of_roles, can_user_view_chapter, skip_authorize,
+        Action, Resource, authorize_access_to_course_material, can_user_view_chapter, is_permitted,
+        skip_authorize,
     },
     prelude::*,
 };
@@ -153,7 +156,7 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
-    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+    let mut page_with_user_data = models::pages::get_page_with_user_data_by_path(
         &mut conn,
         user_id,
         &course_data,
@@ -193,6 +196,16 @@ async fn get_course_page_by_path(
         })?,
     )
     .await?;
+
+    // Visiting a course's material makes it visible again in the user's "My courses" list if they
+    // had previously hidden it.
+    if let (Some(user_id), Some(course_id)) = (user_id, page_with_user_data.page.course_id)
+        && let Some(settings) = page_with_user_data.settings.as_mut()
+        && settings.hidden
+    {
+        models::user_course_settings::set_hidden(&mut conn, user_id, course_id, false).await?;
+        settings.hidden = false;
+    }
 
     let temp_request_information =
         derive_information_from_requester(req, ip_to_country_mapper).await?;
@@ -544,7 +557,7 @@ async fn get_chapters(
     let exercise_deadline_overrides =
         models::chapters::exercise_deadline_overrides_by_chapter_for_course(&mut conn, *course_id)
             .await?;
-    let chapters = models::chapters::course_chapters(&mut conn, *course_id)
+    let chapters = models::chapters::get_course_chapters(&mut conn, *course_id)
         .await?
         .into_iter()
         .map(|chapter| {
@@ -752,9 +765,10 @@ POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedbac
     )
 )]
 pub async fn feedback(
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
-    pool: web::Data<PgPool>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Uuid>>> {
     let mut conn = pool.acquire().await?;
@@ -788,9 +802,47 @@ pub async fn feedback(
         }
     }
 
-    let mut tx = conn.begin().await?;
+    let task_llm = models::application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::FeedbackCategorization,
+    )
+    .await
+    .ok();
+    let feedback_categories = models::feedback_categories::get_all(&mut conn, *course_id).await?;
+    drop(conn);
+
     let mut ids = vec![];
+    let mut new = vec![];
     for f in fs {
+        let new_feedback = if let Some(llm) = &task_llm {
+            match categorize_feedback(&app_conf, llm, &f, &feedback_categories).await {
+                Ok(val) => NewFeedback {
+                    category: Some(NewFeedbackCategory {
+                        name: val.category_name,
+                    }),
+                    ..f
+                },
+                Err(e) => {
+                    error!("Failed to categorise feedback: {e}");
+                    // remove the category if there happened to be one in the payload.
+                    // only accept categories assinged by the LLM
+                    NewFeedback {
+                        category: None,
+                        ..f
+                    }
+                }
+            }
+        } else {
+            NewFeedback {
+                category: None,
+                ..f
+            }
+        };
+        new.push(new_feedback)
+    }
+    let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+    for f in new {
         let id = feedback::insert(&mut tx, PKeyPolicy::Generate, user_id, *course_id, f).await?;
         ids.push(id);
     }
@@ -971,15 +1023,14 @@ async fn get_all_course_language_versions_navigation_info_from_page(
         let user_roles = models::roles::get_roles(&mut conn, user_id).await?;
 
         for course_version in unfiltered_language_versions.iter().filter(|c| c.is_draft) {
-            if authorize_with_fetched_list_of_roles(
+            if is_permitted(
                 &mut conn,
                 Action::ViewMaterial,
-                Some(user_id),
                 Resource::Course(course_version.id),
                 &user_roles,
             )
             .await
-            .is_ok()
+            .unwrap_or(false)
             {
                 accessible_courses.push(course_version.clone());
             }

@@ -1,3 +1,47 @@
+// jsdom's Blob/File implementation does not provide arrayBuffer()/text(), which real browsers have.
+// Polyfill them via FileReader so tests can read file bytes the way production code does. Guarded so
+// this becomes a no-op if the test environment ever ships them natively.
+const readWith = (method) =>
+  function () {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.addEventListener("load", () => resolve(reader.result), { once: true })
+      reader.addEventListener("error", () => reject(reader.error), { once: true })
+      reader[method](this)
+    })
+  }
+
+if (typeof Blob !== "undefined") {
+  if (typeof Blob.prototype.arrayBuffer !== "function") {
+    Blob.prototype.arrayBuffer = readWith("readAsArrayBuffer")
+  }
+  if (typeof Blob.prototype.text !== "function") {
+    Blob.prototype.text = readWith("readAsText")
+  }
+}
+
+// jsdom omits these too, so anything decoding a streamed response body cannot run under it.
+if (globalThis.TextEncoder === undefined) {
+  globalThis.TextEncoder = require("util").TextEncoder
+}
+if (globalThis.TextDecoder === undefined) {
+  globalThis.TextDecoder = require("util").TextDecoder
+}
+
+// jsdom has no ResizeObserver at all, so anything rendering a virtualized list throws on mount.
+if (globalThis.ResizeObserver === undefined) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
+// jsdom does define scrollTo, but as a stub that logs "Not implemented" on every call, so this
+// replaces it rather than filling a gap.
+if (typeof window !== "undefined") {
+  window.scrollTo = () => {}
+}
+
 jest.mock("next/dynamic", () => ({
   __esModule: true,
   default: (...props) => {
@@ -5,7 +49,7 @@ jest.mock("next/dynamic", () => ({
     const dynamicActualComp = dynamicModule.default
     const RequiredComponent = dynamicActualComp(props[0])
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    // oxlint-disable-next-line typescript/no-unused-expressions
     RequiredComponent.preload ? RequiredComponent.preload() : RequiredComponent.render.preload()
     return RequiredComponent
   },
@@ -17,4 +61,6 @@ jest.mock("react-i18next", () => ({
     i18n: { changeLanguage: () => Promise.resolve() },
   }),
   Translation: ({ children }) => children((key) => key),
+  // Renders the key, as `t` does, so a component that mixes running text with links can be tested.
+  Trans: ({ i18nKey }) => i18nKey,
 }))

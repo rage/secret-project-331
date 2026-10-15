@@ -1,0 +1,81 @@
+"use client"
+
+import { cx } from "@emotion/css"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
+import { Disclosure, Infobox, Link } from "@/shared-module/components"
+
+import { CREDIT_REGISTRATION_NS, TONE } from "./constants"
+import { dividedListCss, codeValueCss, noteCss, sectionCss } from "./styles"
+
+/** One enabled module's saved credit-registration configuration, named for the callout. */
+export interface CreditRegistrationConfigCalloutModule {
+  moduleName: string
+  config: CourseModuleCreditRegistrationConfig | undefined
+}
+
+interface Props {
+  configs: CreditRegistrationConfigCalloutModule[]
+  /** Where the fields are edited, for callers that are not already on that page. */
+  fixHref?: string
+  /** The course's only module is its default one, so the problem is the course's. */
+  isCourseWide?: boolean
+}
+
+/** Whether the module's saved configuration failed its last check; a module with one always has a config. */
+export const hasCreditRegistrationConfigProblem = (
+  config: CourseModuleCreditRegistrationConfig | undefined,
+): config is CourseModuleCreditRegistrationConfig =>
+  config?.enable_credit_registration_via_suotar === true &&
+  Boolean(config.credit_registration_config_check_message)
+
+/** One callout naming every enabled module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */
+const CreditRegistrationConfigCallout: React.FC<Props> = ({
+  configs,
+  fixHref,
+  isCourseWide = false,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const failing = configs.flatMap(({ moduleName, config }) =>
+    hasCreditRegistrationConfigProblem(config) ? [{ moduleName, config }] : [],
+  )
+  if (failing.length === 0) {
+    return null
+  }
+  const shouldNameModule = configs.length > 1
+
+  return (
+    <Infobox tone={TONE.WARNING}>
+      <ul className={dividedListCss}>
+        {failing.map(({ moduleName, config }) => (
+          <li key={moduleName} className={sectionCss}>
+            <div>
+              {shouldNameModule
+                ? t("heading-credit-registration-config-problem-in-module", { module: moduleName })
+                : isCourseWide
+                  ? t("heading-credit-registration-config-problem-course")
+                  : t("heading-credit-registration-config-problem")}
+            </div>
+            {config.credit_registration_course_code_allowed === false && (
+              <div>{t("credit-registration-config-course-code-not-accepted")}</div>
+            )}
+            {!config.credit_registration_has_enrolment_link && (
+              <div>{t("credit-registration-config-enrolment-link-missing")}</div>
+            )}
+            {/* Written for an integrator and stored untranslated; it is what a teacher quotes to support. */}
+            <Disclosure title={t("credit-registration-config-diagnostic-for-support")}>
+              <div className={cx(noteCss, codeValueCss)}>
+                {config.credit_registration_config_check_message}
+              </div>
+            </Disclosure>
+          </li>
+        ))}
+      </ul>
+      {fixHref && <Link href={fixHref}>{t("link-edit-course-modules")}</Link>}
+    </Infobox>
+  )
+}
+
+export default CreditRegistrationConfigCallout

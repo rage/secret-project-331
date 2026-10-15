@@ -3,7 +3,6 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Checkbox } from "../src/components/Checkbox"
-
 import { pressSpace, renderBooleanField, renderWithForm } from "./testUtils"
 
 describe("Checkbox", () => {
@@ -81,5 +80,15 @@ describe("Checkbox", () => {
     ))
 
     expect(document.querySelector(".checkbox-root")).toBeInTheDocument()
+  })
+
+  test("data-testid lands on the checkbox input", () => {
+    renderBooleanField((control) => (
+      <Checkbox name="f" control={control} label="Tagged" data-testid="tagged-checkbox" />
+    ))
+
+    expect(screen.getByTestId("tagged-checkbox")).toBe(
+      screen.getByRole("checkbox", { name: "Tagged" }),
+    )
   })
 })

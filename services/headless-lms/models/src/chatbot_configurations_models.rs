@@ -10,6 +10,17 @@ pub enum ModelType {
     Mistral,
 }
 
+impl ModelType {
+    /// Whether the deployment is Azure OpenAI, which decides whether the Azure-only request
+    /// parameters apply to it at all.
+    pub fn is_azure_openai(self) -> bool {
+        match self {
+            ModelType::GPTThinking | ModelType::GPTNonThinking | ModelType::GPTHardThinking => true,
+            ModelType::Mistral => false,
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct ChatbotConfigurationModel {
     pub id: Uuid,

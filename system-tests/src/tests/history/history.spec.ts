@@ -1,5 +1,8 @@
-/* eslint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { openCoursePageInEditor } from "@/utils/manageCoursePages"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { saveCMSPage } from "../../utils/cmsUtils"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -10,8 +13,6 @@ import {
 } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-import { selectOrganization } from "@/utils/organizationUtils"
-
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -19,9 +20,7 @@ test.use({
 test("history test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Introduction to history").click()
@@ -31,7 +30,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.click('a:has-text("The Basics")')
 
   await page.getByText("1Page One").click()
-  // eslint-disable-next-line playwright/no-networkidle
+  // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
@@ -47,31 +46,28 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
+  // The sub-tab title composes the section name with the course name so different tabs (and the
+  // same tab across different courses) can be told apart from the browser tab.
+  await expect(page).toHaveTitle(/Pages - Introduction to history/)
 
-  await page.click(`button:text("Edit page"):right-of(:text("Page One"))`)
+  await openCoursePageInEditor(page, "Page One")
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
+  // The CMS editor tab reflects the page being edited and its course.
+  await expect(page).toHaveTitle(/Edit: New title! - Introduction to history/)
 
   await saveCMSPage(page)
 
-  // Triple click [placeholder="Exercise name"]
-  await page.click('[placeholder="Exercise name"]', {
-    clickCount: 3,
-  })
-
-  // Fill [placeholder="Exercise name"]
-  await page.fill('[placeholder="Exercise name"]', "New exercise!")
+  await page.getByLabel("Exercise name", { exact: true }).fill("New exercise!")
 
   await saveCMSPage(page)
 
@@ -89,7 +85,9 @@ test("history test", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await saveCMSPage(page)
-  await page.locator(`button:enabled:text-is("Save") >> visible=true`).waitFor()
+  // Save goes disabled once the editor's content matches what came back from the server, so this
+  // is what "the round trip is over" looks like from the outside.
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled()
   await page.waitForTimeout(100)
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -97,7 +95,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Introduction to history'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
@@ -185,7 +183,7 @@ screenshotTarget: page,
 
   await page.getByText("Restore").click()
   await page.getByRole("heading", { name: "Page edit history" }).click() // deselect restore
-  await page.locator("[aria-label='Current page: 1']").waitFor()
+  await page.getByLabel("Current page: 1", { exact: true }).waitFor()
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({
@@ -207,7 +205,7 @@ screenshotTarget: page,
 
   await page.getByText("1Page One").click()
 
-  // eslint-disable-next-line playwright/no-networkidle
+  // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

@@ -1,21 +1,30 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useRouter } from "next/router"
 import React from "react"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { Breadcrumbs, type BreadcrumbItem } from "@/shared-module/components"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 
 import usePageInfo from "../../hooks/usePageInfo"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+/**
+ * The trail's own gutter. `BreakFromCentered` spans the viewport and leaves the crumbs to space
+ * themselves; without this the first one starts at the window edge.
+ */
+const breadcrumbBarCss = css`
+  padding: 1rem 2rem;
+`
 
 const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
 
   const pathParts = router.asPath ? router.asPath.split("/") : []
-  const pageId = pathParts.length > 2 ? pathParts[2] : ""
-  const prefix = pathParts.length > 1 ? pathParts[1] : ""
+  const pageId = pathParts.length > 2 ? (pathParts[2] ?? "") : ""
+  const prefix = pathParts.length > 1 ? (pathParts[1] ?? "") : ""
 
   const pageInfoQuery = usePageInfo(pageId, prefix)
 
@@ -36,22 +45,22 @@ const EditorBreadcrumbs: React.FC = () => {
         if (!courseId || !courseName) {
           return null
         }
-        /* eslint-disable i18next/no-literal-string */
-        const pieces = [
+
+        const items: BreadcrumbItem[] = [
           {
-            text: courseName,
-            url: `/manage/courses/${courseId}/pages`,
-            externalLink: true,
+            label: courseName,
+            // oxlint-disable-next-line i18next/no-literal-string -- route, not user-visible text
+            href: `/manage/courses/${courseId}/pages`,
+            isExternal: true,
           },
           {
-            text: pageTitle,
-            url: "#",
+            label: pageTitle,
           },
         ]
 
         return (
           <BreakFromCentered {...breakFromCenteredProps}>
-            <Breadcrumbs pieces={pieces} />
+            <Breadcrumbs items={items} className={breadcrumbBarCss} />
           </BreakFromCentered>
         )
       }}

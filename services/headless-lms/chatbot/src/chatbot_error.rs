@@ -3,13 +3,17 @@ Contains error and result types for all the chatbot functions.
 */
 
 use std::fmt::Display;
+use std::panic::Location;
 
 use backtrace::Backtrace;
+use headless_lms_authorization::error::AuthorizationError;
 use headless_lms_models::ModelError;
+use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
 
 use headless_lms_base::error::backend_error::BackendError;
 
+use crate::azure_chatbot::azure::protocol::ResponseError as AzureResponseError;
 use crate::search_filter::SearchFilterError;
 
 /**
@@ -18,21 +22,79 @@ Used as the result types for all of chatbot.
 pub type ChatbotResult<T> = Result<T, ChatbotError>;
 
 /// The type of [ChatbotError] that occured.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ChatbotErrorType {
     InvalidMessageShape,
     InvalidToolName,
     InvalidToolArguments,
+    /// A client answered a tool call the conversation has no room for. The only chatbot error
+    /// type the client is at fault for, so the only one that leaves the server as a 4xx.
+    InvalidToolAnswer,
+    ToolUseError,
     ChatbotModelError,
     ChatbotMessageSuggestError,
     UrlParse,
     TokioIo,
     SerdeJson,
+    SqlxError,
+    ReqwestError,
     Other,
     DeserializationError,
     AzureAISearchFilterError,
-    StreamingError,
+    /// Azure reported a failure on the response itself (a `response.error` or `.failed` object).
+    UpstreamReportedError,
+    /// Azure marked the response incomplete (e.g. truncated by a token or content-filter limit).
+    ResponseIncomplete,
+    /// The stream (or the request that was supposed to open one) ended before the turn reached
+    /// a point where it could be resolved one way or the other.
+    StreamEndedEarly,
+    /// A stream line didn't have the shape a given parsing state expected, though the byte-level
+    /// structure it arrived in was still well-formed.
+    UnexpectedProtocolShape,
+    /// One of our own assumptions about the protocol was violated in a way that indicates a bug
+    /// on our side rather than something Azure sent, e.g. a response id we always expect to be
+    /// set by that point in the stream.
+    StreamInvariantViolation,
+    ContentCleaning,
+    AzureRequestBuildError,
+    FailedAzureResponse,
     SisuDescriptionError,
+    ChatbotUtilError,
+}
+
+impl ChatbotErrorType {
+    /// Whether a stream-level failure of this kind should drop the connection rather than
+    /// report an Error event to the client and let the turn continue. Exhaustive so that adding
+    /// a variant forces a decision here instead of silently defaulting to "show and carry on".
+    pub fn should_terminate_stream(&self) -> bool {
+        match self {
+            ChatbotErrorType::SerdeJson
+            | ChatbotErrorType::DeserializationError
+            | ChatbotErrorType::SqlxError
+            | ChatbotErrorType::ReqwestError
+            | ChatbotErrorType::UrlParse => true,
+            ChatbotErrorType::InvalidMessageShape
+            | ChatbotErrorType::InvalidToolName
+            | ChatbotErrorType::InvalidToolArguments
+            | ChatbotErrorType::InvalidToolAnswer
+            | ChatbotErrorType::ToolUseError
+            | ChatbotErrorType::ChatbotModelError
+            | ChatbotErrorType::ChatbotMessageSuggestError
+            | ChatbotErrorType::TokioIo
+            | ChatbotErrorType::Other
+            | ChatbotErrorType::AzureAISearchFilterError
+            | ChatbotErrorType::UpstreamReportedError
+            | ChatbotErrorType::ResponseIncomplete
+            | ChatbotErrorType::StreamEndedEarly
+            | ChatbotErrorType::UnexpectedProtocolShape
+            | ChatbotErrorType::StreamInvariantViolation
+            | ChatbotErrorType::ContentCleaning
+            | ChatbotErrorType::AzureRequestBuildError
+            | ChatbotErrorType::FailedAzureResponse
+            | ChatbotErrorType::SisuDescriptionError
+            | ChatbotErrorType::ChatbotUtilError => false,
+        }
+    }
 }
 
 /**
@@ -86,7 +148,6 @@ some_function_returning_an_error().map_err(|original_error| {
 # }
 ```
 */
-#[derive(Debug)]
 pub struct ChatbotError {
     error_type: <ChatbotError as BackendError>::ErrorType,
     message: String,
@@ -96,17 +157,24 @@ pub struct ChatbotError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
 impl std::error::Error for ChatbotError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
         self.source()
     }
 }
+
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
+headless_lms_base::impl_clean_debug!(ChatbotError, [ChatbotError, ModelError, UtilError]);
 
 impl Display for ChatbotError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -116,20 +184,6 @@ impl Display for ChatbotError {
 
 impl BackendError for ChatbotError {
     type ErrorType = ChatbotErrorType;
-
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
 
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
@@ -147,12 +201,17 @@ impl BackendError for ChatbotError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -160,13 +219,50 @@ impl BackendError for ChatbotError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
 
+impl ChatbotError {
+    /// The Azure error this error's source chain holds, if any.
+    pub fn azure_source(&self) -> Option<AzureResponseError> {
+        self.source
+            .as_ref()
+            .and_then(|source| source.downcast_ref::<AzureResponseError>())
+            .cloned()
+    }
+
+    /// Attaches Azure's own error object as this error's source, so it joins the ordinary cause
+    /// chain instead of a side channel invisible to the developer-facing error log. Only meant
+    /// for a freshly constructed error with no source yet; overwrites one if there already is.
+    pub fn add_azure_source(&mut self, err: AzureResponseError) {
+        self.source = Some(err.into());
+    }
+
+    /// Unwraps a [ChatbotErrorType::ChatbotModelError] into the [ModelError] it wraps, so the
+    /// caller can apply its own `ModelError` mapping instead of collapsing every data-loading
+    /// failure into one status code. Any other error is handed back unchanged.
+    pub fn into_model_error(mut self) -> Result<ModelError, Self> {
+        if !matches!(self.error_type, ChatbotErrorType::ChatbotModelError) {
+            return Err(self);
+        }
+        match self.source.take().map(|source| source.downcast()) {
+            Some(Ok(model_error)) => Ok(model_error),
+            Some(Err(source)) => {
+                self.source = Some(source);
+                Err(self)
+            }
+            None => Err(self),
+        }
+    }
+}
+
+impl std::error::Error for AzureResponseError {}
+
 impl From<url::ParseError> for ChatbotError {
     fn from(source: url::ParseError) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::UrlParse,
             source.to_string(),
             Some(source.into()),
@@ -176,7 +272,7 @@ impl From<url::ParseError> for ChatbotError {
 
 impl From<tokio::io::Error> for ChatbotError {
     fn from(source: tokio::io::Error) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::TokioIo,
             source.to_string(),
             Some(source.into()),
@@ -186,10 +282,30 @@ impl From<tokio::io::Error> for ChatbotError {
 
 impl From<serde_json::Error> for ChatbotError {
     fn from(source: serde_json::Error) -> Self {
-        ChatbotError::new(
+        Self::new(
             ChatbotErrorType::SerdeJson,
             source.to_string(),
             Some(source.into()),
+        )
+    }
+}
+
+impl From<sqlx::Error> for ChatbotError {
+    fn from(err: sqlx::Error) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::SqlxError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<reqwest::Error> for ChatbotError {
+    fn from(err: reqwest::Error) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::ReqwestError,
+            err.to_string(),
+            Some(err.into()),
         )
     }
 }
@@ -204,6 +320,28 @@ impl From<ModelError> for ChatbotError {
     fn from(err: ModelError) -> ChatbotError {
         Self::new(
             ChatbotErrorType::ChatbotModelError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<AuthorizationError> for ChatbotError {
+    fn from(err: AuthorizationError) -> ChatbotError {
+        // A check that failed because the models layer did is mapped like any other ModelError,
+        // so that a missing course does not read as a permission problem.
+        let err = match err.into_model_error() {
+            Ok(model_error) => return model_error.into(),
+            Err(err) => err,
+        };
+        Self::new(ChatbotErrorType::Other, err.to_string(), Some(err.into()))
+    }
+}
+
+impl From<UtilError> for ChatbotError {
+    fn from(err: UtilError) -> ChatbotError {
+        Self::new(
+            ChatbotErrorType::ChatbotUtilError,
             err.to_string(),
             Some(err.into()),
         )
@@ -333,5 +471,45 @@ mod tests {
         let tool_name = "test_tool";
         let err = chatbot_err!(InvalidToolName, format!("Unknown tool: {}", tool_name));
         assert_eq!(err.message(), "Unknown tool: test_tool");
+    }
+
+    /// A three-crate chain (ChatbotError, ModelError, UtilError) renders every link as
+    /// its own node, checking the resolver reaches transitively-wrapped errors.
+    #[test]
+    fn debug_renders_deep_cross_crate_chain() {
+        use headless_lms_utils::error::util_error::UtilErrorType;
+        let util_error = UtilError::new(UtilErrorType::Other, "disk on fire".to_string(), None);
+        let model_error = ModelError::from(util_error);
+        let chatbot_error = ChatbotError::from(model_error);
+
+        let debug = format!("{chatbot_error:?}");
+        assert!(
+            debug.contains("ChatbotError · ChatbotModelError"),
+            "got: {debug}"
+        );
+        assert!(debug.contains("caused by:"), "got: {debug}");
+        assert!(debug.contains("1. ModelError · Util"), "got: {debug}");
+        assert!(
+            debug.contains("2. UtilError · Other: disk on fire"),
+            "got: {debug}"
+        );
+        assert!(!debug.contains("(external)"), "got: {debug}");
+    }
+
+    /// A non-`BackendError` cause is rendered as a message-only `(external)` leaf.
+    #[test]
+    fn debug_tags_external_cause() {
+        let io_error = std::io::Error::other("connection reset");
+        let chatbot_error = chatbot_err!(TokioIo, "request failed".to_string(), io_error);
+
+        let debug = format!("{chatbot_error:?}");
+        assert!(
+            debug.contains("ChatbotError · TokioIo: request failed"),
+            "got: {debug}"
+        );
+        assert!(
+            debug.contains("connection reset  (external)"),
+            "got: {debug}"
+        );
     }
 }

@@ -2,11 +2,14 @@
 
 import React, { useMemo } from "react"
 
-import ContentRenderer, { BlockRendererProps } from ".."
-import LandingPageHeroSection, { LandingPageHeroSectionProps } from "../../LandingPageHeroSection"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import ContentRenderer from ".."
+import type { LandingPageHeroSectionProps } from "../../LandingPageHeroSection"
+import LandingPageHeroSection from "../../LandingPageHeroSection"
 
 const LandingPageHeroSectionBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<LandingPageHeroSectionProps>>
@@ -33,7 +36,7 @@ const LandingPageHeroSectionBlock: React.FC<
         content = content.slice(0, 300) + "..."
       }
       // Remove all newlines
-      content = content.replace(/\n/g, " ")
+      content = content.replaceAll("\n", " ")
 
       copiedBlock.attributes = { ...copiedBlock.attributes, content }
     }
@@ -44,10 +47,10 @@ const LandingPageHeroSectionBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <LandingPageHeroSection
         title={props.data.attributes.title}
-        backgroundImage={props.data.attributes.backgroundImage}
-        backgroundColor={props.data.attributes.backgroundColor}
-        fontColor={props.data.attributes.fontColor}
-        backgroundRepeatX={props.data.attributes.backgroundRepeatX}
+        {...omitUndefined({ backgroundImage: props.data.attributes.backgroundImage })}
+        {...omitUndefined({ backgroundColor: props.data.attributes.backgroundColor })}
+        {...omitUndefined({ fontColor: props.data.attributes.fontColor })}
+        {...omitUndefined({ backgroundRepeatX: props.data.attributes.backgroundRepeatX })}
       >
         <ContentRenderer data={filteredInnerBlocks} isExam={false} />
       </LandingPageHeroSection>

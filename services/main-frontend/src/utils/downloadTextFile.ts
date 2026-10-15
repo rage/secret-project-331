@@ -11,9 +11,9 @@ export const downloadTextFile = (
   link.setAttribute("download", fileName)
 
   try {
-    document.body.appendChild(link)
+    document.body.append(link)
     link.click()
-    link.parentNode?.removeChild(link)
+    link.remove()
   } finally {
     window.URL.revokeObjectURL(url)
   }

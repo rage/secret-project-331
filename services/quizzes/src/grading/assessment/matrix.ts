@@ -1,35 +1,53 @@
-import { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import { PrivateSpecQuizItemMatrix } from "../../../types/quizTypes/privateSpec"
+import type { UserItemAnswerMatrix } from "../../../types/quizTypes/answer"
+import type { MatrixDifference, QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type {
+  MatrixGradingPolicy,
+  PrivateSpecQuizItemMatrix,
+} from "../../../types/quizTypes/privateSpec"
+import { clamp01 } from "../utils/math"
+import { compareMatrices } from "../utils/matrixDifference"
+
+/** Fog of war forces all-or-nothing: per-cell points would reveal which cells changed between attempts. */
+export const effectiveMatrixGradingPolicy = (
+  quizItem: Pick<PrivateSpecQuizItemMatrix, "gradingPolicy" | "fogOfWar">,
+): MatrixGradingPolicy => (quizItem.fogOfWar ? "whole-matrix" : quizItem.gradingPolicy)
 
 const assessMatrixQuiz = (
   quizItemAnswer: UserItemAnswerMatrix,
   quizItem: PrivateSpecQuizItemMatrix,
 ): QuizItemAnswerGrading => {
-  const userAnswer = quizItemAnswer.matrix
-  const correctAnswer = quizItem.optionCells
-
-  if (!userAnswer) {
+  if (!quizItemAnswer.matrix) {
     throw new Error("Answer not provided")
   }
 
-  if (!correctAnswer) {
-    throw new Error("No correct answer")
-  }
-
-  const isMatrixCorrect: boolean[] = []
-  for (let i = 0; i < 6; i++) {
-    for (let j = 0; j < 6; j++) {
-      isMatrixCorrect.push(correctAnswer[i][j] === userAnswer[i][j])
-    }
-  }
-
-  const correct = !isMatrixCorrect.includes(false)
+  const difference = compareMatrices(
+    quizItemAnswer.matrix,
+    quizItem.optionCells,
+    quizItem.tolerance,
+  )
 
   return {
     quizItemId: quizItem.id,
-    correctnessCoefficient: correct ? 1 : 0,
+    correctnessCoefficient: matrixCorrectnessCoefficient(quizItem, difference),
+    matrixDifference: difference,
   }
+}
+
+const matrixCorrectnessCoefficient = (
+  quizItem: PrivateSpecQuizItemMatrix,
+  difference: MatrixDifference,
+): number => {
+  // compareMatrices already refuses a key with no cells, so keyCells is a safe divisor here.
+  const { incorrectCells, missingCells, extraCells, keyCells } = difference.breakdown
+  const differingCells = incorrectCells + missingCells + extraCells
+  if (effectiveMatrixGradingPolicy(quizItem) === "whole-matrix") {
+    return differingCells === 0 ? 1 : 0
+  }
+  const shapesMatch = missingCells === 0 && extraCells === 0
+  if (!shapesMatch && !quizItem.partialCreditForWrongShape) {
+    return 0
+  }
+  return clamp01(1 - differingCells / keyCells)
 }
 
 export { assessMatrixQuiz }

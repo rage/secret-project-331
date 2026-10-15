@@ -2,10 +2,12 @@
 
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
-import { act, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen } from "@testing-library/react"
+import { createInstance } from "i18next"
+import { I18nextProvider } from "react-i18next"
 
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { QueryResult } from "../src/components/queryResult/QueryResult"
-
 import { domClick, renderUi } from "./testUtils"
 
 const edgeContentBorderCss = css`
@@ -58,6 +60,44 @@ test("blocking error shows alert and retry calls refetch", () => {
   expect(refetch).toHaveBeenCalledTimes(1)
 })
 
+test("retry label resolves from the shared-module namespace even when the default namespace shadows the key", async () => {
+  // No `.use(initReactI18next)`: that plugin registers its instance as react-i18next's global
+  // fallback, which would leak into every other test in this file that renders without a Provider.
+  const scopedI18n = createInstance()
+  await scopedI18n.init({
+    lng: "en",
+    fallbackLng: "en",
+    ns: ["translation", "shared-module"],
+    defaultNS: "translation",
+    interpolation: { escapeValue: false },
+    resources: {
+      en: {
+        translation: { "queryResult.retry": "Shadowed" },
+        "shared-module": { "queryResult.retry": "Retry" },
+      },
+    },
+  })
+
+  render(
+    <I18nextProvider i18n={scopedI18n}>
+      <QueryResult
+        query={makeQuery({
+          data: undefined,
+          isPending: false,
+          isError: true,
+          error: new Error("failed"),
+        })}
+        themeMode="light"
+      >
+        {() => null}
+      </QueryResult>
+    </I18nextProvider>,
+  )
+
+  expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument()
+  expect(screen.queryByRole("button", { name: "Shadowed" })).not.toBeInTheDocument()
+})
+
 test("stale error keeps content visible", () => {
   renderUi(
     <QueryResult
@@ -92,10 +132,10 @@ test("initial loading shows skeleton immediately and status", () => {
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument()
 })
 
-test("disabled query with no data renders an empty frame, not an infinite skeleton", () => {
+test("disabled query with no data renders nothing, not an infinite skeleton", () => {
   // enabled: false / skipToken queries stay isPending but never fetch. Without data there is nothing
-  // to render, so QueryResult shows neither a skeleton nor children (consumers that want to render
-  // without data should not wrap that case in QueryResult).
+  // to render, so QueryResult renders nothing at all rather than an empty node, which would still
+  // cost its parent a grid or flex gap.
   renderUi(
     <QueryResult
       query={makeQuery<string>({ data: undefined, isPending: true, isFetching: false })}
@@ -126,7 +166,9 @@ test("initial loading delays centered spinner until loadingDelayMs", () => {
     act(() => {
       jest.advanceTimersByTime(400)
     })
-    expect(screen.getByTestId("query-loading-spinner")).toBeInTheDocument()
+    const spinner = screen.getByTestId("query-loading-spinner")
+    expect(spinner).toBeInTheDocument()
+    expect(spinner).toHaveClass(spinnerGlyphCss("lg", "accent"))
   } finally {
     jest.useRealTimers()
   }
@@ -177,6 +219,66 @@ test("treatNullAsEmpty shows empty fallback for null data", () => {
   expect(screen.getByText("null-empty")).toBeInTheDocument()
 })
 
+/** jsdom has no TransitionEvent constructor, so build the event by hand. */
+function fireTransitionEnd(element: Element, propertyName: string) {
+  const event = new Event("transitionend", { bubbles: true })
+  Object.assign(event, { propertyName })
+  fireEvent(element, event)
+}
+
+test("refreshing marker stays attached until the blur-out transition genuinely ends", () => {
+  const { rerender } = renderUi(
+    <QueryResult query={makeQuery({ data: "ok", isFetching: true })} themeMode="light">
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+  // Query settled but blur-out still running: stay marked busy.
+  rerender(
+    <QueryResult query={makeQuery({ data: "ok", isFetching: false })} themeMode="light">
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+  const content = screen.getByText("ok").parentElement as HTMLElement
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+  // Wrong property or bubbled from a child: must not unblock.
+  fireTransitionEnd(content, "opacity")
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+  fireTransitionEnd(screen.getByText("ok"), "filter")
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+  fireTransitionEnd(content, "filter")
+  expect(screen.queryByTestId("query-refreshing")).not.toBeInTheDocument()
+})
+
+test("refreshing marker clears via fallback timer when no transitionend arrives", () => {
+  jest.useFakeTimers()
+  try {
+    const { rerender } = renderUi(
+      <QueryResult query={makeQuery({ data: "ok", isFetching: true })} themeMode="light">
+        {(d: string) => <div>{d}</div>}
+      </QueryResult>,
+    )
+
+    rerender(
+      <QueryResult query={makeQuery({ data: "ok", isFetching: false })} themeMode="light">
+        {(d: string) => <div>{d}</div>}
+      </QueryResult>,
+    )
+    expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+    act(() => {
+      jest.advanceTimersByTime(600)
+    })
+    expect(screen.queryByTestId("query-refreshing")).not.toBeInTheDocument()
+  } finally {
+    jest.useRealTimers()
+  }
+})
+
 test("refreshing announces status", () => {
   renderUi(
     <QueryResult query={makeQuery({ data: "ok", isFetching: true })} themeMode="light">
@@ -186,6 +288,24 @@ test("refreshing announces status", () => {
 
   expect(screen.getByText("ok")).toBeInTheDocument()
   expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument()
+})
+
+test("quiet refresh indicator does not blur or block clicks on content", () => {
+  renderUi(
+    <QueryResult
+      query={makeQuery({ data: "ok", isFetching: true })}
+      themeMode="light"
+      refreshIndicator="quiet"
+    >
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+  const content = screen.getByText("ok").parentElement as HTMLElement
+  const styles = getComputedStyle(content)
+  expect(styles.pointerEvents).not.toBe("none")
+  expect(styles.filter).not.toContain("blur")
 })
 
 test("loaded content is not wrapped in a clipping frame", () => {
@@ -210,4 +330,18 @@ test("loaded content is not wrapped in a clipping frame", () => {
     expect(styles.overflow).not.toBe("hidden")
     node = node.parentElement
   }
+})
+
+test("contentClassName lands on the div that holds the children", () => {
+  renderUi(
+    <QueryResult
+      query={makeQuery({ data: "ok" })}
+      themeMode="light"
+      contentClassName="content-grid"
+    >
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByText("ok").parentElement).toHaveClass("content-grid")
 })

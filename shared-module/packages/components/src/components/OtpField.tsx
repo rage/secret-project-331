@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { findFirstMatchingChild } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   applyOtpBackspace,
   applyOtpCharacter,
@@ -19,7 +20,6 @@ import {
   resolveOtpSlotAriaLabel,
   splitOtpValue,
 } from "../lib/utils/otp"
-
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 
@@ -27,6 +27,22 @@ const otpSlotsCss = css`
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+`
+
+/** Shares the row instead of wrapping, so a six-digit code stays on one line at 320px. */
+const otpSlotsFullWidthCss = css`
+  flex-wrap: nowrap;
+  justify-content: center;
+
+  & > input {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 56px;
+  }
+`
+
+const otpGroupStartCss = css`
+  margin-inline-start: var(--space-3);
 `
 
 const otpSlotCss = css`
@@ -37,6 +53,7 @@ const otpSlotCss = css`
   background: var(--field-bg);
   color: var(--field-fg);
   font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
   text-align: center;
   outline: none;
   transition:
@@ -78,9 +95,9 @@ const otpSlotLgCss = css`
   font-size: 1.4rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const slotInputSelector = "input"
 
 function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
@@ -89,7 +106,6 @@ function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
       return otpSlotSmCss
     case "lg":
       return otpSlotLgCss
-    case "md":
     default:
       return otpSlotMdCss
   }
@@ -121,7 +137,15 @@ export type OtpFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   isRequired?: boolean
   id?: string
   autoComplete?: string
+  /** Stretches the slots across the field's width, centred, instead of wrapping fixed boxes. */
+  isFullWidth?: boolean
+  /** Slots per visual group, e.g. 3 shows a six-digit code as 3 + 3. Not announced. */
+  groupSize?: number
+  /** Focuses the first slot on mount. */
+  autoFocus?: boolean
   className?: string
+  /** Lands on the slot group, not the individual slot inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -145,16 +169,25 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     className,
     autoComplete,
+    isFullWidth = false,
+    groupSize,
+    autoFocus = false,
+    "data-testid": dataTestId,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...omitUndefined({ rules }),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const generatedInputId = useId()
   const inputId = id ?? generatedInputId
   const hiddenInputRef = useRef<HTMLInputElement>(null)
   const slotsContainerRef = useRef<HTMLDivElement>(null)
-  const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+  const slotRefs = useRef<(HTMLInputElement | null)[]>([])
   const hasFocusWithinRef = useRef(false)
 
   useImperativeHandle(field.ref, () => {
@@ -199,13 +232,18 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const otpValue = typeof field.value === "string" ? field.value : ""
 
   useEffect(() => {
+    if (autoFocus) {
+      slotRefs.current[0]?.focus()
+    }
+  }, [autoFocus])
+
+  useEffect(() => {
     if (hiddenInputRef.current) {
       hiddenInputRef.current.value = otpValue
     }
   }, [otpValue])
 
   const describedBy = resolveFieldDescribedBy({
-    ariaDescribedBy: undefined,
     descriptionId,
     errorMessageId,
     hasDescription: Boolean(description),
@@ -226,7 +264,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={className}
+      {...omitUndefined({ className })}
       label={label}
       labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
       description={description}
@@ -251,19 +289,19 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
           tabIndex={-1}
           autoComplete={autoComplete ?? "one-time-code"}
           aria-describedby={describedBy}
-          onChange={() => {
-            return
-          }}
+          onChange={() => {}}
         />
       </VisuallyHidden>
 
       <div
         {...groupFieldProps}
         ref={slotsContainerRef}
-        className={otpSlotsCss}
+        className={cx(otpSlotsCss, isFullWidth && otpSlotsFullWidthCss)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div typed HTMLDivElement; a native tag changes behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}
+        data-testid={dataTestId}
         onBlur={(event) => {
           if (slotsContainerRef.current?.contains(event.relatedTarget as Node | null)) {
             return
@@ -287,7 +325,11 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
             ref={(element) => {
               slotRefs.current[index] = element
             }}
-            className={cx(otpSlotCss, resolveOtpSlotSizeCss(fieldSize))}
+            className={cx(
+              otpSlotCss,
+              resolveOtpSlotSizeCss(fieldSize),
+              groupSize !== undefined && index > 0 && index % groupSize === 0 && otpGroupStartCss,
+            )}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -317,6 +359,8 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
               commitValue(nextValue)
               slotRefs.current[result.nextIndex]?.focus()
             }}
+            // Selected so typing over a filled slot replaces it; maxLength would otherwise drop the key.
+            onFocus={(event) => event.currentTarget.select()}
             onKeyDown={(event) => {
               if (event.key === "ArrowLeft") {
                 event.preventDefault()

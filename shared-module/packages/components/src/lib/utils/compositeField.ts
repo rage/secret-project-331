@@ -1,7 +1,7 @@
 import type React from "react"
 
-type QueryableParent = {
-  querySelector<T extends Element>(selector: string): T | null
+interface QueryableParent {
+  querySelector: <T extends Element>(selector: string) => T | null
 }
 
 /** Assigns a value to a React ref (callback or object). */
@@ -19,7 +19,7 @@ export function setRef<T>(ref: React.Ref<T> | undefined, value: T | null) {
 }
 
 /** Composes multiple refs so they all receive the same DOM node. */
-export function composeRefs<T>(...refs: Array<React.Ref<T> | undefined>): React.RefCallback<T> {
+export function composeRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
   return (value) => {
     refs.forEach((ref) => {
       setRef(ref, value)

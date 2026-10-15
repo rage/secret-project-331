@@ -1,21 +1,25 @@
-import { FlexDirection, sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
-import {
-  OldModelSolutionQuiz as OldModelSolutionQuiz,
-  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+import type { FlexDirection } from "../../../../src/util/css-sanitization"
+import { sanitizeQuizDirection } from "../../../../src/util/css-sanitization"
+import type {
+  OldModelSolutionQuiz,
+  OldModelSolutionQuizItem,
   OldPublicQuiz,
   OldPublicQuizItem,
   OldQuiz,
   OldQuizItemAnswer,
   QuizItem,
 } from "../../../../types/oldQuizTypes"
-import { UserItemAnswer } from "../../../../types/quizTypes/answer"
-import {
-  ModelSolutionQuiz,
-  ModelSolutionQuizItem,
-} from "../../../../types/quizTypes/modelSolutionSpec"
-import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../types/quizTypes/privateSpec"
-import { PublicSpecQuiz, PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
+import type { UserItemAnswer } from "../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItem } from "../../../../types/quizTypes/publicSpec"
+import type {
+  ModelSolutionQuizItemV2,
+  ModelSolutionQuizV2,
+  PrivateSpecQuizItemV2,
+  PrivateSpecQuizV2,
+  PublicSpecQuizV2,
+} from "../../../../types/quizTypes/v2"
 
+// These helpers verify the v1 -> v2 migration step, whose output is the frozen v2 shape.
 const QUIZ_VERSION = "2"
 
 /**
@@ -26,7 +30,7 @@ const QUIZ_VERSION = "2"
  */
 const expectPrivateSpecMetadataToMatch = (
   oldQuiz: OldQuiz,
-  privateSpecQuiz: PrivateSpecQuiz,
+  privateSpecQuiz: PrivateSpecQuizV2,
   version = QUIZ_VERSION,
 ) => {
   expect(privateSpecQuiz.title).toStrictEqual(oldQuiz.title)
@@ -45,7 +49,7 @@ const expectPrivateSpecMetadataToMatch = (
  */
 const expectPublicSpecMetadataToMatch = (
   oldQuiz: OldPublicQuiz,
-  publicSpecQuiz: PublicSpecQuiz,
+  publicSpecQuiz: PublicSpecQuizV2,
   version = QUIZ_VERSION,
 ) => {
   expect(publicSpecQuiz.title).toStrictEqual(oldQuiz.title)
@@ -61,7 +65,7 @@ const expectPublicSpecMetadataToMatch = (
  */
 const expectModelSolutionSpecMetadataToMatch = (
   oldQuiz: OldModelSolutionQuiz,
-  modelSolutionSpecQuiz: ModelSolutionQuiz,
+  modelSolutionSpecQuiz: ModelSolutionQuizV2,
   version = QUIZ_VERSION,
 ) => {
   expect(modelSolutionSpecQuiz.title).toStrictEqual(oldQuiz.title)
@@ -73,15 +77,16 @@ const expectModelSolutionSpecMetadataToMatch = (
 }
 
 /**
- * Compare specified fields from new object to older object. Also check that there isn't
- * any extra fields in the new object.
+ * Compare the specified fields of a migrated object against the old object they came from. Only the
+ * listed fields are checked (`options` is skipped — option fields change shape across versions and
+ * are compared separately); extra fields on the new object are NOT detected.
  *
  * @param fields Fields from new object to older object
  * @param newObject New object, e.g. new quiz item
  * @param oldObject Old object, e.g. older quiz item
  */
 const compareFields = <T extends object, S extends object>(
-  fields: { [key: string]: string },
+  fields: Record<string, string>,
   newQuizItem: T,
   oldQuizItem: S,
 ) => {
@@ -91,14 +96,13 @@ const compareFields = <T extends object, S extends object>(
         `field '${key}' does not exist in the newer quiz item: ${JSON.stringify(newQuizItem)}`,
       )
     }
-    if (!Object.keys(oldQuizItem).includes(fields[key])) {
+    if (!Object.keys(oldQuizItem).includes(fields[key]!)) {
       throw new Error(
         `field '${fields[key]}' does not exist in old quiz item: ${JSON.stringify(oldQuizItem)}`,
       )
     }
     if (key === "options") {
       // Fields has been changed in the options of multiple-choice exercises
-      return
     } else if (key === "optionDisplayDirection") {
       // direction is changed to optionDisplayDirection with different values.
       const direction = sanitizeQuizDirection(oldQuizItem[fields[key] as keyof S] as FlexDirection)
@@ -116,7 +120,7 @@ const compareFields = <T extends object, S extends object>(
  * @param oldQuizItem old quiz item
  */
 const comparePrivateSpecQuizItem = (
-  privateSpecQuizItem: PrivateSpecQuizItem,
+  privateSpecQuizItem: PrivateSpecQuizItemV2,
   oldQuizItem: QuizItem,
 ) => {
   let fields = {}
@@ -222,7 +226,7 @@ const comparePrivateSpecQuizItem = (
       }
       break
   }
-  compareFields<PrivateSpecQuizItem, QuizItem>(fields, privateSpecQuizItem, oldQuizItem)
+  compareFields<PrivateSpecQuizItemV2, QuizItem>(fields, privateSpecQuizItem, oldQuizItem)
 }
 
 const comparePublicSpecQuizItem = (
@@ -316,7 +320,7 @@ const comparePublicSpecQuizItem = (
 }
 
 const compareModelSolutionSpecQuizItem = (
-  modelSolutionQuizItem: ModelSolutionQuizItem,
+  modelSolutionQuizItem: ModelSolutionQuizItemV2,
   oldQuizItem: OldModelSolutionQuizItem,
 ) => {
   let fields = {}
@@ -420,7 +424,7 @@ const compareModelSolutionSpecQuizItem = (
       }
       break
   }
-  compareFields<ModelSolutionQuizItem, OldModelSolutionQuizItem>(
+  compareFields<ModelSolutionQuizItemV2, OldModelSolutionQuizItem>(
     fields,
     modelSolutionQuizItem,
     oldQuizItem,

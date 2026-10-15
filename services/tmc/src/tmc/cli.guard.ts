@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
 /*
  * Generated type guards for "cli.d.ts".
  * WARNING: Do not manually change this file.
  */
-import { CliOutput, RunResult } from "./cli";
+import type { CliOutput, RunResult } from "./cli";
 
 export function isCliOutput(obj: unknown): obj is CliOutput {
     const typedObj = obj as CliOutput
@@ -39,47 +36,9 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typedObj["data"]["output-data"]["kind"] === "connection-error" ||
                     typedObj["data"]["output-data"]["kind"] === "obsolete-client" ||
                     typedObj["data"]["output-data"]["kind"] === "invalid-token" ||
-                    (typedObj["data"]["output-data"]["kind"] !== null &&
-                        typeof typedObj["data"]["output-data"]["kind"] === "object" ||
-                        typeof typedObj["data"]["output-data"]["kind"] === "function") &&
-                    (typedObj["data"]["output-data"]["kind"]["failed-exercise-download"] !== null &&
-                        typeof typedObj["data"]["output-data"]["kind"]["failed-exercise-download"] === "object" ||
-                        typeof typedObj["data"]["output-data"]["kind"]["failed-exercise-download"] === "function") &&
-                    Array.isArray(typedObj["data"]["output-data"]["kind"]["failed-exercise-download"]["completed"]) &&
-                    typedObj["data"]["output-data"]["kind"]["failed-exercise-download"]["completed"].every((e: any) =>
-                        (e !== null &&
-                            typeof e === "object" ||
-                            typeof e === "function") &&
-                        typeof e["id"] === "number" &&
-                        typeof e["course-slug"] === "string" &&
-                        typeof e["exercise-slug"] === "string" &&
-                        typeof e["path"] === "string"
-                    ) &&
-                    Array.isArray(typedObj["data"]["output-data"]["kind"]["failed-exercise-download"]["skipped"]) &&
-                    typedObj["data"]["output-data"]["kind"]["failed-exercise-download"]["skipped"].every((e: any) =>
-                        (e !== null &&
-                            typeof e === "object" ||
-                            typeof e === "function") &&
-                        typeof e["id"] === "number" &&
-                        typeof e["course-slug"] === "string" &&
-                        typeof e["exercise-slug"] === "string" &&
-                        typeof e["path"] === "string"
-                    ) &&
-                    Array.isArray(typedObj["data"]["output-data"]["kind"]["failed-exercise-download"]["failed"]) &&
-                    typedObj["data"]["output-data"]["kind"]["failed-exercise-download"]["failed"].every((e: any) =>
-                        Array.isArray(e) &&
-                        (e[0] !== null &&
-                            typeof e[0] === "object" ||
-                            typeof e[0] === "function") &&
-                        typeof e[0]["id"] === "number" &&
-                        typeof e[0]["course-slug"] === "string" &&
-                        typeof e[0]["exercise-slug"] === "string" &&
-                        typeof e[0]["path"] === "string" &&
-                        Array.isArray(e[1]) &&
-                        e[1].every((e: any) =>
-                            typeof e === "string"
-                        )
-                    )) &&
+                    typedObj["data"]["output-data"]["kind"] === "not-enrolled" ||
+                    typedObj["data"]["output-data"]["kind"] === "upload-expired" ||
+                    typedObj["data"]["output-data"]["kind"] === "unknown-upload") &&
                 Array.isArray(typedObj["data"]["output-data"]["trace"]) &&
                 typedObj["data"]["output-data"]["trace"].every((e: any) =>
                     typeof e === "string"
@@ -145,30 +104,6 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "local-tmc-exercises" &&
-                Array.isArray(typedObj["data"]["output-data"]) &&
-                typedObj["data"]["output-data"].every((e: any) =>
-                    (e !== null &&
-                        typeof e === "object" ||
-                        typeof e === "function") &&
-                    typeof e["exercise-slug"] === "string" &&
-                    typeof e["exercise-path"] === "string"
-                ) ||
-                (typedObj["data"] !== null &&
-                    typeof typedObj["data"] === "object" ||
-                    typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "local-mooc-exercises" &&
-                Array.isArray(typedObj["data"]["output-data"]) &&
-                typedObj["data"]["output-data"].every((e: any) =>
-                    (e !== null &&
-                        typeof e === "object" ||
-                        typeof e === "function") &&
-                    typeof e["exercise-id"] === "string" &&
-                    typeof e["exercise-path"] === "string"
-                ) ||
-                (typedObj["data"] !== null &&
-                    typeof typedObj["data"] === "object" ||
-                    typeof typedObj["data"] === "function") &&
                 typedObj["data"]["output-data-kind"] === "refresh-result" &&
                 (typedObj["data"]["output-data"] !== null &&
                     typeof typedObj["data"]["output-data"] === "object" ||
@@ -203,22 +138,18 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["tmcproject-yml"]["force_update"].every((e: any) =>
                             typeof e === "string"
                         ) &&
-                        (typeof e["tmcproject-yml"]["tests_timeout_ms"] === "undefined" ||
-                            typeof e["tmcproject-yml"]["tests_timeout_ms"] === "number") &&
-                        (typeof e["tmcproject-yml"]["fail_on_valgrind_error"] === "undefined" ||
-                            e["tmcproject-yml"]["fail_on_valgrind_error"] === false ||
-                            e["tmcproject-yml"]["fail_on_valgrind_error"] === true) &&
-                        (typeof e["tmcproject-yml"]["minimum_python_version"] === "undefined" ||
-                            (e["tmcproject-yml"]["minimum_python_version"] !== null &&
-                                typeof e["tmcproject-yml"]["minimum_python_version"] === "object" ||
-                                typeof e["tmcproject-yml"]["minimum_python_version"] === "function") &&
-                            typeof e["tmcproject-yml"]["minimum_python_version"]["major"] === "number" &&
-                            (e["tmcproject-yml"]["minimum_python_version"]["minor"] === null ||
-                                typeof e["tmcproject-yml"]["minimum_python_version"]["minor"] === "number") &&
-                            (e["tmcproject-yml"]["minimum_python_version"]["patch"] === null ||
-                                typeof e["tmcproject-yml"]["minimum_python_version"]["patch"] === "number")) &&
-                        (typeof e["tmcproject-yml"]["sandbox_image"] === "undefined" ||
-                            typeof e["tmcproject-yml"]["sandbox_image"] === "string"))
+                        typeof e["tmcproject-yml"]["tests_timeout_ms"] === "number" &&
+                        typeof e["tmcproject-yml"]["fail_on_valgrind_error"] === "boolean" &&
+                        (e["tmcproject-yml"]["minimum_python_version"] !== null &&
+                            typeof e["tmcproject-yml"]["minimum_python_version"] === "object" ||
+                            typeof e["tmcproject-yml"]["minimum_python_version"] === "function") &&
+                        typeof e["tmcproject-yml"]["minimum_python_version"]["major"] === "number" &&
+                        (e["tmcproject-yml"]["minimum_python_version"]["minor"] === null ||
+                            typeof e["tmcproject-yml"]["minimum_python_version"]["minor"] === "number") &&
+                        (e["tmcproject-yml"]["minimum_python_version"]["patch"] === null ||
+                            typeof e["tmcproject-yml"]["minimum_python_version"]["patch"] === "number") &&
+                        typeof e["tmcproject-yml"]["sandbox_image"] === "string" &&
+                        typeof e["tmcproject-yml"]["submission_size_limit_mb"] === "number")
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -258,49 +189,6 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "tmc-exercise-download" &&
-                (typedObj["data"]["output-data"] !== null &&
-                    typeof typedObj["data"]["output-data"] === "object" ||
-                    typeof typedObj["data"]["output-data"] === "function") &&
-                Array.isArray(typedObj["data"]["output-data"]["downloaded"]) &&
-                typedObj["data"]["output-data"]["downloaded"].every((e: any) =>
-                    (e !== null &&
-                        typeof e === "object" ||
-                        typeof e === "function") &&
-                    typeof e["id"] === "number" &&
-                    typeof e["course-slug"] === "string" &&
-                    typeof e["exercise-slug"] === "string" &&
-                    typeof e["path"] === "string"
-                ) &&
-                Array.isArray(typedObj["data"]["output-data"]["skipped"]) &&
-                typedObj["data"]["output-data"]["skipped"].every((e: any) =>
-                    (e !== null &&
-                        typeof e === "object" ||
-                        typeof e === "function") &&
-                    typeof e["id"] === "number" &&
-                    typeof e["course-slug"] === "string" &&
-                    typeof e["exercise-slug"] === "string" &&
-                    typeof e["path"] === "string"
-                ) &&
-                (typeof typedObj["data"]["output-data"]["failed"] === "undefined" ||
-                    Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
-                    typedObj["data"]["output-data"]["failed"].every((e: any) =>
-                        Array.isArray(e) &&
-                        (e[0] !== null &&
-                            typeof e[0] === "object" ||
-                            typeof e[0] === "function") &&
-                        typeof e[0]["id"] === "number" &&
-                        typeof e[0]["course-slug"] === "string" &&
-                        typeof e[0]["exercise-slug"] === "string" &&
-                        typeof e[0]["path"] === "string" &&
-                        Array.isArray(e[1]) &&
-                        e[1].every((e: any) =>
-                            typeof e === "string"
-                        )
-                    )) ||
-                (typedObj["data"] !== null &&
-                    typeof typedObj["data"] === "object" ||
-                    typeof typedObj["data"] === "function") &&
                 typedObj["data"]["output-data-kind"] === "mooc-exercise-download" &&
                 (typedObj["data"]["output-data"] !== null &&
                     typeof typedObj["data"]["output-data"] === "object" ||
@@ -310,7 +198,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     (e !== null &&
                         typeof e === "object" ||
                         typeof e === "function") &&
-                    typeof e["id"] === "string" &&
+                    typeof e["exercise-id"] === "string" &&
                     typeof e["path"] === "string"
                 ) &&
                 Array.isArray(typedObj["data"]["output-data"]["skipped"]) &&
@@ -318,23 +206,31 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     (e !== null &&
                         typeof e === "object" ||
                         typeof e === "function") &&
-                    typeof e["id"] === "string" &&
+                    typeof e["exercise-id"] === "string" &&
                     typeof e["path"] === "string"
                 ) &&
-                (typeof typedObj["data"]["output-data"]["failed"] === "undefined" ||
-                    Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
-                    typedObj["data"]["output-data"]["failed"].every((e: any) =>
-                        Array.isArray(e) &&
-                        (e[0] !== null &&
-                            typeof e[0] === "object" ||
-                            typeof e[0] === "function") &&
-                        typeof e[0]["id"] === "string" &&
-                        typeof e[0]["path"] === "string" &&
-                        Array.isArray(e[1]) &&
-                        e[1].every((e: any) =>
-                            typeof e === "string"
-                        )
-                    )) ||
+                Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
+                typedObj["data"]["output-data"]["failed"].every((e: any) =>
+                    Array.isArray(e) &&
+                    (e[0] !== null &&
+                        typeof e[0] === "object" ||
+                        typeof e[0] === "function") &&
+                    typeof e[0]["exercise-id"] === "string" &&
+                    typeof e[0]["path"] === "string" &&
+                    Array.isArray(e[1]) &&
+                    e[1].every((e: any) =>
+                        typeof e === "string"
+                    )
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["not_attempted"]) &&
+                typedObj["data"]["output-data"]["not_attempted"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["exercise-id"] === "string" &&
+                    typeof e["path"] === "string"
+                ) &&
+                typeof typedObj["data"]["output-data"]["stopped_for_auth"] === "boolean" ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1013,14 +909,6 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "tmc-config" &&
-                (typedObj["data"]["output-data"] !== null &&
-                    typeof typedObj["data"]["output-data"] === "object" ||
-                    typeof typedObj["data"]["output-data"] === "function") &&
-                typeof typedObj["data"]["output-data"]["projects_dir"] === "string" ||
-                (typedObj["data"] !== null &&
-                    typeof typedObj["data"] === "object" ||
-                    typeof typedObj["data"] === "function") &&
                 typedObj["data"]["output-data-kind"] === "compressed-project-hash" &&
                 typeof typedObj["data"]["output-data"] === "string" ||
                 (typedObj["data"] !== null &&
@@ -1031,22 +919,114 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "mooc-course-instances" &&
+                typedObj["data"]["output-data-kind"] === "local-tmc-exercises" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["exercise-slug"] === "string" &&
+                    typeof e["exercise-path"] === "string"
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "tmc-exercise-download" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                Array.isArray(typedObj["data"]["output-data"]["downloaded"]) &&
+                typedObj["data"]["output-data"]["downloaded"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "number" &&
+                    typeof e["course-slug"] === "string" &&
+                    typeof e["exercise-slug"] === "string" &&
+                    typeof e["path"] === "string"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["skipped"]) &&
+                typedObj["data"]["output-data"]["skipped"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "number" &&
+                    typeof e["course-slug"] === "string" &&
+                    typeof e["exercise-slug"] === "string" &&
+                    typeof e["path"] === "string"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
+                typedObj["data"]["output-data"]["failed"].every((e: any) =>
+                    Array.isArray(e) &&
+                    (e[0] !== null &&
+                        typeof e[0] === "object" ||
+                        typeof e[0] === "function") &&
+                    typeof e[0]["id"] === "number" &&
+                    typeof e[0]["course-slug"] === "string" &&
+                    typeof e[0]["exercise-slug"] === "string" &&
+                    typeof e[0]["path"] === "string" &&
+                    Array.isArray(e[1]) &&
+                    e[1].every((e: any) =>
+                        typeof e === "string"
+                    )
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "tmc-config" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                typeof typedObj["data"]["output-data"]["projects_dir"] === "string" ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-updated-exercises" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    typeof e === "string"
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "local-mooc-exercises" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["exercise-slug"] === "string" &&
+                    typeof e["exercise-id"] === "string" &&
+                    typeof e["exercise-path"] === "string"
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-course" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                typeof typedObj["data"]["output-data"]["id"] === "string" &&
+                typeof typedObj["data"]["output-data"]["slug"] === "string" &&
+                typeof typedObj["data"]["output-data"]["name"] === "string" &&
+                (typedObj["data"]["output-data"]["description"] === null ||
+                    typeof typedObj["data"]["output-data"]["description"] === "string") &&
+                typeof typedObj["data"]["output-data"]["organization_name"] === "string" ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-courses" &&
                 Array.isArray(typedObj["data"]["output-data"]) &&
                 typedObj["data"]["output-data"].every((e: any) =>
                     (e !== null &&
                         typeof e === "object" ||
                         typeof e === "function") &&
                     typeof e["id"] === "string" &&
-                    typeof e["course_id"] === "string" &&
-                    typeof e["course_slug"] === "string" &&
-                    typeof e["course_name"] === "string" &&
-                    (e["course_description"] === null ||
-                        typeof e["course_description"] === "string") &&
-                    (e["instance_name"] === null ||
-                        typeof e["instance_name"] === "string") &&
-                    (e["instance_description"] === null ||
-                        typeof e["instance_description"] === "string")
+                    typeof e["slug"] === "string" &&
+                    typeof e["name"] === "string" &&
+                    (e["description"] === null ||
+                        typeof e["description"] === "string") &&
+                    typeof e["organization_name"] === "string"
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1059,6 +1039,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e === "function") &&
                     typeof e["slide_id"] === "string" &&
                     typeof e["exercise_id"] === "string" &&
+                    typeof e["course_id"] === "string" &&
                     typeof e["exercise_name"] === "string" &&
                     typeof e["exercise_order_number"] === "number" &&
                     (e["deadline"] === null ||
@@ -1074,40 +1055,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             (e["public_spec"] !== null &&
                                 typeof e["public_spec"] === "object" ||
                                 typeof e["public_spec"] === "function") &&
-                            e["public_spec"]["type"] === "Browser" &&
-                            Array.isArray(e["public_spec"]["files"]) &&
-                            e["public_spec"]["files"].every((e: any) =>
-                                (e !== null &&
-                                    typeof e === "object" ||
-                                    typeof e === "function") &&
-                                typeof e["filepath"] === "string" &&
-                                typeof e["contents"] === "string"
-                            ) ||
-                            (e["public_spec"] !== null &&
-                                typeof e["public_spec"] === "object" ||
-                                typeof e["public_spec"] === "function") &&
-                            e["public_spec"]["type"] === "Editor" &&
+                            (e["public_spec"]["type"] === "browser" ||
+                                e["public_spec"]["type"] === "editor") &&
                             typeof e["public_spec"]["archive_name"] === "string" &&
-                            typeof e["public_spec"]["archive_download_url"] === "string" &&
-                            typeof e["public_spec"]["checksum"] === "string") &&
+                            typeof e["public_spec"]["stub_download_url"] === "string" &&
+                            Array.isArray(e["public_spec"]["student_file_paths"]) &&
+                            e["public_spec"]["student_file_paths"].every((e: any) =>
+                                typeof e === "string"
+                            ) &&
+                            typeof e["public_spec"]["checksum"] === "string" &&
+                            (e["public_spec"]["browser_test"] === null ||
+                                (e["public_spec"]["browser_test"] !== null &&
+                                    typeof e["public_spec"]["browser_test"] === "object" ||
+                                    typeof e["public_spec"]["browser_test"] === "function") &&
+                                e["public_spec"]["browser_test"]["runtime"] === "python" &&
+                                typeof e["public_spec"]["browser_test"]["script"] === "string" &&
+                                (e["public_spec"]["browser_test"]["error"] === null ||
+                                    typeof e["public_spec"]["browser_test"]["error"] === "string"))) &&
                         (e["model_solution_spec"] === null ||
                             (e["model_solution_spec"] !== null &&
                                 typeof e["model_solution_spec"] === "object" ||
                                 typeof e["model_solution_spec"] === "function") &&
-                            e["model_solution_spec"]["type"] === "Browser" &&
-                            Array.isArray(e["model_solution_spec"]["solution_files"]) &&
-                            e["model_solution_spec"]["solution_files"].every((e: any) =>
-                                (e !== null &&
-                                    typeof e === "object" ||
-                                    typeof e === "function") &&
-                                typeof e["filepath"] === "string" &&
-                                typeof e["contents"] === "string"
-                            ) ||
-                            (e["model_solution_spec"] !== null &&
-                                typeof e["model_solution_spec"] === "object" ||
-                                typeof e["model_solution_spec"] === "function") &&
-                            e["model_solution_spec"]["type"] === "Editor" &&
-                            typeof e["model_solution_spec"]["download_url"] === "string")
+                            (e["model_solution_spec"]["type"] === "browser" ||
+                                e["model_solution_spec"]["type"] === "editor") &&
+                            typeof e["model_solution_spec"]["solution_download_url"] === "string") &&
+                        (e["checksum"] === null ||
+                            typeof e["checksum"] === "string")
                     )
                 ) ||
                 (typedObj["data"] !== null &&
@@ -1119,6 +1092,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof typedObj["data"]["output-data"] === "function") &&
                 typeof typedObj["data"]["output-data"]["slide_id"] === "string" &&
                 typeof typedObj["data"]["output-data"]["exercise_id"] === "string" &&
+                typeof typedObj["data"]["output-data"]["course_id"] === "string" &&
                 typeof typedObj["data"]["output-data"]["exercise_name"] === "string" &&
                 typeof typedObj["data"]["output-data"]["exercise_order_number"] === "number" &&
                 (typedObj["data"]["output-data"]["deadline"] === null ||
@@ -1134,40 +1108,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         (e["public_spec"] !== null &&
                             typeof e["public_spec"] === "object" ||
                             typeof e["public_spec"] === "function") &&
-                        e["public_spec"]["type"] === "Browser" &&
-                        Array.isArray(e["public_spec"]["files"]) &&
-                        e["public_spec"]["files"].every((e: any) =>
-                            (e !== null &&
-                                typeof e === "object" ||
-                                typeof e === "function") &&
-                            typeof e["filepath"] === "string" &&
-                            typeof e["contents"] === "string"
-                        ) ||
-                        (e["public_spec"] !== null &&
-                            typeof e["public_spec"] === "object" ||
-                            typeof e["public_spec"] === "function") &&
-                        e["public_spec"]["type"] === "Editor" &&
+                        (e["public_spec"]["type"] === "browser" ||
+                            e["public_spec"]["type"] === "editor") &&
                         typeof e["public_spec"]["archive_name"] === "string" &&
-                        typeof e["public_spec"]["archive_download_url"] === "string" &&
-                        typeof e["public_spec"]["checksum"] === "string") &&
+                        typeof e["public_spec"]["stub_download_url"] === "string" &&
+                        Array.isArray(e["public_spec"]["student_file_paths"]) &&
+                        e["public_spec"]["student_file_paths"].every((e: any) =>
+                            typeof e === "string"
+                        ) &&
+                        typeof e["public_spec"]["checksum"] === "string" &&
+                        (e["public_spec"]["browser_test"] === null ||
+                            (e["public_spec"]["browser_test"] !== null &&
+                                typeof e["public_spec"]["browser_test"] === "object" ||
+                                typeof e["public_spec"]["browser_test"] === "function") &&
+                            e["public_spec"]["browser_test"]["runtime"] === "python" &&
+                            typeof e["public_spec"]["browser_test"]["script"] === "string" &&
+                            (e["public_spec"]["browser_test"]["error"] === null ||
+                                typeof e["public_spec"]["browser_test"]["error"] === "string"))) &&
                     (e["model_solution_spec"] === null ||
                         (e["model_solution_spec"] !== null &&
                             typeof e["model_solution_spec"] === "object" ||
                             typeof e["model_solution_spec"] === "function") &&
-                        e["model_solution_spec"]["type"] === "Browser" &&
-                        Array.isArray(e["model_solution_spec"]["solution_files"]) &&
-                        e["model_solution_spec"]["solution_files"].every((e: any) =>
-                            (e !== null &&
-                                typeof e === "object" ||
-                                typeof e === "function") &&
-                            typeof e["filepath"] === "string" &&
-                            typeof e["contents"] === "string"
-                        ) ||
-                        (e["model_solution_spec"] !== null &&
-                            typeof e["model_solution_spec"] === "object" ||
-                            typeof e["model_solution_spec"] === "function") &&
-                        e["model_solution_spec"]["type"] === "Editor" &&
-                        typeof e["model_solution_spec"]["download_url"] === "string")
+                        (e["model_solution_spec"]["type"] === "browser" ||
+                            e["model_solution_spec"]["type"] === "editor") &&
+                        typeof e["model_solution_spec"]["solution_download_url"] === "string") &&
+                    (e["checksum"] === null ||
+                        typeof e["checksum"] === "string")
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1176,7 +1142,86 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"]["output-data"] !== null &&
                     typeof typedObj["data"]["output-data"] === "object" ||
                     typeof typedObj["data"]["output-data"] === "function") &&
-                typeof typedObj["data"]["output-data"]["submission_id"] === "string") ||
+                typeof typedObj["data"]["output-data"]["task_submission_id"] === "string" &&
+                typeof typedObj["data"]["output-data"]["slide_submission_id"] === "string" ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-submission-status" &&
+                (typedObj["data"]["output-data"] === "NoGradingYet" ||
+                    (typedObj["data"]["output-data"] !== null &&
+                        typeof typedObj["data"]["output-data"] === "object" ||
+                        typeof typedObj["data"]["output-data"] === "function") &&
+                    (typedObj["data"]["output-data"]["Grading"] !== null &&
+                        typeof typedObj["data"]["output-data"]["Grading"] === "object" ||
+                        typeof typedObj["data"]["output-data"]["Grading"] === "function") &&
+                    (typedObj["data"]["output-data"]["Grading"]["grading_progress"] === "Failed" ||
+                        typedObj["data"]["output-data"]["Grading"]["grading_progress"] === "NotReady" ||
+                        typedObj["data"]["output-data"]["Grading"]["grading_progress"] === "PendingManual" ||
+                        typedObj["data"]["output-data"]["Grading"]["grading_progress"] === "Pending" ||
+                        typedObj["data"]["output-data"]["Grading"]["grading_progress"] === "FullyGraded") &&
+                    (typedObj["data"]["output-data"]["Grading"]["score_given"] === null ||
+                        typeof typedObj["data"]["output-data"]["Grading"]["score_given"] === "number") &&
+                    (typedObj["data"]["output-data"]["Grading"]["grading_started_at"] === null ||
+                        typeof typedObj["data"]["output-data"]["Grading"]["grading_started_at"] === "string") &&
+                    (typedObj["data"]["output-data"]["Grading"]["grading_completed_at"] === null ||
+                        typeof typedObj["data"]["output-data"]["Grading"]["grading_completed_at"] === "string") &&
+                    (typedObj["data"]["output-data"]["Grading"]["feedback_text"] === null ||
+                        typeof typedObj["data"]["output-data"]["Grading"]["feedback_text"] === "string")) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-submissions" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "string" &&
+                    typeof e["exercise_id"] === "string" &&
+                    typeof e["created_at"] === "string" &&
+                    (e["score_given"] === null ||
+                        typeof e["score_given"] === "number") &&
+                    (e["grading_progress"] === null ||
+                        e["grading_progress"] === "Failed" ||
+                        e["grading_progress"] === "NotReady" ||
+                        e["grading_progress"] === "PendingManual" ||
+                        e["grading_progress"] === "Pending" ||
+                        e["grading_progress"] === "FullyGraded")
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-paste" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                typeof typedObj["data"]["output-data"]["paste_url"] === "string" ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-course-progress" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                typeof typedObj["data"]["output-data"]["course_id"] === "string" &&
+                Array.isArray(typedObj["data"]["output-data"]["exercises"]) &&
+                typedObj["data"]["output-data"]["exercises"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["exercise_id"] === "string" &&
+                    typeof e["score_given"] === "number" &&
+                    typeof e["score_maximum"] === "number" &&
+                    typeof e["completed"] === "boolean" &&
+                    typeof e["attempted"] === "boolean"
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-old-submission-restore" &&
+                (typedObj["data"]["output-data"] === "restored" ||
+                    typedObj["data"]["output-data"] === "nothing-to-download")) ||
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
@@ -1209,6 +1254,53 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 typeof typedObj["data"]["show_submission_url"] === "string" &&
                 typeof typedObj["data"]["paste_url"] === "string" &&
                 typeof typedObj["data"]["submission_url"] === "string") ||
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["output-kind"] === "status-update" &&
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["update-data-kind"] === "mooc-client-update-data" &&
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typeof typedObj["finished"] === "boolean" &&
+            typeof typedObj["message"] === "string" &&
+            typeof typedObj["percent-done"] === "number" &&
+            typeof typedObj["time"] === "number" &&
+            (typedObj["data"] === null ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["client-update-data-kind"] === "exercise-download" &&
+                typeof typedObj["data"]["id"] === "string" &&
+                typeof typedObj["data"]["path"] === "string") ||
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["output-kind"] === "status-update" &&
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["update-data-kind"] === "mooc-device-login" &&
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typeof typedObj["finished"] === "boolean" &&
+            typeof typedObj["message"] === "string" &&
+            typeof typedObj["percent-done"] === "number" &&
+            typeof typedObj["time"] === "number" &&
+            (typedObj["data"] === null ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typeof typedObj["data"]["verification_uri"] === "string" &&
+                (typedObj["data"]["verification_uri_complete"] === null ||
+                    typeof typedObj["data"]["verification_uri_complete"] === "string") &&
+                typeof typedObj["data"]["user_code"] === "string" &&
+                typeof typedObj["data"]["expires_in"] === "number" &&
+                typeof typedObj["data"]["interval"] === "number") ||
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&

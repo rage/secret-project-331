@@ -4,10 +4,11 @@ import { fireEvent, screen } from "@testing-library/react"
 
 import { TextArea } from "../src/components/TextArea"
 import { TextField } from "../src/components/TextField"
-
 import { renderWithForm } from "./testUtils"
 
-type F = { f: string }
+interface F {
+  f: string
+}
 
 describe("TextField", () => {
   test("renders label, description, and error wiring", () => {

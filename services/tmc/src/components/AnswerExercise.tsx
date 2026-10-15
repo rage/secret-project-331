@@ -1,58 +1,53 @@
-"use client"
-
-import _ from "lodash"
 import React from "react"
+
+import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { RunResult } from "@/tmc/cli"
+import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
+import type { ExerciseFile, PublicSpec } from "@/util/stateInterfaces"
 
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
 
-import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { RunResult } from "@/tmc/cli"
-import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
-import { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
-
 interface Props {
   publicSpec: PublicSpec
-  userAnswer: UserAnswer
-  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
+  /** The browser editor's files; ignored by an editor-mode exercise. */
+  files: ExerciseFile[]
+  /** Called with the edited files; omit to keep the editor read-only. */
+  onFilesChange?: ((files: ExerciseFile[]) => void) | undefined
   testRequestResponse: RunResult | null
-  sendFileUploadMessage: (filename: string, file: File) => void
+  sendFileUploadMessage: (file: File) => void
   fileUploadResponse: UploadResultMessage | null
   grading?: ExerciseTaskGradingResult | null
 }
 
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   publicSpec,
-  userAnswer,
-  setState,
+  files,
+  onFilesChange,
   testRequestResponse,
   sendFileUploadMessage,
   fileUploadResponse,
   grading,
 }) => {
-  // student exercise view
-  if (userAnswer.type === "browser") {
+  if (publicSpec.type === "browser") {
     return (
       <AnswerBrowserExercise
         publicSpec={publicSpec}
-        initialState={userAnswer.files}
+        initialState={files}
         testRequestResponse={testRequestResponse}
-        setState={setState}
+        onFilesChange={onFilesChange}
         grading={grading}
-        readOnly={grading != null}
+        readOnly={onFilesChange === undefined || (grading !== null && grading !== undefined)}
       />
     )
-  } else if (userAnswer.type === "editor") {
-    return (
-      <AnswerEditorExercise
-        publicSpec={publicSpec}
-        sendFileUploadMessage={sendFileUploadMessage}
-        fileUploadResponse={fileUploadResponse}
-      />
-    )
-  } else {
-    throw new Error("Unhandled exercise type")
   }
+  return (
+    <AnswerEditorExercise
+      publicSpec={publicSpec}
+      sendFileUploadMessage={sendFileUploadMessage}
+      fileUploadResponse={fileUploadResponse}
+    />
+  )
 }
 
 export default AnswerExercise

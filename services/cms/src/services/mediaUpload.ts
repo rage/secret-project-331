@@ -6,9 +6,9 @@ import { validateFile } from "@/shared-module/common/utils/files"
 
 export interface MediaItem {
   url: string
-  alt?: string
-  caption?: string
-  title?: string
+  alt?: string | undefined
+  caption?: string | undefined
+  title?: string | undefined
 }
 
 export interface MediaUploadProps {
@@ -18,10 +18,14 @@ export interface MediaUploadProps {
   onFileChange: (files: Partial<MediaItem>[]) => void
 }
 
-type MediaUploadType = { courseId: string } | { examId: string }
+/** Which resource an uploaded file belongs to. */
+export type MediaUploadType = { courseId: string } | { examId: string }
 
 /** Uploads one file to a CMS media endpoint. */
-const uploadFileFromPage = async (file: File, uploadType: MediaUploadType): Promise<MediaItem> => {
+export const uploadFileFromPage = async (
+  file: File,
+  uploadType: MediaUploadType,
+): Promise<MediaItem> => {
   const data = new FormData()
   data.append("file", file, file.name || "unknown")
 
@@ -96,7 +100,7 @@ const uploadMedia = async ({
   }))
   onFileChange(initialItems)
 
-  const mediaItems = initialItems as Array<(typeof initialItems)[0] | null>
+  const mediaItems = initialItems as ((typeof initialItems)[0] | null)[]
 
   await Promise.all(
     validFiles.map(async (file, i) => {

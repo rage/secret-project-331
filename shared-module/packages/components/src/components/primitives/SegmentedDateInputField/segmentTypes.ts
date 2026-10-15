@@ -4,7 +4,7 @@ import type { FieldSize } from "../fieldStyles"
 
 export type SegmentedFieldKind = "date" | "time" | "datetime"
 
-export type SegmentedFieldCommonProps = {
+export interface SegmentedFieldCommonProps {
   id?: string
   className?: string
   label: React.ReactNode
@@ -24,6 +24,7 @@ export type SegmentedFieldCommonProps = {
   isReadOnly?: boolean
   isRequired?: boolean
   isInvalid?: boolean
+  "data-testid"?: string | undefined
 }
 
 export type SegmentedTemporalFieldProps = SegmentedFieldCommonProps & {

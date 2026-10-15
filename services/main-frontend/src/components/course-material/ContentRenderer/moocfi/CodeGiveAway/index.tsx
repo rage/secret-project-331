@@ -5,15 +5,13 @@ import { skipToken, useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import ClaimCode from "./ClaimCode"
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import { getCodeGiveawayStatus } from "@/generated/course-material-api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, ErrorNotice } from "@/shared-module/components"
+
+import type { BlockRendererProps } from "../.."
+import ClaimCode from "./ClaimCode"
 
 interface CodeGiveawayBlockProps {
   code_giveaway_id: string | undefined | null
@@ -49,7 +47,7 @@ const CodeGiveawayBlock: React.FC<
   })
 
   if (!codeGiveawayId) {
-    return <ErrorBanner variant="readOnly" error={t("error-no-code-giveaway-id")} />
+    return <ErrorNotice error={t("error-no-code-giveaway-id")} />
   }
 
   if (!loginContext.signedIn) {

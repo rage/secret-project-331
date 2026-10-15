@@ -10,8 +10,8 @@ import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { joinAriaDescribedBy } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
+import { omitUndefined } from "../lib/utils/nullability"
 import { fileListToArray } from "../lib/utils/rhfAdapters"
-
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 import { fileButtonCss, fileTriggerRowCss } from "./primitives/selectStyles"
@@ -40,7 +40,7 @@ const fileButtonLgCss = css`
   font-size: var(--font-size-lg);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
 function resolveFileButtonSizeCss(fieldSize: FieldSize) {
@@ -49,7 +49,6 @@ function resolveFileButtonSizeCss(fieldSize: FieldSize) {
       return fileButtonSmCss
     case "lg":
       return fileButtonLgCss
-    case "md":
     default:
       return fileButtonMdCss
   }
@@ -77,7 +76,11 @@ export type FileFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   summaryFormatter?: (files: File[] | null) => React.ReactNode
   id?: string
   className?: string
+  /** Native `accept` picker hint (e.g. `"image/*"`, `".svg"`); does not validate the selected file. */
+  accept?: string
   multiple?: boolean
+  /** Lands on the visible button; the hidden file input gets the same data-testid suffixed with `-input`. */
+  "data-testid"?: string | undefined
 }
 
 export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -97,10 +100,17 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     summaryFormatter,
     className,
+    accept,
     multiple,
+    "data-testid": dataTestId,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...omitUndefined({ rules }),
+    errorMessage,
+  })
 
   const { t } = useTranslation("shared-module")
   const fileSummaryLabels = useMemo(
@@ -138,7 +148,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={className}
+      {...omitUndefined({ className })}
       label={label}
       labelProps={labelProps as React.HTMLAttributes<HTMLElement>}
       description={description}
@@ -155,11 +165,13 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             ref={composeRefs(inputRef, field.ref)}
             type="file"
             name={field.name}
+            accept={accept}
             multiple={multiple}
             disabled={isDisabled}
             required={isRequired}
             aria-hidden="true"
             tabIndex={-1}
+            data-testid={dataTestId === undefined ? undefined : `${dataTestId}-input`}
             onChange={(event) => {
               const next = fileListToArray(event.currentTarget.files)
               setFileSummary(summaryFormatter?.(next) ?? summarizeFiles(next, fileSummaryLabels))
@@ -173,6 +185,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
           type="button"
           disabled={isDisabled}
           data-invalid={isInvalid ? "true" : undefined}
+          data-testid={dataTestId}
           aria-describedby={buttonDescribedBy}
           aria-labelledby={
             typeof fieldProps["aria-labelledby"] === "string"
@@ -195,6 +208,7 @@ export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
             </>
           </VisuallyHidden>
         ) : null}
+        {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> is inline, changes styling */}
         <div aria-live="polite" className={fileSummaryCss} role="status">
           {fileSummary}
         </div>

@@ -1,10 +1,21 @@
 "use client"
 
-import toast, { Toast } from "react-hot-toast"
+import type { TFunction } from "i18next"
+import { toast, type Toast } from "react-hot-toast"
 
+import { normalizeErrorForDisplay } from "../../errors/normalizeErrorForDisplay"
+import { resolveErrorDisplayCopy } from "../../errors/resolveErrorDisplayCopy"
+import { omitUndefined } from "../../utils/nullability"
 import ErrorNotification from "./Error"
 import LoadingNotification from "./Loading"
 import SuccessNotification from "./Success"
+
+/** The message a toast should show for an error, resolved through the same display pipeline
+ * `ErrorBanner` reads its copy from. */
+export const errorNotificationMessage = (error: unknown, t: TFunction<"errors">): string => {
+  const copy = resolveErrorDisplayCopy(normalizeErrorForDisplay(error, t), t)
+  return copy.message ?? copy.title
+}
 
 interface NotificationOptions {
   header?: string
@@ -18,7 +29,13 @@ export const showSuccessNotification = ({
   duration = 5000,
 }: NotificationOptions) => {
   return toast.custom(
-    (t: Toast) => <SuccessNotification header={header} message={message} toastId={t.id} />,
+    (t: Toast) => (
+      <SuccessNotification
+        {...omitUndefined({ header })}
+        {...omitUndefined({ message })}
+        toastId={t.id}
+      />
+    ),
     { duration },
   )
 }
@@ -29,7 +46,13 @@ export const showErrorNotification = ({
   duration = 5000,
 }: NotificationOptions) => {
   return toast.custom(
-    (t: Toast) => <ErrorNotification header={header} message={message} toastId={t.id} />,
+    (t: Toast) => (
+      <ErrorNotification
+        {...omitUndefined({ header })}
+        {...omitUndefined({ message })}
+        toastId={t.id}
+      />
+    ),
     { duration },
   )
 }
@@ -38,7 +61,7 @@ export const showLoadingNotification = ({
   message,
   duration = 5000,
 }: Omit<NotificationOptions, "header">) => {
-  return toast.custom((_t: Toast) => <LoadingNotification message={message} />, {
+  return toast.custom((_t: Toast) => <LoadingNotification {...omitUndefined({ message })} />, {
     duration,
   })
 }

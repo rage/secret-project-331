@@ -1,25 +1,47 @@
-import {
+import { applicableItemFeedbackMessages, joinFeedbackMessages } from "@/util/feedbackMessages"
+
+import type {
   UserAnswer,
   UserItemAnswerMultiplechoice,
   UserItemAnswerTimeline,
 } from "../../types/quizTypes/answer"
-import {
+import type {
   ItemAnswerFeedback,
   OptionAnswerFeedback,
   QuizItemAnswerGrading,
   TimelineItemFeedback,
 } from "../../types/quizTypes/grading"
-import {
+import type {
   PrivateSpecQuiz,
+  PrivateSpecQuizItemMatrix,
   PrivateSpecQuizItemMultiplechoice,
   PrivateSpecQuizItemTimeline,
 } from "../../types/quizTypes/privateSpec"
+
+/** Collapses the coefficient to wrong/partial/fully-correct when fog of war is on, leaves it exact otherwise. */
+const applyFogOfWar = (correctnessCoefficient: number, fogOfWar: boolean): number => {
+  if (!fogOfWar) {
+    return correctnessCoefficient
+  }
+  if (correctnessCoefficient <= 0) {
+    return 0
+  }
+  return correctnessCoefficient >= 1 ? 1 : 0.5
+}
+
+/** Item-type-specific fields; each branch overrides only its own. */
+const NO_TYPE_SPECIFIC_FEEDBACK = {
+  quiz_item_option_feedbacks: null,
+  timeline_item_feedbacks: null,
+  matrix_cell_feedbacks: null,
+  matrix_score_breakdown: null,
+}
 
 const submissionFeedback = (
   submission: UserAnswer,
   quiz: PrivateSpecQuiz,
   quizItemGradings: QuizItemAnswerGrading[],
-  submitMessage: string | null,
+  overallCorrectnessRatio: number,
 ): ItemAnswerFeedback[] => {
   const itemFeedbacks: ItemAnswerFeedback[] = submission.itemAnswers.map(
     (itemAnswer): ItemAnswerFeedback => {
@@ -30,47 +52,47 @@ const submissionFeedback = (
         return {
           quiz_item_id: null,
           quiz_item_feedback: null,
-          quiz_item_option_feedbacks: null,
-          timeline_item_feedbacks: null,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
           correctnessCoefficient: 1,
         }
       }
 
+      const quizItemFeedback = joinFeedbackMessages(
+        applicableItemFeedbackMessages(item.feedbackMessages, itemGrading.correctnessCoefficient),
+      )
+
       // Multiple choices
       if (
-        item.type == "multiple-choice" ||
-        item.type == "multiple-choice-dropdown" ||
-        item.type == "choose-n"
+        item.type === "multiple-choice" ||
+        item.type === "multiple-choice-dropdown" ||
+        item.type === "choose-n"
       ) {
         const multipleChoiceQuizItem = item as PrivateSpecQuizItemMultiplechoice
         const multipleChoiceUserAnswer = itemAnswer as UserItemAnswerMultiplechoice
-
-        const quizItemFeedback =
-          itemGrading.correctnessCoefficient === 1
-            ? multipleChoiceQuizItem.successMessage
-            : multipleChoiceQuizItem.failureMessage
 
         if (!multipleChoiceUserAnswer.selectedOptionIds) {
           return {
             quiz_item_id: null,
             quiz_item_feedback: null,
-            quiz_item_option_feedbacks: null,
-            timeline_item_feedbacks: null,
+            ...NO_TYPE_SPECIFIC_FEEDBACK,
             correctnessCoefficient: 1,
           }
         }
 
         const fogOfWar = (item as PrivateSpecQuizItemMultiplechoice).fogOfWar === true
+        // Under partial credit the exact coefficient would reveal which selections changed.
+        const correctnessCoefficient = applyFogOfWar(itemGrading.correctnessCoefficient, fogOfWar)
 
         return {
-          timeline_item_feedbacks: null,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
           quiz_item_id: multipleChoiceQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
-          correctnessCoefficient: itemGrading.correctnessCoefficient,
+          correctnessCoefficient,
           quiz_item_option_feedbacks: multipleChoiceUserAnswer.selectedOptionIds.map(
             (optionId): OptionAnswerFeedback => {
               const option =
-                multipleChoiceQuizItem.options.find((option) => option.id === optionId) || null
+                multipleChoiceQuizItem.options.find((candidate) => candidate.id === optionId) ||
+                null
 
               if (!option) {
                 return {
@@ -82,7 +104,11 @@ const submissionFeedback = (
 
               return {
                 option_id: option.id,
-                option_feedback: option.messageAfterSubmissionWhenSelected,
+                option_feedback: joinFeedbackMessages(
+                  option.feedbackMessages
+                    .filter((m) => m.visibility === "when-selected-after-answer")
+                    .map((m) => m.message),
+                ),
                 // We'll reveal whether what the student chose was correct or not. If fogOfWar is turned on, we'll never reveal this in the grading and the student will have to get this information from the model solution spec.
                 this_option_was_correct: fogOfWar ? null : option.correct,
               }
@@ -92,23 +118,19 @@ const submissionFeedback = (
       }
 
       // Timeline
-      if (item.type == "timeline") {
+      if (item.type === "timeline") {
         const timelineQuizItem = item as PrivateSpecQuizItemTimeline
         const timelineItemAnswer = itemAnswer as UserItemAnswerTimeline
-        const quizItemFeedback =
-          itemGrading.correctnessCoefficient === 1
-            ? timelineQuizItem.successMessage
-            : timelineQuizItem.failureMessage
 
         return {
           quiz_item_id: timelineQuizItem.id,
           quiz_item_feedback: quizItemFeedback,
-          quiz_item_option_feedbacks: null,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
           correctnessCoefficient: itemGrading.correctnessCoefficient,
           timeline_item_feedbacks: timelineItemAnswer.timelineChoices.map<TimelineItemFeedback>(
             (timelineChoice) => {
               const timelineItem = timelineQuizItem.timelineItems?.find(
-                (timelineItem) => timelineItem.id == timelineChoice.timelineItemId,
+                (candidate) => candidate.id === timelineChoice.timelineItemId,
               )
               if (!timelineItem) {
                 return {
@@ -126,23 +148,40 @@ const submissionFeedback = (
         }
       }
 
+      if (item.type === "matrix") {
+        const matrixQuizItem = item as PrivateSpecQuizItemMatrix
+        // Null only if grading this item failed.
+        const difference = itemGrading.matrixDifference
+        // Fog of war withholds per-cell verdicts; the grader already forces it to all-or-nothing.
+        const revealCells = !matrixQuizItem.fogOfWar
+
+        return {
+          quiz_item_id: matrixQuizItem.id,
+          quiz_item_feedback: quizItemFeedback,
+          ...NO_TYPE_SPECIFIC_FEEDBACK,
+          matrix_cell_feedbacks: revealCells ? (difference?.cellFeedbacks ?? null) : null,
+          matrix_score_breakdown: revealCells ? (difference?.breakdown ?? null) : null,
+          correctnessCoefficient: itemGrading.correctnessCoefficient,
+        }
+      }
+
       return {
         quiz_item_id: item.id,
-        quiz_item_feedback:
-          itemGrading.correctnessCoefficient === 1 ? item.successMessage : item.failureMessage,
-        quiz_item_option_feedbacks: null,
-        timeline_item_feedbacks: null,
+        quiz_item_feedback: quizItemFeedback,
+        ...NO_TYPE_SPECIFIC_FEEDBACK,
         correctnessCoefficient: itemGrading.correctnessCoefficient,
       }
     },
   )
 
-  if (submitMessage && submitMessage.trim() !== "") {
+  const quizLevelFeedback = joinFeedbackMessages(
+    applicableItemFeedbackMessages(quiz.feedbackMessages, overallCorrectnessRatio),
+  )
+  if (quizLevelFeedback !== null) {
     itemFeedbacks.push({
       quiz_item_id: null,
-      quiz_item_feedback: submitMessage.trim(),
-      quiz_item_option_feedbacks: null,
-      timeline_item_feedbacks: null,
+      quiz_item_feedback: quizLevelFeedback,
+      ...NO_TYPE_SPECIFIC_FEEDBACK,
       correctnessCoefficient: 1,
     })
   }

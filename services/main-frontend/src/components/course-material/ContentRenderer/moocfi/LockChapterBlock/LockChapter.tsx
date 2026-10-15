@@ -7,13 +7,6 @@ import { useAtomValue, useSetAtom } from "jotai"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import LockAnimation from "./LockAnimation"
-import LockChapterLoadingView from "./LockChapterLoadingView"
-import LockChapterLockedView from "./LockChapterLockedView"
-import LockChapterUnlockedView from "./LockChapterUnlockedView"
-
 import {
   getCourseMaterialChapterLockPreview,
   lockCourseMaterialChapter,
@@ -22,12 +15,16 @@ import {
   refetchUserChapterLocks,
   useUserChapterLocks,
 } from "@/hooks/course-material/useUserChapterLocks"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { refetchViewAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from "../.."
+import LockAnimation from "./LockAnimation"
+import LockChapterLoadingView from "./LockChapterLoadingView"
+import LockChapterLockedView from "./LockChapterLockedView"
+import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
 interface LockChapterProps {
   chapterId: string
@@ -42,7 +39,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const triggerRefetch = useSetAtom(refetchViewAtom)
   const { confirm } = useDialog()
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [lockState, setLockState] = useState<LockState>("idle")
   const [showAnimation, setShowAnimation] = useState(false)
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
@@ -62,7 +59,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         },
       }),
     onSuccess: async () => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setLockState("locking")
       setShowAnimation(true)
       await refetchUserChapterLocks(queryClient, courseId)
@@ -162,7 +159,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         )
       }
 
-      const confirmed = await confirm(message, t("lock-chapter-confirm-title"))
+      const confirmed = await confirm({ message, title: t("lock-chapter-confirm-title") })
       if (confirmed) {
         lockMutation.mutate()
       }
@@ -175,10 +172,12 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   }
 
   const handleAnimationComplete = async () => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     setLockState("locked")
     await triggerRefetch()
-    await new Promise((resolve) => setTimeout(resolve, 200))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 200)
+    })
     setShowAnimation(false)
   }
 
@@ -190,11 +189,11 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     courseMaterialState.lockChapterContentState === "waiting_teacher_review"
 
   if (getUserLocks.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />
+    return <ErrorNotice error={getUserLocks.error} />
   }
 
   if (getUserLocks.isLoading) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   const shouldShowLockedView = lockState === "locked" || currentChapterIsLocked

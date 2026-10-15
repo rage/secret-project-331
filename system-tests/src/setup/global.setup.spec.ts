@@ -1,14 +1,19 @@
 // Does the rest of the global setup after globalSetup.ts but does it with a test so that we get playwright tracess if this happens to fail
 
-import { BrowserContext, Page, test } from "@playwright/test"
 import { statSync } from "fs"
 import path from "path"
 
+import type { BrowserContext, Page } from "@playwright/test"
+import { test } from "@playwright/test"
+
+import { CREDIT_REGISTRATION_STUDENT_EMAILS } from "../utils/creditRegistration"
 import { login } from "../utils/login"
 
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
 
 test("Global setup, setting up login states", async ({ page, context }) => {
+  // A few dozen logins, each a form submission and a page load.
+  test.slow()
   await createLoginStates(page, context)
 })
 
@@ -37,6 +42,12 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
+    // The password is the address's local part, for `seed_credit_registration.rs`'s accounts and
+    // the general `studentN` ones alike.
+    ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({
+      email,
+      password: email.replace(/@.*$/, ""),
+    })),
   ]
   // Creating the storage states for different users takes some time, so we'll avoid doing it again if the stored state has been already created recently.
   // Using older storage states would run into problems with cookie expiry. A different solution could modify the saved storage states
@@ -44,7 +55,7 @@ async function createLoginStates(page: Page, context: BrowserContext) {
   const allStorageStatesRecentlyCreated = usersLoginInformationToCache.every((loginInformation) => {
     try {
       const fileStats = statSync(path.join(__dirname, `../states/${loginInformation.email}.json`))
-      if (new Date().getTime() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
+      if (Date.now() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
         return true
       }
       return false

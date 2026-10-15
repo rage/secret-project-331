@@ -6,7 +6,7 @@ import {
 import { createMockMessagePort } from "../utils/iframeTestUtils"
 
 interface Spec {
-  items: Array<{ id: string; name: string }>
+  items: { id: string; name: string }[]
 }
 
 describe("applyOutputStateUpdate", () => {

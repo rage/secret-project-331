@@ -205,12 +205,12 @@ SELECT proposed_page_edits.id AS "page_proposal_id!",
   proposed_block_edits.id AS "block_proposal_id!",
   page_id as "page_id!",
   user_id,
-  block_id,
-  original_text,
-  changed_text,
+  block_id AS "block_id!",
+  original_text AS "original_text!",
+  changed_text AS "changed_text!",
   proposed_page_edits.pending as "pending!",
-  block_attribute,
-  proposed_block_edits.status AS "block_proposal_status",
+  block_attribute AS "block_attribute!",
+  proposed_block_edits.status AS "block_proposal_status!",
   proposed_page_edits.created_at as "created_at!",
   pages.title as "page_title!",
   pages.url_path as "page_url_path!"
@@ -453,6 +453,7 @@ WHERE id = $1
         url_path: page_with_exercises.page.url_path,
         title: page_with_exercises.page.title,
         chapter_id: page_with_exercises.page.chapter_id,
+        hidden: page_with_exercises.page.hidden,
     };
     crate::pages::update_page(
         &mut tx,
@@ -592,6 +593,7 @@ mod test {
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            hidden: false,
         };
         crate::pages::update_page(
             conn,

@@ -1,14 +1,12 @@
 import { type Page, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
-
+import { Checkbox } from "@/utils/components/Checkbox"
+import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-async function setPeerReviewCheckbox(page: Page, label: string, checked: boolean) {
-  await page.getByRole("checkbox", { name: label, exact: true }).setChecked(checked)
-}
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -37,8 +35,8 @@ async function openPeerReviewConfig(page: Page) {
 test("create peer review", async ({ page }) => {
   await openPeerReviewConfig(page)
 
-  await setPeerReviewCheckbox(page, "Add peer review", true)
-  await setPeerReviewCheckbox(page, "Use course default peer review config", false)
+  await Checkbox.labelled(page, "Add peer review").setChecked(true)
+  await Checkbox.labelled(page, "Use course default peer review config").setChecked(false)
 
   await page.getByText("Add peer review question").click()
   // Fill text=Insert question here
@@ -53,8 +51,8 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   await openPeerReviewConfig(page)
 
   // "Use course default" only renders once peer review is enabled.
-  await setPeerReviewCheckbox(page, "Add peer review", true)
-  await setPeerReviewCheckbox(page, "Use course default peer review config", true)
+  await Checkbox.labelled(page, "Add peer review").setChecked(true)
+  await Checkbox.labelled(page, "Use course default peer review config").setChecked(true)
 
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
@@ -77,7 +75,9 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   // Fill input[type="number"] >> nth=1
   await page1.locator('input[type="number"]').nth(1).fill("4")
   // Select ManualReviewEverything
-  await page1.getByLabel("Peer review processing").selectOption("ManualReviewEverything")
+  await Select.labelled(page1, "Peer review processing strategy").chooseOption(
+    "Manual review everything",
+  )
 
   await page1.getByRole("button", { name: "Delete" }).nth(1).click()
   // Fill text=General comments

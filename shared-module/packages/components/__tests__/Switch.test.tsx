@@ -4,7 +4,6 @@ import { fireEvent, screen } from "@testing-library/react"
 import type React from "react"
 
 import { Switch } from "../src/components/Switch"
-
 import { pressSpace, renderBooleanField, renderWithForm } from "./testUtils"
 
 describe("Switch", () => {
@@ -92,5 +91,13 @@ describe("Switch", () => {
       "type",
       "checkbox",
     )
+  })
+
+  test("data-testid lands on the switch input", () => {
+    renderBooleanField((control) => (
+      <Switch name="f" control={control} label="Tagged" data-testid="tagged-switch" />
+    ))
+
+    expect(screen.getByTestId("tagged-switch")).toBe(screen.getByRole("switch", { name: "Tagged" }))
   })
 })

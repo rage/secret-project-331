@@ -1,7 +1,8 @@
 import type React from "react"
+import { VisuallyHidden } from "react-aria"
 
 export function hasTextControlValue(value: unknown): boolean {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return false
   }
 
@@ -10,6 +11,13 @@ export function hasTextControlValue(value: unknown): boolean {
 
 export function shouldFloatLabel(isFocused: boolean, hasValue: boolean): boolean {
   return isFocused || hasValue
+}
+
+/** True when `label` is wrapped in `<VisuallyHidden>`, so the field has no visible label to float. */
+export function isVisuallyHiddenLabel(label: React.ReactNode): boolean {
+  return (
+    typeof label === "object" && label !== null && "type" in label && label.type === VisuallyHidden
+  )
 }
 
 export function resolveFloatingPlaceholder(placeholder?: string): string {

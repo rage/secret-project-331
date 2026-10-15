@@ -1,9 +1,10 @@
-import watcher from "@parcel/watcher"
 import { exec as execOriginal } from "child_process"
 import { readdir, stat } from "fs/promises"
-import { groupBy } from "lodash"
 import path from "path"
 import { promisify } from "util"
+
+import watcher from "@parcel/watcher"
+import { groupBy } from "lodash"
 
 const exec = promisify(execOriginal)
 
@@ -31,6 +32,17 @@ const REACT_EXERCISE_TARGETS = [
   "services/tmc/src/shared-module",
 ]
 
+// The host SDK (MessageChannelIFrame) is used only by the apps that *embed* exercise iframes, not
+// by the exercise services themselves (which are the iframe child). Only cms and main-frontend
+// render it, so it is vendored there and nowhere else.
+const HOST_TARGETS = ["services/cms/src/shared-module", "services/main-frontend/src/shared-module"]
+
+// The exercise-service testing utilities (host emulator + Playwright helpers) are only needed by
+// the standalone-capable template's e2e suite, which every generated service inherits. Vendoring it
+// into example-exercise lets its `@/shared-module/exercise-service-test-utils/...` imports resolve;
+// no other service uses it.
+const TEST_UTIL_TARGETS = ["services/example-exercise/src/shared-module"]
+
 // example-exercise is the standalone-capable template: it consumes only the exercise-service
 // packages, so common and components are not synced into it.
 const COMMON_AND_COMPONENTS_TARGETS = ALL_SERVICES_TARGETS.filter(
@@ -57,6 +69,14 @@ const SYNC_TARGETS = [
   {
     source: "exercise-react",
     destinations: REACT_EXERCISE_TARGETS,
+  },
+  {
+    source: "exercise-iframe-host",
+    destinations: HOST_TARGETS,
+  },
+  {
+    source: "exercise-service-test-utils",
+    destinations: TEST_UTIL_TARGETS,
   },
 ]
 
@@ -139,8 +159,8 @@ async function runSync(restarted: boolean) {
               events.map((event) => {
                 const relativePath = path.relative(__dirname, event.path)
                 const syncFolder =
-                  SYNC_TARGETS.find((target) =>
-                    relativePath.startsWith(`packages` + path.sep + target.source),
+                  SYNC_TARGETS.find((syncTarget) =>
+                    relativePath.startsWith(`packages` + path.sep + syncTarget.source),
                   ) ?? null
                 return {
                   path: relativePath,
@@ -154,12 +174,12 @@ async function runSync(restarted: boolean) {
               console.log("Changes:", JSON.stringify(changes, null, 2))
             }
 
-            for (const [syncFolder, events] of Object.entries(changes)) {
-              const targets = SYNC_TARGETS.find((target) => target.source === syncFolder)
+            for (const [syncFolder, folderEvents] of Object.entries(changes)) {
+              const targets = SYNC_TARGETS.find((syncTarget) => syncTarget.source === syncFolder)
 
               // Syncing is done with rsync, but we'll want to minimize the number of files rsync has to go through
               // Therefore we'll find the common root of all changed files and sync from there
-              const commonRoot = getCommonRootOfChanges(events)
+              const commonRoot = getCommonRootOfChanges(folderEvents)
               console.info(
                 `Syncing changes in "${commonRoot}" to ${targets?.destinations.length} destinations.`,
               )
@@ -180,10 +200,14 @@ async function runSync(restarted: boolean) {
   console.log("Watching...")
 
   while (true) {
-    await new Promise((resolve) => setTimeout(resolve, 300_000))
+    await new Promise((resolve) => {
+      setTimeout(resolve, 300_000)
+    })
     if (shouldRestart) {
       console.log("Error detected, restarting in 15 seconds...")
-      await new Promise((resolve) => setTimeout(resolve, 15_000))
+      await new Promise((resolve) => {
+        setTimeout(resolve, 15_000)
+      })
       break
     }
     if (Date.now() - startTime > 3_600_000) {
@@ -307,4 +331,5 @@ async function cleanUpFolders() {
   }
 }
 
+// oxlint-disable-next-line unicorn/prefer-top-level-await -- fire-and-forget entrypoint; avoid top-level await
 main()

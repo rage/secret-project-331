@@ -1,18 +1,19 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import ChatbotEditor from "./ChatbotEditor"
 import ChatbotSave from "./ChatbotSave"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 export interface ChatbotBlockAttributes {
   chatbotConfigurationId: string | undefined
-  courseId: string
+  courseId: string | undefined
 }
 
 const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {
+  apiVersion: 3,
   title: "Chatbot",
   description: "Used to embed a chatbot chatbox in course material.",
   category: "other",

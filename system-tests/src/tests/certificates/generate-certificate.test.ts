@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -13,7 +13,7 @@ test.use({
 test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.getByRole("link", { name: "Navigate to course 'Certificates'" }).click()
+  await page.getByRole("link", { name: "Certificates", exact: true }).click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -27,8 +27,8 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Try again").waitFor()
   await page.getByRole("link", { name: "Certificates" }).click()
-  await page.getByRole("button", { name: "Generate certificate for completion" }).first().click()
-  await page.getByLabel("Your name  *").fill("Example User")
+  await page.getByRole("link", { name: "Generate certificate for completion" }).first().click()
+  await page.getByLabel("Your name").fill("Example User")
 
   await page.getByRole("button", { name: "Generate" }).click()
   await respondToConfirmDialog(page, true)
@@ -45,5 +45,11 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
       page.getByRole("img", { name: "Certificate for completing a course module" }),
     ],
     scrollToYCoordinate: 0,
+  })
+
+  await test.step("The certificate is listed on the holder's own profile", async () => {
+    await page.goto("http://project-331.local/profile/studies")
+    await expect(page.getByRole("heading", { name: "My certificates" })).toBeVisible()
+    await expect(page.getByRole("link", { name: "View certificate" }).first()).toBeVisible()
   })
 })

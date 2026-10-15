@@ -1,5 +1,3 @@
-"use client"
-
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 export const TWO_DIMENSIONAL_BUTTON_STYLES = `
@@ -40,7 +38,8 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
     outline-offset: 2px;
   }
 
-  &[aria-pressed="true"] {
+  &[aria-pressed="true"],
+  &[aria-current="true"] {
     font-weight: 600;
   }
 

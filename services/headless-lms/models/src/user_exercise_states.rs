@@ -49,6 +49,8 @@ pub enum ReviewingStage {
     ReviewedAndLocked,
     /// In this stage the exercise has been locked due to chapter locking, but no review has been performed.
     Locked,
+    /// In this stage the chapter was locked while the student had not returned an answer to the exercise. There is nothing for anyone to review, and the student can no longer answer the exercise.
+    NotAnsweredAndLocked,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -111,6 +113,10 @@ pub struct UserCourseProgress {
     pub total_exercises: Option<u32>,
     pub attempted_exercises: Option<i32>,
     pub attempted_exercises_required: Option<i32>,
+    /// False when a teacher grades the module, in which case neither threshold applies.
+    pub automatic_completion: bool,
+    /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
+    pub requires_exam: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -398,6 +404,125 @@ pub async fn get_user_course_progress(
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
 }
 
+/// One course module's exercise standing for one user, and the thresholds an automatic completion
+/// measures it against. Points are exercise scores, never ECTS credits.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct UserCourseModuleProgress {
+    pub score_given: f32,
+    /// `None` when the module has no exercises.
+    pub score_maximum: Option<u32>,
+    /// `None` when the module is completed manually or sets no point threshold.
+    pub score_required: Option<i32>,
+    /// `None` when the module has no exercises.
+    pub total_exercises: Option<u32>,
+    /// Exercises the user has answered, counted as the completion check counts them.
+    pub attempted_exercises: i32,
+    /// `None` when the module is completed manually or sets no attempt threshold.
+    pub attempted_exercises_required: Option<i32>,
+    /// False when a teacher grades the module, in which case neither threshold applies.
+    pub automatic_completion: bool,
+    /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
+    pub requires_exam: bool,
+}
+
+/// The user's standing in every module of the given courses, keyed by course module id.
+///
+/// Every non-deleted module of those courses gets an entry, whether or not the user has answered
+/// anything in it. Closed chapters are included. Confusable with `get_user_course_progress`, which
+/// answers the same question one course at a time.
+pub async fn get_user_course_module_progress(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+    user_id: Uuid,
+) -> ModelResult<HashMap<Uuid, UserCourseModuleProgress>> {
+    let exercise_rows = sqlx::query!(
+        r#"
+SELECT chapters.course_module_id AS "course_module_id!",
+  SUM(exercises.score_maximum) AS "score_maximum!",
+  COUNT(exercises.id) AS "total_exercises!"
+FROM exercises
+  JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE exercises.course_id = ANY($1)
+  AND exercises.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
+  AND chapters.course_module_id IS NOT NULL
+GROUP BY chapters.course_module_id
+        "#,
+        course_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let mut score_maximum_by_module: HashMap<Uuid, i64> = HashMap::new();
+    let mut total_exercises_by_module: HashMap<Uuid, i64> = HashMap::new();
+    for row in exercise_rows {
+        score_maximum_by_module.insert(row.course_module_id, row.score_maximum);
+        total_exercises_by_module.insert(row.course_module_id, row.total_exercises);
+    }
+
+    let answered_rows = sqlx::query!(
+        r#"
+SELECT chapters.course_module_id AS "course_module_id!",
+  COALESCE(SUM(ues.score_given), 0) AS "score_given!",
+  COUNT(ues.exercise_id) AS "attempted_exercises!"
+FROM user_exercise_states AS ues
+  JOIN exercises ON (ues.exercise_id = exercises.id)
+  JOIN chapters ON (exercises.chapter_id = chapters.id)
+WHERE ues.course_id = ANY($1)
+  AND ues.user_id = $2
+  AND ues.activity_progress IN ('completed', 'submitted')
+  AND ues.deleted_at IS NULL
+  AND exercises.deleted_at IS NULL
+  AND chapters.deleted_at IS NULL
+  AND chapters.course_module_id IS NOT NULL
+GROUP BY chapters.course_module_id
+        "#,
+        course_ids,
+        user_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let mut score_given_by_module: HashMap<Uuid, f32> = HashMap::new();
+    let mut attempted_exercises_by_module: HashMap<Uuid, i64> = HashMap::new();
+    for row in answered_rows {
+        score_given_by_module.insert(row.course_module_id, row.score_given);
+        attempted_exercises_by_module.insert(row.course_module_id, row.attempted_exercises);
+    }
+
+    course_modules::get_by_course_ids(conn, course_ids)
+        .await?
+        .into_iter()
+        .map(|course_module| {
+            let requirements = course_module.completion_policy.automatic();
+            let progress = UserCourseModuleProgress {
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
+                    score_given_by_module.get(&course_module.id).copied(),
+                ),
+                score_maximum: score_maximum_by_module
+                    .get(&course_module.id)
+                    .copied()
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                score_required: requirements.and_then(|x| x.number_of_points_treshold),
+                total_exercises: total_exercises_by_module
+                    .get(&course_module.id)
+                    .copied()
+                    .map(TryInto::try_into)
+                    .transpose()?,
+                attempted_exercises: attempted_exercises_by_module
+                    .get(&course_module.id)
+                    .copied()
+                    .unwrap_or(0)
+                    .try_into()?,
+                attempted_exercises_required: requirements
+                    .and_then(|x| x.number_of_exercises_attempted_treshold),
+                automatic_completion: requirements.is_some(),
+                requires_exam: requirements.is_some_and(|x| x.requires_exam),
+            };
+            Ok((course_module.id, progress))
+        })
+        .collect::<ModelResult<_>>()
+}
+
 /// Gets the total amount of points that the user has received from an exam.
 ///
 /// The caller should take into consideration that for an ongoing exam the result will be volatile.
@@ -460,6 +585,8 @@ fn merge_modules_with_metrics(
                     .transpose()?,
                 attempted_exercises_required: requirements
                     .and_then(|x| x.number_of_exercises_attempted_treshold),
+                automatic_completion: requirements.is_some(),
+                requires_exam: requirements.is_some_and(|x| x.requires_exam),
             };
             Ok(progress)
         })
@@ -1347,32 +1474,64 @@ pub async fn get_returned_exercise_ids_for_user_and_course(
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
-    #[derive(sqlx::FromRow)]
-    struct ExerciseIdRow {
-        exercise_id: Uuid,
-    }
-
-    let returned_exercise_ids: Vec<ExerciseIdRow> = sqlx::query_as::<_, ExerciseIdRow>(
+    let returned_exercise_ids = sqlx::query_scalar!(
         r#"
-        SELECT DISTINCT exercise_id
-        FROM user_exercise_states
-        WHERE exercise_id = ANY($1::uuid[])
-          AND user_id = $2
-          AND course_id = $3
-          AND deleted_at IS NULL
-          AND activity_progress IN ('completed', 'submitted')
+SELECT DISTINCT exercise_id
+FROM user_exercise_states
+WHERE exercise_id = ANY($1::uuid[])
+  AND user_id = $2
+  AND course_id = $3
+  AND deleted_at IS NULL
+  AND activity_progress IN ('completed', 'submitted')
         "#,
+        exercise_ids,
+        user_id,
+        course_id,
     )
-    .bind(exercise_ids)
-    .bind(user_id)
-    .bind(course_id)
     .fetch_all(conn)
     .await?;
 
-    Ok(returned_exercise_ids
-        .into_iter()
-        .map(|r| r.exercise_id)
-        .collect())
+    Ok(returned_exercise_ids)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, FromRow)]
+pub struct UserExerciseStateWithExerciseName {
+    pub exercise_id: Uuid,
+    pub exercise_name: String,
+    pub reviewing_stage: ReviewingStage,
+    pub score_given: Option<f32>,
+}
+
+/// The user's exercise states in the given course currently sitting in one of `stages`, e.g. to
+/// list what is awaiting peer/self/manual review.
+pub async fn get_states_in_reviewing_stages_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    stages: &[ReviewingStage],
+) -> ModelResult<Vec<UserExerciseStateWithExerciseName>> {
+    let res = sqlx::query_as!(
+        UserExerciseStateWithExerciseName,
+        r#"
+SELECT e.id AS exercise_id,
+  e.name AS exercise_name,
+  ues.reviewing_stage,
+  ues.score_given
+FROM user_exercise_states ues
+  JOIN exercises e ON e.id = ues.exercise_id
+WHERE ues.user_id = $1
+  AND ues.course_id = $2
+  AND ues.reviewing_stage = ANY($3::reviewing_stage[])
+  AND ues.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        user_id,
+        course_id,
+        stages as &[ReviewingStage],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 #[cfg(test)]
@@ -1409,7 +1568,7 @@ mod tests {
                 Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             )
             .set_timestamps(timestamp, timestamp, None)
-            .set_registration_info(None, Some(5.0), None, false),
+            .set_registration_info(None, Some(5.0), None, false, false),
         ];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
@@ -1492,6 +1651,7 @@ mod tests {
                 chapter_id: Some(new_chapter.id),
                 front_page_of_chapter_id: Some(new_chapter.id),
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -1557,6 +1717,7 @@ mod tests {
                 chapter_id: Some(new_chapter2.id),
                 front_page_of_chapter_id: Some(new_chapter2.id),
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -1647,6 +1808,7 @@ mod tests {
                 chapter_id: Some(new_chapter.id),
                 front_page_of_chapter_id: Some(new_chapter.id),
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),

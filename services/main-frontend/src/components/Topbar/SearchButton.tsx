@@ -2,9 +2,10 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { MagnifyingGlass, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React, { useEffect, useMemo, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
@@ -13,13 +14,14 @@ import {
   searchPagesWithWords,
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import Spinner from "@/shared-module/common/components/Spinner"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
+import { Button, Dialog, Spinner } from "@/shared-module/components"
+
+import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
 const HeaderBar = styled.div`
   display: flex;
@@ -45,7 +47,8 @@ const SearchContainer = styled.div<{ $hasContent: boolean }>`
 const SearchInputContainer = styled.div`
   position: relative;
   flex-shrink: 0;
-  padding: 0 1rem;
+  /* Clears the dialog's floating close button. */
+  padding: 0 3.5rem 0 1rem;
 `
 
 const ResultsContainer = styled.div<{ $hasResults: boolean }>`
@@ -72,10 +75,9 @@ const EmptyState = styled.div`
   transition: padding 0.2s ease;
 `
 
-const ResultCard = styled(Link)`
-  text-decoration: none;
-  color: unset;
-  display: block;
+const ResultCard = styled.div`
+  /* Positioning context for the stretched heading link, which makes the whole card clickable. */
+  position: relative;
   background: #ffffff;
   margin-bottom: 0.5rem;
   padding: 1rem;
@@ -83,7 +85,8 @@ const ResultCard = styled(Link)`
   transition: all 0.2s ease;
   border: 1px solid ${baseTheme.colors.gray[100]};
 
-  &:hover {
+  &:hover,
+  &:focus-within {
     background: ${baseTheme.colors.green[100]};
     border-color: ${baseTheme.colors.green[200]};
     transform: translateY(-1px);
@@ -116,6 +119,25 @@ const ResultCard = styled(Link)`
     ${respondToOrLarger.md} {
       font-size: 0.875rem;
     }
+  }
+`
+
+const ResultHeadingLink = styled(Link)`
+  text-decoration: none;
+  color: unset;
+  display: block;
+
+  /* Stretched link: extends the hit area over the whole card while the accessible name stays the
+     heading text. Safe only because the card has no other interactive elements to shadow. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
   }
 `
 
@@ -158,32 +180,11 @@ const StyledIcon = css`
   }
 `
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  padding: 2px;
-  margin: 0;
-  cursor: pointer;
-  color: ${baseTheme.colors.gray[400]};
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-
-  &:hover {
-    color: ${baseTheme.colors.gray[600]};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${baseTheme.colors.green[400]};
-    outline-offset: 2px;
-  }
-`
-
 const KEYS = {
   SHORTCUT: "k",
 }
+
+const SEARCH_BUTTON_ID = "search-for-pages-button"
 
 export interface SearchButtonProps {
   courseId?: string | null
@@ -192,6 +193,7 @@ export interface SearchButtonProps {
 
 const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug }) => {
   const { t } = useTranslation()
+  const { t: tErrors } = useTranslation("errors")
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState<string>("")
   const [debouncedQuery] = useDebounce(query, 200)
@@ -208,7 +210,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
     }
     const pages = [...phraseSearchResults]
     wordSearchResults.forEach((pageWithWords) => {
-      if (pages.find((p) => p.id === pageWithWords.id)) {
+      if (pages.some((p) => p.id === pageWithWords.id)) {
         return
       }
       pages.push(pageWithWords)
@@ -225,6 +227,13 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
       isLoading || !!error || debouncedQuery.trim() !== "" || (combinedResults?.length ?? 0) > 0
     )
   }, [isLoading, error, debouncedQuery, combinedResults])
+
+  const liveRegionMessage = useSearchPagesLiveRegion({
+    searchQuery: debouncedQuery,
+    isLoading,
+    isError: error !== null,
+    resultCount: combinedResults?.length ?? null,
+  })
 
   useEffect(() => {
     async function innerFunction() {
@@ -265,10 +274,10 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)
       } catch (e: unknown) {
-        if (e instanceof Error && e.name === "AbortError") {
+        if (isAbortError(e)) {
           return
         }
-        const parsed = normalizeErrorForDisplay(e, t)
+        const parsed = normalizeErrorForDisplay(e, tErrors)
         setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
@@ -279,7 +288,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery, t])
+  }, [courseId, debouncedQuery, tErrors])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -325,25 +334,21 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
   return (
     <>
       <Button
-        tabIndex={0}
-        id="search-for-pages-button"
+        domProps={{ tabIndex: 0, id: SEARCH_BUTTON_ID, "aria-hidden": false }}
         className={StyledIcon}
         aria-label={t("button-label-search-for-pages")}
-        aria-hidden={false}
         size="small"
         variant="icon"
         onClick={openModal}
       >
         <MagnifyingGlass size={16} weight="bold" />
       </Button>
-      <Dialog
-        open={open}
-        onClose={closeModal}
-        noPadding
-        preventBackgroundScroll
-        aria-label={t("title-search-dialog")}
-      >
+      <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
         <SearchContainer $hasContent={hasContent}>
+          {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- VisuallyHidden wrapper with role=status; <output> drops the styling */}
+          <VisuallyHidden aria-live="polite" aria-atomic role="status">
+            {liveRegionMessage}
+          </VisuallyHidden>
           <SearchInputContainer>
             <HeaderBar>
               <SearchIcon size={20} weight="bold" />
@@ -356,9 +361,6 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                 }}
                 placeholder={t("search-field-placeholder")}
               />
-              <CloseButton type="button" aria-label={t("close")} onClick={closeModal}>
-                <XmarkCircle size={18} />
-              </CloseButton>
             </HeaderBar>
           </SearchInputContainer>
 
@@ -378,9 +380,10 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
               </div>
             )}
 
+            {/* Decorative: useSearchPagesLiveRegion above already announces the searching state. */}
             {isLoading && (
               <LoadingContainer>
-                <Spinner variant="medium" />
+                <Spinner size="md" />
               </LoadingContainer>
             )}
 
@@ -402,11 +405,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                 const relativePathWithSlash =
                   pathSegments.length > 1 ? `/${pathSegments.slice(1).join("/")}` : "/"
                 return (
-                  <ResultCard
-                    href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
-                    key={result.id}
-                    onClick={handleResultClick}
-                  >
+                  <ResultCard key={result.id}>
                     <h2
                       className={css`
                         font-size: 1.5rem;
@@ -414,22 +413,29 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                           text-decoration: underline;
                         }
                       `}
-                      dangerouslySetInnerHTML={{
-                        __html: result.title_headline ?? "",
-                      }}
-                    />
-                    {result.chapter_name != null && result.chapter_name !== "" && (
-                      <div
-                        className={css`
-                          font-size: 0.75rem;
-                          color: ${baseTheme.colors.gray[500]};
-                          margin: 0 0 0.25rem;
-                          line-height: 1.4;
-                        `}
-                      >
-                        {result.chapter_name}
-                      </div>
-                    )}
+                    >
+                      <ResultHeadingLink
+                        href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
+                        onClick={handleResultClick}
+                        dangerouslySetInnerHTML={{
+                          __html: result.title_headline ?? "",
+                        }}
+                      />
+                    </h2>
+                    {result.chapter_name !== null &&
+                      result.chapter_name !== undefined &&
+                      result.chapter_name !== "" && (
+                        <div
+                          className={css`
+                            font-size: 0.75rem;
+                            color: ${baseTheme.colors.gray[500]};
+                            margin: 0 0 0.25rem;
+                            line-height: 1.4;
+                          `}
+                        >
+                          {result.chapter_name}
+                        </div>
+                      )}
                     {result.content_headline && (
                       <p
                         className={css`

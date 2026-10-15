@@ -2,10 +2,10 @@
 
 import React from "react"
 
-import { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 const AuthorInnerBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<Record<string, never>>>

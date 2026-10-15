@@ -1,38 +1,34 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { PasswordField } from "@/components/forms/PasswordField"
 import { resetUserPassword } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { Button } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type ResetPasswordFormFields = {
-  token: string
+interface ResetPasswordFormFields {
   new_password: string
   password_confirmation: string
 }
 
-type ResetPasswordFormProps = {
+interface ResetPasswordFormProps {
   token: string
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const { t } = useTranslation()
-  const {
-    handleSubmit,
-    register,
-    watch,
-    formState: { errors },
-  } = useForm<ResetPasswordFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+  const { control, handleSubmit, watch } = useForm<ResetPasswordFormFields>({
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
-      token,
+      new_password: "",
+      password_confirmation: "",
     },
   })
   const router = useRouter()
@@ -41,7 +37,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
 
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
-      const { token, new_password } = data
+      const { new_password } = data
       return validateGeneratedData(
         await resetUserPassword({
           body: {
@@ -58,7 +54,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     },
     {
       onSuccess: () => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.push("/login?return_to=%2F")
       },
     },
@@ -68,37 +64,48 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     <div>
       <h1>{t("confirm-your-new-password")}</h1>
 
-      <form onSubmit={handleSubmit((data) => postPasswordChangeMutation.mutate(data))}>
-        <TextField
+      <form
+        onSubmit={handleSubmit((data) => postPasswordChangeMutation.mutate(data))}
+        className={css`
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          max-width: 420px;
+        `}
+      >
+        <PasswordField
+          name="new_password"
+          control={control}
           label={t("password")}
-          type="password"
-          placeholder={t("enter-your-password")}
-          {...register("new_password", {
+          autoComplete="new-password"
+          isRequired
+          rules={{
             required: t("required-field"),
             minLength: {
               value: 8,
               message: t("password-must-have-at-least-8-characters"),
             },
-          })}
-          error={errors.new_password?.message}
-          required
+          }}
         />
 
-        <TextField
+        <PasswordField
+          name="password_confirmation"
+          control={control}
           label={t("confirm-password")}
-          type="password"
-          placeholder={t("confirm-your-password")}
-          {...register("password_confirmation", {
+          autoComplete="new-password"
+          isRequired
+          rules={{
             required: t("required-field"),
-            validate: (value) => value === newPassword || t("passwords-dont-match"),
-          })}
-          error={errors.password_confirmation?.message}
-          required
+            validate: (value: string) => value === newPassword || t("passwords-dont-match"),
+          }}
         />
 
-        <input type="hidden" value={token} {...register("token")} />
-
-        <Button type="submit" variant="primary" size={"small"}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="medium"
+          isLoading={postPasswordChangeMutation.isPending}
+        >
           {t("submit")}
         </Button>
       </form>

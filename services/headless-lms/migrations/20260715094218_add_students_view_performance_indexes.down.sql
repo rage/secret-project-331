@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS course_instance_enrollments_course_id_user_id_idx;
+DROP INDEX IF EXISTS generated_certificates_user_id_idx;
+DROP INDEX IF EXISTS cmc_registered_to_study_registries_course_id_idx;

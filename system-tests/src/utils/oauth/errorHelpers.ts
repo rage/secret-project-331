@@ -1,6 +1,7 @@
-import { expect, Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
-import { getRedirectUri } from "./redirectServer"
+import { getRedirectUri } from "@/fixtures/oauth"
 
 export interface OAuthError {
   error: string

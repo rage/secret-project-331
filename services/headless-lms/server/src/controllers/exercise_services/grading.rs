@@ -7,12 +7,27 @@ POST `/api/v0/exercise-services/grading/grading-update/:submission_id`
 
 Receives a grading update from an exercise service.
 */
-#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/grading-update/{submission_id}",
+    operation_id = "updateExerciseTaskGrading",
+    tag = "exercise-services-grading",
+    params(
+        ("submission_id" = Uuid, Path, description = "Exercise task submission id")
+    ),
+    request_body = ExerciseTaskGradingResult,
+    responses(
+        (status = 200, description = "Grading update applied")
+    )
+)]
+#[instrument(skip(pool, file_store, app_conf))]
 async fn grading_update(
     submission_id: web::Path<Uuid>,
     grading_result: web::Json<ExerciseTaskGradingResult>,
     grading_update_claim: GradingUpdateClaim,
     pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<()>> {
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
@@ -20,39 +35,73 @@ async fn grading_update(
     let grading_result = grading_result.into_inner();
 
     // Ensure that the claim is valid for this specific submission
-    if *submission_id != grading_update_claim.submission_id() {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Grading upload claim didn't match the submission id".to_string(),
-            None,
-        ));
-    }
+    verify_claim_matches_submission(*submission_id, grading_update_claim.submission_id())?;
 
     let mut conn = pool.acquire().await?;
-
-    // Add new grading
-    let submission =
-        models::exercise_task_submissions::get_submission(&mut conn, *submission_id).await?;
-    let slide =
-        models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
-            .await?;
-    let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
+    apply_grading_update(
         &mut conn,
         *submission_id,
+        &grading_result,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
-    .await?
-    .ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "No existing grading for the submission found".to_string(),
-            None,
-        )
-    })?;
-    let exercise = models::exercises::get_by_id(&mut conn, slide.exercise_id).await?;
-    models::exercise_task_gradings::update_grading(&mut conn, &grading, &grading_result, &exercise)
-        .await?;
+    .await?;
 
     token.authorized_ok(web::Json(()))
+}
+
+/// Rejects a grading update whose signed claim authorizes a different submission than the one
+/// addressed by the URL path.
+fn verify_claim_matches_submission(
+    submission_id: Uuid,
+    claim_submission_id: Uuid,
+) -> Result<(), ControllerError> {
+    if submission_id != claim_submission_id {
+        return Err(controller_err!(
+            BadRequest,
+            "Grading upload claim didn't match the submission id".to_string()
+        ));
+    }
+    Ok(())
+}
+
+/// Applies a grading result to the submission's existing grading.
+async fn apply_grading_update(
+    conn: &mut PgConnection,
+    submission_id: Uuid,
+    grading_result: &ExerciseTaskGradingResult,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> Result<(), ControllerError> {
+    let submission = models::exercise_task_submissions::get_submission(
+        conn,
+        submission_id,
+        file_store,
+        app_conf,
+    )
+    .await?;
+    let slide =
+        models::exercise_slides::get_exercise_slide(conn, submission.exercise_slide_id).await?;
+    // The submission's current grading, not any grading of it: a regrading adds a row per run.
+    let grading_id = submission.exercise_task_grading_id.ok_or_else(|| {
+        controller_err!(
+            BadRequest,
+            "No existing grading for the submission found".to_string()
+        )
+    })?;
+    let grading = models::exercise_task_gradings::get_by_id(conn, grading_id).await?;
+    let exercise = models::exercises::get_by_id(conn, slide.exercise_id).await?;
+    let mut tx = conn.begin().await?;
+    models::library::grading::apply_grading_update(
+        &mut tx,
+        &exercise,
+        &submission,
+        &grading,
+        grading_result,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(())
 }
 
 /**
@@ -68,4 +117,255 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "grading-update/{submission_id}",
         web::post().to(grading_update),
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+    use actix_web::ResponseError;
+    use actix_web::http::StatusCode;
+    use futures_util::FutureExt;
+    use models::exercise_slide_submissions::NewExerciseSlideSubmission;
+    use models::exercise_task_gradings::UserPointsUpdateStrategy;
+    use models::exercises::GradingProgress;
+
+    fn grading_result() -> ExerciseTaskGradingResult {
+        ExerciseTaskGradingResult {
+            grading_progress: GradingProgress::FullyGraded,
+            score_given: 1.0,
+            score_maximum: 1,
+            feedback_text: Some("well done".to_string()),
+            feedback_json: None,
+            set_user_variables: None,
+        }
+    }
+
+    /// An exercise service must not be able to use a claim signed for one submission to
+    /// overwrite the grading of another; the path id and the claim's id have to agree.
+    #[test]
+    fn claim_for_another_submission_is_rejected() {
+        let submission_id = Uuid::new_v4();
+        let other_submission_id = Uuid::new_v4();
+        let err = verify_claim_matches_submission(submission_id, other_submission_id)
+            .expect_err("a claim for another submission must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+        let value = error_body(err);
+        assert_eq!(value["type"], "validation_error");
+        assert!(
+            value["message"]
+                .as_str()
+                .unwrap_or_default()
+                .contains("didn't match the submission id"),
+            "unexpected message: {}",
+            value["message"]
+        );
+    }
+
+    #[test]
+    fn claim_for_the_same_submission_is_accepted() {
+        let submission_id = Uuid::new_v4();
+        assert!(verify_claim_matches_submission(submission_id, submission_id).is_ok());
+    }
+
+    /// A grading update for a submission that was never sent out for grading has nothing to
+    /// update; it must be a client error rather than a panic or a silent no-op.
+    #[actix_web::test]
+    async fn update_without_an_existing_grading_is_rejected() {
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);
+        let submission_id =
+            insert_task_submission(&mut tx, user, course, exercise, slide, task).await;
+
+        let err = apply_grading_update(
+            tx.as_mut(),
+            submission_id,
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect_err("a submission without a grading row must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+        let value = error_body(err);
+        assert!(
+            value["message"]
+                .as_str()
+                .unwrap_or_default()
+                .contains("No existing grading for the submission found"),
+            "unexpected message: {}",
+            value["message"]
+        );
+    }
+
+    /// Positive control for the test above: with a grading row present, the same call writes
+    /// the result through.
+    #[actix_web::test]
+    async fn update_with_an_existing_grading_writes_the_result_and_the_points() {
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);
+        let submission_id =
+            insert_task_submission(&mut tx, user, course, exercise, slide, task).await;
+        let grading_id = models::exercise_task_gradings::insert(
+            tx.as_mut(),
+            models::PKeyPolicy::Generate,
+            submission_id,
+            course,
+            exercise,
+            task,
+        )
+        .await
+        .unwrap();
+        models::exercise_task_submissions::set_grading_id(tx.as_mut(), grading_id, submission_id)
+            .await
+            .unwrap();
+
+        apply_grading_update(
+            tx.as_mut(),
+            submission_id,
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect("the grading update should be applied");
+
+        let grading = models::exercise_task_gradings::get_by_id(tx.as_mut(), grading_id)
+            .await
+            .unwrap();
+        assert_eq!(grading.grading_progress, GradingProgress::FullyGraded);
+        assert_eq!(grading.unscaled_score_given, Some(1.0));
+        assert_eq!(grading.feedback_text.as_deref(), Some("well done"));
+        assert!(grading.grading_completed_at.is_some());
+
+        let state = models::user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        assert_eq!(state.grading_progress, GradingProgress::FullyGraded);
+        assert_eq!(state.score_given, grading.score_given);
+    }
+
+    #[actix_web::test]
+    async fn update_after_a_regrading_writes_the_current_grading() {
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, :task);
+        let submission_id =
+            insert_task_submission(&mut tx, user, course, exercise, slide, task).await;
+        let mut grading_ids = Vec::new();
+        for _ in 0..2 {
+            grading_ids.push(
+                models::exercise_task_gradings::insert(
+                    tx.as_mut(),
+                    models::PKeyPolicy::Generate,
+                    submission_id,
+                    course,
+                    exercise,
+                    task,
+                )
+                .await
+                .unwrap(),
+            );
+        }
+        let (superseded, current) = (grading_ids[0], grading_ids[1]);
+        models::exercise_task_submissions::set_grading_id(tx.as_mut(), current, submission_id)
+            .await
+            .unwrap();
+
+        apply_grading_update(
+            tx.as_mut(),
+            submission_id,
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect("the grading update should be applied");
+
+        let progress =
+            |grading: models::exercise_task_gradings::ExerciseTaskGrading| grading.grading_progress;
+        assert_eq!(
+            progress(
+                models::exercise_task_gradings::get_by_id(tx.as_mut(), current)
+                    .await
+                    .unwrap()
+            ),
+            GradingProgress::FullyGraded
+        );
+        assert_ne!(
+            progress(
+                models::exercise_task_gradings::get_by_id(tx.as_mut(), superseded)
+                    .await
+                    .unwrap()
+            ),
+            GradingProgress::FullyGraded
+        );
+    }
+
+    /// A submission id that doesn't exist at all must surface as an error rather than being
+    /// treated as "no grading yet".
+    #[actix_web::test]
+    async fn update_for_an_unknown_submission_is_an_error() {
+        insert_data!(:tx);
+        apply_grading_update(
+            tx.as_mut(),
+            Uuid::new_v4(),
+            &grading_result(),
+            &crate::test_helper::init_file_store(),
+            &crate::test_helper::init_app_conf().expect("app conf"),
+        )
+        .await
+        .expect_err("an unknown submission id must not succeed");
+    }
+
+    /// Inserts a slide submission + task submission and returns the task submission id, which is
+    /// what the grading-update route addresses.
+    async fn insert_task_submission(
+        tx: &mut Tx<'_>,
+        user: Uuid,
+        course: Uuid,
+        exercise: Uuid,
+        slide: Uuid,
+        task: Uuid,
+    ) -> Uuid {
+        let slide_submission =
+            models::exercise_slide_submissions::insert_exercise_slide_submission(
+                tx.as_mut(),
+                NewExerciseSlideSubmission {
+                    exercise_slide_id: slide,
+                    course_id: Some(course),
+                    exam_id: None,
+                    user_id: user,
+                    exercise_id: exercise,
+                    user_points_update_strategy:
+                        UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+                },
+            )
+            .await
+            .unwrap();
+        models::exercise_task_submissions::insert(
+            tx.as_mut(),
+            models::PKeyPolicy::Generate,
+            slide_submission.id,
+            slide,
+            task,
+            &models::library::grading::SubmittedAnswer::Json {
+                data: serde_json::Value::Null,
+            },
+        )
+        .await
+        .unwrap()
+    }
+
+    /// Decodes a controller error's JSON response body.
+    fn error_body(err: ControllerError) -> serde_json::Value {
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("body resolves immediately")
+            .expect("body bytes");
+        serde_json::from_slice(&bytes).expect("json")
+    }
 }

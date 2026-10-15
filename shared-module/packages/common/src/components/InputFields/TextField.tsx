@@ -2,22 +2,25 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { forwardRef, InputHTMLAttributes } from "react"
-import { FieldError } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import type { InputHTMLAttributes } from "react"
+import React, { forwardRef } from "react"
+import type { FieldError } from "react-hook-form"
 
 import { baseTheme } from "../../styles"
 import { primaryFont } from "../../styles/typography"
 import { errorToDescription } from "../../utils/strings"
 
 const ERRORCOLOR = baseTheme.colors.red[600]
-const DEFAULTCOLOR = "#dedede"
+// gray[400] keeps border contrast >= 3:1 against the field background (WCAG 1.4.11).
+const DEFAULTCOLOR = baseTheme.colors.gray[400]
 
 interface InputExtraProps {
-  error?: string
-  disabled?: boolean
-  colorField?: boolean
+  error?: string | undefined
+  disabled?: boolean | undefined
+  colorField?: boolean | undefined
 }
+
+const NO_COLOR_FIELD_PADDING = "padding: 8px 10px 10px 10px;"
 
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
@@ -25,8 +28,10 @@ const Input = styled.input<InputExtraProps>`
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
-  ${({ colorField }) => !colorField && "padding: 8px 10px 10px 10px;"}
-  transition: ease-in-out, width 0.35s ease-in-out;
+  ${({ colorField }) => !colorField && NO_COLOR_FIELD_PADDING}
+  transition:
+    ease-in-out,
+    width 0.35s ease-in-out;
   outline: none;
   min-width: 20px;
   width: 100%;
@@ -37,7 +42,8 @@ const Input = styled.input<InputExtraProps>`
 
   &:focus,
   &:active {
-    border-color: #55b3f5;
+    border-color: #215887;
+    box-shadow: 0 0 0 2px #215887;
   }
 
   @media (max-width: 767.98px) {
@@ -62,8 +68,6 @@ export interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
   ({ onChange, onChangeByValue, className, disabled, error, ...rest }: TextFieldProps, ref) => {
-    const { t } = useTranslation()
-
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
@@ -81,15 +85,16 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         className={cx(
           css`
             margin-bottom: 1rem;
-            ${disabled &&
-            `cursor: not-allowed;
-            filter: opacity(0.5);`}
+            ${
+              disabled &&
+              `cursor: not-allowed;
+            filter: opacity(0.5);`
+            }
           `,
           className,
         )}
       >
         <label
-          aria-label={`${rest.label}${rest.required === true && ` (${t("required")})`}`}
           className={cx(
             css`
               color: #333;

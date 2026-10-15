@@ -20,6 +20,7 @@ use headless_lms_models::roles::UserRole;
 use serde_json::json;
 
 pub async fn seed_switching_course_instances_course(
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -230,7 +231,7 @@ pub async fn seed_switching_course_instances_course(
                 ),
         );
 
-    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
+    let (course, _default_instance, _last_module) = course.seed(&mut conn, app_config, &cx).await?;
 
     Ok(course.id)
 }

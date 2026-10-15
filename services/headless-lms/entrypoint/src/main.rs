@@ -1,6 +1,7 @@
 use anyhow::Result;
 use headless_lms_server::openapi::{
-    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, MainFrontendApiDoc,
+    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, ErrorsApiDoc, ExerciseServicesClientApiDoc,
+    MainFrontendApiDoc,
 };
 use headless_lms_server::programs;
 use std::future::Future;
@@ -26,7 +27,18 @@ struct Program {
 }
 
 fn main() -> Result<()> {
+    // Both ring and aws-lc-rs end up in the dependency tree, so rustls can't pick one on its own.
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .expect("failed to install rustls ring crypto provider");
+
     let programs_list = vec![
+        Program {
+            name: "credit-registrar",
+            execute: Box::new(|| {
+                tokio_run(programs::credit_registration_workers::credit_registrar_main())
+            }),
+        },
         Program {
             name: "doc-file-generator",
             execute: Box::new(|| tokio_run(programs::doc_file_generator::main())),
@@ -38,6 +50,14 @@ fn main() -> Result<()> {
         Program {
             name: "ended-exams-processor",
             execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
+        },
+        Program {
+            name: "exercise-answer-upload-reaper",
+            execute: Box::new(|| tokio_run(programs::exercise_answer_upload_reaper::main())),
+        },
+        Program {
+            name: "exercise-spec-upload-reaper",
+            execute: Box::new(|| tokio_run(programs::exercise_spec_upload_reaper::main())),
         },
         Program {
             name: "open-university-registration-link-fetcher",
@@ -72,6 +92,12 @@ fn main() -> Result<()> {
                 // not async so no need to involve a runtime
                 programs::sorter::sort()?;
                 Ok(())
+            }),
+        },
+        Program {
+            name: "suotar-syncer",
+            execute: Box::new(|| {
+                tokio_run(programs::credit_registration_workers::suotar_syncer_main())
             }),
         },
         Program {
@@ -170,6 +196,10 @@ fn export_openapi_specs() -> Result<()> {
     write_spec(
         &output_dir.join("errors.openapi.generated.json"),
         ErrorsApiDoc::openapi(),
+    )?;
+    write_spec(
+        &output_dir.join("exercise-services-client.openapi.generated.json"),
+        ExerciseServicesClientApiDoc::openapi(),
     )?;
     Ok(())
 }

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET superseded_by_id = CASE\n    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN pending_superseded_by_id\n    ELSE superseded_by_id\n  END,\n  superseded_at = CASE\n    WHEN pending_superseded_by_id = ANY($1::uuid []) THEN now()\n    ELSE superseded_at\n  END,\n  pending_superseded_by_id = NULL\nWHERE (\n    pending_superseded_by_id = ANY($1::uuid [])\n    OR pending_superseded_by_id = ANY($2::uuid [])\n  )\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6e4e076925c7ca7901894a9d20f90d723e5816bb61e530f8d5810fa4e54ba068"
+}

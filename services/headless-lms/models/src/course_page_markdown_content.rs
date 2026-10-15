@@ -1,0 +1,177 @@
+use serde_json::Value;
+
+use crate::prelude::*;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct CoursePageMarkdownContent {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub markdown_content: String,
+    pub page_history_id: Uuid,
+    pub page_id: Uuid,
+}
+
+// Struct used in document_lookup chatbot tool
+pub struct CoursePageContent {
+    pub page_id: Uuid,
+    pub course_id: Uuid,
+    pub title: String,
+    pub json_content: Value,
+    /// Latest LLM-generated Markdown.
+    pub markdown_content: Option<String>,
+}
+
+pub async fn insert(
+    conn: &mut PgConnection,
+    content: &str,
+    page_history_id: &Uuid,
+    page_id: &Uuid,
+) -> ModelResult<CoursePageMarkdownContent> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+INSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)
+VALUES ($1, $2, $3)
+RETURNING *
+    "#,
+        content,
+        page_history_id,
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    page_id_history_id_contents: Vec<(Uuid, (Uuid, String))>,
+) -> ModelResult<Vec<CoursePageMarkdownContent>> {
+    let (page_ids, history_ids_contents): (Vec<Uuid>, Vec<(Uuid, String)>) =
+        page_id_history_id_contents.into_iter().unzip();
+    let (history_ids, contents): (Vec<Uuid>, Vec<String>) =
+        history_ids_contents.into_iter().unzip();
+
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+
+INSERT INTO course_page_markdown_content (markdown_content, page_history_id, page_id)
+SELECT data.content, data.page_history_id, data.page_id
+FROM (
+    SELECT unnest($1::text []) AS content,
+      unnest($2::uuid []) AS page_history_id,
+      unnest($3::uuid []) AS page_id
+  ) AS data
+RETURNING *
+    "#,
+        &contents,
+        &history_ids,
+        &page_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<CoursePageMarkdownContent> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+SELECT * FROM course_page_markdown_content
+WHERE id = $1
+AND deleted_at IS NULL
+    "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get_many(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<CoursePageMarkdownContent>> {
+    let res = sqlx::query_as!(
+        CoursePageMarkdownContent,
+        r#"
+SELECT * FROM course_page_markdown_content
+WHERE id = ANY($1)
+AND deleted_at IS NULL
+    "#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}
+
+/// Get latest page content, either latest Markdown that has been synced or json format.
+pub async fn get_course_page_content_by_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<CoursePageContent> {
+    let content = sqlx::query_as!(
+        CoursePageContent,
+        r#"
+SELECT pages.content AS json_content,
+  pages.title,
+  pages.id AS page_id,
+  cpmc.markdown_content,
+  cps.course_id
+FROM pages
+  JOIN page_history AS ph ON pages.id = ph.page_id
+  JOIN chatbot_page_sync_statuses AS cps ON pages.id = cps.page_id
+  JOIN course_page_markdown_content AS cpmc ON cps.converted_markdown_content_id = cpmc.id
+WHERE ph.id IN (
+    SELECT synced_page_revision_id
+    FROM chatbot_page_sync_statuses
+    WHERE page_id = $1
+      AND deleted_at IS NULL
+    ORDER BY updated_at DESC
+    LIMIT 1
+  )
+  AND pages.id = $1
+  AND pages.deleted_at IS NULL
+  AND ph.deleted_at IS NULL
+  AND cps.deleted_at IS NULL
+  AND cpmc.deleted_at IS NULL
+    "#,
+        page_id,
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    if let Some(s) = content {
+        Ok(s)
+    } else {
+        // Get fall back page content as json. The course_id should not be null
+        // because this result is for course page content look up.
+        let fallback_content = sqlx::query_as!(
+            CoursePageContent,
+            r#"
+SELECT pages.content AS json_content,
+  pages.title,
+  pages.id AS page_id,
+  null as markdown_content,
+  pages.course_id as "course_id!"
+FROM pages
+  WHERE pages.course_id IS NOT NULL
+  AND pages.id = $1
+  AND pages.deleted_at IS NULL
+    "#,
+            page_id,
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+
+        Ok(fallback_content)
+    }
+}

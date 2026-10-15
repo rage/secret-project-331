@@ -12,9 +12,10 @@ pub enum UserRole {
     MaterialViewer,
     TeachingAndLearningServices,
     StatsViewer,
+    CreditRegistrationAdmin,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 pub struct Role {
     pub is_global: bool,
     pub organization_id: Option<Uuid>,

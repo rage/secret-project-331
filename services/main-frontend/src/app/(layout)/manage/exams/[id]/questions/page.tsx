@@ -1,0 +1,300 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useParams, useRouter } from "next/navigation"
+import React, { useCallback, useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+import { pageTitleCss } from "@/components/credit-registration/styles"
+import {
+  getExamExercisesOptions,
+  getExamOptions,
+  getExamSubmissionsWithExamIdOptions,
+  releaseExamGradesMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
+import InfoComponent from "@/shared-module/common/components/InfoComponent"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  Badge,
+  Button,
+  Infobox,
+  QueryResult,
+  TONE,
+  Table,
+  useDialog,
+} from "@/shared-module/components"
+
+const GradingPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
+  const router = useRouter()
+  const { confirm } = useDialog()
+
+  const getExam = useQuery({
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
+  })
+
+  usePageTitle(joinTitleSegments([t("questions"), getExam.data?.name]), { order: 10 })
+
+  const getExercises = useQuery({
+    ...getExamExercisesOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
+  })
+
+  const sorted = useMemo(
+    () =>
+      [...(getExercises.data ?? [])].toSorted((a, b) =>
+        a.order_number > b.order_number ? 1 : b.order_number > a.order_number ? -1 : 0,
+      ),
+    [getExercises.data],
+  )
+
+  const getAllSubmissions = useQuery({
+    ...getExamSubmissionsWithExamIdOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
+    staleTime: 1,
+  })
+
+  const allSubmissionsList = getAllSubmissions.data?.reduce(
+    (acc, submissionlist) => ({
+      ...acc,
+      [submissionlist.at(0)?.exercise.id ?? ""]: submissionlist,
+    }),
+    {} as Record<string, ExerciseSlideSubmissionAndUserExerciseState[]>,
+  )
+
+  const publishMutation = useToastMutationOptions(
+    releaseExamGradesMutation(),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: async () => {
+        await getAllSubmissions.refetch()
+      },
+    },
+  )
+
+  const checkPublishable = useCallback(() => {
+    let unpublishedCount = 0
+    getAllSubmissions.data?.forEach((s) => {
+      s.forEach((sub) => {
+        if (sub.teacher_grading_decision?.hidden === true) {
+          unpublishedCount += 1
+        }
+      })
+    })
+    return unpublishedCount
+  }, [getAllSubmissions.data])
+
+  const gradedCheck = useCallback(
+    (exerciseId: string) => {
+      if (!getExam.data?.grade_manually) {
+        return (
+          <Badge tone={TONE.SUCCESS} size="compact">
+            {t("label-graded-automatically")}
+          </Badge>
+        )
+      }
+
+      const submissions = allSubmissionsList?.[exerciseId]
+      if (submissions) {
+        const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
+        if (submissions.length === countGraded) {
+          return (
+            <Badge tone={TONE.SUCCESS} size="compact">
+              {t("status-graded")}
+            </Badge>
+          )
+        } else if (countGraded === 0) {
+          return (
+            <Badge tone={TONE.DANGER} size="compact">
+              {t("status-ungraded")}
+            </Badge>
+          )
+        } else if (submissions.length > countGraded) {
+          return (
+            <Badge tone={TONE.WARNING} size="compact">
+              {t("status-in-progress")}
+            </Badge>
+          )
+        }
+      } else {
+        return " "
+      }
+      return undefined
+    },
+    [getExam.data, allSubmissionsList, t],
+  )
+
+  const totalAnswered = useCallback(
+    (exerciseId: string) => {
+      const submissions = allSubmissionsList?.[exerciseId]
+      if (submissions) {
+        return submissions.length
+      }
+      return "0"
+    },
+    [allSubmissionsList],
+  )
+
+  const totalGraded = useCallback(
+    (exerciseId: string) => {
+      if (!getExam.data?.grade_manually) {
+        return <div>{totalAnswered(exerciseId)}</div>
+      }
+      const submissions = allSubmissionsList?.[exerciseId]
+      if (submissions) {
+        return submissions.filter((sub) => sub.teacher_grading_decision).length
+      }
+      return "0"
+    },
+    [getExam.data?.grade_manually, allSubmissionsList, totalAnswered],
+  )
+
+  const totalPublished = useCallback(
+    (exerciseId: string) => {
+      if (!getExam.data?.grade_manually) {
+        return <div>0</div>
+      }
+      const submissions = allSubmissionsList?.[exerciseId]
+      let count = 0
+      if (submissions) {
+        submissions.forEach((sub) => {
+          if (sub.teacher_grading_decision?.hidden === true) {
+            count = count + 1
+          }
+        })
+      }
+      return count
+    },
+    [allSubmissionsList, getExam.data?.grade_manually],
+  )
+
+  const questionsContent = (
+    <>
+      <h1 className={pageTitleCss}>{getExam.data?.name}</h1>
+      <Table
+        caption={t("questions")}
+        rows={sorted}
+        rowKey={(exercise) => exercise.name}
+        className={css`
+          margin-top: 1.5rem;
+        `}
+        columns={[
+          {
+            header: t("label-grade"),
+            cell: (exercise) => (
+              <Button
+                variant={"primary"}
+                size={"small"}
+                onClick={() => {
+                  router.push(exerciseExamSubmissionsRoute(exercise.id))
+                }}
+              >
+                {getExam.data?.grade_manually ? t("grade") : t("label-review")}
+              </Button>
+            ),
+          },
+          {
+            header: t("question"),
+            cell: (exercise) => t("question-n", { n: exercise.order_number + 1 }),
+          },
+          { header: t("status"), cell: (exercise) => exercise.id && gradedCheck(exercise.id) },
+          {
+            header: t("number-of-answered"),
+            cell: (exercise) => exercise.id && totalAnswered(exercise.id),
+          },
+          {
+            header: t("number-of-graded"),
+            cell: (exercise) => exercise.id && totalGraded(exercise.id),
+          },
+          {
+            header: t("number-of-unpublished-gradings"),
+            cell: (exercise) => exercise.id && totalPublished(exercise.id),
+          },
+          { header: t("points"), cell: (exercise) => exercise.score_maximum },
+        ]}
+      />
+      {getExam.data?.grade_manually && (
+        <div
+          className={css`
+            margin-top: 1.5rem;
+          `}
+        >
+          {checkPublishable() !== 0 && (
+            <Infobox>{t("unpublishable-grading-results", { amount: checkPublishable() })}</Infobox>
+          )}
+        </div>
+      )}
+      <div
+        className={css`
+          margin-top: 1.5rem;
+          display: flex;
+          align-items: center;
+        `}
+      >
+        <Button
+          disabled={!getExam.data?.grade_manually}
+          variant={"primary"}
+          size={"small"}
+          onClick={async () => {
+            const confirmation = await confirm(
+              t("message-do-you-want-to-publish-all-currently-graded-submissions"),
+            )
+            if (confirmation) {
+              const freshSubmissions = await getAllSubmissions.refetch()
+              if (!freshSubmissions.data) {
+                throw new Error("Failed to fetch submissions")
+              }
+
+              const teacherGradingDecisionIds = freshSubmissions.data
+                .flatMap((exerciseSubmissionList) =>
+                  exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
+                )
+                .filter(
+                  (gradingDecisionId): gradingDecisionId is string =>
+                    gradingDecisionId !== undefined,
+                )
+
+              publishMutation.mutate({
+                path: {
+                  exam_id: id,
+                },
+                body: teacherGradingDecisionIds,
+              })
+            }
+          }}
+        >
+          {t("publish-grading-results")}
+        </Button>
+        <InfoComponent text={t("publish-grading-results-info")} />
+      </div>
+    </>
+  )
+
+  return (
+    <div>
+      <QueryResult query={getExercises} treatEmptyAsData>
+        {() => questionsContent}
+      </QueryResult>
+    </div>
+  )
+}
+
+export default withErrorBoundary(withSignedIn(GradingPage))

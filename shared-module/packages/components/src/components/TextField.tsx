@@ -2,15 +2,19 @@
 
 import { cx } from "@emotion/css"
 import React, { useRef } from "react"
-import { mergeProps, useTextField } from "react-aria"
+import { mergeProps, useTextField, VisuallyHidden } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
-import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
-
+import {
+  isVisuallyHiddenLabel,
+  resolveFloatingPlaceholder,
+  resolveRenderedErrorMessage,
+} from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -28,13 +32,20 @@ import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example
+ * // Basic usage
  * <TextField name="email" control={control} label="Email" type="email" />
+ *
+ * @example
+ * // Usage with validation rules
+ * <TextField name="email" control={control} label="Email" type="email" rules={{ required: t("required-field") }} />
  */
 export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
   T,
   N
 > & {
   label: React.ReactNode
+  /** Keeps `label` as the accessible name but renders it visually hidden instead of floating. */
+  isLabelHidden?: boolean
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
@@ -52,8 +63,11 @@ export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   minLength?: number
   pattern?: string
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
+  /** Only shown when `isLabelHidden` is true; a visible label already serves as the hint otherwise. */
   placeholder?: string
   className?: string
+  step?: string
+  "data-testid"?: string | undefined
 }
 
 export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -64,6 +78,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     control,
     rules,
     label,
+    isLabelHidden,
     description,
     errorMessage,
     fieldSize = "md",
@@ -83,11 +98,14 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     className,
     min,
     max,
+    step,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const inputRef = useRef<HTMLInputElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const hasHiddenLabel = !!isLabelHidden || isVisuallyHiddenLabel(label)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,
@@ -99,21 +117,22 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     label,
     description,
     errorMessage: resolvedError,
-    id,
     name: field.name,
     type,
     value: stringValue,
-    autoComplete,
-    maxLength,
-    minLength,
-    pattern,
-    inputMode,
-    placeholder,
-    "aria-label": undefined,
-    isDisabled,
-    isReadOnly,
-    isRequired,
     isInvalid,
+    ...omitUndefined({
+      id,
+      autoComplete,
+      maxLength,
+      minLength,
+      pattern,
+      inputMode,
+      placeholder,
+      isDisabled,
+      isReadOnly,
+      isRequired,
+    }),
   }
 
   const {
@@ -126,7 +145,13 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
   } = useTextField(ariaProps, inputRef)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    field.onChange(e.target.value)
+    if (type === "number" && !Number.isNaN(e.target.valueAsNumber)) {
+      field.onChange(e.target.valueAsNumber)
+    } else if (type === "number" && e.target.value === "") {
+      field.onChange(null)
+    } else {
+      field.onChange(e.target.value)
+    }
   }
 
   const handleFocus = () => {
@@ -142,9 +167,10 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     onChange: handleChange,
     onFocus: handleFocus,
     onBlur: handleBlur,
-    placeholder: resolveFloatingPlaceholder(),
+    placeholder: resolveFloatingPlaceholder(hasHiddenLabel ? placeholder : undefined),
     min,
     max,
+    step,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(
@@ -167,18 +193,26 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
         data-has-icon-end={iconEnd ? "true" : undefined}
         data-focused={floatingState.isFocused ? "true" : "false"}
         data-filled={floatingState.hasValue ? "true" : "false"}
-        data-floated={floatingState.isFloated ? "true" : "false"}
+        data-floated={floatingState.isFloated && !hasHiddenLabel ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
+        data-label-hidden={hasHiddenLabel ? "true" : undefined}
       >
         <input
           {...mergedInputProps}
           ref={composeRefs(inputRef, field.ref)}
           className={resolveInputCss(fieldSize)}
           aria-describedby={resolvedAriaDescribedBy}
+          data-testid={dataTestId}
         />
-        <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
-          {label}
-        </label>
+        {hasHiddenLabel ? (
+          <VisuallyHidden>
+            <label {...labelProps}>{label}</label>
+          </VisuallyHidden>
+        ) : (
+          <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
+            {label}
+          </label>
+        )}
         {iconStart ? (
           <span className={iconSlotStartCss} aria-hidden="true">
             {iconStart}

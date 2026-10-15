@@ -2,6 +2,7 @@
 Contains error and result types for all the model functions.
 */
 
+use std::panic::Location;
 use std::{fmt::Display, num::TryFromIntError};
 
 use backtrace::Backtrace;
@@ -89,7 +90,6 @@ some_function_returning_an_error().map_err(|original_error| {
 # }
 ```
 */
-#[derive(Debug)]
 pub struct ModelError {
     error_type: ModelErrorType,
     message: String,
@@ -99,17 +99,24 @@ pub struct ModelError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
 impl std::error::Error for ModelError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
         self.source()
     }
 }
+
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
+headless_lms_base::impl_clean_debug!(ModelError, [ModelError, UtilError]);
 
 impl Display for ModelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -119,20 +126,6 @@ impl Display for ModelError {
 
 impl BackendError for ModelError {
     type ErrorType = ModelErrorType;
-
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
 
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
@@ -150,12 +143,17 @@ impl BackendError for ModelError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -163,6 +161,7 @@ impl BackendError for ModelError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
@@ -199,6 +198,10 @@ pub enum ModelErrorType {
         status_code: Option<u16>,
         response_body: Option<String>,
     },
+    ForeignKeyViolation {
+        constraint: Option<String>,
+        table: Option<String>,
+    },
 }
 
 /// Types of HTTP errors that can occur
@@ -231,7 +234,16 @@ impl From<sqlx::Error> for ModelError {
                 Some(err.into()),
             ),
             sqlx::Error::Database(db_err) => {
-                if let Some(constraint) = db_err.constraint() {
+                if db_err.is_foreign_key_violation() {
+                    model_err!(
+                        ForeignKeyViolation {
+                            constraint: db_err.constraint().map(str::to_string),
+                            table: db_err.table().map(str::to_string)
+                        },
+                        err.to_string(),
+                        err
+                    )
+                } else if let Some(constraint) = db_err.constraint() {
                     match constraint {
                         "email_templates_subject_check" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
@@ -257,6 +269,31 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
+                        "users_upstream_id_active_uniq_idx" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A user with this upstream id already exists.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
+                        "courses_slug_key_when_not_deleted"
+                        | "course_language_groups_slug_unique_non_deleted" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A course with this slug already exists.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
+                        "uq_oauth_device_codes_user_code_pending" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "A pending device authorization already uses this user_code.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
                         "unique_chatbot_names_within_course" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
@@ -264,6 +301,14 @@ impl From<sqlx::Error> for ModelError {
                             },
                             err.to_string(),
                             Some(err.into()),
+                        ),
+                        "uq_credit_registrations_sisu_attainment" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "This Sisu attainment is already claimed by another credit registration.",
+                            },
+                            err.to_string(),
+                            err
                         ),
                         _ => ModelError::new(
                             ModelErrorType::Database,
@@ -482,6 +527,24 @@ mod test {
         assert_eq!(err.message(), "Item with id 123 not found");
     }
 
+    /// A wrapped `BackendError` cause renders as its own node, not an `(external)` leaf,
+    /// checking the cross-crate downcast resolver.
+    #[test]
+    fn debug_renders_wrapped_backend_error_as_a_cause_node() {
+        use headless_lms_utils::error::util_error::{UtilError, UtilErrorType};
+        let util_error = UtilError::new(UtilErrorType::Other, "disk on fire".to_string(), None);
+        let model_error = ModelError::from(util_error);
+
+        let debug = format!("{model_error:?}");
+        assert!(debug.contains("ModelError · Util"), "got: {debug}");
+        assert!(debug.contains("caused by:"), "got: {debug}");
+        assert!(
+            debug.contains("1. UtilError · Other: disk on fire"),
+            "wrapped BackendError should render as a node, got: {debug}"
+        );
+        assert!(!debug.contains("(external)"), "got: {debug}");
+    }
+
     #[test]
     fn test_model_err_macro_struct_variant_without_source() {
         let err = model_err!(
@@ -536,6 +599,27 @@ mod test {
         match err.error_type {
             ModelErrorType::DatabaseConstraint { constraint, .. } => {
                 assert_eq!(constraint, "email_templates_subject_check");
+            }
+            _ => {
+                panic!("wrong error variant")
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn course_language_groups_slug_uniqueness() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        crate::course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate, "taken-slug")
+            .await
+            .unwrap();
+        let err =
+            crate::course_language_groups::insert(tx.as_mut(), PKeyPolicy::Generate, "taken-slug")
+                .await
+                .unwrap_err();
+        match err.error_type {
+            ModelErrorType::DatabaseConstraint { constraint, .. } => {
+                assert_eq!(constraint, "course_language_groups_slug_unique_non_deleted");
             }
             _ => {
                 panic!("wrong error variant")

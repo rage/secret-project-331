@@ -3,18 +3,13 @@
 //
 // Since this file is auto-generated, any changes you make to it will be overwritten by the next run of bin/generate-bindings.
 
-import type {
-  Client,
-  ClientMeta,
-  Options as Options2,
-  RequestResult,
-  ServerSentEventsResult,
-  TDataShape,
-} from "./client"
+import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from "./client"
 import { client } from "./client.generated"
 import type {
   AcknowledgeAiUsageNoticeData,
   AcknowledgeAiUsageNoticeResponses,
+  AllUserConversationsData,
+  AllUserConversationsResponses,
   ClaimCodeFromCodeGiveawayData,
   ClaimCodeFromCodeGiveawayResponses,
   DeleteCourseMaterialGlossaryTermData,
@@ -35,10 +30,10 @@ import type {
   FetchPeerReviewDataReceivedByExerciseIdResponses,
   GetAiUsageNoticeAcknowledgementData,
   GetAiUsageNoticeAcknowledgementResponses,
-  GetChatbotCurrentConversationInfoData,
-  GetChatbotCurrentConversationInfoResponses,
   GetCodeGiveawayStatusData,
   GetCodeGiveawayStatusResponses,
+  GetConversationInfoData,
+  GetConversationInfoResponses,
   GetCourseMaterialAuthenticatedUserDetailsData,
   GetCourseMaterialAuthenticatedUserDetailsResponses,
   GetCourseMaterialBackgroundQuestionsAndAnswersData,
@@ -66,6 +61,8 @@ import type {
   GetCourseMaterialCourseInstancesResponses,
   GetCourseMaterialCourseModuleCompletionsForUserData,
   GetCourseMaterialCourseModuleCompletionsForUserResponses,
+  GetCourseMaterialCourseModulePointsBreakdownData,
+  GetCourseMaterialCourseModulePointsBreakdownResponses,
   GetCourseMaterialCoursePageByPathData,
   GetCourseMaterialCoursePageByPathResponses,
   GetCourseMaterialCoursePagesData,
@@ -131,6 +128,8 @@ import type {
   GetCourseMaterialUserMarketingConsentResponses,
   GetCourseMaterialUserModuleCompletionsData,
   GetCourseMaterialUserModuleCompletionsResponses,
+  GetCurrentConversationIdData,
+  GetCurrentConversationIdResponses,
   GetCurrentCourseMaterialCourseInstanceData,
   GetCurrentCourseMaterialCourseInstanceResponses,
   GetDefaultChatbotConfigurationForCourseData,
@@ -166,8 +165,9 @@ import type {
   SearchPagesWithWordsData,
   SearchPagesWithWordsResponses,
   SendChatbotMessageData,
-  SendChatbotMessageResponse,
   SendChatbotMessageResponses,
+  SendChatbotToolResponseData,
+  SendChatbotToolResponseResponses,
   UpdateCourseMaterialGlossaryTermData,
   UpdateCourseMaterialGlossaryTermResponses,
   UpdateCourseMaterialUserInfoData,
@@ -176,9 +176,12 @@ import type {
   UpdateMarketingConsentResponses,
   UpdateShowExerciseAnswersData,
   UpdateShowExerciseAnswersResponses,
+  UpdateTitleData,
+  UpdateTitleResponses,
 } from "./types.generated"
 import {
   zAcknowledgeAiUsageNoticeResponse,
+  zAllUserConversationsResponse,
   zClaimCodeFromCodeGiveawayResponse,
   zFetchExamEnrollmentResponse,
   zFetchExamForTestingResponse,
@@ -186,8 +189,8 @@ import {
   zFetchPeerOrSelfReviewDataByExerciseIdResponse,
   zFetchPeerReviewDataReceivedByExerciseIdResponse,
   zGetAiUsageNoticeAcknowledgementResponse,
-  zGetChatbotCurrentConversationInfoResponse,
   zGetCodeGiveawayStatusResponse,
+  zGetConversationInfoResponse,
   zGetCourseMaterialAuthenticatedUserDetailsResponse,
   zGetCourseMaterialBackgroundQuestionsAndAnswersResponse,
   zGetCourseMaterialChapterExerciseProgressResponse,
@@ -201,6 +204,7 @@ import {
   zGetCourseMaterialCountryFromIpResponse,
   zGetCourseMaterialCourseInstancesResponse,
   zGetCourseMaterialCourseModuleCompletionsForUserResponse,
+  zGetCourseMaterialCourseModulePointsBreakdownResponse,
   zGetCourseMaterialCoursePageByPathResponse,
   zGetCourseMaterialCoursePagesResponse,
   zGetCourseMaterialCourseResponse,
@@ -234,6 +238,7 @@ import {
   zGetCourseMaterialUserCourseSettingsResponse,
   zGetCourseMaterialUserMarketingConsentResponse,
   zGetCourseMaterialUserModuleCompletionsResponse,
+  zGetCurrentConversationIdResponse,
   zGetCurrentCourseMaterialCourseInstanceResponse,
   zGetDefaultChatbotConfigurationForCourseResponse,
   zLockCourseMaterialChapterResponse,
@@ -250,6 +255,7 @@ import {
   zSearchPagesWithPhraseResponse,
   zSearchPagesWithWordsResponse,
   zSendChatbotMessageResponse,
+  zSendChatbotToolResponseResponse,
   zUpdateCourseMaterialUserInfoResponse,
   zUpdateMarketingConsentResponse,
 } from "./zod.generated"
@@ -430,6 +436,22 @@ export const getCourseMaterialChapterPagesExcludingFrontPage = <
 
 /**
  *
+ * GET `/api/v0/course-material/chatbot/conversations/all`
+ *
+ * Returns all conversations that a user has.
+ */
+export const allUserConversations = <ThrowOnError extends boolean = true>(
+  options?: Options<AllUserConversationsData, ThrowOnError>,
+): RequestResult<AllUserConversationsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<AllUserConversationsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zAllUserConversationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/conversations/all",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
  *
  * Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
@@ -452,23 +474,33 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
 
 /**
  *
- * POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
- * Returns the current conversation for the user.
+ * Returns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.
  */
-export const getChatbotCurrentConversationInfo = <ThrowOnError extends boolean = true>(
-  options: Options<GetChatbotCurrentConversationInfoData, ThrowOnError>,
-): RequestResult<GetChatbotCurrentConversationInfoResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
-    GetChatbotCurrentConversationInfoResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetChatbotCurrentConversationInfoResponse.parseAsync(data),
+export const getConversationInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetConversationInfoData, ThrowOnError>,
+): RequestResult<GetConversationInfoResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetConversationInfoResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetConversationInfoResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
+ *
+ * Returns current chatbot conversation id.
+ */
+export const getCurrentConversationId = <ThrowOnError extends boolean = true>(
+  options: Options<GetCurrentConversationIdData, ThrowOnError>,
+): RequestResult<GetCurrentConversationIdResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCurrentConversationIdResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCurrentConversationIdResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id",
     ...options,
   })
 
@@ -495,12 +527,53 @@ export const newChatbotConversation = <ThrowOnError extends boolean = true>(
  * Sends a new chat message to the chatbot.
  */
 export const sendChatbotMessage = <ThrowOnError extends boolean = true>(
-  options: Options<SendChatbotMessageData, ThrowOnError, SendChatbotMessageResponse>,
-): Promise<ServerSentEventsResult<SendChatbotMessageResponses>> =>
-  (options.client ?? client).sse.post<SendChatbotMessageResponses, unknown, ThrowOnError, "data">({
+  options: Options<SendChatbotMessageData, ThrowOnError>,
+): RequestResult<SendChatbotMessageResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendChatbotMessageResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zSendChatbotMessageResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`
+ *
+ * Answers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else
+ * is outstanding. Responds with the same stream `send-message` does, carrying either the resumed
+ * turn or a lone `Suspended` event when the turn is still waiting for another answer.
+ */
+export const sendChatbotToolResponse = <ThrowOnError extends boolean = true>(
+  options: Options<SendChatbotToolResponseData, ThrowOnError>,
+): RequestResult<SendChatbotToolResponseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendChatbotToolResponseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSendChatbotToolResponseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
+ *
+ * Updates the title of a chatbot conversation.
+ */
+export const updateTitle = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateTitleData, ThrowOnError>,
+): RequestResult<UpdateTitleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateTitleResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -635,6 +708,31 @@ export const getCourseMaterialCourseModuleCompletionsForUser = <
       await zGetCourseMaterialCourseModuleCompletionsForUserResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/course-instances/{course_instance_id}/course-module-completions/{user_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
+ */
+export const getCourseMaterialCourseModulePointsBreakdown = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseMaterialCourseModulePointsBreakdownData, ThrowOnError>,
+): RequestResult<
+  GetCourseMaterialCourseModulePointsBreakdownResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseMaterialCourseModulePointsBreakdownResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseMaterialCourseModulePointsBreakdownResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/course-instances/{course_instance_id}/course-modules/{course_module_id}/points-breakdown",
     ...options,
   })
 
@@ -1710,7 +1808,10 @@ export const fetchPeerOrSelfReviewDataByExerciseId = <ThrowOnError extends boole
  * "exercise_task_answers": [
  * {
  * "exercise_task_id": "0125c21b-6afa-4652-89f7-56c48bd8ffe4",
- * "data_json": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+ * "answer": {
+ * "kind": "json",
+ * "data": { "selectedOptionId": "8f09e9a0-ac20-486a-ba29-704e7eeaf6af" }
+ * }
  * }
  * ]
  * }

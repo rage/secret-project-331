@@ -1,16 +1,19 @@
 import { test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
+
+import { Select } from "../utils/components/Select"
 import { Topbar } from "../utils/components/Topbar"
 import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
-import { selectOrganization } from "@/utils/organizationUtils"
-
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
+
+const BLOCK_MENU_VIEW = "Add block / All available blocks"
 
 test("User can create and respond to research form in a course", async ({
   page,
@@ -22,12 +25,18 @@ test("User can create and respond to research form in a course", async ({
     await page
       .getByRole("link", { name: "Manage course 'Advanced course instance management'" })
       .click()
-    await page.getByRole("button", { name: "Create or edit research form" }).click()
+    await page.getByRole("link", { name: "Create or edit research form" }).click()
     await page.getByRole("button", { name: "create" }).click()
-    await page.getByRole("button", { name: "Add block" }).click()
+    // Gutenberg 16.2's empty state is a ghost block, and no "Add block" button exists until it
+    // is selected. Clicking it turns it into a real paragraph; insert through the sidebar menu.
+    await page.getByRole("document", { name: "Add default block" }).click()
+    const sidebarView = new Select(page, page.locator("#select-sidebar-view"), {
+      name: "Toggle view",
+    })
+    await sidebarView.chooseOption(BLOCK_MENU_VIEW)
     await page.getByRole("option", { name: "Heading", exact: true }).click()
     await page.getByRole("document", { name: "Block: Heading" }).fill("Research form")
-    await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
+    await sidebarView.chooseOption(BLOCK_MENU_VIEW)
     await page.getByRole("option", { name: "Paragraph" }).click()
     await page
       .getByRole("document", {
@@ -35,14 +44,11 @@ test("User can create and respond to research form in a course", async ({
       })
       .fill("This course does research")
     await page.getByRole("option", { name: "Research Form Question" }).click()
-    await page
-      .getByRole("document", { name: "Block: Research Form Question" })
-      .locator("div")
-      .nth(1)
-      .click()
-    await page.getByRole("textbox").fill("I want to take part in reseach")
-    await page.getByRole("textbox").press("ArrowLeft")
-    await page.getByRole("textbox").fill("I want to take part in research")
+    const question = page.getByRole("textbox", { name: "Research form question" })
+    await question.click()
+    await question.fill("I want to take part in reseach")
+    await question.press("ArrowLeft")
+    await question.fill("I want to take part in research")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
@@ -61,7 +67,7 @@ test("User can create and respond to research form in a course", async ({
       snapshotName: "research-consent-form-shows-if-not-aswered",
       waitForTheseToBeVisibleAndStable: [page.getByText("Research form")],
     })
-    await page.getByText("I want to take part in research").click()
+    await page.getByRole("checkbox", { name: "I want to take part in research" }).check()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })

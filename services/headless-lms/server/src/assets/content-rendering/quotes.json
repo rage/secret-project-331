@@ -1,0 +1,84 @@
+[
+  {
+    "clientId": "c7095701-7edc-4736-9048-7a626e408abb",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "citation": "Citation"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "921c6a04-1a0e-4397-a40d-8cd737ef440a",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "Default Quote"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "2b0fbb1b-476f-46e0-afba-a4bba5baf05d",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "citation": "Nobody"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "d7cd3c4a-30a8-42ec-8e25-c705855cd2bc",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Bold <em>BoldItalic </em></strong><em>Italic </em><s>strikethrough</s><em><s> </s></em> <span class=\"has-inline-color has-vivid-purple-color\">text-color</span>"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "0d009bd7-6666-4516-8093-4a0bc46adafa",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "align": "left",
+      "citation": "Somebody somewhere",
+      "value": "<p>TLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "5c7061c2-b684-4643-a8c2-a5a727df434f",
+        "name": "core/paragraph",
+        "isValid": true,
+        "attributes": {
+          "content": "TLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus ",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "49258bd4-1533-4015-890a-9209d5afb5f7",
+    "isValid": true,
+    "name": "core/quote",
+    "attributes": {
+      "align": "right",
+      "citation": "Somebody from somewhere",
+      "value": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus </p>"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "5a2cc28b-8c9f-419d-84e5-57087ccceea9",
+        "name": "core/paragraph",
+        "isValid": true,
+        "attributes": {
+          "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus ",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      }
+    ]
+  }
+]

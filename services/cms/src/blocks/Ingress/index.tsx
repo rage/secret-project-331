@@ -1,12 +1,12 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { formatLTR } from "@wordpress/icons"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import InstructionBoxEditor from "./IngressEditor"
 import InstructionBoxSave from "./IngressSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface InstructionBoxAttributes {
   title: string
@@ -14,6 +14,7 @@ export interface InstructionBoxAttributes {
 }
 
 const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> = {
+  apiVersion: 3,
   title: "Ingress",
   description: "Ingress",
   category: "text",

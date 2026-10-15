@@ -1,0 +1,310 @@
+"use client"
+
+import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+import AllSubmissionsList from "@/components/AllSubmissionsList"
+import { pageTitleCss } from "@/components/credit-registration/styles"
+import DeletedUserNotice from "@/components/DeletedUserNotice"
+import ExerciseGradingCard from "@/components/ExerciseGradingCard"
+import KeyValueCard from "@/components/KeyValueCard"
+import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
+import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
+import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
+import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
+import {
+  courseUserStatusSummaryRoute,
+  exerciseSubmissionsRoute,
+} from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  ABSENT_LABEL,
+  Breadcrumbs,
+  type BreadcrumbItem,
+  Infobox,
+  Link,
+  LoadingRegion,
+  QueryResult,
+  ErrorNotice,
+} from "@/shared-module/components"
+
+const Submission: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
+  usePageTitle(t("title-submission-id", { id }))
+  const getSubmissionInfo = useQuery({
+    ...getExerciseSlideSubmissionInfoOptions({
+      path: {
+        submission_id: id,
+      },
+    }),
+  })
+
+  const userDetails = useUserDetails(
+    getSubmissionInfo.data?.exercise.course_id ? [getSubmissionInfo.data.exercise.course_id] : null,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+  const user = extractUserDetail(userDetails.data)
+  const userDetailsNotFound = isUserDetailsNotFound(userDetails.data)
+
+  const exerciseSubmissions = useExerciseSubmissionsForUser(
+    getSubmissionInfo.data?.exercise.id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+
+  const userCourseSettings = useUserCourseSettings(
+    getSubmissionInfo.data?.exercise.course_id,
+    getSubmissionInfo.data?.exercise_slide_submission.user_id,
+  )
+
+  // Callback to refetch all queries when grading is submitted
+  const handleGradingSubmit = React.useCallback(() => {
+    getSubmissionInfo.refetch()
+    userDetails.refetch()
+    exerciseSubmissions.refetch()
+    userCourseSettings.refetch()
+  }, []) // oxlint-disable-line react-hooks/exhaustive-deps
+
+  let userExerciseStateId = getSubmissionInfo.data?.user_exercise_state?.id
+
+  // Get user exercise state for custom points functionality
+  const exerciseId = getSubmissionInfo.data?.exercise.id ?? ""
+
+  // Check if current submission is the latest one
+  const isLatestSubmission = React.useMemo(() => {
+    if (!exerciseSubmissions.data || !getSubmissionInfo.data) {
+      return false
+    }
+    const currentSubmissionId = getSubmissionInfo.data.exercise_slide_submission.id
+    // Sort submissions by created_at DESC to get the latest one
+    const sortedSubmissions = [...exerciseSubmissions.data].toSorted(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    const latestSubmission = sortedSubmissions[0]
+    return latestSubmission?.id === currentSubmissionId
+  }, [exerciseSubmissions.data, getSubmissionInfo.data])
+  const pointsFromWholeExercise = getSubmissionInfo.data?.user_exercise_state?.score_given
+  const totalScoreGiven = getSubmissionInfo.data?.tasks
+    .map((task) => task.previous_submission_grading?.score_given)
+    .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
+
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
+    if (!getSubmissionInfo.data) {
+      return []
+    }
+
+    return [
+      { label: t("home"), href: "/" },
+      {
+        label: t("header-submissions"),
+        href: exerciseSubmissionsRoute(getSubmissionInfo.data.exercise.id),
+      },
+      { label: t("title-submission-id", { id }) },
+    ]
+  }, [getSubmissionInfo.data, id, t])
+
+  return (
+    <div>
+      <QueryResult query={getSubmissionInfo}>
+        {(submissionInfo) => (
+          <>
+            {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
+            {submissionInfo.tasks.some((task) => task.deleted_at !== null) && (
+              <Infobox>{t("message-this-task-has-been-deleted")}</Infobox>
+            )}
+
+            <h1
+              className={cx(
+                pageTitleCss,
+                css`
+                  margin-bottom: var(--space-5);
+                `,
+              )}
+            >
+              {submissionInfo.exercise.name}
+            </h1>
+
+            {/* User Information Section */}
+            {userDetails.isLoading && <LoadingRegion />}
+            {userDetails.isSuccess && (
+              <KeyValueCard
+                sections={[
+                  {
+                    title: t("submission-details"),
+                    items: [
+                      {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        key: "submission-id",
+                        label: t("submission-id"),
+                        colSpan: 3,
+                        value: (
+                          <HideTextInSystemTests
+                            text={submissionInfo.exercise_slide_submission.id}
+                            testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                          />
+                        ),
+                      },
+                      {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        key: "submission-created",
+                        label: t("submission-created"),
+                        colSpan: 3,
+                        value: dateToString(submissionInfo.exercise_slide_submission.created_at),
+                      },
+                      {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        key: "points",
+                        label: t("points-from-whole-exercise"),
+                        value: pointsFromWholeExercise ?? ABSENT_LABEL,
+                        colSpan: 2,
+                      },
+                      {
+                        // oxlint-disable-next-line i18next/no-literal-string
+                        key: "max-points",
+                        label: t("max-points"),
+                        value: submissionInfo.exercise.score_maximum,
+                      },
+                    ],
+                  },
+                  ...(user
+                    ? [
+                        {
+                          title: t("user-information"),
+                          items: [
+                            {
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              key: "first-name",
+                              label: t("first-name"),
+                              value: user.first_name,
+                            },
+                            {
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              key: "last-name",
+                              label: t("last-name"),
+                              value: user.last_name,
+                            },
+                            {
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              key: "email",
+                              label: t("email"),
+                              value: user.email,
+                            },
+                            {
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              key: "user-id",
+                              label: t("user-id"),
+                              colSpan: 3,
+                              value: (
+                                <HideTextInSystemTests
+                                  text={submissionInfo.exercise_slide_submission.user_id}
+                                  testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                />
+                              ),
+                            },
+                          ],
+                        },
+                      ]
+                    : []),
+                ]}
+                actionButtons={
+                  submissionInfo.exercise.course_id
+                    ? [
+                        <Link
+                          key="course-status"
+                          href={courseUserStatusSummaryRoute(
+                            submissionInfo.exercise.course_id,
+                            submissionInfo.exercise_slide_submission.user_id,
+                          )}
+                          styledAsButton
+                          variant="tertiary"
+                          size="medium"
+                        >
+                          {t("course-status-summary")}
+                        </Link>,
+                      ]
+                    : []
+                }
+              />
+            )}
+
+            {userDetails.isSuccess && userDetailsNotFound && (
+              <DeletedUserNotice
+                userId={submissionInfo.exercise_slide_submission.user_id}
+                className={css`
+                  max-width: ${narrowContainerWidthRem}rem;
+                  margin: 0 auto 2rem auto;
+                `}
+              />
+            )}
+
+            {/* User Details Error Banner */}
+            {userDetails.isError && (
+              <ErrorNotice
+                error={userDetails.error}
+                className={css`
+                  max-width: ${narrowContainerWidthRem}rem;
+                  margin: 0 auto 2rem auto;
+                `}
+              />
+            )}
+
+            <MainFrontedViewSubmission
+              submissionData={submissionInfo}
+              totalScoreGiven={totalScoreGiven}
+            />
+
+            {/* All Submissions by User Section */}
+            <AllSubmissionsList
+              submissions={exerciseSubmissions.data}
+              isLoading={exerciseSubmissions.isLoading}
+              isError={exerciseSubmissions.isError}
+              error={exerciseSubmissions.error}
+              currentSubmissionId={submissionInfo.exercise_slide_submission.id}
+            />
+
+            {userExerciseStateId && (
+              <ExerciseGradingCard
+                userExerciseStateId={userExerciseStateId}
+                exerciseId={exerciseId}
+                exerciseMaxPoints={submissionInfo.exercise.score_maximum}
+                isLatestSubmission={isLatestSubmission}
+                courseId={submissionInfo.exercise.course_id ?? null}
+                onGradingSubmit={handleGradingSubmit}
+              />
+            )}
+          </>
+        )}
+      </QueryResult>
+
+      <div
+        className={css`
+          background-color: #f8f9fa;
+          color: #f8f9fa;
+          padding: 1.5rem 2rem;
+          max-width: ${narrowContainerWidthRem}rem;
+          margin: 2rem auto;
+          display: flex;
+          align-items: center;
+        `}
+      >
+        <div
+          className={css`
+            flex: 1;
+          `}
+        ></div>
+        <DebugModal data={getSubmissionInfo.data} />
+      </div>
+    </div>
+  )
+}
+
+export default withErrorBoundary(Submission)

@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react"
 import type { DateValue } from "react-aria"
 
 import { DateLikePickerInner } from "./DateLikePickerInner"
-import type { DateLikeFieldProps } from "./segmentTypes"
 import { dayGranularity, minuteGranularity } from "./segmentedDateInputFieldConstants"
 import {
   emitSyntheticChange,
@@ -12,6 +11,7 @@ import {
   serializeDateLikeInputValue,
   useSegmentedFieldBase,
 } from "./segmentedDateInputFieldUtils"
+import type { DateLikeFieldProps } from "./segmentTypes"
 
 /** Segmented control for `date` or `datetime` with optional calendar popover. */
 export function DateLikeSegmentedInputField(

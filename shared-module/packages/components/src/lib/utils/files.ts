@@ -15,7 +15,7 @@ export function formatFileName(fileName: string): string {
   return fileName.trim()
 }
 
-export type FileSummaryLabels = {
+export interface FileSummaryLabels {
   empty: string
   unnamedFile: string
   /** Localized “+N more” segment when more than three files are selected. */

@@ -22,8 +22,8 @@ const ScrollIndicator: React.FC = () => {
     const scrollPx = document.documentElement.scrollTop
     const winHeightPx =
       document.documentElement.scrollHeight - document.documentElement.clientHeight
-    const scrolled = (scrollPx / winHeightPx) * 100
-    const scrolledPercent = `${Math.round(scrolled)}%`
+    const scrolledNumber = (scrollPx / winHeightPx) * 100
+    const scrolledPercent = `${Math.round(scrolledNumber)}%`
 
     setScrolled(scrolledPercent)
   }

@@ -7,22 +7,15 @@ import { useLocale } from "react-aria"
 
 import {
   dayPeriodAm,
-  dayPeriodGroupAriaLabel,
   dayPeriodPm,
-  decreaseHourAriaLabel,
-  decreaseMinuteAriaLabel,
-  endOfDayLabel,
-  increaseHourAriaLabel,
-  increaseMinuteAriaLabel,
   minuteTwoDigitPart,
   numericDateTimePart,
   periodAmId,
   periodPmId,
-  plus30Label,
   stepperMinusGlyph,
   stepperPlusGlyph,
-  timePanelLabel,
 } from "./datePickerCalendarConstants"
+import { useDatePickerCalendarLabels } from "./datePickerCalendarLabels"
 import {
   timeControlsRowCss,
   timeInputCss,
@@ -50,15 +43,25 @@ import {
 } from "./datePickerCalendarTimeUtils"
 import type { DatePickerTimeSelectorProps } from "./datePickerCalendarTypes"
 
-/** Renders editable time controls alongside the calendar when datetime mode is used. */
+/**
+ * Editable time controls: beside the calendar in datetime mode, or alone in the time field's picker.
+ *
+ * `shouldFocusOnMount` focuses the typed-time input on mount, for when no calendar takes focus first.
+ */
 export function HybridTimeSelector({
+  shouldFocusOnMount = false,
+  className,
   timeSelectorProps,
 }: {
+  shouldFocusOnMount?: boolean
+  className?: string
   timeSelectorProps: DatePickerTimeSelectorProps
 }) {
   const { locale } = useLocale()
+  const labels = useDatePickerCalendarLabels()
   const groupId = useId()
   const inputId = useId()
+  const inputRef = React.useRef<HTMLInputElement>(null)
   const hourCycle = resolveHourCycle(locale, timeSelectorProps.hourCycle)
   const showsDayPeriod = hourCycle === "h11" || hourCycle === "h12"
   const dayPeriodLabels = resolveDayPeriodLabels(locale)
@@ -75,6 +78,13 @@ export function HybridTimeSelector({
   }, [baseTime.hour, baseTime.minute, baseTime.second, locale, showsDayPeriod])
 
   const [draft, setDraft] = React.useState(formattedDisplay)
+
+  const shouldFocusOnMountRef = React.useRef(shouldFocusOnMount)
+  React.useEffect(() => {
+    if (shouldFocusOnMountRef.current) {
+      inputRef.current?.focus()
+    }
+  }, [])
 
   React.useEffect(() => {
     setDraft(formattedDisplay)
@@ -107,15 +117,17 @@ export function HybridTimeSelector({
   }
 
   return (
-    <div className={timePanelCss} role="group" aria-labelledby={groupId}>
+    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled panel div; a semantic element changes styling
+    <div className={cx(timePanelCss, className)} role="group" aria-labelledby={groupId}>
       <span id={groupId} className={timePanelHeadingCss}>
-        {timePanelLabel}
+        {labels.time}
       </span>
       <input
         aria-labelledby={groupId}
         className={timeInputCss}
         disabled={isDisabled}
         id={inputId}
+        ref={inputRef}
         inputMode="numeric"
         type="text"
         value={draft}
@@ -130,7 +142,7 @@ export function HybridTimeSelector({
       <div className={timeControlsRowCss}>
         <div className={timeStepperGroupCss}>
           <button
-            aria-label={decreaseHourAriaLabel}
+            aria-label={labels.decreaseHour}
             className={timeStepperBtnCss}
             disabled={isDisabled}
             type="button"
@@ -142,7 +154,7 @@ export function HybridTimeSelector({
           </button>
           <span className={timeStepperValueCss}>{displayHourLabel}</span>
           <button
-            aria-label={increaseHourAriaLabel}
+            aria-label={labels.increaseHour}
             className={timeStepperBtnCss}
             disabled={isDisabled}
             type="button"
@@ -156,7 +168,7 @@ export function HybridTimeSelector({
         {timeSelectorProps.granularity === "minute" ? (
           <div className={timeStepperGroupCss}>
             <button
-              aria-label={decreaseMinuteAriaLabel}
+              aria-label={labels.decreaseMinute}
               className={timeStepperBtnCss}
               disabled={isDisabled}
               type="button"
@@ -168,7 +180,7 @@ export function HybridTimeSelector({
             </button>
             <span className={timeStepperValueCss}>{displayMinuteLabel}</span>
             <button
-              aria-label={increaseMinuteAriaLabel}
+              aria-label={labels.increaseMinute}
               className={timeStepperBtnCss}
               disabled={isDisabled}
               type="button"
@@ -181,7 +193,8 @@ export function HybridTimeSelector({
           </div>
         ) : null}
         {showsDayPeriod ? (
-          <div aria-label={dayPeriodGroupAriaLabel} className={timePeriodToggleCss} role="group">
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled toggle div; a semantic element changes styling
+          <div aria-label={labels.dayPeriodGroup} className={timePeriodToggleCss} role="group">
             <button
               className={cx(
                 timePeriodSegmentCss,
@@ -223,7 +236,7 @@ export function HybridTimeSelector({
               applyTime(baseTime.add({ minutes: 30 }))
             }}
           >
-            {plus30Label}
+            {labels.plus30Minutes}
           </button>
           <button
             className={timeShortcutButtonCss}
@@ -233,7 +246,7 @@ export function HybridTimeSelector({
               applyTime(new Time(23, 59, 0))
             }}
           >
-            {endOfDayLabel}
+            {labels.endOfDay}
           </button>
         </div>
       ) : null}

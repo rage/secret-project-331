@@ -1,11 +1,13 @@
 import { test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+import { waitForLocatorToBeStable } from "@/utils/waitForLocatorToBeStable"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
 
-import { selectOrganization } from "@/utils/organizationUtils"
-import { waitForLocatorToBeStable } from "@/utils/waitForLocatorToBeStable"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -15,7 +17,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
 }) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
+  await page.getByRole("link", { name: "Advanced exercise states", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)
@@ -50,6 +52,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
     .click()
 
   await page.getByRole("button", { name: "Submit" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByText("Try again").waitFor()
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')

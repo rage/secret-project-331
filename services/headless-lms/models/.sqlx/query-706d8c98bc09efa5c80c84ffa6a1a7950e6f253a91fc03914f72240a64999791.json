@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id\n        FROM study_registry_registrars\n        WHERE name = 'Default Registrar'\n          AND deleted_at IS NULL\n        ORDER BY created_at\n        LIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "study_registry_registrars",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "706d8c98bc09efa5c80c84ffa6a1a7950e6f253a91fc03914f72240a64999791"
+}

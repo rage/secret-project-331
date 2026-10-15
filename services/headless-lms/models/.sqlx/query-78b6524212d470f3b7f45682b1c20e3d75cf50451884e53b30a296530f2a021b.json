@@ -1,0 +1,242 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM credit_registration_phase_state\nWHERE deleted_at IS NULL\nORDER BY process_name,\n  phase\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "phase",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "phase"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "process_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "process_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "expected_interval_secs",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "expected_interval_secs"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_heartbeat_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "last_heartbeat_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "last_run_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "last_run_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "last_run_finished_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "last_run_finished_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_success_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "last_success_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "next_run_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "next_run_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "items_processed_last_run",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "items_processed_last_run"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "items_failed_last_run",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "items_failed_last_run"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "consecutive_failures",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "consecutive_failures"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "last_error",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "last_error"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "paused_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "paused_at"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "paused_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "paused_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "pause_reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "pause_reason"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_phase_state",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "78b6524212d470f3b7f45682b1c20e3d75cf50451884e53b30a296530f2a021b"
+}

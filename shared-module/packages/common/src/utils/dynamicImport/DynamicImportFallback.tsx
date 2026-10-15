@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next"
 import type { DynamicImportStatus } from "./dynamicImportStore"
 import { getDynamicImportStatus } from "./dynamicImportStore"
 
-type DynamicImportFallbackModule<P extends object> = { default: ComponentType<P> }
+interface DynamicImportFallbackModule<P extends object> {
+  default: ComponentType<P>
+}
 
 /**
  * Creates a localized fallback component module for a failed dynamic import.

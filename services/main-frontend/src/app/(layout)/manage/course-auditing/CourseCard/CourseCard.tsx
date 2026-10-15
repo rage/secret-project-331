@@ -1,0 +1,801 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
+import { FloppyDiskSave, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { parseISO } from "date-fns"
+import React, { useRef, useState } from "react"
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useFormState,
+  useWatch,
+  type Control,
+} from "react-hook-form"
+import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
+
+import CourseClosingFields from "@/components/course-closing/CourseClosingFields"
+import CourseClosingStatus from "@/components/course-closing/CourseClosingStatus"
+import { useAllClosingSuccessorCandidates } from "@/components/course-closing/useClosingSuccessorCandidates"
+import {
+  getCoursesForAuditingQueryKey,
+  updateCourseAuditingDataMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  CourseAuditingData,
+  CourseAuditingDataUpdate,
+  CourseAuditingModuleUpdate,
+} from "@/generated/api/types.generated"
+import TimeComponent from "@/shared-module/common/components/TimeComponent"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { baseTheme } from "@/shared-module/common/styles"
+import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import { nullIfFalsy, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import {
+  Badge,
+  Button,
+  Checkbox,
+  Link,
+  nullIfEmpty,
+  TextArea,
+  TextField,
+  useDialog,
+  TONE,
+  ErrorNotice,
+} from "@/shared-module/components"
+
+import { contentRowStyles, FieldSet, Legend, type CourseDataFilter } from "../page"
+import ContentDisplayBox from "./ContentDisplayBox"
+import CourseMetadata from "./CourseMetadata"
+import EditModuleFields from "./EditModuleFields"
+
+const linkStyles = css`
+  color: ${baseTheme.colors.green[700]};
+  text-decoration: underline;
+`
+
+interface CourseCardProps {
+  id: string
+  courseAuditingData: CourseAuditingData
+  courseDataFilterControl: Control<CourseDataFilter>
+}
+
+export interface EditModuleData extends CourseAuditingModuleUpdate {
+  override_completion_link: boolean
+}
+
+export interface EditCourseAuditingData extends CourseAuditingDataUpdate {
+  set_course_closed_at: boolean
+  modules: EditModuleData[]
+}
+
+export const buildFormValues = (data: CourseAuditingData): EditCourseAuditingData => {
+  return {
+    ...omitUndefined({
+      description: data.description,
+      is_draft: data.is_draft,
+      is_test_mode: data.is_test_mode,
+      is_unlisted: data.is_unlisted,
+      is_joinable_by_code_only: data.is_joinable_by_code_only,
+      closed_at: data.closed_at && (formatDateForDateTimeLocalInputs(data.closed_at) ?? null),
+      closed_additional_message: data.closed_additional_message,
+      closed_course_successor_id: data.closed_course_successor_id,
+    }),
+    set_course_closed_at: Boolean(data.closed_at),
+    prerequisites: data.prerequisites,
+    audiences: data.audiences,
+    modules: data.modules.map((module) => ({
+      ...module,
+      override_completion_link: Boolean(module.completion_registration_link_override),
+    })),
+  }
+}
+
+const CourseCard: React.FC<CourseCardProps> = ({
+  id,
+  courseAuditingData,
+  courseDataFilterControl,
+}) => {
+  const { confirm } = useDialog()
+  const { t } = useTranslation()
+
+  const [editing, setEditing] = useState<boolean>(false)
+  const closingCandidates = useAllClosingSuccessorCandidates(
+    editing || Boolean(courseAuditingData.closed_course_successor_id),
+  )
+  const currentLanguageCode =
+    closingCandidates.candidates.find((candidate) => candidate.id === courseAuditingData.id)
+      ?.languageCode ?? ""
+  const closingSuccessor = closingCandidates.candidates.find(
+    (candidate) => candidate.id === courseAuditingData.closed_course_successor_id,
+  )
+  const queryClient = useQueryClient()
+
+  const methods = useForm<EditCourseAuditingData>({
+    defaultValues: buildFormValues(courseAuditingData),
+  })
+
+  const [
+    showDescription,
+    showPrerequisites,
+    showAudiences,
+    showSuggestMetadata,
+    showClosedAt,
+    showClosedCourseSuccessorId,
+    showAdditionalMessage,
+    showCompletionRegistrationLink,
+    showEnableRegisterinCompletionToUhOpenUniversity,
+    showUhCourseCode,
+    showEctsCredits,
+  ] = useWatch({
+    control: courseDataFilterControl,
+    name: [
+      "show_description",
+      "show_prerequisites",
+      "show_audiences",
+      "show_suggest_metadata",
+      "show_closed_at",
+      "show_closed_course_successor_id",
+      "show_additional_message",
+      "show_completion_registration_link",
+      "show_enable_registering_completion_to_uh_open_university",
+      "show_uh_course_code",
+      "show_ects_credits",
+    ],
+  })
+
+  const showModules =
+    showCompletionRegistrationLink ||
+    showEnableRegisterinCompletionToUhOpenUniversity ||
+    showUhCourseCode ||
+    showEctsCredits
+
+  const defaultModuleUhCourseCode = courseAuditingData.modules.find(
+    (module) => module.order_number === 0,
+  )?.uh_course_code
+
+  const { control, handleSubmit, reset, getValues, watch } = methods
+  const { isDirty } = useFormState({ control })
+
+  const draftStatus = watch("is_draft")
+
+  const { fields: moduleFields } = useFieldArray({ control, name: "modules" })
+
+  const {
+    fields: prereqFields,
+    append: appendPrereq,
+    remove: removePrereq,
+  } = useFieldArray({ control, name: "prerequisites" })
+
+  const {
+    fields: audienceFields,
+    append: appendAudience,
+    remove: removeAudience,
+  } = useFieldArray({ control, name: "audiences" })
+
+  const toggleEdit = () => {
+    setEditing(!editing)
+  }
+
+  const cancelEdit = async () => {
+    if (isDirty) {
+      const confirmed = await confirm({
+        message: t("course-auditing-edit-unsaved-dialog-message"),
+        title: t("course-auditing-edit-unsaved-dialog-title"),
+        isDestructive: true,
+      })
+      if (confirmed) {
+        reset()
+        updateMutation.reset()
+        setEditing(!editing)
+        removedPrereqIds.current = []
+        removedAudienceIds.current = []
+      }
+    } else {
+      reset()
+      updateMutation.reset()
+      setEditing(!editing)
+    }
+  }
+
+  const onSubmit = handleSubmit(async (data: EditCourseAuditingData) => {
+    let unlisted = data.is_unlisted
+    if (data.is_draft) {
+      // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
+      unlisted = false
+    }
+    await updateMutation.mutateAsync({
+      body: {
+        description: nullIfEmptyString(data.description),
+        is_draft: data.is_draft,
+        is_test_mode: data.is_test_mode,
+        is_unlisted: unlisted,
+        is_joinable_by_code_only: data.is_joinable_by_code_only,
+        closed_at:
+          data.set_course_closed_at && data.closed_at
+            ? parseISO(data.closed_at).toISOString()
+            : null,
+        closed_additional_message: nullIfEmptyString(data.closed_additional_message),
+        closed_course_successor_id: nullIfEmptyString(data.closed_course_successor_id),
+        prerequisites: data.prerequisites,
+        audiences: data.audiences,
+        modules: data.modules.map((module) => ({
+          ...module,
+          uh_course_code: nullIfEmptyString(module.uh_course_code),
+          completion_registration_link_override: nullIfFalsy(
+            module.override_completion_link,
+            nullIfEmptyString(module.completion_registration_link_override),
+          ),
+        })),
+      },
+      path: {
+        course_id: courseAuditingData.id,
+      },
+    })
+  })
+
+  const updateMutation = useToastMutationOptions(
+    updateCourseAuditingDataMutation(),
+    {
+      method: "PUT",
+      notify: true,
+      successMessage: t("course-edited-successfully"),
+      errorHeader: t("error-editing-course"),
+    },
+    {
+      onSuccess: (updated: CourseAuditingData) => {
+        reset(buildFormValues(updated))
+
+        queryClient.setQueryData(getCoursesForAuditingQueryKey(), (old: CourseAuditingData[]) => {
+          if (!old) {
+            return []
+          }
+          return old.map((o) => (o.id === updated.id ? updated : o))
+        })
+
+        setEditing(false)
+      },
+    },
+  )
+
+  const removedPrereqIds = useRef<string[]>([])
+
+  const handlePrereqRemove = (idx: number) => {
+    const prereq_id = getValues(`prerequisites.${idx}.id`)
+
+    removedPrereqIds.current.push(prereq_id)
+    removePrereq(idx)
+  }
+
+  const handlePrereqAppend = () => {
+    const prereq_id = removedPrereqIds.current.pop()
+
+    appendPrereq({
+      id: prereq_id ?? v4(),
+      course_id: courseAuditingData.id,
+      prerequisite: "",
+    })
+  }
+
+  const removedAudienceIds = useRef<string[]>([])
+
+  const handleAudienceRemove = (idx: number) => {
+    const audience_id = getValues(`audiences.${idx}.id`)
+
+    removedAudienceIds.current.push(audience_id)
+    removeAudience(idx)
+  }
+
+  const handleAudienceAppend = () => {
+    const audience_id = removedAudienceIds.current.pop()
+
+    appendAudience({
+      id: audience_id ?? v4(),
+      course_id: courseAuditingData.id,
+      audience: "",
+    })
+  }
+
+  return (
+    <FormProvider {...methods}>
+      <div
+        key={id}
+        className={css`
+          padding: 1rem;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+        `}
+        data-testid="course-auditing-card"
+      >
+        <div
+          className={css`
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            line-height: 2rem;
+            padding-bottom: 1.5rem;
+            align-items: baseline;
+          `}
+        >
+          <div>
+            <div
+              className={css`
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: start;
+                gap: 1rem;
+              `}
+            >
+              <h1
+                className={css`
+                  font-weight: 400;
+                  font-size: 1.5rem;
+                `}
+              >
+                {courseAuditingData.name}
+              </h1>
+              {courseAuditingData.is_draft && <Badge tone={TONE.INFO}>{t("draft")}</Badge>}
+              {courseAuditingData.is_unlisted && <Badge tone={TONE.WARNING}>{t("unlisted")}</Badge>}
+              {courseAuditingData.is_test_mode && (
+                <Badge tone={TONE.SUCCESS}>{t("test-course")}</Badge>
+              )}
+              {courseAuditingData.is_joinable_by_code_only && (
+                <Badge tone={TONE.DANGER}>{t("joinable-by-code-only")}</Badge>
+              )}
+            </div>
+            <div
+              className={css`
+                color: ${baseTheme.colors.gray[600]};
+                font-size: 1rem;
+                display: flex;
+                flex-wrap: wrap;
+                margin-top: 0.5rem;
+              `}
+            >
+              {courseAuditingData.organization_name}
+            </div>
+          </div>
+
+          {editing ? (
+            <div
+              className={css`
+                display: flex;
+                flex-direction: row;
+              `}
+            >
+              <Button
+                aria-label={t("button-text-save")}
+                onClick={() => void onSubmit()}
+                variant={"icon"}
+                size={"small"}
+              >
+                <FloppyDiskSave size={25} />
+              </Button>
+              <Button
+                aria-label={t("button-text-cancel")}
+                onClick={cancelEdit}
+                variant={"icon"}
+                size={"small"}
+              >
+                <XmarkCircle size={25} />
+              </Button>
+            </div>
+          ) : (
+            <div
+              className={css`
+                display: flex;
+                flex-direction: row;
+              `}
+            >
+              <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
+                <Pencil size={25} />
+              </Button>
+            </div>
+          )}
+        </div>
+        {editing ? (
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            `}
+          >
+            {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
+            {updateMutation.isError && (
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorNotice error={updateMutation.error} announce="off" />
+            )}
+            <TextArea
+              control={control}
+              label={t("text-field-label-description")}
+              name={"description"}
+              rules={nullIfEmpty}
+              autoResize={true}
+            />
+
+            <FieldSet>
+              <Legend>{t("prerequisites-fieldset-title")}</Legend>
+
+              {prereqFields.map((prerequisite, idx) => (
+                <div key={prerequisite.id} className={contentRowStyles}>
+                  <div
+                    className={css`
+                      flex: 1 1 400px;
+                    `}
+                  >
+                    <TextField
+                      control={control}
+                      label={t("text-field-label-prerequisites", { index: idx + 1 })}
+                      name={`prerequisites.${idx}.prerequisite` as const}
+                      rules={{
+                        ...nullIfEmpty,
+                        validate: (value) => {
+                          if (!nullIfEmptyString(value)) {
+                            return t("field-cannot-be-empty")
+                          }
+                          return true
+                        },
+                      }}
+                    />
+                  </div>
+
+                  <Button
+                    className={css`
+                      height: fit-content;
+                      padding: 0.5rem;
+                    `}
+                    size="small"
+                    type="button"
+                    variant="tertiary"
+                    onClick={() => handlePrereqRemove(idx)}
+                  >
+                    {t("button-remove")}
+                  </Button>
+                </div>
+              ))}
+              <div
+                className={css`
+                  display: flex;
+                `}
+              >
+                <Button
+                  className={css`
+                    margin-top: 0.5rem;
+                  `}
+                  size="medium"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => handlePrereqAppend()}
+                >
+                  {t("add-new-prerequisite")}
+                </Button>
+              </div>
+            </FieldSet>
+            <FieldSet>
+              <Legend>{t("audiences-fieldset-title")}</Legend>
+
+              {audienceFields.map((audience, idx) => (
+                <div key={audience.id} className={contentRowStyles}>
+                  <div
+                    className={css`
+                      flex: 1 1 400px;
+                    `}
+                  >
+                    <TextField
+                      key={audience.id}
+                      control={control}
+                      label={t("text-field-label-audiences", { index: idx + 1 })}
+                      name={`audiences.${idx}.audience` as const}
+                      rules={{
+                        ...nullIfEmpty,
+                        validate: (value) => {
+                          if (!nullIfEmptyString(value)) {
+                            return t("field-cannot-be-empty")
+                          }
+                          return true
+                        },
+                      }}
+                    />
+                  </div>
+
+                  <Button
+                    className={css`
+                      height: fit-content;
+                      padding: 0.5rem;
+                    `}
+                    size="small"
+                    type="button"
+                    variant="tertiary"
+                    onClick={() => handleAudienceRemove(idx)}
+                  >
+                    {t("button-remove")}
+                  </Button>
+                </div>
+              ))}
+
+              <div
+                className={css`
+                  display: flex;
+                `}
+              >
+                <Button
+                  className={css`
+                    margin-top: 0.5rem;
+                  `}
+                  size="medium"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => handleAudienceAppend()}
+                >
+                  {t("add-new-audience")}
+                </Button>
+              </div>
+            </FieldSet>
+
+            <Checkbox control={control} label={t("draft")} name={"is_draft"} />
+            {!draftStatus && (
+              <Checkbox control={control} label={t("unlisted")} name={"is_unlisted"} />
+            )}
+            <Checkbox control={control} label={t("test-course")} name={"is_test_mode"} />
+            <Checkbox
+              control={control}
+              label={t("joinable-by-code-only")}
+              name={"is_joinable_by_code_only"}
+            />
+
+            <CourseClosingFields
+              candidates={closingCandidates.candidates}
+              isLoadingCandidates={closingCandidates.isLoading}
+              currentCourseId={courseAuditingData.id}
+              currentOrganizationId={courseAuditingData.organization_id}
+              currentLanguageCode={currentLanguageCode}
+              groupByOrganization
+            />
+
+            <div
+              className={css`
+                font-size: 1.15rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[900]};
+                margin: 0.5rem 0rem;
+              `}
+            >
+              {t("modules")}
+            </div>
+            {moduleFields.map((module, idx) => (
+              <EditModuleFields key={module.id} control={control} module={module} idx={idx} />
+            ))}
+          </div>
+        ) : (
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            `}
+          >
+            <ContentDisplayBox
+              label={t("text-field-label-description")}
+              content={courseAuditingData.description}
+              isVisible={showDescription}
+            />
+
+            <div className={contentRowStyles}>
+              <ContentDisplayBox
+                label={t("prerequisites-fieldset-title")}
+                content={nullIfFalsy(
+                  courseAuditingData.prerequisites.length > 0,
+                  courseAuditingData.prerequisites.map((prerequisite) => (
+                    <ul
+                      key={prerequisite.id}
+                      className={css`
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                      `}
+                    >
+                      <li
+                        className={css`
+                          padding: 0.2rem 0;
+                          padding-left: 1.25rem;
+                          position: relative;
+
+                          ::before {
+                            content: "•";
+                            position: absolute;
+                            left: 0;
+                            color: ${baseTheme.colors.green[600]};
+                          }
+                        `}
+                      >
+                        {prerequisite.prerequisite}
+                      </li>
+                    </ul>
+                  )),
+                )}
+                isVisible={showPrerequisites}
+              />
+              <ContentDisplayBox
+                label={t("audiences-fieldset-title")}
+                content={nullIfFalsy(
+                  courseAuditingData.audiences.length > 0,
+                  courseAuditingData.audiences.map((audience) => (
+                    <ul
+                      key={audience.id}
+                      className={css`
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        line-height: 1.5;
+                      `}
+                    >
+                      <li
+                        className={css`
+                          padding: 0.2rem 0;
+                          padding-left: 1.25rem;
+                          position: relative;
+
+                          ::before {
+                            content: "•";
+                            position: absolute;
+                            left: 0;
+                            color: ${baseTheme.colors.green[600]};
+                          }
+                        `}
+                      >
+                        {audience.audience}
+                      </li>
+                    </ul>
+                  )),
+                )}
+                isVisible={showAudiences}
+              />
+            </div>
+
+            {showSuggestMetadata && (
+              <CourseMetadata
+                courseId={courseAuditingData.id}
+                defaultModuleUhCourseCode={defaultModuleUhCourseCode}
+                reset={reset}
+                courseAuditingData={courseAuditingData}
+                queryClient={queryClient}
+              />
+            )}
+
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+              `}
+            >
+              <div className={contentRowStyles}>
+                <ContentDisplayBox
+                  label={t("course-closing-time-label")}
+                  content={
+                    courseAuditingData.closed_at && (
+                      <CourseClosingStatus closedAt={courseAuditingData.closed_at} />
+                    )
+                  }
+                  isVisible={showClosedAt}
+                />
+                <ContentDisplayBox
+                  label={t("course-closing-successor-label")}
+                  content={
+                    courseAuditingData.closed_course_successor_id && (
+                      <Link
+                        href={manageCourseByIdRoute(courseAuditingData.closed_course_successor_id)}
+                      >
+                        {closingSuccessor?.name ?? courseAuditingData.closed_course_successor_id}
+                      </Link>
+                    )
+                  }
+                  isVisible={Boolean(courseAuditingData.closed_at) && showClosedCourseSuccessorId}
+                />
+              </div>
+              <ContentDisplayBox
+                label={t("course-closing-note-label")}
+                content={courseAuditingData.closed_additional_message}
+                isVisible={Boolean(courseAuditingData.closed_at) && showAdditionalMessage}
+              />
+            </div>
+
+            {showModules && (
+              <>
+                <div
+                  className={css`
+                    font-size: 1.15rem;
+                    font-weight: 600;
+                    color: ${baseTheme.colors.gray[900]};
+                    margin: 0.5rem 0rem;
+                  `}
+                >
+                  {t("modules")}
+                </div>
+                {courseAuditingData.modules.map((module) => (
+                  <FieldSet key={module.id}>
+                    <Legend>
+                      {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
+                    </Legend>
+                    <ContentDisplayBox
+                      label={t("completion-registration-link")}
+                      content={module.completion_registration_link_override}
+                      isVisible={showCompletionRegistrationLink}
+                    />
+                    <div className={contentRowStyles}>
+                      <ContentDisplayBox
+                        label={t("label-enable-registering-completion-to-uh-open-university")}
+                        content={
+                          module.enable_registering_completion_to_uh_open_university
+                            ? t("label-true")
+                            : t("label-false")
+                        }
+                        isVisible={showEnableRegisterinCompletionToUhOpenUniversity}
+                      />
+                      <ContentDisplayBox
+                        label={t("uh-course-code")}
+                        content={module.uh_course_code}
+                        isVisible={showUhCourseCode}
+                      />
+                      <ContentDisplayBox
+                        label={t("ects-credits")}
+                        content={module.ects_credits}
+                        isVisible={showEctsCredits}
+                      />
+                    </div>
+                  </FieldSet>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+        <div
+          className={css`
+            display: flex;
+            flex-flow: row wrap;
+            align-items: normal;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1rem;
+          `}
+        >
+          <TimeComponent
+            label={t("label-created")}
+            date={parseISO(courseAuditingData.created_at)}
+            right={false}
+            boldLabel
+          />
+          <TimeComponent
+            label={t("label-updated")}
+            date={parseISO(courseAuditingData.updated_at)}
+            right={true}
+            boldLabel
+          />
+          <Link
+            className={linkStyles}
+            href={courseMaterialFrontPageHref(
+              courseAuditingData.organization_slug,
+              courseAuditingData.slug,
+            )}
+          >
+            {t("course-auditing-card-open-course-front-page")}
+          </Link>
+          <Link className={linkStyles} href={manageCourseByIdRoute(courseAuditingData.id)}>
+            {t("course-auditing-card-open-course-overview")}
+          </Link>
+        </div>
+      </div>
+    </FormProvider>
+  )
+}
+
+export default React.memo(CourseCard)

@@ -1,0 +1,135 @@
+import { promises as fsPromises } from "fs"
+
+import { temporaryDirectory, temporaryFile } from "tempy"
+
+import { downloadStream } from "@/lib"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
+import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
+import { badRequest, jsonOk } from "@/util/apiResponse"
+import type { DerivedSpecResponse, RepositoryExercise } from "@/util/exerciseServiceApi"
+import { createScopedLogger } from "@/util/logger"
+import type { ModelSolutionSpec } from "@/util/stateInterfaces"
+
+import type { ParsedSpecRequest } from "./requestSchemas"
+import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import { uploadArchive } from "./uploadArchive"
+
+async function postImpl(request: Request): Promise<Response> {
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
+  }
+  const parsed = specRequestSchema.safeParse(body)
+  if (!parsed.success) {
+    return badRequest("Request was not valid.")
+  }
+  const specRequest = parsed.data
+  const requestId = specRequest.request_id.slice(0, 4)
+
+  let uploadClaim: string | null = null
+  const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
+  if (typeof uploadClaimHeader === "string") {
+    uploadClaim = uploadClaimHeader
+  }
+
+  return await processModelSolution(requestId, specRequest, uploadClaim)
+}
+
+export const handleModelSolution = wrapRouteHandler(postImpl, {
+  service: "tmc",
+  operation: "POST /model-solution",
+})
+
+const processModelSolution = async (
+  requestId: string,
+  specRequest: ParsedSpecRequest,
+  uploadClaim: string | null,
+): Promise<Response> => {
+  const { log, debug, error } = createScopedLogger("model-solution", requestId)
+  const tempPaths: string[] = []
+  try {
+    log("Processing model solution")
+
+    const { private_spec, upload_url } = specRequest
+    if (private_spec === null || private_spec === undefined) {
+      return badRequest("Missing private spec")
+    }
+    if (upload_url === null || upload_url === undefined) {
+      return badRequest("Missing upload URL")
+    }
+    const privateSpecResult = privateSpecSchema.safeParse(private_spec)
+    if (!privateSpecResult.success) {
+      return badRequest("Invalid private spec")
+    }
+    const privateSpec = privateSpecResult.data
+
+    debug("downloading template")
+    const templateArchive = temporaryFile()
+    tempPaths.push(templateArchive)
+    await downloadStream(privateSpec.repository_exercise.download_url, templateArchive)
+
+    debug("extracting template")
+    const extractedProjectDir = temporaryDirectory()
+    tempPaths.push(extractedProjectDir)
+    await extractProject(templateArchive, extractedProjectDir, log)
+
+    debug("preparing solution")
+    const solutionDir = temporaryDirectory()
+    tempPaths.push(solutionDir)
+    await prepareSolution(extractedProjectDir, solutionDir, log)
+
+    debug("uploading model solution")
+    const { spec, files, paths } = await uploadModelSolution(
+      log,
+      debug,
+      solutionDir,
+      privateSpec.type,
+      privateSpec.repository_exercise,
+      upload_url,
+      uploadClaim,
+    )
+    tempPaths.push(...paths)
+    // The envelope, not the bare spec: this service declares `declares_spec_files`, so the host
+    // expects to be told which stored files the spec it is about to store references. Without it
+    // the upload the derivation just made is indistinguishable from an abandoned one.
+    return jsonOk<DerivedSpecResponse<ModelSolutionSpec>>({ spec, files })
+  } catch (err) {
+    error("Error while processing the model solution spec", err)
+    throw err
+  } finally {
+    await Promise.allSettled(
+      tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),
+    )
+  }
+}
+
+const uploadModelSolution = async (
+  log: (message: string, ...args: unknown[]) => void,
+  debug: (message: string, ...args: unknown[]) => void,
+  solutionDir: string,
+  exerciseType: ModelSolutionSpec["type"],
+  exercise: RepositoryExercise,
+  uploadUrl: string,
+  uploadClaim: string | null,
+): Promise<{ spec: ModelSolutionSpec; files: string[]; paths: string[] }> => {
+  debug("compressing solution")
+  const solutionArchive = temporaryFile()
+  await compressProject(solutionDir, solutionArchive, "zstd", true, log)
+
+  const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
+  debug("uploading solution", "archiveName:", archiveName)
+  const solution = await uploadArchive({
+    archivePath: solutionArchive,
+    archiveName,
+    uploadUrl,
+    uploadClaim,
+  })
+  return {
+    spec: { type: exerciseType, solution_download_url: solution.url },
+    files: [solution.id],
+    paths: [solutionArchive],
+  }
+}

@@ -1,12 +1,13 @@
-import { css, cx, keyframes } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import type { PressEvent } from "react-aria"
 
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon"
+/** `selected` is a toggle that is on: `primary` that keeps its fill while hovered or focused. */
+export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon" | "danger" | "selected"
 
-export type PressHandlers = {
+export interface PressHandlers {
   onPress?: (e: PressEvent) => void
   onPressStart?: (e: PressEvent) => void
   onPressEnd?: (e: PressEvent) => void
@@ -14,14 +15,10 @@ export type PressHandlers = {
   onPressUp?: (e: PressEvent) => void
 }
 
-type ResolveStylesInput = {
+interface ResolveStylesInput {
   size: ButtonSize
   variant: ButtonVariant
 }
-
-const spin = keyframes`
-  to { transform: rotate(360deg); }
-`
 
 /** Used for non-React/CSS-only screen-reader text; prefer `VisuallyHidden` in components. */
 export const srOnlyCss = css`
@@ -36,6 +33,37 @@ export const srOnlyCss = css`
   border: 0;
 `
 
+const disabledStateRules = `
+  &[aria-disabled="true"],
+  &:disabled {
+    opacity: var(--btn-disabled-opacity);
+    cursor: default;
+    transition: none;
+  }
+
+  /* An aria-disabled anchor stays tabbable and would otherwise still navigate when clicked. */
+  &[aria-disabled="true"] {
+    pointer-events: none;
+  }
+
+  &:disabled:hover {
+    cursor: not-allowed;
+  }
+`
+
+/**
+ * Disabled affordance for a link that is not styled as a button, which gets none of `rootBaseCss`.
+ *
+ * Without it an `isDisabled` link looks exactly like a working one while doing nothing.
+ */
+export const disabledPlainLinkCss = css`
+  ${disabledStateRules}
+
+  &[aria-disabled="true"] {
+    text-decoration: none;
+  }
+`
+
 export const rootBaseCss = css`
   position: relative;
   display: inline-flex;
@@ -48,6 +76,9 @@ export const rootBaseCss = css`
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
+  /* A button that wraps to two lines has already lost its shape. A label too long to fit wants
+     shortening; a caller that cannot shorten it overrides this through its own className. */
+  white-space: nowrap;
 
   border: 1px solid transparent;
   background: transparent;
@@ -65,26 +96,7 @@ export const rootBaseCss = css`
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 
-  /* Disabled styles:
-     - keep pointer cursor default (better UX for some a11y tooling)
-     - show not-allowed only on hover
-     - for links, also block pointer interactions (while still tabbable) */
-  &[aria-disabled="true"],
-  &:disabled {
-    opacity: var(--btn-disabled-opacity);
-    cursor: default;
-    transition: none;
-  }
-
-  /* Prevent pointer activation for disabled links (still keyboard-focusable via tabIndex). */
-  &[aria-disabled="true"] {
-    pointer-events: none;
-  }
-
-  &[aria-disabled="true"]:hover,
-  &:disabled:hover {
-    cursor: not-allowed;
-  }
+  ${disabledStateRules}
 
   /* Pressed state (hook-driven) */
   &[data-pressed="true"] {
@@ -129,15 +141,6 @@ export const spinnerOverlayCss = css`
   pointer-events: none;
 `
 
-export const spinnerCss = css`
-  width: 1em;
-  height: 1em;
-  border-radius: 9999px;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  animation: ${spin} 0.8s linear infinite;
-`
-
 const sizeSmCss = css`
   height: var(--control-height-sm);
   padding: 0 var(--control-padding-x-sm);
@@ -168,92 +171,66 @@ const iconSizeLgCss = css`
   padding-inline: var(--btn-icon-padding-x-lg);
 `
 
-const primaryCss = css`
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-fg);
-  border-color: var(--btn-primary-border);
+/**
+ * One variant's colours, over the `--btn-<variant>-*` tokens.
+ *
+ * `insetHoverColor` is the inner ring drawn on hover and focus. It matches the resting fill on the
+ * filled variants; `tertiary` has no resting fill to match, so it takes the hover fill instead.
+ * `hoverFill` `resting` keeps the resting colours on hover and focus.
+ */
+const variantCss = (
+  variant: string,
+  insetHoverColor: string,
+  hoverFill: "hover" | "resting" = "hover",
+) => {
+  const hover = hoverFill === "hover" ? "-hover" : ""
+  return css`
+    background: var(--btn-${variant}-bg);
+    color: var(--btn-${variant}-fg);
+    border-color: var(--btn-${variant}-border);
+
+    &:hover:not(:disabled):not([aria-disabled="true"]),
+    &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+      background: var(--btn-${variant}-bg${hover});
+      color: var(--btn-${variant}-fg${hover});
+      border-color: var(--btn-${variant}-border${hover});
+
+      box-shadow:
+        var(--btn-${variant}-shadow-hover),
+        inset 0 0 0 var(--btn-${variant}-outline-width) ${insetHoverColor};
+    }
+
+    &[data-pressed="true"] {
+      background: var(--btn-${variant}-bg-pressed);
+      box-shadow: var(--btn-pressed-shadow);
+    }
+  `
+}
+
+const primaryCss = variantCss("primary", "var(--btn-primary-bg)")
+const secondaryCss = variantCss("secondary", "var(--btn-secondary-bg)")
+const tertiaryCss = variantCss("tertiary", "var(--btn-tertiary-bg-hover)")
+const dangerCss = css`
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-fg);
+  border-color: var(--btn-danger-border);
 
   &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-primary-bg-hover);
-    color: var(--btn-primary-fg-hover);
-    border-color: var(--btn-primary-border-hover);
-    box-shadow:
-      var(--btn-primary-shadow-hover),
-      inset 0 0 0 var(--btn-primary-outline-width) var(--btn-primary-bg);
+    background: var(--btn-danger-bg-hover);
+    border-color: var(--btn-danger-bg-hover);
   }
 
-  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-primary-bg-hover);
-    color: var(--btn-primary-fg-hover);
-    border-color: var(--btn-primary-border-hover);
-    box-shadow:
-      var(--btn-primary-shadow-hover),
-      inset 0 0 0 var(--btn-primary-outline-width) var(--btn-primary-bg);
-  }
-
+  /* Danger communicates pressed state by fill weight alone: cancels rootBaseCss's press translate. */
   &[data-pressed="true"] {
-    background: var(--btn-primary-bg-pressed);
+    background: var(--btn-danger-bg-pressed);
+    border-color: var(--btn-danger-bg-pressed);
     box-shadow: var(--btn-pressed-shadow);
+    transform: none;
   }
 `
-
-const secondaryCss = css`
-  background: var(--btn-secondary-bg);
-  color: var(--btn-secondary-fg);
-  border-color: var(--btn-secondary-border);
-
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-secondary-bg-hover);
-    color: var(--btn-secondary-fg-hover);
-    border-color: var(--btn-secondary-border-hover);
-    box-shadow:
-      var(--btn-secondary-shadow-hover),
-      inset 0 0 0 var(--btn-secondary-outline-width) var(--btn-secondary-bg);
-  }
-
-  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-secondary-bg-hover);
-    color: var(--btn-secondary-fg-hover);
-    border-color: var(--btn-secondary-border-hover);
-    box-shadow:
-      var(--btn-secondary-shadow-hover),
-      inset 0 0 0 var(--btn-secondary-outline-width) var(--btn-secondary-bg);
-  }
-
-  &[data-pressed="true"] {
-    background: var(--btn-secondary-bg-pressed);
-    box-shadow: var(--btn-pressed-shadow);
-  }
-`
-
-const tertiaryCss = css`
-  background: var(--btn-tertiary-bg);
-  color: var(--btn-tertiary-fg);
-  border-color: var(--btn-tertiary-border);
-
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-tertiary-bg-hover);
-    color: var(--btn-tertiary-fg-hover);
-    border-color: var(--btn-tertiary-border-hover);
-    box-shadow:
-      var(--btn-tertiary-shadow-hover),
-      inset 0 0 0 var(--btn-tertiary-outline-width) var(--btn-tertiary-bg-hover);
-  }
-
-  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
-    background: var(--btn-tertiary-bg-hover);
-    color: var(--btn-tertiary-fg-hover);
-    border-color: var(--btn-tertiary-border-hover);
-    box-shadow:
-      var(--btn-tertiary-shadow-hover),
-      inset 0 0 0 var(--btn-tertiary-outline-width) var(--btn-tertiary-bg-hover);
-  }
-
-  &[data-pressed="true"] {
-    background: var(--btn-tertiary-bg-pressed);
-    box-shadow: var(--btn-pressed-shadow);
-  }
-`
+// The primary hover inverts to a pale fill, so a toggle just switched on would read as off for as
+// long as the pointer stays on it.
+const selectedCss = variantCss("primary", "var(--btn-primary-bg)", "resting")
 
 const iconCss = css`
   background: var(--btn-icon-bg);
@@ -292,6 +269,8 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary: secondaryCss,
   tertiary: tertiaryCss,
   icon: iconCss,
+  danger: dangerCss,
+  selected: selectedCss,
 }
 
 const iconSizeStyles: Record<ButtonSize, string> = {

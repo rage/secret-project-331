@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test"
 
-import { downloadToString } from "../../utils/download"
-
+import { Select } from "@/utils/components/Select"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { downloadToString } from "../../utils/download"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -11,14 +12,12 @@ test.use({
 test("Manually adding completions works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.locator("[aria-label=\"Manage course \\'Manual Completions\\'\"] path").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5",
+    "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5/overview",
   )
 
   await page.getByRole("tab", { name: "Course instances" }).click()
@@ -28,11 +27,17 @@ test("Manually adding completions works", async ({ page }) => {
     .filter({ has: page.getByRole("heading", { name: "Default", exact: true }) })
     .getByRole("link", { name: "View completions" })
     .click()
+  // A course's completions live on one roster; the instance link lands there with the instance picked.
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
+    "http://project-331.local/manage/courses/34f4e7b7-9f55-48a7-95d7-3fc3e89553b5/students/completions?instance=6e3764c9-f2ad-5fe5-b310-ab73c289842e",
   )
 
   await page.getByText("Manually add completions").click()
+
+  // The module select is required and starts on its placeholder, so "Check" submits nothing
+  // until one is picked.
+  const courseModule = new Select(page, page.getByRole("button", { name: "Course module" }))
+  await courseModule.chooseOption("Default")
 
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
@@ -48,7 +53,7 @@ test("Manually adding completions works", async ({ page }) => {
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
     .click()
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
 
   await page.locator('button:has-text("Submit")').click()
@@ -57,8 +62,7 @@ test("Manually adding completions works", async ({ page }) => {
 
   await page.getByText("Manually add completions").click()
 
-  // Select 57db3a62-d098-489a-8869-0a14efd6fa80
-  await page.locator("select").selectOption({ label: "Another module" })
+  await courseModule.chooseOption("Another module")
 
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
@@ -82,7 +86,7 @@ test("Manually adding completions works", async ({ page }) => {
 
   const [download] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Export completions as CSV" }).click(),
+    page.getByRole("link", { name: "Export grades as CSV" }).click(),
   ])
 
   const completionsCsvContents = await downloadToString(download)

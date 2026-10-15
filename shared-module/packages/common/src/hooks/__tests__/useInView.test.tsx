@@ -14,7 +14,7 @@ declare global {
   ) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const triggerIntersection = (global as any).triggerIntersection as (
   el: Element,
   opts?: Partial<IntersectionObserverEntry> & {
@@ -31,6 +31,15 @@ function Demo({ freezeOnceVisible = false }: { freezeOnceVisible?: boolean }) {
       <div data-testid="state">{String(inView)}</div>
       <div data-testid="ratio">{entry?.intersectionRatio ?? "n/a"}</div>
     </>
+  )
+}
+
+function SSRDemo() {
+  const [ref, inView] = useInView({ initialInView: true })
+  return (
+    <div data-testid="state" ref={ref}>
+      {String(inView)}
+    </div>
   )
 }
 
@@ -72,23 +81,15 @@ test("freezeOnceVisible prevents further updates after first visible hit", () =>
   expect(screen.getByTestId("state").textContent).toBe("true")
 })
 
-test("SSR/legacy: no window.IntersectionObserver -> stays inert with initialInView", async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+test("SSR/legacy: no window.IntersectionObserver -> stays inert with initialInView", () => {
+  // oxlint-disable-next-line typescript/no-explicit-any
   const realIO = (global as any).IntersectionObserver
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   delete (global as any).IntersectionObserver
 
-  function SSRDemo() {
-    const [ref, inView] = useInView({ initialInView: true })
-    return (
-      <div data-testid="state" ref={ref}>
-        {String(inView)}
-      </div>
-    )
-  }
   const { unmount } = render(<SSRDemo />)
   expect(screen.getByTestId("state").textContent).toBe("true")
   unmount()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ;(global as any).IntersectionObserver = realIO
 })

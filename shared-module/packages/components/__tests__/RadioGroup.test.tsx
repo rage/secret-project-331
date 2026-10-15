@@ -5,7 +5,6 @@ import type React from "react"
 
 import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
-
 import { pressArrowDown, renderWithForm } from "./testUtils"
 
 describe("RadioGroup", () => {
@@ -91,5 +90,65 @@ describe("RadioGroup", () => {
     ))
 
     expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("type", "radio")
+  })
+
+  test("data-testid lands on the radiogroup element", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Theme" data-testid="theme-group">
+          <Radio label="Light" value="light" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByTestId("theme-group")).toBe(
+      screen.getByRole("radiogroup", { name: "Theme" }),
+    )
+  })
+
+  test("data-testid lands on the radio input", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Theme">
+          <Radio label="Light" value="light" data-testid="light-radio" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByTestId("light-radio")).toBe(screen.getByRole("radio", { name: "Light" }))
+  })
+
+  test("segmented options stay radios, so a choice is still announced as one", () => {
+    const { getValues } = renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Are you a student?" variant="segmented">
+          <Radio label="Yes" value="yes" />
+          <Radio label="No" value="no" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getAllByRole("radio")).toHaveLength(2)
+    fireEvent.click(screen.getByRole("radio", { name: "No" }))
+    expect(screen.getByRole("radio", { name: "No" })).toBeChecked()
+    expect(getValues().r).toBe("no")
+  })
+
+  test("a segmented option keeps a description it is given rather than dropping it", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Are you a student?" variant="segmented">
+          <Radio label="Yes" value="yes" description="With a study right" />
+          <Radio label="No" value="no" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByText("With a study right")).toBeInTheDocument()
+    expect(screen.getByRole("radio", { name: /With a study right/ })).toBeInTheDocument()
   })
 })

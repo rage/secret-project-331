@@ -9,6 +9,7 @@ import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullabili
 export const usePageInfo = (pageId: string | null) =>
   useQuery({
     queryKey: ["getPageInfo", pageId],
+    // oxlint-disable-next-line eslint/require-await -- kept async for the Promise<PageInfo> return contract
     queryFn: async (): Promise<PageInfo> =>
       getPageInfo({
         path: {

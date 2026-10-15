@@ -15,7 +15,7 @@ use utoipa::ToSchema;
 use crate::{
     CourseOrExamId, SpecFetcher,
     chapters::{
-        self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
+        self, Chapter, DatabaseChapter, get_chapter, get_chapter_by_page_id, get_course_chapters,
     },
     course_instances::{self, CourseInstance},
     courses::{self, Course, CourseContextData, CourseMaterialCourse},
@@ -65,6 +65,25 @@ pub struct PageInfo {
     pub course_name: Option<String>,
     pub course_slug: Option<String>,
     pub organization_slug: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct PageInfoSpecial {
+    pub page_id: Uuid,
+    pub url_path: String,
+    pub page_title: String,
+    pub order_number: i32,
+    pub chapter_title: Option<String>,
+    pub chapter_number: Option<i32>,
+    pub module_name: Option<String>,
+    pub module_number: Option<i32>,
+    pub content: serde_json::Value,
+}
+
+impl PageInfoSpecial {
+    pub fn blocks_cloned(&self) -> ModelResult<Vec<GutenbergBlock>> {
+        serde_json::from_value(self.content.clone()).map_err(Into::into)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -190,7 +209,7 @@ fn percent_escape_byte_at(chars: &[char], i: usize) -> Option<u8> {
 /// `/`, `-`, `.`, `_`, `~` are kept. Unsafe chars are removed, not `%xx`-encoded, so every save
 /// funnels through here and paths can't re-accumulate escapes. Mirrors `clean_url_path` (page
 /// migration) and the frontend `cleanUrlPath`; keep the three in agreement.
-fn normalize_url_path_for_storage(url_path: &str) -> String {
+pub(crate) fn normalize_url_path_for_storage(url_path: &str) -> String {
     decode_percent_runs(url_path)
         .split('/')
         .map(clean_url_path_segment)
@@ -445,6 +464,7 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
+    pub hidden: bool,
 }
 
 /// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
@@ -672,20 +692,25 @@ pub async fn insert_exam_page(
     let page_res = sqlx::query!(
         "
 INSERT INTO pages (
-    exam_id,
     content,
     url_path,
     title,
+    exam_id,
+    content_search_language,
+    hidden,
     order_number
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 ",
-        exam_id,
-        serde_json::Value::Array(vec![]),
+        serde_json::to_value(page.content.clone())?,
         page.url_path,
         page.title,
-        0
+        exam_id,
+        page.content_search_language
+            .unwrap_or_else(|| "simple".to_string()),
+        page.hidden,
+        0_i32
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -696,10 +721,10 @@ RETURNING id
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
-            content: serde_json::Value::Array(vec![]),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+            content: serde_json::to_value(page.content)?,
+            exercises: page.exercises,
+            exercise_slides: page.exercise_slides,
+            exercise_tasks: page.exercise_tasks,
             peer_or_self_review_configs: Vec::new(),
             peer_or_self_review_questions: Vec::new(),
         },
@@ -710,21 +735,6 @@ RETURNING id
     .await?;
     tx.commit().await?;
     Ok((page_res.id, history_id))
-}
-
-pub async fn set_chapter(
-    conn: &mut PgConnection,
-    page_id: Uuid,
-    chapter_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "UPDATE pages SET chapter_id = $1 WHERE id = $2",
-        chapter_id,
-        page_id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
 }
 
 pub async fn get_course_and_exam_id(
@@ -908,8 +918,28 @@ WHERE chapter_id = $1
     Ok(res)
 }
 
+/// Titles for a set of pages, for annotating rows that only carry a page id.
+pub async fn get_titles_by_ids(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, String>> {
+    let rows = sqlx::query!(
+        "
+SELECT id,
+  title
+FROM pages
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        page_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|r| (r.id, r.title)).collect())
+}
+
 pub async fn get_page(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Page> {
-    let pages = sqlx::query_as!(
+    let page = sqlx::query_as!(
         Page,
         "
 SELECT id,
@@ -933,7 +963,47 @@ WHERE id = $1;
     )
     .fetch_one(conn)
     .await?;
-    Ok(pages)
+    Ok(page)
+}
+
+/// The fields the chatbot needs to describe a page: enough to build the page-context message,
+/// none of the Gutenberg `content` JSONB.
+pub struct PageChatbotContext {
+    pub id: Uuid,
+    pub title: String,
+    pub chapter_name: Option<String>,
+    pub course_id: Option<Uuid>,
+    pub hidden: bool,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+/// Like [get_page], but projects only the columns the chatbot needs and folds in the chapter name,
+/// so the caller does not also have to fetch the whole page (including `content`) or the chapter.
+///
+/// `chapter_name` is `None` when the page has no chapter or when its chapter has been deleted, the
+/// same as looking up the chapter separately and discarding a `NotFound` error would give.
+pub async fn get_page_chatbot_context(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<PageChatbotContext> {
+    let page = sqlx::query_as!(
+        PageChatbotContext,
+        r#"
+SELECT pages.id AS "id!",
+  pages.title AS "title!",
+  chapters.name AS "chapter_name?",
+  pages.course_id,
+  pages.hidden AS "hidden!",
+  pages.deleted_at
+FROM pages
+LEFT JOIN chapters ON chapters.id = pages.chapter_id AND chapters.deleted_at IS NULL
+WHERE pages.id = $1;
+"#,
+        page_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(page)
 }
 
 pub async fn get_front_page_by_chapter_id(
@@ -975,8 +1045,8 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         PageInfo,
         r#"
     SELECT
-        p.id as page_id,
-        p.title as page_title,
+        p.id as "page_id!",
+        p.title as "page_title!",
         c.id as "course_id?",
         c.name as "course_name?",
         c.slug as "course_slug?",
@@ -991,6 +1061,45 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
         page_id
     )
     .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get_page_info_special_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<PageInfoSpecial>> {
+    let inverse_visibility_filter = PageVisibility::Public.get_inverse_visibility_filter();
+    // if chapter_id is null then chapter_number and title should be null
+    let res = sqlx::query_as!(
+        PageInfoSpecial,
+        r#"
+    SELECT
+        p.id AS "page_id!",
+        p.url_path AS "url_path!",
+        p.title AS "page_title!",
+        p.order_number AS "order_number!",
+        p.content AS "content!",
+        c.name AS "chapter_title?",
+        c.chapter_number AS "chapter_number?",
+        m.name AS "module_name?",
+        m.order_number AS "module_number?"
+    FROM pages p
+    LEFT JOIN chapters c
+        ON c.id = p.chapter_id
+    LEFT JOIN course_modules m
+        ON m.id = c.course_module_id
+    WHERE p.course_id = $1
+    AND p.deleted_at IS NULL
+    AND c.deleted_at IS NULL
+    AND m.deleted_at IS NULL
+    AND p.hidden IS DISTINCT FROM $2
+        "#,
+        course_id,
+        inverse_visibility_filter,
+    )
+    .fetch_all(conn)
     .await?;
 
     Ok(res)
@@ -1244,14 +1353,23 @@ pub async fn get_page_with_exercises(
         .map(|x| x.into())
         .collect();
 
-    let exercise_tasks: Vec<CmsPageExerciseTask> =
-        crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
-            &mut *conn,
-            &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
-        )
-        .await?
+    let tasks = crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
+        &mut *conn,
+        &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
+    )
+    .await?;
+    let mut spec_files_by_task = crate::exercise_task_spec_files::get_by_exercise_task_ids(
+        &mut *conn,
+        &tasks.iter().map(|task| task.id).collect::<Vec<Uuid>>(),
+        crate::exercise_task_spec_files::SpecKind::Private,
+    )
+    .await?;
+    let exercise_tasks: Vec<CmsPageExerciseTask> = tasks
         .into_iter()
-        .map(|x| x.into())
+        .map(|task| {
+            let private_spec_files = spec_files_by_task.remove(&task.id).unwrap_or_default();
+            CmsPageExerciseTask::from_task(task, private_spec_files)
+        })
         .collect();
 
     let organization_id = get_organization_id(&mut *conn, page_id).await?;
@@ -1401,10 +1519,22 @@ pub struct CmsPageExerciseTask {
     pub exercise_type: String,
     pub private_spec: Option<serde_json::Value>,
     pub order_number: i32,
+    /// The stored files this task's private spec references, as the exercise service declared them
+    /// in the editor. The host cannot read the spec, so this list is the only thing keeping the
+    /// files from being reclaimed as abandoned uploads — and the CMS round-trips it through a block
+    /// attribute, so a load that leaves it empty makes the next save drop the references.
+    ///
+    /// Only the private spec's. Each derived spec declares its own files in the response of the
+    /// endpoint that produced it, since a derivation may upload files of its own.
+    #[serde(default)]
+    pub private_spec_files: Vec<Uuid>,
 }
 
-impl From<ExerciseTask> for CmsPageExerciseTask {
-    fn from(task: ExerciseTask) -> Self {
+impl CmsPageExerciseTask {
+    /// Deliberately not a `From<ExerciseTask>`: the declared spec files live in their own table, so
+    /// a conversion that could not reach them would quietly produce an empty list and the next save
+    /// would drop every reference.
+    pub fn from_task(task: ExerciseTask, private_spec_files: Vec<Uuid>) -> Self {
         CmsPageExerciseTask {
             id: task.id,
             exercise_slide_id: task.exercise_slide_id,
@@ -1412,6 +1542,7 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
             exercise_type: task.exercise_type,
             private_spec: task.private_spec,
             order_number: task.order_number,
+            private_spec_files,
         }
     }
 }
@@ -1426,6 +1557,7 @@ pub struct CmsPageUpdate {
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
+    pub hidden: bool,
 }
 
 impl CmsPageUpdate {
@@ -1699,7 +1831,8 @@ UPDATE pages
 SET content = $2,
   url_path = $3,
   title = $4,
-  chapter_id = $5
+  chapter_id = $5,
+  hidden = $6
 WHERE id = $1
 RETURNING id,
   created_at,
@@ -1720,7 +1853,8 @@ RETURNING id,
         serde_json::to_value(&content)?,
         normalized_url_path,
         cms_page_update.title.trim(),
-        cms_page_update.chapter_id
+        cms_page_update.chapter_id,
+        cms_page_update.hidden
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -2309,24 +2443,31 @@ async fn upsert_exercise_tasks(
             exercise_type: task_update.exercise_type.clone(),
             private_spec: task_update.private_spec.clone(),
         };
-        let model_solution_spec = fetch_derived_spec(
+        let declares_spec_files = exercise_service_hashmap
+            .get(&task_update.exercise_type)
+            .is_some_and(|(_service, info)| info.declares_spec_files);
+        let model_solution = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
             &model_solution_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
             task_update.id,
+            declares_spec_files,
         )
         .await?;
-        let public_spec: Option<serde_json::Value> = fetch_derived_spec(
+        let public = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
             &public_spec_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
             task_update.id,
+            declares_spec_files,
         )
         .await?;
+        let model_solution_spec = model_solution.spec;
+        let public_spec = public.spec;
         let safe_for_db_exercise_slide_id = remapped_slides
             .get(&task_update.exercise_slide_id)
             .ok_or_else(|| {
@@ -2338,8 +2479,7 @@ async fn upsert_exercise_tasks(
             .id;
 
         // Upsert
-        let exercise_task = sqlx::query_as!(
-            CmsPageExerciseTask,
+        let upserted = sqlx::query!(
             "
 INSERT INTO exercise_tasks(
     id,
@@ -2379,7 +2519,44 @@ RETURNING id,
         )
         .fetch_one(&mut *conn)
         .await?;
-        remapped_exercise_tasks.push(exercise_task)
+        // The exercise service declares these; the host cannot read them out of the specs it just
+        // stored. Rewritten in full per kind, so dropping a file from a spec releases it.
+        crate::exercise_task_spec_files::replace_for_exercise_task(
+            &mut *conn,
+            upserted.id,
+            crate::exercise_task_spec_files::SpecKind::Private,
+            &task_update.private_spec_files,
+        )
+        .await?;
+        // Only when this save actually re-derived and the service declared: a skipped derivation
+        // leaves the previous spec in place, so its declarations must stay in place too.
+        if let Some(declared) = public.declared_files.as_ref() {
+            crate::exercise_task_spec_files::replace_for_exercise_task(
+                &mut *conn,
+                upserted.id,
+                crate::exercise_task_spec_files::SpecKind::Public,
+                declared,
+            )
+            .await?;
+        }
+        if let Some(declared) = model_solution.declared_files.as_ref() {
+            crate::exercise_task_spec_files::replace_for_exercise_task(
+                &mut *conn,
+                upserted.id,
+                crate::exercise_task_spec_files::SpecKind::ModelSolution,
+                declared,
+            )
+            .await?;
+        }
+        remapped_exercise_tasks.push(CmsPageExerciseTask {
+            id: upserted.id,
+            exercise_slide_id: upserted.exercise_slide_id,
+            assignment: upserted.assignment,
+            exercise_type: upserted.exercise_type,
+            private_spec: upserted.private_spec,
+            order_number: upserted.order_number,
+            private_spec_files: task_update.private_spec_files.clone(),
+        })
     }
     Ok(remapped_exercise_tasks)
 }
@@ -2425,18 +2602,21 @@ pub async fn upsert_peer_or_self_review_configs(
             new_peer_or_self_review_config_id_to_old_id
                 .insert(safe_for_db_peer_or_self_review_config_id, pr.id);
 
-            let safe_for_db_exercise_id = pr.exercise_id.and_then(|id| {
-                let res = remapped_exercises.get(&id).map(|e| e.id);
+            let exercise = pr.exercise_id.and_then(|id| {
+                let res = remapped_exercises.get(&id);
                 if res.is_none() {
                     error!("Illegal exercise id {:?}", id);
                     illegal_exercise_id = Some(id);
                 }
                 res
             });
+            // The client's course_id is stale when the exercise block was pasted from another
+            // course, and course copying breaks if it disagrees with the exercise's course.
+            let safe_for_db_course_id = exercise.and_then(|e| e.course_id).unwrap_or(pr.course_id);
 
             x.push_bind(safe_for_db_peer_or_self_review_config_id)
-                .push_bind(pr.course_id)
-                .push_bind(safe_for_db_exercise_id)
+                .push_bind(safe_for_db_course_id)
+                .push_bind(exercise.map(|e| e.id))
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
                 .push_bind(pr.processing_strategy)
@@ -2669,6 +2849,30 @@ struct ExerciseTaskIdAndSpec {
     pub model_solution_spec: Option<serde_json::Value>,
 }
 
+/// A derived spec, with the stored files the exercise service declared it references.
+#[derive(Debug)]
+struct DerivedSpec {
+    spec: Option<serde_json::Value>,
+    /// `None` when this save declared nothing about the spec: either it was not re-derived, so the
+    /// stored declarations still stand, or the service does not declare its spec files at all.
+    /// Distinct from `Some(vec![])`, which says the spec references no files and releases whatever
+    /// it referenced before.
+    declared_files: Option<Vec<Uuid>>,
+}
+
+/// The body a service that declares its spec files returns from the public-spec and
+/// model-solution endpoints, in place of the bare spec.
+///
+/// Both keys are required on purpose: serde reads a missing field of either an `Option` or a
+/// `#[serde(default)]` type without complaint, so a lenient envelope would swallow a bare spec
+/// object as "no spec, no files" and store `NULL` over a working exercise.
+#[derive(Deserialize)]
+struct DerivedSpecResponse {
+    /// `null` for a kind the service has no spec for, such as a model solution it cannot show.
+    spec: serde_json::Value,
+    files: Vec<Uuid>,
+}
+
 async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
@@ -2676,11 +2880,15 @@ async fn fetch_derived_spec(
     spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
-) -> Result<Option<serde_json::Value>, ModelError> {
-    let result_spec: Option<serde_json::Value> = match existing_exercise_task {
+    declares_spec_files: bool,
+) -> Result<DerivedSpec, ModelError> {
+    match existing_exercise_task {
         Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
             // Skip generating public spec for an existing exercise again if private spec is still the same.
-            previous_spec
+            Ok(DerivedSpec {
+                spec: previous_spec,
+                declared_files: None,
+            })
         }
         _ => {
             let url = urls_by_exercise_type
@@ -2701,10 +2909,35 @@ async fn fetch_derived_spec(
                 task_update.private_spec.as_ref(),
             )
             .await?;
-            Some(res)
+            if !declares_spec_files {
+                return Ok(DerivedSpec {
+                    spec: Some(res),
+                    declared_files: None,
+                });
+            }
+            // A declaring service answers with an envelope, so the same body cannot be read both
+            // ways: failing loudly beats storing an envelope as if it were the spec.
+            let response: DerivedSpecResponse = serde_json::from_value(res).map_err(|err| {
+                model_err!(
+                    PreconditionFailedWithCMSAnchorBlockId {
+                        id: cms_block_id,
+                        description: "Exercise service declares spec files but did not answer with a spec and its files.",
+                    },
+                    format!(
+                        "Exercise service {} declares spec files, so its derived spec must be a spec and its files: {err}",
+                        task_update.exercise_type
+                    )
+                )
+            })?;
+            Ok(DerivedSpec {
+                spec: match response.spec {
+                    serde_json::Value::Null => None,
+                    spec => Some(spec),
+                },
+                declared_files: Some(response.files),
+            })
         }
-    };
-    Ok(result_spec)
+    }
 }
 
 pub async fn insert_new_content_page(
@@ -2730,6 +2963,7 @@ pub async fn insert_new_content_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: new_page.hidden,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -2799,9 +3033,10 @@ INSERT INTO pages(
     order_number,
     chapter_id,
     content_search_language,
-    page_language_group_id
+    page_language_group_id,
+    hidden
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id,
   created_at,
   updated_at,
@@ -2826,6 +3061,7 @@ RETURNING id,
         new_page.chapter_id,
         content_search_language as _,
         page_language_group_id,
+        new_page.hidden,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -2845,6 +3081,7 @@ RETURNING id,
                 url_path: page.url_path,
                 title: page.title,
                 chapter_id: page.chapter_id,
+                hidden: new_page.hidden,
             },
             retain_ids: false,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2951,6 +3188,46 @@ pub async fn delete_page_and_exercises(
     author: Uuid,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
+
+    let is_chapter_front_page = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM chapters WHERE front_page_id = $1 AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        page_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if is_chapter_front_page {
+        return Err(model_err!(
+            InvalidRequest,
+            "Cannot delete a chapter's front page".to_string()
+        ));
+    }
+
+    let is_course_front_page = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1 FROM pages
+  WHERE id = $1
+    AND deleted_at IS NULL
+    AND chapter_id IS NULL
+    AND course_id IS NOT NULL
+    AND trim(url_path) = '/'
+) AS "exists!"
+        "#,
+        page_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if is_course_front_page {
+        return Err(model_err!(
+            InvalidRequest,
+            "Cannot delete a course's front page".to_string()
+        ));
+    }
+
     let page = sqlx::query_as!(
         Page,
         r#"
@@ -3136,10 +3413,12 @@ async fn get_current_page_metadata(
     let page_metadata = sqlx::query_as!(
         PageMetadata,
         r#"
-SELECT p.id as page_id,
-  p.order_number as order_number,
-  p.course_id as course_id,
-  p.exam_id as exam_id,
+-- Nullability is stated per column rather than inferred: sqlx-cli 0.9.0 derives a reversed
+-- nullable array for this query, which makes every offline build of it fail.
+SELECT p.id as "page_id!",
+  p.order_number as "order_number!",
+  p.course_id as "course_id?",
+  p.exam_id as "exam_id?",
   c.id as "chapter_id?",
   c.chapter_number as "chapter_number?"
 FROM pages p
@@ -3475,6 +3754,34 @@ SELECT id,
 FROM pages p
 WHERE p.chapter_id = $1
   AND p.deleted_at IS NULL;
+    ",
+        chapter_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(pages)
+}
+
+pub struct PageIdAndUrlPath {
+    pub id: Uuid,
+    pub url_path: String,
+}
+
+/// Like [get_chapter_pages], projected down to `id` and `url_path` for callers that only rewrite
+/// paths and would otherwise pull every page's `content` JSONB for nothing.
+pub async fn get_chapter_page_paths(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<PageIdAndUrlPath>> {
+    let pages = sqlx::query_as!(
+        PageIdAndUrlPath,
+        "
+SELECT id,
+  url_path
+FROM pages
+WHERE chapter_id = $1
+  AND deleted_at IS NULL;
     ",
         chapter_id
     )
@@ -3871,6 +4178,7 @@ pub async fn restore(
                 url_path: page.url_path,
                 title: history_data.title,
                 chapter_id: page.chapter_id,
+                hidden: page.hidden,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::HistoryRestored,
@@ -4057,7 +4365,7 @@ pub async fn reorder_pages(
 ) -> ModelResult<()> {
     let db_pages =
         get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
-    let chapters = course_chapters(conn, course_id).await?;
+    let chapters = get_course_chapters(conn, course_id).await?;
 
     let mut chapter_pages: HashMap<Option<Uuid>, Vec<&Page>> = HashMap::new();
 
@@ -4140,6 +4448,13 @@ WHERE course_id = $1
                                 .execute(&mut *tx)
                                 .await?;
                                 sqlx::query!(
+                                    "UPDATE exercises SET chapter_id = $2 WHERE page_id = $1 AND deleted_at IS NULL",
+                                    page.id,
+                                    new_chapter.id
+                                )
+                                .execute(&mut *tx)
+                                .await?;
+                                sqlx::query!(
                                     "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
                                     page.id,
                                     old_path,
@@ -4190,12 +4505,42 @@ WHERE course_id = $1
     Ok(())
 }
 
+/// Writes pages' url paths as given, without normalizing them or adding redirections.
+///
+/// [reorder_chapters] rewrites paths in two passes and creates the redirections itself, so neither
+/// belongs here. Use [insert_page] or [update_page] for a path that comes from a user, since those
+/// canonicalize it.
+///
+/// Does not filter on `deleted_at`: a deleted page's path is written too.
+async fn set_url_paths(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    url_paths: &[String],
+) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        "
+UPDATE pages
+SET url_path = v.path
+FROM unnest($1::uuid[], $2::text[]) AS v(id, path)
+WHERE pages.id = v.id
+",
+        ids,
+        url_paths
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn reorder_chapters(
     conn: &mut PgConnection,
     chapters: &[Chapter],
     course_id: Uuid,
 ) -> ModelResult<()> {
-    let db_chapters = course_chapters(conn, course_id).await?;
+    let db_chapters = get_course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
     // Look for the modified chapter in the existing database
 
@@ -4223,25 +4568,20 @@ pub async fn reorder_chapters(
                 get_chapter(&mut tx, matching_db_chapter.id).await?;
             let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
             let pages =
-                get_chapter_pages(&mut tx, chapter_with_randomized_chapter_number.id).await?;
+                get_chapter_page_paths(&mut tx, chapter_with_randomized_chapter_number.id).await?;
 
+            let mut ids = Vec::with_capacity(pages.len());
+            let mut new_paths = Vec::with_capacity(pages.len());
             for page in pages {
-                let old_path = &page.url_path;
-                let new_path = old_path.replacen(
+                let new_path = page.url_path.replacen(
                     &old_chapter.chapter_number.to_string(),
                     &random_chapter_number.to_string(),
                     1,
                 );
-
-                // update each page path associated with a random chapter number
-                sqlx::query!(
-                    "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                    page.id,
-                    new_path
-                )
-                .execute(&mut *tx)
-                .await?;
+                ids.push(page.id);
+                new_paths.push(new_path);
             }
+            set_url_paths(&mut tx, &ids, &new_paths).await?;
         }
     }
 
@@ -4264,34 +4604,34 @@ pub async fn reorder_chapters(
                 .await?;
 
                 // update all pages url in the modified chapter
-                let pages = get_chapter_pages(&mut tx, chapter.id).await?;
+                let pages = get_chapter_page_paths(&mut tx, chapter.id).await?;
 
+                let mut ids = Vec::with_capacity(pages.len());
+                let mut new_paths = Vec::with_capacity(pages.len());
+                let mut old_paths = Vec::with_capacity(pages.len());
                 for page in pages {
-                    let path_with_temp_random_number = &page.url_path;
-                    let new_path = path_with_temp_random_number.replacen(
+                    let new_path = page.url_path.replacen(
                         &randomized_chapter_number.to_string(),
                         &new_chapter_number.to_string(),
                         1,
                     );
-                    let old_path = path_with_temp_random_number.replacen(
+                    let old_path = page.url_path.replacen(
                         &randomized_chapter_number.to_string(),
                         &chapter.chapter_number.to_string(),
                         1,
                     );
-                    // update each page path associated with the modified chapter
-                    sqlx::query!(
-                        "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                        page.id,
-                        new_path
-                    )
-                    .execute(&mut *tx)
-                    .await?;
+                    ids.push(page.id);
+                    new_paths.push(new_path);
+                    old_paths.push(old_path);
+                }
+                set_url_paths(&mut tx, &ids, &new_paths).await?;
 
+                for (page_id, old_path) in ids.iter().zip(old_paths.iter()) {
                     crate::url_redirections::upsert(
                         &mut tx,
                         PKeyPolicy::Generate,
-                        page.id,
-                        &old_path,
+                        *page_id,
+                        old_path,
                         course_id,
                     )
                     .await?;
@@ -4562,6 +4902,7 @@ mod test {
             chapter_id: Some(chapter),
             front_page_of_chapter_id: None,
             content_search_language: None,
+            hidden: false,
         };
 
         // Stored in the decoded-canonical form (raw Cyrillic), as insert_page now stores it.
@@ -4586,17 +4927,13 @@ mod test {
         )
         .await
         .unwrap();
-        {
-            let conn: &mut sqlx::PgConnection = tx.as_mut();
-            sqlx::query!(
-                "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
-                legacy_page.id,
-                "/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82"
-            )
-            .execute(conn)
-            .await
-            .unwrap();
-        }
+        set_url_paths(
+            tx.as_mut(),
+            &[legacy_page.id],
+            &["/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82".to_string()],
+        )
+        .await
+        .unwrap();
 
         // Looks the page up through the same helper the production lookup uses, so a
         // regression in the candidate matching is caught here.
@@ -4674,6 +5011,7 @@ mod test {
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -4714,6 +5052,7 @@ mod test {
             exercise_type: "exercise".to_string(),
             private_spec: None,
             order_number: 1,
+            private_spec_files: vec![],
         };
 
         // Works without exercises
@@ -4762,6 +5101,7 @@ mod test {
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: None,
+            hidden: false,
         }
     }
 
@@ -4783,9 +5123,11 @@ mod test {
         course_id: Uuid,
         chapter_locking_enabled: bool,
     ) {
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let course_before_update = courses::get_course(tx, course_id).await.unwrap();
         courses::update_course(
             tx,
+            &app_config,
             course_id,
             courses::CourseUpdate {
                 chapter_locking_enabled,
@@ -5162,29 +5504,35 @@ mod test {
     async fn reorder_top_level_pages_works() {
         insert_data!(:tx, :user, :org, :course);
 
-        // First, delete any existing pages in this course to ensure a clean slate
+        // First, delete any existing pages in this course to ensure a clean slate, except the
+        // course front page, which cannot be deleted.
         let existing_pages =
             get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
                 .await
                 .unwrap();
-        for page in &existing_pages {
+        for page in existing_pages.iter().filter(|p| p.url_path.trim() != "/") {
             delete_page_and_exercises(tx.as_mut(), page.id, user)
                 .await
                 .unwrap();
         }
 
-        // Create our test pages
-        let page1 = NewCoursePage::new(course, 0, "top-page-1", "Top Page 1");
+        // Create our test pages. Order numbers start at 1: the course front page (not deleted
+        // above) already occupies order_number 0.
+        let page1 = NewCoursePage::new(course, 1, "top-page-1", "Top Page 1");
         let (page1_id, _) = insert_course_page(tx.as_mut(), &page1, user).await.unwrap();
-        let page2 = NewCoursePage::new(course, 1, "top-page-2", "Top Page 2");
+        let page2 = NewCoursePage::new(course, 2, "top-page-2", "Top Page 2");
         let (page2_id, _) = insert_course_page(tx.as_mut(), &page2, user).await.unwrap();
-        let page3 = NewCoursePage::new(course, 2, "top-page-3", "Top Page 3");
+        let page3 = NewCoursePage::new(course, 3, "top-page-3", "Top Page 3");
         let (page3_id, _) = insert_course_page(tx.as_mut(), &page3, user).await.unwrap();
 
-        let mut pages =
+        // The frontend never sends front pages to reorder_pages.
+        let mut pages: Vec<_> =
             get_all_by_course_id_and_visibility(tx.as_mut(), course, PageVisibility::Any)
                 .await
-                .unwrap();
+                .unwrap()
+                .into_iter()
+                .filter(|p| p.url_path.trim() != "/")
+                .collect();
 
         let page1_index = pages.iter().position(|p| p.id == page1_id).unwrap();
         let page2_index = pages.iter().position(|p| p.id == page2_id).unwrap();
@@ -5205,5 +5553,74 @@ mod test {
         assert_eq!(page1_updated.order_number, 2);
         assert_eq!(page2_updated.order_number, 3);
         assert_eq!(page3_updated.order_number, 1);
+    }
+
+    fn declaring_task() -> NormalizedCmsExerciseTask {
+        NormalizedCmsExerciseTask {
+            id: Uuid::new_v4(),
+            assignment: serde_json::Value::Null,
+            exercise_type: "declaring-service".to_string(),
+            private_spec: Some(serde_json::json!({ "prompt": "hi" })),
+        }
+    }
+
+    async fn derive_from_declaring_service(body: serde_json::Value) -> ModelResult<DerivedSpec> {
+        let exercise_type = "declaring-service".to_string();
+        let mut urls = HashMap::new();
+        urls.insert(
+            &exercise_type,
+            Url::parse("http://example.com/spec").unwrap(),
+        );
+        fetch_derived_spec(
+            None,
+            &declaring_task(),
+            &urls,
+            move |_url, _slug, _spec| {
+                let body = body.clone();
+                Box::pin(async move { Ok(body) })
+            },
+            None,
+            Uuid::new_v4(),
+            true,
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn reads_the_spec_and_its_files_a_declaring_service_answers_with() {
+        let file = Uuid::new_v4();
+        let derived = derive_from_declaring_service(serde_json::json!({
+            "spec": { "prompt": "hi" },
+            "files": [file],
+        }))
+        .await
+        .unwrap();
+
+        assert_eq!(derived.spec, Some(serde_json::json!({ "prompt": "hi" })));
+        assert_eq!(derived.declared_files, Some(vec![file]));
+    }
+
+    #[tokio::test]
+    async fn reads_a_null_spec_a_declaring_service_has_nothing_to_show_for() {
+        let derived = derive_from_declaring_service(serde_json::json!({
+            "spec": null,
+            "files": [],
+        }))
+        .await
+        .unwrap();
+
+        assert_eq!(derived.spec, None);
+        assert_eq!(derived.declared_files, Some(vec![]));
+    }
+
+    #[tokio::test]
+    async fn refuses_a_bare_spec_from_a_declaring_service() {
+        // The dangerous shape: a lenient parse reads a bare spec as "no spec, no files".
+        derive_from_declaring_service(serde_json::json!({ "prompt": "hi", "options": [] }))
+            .await
+            .expect_err("a bare spec is not an envelope");
+        derive_from_declaring_service(serde_json::json!({ "files": [] }))
+            .await
+            .expect_err("an envelope without its spec key is not an envelope");
     }
 }

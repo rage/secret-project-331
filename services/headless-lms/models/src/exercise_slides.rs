@@ -211,10 +211,18 @@ pub async fn get_course_material_exercise_slide_by_id(
     id: Uuid,
     user_id: Option<Uuid>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
-    let exercise_tasks =
-        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id, fetch_service_info)
-            .await?;
+    let exercise_tasks = exercise_tasks::get_course_material_exercise_tasks(
+        conn,
+        id,
+        user_id,
+        fetch_service_info,
+        file_store,
+        app_conf,
+    )
+    .await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

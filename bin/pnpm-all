@@ -11,8 +11,8 @@ fi
 COMMAND=$*
 
 run_command pnpm exec concurrently \
-  -n "cms,main-frontend,example-exercise,shared-module/common,quizzes,tmc,exercise-protocol,exercise-client,exercise-react,create-exercise-service" \
-  -c "green,blue,yellow,magenta,cyan,white,red,gray,greenBright,blueBright" \
+  -n "cms,main-frontend,example-exercise,shared-module/common,quizzes,tmc,exercise-protocol,exercise-client,exercise-react,create-exercise-service,exercise-service-test-utils" \
+  -c "green,blue,yellow,magenta,cyan,white,red,gray,greenBright,blueBright,cyanBright" \
   "bash -c 'cd services/cms/ && pnpm ${COMMAND}'" \
   "bash -c 'cd services/main-frontend && pnpm ${COMMAND}'" \
   "bash -c 'cd services/example-exercise && pnpm ${COMMAND}'" \
@@ -22,6 +22,7 @@ run_command pnpm exec concurrently \
   "bash -c 'cd shared-module/packages/exercise-protocol && pnpm ${COMMAND}'" \
   "bash -c 'cd shared-module/packages/exercise-client && pnpm ${COMMAND}'" \
   "bash -c 'cd shared-module/packages/exercise-react && pnpm ${COMMAND}'" \
-  "bash -c 'cd shared-module/packages/create-exercise-service && pnpm ${COMMAND}'"
+  "bash -c 'cd shared-module/packages/create-exercise-service && pnpm ${COMMAND}'" \
+  "bash -c 'cd shared-module/packages/exercise-service-test-utils && pnpm ${COMMAND}'"
 
 echo "finished"

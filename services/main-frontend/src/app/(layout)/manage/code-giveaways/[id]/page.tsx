@@ -1,0 +1,118 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import { useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import {
+  getCodeGiveawayByIdOptions,
+  getCodeGiveawayCodesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { Button, Link, QueryResults, Table } from "@/shared-module/components"
+import { codeGiveawayCodesCsvHref } from "@/utils/exportDownloadUrls"
+
+import CodeGiveawayCode from "./CodeGiveawayCode"
+import ImportCodesForm from "./ImportCodesForm"
+
+const CodeGiveawayPage = () => {
+  const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const codeGiveawayQuery = useQuery(
+    getCodeGiveawayByIdOptions({
+      path: {
+        id,
+      },
+    }),
+  )
+
+  usePageTitle(codeGiveawayQuery.data?.name ?? null)
+
+  const [revealCodes, setRevealCodes] = useState(false)
+
+  const codeGiveawayCodesQuery = useQuery(
+    getCodeGiveawayCodesOptions({
+      path: {
+        id,
+      },
+    }),
+  )
+
+  const renderPage = (name: string, codes: typeof codeGiveawayCodesQuery.data) => (
+    <>
+      <h1
+        className={css`
+          font-size: ${typography.h4};
+          color: ${baseTheme.colors.gray[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `}
+      >
+        {t("heading-code-giveaway-name", { name })}
+      </h1>
+
+      <div
+        className={css`
+          margin-top: 1rem;
+        `}
+      >
+        <Button size="medium" variant="primary" onClick={() => setRevealCodes(!revealCodes)}>
+          {t(revealCodes ? "hide" : "reveal")}
+        </Button>
+        <Link
+          href={codeGiveawayCodesCsvHref(id)}
+          download
+          styledAsButton
+          size="medium"
+          variant="primary"
+          className={css`
+            margin-top: 1rem;
+          `}
+        >
+          {t("link-export-given-codes-as-csv")}
+        </Link>
+      </div>
+      <Table
+        caption={t("code")}
+        rows={codes ?? []}
+        rowKey={(code) => code.id}
+        columns={[
+          {
+            header: t("code"),
+            cell: (code) => <CodeGiveawayCode code={code.code} revealed={revealCodes} />,
+          },
+          {
+            header: t("user-id"),
+            cell: (code) => code.code_given_to_user_id ?? t("not-given"),
+          },
+          { header: t("added-by-user"), cell: (code) => code.added_by_user_id },
+        ]}
+      />
+      <Button size="medium" variant="primary" onClick={() => setImportDialogOpen(true)}>
+        {t("button-text-import")}
+      </Button>
+      <ImportCodesForm
+        codeGiveawayId={id.toString()}
+        dialogOpen={importDialogOpen}
+        setDialogOpen={setImportDialogOpen}
+        onCreated={() => {
+          codeGiveawayCodesQuery.refetch()
+        }}
+      />
+    </>
+  )
+
+  return (
+    <QueryResults
+      queries={[codeGiveawayQuery, codeGiveawayCodesQuery] as const}
+      renderData={([codeGiveaway, codes]) => renderPage(codeGiveaway?.name ?? "", codes)}
+      treatEmptyAsData
+    />
+  )
+}
+
+export default CodeGiveawayPage

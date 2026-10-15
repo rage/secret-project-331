@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_phase_state\nSET next_run_at = $2\nWHERE phase = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "38fa1b279886d42922805fcd16988ac0c8b9f8b0e3496c2005be3bc72c1c587c"
+}

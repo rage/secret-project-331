@@ -1,0 +1,208 @@
+"use client"
+
+import type { UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
+import { useRouter } from "next/navigation"
+import { useEffect, useMemo } from "react"
+import { useForm, useWatch } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import { generateCertificateMutation as generateCertificateMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCertificateByConfigurationId,
+  getCourse as getCourseFromApi,
+  getCourseModule,
+  getCourseModuleCompletion,
+} from "@/generated/api/sdk.generated"
+import type {
+  Course,
+  GeneratedCertificate,
+  CourseModule as GeneratedCourseModule,
+} from "@/generated/api/types.generated"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  Button,
+  LoadingRegion,
+  TextField,
+  useDialog,
+  ErrorNotice,
+} from "@/shared-module/components"
+
+const ModuleCertificate: React.FC = () => {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const { confirm } = useDialog()
+  const certificateConfigurationId = useQueryParameter("ccid")
+  // Used to generate the right title
+  const moduleId = useQueryParameter("module")
+  const userInfo = useUserInfo()
+  const { control, setValue } = useForm<{ nameOnCertificate: string }>({
+    defaultValues: { nameOnCertificate: "" },
+  })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const nameOnCertificate = useWatch({ control, name: "nameOnCertificate" })
+  const existingCertificateQuery = useQuery({
+    queryKey: ["getCertificateByConfigurationId", certificateConfigurationId],
+    queryFn: (): Promise<GeneratedCertificate | null> =>
+      getCertificateByConfigurationId({
+        path: {
+          certificate_configuration_id: assertNotNullOrUndefined(certificateConfigurationId),
+        },
+      }),
+    enabled: certificateConfigurationId !== null,
+  })
+
+  useEffect(() => {
+    if (!existingCertificateQuery.data) {
+      return
+    }
+    router.replace(certificateValidateRoute(existingCertificateQuery.data.verification_id))
+  }, [existingCertificateQuery.data, router])
+  const courseAndModule = useQuery({
+    queryKey: ["course-module", moduleId],
+    queryFn: async () => {
+      const courseModule = await getCourseModule({
+        path: {
+          course_module_id: assertNotNullOrUndefined(moduleId),
+        },
+      })
+      const course = await getCourseFromApi({
+        path: {
+          course_id: courseModule.course_id,
+        },
+      })
+      return { module: courseModule, course }
+    },
+    enabled: !!moduleId,
+  })
+
+  // Reflect the loaded course context in the tab (e.g. "Generate certificate - Programming 101");
+  // falls back to the generic label until the course/module data resolves.
+  usePageTitle(
+    joinTitleSegments([t("title-generate-certificate"), courseAndModule.data?.course?.name]),
+  )
+
+  useEffect(() => {
+    if (userInfo.isSuccess && userInfo.data && nameOnCertificate === "") {
+      setValue(
+        "nameOnCertificate",
+        `${userInfo.data.first_name ?? ""} ${userInfo.data.last_name ?? ""}`.trim(),
+      )
+    }
+  }, [userInfo.isSuccess, userInfo.data, nameOnCertificate, setValue])
+
+  const userGrade = useQuery({
+    queryKey: [`${moduleId}-course-module-completion`, moduleId],
+    queryFn: async () => {
+      const courseModule = await getCourseModuleCompletion({
+        path: {
+          course_module_id: assertNotNullOrUndefined(moduleId),
+        },
+      })
+      if (!courseModule) {
+        throw new Error("Course module completion not found")
+      }
+      const course = await getCourseFromApi({
+        path: {
+          course_id: courseModule.course_id,
+        },
+      })
+      return { module: courseModule, course }
+    },
+    enabled: !!moduleId,
+  })
+
+  const grade = useMemo(() => {
+    if (!userGrade.data?.module) {
+      return ""
+    }
+    const moduleData = userGrade.data?.module
+    if (moduleData.grade !== null) {
+      return String(moduleData.grade)
+    }
+    return String(moduleData.passed)
+  }, [userGrade.data?.module])
+
+  const generateCertificateMutation = useToastMutationOptions(
+    generateCertificateMutationOptions(),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        location.reload()
+      },
+    },
+  )
+
+  return (
+    <>
+      {courseAndModule.isError && <ErrorNotice error={courseAndModule.error} />}
+      {userGrade.isError && <ErrorNotice error={userGrade.error} />}
+      {(userInfo.isLoading || courseAndModule.isLoading || userGrade.isLoading) && (
+        <LoadingRegion />
+      )}
+      {courseAndModule.isSuccess && (
+        <>
+          <h2>{getHeaderContent(t, courseAndModule, moduleId)}</h2>
+          <div>{t("certificate-generation-instructions")}</div>
+          <hr />
+          <TextField name="nameOnCertificate" control={control} isRequired label={t("your-name")} />
+          <Button
+            size="medium"
+            variant="primary"
+            disabled={!nameOnCertificate || userGrade.isLoading}
+            onClick={async () => {
+              if (
+                await confirm(t("certificate-generation-confirmation", { name: nameOnCertificate }))
+              ) {
+                generateCertificateMutation.mutate({
+                  body: {
+                    certificate_configuration_id: assertNotNullOrUndefined(
+                      certificateConfigurationId,
+                    ),
+                    name_on_certificate: nameOnCertificate,
+                    grade,
+                  },
+                })
+              }
+            }}
+          >
+            {t("generate")}
+          </Button>
+        </>
+      )}
+    </>
+  )
+}
+
+function getHeaderContent(
+  t: TFunction,
+  courseAndModule: UseQueryResult<{
+    module: GeneratedCourseModule
+    course: Course
+  }>,
+  moduleId: string | null | undefined,
+): string {
+  if (moduleId === null || moduleId === undefined || !courseAndModule.data) {
+    return t("generate-a-certificate")
+  }
+  if (courseAndModule.data.module.name) {
+    return t("generate-a-certificate-for-completing-the-module-of-the-course", {
+      module: courseAndModule.data.module.name,
+      course: courseAndModule.data.course.name,
+    })
+  }
+  return t("generate-a-certificate-for-completing-course", {
+    course: courseAndModule.data.course.name,
+  })
+}
+
+export default withErrorBoundary(withSignedIn(ModuleCertificate))

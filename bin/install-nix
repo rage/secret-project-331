@@ -64,7 +64,7 @@ if [ "$UNINSTALL" -eq 1 ]; then
     fi
   done
 
-  for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+  for rc in "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.zshrc"; do
     if [ -f "$rc" ] && grep -q '>>> Nix installer wrapper >>>' "$rc"; then
       if [ "$PLATFORM" = "Darwin" ]; then
         sed -i '' '/# >>> Nix installer wrapper >>>/,/# <<< Nix installer wrapper <<</d' "$rc"
@@ -163,7 +163,7 @@ fi
 
 echo -e "${BLUE}Running Determinate Nix installer...${RESET_EVERYTHING}"
 umask 0022
-"${ELEVATE[@]}" "$WORKDIR/nix-installer" install "${INIT_ARGS[@]}" --no-confirm --diagnostic-endpoint=""
+"${ELEVATE[@]}" "$WORKDIR/nix-installer" install "${INIT_ARGS[@]+"${INIT_ARGS[@]}"}" --no-confirm --diagnostic-endpoint=""
 
 # shellcheck disable=SC1090
 [ -f "$NIX_DAEMON_SH" ] && . "$NIX_DAEMON_SH"
@@ -223,18 +223,27 @@ FISH
   echo "Created $DIRENV_FISH"
 fi
 
-echo -e "${BLUE}Setting up bash/zsh fallback integration...${RESET_EVERYTHING}"
-for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-  if [ -f "$rc" ] && ! grep -q '>>> Nix installer wrapper >>>' "$rc"; then
-    {
-      echo
-      echo "# >>> Nix installer wrapper >>>"
-      echo "[ -f '$NIX_DAEMON_SH' ] && . '$NIX_DAEMON_SH'"
-      echo "# <<< Nix installer wrapper <<<"
-    } >> "$rc"
-    echo "Added Nix source block to $rc"
+echo -e "${BLUE}Setting up bash/zsh integration...${RESET_EVERYTHING}"
+# Source nix and add the direnv hook (without it no flake tools load). Cover all
+# shell startup files, since which one runs depends on shell and login state.
+add_nix_block() {
+  rc="$1"
+  hook="$2"
+  if [ -f "$rc" ] && grep -q '>>> Nix installer wrapper >>>' "$rc"; then
+    return
   fi
-done
+  {
+    echo
+    echo "# >>> Nix installer wrapper >>>"
+    echo "[ -f '$NIX_DAEMON_SH' ] && . '$NIX_DAEMON_SH'"
+    echo "command -v direnv > /dev/null 2>&1 && eval \"\$(direnv hook $hook)\""
+    echo "# <<< Nix installer wrapper <<<"
+  } >> "$rc"
+  echo "Added Nix + direnv block to $rc"
+}
+add_nix_block "$HOME/.bashrc" bash
+add_nix_block "$HOME/.bash_profile" bash
+add_nix_block "$HOME/.zshrc" zsh
 
 if [ "$NIX_ALREADY_INSTALLED" -eq 1 ]; then
   echo -e "${GREEN}Fish/direnv integration updated.${RESET_EVERYTHING}"

@@ -1,0 +1,311 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import React, { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import {
+  exerciseHasAnswerFilesOptions,
+  getExerciseCsvExportTaskOptionsOptions,
+  getExerciseOptions,
+  getExerciseSubmissionsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { fontWeights } from "@/shared-module/common/styles"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorNotice,
+  Link,
+  Pagination,
+  QueryResults,
+  Select,
+} from "@/shared-module/components"
+import {
+  exerciseAnswerFilesHref,
+  exerciseAnswersCsvHref,
+  exerciseDefinitionsCsvHref,
+} from "@/utils/exportDownloadUrls"
+
+import ExerciseSubmissionList from "./ExerciseSubmissionList"
+
+type ExportMode = "definitions" | "answers"
+
+interface ExportFormFields {
+  taskId: string
+  onlyLatestPerUser: boolean
+}
+
+const SubmissionsPage: React.FC = () => {
+  const { t } = useTranslation()
+  const paginationInfo = usePaginationInfo()
+  const { id } = useParams<{ id: string }>()
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
+  const [exportMode, setExportMode] = useState<ExportMode | null>(null)
+  const { control, watch, reset, setValue } = useForm<ExportFormFields>({
+    defaultValues: { taskId: "", onlyLatestPerUser: false },
+  })
+  const selectedTaskId = watch("taskId")
+  const onlyLatestPerUser = watch("onlyLatestPerUser")
+
+  const crumbs = useMemo(() => [{ isLoading: false as const, label: t("header-submissions") }], [t])
+
+  useRegisterBreadcrumbs({
+    key: `exercise:${id}:submissions`,
+    order: 60,
+    crumbs,
+  })
+
+  const exerciseQuery = useQuery({
+    ...getExerciseOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
+  })
+
+  usePageTitle(joinTitleSegments([t("header-submissions"), exerciseQuery.data?.name]), {
+    order: 10,
+  })
+
+  const exerciseSubmissionsQuery = useQuery({
+    ...getExerciseSubmissionsOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
+  })
+
+  const csvExportTaskOptionsQuery = useQuery({
+    ...getExerciseCsvExportTaskOptionsOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
+  })
+
+  const definitionTaskOptions = useMemo(
+    () =>
+      (csvExportTaskOptionsQuery.data ?? []).filter((task) => task.supports_csv_export_definitions),
+    [csvExportTaskOptionsQuery.data],
+  )
+
+  const answerTaskOptions = useMemo(
+    () => (csvExportTaskOptionsQuery.data ?? []).filter((task) => task.supports_csv_export_answers),
+    [csvExportTaskOptionsQuery.data],
+  )
+
+  // Deliberately not gated on the exercise service's `produces_file_answers` capability: a service
+  // that stopped declaring it, or an `exercise_service_info` row still at its default because the
+  // service-info fetcher has not run, would otherwise hide files that demonstrably exist.
+  const answerFilesExistQuery = useQuery(
+    exerciseHasAnswerFilesOptions({ path: { exercise_id: id } }),
+  )
+
+  const getTaskLabel = (task: ExerciseCsvExportTaskOption) =>
+    t("label-csv-export-task-option", {
+      order: task.order_number + 1,
+      exerciseType: task.exercise_type,
+    })
+
+  const closeExportDialog = () => {
+    setIsExportDialogOpen(false)
+    setExportMode(null)
+    reset()
+  }
+
+  const openExportDialog = (mode: ExportMode) => {
+    const options = mode === "definitions" ? definitionTaskOptions : answerTaskOptions
+    const firstOption = options[0]
+    if (firstOption === undefined) {
+      return
+    }
+    setExportMode(mode)
+    setValue("taskId", firstOption.exercise_task_id)
+    setIsExportDialogOpen(true)
+  }
+
+  const currentTaskOptions =
+    exportMode === "definitions" ? definitionTaskOptions : answerTaskOptions
+
+  const exportHref =
+    exportMode === "definitions"
+      ? exerciseDefinitionsCsvHref(id, selectedTaskId)
+      : exerciseAnswersCsvHref(id, selectedTaskId, onlyLatestPerUser)
+
+  const answerFilesHref = exerciseAnswerFilesHref(id)
+
+  return (
+    <div>
+      <div
+        className={css`
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        `}
+      >
+        <h3
+          className={css`
+            font-weight: ${fontWeights.medium};
+            margin: 0;
+          `}
+        >
+          {t("header-submissions")}
+        </h3>
+        {exerciseSubmissionsQuery.isSuccess && (
+          <DebugModal
+            variant="minimal"
+            data={exerciseSubmissionsQuery.data}
+            buttonWrapperStyles={css`
+              display: flex;
+              align-items: center;
+            `}
+          />
+        )}
+      </div>
+      <div
+        className={css`
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        `}
+      >
+        <Button
+          variant="secondary"
+          size="small"
+          // oxlint-disable-next-line i18next/no-literal-string
+          onClick={() => openExportDialog("definitions")}
+          disabled={
+            csvExportTaskOptionsQuery.isLoading ||
+            csvExportTaskOptionsQuery.isError ||
+            definitionTaskOptions.length === 0
+          }
+        >
+          {t("button-text-export-definitions-csv")}
+        </Button>
+        <Button
+          variant="secondary"
+          size="small"
+          // oxlint-disable-next-line i18next/no-literal-string
+          onClick={() => openExportDialog("answers")}
+          disabled={
+            csvExportTaskOptionsQuery.isLoading ||
+            csvExportTaskOptionsQuery.isError ||
+            answerTaskOptions.length === 0
+          }
+        >
+          {t("button-text-export-answers-csv")}
+        </Button>
+        {answerFilesExistQuery.data && (
+          <a href={answerFilesHref} download>
+            <Button variant="secondary" size="small" type="button">
+              {t("button-text-download-answer-files")}
+            </Button>
+          </a>
+        )}
+      </div>
+      {csvExportTaskOptionsQuery.isSuccess &&
+        definitionTaskOptions.length === 0 &&
+        answerTaskOptions.length === 0 && (
+          <p
+            className={css`
+              margin-top: 0;
+              margin-bottom: 1rem;
+            `}
+          >
+            {t("message-csv-export-not-supported-for-this-exercise-type")}
+          </p>
+        )}
+      {csvExportTaskOptionsQuery.isError && <ErrorNotice error={csvExportTaskOptionsQuery.error} />}
+      <QueryResults
+        queries={[exerciseQuery, exerciseSubmissionsQuery] as const}
+        renderData={([exercise, exerciseSubmissions]) =>
+          exercise.course_id ? (
+            <>
+              <ExerciseSubmissionList
+                exerciseSubmissions={exerciseSubmissions.data}
+                courseId={exercise.course_id}
+              />
+              <Pagination
+                totalPages={exerciseSubmissions.total_pages}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
+              />
+            </>
+          ) : null
+        }
+      />
+      <Dialog
+        open={isExportDialogOpen}
+        onClose={closeExportDialog}
+        title={
+          exportMode === "definitions"
+            ? t("title-export-definitions-csv")
+            : t("title-export-answers-csv")
+        }
+      >
+        <Select
+          id="csv-export-task-select"
+          name="taskId"
+          control={control}
+          label={t("label-csv-export-task")}
+          options={currentTaskOptions.map((task) => ({
+            label: getTaskLabel(task),
+            value: task.exercise_task_id,
+          }))}
+        />
+        {exportMode === "answers" && (
+          <Checkbox
+            name="onlyLatestPerUser"
+            control={control}
+            label={t("label-csv-export-only-latest-per-user")}
+          />
+        )}
+        <div
+          className={css`
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+          `}
+        >
+          <Button variant="secondary" size="small" onClick={closeExportDialog}>
+            {t("button-text-cancel")}
+          </Button>
+          <Link
+            href={exportHref}
+            onClick={closeExportDialog}
+            aria-label={t("actions-export")}
+            download
+            isDisabled={!selectedTaskId}
+            styledAsButton
+            variant="primary"
+            size="small"
+          >
+            {t("actions-export")}
+          </Link>
+        </div>
+      </Dialog>
+    </div>
+  )
+}
+
+export default withErrorBoundary(withSignedIn(SubmissionsPage))

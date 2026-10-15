@@ -1,0 +1,155 @@
+[
+  {
+    "clientId": "089533a4-79d2-48a7-9576-167a6e8e5d6f",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Small",
+      "dropCap": false,
+      "fontSize": "small"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "fb0c9bdd-6188-4363-bd37-84aab4abd4b8",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Default",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "ad4c6bcd-4227-4de2-9d7c-38f769594855",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Normal",
+      "dropCap": false,
+      "fontSize": "normal"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f51f7f4c-e537-49c9-8918-4fb8a05c8bb4",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Medium",
+      "dropCap": false,
+      "fontSize": "medium"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "39e86c23-bbbb-4c19-95db-96581af8049a",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font size Large",
+      "dropCap": false,
+      "fontSize": "large"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "28ad17f7-368e-4794-8500-0f1f1420ec5d",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Font Size Huge",
+      "dropCap": false,
+      "fontSize": "huge"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "2ce41cbb-cb1a-4e71-ad20-17dbcab04c9f",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "backgroundColor": "black",
+      "content": "Paragraph Text Color &amp; Background Color",
+      "dropCap": false,
+      "textColor": "white"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "0e3db017-92f9-47c2-94f8-6a7b1b7d5c93",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "left",
+      "backgroundColor": "vivid-red",
+      "content": "Paragraph Text Color &amp; Background Color &amp; Drop Cap <br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vel nibh elementum, luctus quam in, eleifend nibh. Fusce efficitur convallis porttitor. Nulla semper, ligula quis efficitur viverra, tortor dolor molestie mi, tristique pharetra sem nisi id orci. Sed massa dolor, egestas at arcu vel, tincidunt ultricies erat. Nulla porta sit amet odio a sagittis. Pellentesque eu molestie risus, eu rutrum felis. Cras quis justo vitae sem semper scelerisque. Mauris sollicitudin finibus interdum. Aenean vel leo tempor, accumsan ligula vitae, ultrices lacus.",
+      "dropCap": true,
+      "textColor": "white"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "46d37b0a-310d-4c58-ab13-99d29d126cd3",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph Drop Cap",
+      "dropCap": true
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "941cbb71-8dde-492d-931b-f674346a7f1d",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "right",
+      "content": "Paragraph align Right",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "cc809290-30b1-47ac-b006-8165f460f301",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "left",
+      "content": "Paragraph align Left",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "482f4822-56a5-45c0-8676-9ee857b73197",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "align": "center",
+      "content": "Paragraph align Center",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "5cf9ec87-1ef8-4f47-9c7f-47a37f02f043",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph <strong>bold</strong> <em>italic</em> <a href=\"http://project-311.local\">link</a> <a rel=\"noreferrer noopener\" href=\"http://project-331.local\" target=\"_blank\">link_new_tab</a>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6885caaa-c4bd-45b4-852f-a210bc4d7126",
+    "isValid": true,
+    "name": "core/paragraph",
+    "attributes": {
+      "content": "Paragraph inline: <code>code</code> <kbd>keyboard_input</kbd> <s>strikethrough</s> <sub>subscript</sub> <sup>superscript</sup> <span class=\"has-inline-color has-luminous-vivid-orange-color\">text-color</span>",
+      "dropCap": false
+    },
+    "innerBlocks": []
+  }
+]

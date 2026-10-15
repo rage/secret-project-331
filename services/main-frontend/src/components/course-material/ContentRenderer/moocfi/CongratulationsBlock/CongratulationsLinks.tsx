@@ -1,13 +1,15 @@
 "use client"
 
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
+import { Button, Link } from "@/shared-module/components"
 
 const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
+const GENERATE_CERTIFICATE_BASE_PATH = `/generate-certificate`
 
 const CTAWrapper = styled.div`
   margin-top: 2rem;
@@ -15,6 +17,11 @@ const CTAWrapper = styled.div`
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+
+  /* Override ContentRenderer's blue link color; needs contrast against the green card. */
+  a:not(:hover):not(:focus-visible) {
+    color: #04312e;
+  }
 `
 
 const StyledLink = styled.a`
@@ -25,10 +32,32 @@ const StyledLink = styled.a`
   text-decoration: underline;
 `
 
+// One interactive element per CTA, not an anchor wrapping a button (WCAG 1.3.1, 2.5.3).
+const Cta: React.FC<{ href: string; label: string; enabled: boolean }> = ({
+  href,
+  label,
+  enabled,
+}) =>
+  enabled ? (
+    <Link href={href} styledAsButton variant="secondary" size="large">
+      {label}
+    </Link>
+  ) : (
+    <Button variant="secondary" size="large" disabled>
+      {label}
+    </Button>
+  )
+
 export interface CongratulationsLinksProps {
   certificateConfigurationId: string | null | undefined
   module: UserModuleCompletionStatus
 }
+
+export const moduleOffersCreditOrCompletionRegistration = (
+  module: UserModuleCompletionStatus,
+): boolean =>
+  module.enable_credit_registration_via_suotar ||
+  module.enable_registering_completion_to_uh_open_university
 
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
   certificateConfigurationId,
@@ -39,27 +68,28 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
   if (module.grade === 0 || module.passed === false) {
     return null
   }
+
   return (
-    <CTAWrapper>
-      {module.enable_registering_completion_to_uh_open_university && (
-        <a
+    <CTAWrapper
+      className={css`
+        button:disabled {
+          color: #91ac97 !important;
+        }
+      `}
+    >
+      {moduleOffersCreditOrCompletionRegistration(module) && (
+        <Cta
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
-          aria-label={`Register completion for ${module.name}`}
-        >
-          <Button variant="tertiary" size="large" disabled={!module.completed}>
-            {t("register")}
-          </Button>
-        </a>
+          label={module.register_credits_via_suotar ? t("register-completion") : t("register")}
+          enabled={Boolean(module.completed)}
+        />
       )}
       {module.certification_enabled && certificateConfigurationId && (
-        <a
-          href={`/generate-certificate?module=${module.module_id}&ccid=${certificateConfigurationId}`}
-          aria-label={`Generate certificate for completing ${module.name}`}
-        >
-          <Button variant="tertiary" size="large" disabled={!module.completed}>
-            {t("generate-certificate-button-label")}
-          </Button>
-        </a>
+        <Cta
+          href={`${GENERATE_CERTIFICATE_BASE_PATH}?module=${module.module_id}&ccid=${certificateConfigurationId}`}
+          label={t("generate-certificate-button-label")}
+          enabled={Boolean(module.completed)}
+        />
       )}
       {isReady && <StyledLink>{t("generate-certicate")}</StyledLink>}
     </CTAWrapper>

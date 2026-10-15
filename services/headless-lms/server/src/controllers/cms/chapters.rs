@@ -33,7 +33,7 @@ async fn get_all_chapters_by_course_id(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
 
-    let mut chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
+    let mut chapters = models::chapters::get_course_chapters(&mut conn, *course_id).await?;
 
     chapters.sort_by_key(|a| a.chapter_number);
 

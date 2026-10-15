@@ -1,4 +1,4 @@
-import { DEFAULT_SITE_NAME, formatPageTitle } from "../../src/utils/pageTitle"
+import { DEFAULT_SITE_NAME, formatPageTitle, joinTitleSegments } from "../../src/utils/pageTitle"
 
 describe("formatPageTitle util", () => {
   const SITE = "Example Site"
@@ -20,6 +20,38 @@ describe("formatPageTitle util", () => {
 
   test("supports a custom separator", () => {
     expect(formatPageTitle("Course", SITE, " | ")).toBe("Course | Example Site")
+  })
+})
+
+describe("joinTitleSegments util", () => {
+  test("joins non-blank segments with the default separator", () => {
+    expect(joinTitleSegments(["Students", "Programming 101"])).toBe("Students - Programming 101")
+  })
+
+  test("drops null, undefined and blank segments", () => {
+    expect(joinTitleSegments(["Students", null, undefined, "", "   ", "Programming 101"])).toBe(
+      "Students - Programming 101",
+    )
+  })
+
+  test("returns an empty string when no segment survives", () => {
+    expect(joinTitleSegments([])).toBe("")
+    expect(joinTitleSegments([null, undefined])).toBe("")
+    expect(joinTitleSegments(["", "  "])).toBe("")
+  })
+
+  test("trims each surviving segment", () => {
+    expect(joinTitleSegments(["  Students  ", " Programming 101 "])).toBe(
+      "Students - Programming 101",
+    )
+  })
+
+  test("returns a single segment without a stray separator", () => {
+    expect(joinTitleSegments([null, "Programming 101"])).toBe("Programming 101")
+  })
+
+  test("supports a custom separator", () => {
+    expect(joinTitleSegments(["A", "B"], " | ")).toBe("A | B")
   })
 })
 

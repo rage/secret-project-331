@@ -28,14 +28,19 @@ import {
   getCmsPageInfo,
   getCmsPageNavigation,
   getCmsRepositoryExercisesForCourse,
+  getExercisesWithSubmissions,
   type Options,
+  previewCmsEmailTemplate,
+  requestChartSpecGeneration,
   requestParagraphSuggestions,
+  sendCmsEmailTemplateTest,
   updateCmsCourseDefaultPeerReview,
   updateCmsEmailTemplate,
   updateCmsExamInstructions,
   updateCmsPage,
   uploadCmsCourseMedia,
   uploadCmsExamMedia,
+  uploadFilesFromExerciseService,
   upsertCmsCoursePartnersBlock,
   upsertCmsCourseResearchForm,
   upsertCmsCourseResearchFormQuestions,
@@ -83,8 +88,16 @@ import type {
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
+  GetExercisesWithSubmissionsData,
+  GetExercisesWithSubmissionsResponse,
+  PreviewCmsEmailTemplateData,
+  PreviewCmsEmailTemplateResponse,
+  RequestChartSpecGenerationData,
+  RequestChartSpecGenerationResponse,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponse,
+  SendCmsEmailTemplateTestData,
+  SendCmsEmailTemplateTestResponse,
   UpdateCmsCourseDefaultPeerReviewData,
   UpdateCmsCourseDefaultPeerReviewResponse,
   UpdateCmsEmailTemplateData,
@@ -97,12 +110,44 @@ import type {
   UploadCmsCourseMediaResponse,
   UploadCmsExamMediaData,
   UploadCmsExamMediaResponse,
+  UploadFilesFromExerciseServiceData,
+  UploadFilesFromExerciseServiceResponse,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCourseResearchFormData,
   UpsertCmsCourseResearchFormQuestionsData,
   UpsertCmsCourseResearchFormQuestionsResponse,
   UpsertCmsCourseResearchFormResponse,
 } from "../types.generated"
+
+/**
+ *
+ * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
+ *
+ * This endpoint is intended for the CMS chart block editor. It requires the user to have
+ * edit access to the referenced page when `page_id` is provided, otherwise it falls back
+ * to requiring a teaching role for some course via `Res::AnyCourse`.
+ */
+export const requestChartSpecGenerationMutation = (
+  options?: Partial<Options<RequestChartSpecGenerationData>>,
+): UseMutationOptions<
+  RequestChartSpecGenerationResponse,
+  DefaultError,
+  Options<RequestChartSpecGenerationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestChartSpecGenerationResponse,
+    DefaultError,
+    Options<RequestChartSpecGenerationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await requestChartSpecGeneration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -709,6 +754,63 @@ export const updateCmsEmailTemplateMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/preview`
+ *
+ * Renders the editor's unsaved state exactly as the sender would, with sample placeholder values.
+ */
+export const previewCmsEmailTemplateMutation = (
+  options?: Partial<Options<PreviewCmsEmailTemplateData>>,
+): UseMutationOptions<
+  PreviewCmsEmailTemplateResponse,
+  DefaultError,
+  Options<PreviewCmsEmailTemplateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PreviewCmsEmailTemplateResponse,
+    DefaultError,
+    Options<PreviewCmsEmailTemplateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await previewCmsEmailTemplate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/send-test`
+ *
+ * Queues the editor's unsaved state, with sample placeholder values, to the requesting user's own
+ * address. Returns the id of the queued delivery.
+ */
+export const sendCmsEmailTemplateTestMutation = (
+  options?: Partial<Options<SendCmsEmailTemplateTestData>>,
+): UseMutationOptions<
+  SendCmsEmailTemplateTestResponse,
+  DefaultError,
+  Options<SendCmsEmailTemplateTestData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCmsEmailTemplateTestResponse,
+    DefaultError,
+    Options<SendCmsEmailTemplateTestData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCmsEmailTemplateTest({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCmsExamInstructionsQueryKey = (options: Options<GetCmsExamInstructionsData>) =>
   createQueryKey("getCmsExamInstructions", options)
 
@@ -895,6 +997,35 @@ export const updateCmsPageMutation = (
   return mutationOptions
 }
 
+/**
+ *
+ * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
+ * the subset that has at least one existing submission. Used by the editor to warn the teacher before
+ * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
+ * its submissions.
+ */
+export const getExercisesWithSubmissionsMutation = (
+  options?: Partial<Options<GetExercisesWithSubmissionsData>>,
+): UseMutationOptions<
+  GetExercisesWithSubmissionsResponse,
+  DefaultError,
+  Options<GetExercisesWithSubmissionsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    GetExercisesWithSubmissionsResponse,
+    DefaultError,
+    Options<GetExercisesWithSubmissionsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await getExercisesWithSubmissions({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCmsPageInfoQueryKey = (options: Options<GetCmsPageInfoData>) =>
   createQueryKey("getCmsPageInfo", options)
 
@@ -967,3 +1098,33 @@ export const getCmsRepositoryExercisesForCourseOptions = (
       }),
     queryKey: getCmsRepositoryExercisesForCourseQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/files/:exercise_service_slug`
+ * Used to upload data from exercise service iframes.
+ *
+ * # Returns
+ * An ordered list of host-assigned file ids and stored URLs.
+ */
+export const uploadFilesFromExerciseServiceMutation = (
+  options?: Partial<Options<UploadFilesFromExerciseServiceData>>,
+): UseMutationOptions<
+  UploadFilesFromExerciseServiceResponse,
+  DefaultError,
+  Options<UploadFilesFromExerciseServiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UploadFilesFromExerciseServiceResponse,
+    DefaultError,
+    Options<UploadFilesFromExerciseServiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await uploadFilesFromExerciseService({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}

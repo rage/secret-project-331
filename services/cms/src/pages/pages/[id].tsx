@@ -3,25 +3,26 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
-import PageContext from "../../contexts/PageContext"
-import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
-
-import { CmsPageUpdate, Page } from "@/generated/api"
+import type { CmsPageUpdate, Page } from "@/generated/api"
 import {
   getCmsCourseOptions,
   getCmsPageOptions,
+  getCmsPageQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsPage } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+import PageContext from "../../contexts/PageContext"
+import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
@@ -58,7 +59,8 @@ const Pages = ({ query }: PagesProps) => {
           exercise_tasks: data.exercise_tasks,
           url_path: data.page.url_path,
           title: data.page.title,
-          chapter_id: data.page.chapter_id,
+          ...omitUndefined({ chapter_id: data.page.chapter_id }),
+          hidden: data.page.hidden,
         }).content,
       }
       return page
@@ -73,11 +75,11 @@ const Pages = ({ query }: PagesProps) => {
   const course = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (resolvedCourseId): resolvedCourseId is string => Boolean(resolvedCourseId),
+      build: (resolvedCourseId) =>
         getCmsCourseOptions({
           path: {
-            course_id: courseId,
+            course_id: resolvedCourseId,
           },
         }),
     }),
@@ -99,9 +101,10 @@ const Pages = ({ query }: PagesProps) => {
     },
     {
       onSuccess: (newData) => {
-        // Refetch, setQueryData or invalidateQueries?
-        // eslint-disable-next-line i18next/no-literal-string
-        queryClient.setQueryData([`page-${id}`], newData)
+        // The response is the saved page, so seeding the cache is enough and no refetch is needed.
+        // The key has to come from the generated helper: a hand-written one belongs to no query, so
+        // PageEditor keeps comparing against the pre-save page and never reports the page as saved.
+        queryClient.setQueryData(getCmsPageQueryKey({ path: { page_id: id } }), newData)
       },
     },
   )

@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct DatabaseOrganization {
     pub id: Uuid,
     pub slug: String,
@@ -113,6 +113,25 @@ where id = $1;",
     Ok(org)
 }
 
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    organization_ids: &[Uuid],
+) -> ModelResult<Vec<DatabaseOrganization>> {
+    let organizations = sqlx::query_as!(
+        DatabaseOrganization,
+        "
+SELECT *
+FROM organizations
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        organization_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(organizations)
+}
+
 pub async fn get_organization_by_slug(
     conn: &mut PgConnection,
     organization_slug: &str,
@@ -178,10 +197,12 @@ pub async fn update_name_and_hidden(
 }
 
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL")
-        .bind(id)
-        .execute(conn)
-        .await?;
+    sqlx::query!(
+        "UPDATE organizations SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
+        id
+    )
+    .execute(conn)
+    .await?;
     Ok(())
 }
 

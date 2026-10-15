@@ -9,5 +9,7 @@
  * The worker runs the script, captures stdout, and parses the last line as JSON (RunResult).
  */
 
-export type WorkerRequest = { script: string }
+export interface WorkerRequest {
+  script: string
+}
 export type WorkerResponse = { runResult: import("@/tmc/cli").RunResult } | { error: string }

@@ -1,7 +1,7 @@
 import "i18next"
-
-import ownTranslations from "@/shared-module/common/locales/en/cms.json"
-import sharedModule from "@/shared-module/common/locales/en/shared-module.json"
+import type ownTranslations from "@/shared-module/common/locales/en/cms.json"
+import type errors from "@/shared-module/common/locales/en/errors.json"
+import type sharedModule from "@/shared-module/common/locales/en/shared-module.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {
@@ -10,6 +10,7 @@ declare module "i18next" {
     resources: {
       cms: typeof ownTranslations
       "shared-module": typeof sharedModule
+      errors: typeof errors
     }
     allowObjectInHTMLChildren: true
   }

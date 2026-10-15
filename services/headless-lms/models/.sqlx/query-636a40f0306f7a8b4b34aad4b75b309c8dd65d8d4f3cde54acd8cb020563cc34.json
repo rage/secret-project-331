@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT ud.user_id\n         FROM user_details ud\n         JOIN users u ON u.id = ud.user_id\n         WHERE LOWER(ud.email) = LOWER($1)\n           AND u.deleted_at IS NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "636a40f0306f7a8b4b34aad4b75b309c8dd65d8d4f3cde54acd8cb020563cc34"
+}

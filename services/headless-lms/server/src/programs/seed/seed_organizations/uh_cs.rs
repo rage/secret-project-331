@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use chrono::{Duration, TimeZone, Utc};
 use futures::try_join;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
@@ -40,6 +41,7 @@ pub struct SeedOrganizationUhCsResult {
 
 pub async fn seed_organization_uh_cs(
     db_pool: Pool<Postgres>,
+    app_config: ApplicationConfiguration,
     seed_users_result: SeedUsersResult,
     base_url: String,
     jwt_key: Arc<JwtKey>,
@@ -117,6 +119,7 @@ pub async fn seed_organization_uh_cs(
     ) = try_join!(
         // using these ids
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5")?,
             "Introduction to everything",
             "introduction-to-everything",
@@ -125,6 +128,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
             "Automatic Completions",
             "automatic-completions",
@@ -133,6 +137,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
             "Introduction to localizing",
             "introduction-to-localizing",
@@ -141,6 +146,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
             "Manual Completions",
             "manual-completions",
@@ -149,6 +155,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("260b2157-94ad-4791-91c7-f236f203c338")?,
             "Automatic Course with Exam",
             "automatic-course-with-exam",
@@ -157,6 +164,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("51ce5ea4-2587-407e-bea9-421309f77f69")?,
             "Certificates",
             "certificates",
@@ -166,6 +174,7 @@ pub async fn seed_organization_uh_cs(
         )),
         // not using these ids
         run_parallelly(seed_graded_course(
+            app_config.clone(),
             Uuid::parse_str("1c9f9ba8-aaaa-4aa4-bccb-123654abcabc")?,
             "Graded Demo Course",
             "graded-demo-course",
@@ -173,6 +182,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("4dde368a-5e5d-4001-b8aa-13079390f818")?,
             "Model solutions",
             "model-solutions",
@@ -181,6 +191,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("edaa1c52-15cd-458d-8ce2-1e4010641244")?,
             "Course Modules",
             "course-modules",
@@ -189,6 +200,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
             "Introduction to feedback",
             "introduction-to-feedback",
@@ -197,6 +209,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
             "Introduction to history",
             "introduction-to-history",
@@ -205,6 +218,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
             "Introduction to edit proposals",
             "introduction-to-edit-proposals",
@@ -213,6 +227,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
             "Point view for teachers",
             "point-view-for-teachers",
@@ -221,6 +236,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
             "Advanced course instance management",
             "advanced-course-instance-management",
@@ -229,6 +245,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
             "Advanced exercise states",
             "advanced-exercise-states",
@@ -237,6 +254,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_glossary::seed_glossary_course(
+            app_config.clone(),
             Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
             "Glossary course",
             "glossary-course",
@@ -244,6 +262,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
             "Permission management",
             "permission-management",
@@ -252,6 +271,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
             "Redirections",
             "redirections",
@@ -260,6 +280,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
             "Limited tries",
             "limited-tries",
@@ -268,6 +289,7 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
             "Course Structure",
             "course-structure",
@@ -276,12 +298,14 @@ pub async fn seed_organization_uh_cs(
             seed_users_result,
         )),
         run_parallelly(seed_peer_review_course_without_submissions(
+            app_config.clone(),
             Uuid::parse_str("c47e1cfd-a2da-4fd1-aca8-f2b2d906c4c0")?,
             "Peer review Course",
             "peer-review-course",
             cs_data.clone(),
         )),
         run_parallelly(seed_sample_course(
+            app_config.clone(),
             Uuid::parse_str("557040ea-31bc-47ae-81bd-caeec45a08d0")?,
             "TestMyCode",
             "tmc-course",
@@ -504,6 +528,7 @@ pub async fn seed_organization_uh_cs(
     info!("cs");
     let _cs_design = seed_cs_course_material(
         &db_pool,
+        &app_config,
         uh_cs_organization_id,
         teacher_user_id,
         langs_user_id,
@@ -531,6 +556,7 @@ pub async fn seed_organization_uh_cs(
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(
             &mut conn,
+            &app_config,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
                 course_id: Uuid::parse_str("06a7ccbd-8958-4834-918f-ad7b24e583fd")?,
                 default_course_instance_id: Uuid::parse_str(

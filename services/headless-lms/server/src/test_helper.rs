@@ -2,7 +2,7 @@ use crate::{
     config::{ServerConfig, ServerConfigBuilder},
     setup_tracing,
 };
-use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
+use headless_lms_base::config::ApplicationConfiguration;
 
 use headless_lms_utils::{
     file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
@@ -30,6 +30,24 @@ fn default_database_url_for_tests() -> String {
     }
 }
 
+pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
+    let app_config = ApplicationConfiguration::mock_conf()?;
+    Ok(app_config)
+}
+
+/// A file store for tests that only need download URLs, not stored bytes.
+///
+/// Built field-wise because `LocalFileStore::new` insists on `HEADLESS_LMS_CACHE_FILES_PATH`, which
+/// no test environment sets; nothing here reaches the cache, and setting the variable from one test
+/// would race every other test in the binary.
+pub fn init_file_store() -> LocalFileStore {
+    LocalFileStore {
+        base_path: "uploads".into(),
+        base_url: "http://localhost:3000".to_string(),
+        cache_files_path: env::temp_dir(),
+    }
+}
+
 pub async fn test_config() -> ServerConfig {
     let database_url = env::var("DATABASE_URL_TEST")
         .or_else(|_| env::var("DATABASE_URL"))
@@ -45,35 +63,30 @@ pub async fn test_config() -> ServerConfig {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
                 .expect("Failed to initialize test file store"),
         ),
-        app_conf: ApplicationConfiguration {
-            test_mode: true,
-            base_url: "http://project-331.local".to_string(),
-            development_uuid_login: false,
-            enable_admin_email_verification: false,
-            azure_configuration: None,
-            test_chatbot: false,
-            test_sisu: false,
-            tmc_account_creation_origin: None,
-            tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: OAuthServerConfiguration {
-                rsa_public_key: "temp-change-when-needed".into(),
-                rsa_private_key: SecretString::new("test-change".into()),
-                oauth_token_hmac_key: SecretString::new("pippuri".into()),
-                dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
-                    "test-key".into(),
-                ))),
-            },
-        },
+        app_conf: init_app_conf().expect("Failed to initialize mock app configuration"),
         redis_url: SecretString::new("redis://example.com".into()),
-        jwt_password: SecretString::new(
-            "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
-        ),
+        mock_suotar_redis_db_index: 2,
         tmc_client: TmcClient::mock_for_test(),
         sisu_client: SisuClient::mock_for_test(),
     }
     .build()
     .await
     .unwrap()
+}
+
+/// The Redis URL for tests that need a real Redis, or `None` when it isn't configured (such tests
+/// no-op instead of failing). Lives here because `env_guard::env_var_reads_are_centralized` only
+/// permits direct env reads in the central config modules and in this test helper.
+pub fn test_redis_url() -> Option<String> {
+    env::var("REDIS_URL").ok()
+}
+
+/// Database URL for tests that need a pool of their own rather than a single connection, resolved
+/// the same way `Conn::init` resolves it so both see the same fixtures.
+pub fn test_database_url() -> String {
+    dotenvy::dotenv().ok();
+    env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string())
 }
 
 // tried storing PgPool here but that caused strange errors
@@ -127,6 +140,18 @@ impl Tx<'_> {
     pub async fn rollback(self) {
         self.0.rollback().await.unwrap()
     }
+
+    /// Commits, which this wrapper otherwise deliberately prevents.
+    ///
+    /// Only for tests whose subject *is* cross-connection behaviour — row locks and blocking — since
+    /// a second connection cannot see uncommitted fixtures. Such a test owns whatever it leaves
+    /// behind. `DATABASE_URL` is recreated from scratch per CI run, and fixtures use random
+    /// identifiers so repeats do not collide — but committed rows are visible to every other test
+    /// in the run, so a committing test must not leave behind anything an unfiltered query could
+    /// pick up (a reapable client upload, for one).
+    pub async fn commit(self) {
+        self.0.commit().await.unwrap()
+    }
 }
 
 impl<'a> AsRef<Transaction<'a, Postgres>> for Tx<'a> {
@@ -139,6 +164,102 @@ impl<'a> AsMut<Transaction<'a, Postgres>> for Tx<'a> {
     fn as_mut(&mut self) -> &mut Transaction<'a, Postgres> {
         &mut self.0
     }
+}
+
+/// A file store backed by a temp dir, for tests that upload real bytes.
+///
+/// `LocalFileStore` is unusable for that: it demands the `HEADLESS_LMS_CACHE_FILES_PATH` env var,
+/// and mutating the environment from a test that runs alongside others is worse than implementing
+/// the handful of methods tests reach.
+pub struct TempFileStore(pub tempfile::TempDir);
+
+#[async_trait::async_trait(?Send)]
+impl headless_lms_utils::file_store::FileStore for TempFileStore {
+    async fn upload(
+        &self,
+        path: &std::path::Path,
+        contents: Vec<u8>,
+        _mime_type: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<()> {
+        let full = self.0.path().join(path);
+        if let Some(parent) = full.parent() {
+            tokio::fs::create_dir_all(parent).await?;
+        }
+        tokio::fs::write(full, contents).await?;
+        Ok(())
+    }
+
+    async fn upload_stream(
+        &self,
+        path: &std::path::Path,
+        mut contents: headless_lms_utils::file_store::GenericPayload,
+        mime_type: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<()> {
+        use futures::StreamExt;
+        let mut bytes = Vec::new();
+        while let Some(chunk) = contents.next().await {
+            bytes.extend_from_slice(&chunk?);
+        }
+        self.upload(path, bytes, mime_type).await
+    }
+
+    async fn download(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<Vec<u8>> {
+        Ok(tokio::fs::read(self.0.path().join(path)).await?)
+    }
+
+    async fn download_stream(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<
+        Box<dyn futures::Stream<Item = std::io::Result<bytes::Bytes>>>,
+    > {
+        let file = tokio::fs::File::open(self.0.path().join(path)).await?;
+        Ok(Box::new(tokio_util::io::ReaderStream::new(file)))
+    }
+
+    async fn get_direct_download_url(
+        &self,
+        path: &std::path::Path,
+    ) -> headless_lms_utils::prelude::UtilResult<String> {
+        let full_path = self.0.path().join(path);
+        tokio::fs::metadata(&full_path).await?;
+        Ok(format!("file://{}", full_path.display()))
+    }
+
+    async fn delete(&self, path: &std::path::Path) -> headless_lms_utils::prelude::UtilResult<()> {
+        Ok(tokio::fs::remove_file(self.0.path().join(path)).await?)
+    }
+
+    fn get_cache_files_folder_path(
+        &self,
+    ) -> headless_lms_utils::prelude::UtilResult<&std::path::Path> {
+        Ok(self.0.path())
+    }
+}
+
+/// The `message_key` a controller error puts in its response body, which is the part of an error a
+/// client branches on.
+pub fn message_key_of(error: &crate::domain::error::ControllerError) -> String {
+    use actix_web::ResponseError;
+    use futures::FutureExt;
+    let response = error.error_response();
+    let bytes = actix_web::body::to_bytes(response.into_body())
+        .now_or_never()
+        .expect("response should resolve immediately")
+        .expect("body bytes");
+    let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+    value["message_key"]
+        .as_str()
+        .unwrap_or_default()
+        .to_string()
+}
+
+/// A `TempFileStore` whose directory is removed when it is dropped.
+pub fn temp_file_store() -> TempFileStore {
+    TempFileStore(tempfile::tempdir().expect("temp dir"))
 }
 
 #[macro_export]
@@ -216,8 +337,10 @@ macro_rules! insert_data {
             &mut ::rand::rng(),
             8,
         );
+        let app_config = init_app_conf().expect("Application Configuration initialization failed");
         let $course = headless_lms_models::library::content_management::create_new_course(
             $tx.as_mut(),
+            &app_config,
             headless_lms_models::PKeyPolicy::Generate,
             headless_lms_models::courses::NewCourse {
                 name: rs.clone(),
@@ -302,6 +425,7 @@ macro_rules! insert_data {
                 chapter_id: Some($chapter),
                 front_page_of_chapter_id: Some($chapter),
                 content_search_language: None,
+                hidden: false,
             },
             $user,
             |_, _, _| unimplemented!(),

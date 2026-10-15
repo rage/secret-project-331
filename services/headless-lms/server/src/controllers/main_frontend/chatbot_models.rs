@@ -11,7 +11,7 @@ pub(crate) struct MainFrontendChatbotModelsApiDoc;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 
 pub struct CourseInfo {
-    course_id: Uuid,
+    course_id: Option<Uuid>,
 }
 
 /// GET `/api/v0/main-frontend/chatbot-models/{chatbot_configuration_id}`
@@ -53,7 +53,7 @@ async fn get_model(
     operation_id = "getChatbotModels",
     tag = "chatbot-models",
     params(
-        ("course_id" = Uuid, Query, description = "Course id")
+        ("course_id" = Option<Uuid>, Query, description = "Course id")
     ),
     responses(
         (status = 200, description = "Chatbot models", body = Vec<ChatbotConfigurationModel>)
@@ -67,13 +67,11 @@ async fn get_all_models(
 ) -> ControllerResult<web::Json<Vec<ChatbotConfigurationModel>>> {
     let mut conn = pool.acquire().await?;
     let models = models::chatbot_configurations_models::get_all(&mut conn).await?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::Course(course_info.course_id),
-    )
-    .await?;
+    let token = if let Some(course_id) = course_info.course_id {
+        authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?
+    } else {
+        authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?
+    };
 
     token.authorized_ok(web::Json(models))
 }

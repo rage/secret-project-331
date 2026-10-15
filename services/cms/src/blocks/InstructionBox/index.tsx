@@ -1,18 +1,19 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { formatLTR } from "@wordpress/icons"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import InstructionBoxEditor from "./InstructionBoxEditor"
 import InstructionBoxSave from "./InstructionBoxSave"
-
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface InstructionBoxAttributes {
   content: string
 }
 
 const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> = {
+  apiVersion: 3,
   title: "InstructionBox",
   description: "Useful block for instructions",
   category: "text",

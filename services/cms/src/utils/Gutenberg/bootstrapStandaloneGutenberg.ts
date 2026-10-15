@@ -1,14 +1,14 @@
-import { registerCoreBlocks } from "@wordpress/block-library"
+import { __experimentalGetCoreBlocks, registerCoreBlocks } from "@wordpress/block-library"
 import {
   getBlockType,
-  getBlockTypes,
   registerBlockType,
   registerBlockVariation,
   setCategories,
-  unregisterBlockType,
   unregisterBlockVariation,
 } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
+
+import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
 import {
   blockTypeMapForFrontPages,
@@ -16,26 +16,30 @@ import {
   blockTypeMapForResearchConsentForm,
   blockTypeMapForTopLevelPages,
 } from "../../blocks"
-import { allowedBlockVariants } from "../../blocks/supportedGutenbergBlocks"
+import {
+  allowedBlockVariants,
+  coreBlocksToRegister,
+  supportedCoreBlocks,
+} from "../../blocks/supportedGutenbergBlocks"
 import { registerEditorAiAbilities } from "../../utils/Gutenberg/ai/abilities"
 import {
+  modifyCodeBlockAttributes,
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
 } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
+import withCodeLanguageControls from "../../utils/Gutenberg/withCodeLanguageControls"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
 
-import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface StandaloneGutenbergBootstrapOptions {
-  customBlocks?: CustomBlockDefinition[]
-  allowedBlockVariations?: Record<string, string[]>
+  customBlocks?: CustomBlockDefinition[] | undefined
+  allowedBlockVariations?: Record<string, string[]> | undefined
 }
 
 const customBlockRegistry = new Map<string, CustomBlockDefinition[1]>(
@@ -48,28 +52,42 @@ const customBlockRegistry = new Map<string, CustomBlockDefinition[1]>(
 )
 
 let hasBootstrappedStandaloneGutenberg = false
-let defaultAllowedBlockTypes: string[] = []
 const defaultAllowedBlockVariations = new Map<string, BlockVariation[]>()
 
-const syncStandaloneCustomBlocks = (customBlocks?: CustomBlockDefinition[]): void => {
+/**
+ * Registers every known custom block, plus any an editor brings along itself.
+ *
+ * Additive on purpose: the block registry is a single global store shared by every editor on the
+ * page, so restricting what one editor may insert is the job of its `allowedBlockTypes` setting,
+ * not of unregistering block types other editors and stored content still need.
+ */
+const registerCustomBlocks = (customBlocks?: CustomBlockDefinition[]): void => {
   customBlocks?.forEach(([blockName, blockSettings]) => {
     customBlockRegistry.set(blockName, blockSettings)
   })
 
-  const allowedCustomBlocks = new Set((customBlocks ?? []).map(([blockName]) => blockName))
-
   customBlockRegistry.forEach((blockSettings, blockName) => {
-    if (!allowedCustomBlocks.has(blockName)) {
-      if (getBlockType(blockName)) {
-        unregisterBlockType(blockName)
-      }
-      return
-    }
-
     if (!getBlockType(blockName)) {
       registerBlockType(blockName, blockSettings as Parameters<typeof registerBlockType>[1])
     }
   })
+}
+
+const registerSupportedCoreBlocks = (): void => {
+  const wantedBlockNames = new Set(coreBlocksToRegister)
+  const availableCoreBlocks: { name: string }[] = __experimentalGetCoreBlocks()
+  const blocksToRegister = availableCoreBlocks.filter((block) => wantedBlockNames.has(block.name))
+
+  const unavailableBlockNames = coreBlocksToRegister.filter(
+    (blockName) => !blocksToRegister.some((block) => block.name === blockName),
+  )
+  if (unavailableBlockNames.length > 0) {
+    console.warn(
+      `@wordpress/block-library no longer ships these configured core blocks: ${unavailableBlockNames.join(", ")}`,
+    )
+  }
+
+  registerCoreBlocks(blocksToRegister)
 }
 
 const captureDefaultBlockVariations = (): void => {
@@ -126,13 +144,13 @@ export const ensureStandaloneGutenbergBootstrap = (
       "moocfi/modifyEmbedAttributes",
       modifyEmbedBlockAttributes,
     )
+    addFilter("blocks.registerBlockType", "moocfi/modifyCodeAttributes", modifyCodeBlockAttributes)
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
+    addFilter("editor.BlockEdit", "moocfi/cms/codeLanguageControls", withCodeLanguageControls)
     addFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar", withParagraphAiToolbarAction)
 
     registerEditorAiAbilities()
-    registerCoreBlocks()
-
-    defaultAllowedBlockTypes = getBlockTypes().map((block) => block.name)
+    registerSupportedCoreBlocks()
 
     setCategories(modifyGutenbergCategories())
     registerBlockVariations()
@@ -143,9 +161,10 @@ export const ensureStandaloneGutenbergBootstrap = (
   }
 
   syncAllowedBlockVariations(options.allowedBlockVariations)
-  syncStandaloneCustomBlocks(options.customBlocks)
+  registerCustomBlocks(options.customBlocks)
 }
 
+/** Block types an editor may insert when it does not specify an allow list of its own. */
 export const getDefaultAllowedBlockTypes = (): string[] => {
-  return [...defaultAllowedBlockTypes]
+  return [...supportedCoreBlocks]
 }

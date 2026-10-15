@@ -14,7 +14,7 @@ const HideTextInSystemTests: React.FC<HideChildrenInSystemTestsProps> = ({ child
   if (shouldHideStuff) {
     return null
   }
-  return <>{children}</>
+  return children
 }
 
 export default HideTextInSystemTests

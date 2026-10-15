@@ -1,14 +1,14 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
-
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import LockChapterEditor from "./LockChapterEditor"
-import LockChapterSave from "./LockChapterSave"
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import LockChapterEditor from "./LockChapterEditor"
+import LockChapterSave from "./LockChapterSave"
+
 const LockChapterConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Lock Chapter",
   description: "Button for students to lock chapter (mark as done).",
   category: MOOCFI_CATEGORY_SLUG,

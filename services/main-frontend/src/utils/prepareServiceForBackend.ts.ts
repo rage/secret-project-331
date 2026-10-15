@@ -6,7 +6,7 @@ export const prepareExerciseServiceForBackend = (
 ): ExerciseServiceNewOrUpdate | ExerciseService => {
   const preparedService = {
     ...service,
-    internal_url: validURL(service.internal_url ?? null) ? service.internal_url : null,
+    internal_url: validURL(service.internal_url ?? null) ? (service.internal_url ?? null) : null,
   }
   return preparedService
 }

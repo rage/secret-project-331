@@ -1,19 +1,19 @@
 "use client"
 
-import { UseMutationResult } from "@tanstack/react-query"
+import { css } from "@emotion/css"
+import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useState } from "react"
 
-import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import mediaUploadBuilder from "../../services/mediaUpload"
-import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
-import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-
-import { ExamInstructions, ExamInstructionsUpdate } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import type { ExamInstructions, ExamInstructionsUpdate } from "@/generated/api"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { Button, ErrorNotice } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
+import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
+import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 
 interface ExamsInstructionsEditorProps {
   data: ExamInstructions
@@ -54,8 +54,12 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamsInstruction
   return (
     <>
       <div className="editor__component">
-        <div>
-          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+        <div
+          className={css`
+            margin-bottom: 2.5rem;
+          `}
+        >
+          {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
           <Button
             variant="primary"
             size="medium"

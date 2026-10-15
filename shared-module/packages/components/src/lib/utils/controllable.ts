@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 
 type SetValueAction<T> = T | ((currentValue: T) => T)
 
-type UseControllableStateOptions<T> = {
+interface UseControllableStateOptions<T> {
   value?: T
   defaultValue: T
   onChange?: (value: T) => void

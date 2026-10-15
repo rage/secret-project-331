@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_deliveries ed\nSET recipient_email = NULL,\n    placeholders = CASE\n      WHEN ed.placeholders IS NULL THEN NULL\n      ELSE ed.placeholders - 'EMAIL'\n    END,\n    -- Without an address the row can never be delivered, so retire it here instead of leaving the\n    -- sender to claim it and fail. The CHECK constraint also requires this.\n    retryable = CASE WHEN ed.sent THEN ed.retryable ELSE FALSE END,\n    next_retry_at = CASE WHEN ed.sent THEN ed.next_retry_at ELSE NULL END,\n    deleted_at = CASE\n      WHEN ed.sent OR ed.deleted_at IS NOT NULL THEN ed.deleted_at\n      ELSE now()\n    END\nWHERE ed.recipient_email IS NOT NULL\n  AND ed.created_at < now() - $1::text::interval\n  -- The sender stamps last_attempt_at when it claims a row and holds a five minute lease, so an hour\n  -- of quiet means nothing is mid-send.\n  AND (\n    ed.sent\n    OR ed.last_attempt_at IS NULL\n    OR ed.last_attempt_at < now() - interval '1 hour'\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d9c52998922649e22e21b9185f24f2d38be4a7dcb946ca3e79b1df373c2b418a"
+}

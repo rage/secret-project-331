@@ -9,6 +9,7 @@ use crate::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
     },
+    mock_suotar::store::MockSuotarStore,
 };
 use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{
@@ -18,9 +19,11 @@ use actix_web::{
 };
 use anyhow::Context;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_credit_registration::is_waiting_item;
+use headless_lms_models::suotar_api_calls::PgSuotarCallAudit;
 use headless_lms_utils::{
     cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
-    services::sisu::SisuClient, services::tmc::TmcClient,
+    services::sisu::SisuClient, services::suotar::SuotarClient, services::tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use secrecy::{ExposeSecret, SecretString};
@@ -39,6 +42,26 @@ pub struct FileStoreRuntimeConfig {
     pub google_cloud_storage_bucket_name: Option<String>,
 }
 
+impl FileStoreRuntimeConfig {
+    /// Loads the file store configuration from environment variables.
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let use_google_cloud_storage =
+            ProgramConfig::bool_flag("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE");
+        let google_cloud_storage_bucket_name = if use_google_cloud_storage {
+            Some(
+                env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME")
+                    .context("GOOGLE_CLOUD_STORAGE_BUCKET_NAME must be defined when FILE_STORE_USE_GOOGLE_CLOUD_STORAGE is enabled")?,
+            )
+        } else {
+            None
+        };
+        Ok(Self {
+            use_google_cloud_storage,
+            google_cloud_storage_bucket_name,
+        })
+    }
+}
+
 #[derive(Clone)]
 pub struct ServerRuntimeConfig {
     /// Database connection URL — contains credentials, so kept secret.
@@ -49,7 +72,8 @@ pub struct ServerRuntimeConfig {
     pub app_conf: ApplicationConfiguration,
     /// Redis connection URL — may contain credentials, so kept secret.
     pub redis_url: SecretString,
-    pub jwt_password: SecretString,
+    /// The mock Suotar's own Redis database, off the cache's index 1 so a flush cannot reach it.
+    pub mock_suotar_redis_db_index: i64,
     pub private_cookie_key: SecretString,
     pub test_mode: bool,
     pub allow_no_https_for_development: bool,
@@ -59,6 +83,9 @@ pub struct ServerRuntimeConfig {
     pub tmc_server_secret_for_communicating_to_secret_project: SecretString,
     pub ratelimit_protection_safe_api_key: SecretString,
     pub pod_namespace: String,
+    /// Git commit of the running image; `GIT_COMMIT` is set by the production image build, see
+    /// `Dockerfile.production.slim.dockerfile`. "unknown" elsewhere.
+    pub build_commit: String,
 }
 
 impl ServerRuntimeConfig {
@@ -66,16 +93,7 @@ impl ServerRuntimeConfig {
     pub fn try_from_env() -> anyhow::Result<Self> {
         let app_conf = ApplicationConfiguration::try_from_env()?;
         let test_mode = app_conf.test_mode;
-        let file_store_use_google_cloud_storage =
-            ProgramConfig::bool_flag("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE");
-        let google_cloud_storage_bucket_name = if file_store_use_google_cloud_storage {
-            Some(
-                env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME")
-                    .context("GOOGLE_CLOUD_STORAGE_BUCKET_NAME must be defined when FILE_STORE_USE_GOOGLE_CLOUD_STORAGE is enabled")?,
-            )
-        } else {
-            None
-        };
+        let file_store = FileStoreRuntimeConfig::try_from_env()?;
         let ratelimit_protection_safe_api_key = match env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
         {
             Ok(value) => value,
@@ -105,11 +123,10 @@ impl ServerRuntimeConfig {
                     .context("REDIS_URL must be defined")?
                     .into(),
             ),
-            jwt_password: SecretString::new(
-                env::var("JWT_PASSWORD")
-                    .context("JWT_PASSWORD must be defined")?
-                    .into(),
-            ),
+            mock_suotar_redis_db_index: env::var("MOCK_SUOTAR_REDIS_DB_INDEX")
+                .ok()
+                .and_then(|value| value.trim().parse().ok())
+                .unwrap_or(2),
             private_cookie_key: SecretString::new(
                 env::var("PRIVATE_COOKIE_KEY")
                     .context("PRIVATE_COOKIE_KEY must be defined")?
@@ -120,10 +137,7 @@ impl ServerRuntimeConfig {
             ),
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),
-            file_store: FileStoreRuntimeConfig {
-                use_google_cloud_storage: file_store_use_google_cloud_storage,
-                google_cloud_storage_bucket_name,
-            },
+            file_store,
             tmc_server_secret_for_communicating_to_secret_project: SecretString::new(
                 env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
                     .context(
@@ -135,6 +149,11 @@ impl ServerRuntimeConfig {
                 ratelimit_protection_safe_api_key.into(),
             ),
             pod_namespace: env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string()),
+            build_commit: env::var("GIT_COMMIT")
+                .ok()
+                .map(|commit| commit.trim().to_string())
+                .filter(|commit| !commit.is_empty())
+                .unwrap_or_else(|| "unknown".to_string()),
             app_conf,
             test_mode,
         })
@@ -167,7 +186,7 @@ pub struct ServerConfigBuilder {
     pub file_store: Arc<dyn FileStore + Send + Sync>,
     pub app_conf: ApplicationConfiguration,
     pub redis_url: SecretString,
-    pub jwt_password: SecretString,
+    pub mock_suotar_redis_db_index: i64,
     pub tmc_client: TmcClient,
     pub sisu_client: SisuClient,
 }
@@ -192,7 +211,7 @@ impl ServerConfigBuilder {
             .await,
             app_conf: runtime_config.app_conf.clone(),
             redis_url: runtime_config.redis_url.clone(),
-            jwt_password: runtime_config.jwt_password.clone(),
+            mock_suotar_redis_db_index: runtime_config.mock_suotar_redis_db_index,
             tmc_client: TmcClient::new(
                 runtime_config.app_conf.tmc_admin_access_token.clone(),
                 runtime_config.ratelimit_protection_safe_api_key.clone(),
@@ -243,12 +262,33 @@ impl ServerConfigBuilder {
         let cache = Cache::new(self.redis_url.expose_secret())?;
         let cache = Data::new(cache);
 
-        let jwt_key = JwtKey::new(&self.jwt_password)?;
-        let jwt_key = Data::new(jwt_key);
+        // Only the mock's own routes need this, and they exist only under the same flag.
+        let mock_suotar_store = if app_conf.test_suotar {
+            warn!(
+                "MOCK SUOTAR ENABLED - credit registrations are simulated and are NOT recorded in Sisu"
+            );
+            Some(Data::new(MockSuotarStore::new(
+                self.redis_url.expose_secret(),
+                self.mock_suotar_redis_db_index,
+            )?))
+        } else {
+            None
+        };
+
+        let jwt_key = Data::new(JwtKey::new(&app_conf.jwt_password)?);
 
         let tmc_client = Data::new(self.tmc_client);
 
         let sisu_client = Data::new(self.sisu_client);
+
+        // Built here rather than in `from_runtime_config` because auditing every call needs the pool.
+        let suotar_client = Data::new(SuotarClient::new(
+            &app_conf.suotar_configuration,
+            Arc::new(PgSuotarCallAudit::new(
+                db_pool.as_ref().clone(),
+                is_waiting_item,
+            )),
+        ));
 
         let config = ServerConfig {
             json_config,
@@ -263,6 +303,8 @@ impl ServerConfigBuilder {
             payload_config,
             tmc_client,
             sisu_client,
+            suotar_client,
+            mock_suotar_store,
         };
         Ok(config)
     }
@@ -282,6 +324,8 @@ pub struct ServerConfig {
     pub jwt_key: Data<JwtKey>,
     pub tmc_client: Data<TmcClient>,
     pub sisu_client: Data<SisuClient>,
+    pub suotar_client: Data<SuotarClient>,
+    pub mock_suotar_store: Option<Data<MockSuotarStore>>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -299,11 +343,16 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         payload_config,
         tmc_client,
         sisu_client,
+        suotar_client,
+        mock_suotar_store,
     } = server_config;
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
     let file_store = Data::from(file_store as Arc<dyn FileStore>);
+    if let Some(mock_suotar_store) = mock_suotar_store {
+        config.app_data(mock_suotar_store);
+    }
     config
         .app_data(payload_config)
         .app_data(json_config)
@@ -317,9 +366,10 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(cache)
         .app_data(tmc_client)
         .app_data(sisu_client)
+        .app_data(suotar_client)
         .service(
             web::scope("/api/v0")
-                .wrap(RateLimit::new(api_rate_limit_config))
+                .wrap(RateLimit::new(api_rate_limit_config).bypassable())
                 .wrap(RequestSpan)
                 .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );

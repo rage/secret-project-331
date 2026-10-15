@@ -4,26 +4,29 @@ import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import { Checkbox } from "@/shared-module/components"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useAttributeForm } from "@/utils/useAttributeForm"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { InfoBoxComponentProps } from "."
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 
-import { InfoBoxComponentProps } from "."
-
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Centered from "@/shared-module/common/components/Centering/Centered"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
-import { useTranslation } from "@/utils/useCmsTranslation"
-
 const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComponentProps>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
   const { t } = useTranslation()
+  const { control } = useAttributeForm(
+    { noPadding: Boolean(attributes.noPadding) },
+    ({ noPadding }) => setAttributes({ noPadding }),
+  )
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <InspectorControls key="settings">
         <BackgroundColorCustomizer
           attributes={attributes}
@@ -37,11 +40,7 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
             margin-bottom: 1.5rem;
           `}
         >
-          <CheckBox
-            checked={attributes.noPadding}
-            onChange={(event) => setAttributes({ noPadding: event.target.checked })}
-            label={t("label-no-padding")}
-          />
+          <Checkbox name="noPadding" control={control} label={t("label-no-padding")} />
         </div>
       </InspectorControls>
       <BreakFromCentered {...breakFromCenteredProps}>

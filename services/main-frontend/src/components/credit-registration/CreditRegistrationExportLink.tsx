@@ -1,0 +1,31 @@
+"use client"
+
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { Link } from "@/shared-module/components"
+import { courseCreditRegistrationsCsvHref } from "@/utils/exportDownloadUrls"
+
+import { CREDIT_REGISTRATION_NS } from "./constants"
+
+interface Props {
+  courseId: string
+}
+
+/** One element, not a Button inside an anchor: a download is a link wherever the keyboard is concerned. */
+const CreditRegistrationExportLink: React.FC<Props> = ({ courseId }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <Link
+      href={courseCreditRegistrationsCsvHref(courseId)}
+      styledAsButton
+      variant="secondary"
+      size="medium"
+      download
+    >
+      {t("link-export-credit-registration-statuses")}
+    </Link>
+  )
+}
+
+export default CreditRegistrationExportLink

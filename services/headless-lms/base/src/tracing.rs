@@ -15,6 +15,9 @@ unsafe {
 ```
 */
 pub fn setup_tracing() -> Result<()> {
+    // Resolve the color decision once so the error formatter colors only on a TTY.
+    crate::error::clean_format::color::init_auto();
+
     let subscriber = tracing_subscriber::Registry::default()
         .with(
             tracing_subscriber::fmt::layer()

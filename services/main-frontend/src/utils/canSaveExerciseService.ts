@@ -1,6 +1,6 @@
 import { validNumber, validURL } from "@/shared-module/common/utils/validation"
 
-type SaveableExerciseService = {
+interface SaveableExerciseService {
   max_reprocessing_submissions_at_once: number
   public_url: string
 }

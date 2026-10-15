@@ -6,8 +6,7 @@ import { Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { Button, ErrorNotice } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface MediaObject {
@@ -56,15 +55,15 @@ const BackgroundImageSection: React.FC<BackgroundImageSectionProps> = ({
     onImageRemove()
   }
 
-  const handleError = (error: unknown) => {
+  const handleError = (caughtError: unknown) => {
     let errorMessage = t("upload-error-unknown")
 
-    if (error instanceof Error) {
-      errorMessage = error.message
-    } else if (typeof error === "string") {
-      errorMessage = error
-    } else if (error && typeof error === "object" && "message" in error) {
-      errorMessage = String(error.message)
+    if (caughtError instanceof Error) {
+      errorMessage = caughtError.message
+    } else if (typeof caughtError === "string") {
+      errorMessage = caughtError
+    } else if (caughtError && typeof caughtError === "object" && "message" in caughtError) {
+      errorMessage = String(caughtError.message)
     }
 
     setError(errorMessage)
@@ -72,7 +71,7 @@ const BackgroundImageSection: React.FC<BackgroundImageSectionProps> = ({
 
   return (
     <div key={imageKey}>
-      {error && <ErrorBanner error={error} />}
+      {error && <ErrorNotice error={error} />}
       {currentImage ? (
         <Placeholder
           className={placeHolderFixHeightStyles}

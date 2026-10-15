@@ -4,23 +4,19 @@ import { cx } from "@emotion/css"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLocale } from "react-aria"
 
+import { ChevronIcon } from "../ChevronIcon"
 import { CalendarNavButton } from "../DatePickerCalendar/CalendarNavButton"
-import { ChevronIcon } from "../DatePickerCalendar/ChevronIcon"
 import { ChooserGridSection } from "../DatePickerCalendar/ChooserGridSection"
 import {
   leftDirection,
   monthIdPrefix,
-  nextYearLabel,
-  nextYearsLabel,
-  pickMonthTitle,
-  pickYearTitle,
-  previousYearLabel,
-  previousYearsLabel,
   rightDirection,
   yearIdPrefix,
 } from "../DatePickerCalendar/datePickerCalendarConstants"
+import { useDatePickerCalendarLabels } from "../DatePickerCalendar/datePickerCalendarLabels"
 import {
   calendarNavButtonCss,
+  calendarNavIconCss,
   chooserPagerCss,
   chooserPanelCss,
   chooserTitleCss,
@@ -32,7 +28,7 @@ import { getYearPageStart } from "../DatePickerCalendar/datePickerCalendarTimeUt
 
 export type YearMonthPickerView = "month" | "year"
 
-export type YearMonthPickerProps = {
+export interface YearMonthPickerProps {
   initialView?: YearMonthPickerView
   selectedYear: number | null
   selectedMonth: number | null
@@ -50,9 +46,9 @@ export type YearMonthPickerProps = {
 
 const MONTHS_IN_YEAR = 12
 const YEAR_PAGE_SIZE = 12
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const monthView = "month" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const yearView = "year" as const
 
 export function YearMonthPicker({
@@ -72,6 +68,7 @@ export function YearMonthPicker({
 }: YearMonthPickerProps) {
   const { locale: localeFromAria } = useLocale()
   const locale = localeProp ?? localeFromAria
+  const labels = useDatePickerCalendarLabels()
   const currentYear = new Date().getFullYear()
   const [view, setView] = useState<YearMonthPickerView>(initialView)
   const [draftYear, setDraftYear] = useState(selectedYear ?? currentYear)
@@ -89,7 +86,7 @@ export function YearMonthPicker({
 
   const monthFormatter = useMemo(
     () =>
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }),
     [locale],
   )
@@ -102,10 +99,10 @@ export function YearMonthPicker({
       if (year < resolvedMinYear || year > resolvedMaxYear) {
         return true
       }
-      if (minYear != null && minMonth != null && year === minYear && month < minMonth) {
+      if (minYear !== undefined && minMonth !== undefined && year === minYear && month < minMonth) {
         return true
       }
-      if (maxYear != null && maxMonth != null && year === maxYear && month > maxMonth) {
+      if (maxYear !== undefined && maxMonth !== undefined && year === maxYear && month > maxMonth) {
         return true
       }
       return false
@@ -169,7 +166,7 @@ export function YearMonthPicker({
       <div className={cx(pickerRootCss, chooserPanelCss, className)}>
         <div className={inlinePickerHeaderCss}>
           <button
-            aria-label={pickMonthTitle}
+            aria-label={labels.chooseMonth}
             className={calendarNavButtonCss}
             disabled={!isInteractive}
             type="button"
@@ -184,20 +181,20 @@ export function YearMonthPicker({
               setView(monthView)
             }}
           >
-            <ChevronIcon direction={leftDirection} />
+            <ChevronIcon className={calendarNavIconCss} direction={leftDirection} />
           </button>
-          <div className={chooserTitleCss}>{pickYearTitle}</div>
+          <div className={chooserTitleCss}>{labels.chooseYear}</div>
           <div className={chooserPagerCss}>
             <CalendarNavButton
               direction={leftDirection}
               isDisabled={!isInteractive}
-              label={previousYearsLabel}
+              label={labels.previousYears}
               onPress={() => setYearPageStart((current) => current - YEAR_PAGE_SIZE)}
             />
             <CalendarNavButton
               direction={rightDirection}
               isDisabled={!isInteractive}
-              label={nextYearsLabel}
+              label={labels.nextYears}
               onPress={() => setYearPageStart((current) => current + YEAR_PAGE_SIZE)}
             />
           </div>
@@ -213,11 +210,11 @@ export function YearMonthPicker({
         <CalendarNavButton
           direction={leftDirection}
           isDisabled={!isInteractive}
-          label={previousYearLabel}
+          label={labels.previousYear}
           onPress={() => setDraftYear((year) => year - 1)}
         />
         <button
-          aria-label={pickYearTitle}
+          aria-label={labels.chooseYear}
           className={monthYearLinkCss}
           disabled={!isInteractive}
           type="button"
@@ -228,11 +225,11 @@ export function YearMonthPicker({
         <CalendarNavButton
           direction={rightDirection}
           isDisabled={!isInteractive}
-          label={nextYearLabel}
+          label={labels.nextYear}
           onPress={() => setDraftYear((year) => year + 1)}
         />
       </div>
-      <div className={chooserTitleCss}>{pickMonthTitle}</div>
+      <div className={chooserTitleCss}>{labels.chooseMonth}</div>
       <ChooserGridSection isDisabled={!isInteractive} options={monthOptions} />
     </div>
   )

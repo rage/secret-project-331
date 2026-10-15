@@ -1,11 +1,12 @@
-import { BrowserContext, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { test } from "@playwright/test"
+
+import { respondToConfirmDialog } from "@/utils/dialogs"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
-import { respondToConfirmDialog } from "@/utils/dialogs"
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -13,7 +14,7 @@ test.use({
 test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
-  await page.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
+  await page.getByRole("link", { name: "Reset progress", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)
@@ -52,7 +53,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
       studentPage,
       "University of Helsinki, Department of Mathematics and Statistics",
     )
-    await studentPage.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
+    await studentPage.getByRole("link", { name: "Reset progress", exact: true }).click()
     await selectCourseInstanceIfPrompted(studentPage)
     const studentChapterSelector = new ChapterSelector(studentPage)
     await studentChapterSelector.clickChapter(1)
@@ -81,7 +82,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
 
     // Chang the course to a draft course
     await page.getByRole("button", { name: "Edit", exact: true }).click()
-    await page.getByLabel("Draft").check()
+    await page.getByRole("checkbox", { name: "Draft" }).check()
     await page.getByRole("button", { name: "Update", exact: true }).click()
     await page.getByRole("heading", { name: "Reset progress (Draft)" }).waitFor()
 
@@ -94,7 +95,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await page.getByText("Successfully deleted").waitFor()
     // Change the course back to a non-draft course so that the student can access it
     await page.getByRole("button", { name: "Edit", exact: true }).click()
-    await page.getByLabel("Draft").uncheck()
+    await page.getByRole("checkbox", { name: "Draft" }).uncheck()
     await page.getByRole("button", { name: "Update", exact: true }).click()
     await page.getByRole("heading", { name: "Reset progress (Draft)" }).waitFor({ state: "hidden" })
 
@@ -106,7 +107,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     await studentPage.getByText("1/1").waitFor({ state: "hidden" })
     await studentPage.getByRole("button", { name: "try again" }).waitFor({ state: "hidden" })
   } finally {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (studentContext !== null) {
       await studentContext.close()
     }

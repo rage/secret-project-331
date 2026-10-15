@@ -1,13 +1,14 @@
 "use client"
 
 import { cx } from "@emotion/css"
+import type { FocusableElement } from "@react-types/shared"
 import React from "react"
 import { mergeProps, useButton, useObjectRef, VisuallyHidden } from "react-aria"
 import type { AriaButtonOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   type ButtonSize,
   type ButtonVariant,
@@ -17,9 +18,9 @@ import {
   iconSlotCss,
   type PressHandlers,
   resolveButtonRootCss,
-  spinnerCss,
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
+import { spinnerGlyphCss } from "./primitives/spinnerStyles"
 
 type OwnedButtonDomKeys =
   | keyof PressHandlers
@@ -62,7 +63,13 @@ export type ButtonProps = PressHandlers & {
   name?: string
   value?: string | number | readonly string[]
   formAction?: string
-  onClick?: React.MouseEventHandler<HTMLButtonElement>
+  /**
+   * An alternative to onPress. onPress is preferred, as it works better for
+   * non-mouse interactions, but using onClick is required when using our
+   * Button component with some other react-aria hooks. Providing useButton
+   * with both onPress and onClick works: it combines the event handlers.
+   */
+  onClick?: (e: React.MouseEvent<FocusableElement>) => void
   onPointerDown?: React.PointerEventHandler<HTMLButtonElement>
   onPointerUp?: React.PointerEventHandler<HTMLButtonElement>
   onPointerCancel?: React.PointerEventHandler<HTMLButtonElement>
@@ -76,6 +83,7 @@ export type ButtonProps = PressHandlers & {
   className?: string
   children?: React.ReactNode
   domProps?: ButtonDomProps
+  "data-testid"?: string | undefined
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -108,6 +116,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onBlur,
       className,
       domProps,
+      name,
+      "data-testid": dataTestId,
     } = props
 
     const { t } = useTranslation("shared-module")
@@ -128,15 +138,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const ref = useObjectRef(forwardedRef)
 
     const ariaOptions: AriaButtonOptions<"button"> = {
-      onPress,
-      onPressStart,
-      onPressEnd,
-      onPressChange,
-      onPressUp,
       isDisabled,
-      "aria-label": userAriaLabel,
-      "aria-describedby": describedBy,
-      "aria-labelledby": labelledBy,
+      ...omitUndefined({
+        onPress,
+        onClick,
+        onPressStart,
+        onPressEnd,
+        onPressChange,
+        onPressUp,
+        "aria-label": userAriaLabel,
+        "aria-describedby": describedBy,
+        "aria-labelledby": labelledBy,
+      }),
     }
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)
@@ -144,7 +157,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
 
     const mergedButtonProps = mergeProps(buttonProps, domProps ?? {}, {
-      onClick,
       onPointerDown,
       onPointerUp,
       onPointerCancel,
@@ -161,10 +173,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={rootClassName}
         data-pressed={isPressed ? "true" : "false"}
         data-disabled-reason={isLoading ? "loading" : isDisabled ? "disabled" : undefined}
+        data-testid={dataTestId}
         aria-busy={isLoading ? "true" : undefined}
         formAction={formAction}
         disabled={isDisabled}
         type={props.type ?? "button"}
+        name={name}
       >
         <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
           {icon && iconPosition === "start" ? <span className={iconSlotCss}>{icon}</span> : null}
@@ -175,7 +189,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <span className={spinnerOverlayCss} aria-hidden="true">
-              <span className={spinnerCss} />
+              <span className={spinnerGlyphCss("sm", "current")} />
             </span>
             <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
           </>

@@ -18,7 +18,7 @@ export const useFavicon = ({ favicon, defaultFavicon }: UseFaviconOptions) => {
       faviconLink = document.createElement("link")
 
       faviconLink.rel = "icon"
-      document.head.appendChild(faviconLink)
+      document.head.append(faviconLink)
     }
     faviconLink.href = favicon
 

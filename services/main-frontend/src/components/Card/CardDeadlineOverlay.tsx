@@ -50,7 +50,7 @@ const CardDeadlineOverlay: React.FC<CardDeadlineOverlayProps> = ({
   const { t } = useTranslation()
 
   const deadlineValue =
-    formattedExerciseDeadline != null
+    formattedExerciseDeadline !== null
       ? exerciseDeadlinesMultiple
         ? t("chapter-card-deadline-varies-value", {
             date: formattedExerciseDeadline,

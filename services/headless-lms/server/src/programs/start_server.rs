@@ -10,22 +10,18 @@ use actix_session::{
 use actix_web::{
     App, HttpServer,
     cookie::{Key, SameSite},
+    dev::ServiceRequest,
     middleware::Logger,
 };
 use dotenvy::dotenv;
 use listenfd::ListenFd;
-use rustls::crypto::ring;
 use secrecy::ExposeSecret;
+use std::time::Duration;
 
 /// The entrypoint to the server.
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
-
-    // Required by rustls 0.23 so kube-client can build TLS configs.
-    ring::default_provider()
-        .install_default()
-        .expect("failed to install rustls ring crypto provider");
 
     let runtime_config = ServerRuntimeConfig::try_from_env()?;
     let private_cookie_key = runtime_config.private_cookie_key.clone();
@@ -68,10 +64,16 @@ pub async fn main() -> anyhow::Result<()> {
                 ))
                 .build(),
             )
-            .wrap(Logger::new(
-                "Completed %r %s %b bytes - %D ms, request_id=%{request-id}o",
-            ))
-    });
+            .wrap(
+                Logger::new(
+                    "Completed %{request_line}xi %s %b bytes - %D ms, request_id=%{request-id}o",
+                )
+                .custom_request_replace("request_line", redacted_request_line),
+            )
+    })
+    // Must outlive ingress-nginx's 60 s upstream keepalive, or nginx reuses a connection we are
+    // closing and answers the (unretried) POST with a 502.
+    .keep_alive(Duration::from_secs(75));
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
@@ -88,4 +90,31 @@ pub async fn main() -> anyhow::Result<()> {
     server.run().await?;
 
     Ok(())
+}
+
+/// The request line for the access log with query values dropped (names kept) and the
+/// student-number linking token masked: student numbers travel in search query parameters and the
+/// token claims one.
+fn redacted_request_line(req: &ServiceRequest) -> String {
+    let mut path = String::with_capacity(req.path().len());
+    let mut is_token_segment = false;
+    for (i, segment) in req.path().split('/').enumerate() {
+        if i > 0 {
+            path.push('/');
+        }
+        path.push_str(if is_token_segment { "{token}" } else { segment });
+        // The route segment the credit registration controller mounts the token routes under.
+        is_token_segment = segment == "student-number-verifications";
+    }
+    let query = req.query_string();
+    if !query.is_empty() {
+        path.push('?');
+        for (i, pair) in query.split('&').enumerate() {
+            if i > 0 {
+                path.push('&');
+            }
+            path.push_str(pair.split('=').next().unwrap_or_default());
+        }
+    }
+    format!("{} {} {:?}", req.method(), path, req.version())
 }

@@ -1,9 +1,9 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -77,20 +77,20 @@ test("Can start an exam and can answer exercises", async ({ page, headless }, te
   await page
     .frameLocator("iframe")
     .first()
-    .locator("role=button[pressed]")
+    .locator('button[aria-current="true"]')
     .getByText("cargo")
     .waitFor({ state: "visible" })
 
   // Make sure this works even after reloading the page
   await page.reload()
   await page.getByText("Answer this question.").first().scrollIntoViewIfNeeded()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.locator("button:text('Try again')").first().click()
   await page
     .frameLocator("iframe")
     .first()
-    .locator("role=button[pressed]")
+    .locator('button[aria-current="true"]')
     .getByText("cargo")
     .waitFor({ state: "visible" })
 })

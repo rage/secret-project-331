@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT course_module_completion_id\nFROM course_module_completion_registered_to_study_registries\nWHERE course_module_completion_id = ANY($1::uuid [])\n  AND study_registry_registrar_id IS NOT NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_completion_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2bb864f2aa5ec80bba2e19f7a6d471d35e81c9bf71eea5cc592985aefa842aea"
+}

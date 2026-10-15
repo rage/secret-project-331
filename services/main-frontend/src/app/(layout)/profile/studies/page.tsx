@@ -1,0 +1,175 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import StudentNumberCard from "@/components/credit-registration/StudentNumberCard"
+import {
+  emptyStateCss,
+  headingCss,
+  narrowPageCss,
+  noteCss,
+  pageTitleCss,
+  sectionCss,
+  sectionsCss,
+} from "@/components/credit-registration/styles"
+import { useIsInCreditRegistrationPipeline } from "@/components/credit-registration/useIsInCreditRegistrationPipeline"
+import {
+  getMyCreditRegistrationsOptions,
+  getMyStudiesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { MyCreditRegistration, MyStudiesCourse } from "@/generated/api/types.generated"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { EmptyState, Link, QueryResult } from "@/shared-module/components"
+
+import { FIND_MORE_COURSES_URL } from "../constants"
+import CertificatesSection from "./CertificatesSection"
+import { everyModulePassed } from "./completionRequirements"
+import HiddenCoursesSection from "./HiddenCoursesSection"
+import RegistrationsNeedingAttention from "./RegistrationsNeedingAttention"
+import StudiesCourseCard from "./StudiesCourseCard"
+import StudiesSummary from "./StudiesSummary"
+
+/** Cards are objects, and need more air between them than the blocks inside one get. */
+const courseListCss = css`
+  display: grid;
+  gap: var(--space-4-5);
+`
+
+/**
+ * Newest enrolment first, so the course a student is most likely to have come back for is the one
+ * they land on. Enrolment date is the closest thing the study record carries to recency; a
+ * last-visited timestamp would order this better.
+ */
+const mostRecentlyStartedFirst = (courses: MyStudiesCourse[]): MyStudiesCourse[] =>
+  courses.toSorted((a, b) => b.first_enrolled_at.localeCompare(a.first_enrolled_at))
+
+const holdsCredit = (registration: MyCreditRegistration) =>
+  registration.student_facing_status === "registered"
+
+/**
+ * The registration whose status a module's line should show: the newest live one the registry holds
+ * the credit for, else the newest live one. Replaced attempts are history the module status page
+ * carries, and a later completion's better grade leaves the registered row live until it is
+ * registered itself.
+ *
+ * Expects newest completion first, as `getMyCreditRegistrations` returns them.
+ */
+const shownRegistrationPerCourseModule = (
+  registrations: MyCreditRegistration[],
+): ReadonlyMap<string, MyCreditRegistration> => {
+  const shown = new Map<string, MyCreditRegistration>()
+  for (const registration of registrations) {
+    if (registration.superseded) {
+      continue
+    }
+    const chosen = shown.get(registration.course_module_id)
+    if (!chosen || (!holdsCredit(chosen) && holdsCredit(registration))) {
+      shown.set(registration.course_module_id, registration)
+    }
+  }
+  return shown
+}
+
+const StudiesPage: React.FC = () => {
+  const { t } = useTranslation()
+  usePageTitle(t("heading-my-studies"))
+
+  const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
+  const showCreditRegistration = useIsInCreditRegistrationPipeline() === true
+  const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
+  // Read directly rather than through QueryResult: the study record must render even when the
+  // registration statuses cannot, and RegistrationsNeedingAttention reports that problem on its own.
+  const registrations = registrationsQuery.data ?? []
+  const registrationByCourseModuleId = shownRegistrationPerCourseModule(registrations)
+
+  return (
+    <div className={narrowPageCss}>
+      <h1 className={pageTitleCss}>{t("heading-my-studies")}</h1>
+
+      <QueryResult query={myStudiesQuery} contentClassName={sectionsCss}>
+        {(myStudies) => {
+          if (myStudies.courses.length === 0) {
+            return (
+              <>
+                <EmptyState
+                  title={t("you-have-not-started-any-courses-yet")}
+                  hint={t("studies-empty-state-hint")}
+                  action={
+                    <Link
+                      href={FIND_MORE_COURSES_URL}
+                      styledAsButton
+                      variant="secondary"
+                      size="medium"
+                    >
+                      {t("link-text-find-more-courses")}
+                    </Link>
+                  }
+                />
+                <StudentNumberCard showStudiesLink={false} />
+              </>
+            )
+          }
+
+          const visibleCourses = myStudies.courses.filter((course) => !course.hidden)
+          const hiddenCourses = myStudies.courses.filter((course) => course.hidden)
+          const sortedCourses = mostRecentlyStartedFirst(visibleCourses)
+          const completedCourses = sortedCourses.filter((course) =>
+            everyModulePassed(course.modules),
+          )
+          const coursesInProgress = sortedCourses.filter(
+            (course) => !everyModulePassed(course.modules),
+          )
+          // A heading that covers every card on the page names nothing, and sits close enough to
+          // the card titles to read as one more course.
+          const groupsAreDistinguished = completedCourses.length > 0 && coursesInProgress.length > 0
+
+          const courseSection = (heading: string, courses: MyStudiesCourse[]) =>
+            courses.length === 0 ? null : (
+              <section className={sectionCss} aria-label={heading}>
+                {groupsAreDistinguished ? <h2 className={headingCss}>{heading}</h2> : null}
+                <div className={courseListCss}>
+                  {courses.map((course) => (
+                    <StudiesCourseCard
+                      key={course.course_id}
+                      course={course}
+                      registrationByCourseModuleId={registrationByCourseModuleId}
+                    />
+                  ))}
+                </div>
+              </section>
+            )
+
+          return (
+            <>
+              <StudiesSummary totals={myStudies.totals} />
+              <StudentNumberCard showStudiesLink={false} />
+
+              {showCreditRegistration ? <RegistrationsNeedingAttention /> : null}
+
+              {visibleCourses.length === 0 ? (
+                <p className={emptyStateCss}>{t("all-of-your-courses-are-hidden")}</p>
+              ) : null}
+              {courseSection(t("heading-courses-in-progress"), coursesInProgress)}
+              {courseSection(t("heading-courses-completed"), completedCourses)}
+
+              <CertificatesSection />
+
+              {hiddenCourses.length > 0 ? <HiddenCoursesSection courses={hiddenCourses} /> : null}
+
+              <p className={noteCss}>
+                <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
+              </p>
+            </>
+          )
+        }}
+      </QueryResult>
+    </div>
+  )
+}
+
+export default withErrorBoundary(withSignedIn(StudiesPage))

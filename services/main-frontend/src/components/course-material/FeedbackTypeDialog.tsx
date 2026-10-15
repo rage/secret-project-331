@@ -6,15 +6,15 @@ import React, { useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import ImprovementExample from "./ImprovementExample"
-import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
-
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Dialog } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
 } from "@/stores/course-material/materialFeedbackStore"
+
+import ImprovementExample from "./ImprovementExample"
+import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
 const FeedbackTypeDialog: React.FC = () => {
   const { t } = useTranslation()
@@ -41,14 +41,14 @@ const FeedbackTypeDialog: React.FC = () => {
 
   const handleFeedbackClick = () => {
     restoreSelectionIfNeeded(() => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setCurrentlyOpenFeedbackDialog("written")
     })
   }
 
   const handleImprovementClick = () => {
     restoreSelectionIfNeeded(() => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setCurrentlyOpenFeedbackDialog("proposed-edits")
     })
   }
@@ -74,12 +74,7 @@ const FeedbackTypeDialog: React.FC = () => {
   )
 
   return (
-    <StandardDialog
-      open={type === "select-type"}
-      onClose={handleClose}
-      title={t("select-feedback-type")}
-      width="normal"
-    >
+    <Dialog open={type === "select-type"} onClose={handleClose} title={t("select-feedback-type")}>
       <div
         className={css`
           display: flex;
@@ -117,9 +112,9 @@ const FeedbackTypeDialog: React.FC = () => {
               transform: translateY(0);
             }
 
-            &:focus {
-              outline: none;
-              box-shadow: 0 0 0 2px ${baseTheme.colors.gray[200]};
+            &:focus-visible {
+              outline: 3px solid ${baseTheme.colors.green[600]};
+              outline-offset: 2px;
             }
 
             &::after {
@@ -193,9 +188,9 @@ const FeedbackTypeDialog: React.FC = () => {
               transform: translateY(0);
             }
 
-            &:focus {
-              outline: none;
-              box-shadow: 0 0 0 2px ${baseTheme.colors.green[200]};
+            &:focus-visible {
+              outline: 3px solid ${baseTheme.colors.green[600]};
+              outline-offset: 2px;
             }
 
             &::after {
@@ -242,7 +237,7 @@ const FeedbackTypeDialog: React.FC = () => {
           </div>
         </button>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { MutableRefObject, useEffect, useRef } from "react"
+import type { MutableRefObject } from "react"
+import { useEffect, useRef } from "react"
 
 const useClickOutside = (
   elementRef: MutableRefObject<HTMLElement | null>,

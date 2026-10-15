@@ -1,28 +1,60 @@
 {
   "name": "@moocfi/create-exercise-service",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Scaffolding CLI for creating new moocfi exercise services",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "keywords": [
+    "create",
+    "exercise-service",
+    "moocfi",
+    "scaffolding"
+  ],
+  "homepage": "https://github.com/rage/secret-project-331#readme",
   "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rage/secret-project-331.git",
+    "directory": "shared-module/packages/create-exercise-service"
+  },
+  "bin": {
+    "create-exercise-service": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
-  "main": "src/index.ts",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.16.0"
-    }
+  "main": "./dist/index.mjs",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
+    "build": "tsdown && tsx scripts/bundle-template.ts",
     "start": "tsx src/index.ts",
     "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.5.0"
+    "@fontsource/commit-mono": "^5.3.0",
+    "@inquirer/prompts": "^8.6.0"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
-    "tsx": "^4.22.3",
-    "typescript": "^6.0.3"
-  }
+    "@types/node": "^26.3.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "publint": "0.3.24",
+    "tsdown": "0.22.14",
+    "tsx": "^4.23.12",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

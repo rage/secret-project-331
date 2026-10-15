@@ -1,10 +1,13 @@
 import { injectGlobal } from "@emotion/css"
 
+import { DURATION_MS, EASING, LOOP_DURATION_MS } from "./motion"
+
 export const tokensGlobal = injectGlobal`
   :root {
     /* sizing */
     --control-gap: var(--space-3);
-    --control-radius: var(--space-2);
+    --control-radius: var(--radius-2);
+    --surface-radius: var(--radius-3);
 
     --control-height-sm: var(--space-5);
     --control-height-md: var(--space-6);
@@ -18,22 +21,103 @@ export const tokensGlobal = injectGlobal`
     --font-size-md: var(--font-size-2);
     --font-size-lg: var(--font-size-3);
 
-    /* spacing scale */
+    /* spacing scale. A new step is inserted as a half step; renumbering would move every caller. */
     --space-0: 0px;
     --space-1: 2px;
     --space-2: 4px;
     --space-3: 8px;
+    --space-3-5: 12px;
     --space-4: 16px;
+    --space-4-5: 24px;
     --space-5: 32px;
     --space-6: 40px;
     --space-7: 48px;
 
     /* type scale */
+    --font-size-0: 12px;
     --font-size-1: 14px;
     --font-size-2: 16px;
     --font-size-3: 18px;
+    --font-size-3-5: 20px;
     --font-size-4: 24px;
     --font-size-5: 32px;
+
+    /* radii — controls sharpen, surfaces soften, the modal is the softest thing on screen */
+    --radius-0: 0px;
+    --radius-1: 4px;
+    --radius-2: 6px;
+    --radius-3: 8px;
+    --radius-4: 12px;
+    --radius-5: 16px;
+    --radius-full: 9999px;
+
+    /* elevation — one neutral shadow colour; each step layers a tight contact shadow with a
+       wide ambient one. Never brand-tinted: a shadow is a light model, not a colour choice. */
+    --shadow-rgb: 10 15 23;
+
+    --elevation-0: none;
+    --elevation-1:
+      0 1px 2px rgb(var(--shadow-rgb) / 0.06),
+      0 1px 3px rgb(var(--shadow-rgb) / 0.1);
+    --elevation-2:
+      0 2px 4px rgb(var(--shadow-rgb) / 0.06),
+      0 4px 10px rgb(var(--shadow-rgb) / 0.1);
+    --elevation-3:
+      0 4px 8px rgb(var(--shadow-rgb) / 0.07),
+      0 12px 24px rgb(var(--shadow-rgb) / 0.14);
+    --elevation-4:
+      0 8px 16px rgb(var(--shadow-rgb) / 0.08),
+      0 24px 48px rgb(var(--shadow-rgb) / 0.18);
+    --elevation-inset-pressed: inset 0 2px 4px rgb(var(--shadow-rgb) / 0.1);
+
+    --scrim: rgb(var(--shadow-rgb) / 0.55);
+
+    /* layering — every portalled overlay (dialog, popover, menu, listbox, tooltip) shares
+       --layer-overlay; open order is DOM order, so the last-opened overlay paints on top
+       without a token per overlay type. */
+    --layer-below: -1;
+    --layer-base: 0;
+    --layer-raised: 1;
+    --layer-sticky: 100;
+    --layer-overlay: 1000;
+    --layer-toast: 1100;
+
+    /* motion — durations and easings live in motion.ts; nothing here moves longer than
+       --duration-deliberate, and only the modal layer gets that */
+    --duration-instant: ${DURATION_MS.instant}ms;
+    --duration-fast: ${DURATION_MS.fast}ms;
+    --duration-base: ${DURATION_MS.base}ms;
+    --duration-slow: ${DURATION_MS.slow}ms;
+    --duration-deliberate: ${DURATION_MS.deliberate}ms;
+
+    --duration-exit: calc(var(--duration-base) * 0.7);
+    --duration-exit-slow: calc(var(--duration-slow) * 0.7);
+    --duration-exit-deliberate: calc(var(--duration-deliberate) * 0.7);
+
+    --duration-spin: ${LOOP_DURATION_MS.spin}ms;
+    --duration-shimmer: ${LOOP_DURATION_MS.shimmer}ms;
+    --duration-progress-beam: ${LOOP_DURATION_MS.progressBeam}ms;
+
+    --ease-standard: ${EASING.standard};
+    --ease-entrance: ${EASING.entrance};
+    --ease-exit: ${EASING.exit};
+    --ease-linear: ${EASING.linear};
+
+    /* type families — declared here; the host app loads the actual font files. Every portalled
+       surface must set font-family explicitly, since a portal to document.body escapes any
+       styling scoped to the host's app container. Values mirror common's typography.ts;
+       components cannot import that package directly. */
+    --font-sans:
+      "Inter Variable", Inter, system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-heading:
+      Raleway, system-ui, -apple-system, Cantarell, Ubuntu, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono:
+      "Commit Mono", ui-monospace, "Source Code Pro", "Ubuntu Mono", SFMono-Regular, Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
 
     /* focus ring */
     --focus-ring-width: 2px;
@@ -174,6 +258,11 @@ export const tokensGlobal = injectGlobal`
     --gradient-green: linear-gradient(to bottom right, #075854, #4de2c5);
     --gradient-blue: linear-gradient(-70deg, #020344 0%, #28b8d5 100%);
 
+    /* link. Blue, not the brand green: a green link is read as a status in a table of statuses,
+       and every other link in the app is blue. */
+    --link-fg: var(--color-blue-700);
+    --link-fg-hover: var(--color-blue-800);
+
     /* primary */
     --btn-primary-bg: var(--color-green-600);
     --btn-primary-fg: var(--color-primary-100);
@@ -209,22 +298,29 @@ export const tokensGlobal = injectGlobal`
 
     /* icon */
     --btn-icon-bg: transparent;
-    --btn-icon-fg: var(--color-gray-400);
+    --btn-icon-fg: var(--color-gray-700);
     --btn-icon-border: transparent;
     --btn-icon-bg-hover: transparent;
-    --btn-icon-fg-hover: var(--color-gray-700);
+    --btn-icon-fg-hover: var(--color-gray-800);
     --btn-icon-border-hover: transparent;
     --btn-icon-bg-pressed: transparent;
-    --btn-icon-fg-pressed: var(--color-gray-800);
+    --btn-icon-fg-pressed: var(--color-gray-900);
     --btn-icon-shadow-hover: none;
     --btn-icon-padding-x-sm: var(--space-3);
     --btn-icon-padding-x-md: calc(var(--space-4) - (var(--space-1) * 2));
     --btn-icon-padding-x-lg: var(--space-4);
 
+    /* danger */
+    --btn-danger-bg: var(--color-crimson-700);
+    --btn-danger-fg: var(--color-clear-50);
+    --btn-danger-border: var(--color-crimson-700);
+    --btn-danger-bg-hover: var(--color-crimson-800);
+    --btn-danger-bg-pressed: var(--color-crimson-900);
+
     /* field */
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);
-    --field-border-color: var(--color-gray-300);
+    --field-border-color: var(--color-gray-400);
     --field-border-color-focus: var(--color-green-500);
     --field-border-color-invalid: var(--color-crimson-600);
     --field-text-color: var(--color-gray-800);
@@ -296,6 +392,5 @@ export const tokensGlobal = injectGlobal`
     --query-border-width: 1px;
     --query-shimmer-duration: 1.6s;
     --query-progress-beam-duration: 1.1s;
-    --query-spinner-duration: 0.8s;
   }
 `

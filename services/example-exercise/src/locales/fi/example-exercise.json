@@ -1,11 +1,20 @@
 {
+  "correct": "Oikein",
   "could-not-find-requested-resource": "Pyydettyä resurssia ei löydetty",
+  "delete-option": "Poista vaihtoehto",
   "feedback-text": "Palaute",
+  "incorrect": "Väärin",
   "input-placeholder-option-text": "Vaihtoehdon teksti",
+  "mark-option-correct": "Merkitse vaihtoehto oikeaksi",
   "new": "Uusi",
   "not-found": "Ei löydetty",
+  "option-n": "Vaihtoehto {{n}}",
   "score-given": "Pisteet",
   "something-went-wrong": "Jotain meni pieleen: {{error}}",
+  "validation-error-empty-option-name": "Jokaisella vaihtoehdolla on oltava nimi.",
+  "validation-error-no-correct-option": "Merkitse vähintään yksi vaihtoehto oikeaksi.",
+  "validation-error-no-options": "Lisää vähintään yksi vaihtoehto.",
+  "validation-errors-heading": "Korjaa seuraavat ennen tallennusta:",
   "waiting-for-content": "Odotetaan dataa...",
   "waiting-for-port": "Odotetaan porttia..."
 }

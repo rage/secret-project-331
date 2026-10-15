@@ -3,7 +3,7 @@ import {
   extractPageCitations,
   orderedUniqueCitationKeys,
 } from "@/components/course-material/references/citationExtraction"
-import { Block } from "@/types/courseMaterialBlock"
+import type { Block } from "@/types/courseMaterialBlock"
 
 const block = (
   name: string,
@@ -55,7 +55,7 @@ describe("extractCitationsFromText", () => {
   })
 
   test("keeps keys with spaces, dots, colons and unicode verbatim", () => {
-    expect(extractCitationsFromText("\\cite{leinonen2019:exploring föö}")[0].citationKey).toBe(
+    expect(extractCitationsFromText("\\cite{leinonen2019:exploring föö}")[0]!.citationKey).toBe(
       "leinonen2019:exploring föö",
     )
   })
@@ -63,8 +63,8 @@ describe("extractCitationsFromText", () => {
   test("decodes HTML entities in the key to match the browser-decoded data-citation-id", () => {
     // Stored block content is HTML, so an ampersand in a key is encoded as &amp;. The browser
     // decodes node.dataset.citationId, so the extracted key must decode too or the marker won't match.
-    expect(extractCitationsFromText("\\cite{a&amp;b}")[0].citationKey).toBe("a&b")
-    expect(extractCitationsFromText("\\cite{x&#38;y}")[0].citationKey).toBe("x&y")
+    expect(extractCitationsFromText("\\cite{a&amp;b}")[0]!.citationKey).toBe("a&b")
+    expect(extractCitationsFromText("\\cite{x&#38;y}")[0]!.citationKey).toBe("x&y")
   })
 
   test("does not count a \\cite inside a [latex] block", () => {

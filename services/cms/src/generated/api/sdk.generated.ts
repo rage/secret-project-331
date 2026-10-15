@@ -55,8 +55,16 @@ import type {
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
+  GetExercisesWithSubmissionsData,
+  GetExercisesWithSubmissionsResponses,
+  PreviewCmsEmailTemplateData,
+  PreviewCmsEmailTemplateResponses,
+  RequestChartSpecGenerationData,
+  RequestChartSpecGenerationResponses,
   RequestParagraphSuggestionsData,
   RequestParagraphSuggestionsResponses,
+  SendCmsEmailTemplateTestData,
+  SendCmsEmailTemplateTestResponses,
   UpdateCmsCourseDefaultPeerReviewData,
   UpdateCmsCourseDefaultPeerReviewResponses,
   UpdateCmsEmailTemplateData,
@@ -69,6 +77,8 @@ import type {
   UploadCmsCourseMediaResponses,
   UploadCmsExamMediaData,
   UploadCmsExamMediaResponses,
+  UploadFilesFromExerciseServiceData,
+  UploadFilesFromExerciseServiceResponses,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
@@ -98,13 +108,18 @@ import {
   zGetCmsPageNavigationResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
+  zGetExercisesWithSubmissionsResponse,
+  zPreviewCmsEmailTemplateResponse,
+  zRequestChartSpecGenerationResponse,
   zRequestParagraphSuggestionsResponse,
+  zSendCmsEmailTemplateTestResponse,
   zUpdateCmsCourseDefaultPeerReviewResponse,
   zUpdateCmsEmailTemplateResponse,
   zUpdateCmsExamInstructionsResponse,
   zUpdateCmsPageResponse,
   zUploadCmsCourseMediaResponse,
   zUploadCmsExamMediaResponse,
+  zUploadFilesFromExerciseServiceResponse,
   zUpsertCmsCourseResearchFormQuestionsResponse,
   zUpsertCmsCourseResearchFormResponse,
 } from "./zod.generated"
@@ -126,6 +141,33 @@ export type Options<
    */
   meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
+
+/**
+ *
+ * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
+ *
+ * This endpoint is intended for the CMS chart block editor. It requires the user to have
+ * edit access to the referenced page when `page_id` is provided, otherwise it falls back
+ * to requiring a teaching role for some course via `Res::AnyCourse`.
+ */
+export const requestChartSpecGeneration = <ThrowOnError extends boolean = true>(
+  options: Options<RequestChartSpecGenerationData, ThrowOnError>,
+): RequestResult<RequestChartSpecGenerationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    RequestChartSpecGenerationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zRequestChartSpecGenerationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/ai-suggestions/chart-spec",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
 
 /**
  *
@@ -540,6 +582,49 @@ export const updateCmsEmailTemplate = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/cms/email-templates/:id/preview`
+ *
+ * Renders the editor's unsaved state exactly as the sender would, with sample placeholder values.
+ */
+export const previewCmsEmailTemplate = <ThrowOnError extends boolean = true>(
+  options: Options<PreviewCmsEmailTemplateData, ThrowOnError>,
+): RequestResult<PreviewCmsEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PreviewCmsEmailTemplateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zPreviewCmsEmailTemplateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/email-templates/{email_template_id}/preview",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/cms/email-templates/:id/send-test`
+ *
+ * Queues the editor's unsaved state, with sample placeholder values, to the requesting user's own
+ * address. Returns the id of the queued delivery.
+ */
+export const sendCmsEmailTemplateTest = <ThrowOnError extends boolean = true>(
+  options: Options<SendCmsEmailTemplateTestData, ThrowOnError>,
+): RequestResult<SendCmsEmailTemplateTestResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendCmsEmailTemplateTestResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zSendCmsEmailTemplateTestResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/cms/email-templates/{email_template_id}/send-test",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
+
+/**
+ *
  * GET `/api/v0/cms/exams/:exam_id/edit` - Get the exam instructions for Gutenberg Editor.
  */
 export const getCmsExamInstructions = <ThrowOnError extends boolean = true>(
@@ -679,6 +764,32 @@ export const updateCmsPage = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
+ * the subset that has at least one existing submission. Used by the editor to warn the teacher before
+ * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
+ * its submissions.
+ */
+export const getExercisesWithSubmissions = <ThrowOnError extends boolean = true>(
+  options: Options<GetExercisesWithSubmissionsData, ThrowOnError>,
+): RequestResult<GetExercisesWithSubmissionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    GetExercisesWithSubmissionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetExercisesWithSubmissionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, organization slug
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
@@ -721,4 +832,33 @@ export const getCmsRepositoryExercisesForCourse = <ThrowOnError extends boolean 
     responseStyle: "data",
     url: "/api/v0/cms/repository-exercises/{course_id}",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/files/:exercise_service_slug`
+ * Used to upload data from exercise service iframes.
+ *
+ * # Returns
+ * An ordered list of host-assigned file ids and stored URLs.
+ */
+export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = true>(
+  options: Options<UploadFilesFromExerciseServiceData, ThrowOnError>,
+): RequestResult<UploadFilesFromExerciseServiceResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UploadFilesFromExerciseServiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    ...formDataBodySerializer,
+    responseValidator: async (data) =>
+      await zUploadFilesFromExerciseServiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/files/{exercise_service_slug}",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options.headers,
+    },
   })

@@ -1,6 +1,7 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { Select } from "../../../utils/components/Select"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
@@ -14,7 +15,7 @@ test.use({
 test("widget, essay", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes example, essay" })
+  await Select.labelled(page, "Playground examples").chooseOption("Quizzes example, essay")
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 

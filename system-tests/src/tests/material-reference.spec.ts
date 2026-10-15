@@ -1,12 +1,13 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
-
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { selectTab } from "@/utils/selectTab"
+
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -18,7 +19,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
   await page.locator("[aria-label=\"Manage course \\'Material references course\\'\"] svg").click()
-  await page.getByRole("tab", { name: "Other" }).click()
+  await selectTab(page, "Other")
   await page.getByRole("tab", { name: "References" }).click()
 
   await expectScreenshotsToMatchSnapshots({
@@ -137,13 +138,14 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Create Table").click()
 
-  await page.locator('[aria-label="Body cell text"]').first().fill(TABLE_CONTENT[0])
+  // safe: TABLE_CONTENT is a literal array with four entries
+  await page.locator('[aria-label="Body cell text"]').first().fill(TABLE_CONTENT[0]!)
 
-  await page.locator('[aria-label="Body cell text"]').nth(1).fill(TABLE_CONTENT[1])
+  await page.locator('[aria-label="Body cell text"]').nth(1).fill(TABLE_CONTENT[1]!)
 
-  await page.locator('[aria-label="Body cell text"]').nth(2).fill(TABLE_CONTENT[2])
+  await page.locator('[aria-label="Body cell text"]').nth(2).fill(TABLE_CONTENT[2]!)
 
-  await page.locator('[aria-label="Body cell text"]').nth(3).fill(TABLE_CONTENT[3])
+  await page.locator('[aria-label="Body cell text"]').nth(3).fill(TABLE_CONTENT[3]!)
 
   await page.getByLabel("Add caption").click()
 

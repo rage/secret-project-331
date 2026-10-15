@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import DetailRow from "./DetailRow"
-
 import type { UserDetail } from "@/generated/api/types.generated"
 import { primaryFont } from "@/shared-module/common/styles"
+
+import DetailRow from "./DetailRow"
 
 export function UserDetailsContent({ data, userId }: { data: UserDetail; userId: string }) {
   const { t } = useTranslation()

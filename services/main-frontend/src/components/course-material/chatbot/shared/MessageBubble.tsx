@@ -4,15 +4,15 @@ import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
 
-import ChatbotReferenceList from "./ChatbotReferenceList"
-import CitationPopovers from "./CitationPopovers"
-import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
-import ThinkingIndicator from "./ThinkingIndicator"
-import { LIGHT_GREEN } from "./styles"
-
 import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { MATCH_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
+
+import ChatbotReferenceList from "./ChatbotReferenceList"
+import CitationPopovers from "./CitationPopovers"
+import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
+import { LIGHT_GREEN } from "./styles"
+import ThinkingIndicator from "./ThinkingIndicator"
 
 export const renumberFilterCitations = (
   message: string,
@@ -31,7 +31,10 @@ export const renumberFilterCitations = (
     return { filteredCitations: [], citedDocs: [], citationNumberingMap: new Map() }
   }
 
-  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) => parseInt(arr[1]))
+  let citedDocs = Array.from(message.matchAll(MATCH_CITATIONS_REGEX), (arr, _) =>
+    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
+    parseInt(arr[1] ?? "", 10),
+  )
 
   // there might be hallucinated citations in the message :(
   // remove the hallucinated citations
@@ -85,18 +88,20 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
   max-width: stretch;
   overflow-wrap: break-word;
   margin: 0.5rem 0;
-  ${isFromChatbot
-    ? `
+  ${
+    isFromChatbot
+      ? `
       margin-right: 2rem;
       align-self: flex-start;
       background-color: ${LIGHT_GREEN};
     `
-    : `
+      : `
       margin-left: 2rem;
       align-self: flex-end;
       border: 2px solid ${baseTheme.colors.green[200]};
       background-color: #ffffff;
-    `}
+    `
+  }
 `
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -128,11 +133,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [message, citations, isFromChatbot])
 
   const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
-    const { filteredCitations, citationNumberingMap } = renumberFilterCitationsResult
+    const { filteredCitations, citationNumberingMap: numberingMap } = renumberFilterCitationsResult
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
-      : !citationsOpen || filteredCitations.length == 0
+      : !citationsOpen || filteredCitations.length === 0
         ? MessageRenderType.ChatbotNoCitations
         : MessageRenderType.ChatbotWithCitations
 
@@ -142,17 +147,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         citationButtonClicked={citationButtonClicked}
         currentTriggerId={triggerElementId}
         message={message}
-        citationNumberingMap={citationNumberingMap}
+        citationNumberingMap={numberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)
           triggerElement.current = e.currentTarget
           setTriggerElementId(e.currentTarget.id)
         }}
         hoverCitationProps={hoverCitationProps}
+        isPending={isPending}
       />
     )
 
-    return [renderedMessage, filteredCitations, citationNumberingMap]
+    return [renderedMessage, filteredCitations, numberingMap]
   }, [
     message,
     isFromChatbot,
@@ -161,9 +167,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     citationButtonClicked,
     renumberFilterCitationsResult,
     triggerElementId,
+    isPending,
   ])
 
   return (
+    // No aria-label here: role=generic can't be named (axe: aria-prohibited-attr);
+    // the wrapping <li> in ChatbotChatBody carries the sender label instead.
     <div className={bubbleStyle(isFromChatbot)}>
       {processedMessage}
 

@@ -18,13 +18,17 @@ use uuid::Uuid;
 
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::jwt::{DownloadClaim, JwtKey, claimed_file_url};
 
 pub type GenericPayload = Pin<Box<dyn Stream<Item = Result<Bytes, anyhow::Error>>>>;
 /**
 Allows storing files to a file storage backend.
 */
 #[async_trait(?Send)]
-pub trait FileStore {
+// `Send + Sync` on the trait object, not on its futures: work that must cross threads (the spawned
+// CSV exports, the parallel seed) holds a `&dyn FileStore` across awaits, while the async methods
+// themselves stay `?Send`.
+pub trait FileStore: Send + Sync {
     /// Upload a file that's in memory to a path.
     async fn upload(&self, path: &Path, contents: Vec<u8>, mime_type: &str) -> UtilResult<()>;
     /// Upload a file without loading the whole file to memory
@@ -51,6 +55,37 @@ pub trait FileStore {
             app_conf.base_url,
             path.to_string_lossy()
         )
+    }
+    /// Get a url for a file whose storage path must not be handed out, such as anything derived
+    /// from a student's answer. The claim-bearing sibling of [`Self::get_download_url`].
+    ///
+    /// The claim authorizes this one file and expires within the hour, so the url has to be minted
+    /// again on every read: it cannot be persisted, and a response carrying one cannot be cached
+    /// for another reader.
+    fn get_claimed_download_url(
+        &self,
+        file_upload_id: Uuid,
+        app_conf: &ApplicationConfiguration,
+    ) -> UtilResult<String> {
+        let jwt_key = JwtKey::new(&app_conf.jwt_password).map_err(|err| {
+            util_err!(
+                Other,
+                "Failed to build the JWT signing key.".to_string(),
+                err
+            )
+        })?;
+        claimed_file_url(
+            &app_conf.base_url,
+            &jwt_key,
+            DownloadClaim::expiring_in_1_hour(file_upload_id),
+        )
+        .map_err(|err| {
+            util_err!(
+                Other,
+                "Failed to sign a file download claim.".to_string(),
+                err
+            )
+        })
     }
     /// Delete a file.
     async fn delete(&self, path: &Path) -> UtilResult<()>;

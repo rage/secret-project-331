@@ -1,10 +1,12 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
+import { chapterActionsMenu, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -17,21 +19,14 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   await page.getByRole("link", { name: "Manage course 'Preview unopened chapters'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await waitForSpinnersToDisappear(page)
-  await page
-    .getByRole("heading", { name: "Chapter 1: The Basics Dropdown menu" })
-    .getByRole("button", { name: "Dropdown menu" })
-    .click()
-  await page.getByRole("button", { name: "Edit", exact: true }).click()
-  await page.getByPlaceholder("Opens at").fill("3200-04-17T19:13:24")
+  await chapterActionsMenu(page, 1).chooseItem("Edit")
+  await new DateTimeLocalField(page, "chapter-opens-at-field").setValue("3200-04-17T19:13")
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Update" }).click()
   })
-  await page
-    .getByRole("row", { name: "Page One /chapter-1/page-1 Edit page Dropdown menu" })
-    .getByRole("button", { name: "Edit page" })
-    .click()
+  await openCoursePageInEditor(page, "Page One", { chapterNumber: 1 })
   const page1Promise = page.waitForEvent("popup")
-  await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
+  await page.getByRole("link", { name: "Open saved page in a new tab" }).click()
   const page1 = await page1Promise
   await selectCourseInstanceIfPrompted(page1)
   await page1.getByText("Everything is a big topic.").click()

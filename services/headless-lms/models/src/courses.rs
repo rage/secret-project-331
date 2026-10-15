@@ -1,14 +1,24 @@
-use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
-use utoipa::ToSchema;
+use std::collections::HashMap;
 
 use crate::{
-    chapters::{Chapter, course_chapters},
-    course_modules::CourseModule,
-    pages::Page,
-    pages::{PageVisibility, get_all_by_course_id_and_visibility},
+    chapters::{Chapter, get_course_chapters},
+    course_audiences::{CourseAudience, EditCourseAudience, upsert_course_audiences},
+    course_instances::CourseInstance,
+    course_modules::{CourseAuditingModuleUpdate, CourseModule},
+    course_prerequisites::{
+        CoursePrerequisite, EditCoursePrerequisite, upsert_course_prerequisites,
+    },
+    organizations::DatabaseOrganization,
+    pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
-
+use headless_lms_utils::{
+    azure_embedding::create_embeddings, file_store::FileStore,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME, strings::non_empty_trimmed,
+};
+use itertools::multiunzip;
+use pgvector::Vector;
+use utoipa::ToSchema;
 pub struct CourseInfo {
     pub id: Uuid,
     pub is_draft: bool,
@@ -23,6 +33,31 @@ pub struct CourseCount {
 pub struct CourseContextData {
     pub id: Uuid,
     pub is_test_mode: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseMetadata {
+    course_description: Option<String>,
+    course_audiences: Vec<CourseAudience>,
+    course_prerequisites: Vec<CoursePrerequisite>,
+    course_updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CourseMetadataUpdate {
+    course_description: Option<String>,
+    course_audiences: Vec<EditCourseAudience>,
+    course_prerequisites: Vec<EditCoursePrerequisite>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CompleteCourseMetadata {
+    course: Course,
+    course_instances: Vec<CourseInstance>,
+    default_module: CourseModule,
+    course_prerequisites: Vec<CoursePrerequisite>,
+    course_audiences: Vec<CourseAudience>,
+    course_organization: DatabaseOrganization,
 }
 
 /// The AI policy a teacher has selected for a course. Drives which variant of the student-facing
@@ -79,6 +114,16 @@ pub struct Course {
     pub cheater_detection_enabled: bool,
     pub ai_policy: CourseAiPolicy,
     pub course_material_ai_instructions: Option<bool>,
+}
+impl Course {
+    pub fn is_closed(&self) -> bool {
+        if let Some(closed_at) = self.closed_at {
+            let now = chrono::Utc::now();
+            closed_at <= now
+        } else {
+            false
+        }
+    }
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -205,12 +250,58 @@ pub struct NewCourse {
     pub can_add_chatbot: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
+pub struct CourseAuditingData {
+    pub id: Uuid,
+    pub name: String,
+    pub slug: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub description: Option<String>,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub is_unlisted: bool,
+    pub is_joinable_by_code_only: bool,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
+    pub organization_id: Uuid,
+    pub organization_name: String,
+    pub organization_slug: String,
+    pub prerequisites: Vec<EditCoursePrerequisite>,
+    pub audiences: Vec<EditCourseAudience>,
+    pub modules: Vec<CourseModule>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+
+pub struct CourseAuditingDataUpdate {
+    pub description: Option<String>,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub is_unlisted: bool,
+    pub is_joinable_by_code_only: bool,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
+    pub prerequisites: Vec<EditCoursePrerequisite>,
+    pub audiences: Vec<EditCourseAudience>,
+    pub modules: Vec<CourseAuditingModuleUpdate>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     pkey_policy: PKeyPolicy<Uuid>,
     course_language_group_id: Uuid,
     new_course: &NewCourse,
 ) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+
+    let name = non_empty_trimmed(&new_course.name).unwrap_or(&new_course.name);
+    let description = non_empty_trimmed(&new_course.description);
+
     let res = sqlx::query!(
         "
 INSERT INTO courses(
@@ -244,8 +335,8 @@ VALUES(
 RETURNING id
         ",
         pkey_policy.into_uuid(),
-        new_course.name,
-        new_course.description,
+        name,
+        description,
         new_course.slug,
         new_course.organization_id,
         new_course.language_code,
@@ -256,8 +347,19 @@ RETURNING id
         new_course.join_code,
         new_course.can_add_chatbot,
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *tx)
     .await?;
+    if !app_config.disable_embedding_vector_creation_when_seeding {
+        update_course_embeddings(
+            &mut tx,
+            app_config,
+            res.id,
+            non_empty_trimmed(&new_course.name),
+            description,
+        )
+        .await?
+    }
+    tx.commit().await?;
     Ok(res.id)
 }
 
@@ -274,35 +376,7 @@ pub async fn all_courses(conn: &mut PgConnection) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot,
-  is_unlisted,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -312,6 +386,392 @@ WHERE deleted_at IS NULL;
     Ok(courses)
 }
 
+pub async fn all_courses_for_auditing(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CourseAuditingData>> {
+    let courses_data = sqlx::query!(
+        r#"
+SELECT c.id,
+  c.name,
+  c.slug,
+  c.created_at,
+  c.updated_at,
+  c.organization_id,
+  c.description,
+  c.is_draft,
+  c.is_test_mode,
+  c.is_unlisted,
+  c.is_joinable_by_code_only,
+  c.closed_at,
+  c.closed_additional_message,
+  c.closed_course_successor_id,
+  o.name AS organization_name,
+  o.slug AS organization_slug
+FROM courses c
+  JOIN organizations o ON o.id = c.organization_id
+WHERE c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+GROUP BY c.id,
+  c.name,
+  o.name,
+  o.slug
+"#
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let modules_data = crate::course_modules::get_all_modules(conn).await?;
+
+    let prerequisites_data =
+        crate::course_prerequisites::get_all_edit_course_prerequisites(conn).await?;
+
+    let audiences_data = crate::course_audiences::get_all_edit_course_audiences(conn).await?;
+
+    let mut modules_by_course_id: HashMap<Uuid, Vec<CourseModule>> = HashMap::new();
+    for module in modules_data {
+        modules_by_course_id
+            .entry(module.course_id)
+            .or_default()
+            .push(module);
+    }
+
+    for course_modules in modules_by_course_id.values_mut() {
+        course_modules.sort_by_key(|c| c.order_number);
+    }
+
+    let mut prerequisites_by_course_id: HashMap<Uuid, Vec<EditCoursePrerequisite>> = HashMap::new();
+    for prerequisite in prerequisites_data {
+        prerequisites_by_course_id
+            .entry(prerequisite.course_id)
+            .or_default()
+            .push(prerequisite);
+    }
+
+    let mut audiences_by_course_id: HashMap<Uuid, Vec<EditCourseAudience>> = HashMap::new();
+    for audience in audiences_data {
+        audiences_by_course_id
+            .entry(audience.course_id)
+            .or_default()
+            .push(audience);
+    }
+
+    let data: Vec<CourseAuditingData> = courses_data
+        .into_iter()
+        .map(|c| CourseAuditingData {
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            created_at: c.created_at,
+            updated_at: c.updated_at,
+            organization_id: c.organization_id,
+            description: c.description,
+            is_draft: c.is_draft,
+            is_test_mode: c.is_test_mode,
+            is_unlisted: c.is_unlisted,
+            is_joinable_by_code_only: c.is_joinable_by_code_only,
+            closed_at: c.closed_at,
+            closed_additional_message: c.closed_additional_message,
+            closed_course_successor_id: c.closed_course_successor_id,
+            organization_name: c.organization_name,
+            organization_slug: c.organization_slug,
+            modules: modules_by_course_id.remove(&c.id).unwrap_or_default(),
+            prerequisites: prerequisites_by_course_id.remove(&c.id).unwrap_or_default(),
+            audiences: audiences_by_course_id.remove(&c.id).unwrap_or_default(),
+        })
+        .collect();
+
+    Ok(data)
+}
+
+pub async fn course_auditing_data_by_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseAuditingData> {
+    let course_data = sqlx::query!(
+        r#"
+SELECT c.id,
+  c.name,
+  c.slug,
+  c.created_at,
+  c.updated_at,
+  c.organization_id,
+  c.description,
+  c.is_draft,
+  c.is_test_mode,
+  c.is_unlisted,
+  c.is_joinable_by_code_only,
+  c.closed_at,
+  c.closed_additional_message,
+  c.closed_course_successor_id,
+  o.name AS organization_name,
+  o.slug AS organization_slug
+FROM courses c
+  JOIN organizations o ON o.id = c.organization_id
+WHERE c.id = $1
+  AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+GROUP BY c.id,
+  c.name,
+  o.name,
+  o.slug
+"#,
+        course_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    let mut modules_data = crate::course_modules::get_by_course_id(conn, course_id).await?;
+
+    modules_data.sort_by_key(|c| c.order_number);
+
+    let prerequisites_data =
+        crate::course_prerequisites::get_edit_course_prerequisites_by_course_id(conn, course_id)
+            .await?;
+
+    let audiences_data =
+        crate::course_audiences::get_edit_course_audiences_by_course_id(conn, course_id).await?;
+
+    let data: CourseAuditingData = CourseAuditingData {
+        id: course_data.id,
+        name: course_data.name,
+        slug: course_data.slug,
+        created_at: course_data.created_at,
+        updated_at: course_data.updated_at,
+        organization_id: course_data.organization_id,
+        description: course_data.description,
+        is_draft: course_data.is_draft,
+        is_test_mode: course_data.is_test_mode,
+        is_unlisted: course_data.is_unlisted,
+        is_joinable_by_code_only: course_data.is_joinable_by_code_only,
+        closed_at: course_data.closed_at,
+        closed_additional_message: course_data.closed_additional_message,
+        closed_course_successor_id: course_data.closed_course_successor_id,
+        organization_name: course_data.organization_name,
+        organization_slug: course_data.organization_slug,
+        modules: modules_data,
+        prerequisites: prerequisites_data,
+        audiences: audiences_data,
+    };
+
+    Ok(data)
+}
+
+pub async fn update_course_auditing_data(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    course_id: Uuid,
+    data_update: CourseAuditingDataUpdate,
+) -> ModelResult<()> {
+    for module in &data_update.modules {
+        crate::course_modules::validate_completion_registration_link(
+            module.completion_registration_link_override.as_deref(),
+        )?;
+    }
+    let (
+        module_ids,
+        uh_course_codes,
+        completion_registration_link_overrides,
+        ects_credits,
+        enable_registering_completion_to_uh_open_university,
+    ): (Vec<_>, Vec<_>, Vec<_>, Vec<_>, Vec<_>) =
+        multiunzip(data_update.modules.into_iter().map(|m| {
+            (
+                m.id,
+                m.uh_course_code,
+                m.completion_registration_link_override,
+                m.ects_credits,
+                m.enable_registering_completion_to_uh_open_university,
+            )
+        }));
+
+    let new_prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
+
+    let old_course = get_course(conn, course_id).await?;
+
+    let old_prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+
+    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
+        .iter()
+        .filter(|p| !new_prerequisite_ids.contains(&p.id))
+        .map(|p| p.id.to_owned())
+        .collect();
+
+    let old_prerequisites_hash: HashMap<Uuid, &String> = old_prerequisites
+        .iter()
+        .map(|p| (p.id, &p.prerequisite))
+        .collect();
+
+    let changed_prerequisites: Vec<EditCoursePrerequisite> = data_update
+        .prerequisites
+        .into_iter()
+        .filter(|p| match old_prerequisites_hash.get(&p.id) {
+            Some(old_prerequisite) => **old_prerequisite != p.prerequisite,
+            None => true,
+        })
+        .collect();
+
+    let (updated_prerequisite_ids, updated_prerequisites): (Vec<Uuid>, Vec<String>) =
+        changed_prerequisites
+            .iter()
+            .map(|p| (p.id, p.prerequisite.to_owned()))
+            .unzip();
+
+    let new_audience_ids: Vec<Uuid> = data_update.audiences.iter().map(|a| a.id).collect();
+
+    let old_audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+
+    let audiences_to_delete: Vec<Uuid> = old_audiences
+        .iter()
+        .filter(|a| !new_audience_ids.contains(&a.id))
+        .map(|a| a.id.to_owned())
+        .collect();
+
+    let old_audiences_hash: HashMap<Uuid, &String> =
+        old_audiences.iter().map(|a| (a.id, &a.audience)).collect();
+
+    let changed_audiences: Vec<EditCourseAudience> = data_update
+        .audiences
+        .into_iter()
+        .filter(|a| match old_audiences_hash.get(&a.id) {
+            Some(old_audience) => **old_audience != a.audience,
+            None => true,
+        })
+        .collect();
+
+    let (updated_audience_ids, updated_audiences): (Vec<Uuid>, Vec<String>) = changed_audiences
+        .iter()
+        .map(|a| (a.id, a.audience.to_owned()))
+        .unzip();
+
+    let prerequisite_embeddings = if updated_prerequisites.is_empty() {
+        None
+    } else {
+        Some(create_embeddings(app_config, updated_prerequisites.clone()).await?)
+    };
+
+    let audience_embeddings = if updated_audiences.is_empty() {
+        None
+    } else {
+        Some(create_embeddings(app_config, updated_audiences.clone()).await?)
+    };
+
+    let mut tx = conn.begin().await?;
+
+    sqlx::query_as!(
+        CourseAuditingDataUpdate,
+        r#"
+UPDATE courses
+SET description = $2,
+  is_draft = $3,
+  is_test_mode = $4,
+  is_unlisted = $5,
+  is_joinable_by_code_only = $6,
+  closed_at = $7,
+  closed_additional_message = $8,
+  closed_course_successor_id = $9
+WHERE id = $1
+  AND deleted_at IS NULL
+"#,
+        course_id,
+        data_update.description,
+        data_update.is_draft,
+        data_update.is_test_mode,
+        data_update.is_unlisted,
+        data_update.is_joinable_by_code_only,
+        data_update.closed_at,
+        data_update.closed_additional_message,
+        data_update.closed_course_successor_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    if old_course.description != data_update.description
+        && data_update.description.is_some()
+        && data_update.description != Some("".to_string())
+    {
+        update_course_embeddings(
+            &mut tx,
+            app_config,
+            course_id,
+            Some(old_course.name.as_str()),
+            data_update.description.as_deref(),
+        )
+        .await?;
+    };
+
+    sqlx::query!(
+        r#"
+UPDATE course_modules cm
+SET uh_course_code = v.uh_course_code,
+  completion_registration_link_override = v.completion_registration_link_override,
+  ects_credits = v.ects_credits,
+  enable_registering_completion_to_uh_open_university = v.enable_registering_completion_to_uh_open_university
+FROM (
+    SELECT *
+    FROM UNNEST(
+        $1::uuid [],
+        $2::TEXT [],
+        $3::TEXT [],
+        $4::FLOAT8 [],
+        $5::BOOLEAN []
+      ) AS v(
+        id,
+        uh_course_code,
+        completion_registration_link_override,
+        ects_credits,
+        enable_registering_completion_to_uh_open_university
+      )
+  ) AS v
+WHERE cm.id = v.id
+  AND cm.course_id = $6
+  AND cm.deleted_at IS NULL
+"#,
+        &module_ids,
+        &uh_course_codes as &[Option<String>],
+        &completion_registration_link_overrides as &[Option<String>],
+        &ects_credits as &[Option<f32>],
+        &enable_registering_completion_to_uh_open_university,
+        course_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    if let Some(embeddings) = prerequisite_embeddings {
+        upsert_course_prerequisites(
+            &mut tx,
+            course_id,
+            updated_prerequisite_ids,
+            updated_prerequisites,
+            embeddings,
+        )
+        .await?
+    } else {
+        vec![]
+    };
+
+    if let Some(embeddings) = audience_embeddings {
+        upsert_course_audiences(
+            &mut tx,
+            course_id,
+            updated_audience_ids,
+            updated_audiences,
+            embeddings,
+        )
+        .await?
+    } else {
+        vec![]
+    };
+
+    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
+
+    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
+
+    tx.commit().await?;
+    Ok(())
+}
+
 pub async fn all_courses_user_enrolled_to(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -319,35 +779,7 @@ pub async fn all_courses_user_enrolled_to(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -371,35 +803,7 @@ pub async fn all_courses_with_roles_for_user(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -435,35 +839,7 @@ pub async fn get_all_language_versions_of_course(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot,
-  is_unlisted,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -558,35 +934,7 @@ pub async fn get_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -606,35 +954,7 @@ pub async fn get_by_id_and_join_code(
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE id = $1
   AND join_code = $2
@@ -686,6 +1006,20 @@ pub async fn get_nondeleted_course_id_by_slug(
     Ok(data)
 }
 
+/// None when no active course has this slug.
+pub async fn get_active_course_id_by_slug(
+    conn: &mut PgConnection,
+    slug: &str,
+) -> ModelResult<Option<Uuid>> {
+    let id = sqlx::query_scalar!(
+        "SELECT id FROM courses WHERE slug = $1 AND deleted_at IS NULL",
+        slug
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(id)
+}
+
 pub async fn get_organization_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!("SELECT organization_id FROM courses WHERE id = $1", id)
         .fetch_one(conn)
@@ -703,7 +1037,7 @@ pub async fn get_course_structure(
 ) -> ModelResult<CourseStructure> {
     let course = get_course(conn, course_id).await?;
     let pages = get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any).await?;
-    let chapters = course_chapters(conn, course_id)
+    let chapters = get_course_chapters(conn, course_id)
         .await?
         .iter()
         .map(|chapter| Chapter::from_database_chapter(chapter, file_store, app_conf))
@@ -831,9 +1165,12 @@ pub struct CourseUpdate {
 
 pub async fn update_course(
     conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_update: CourseUpdate,
 ) -> ModelResult<Course> {
+    let old_course = get_course(conn, course_id).await?;
+    let mut tx = conn.begin().await?;
     let res = sqlx::query_as!(
         Course,
         r#"
@@ -856,35 +1193,7 @@ SET name = $1,
   course_material_ai_instructions = $16
 WHERE id = $17
   AND deleted_at IS NULL
-RETURNING id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+RETURNING *
     "#,
         course_update.name,
         course_update.description,
@@ -904,8 +1213,22 @@ RETURNING id,
         course_update.course_material_ai_instructions,
         course_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *tx)
     .await?;
+    let title = if old_course.name != course_update.name {
+        Some(course_update.name.as_str())
+    } else {
+        None
+    };
+
+    let description = if old_course.description != course_update.description {
+        course_update.description.as_deref()
+    } else {
+        None
+    };
+
+    update_course_embeddings(&mut tx, app_config, course_id, title, description).await?;
+    tx.commit().await?;
     Ok(res)
 }
 
@@ -960,35 +1283,7 @@ UPDATE courses
 SET deleted_at = now()
 WHERE id = $1
 AND deleted_at IS NULL
-RETURNING id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+RETURNING *
     "#,
         course_id
     )
@@ -1001,35 +1296,7 @@ pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> M
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -1094,47 +1361,44 @@ WHERE id = $1
     Ok(res.is_joinable_by_code_only)
 }
 
-pub(crate) async fn get_by_ids(
-    conn: &mut PgConnection,
-    course_ids: &[Uuid],
-) -> ModelResult<Vec<Course>> {
+pub async fn get_by_ids(conn: &mut PgConnection, course_ids: &[Uuid]) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   AND deleted_at IS NULL
         "#,
         course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+/// Finds courses by slug or (fuzzy) name for the support chatbot's `find_course` tool. Exact
+/// slug matches rank first, then substring name matches, then trigram similarity to `name`.
+pub async fn search_courses_by_slug_or_name(
+    conn: &mut PgConnection,
+    query: &str,
+    limit: i64,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT *
+FROM courses
+WHERE deleted_at IS NULL
+  AND (LOWER(slug) = LOWER($1) OR name ILIKE '%' || $1 || '%' OR similarity(name, $1) > 0.1)
+ORDER BY
+  LOWER(slug) = LOWER($1) DESC,
+  name ILIKE '%' || $1 || '%' DESC,
+  similarity(name, $1) DESC
+LIMIT $2
+        "#,
+        query,
+        limit,
     )
     .fetch_all(conn)
     .await?;
@@ -1148,35 +1412,7 @@ pub async fn get_by_organization_id(
     let courses = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1215,35 +1451,7 @@ pub async fn get_course_with_join_code(
     let course = sqlx::query_as!(
         Course,
         r#"
-SELECT id,
-  name,
-  created_at,
-  updated_at,
-  organization_id,
-  deleted_at,
-  slug,
-  content_search_language::text,
-  language_code,
-  copied_from,
-  course_language_group_id,
-  description,
-  is_draft,
-  is_test_mode,
-  can_add_chatbot,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions,
-  is_joinable_by_code_only,
-  join_code,
-  ask_marketing_consent,
-  flagged_answers_threshold,
-  flagged_answers_skip_manual_review_and_allow_retry,
-  closed_at,
-  closed_additional_message,
-  closed_course_successor_id,
-  chapter_locking_enabled,
-  cheater_detection_enabled,
-  ai_policy,
-  course_material_ai_instructions
+SELECT *
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1253,6 +1461,297 @@ WHERE join_code = $1
     .fetch_one(conn)
     .await?;
     Ok(course)
+}
+
+pub async fn set_metadata(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    course_id: Uuid,
+    course_metadata: CourseMetadataUpdate,
+) -> ModelResult<CourseMetadata> {
+    let new_prerequisite_ids: Vec<Uuid> = course_metadata
+        .course_prerequisites
+        .iter()
+        .map(|p| p.id)
+        .collect();
+
+    let old_prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+
+    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
+        .iter()
+        .filter(|p| !new_prerequisite_ids.contains(&p.id))
+        .map(|p| p.id.to_owned())
+        .collect();
+
+    let old_prerequisites_hash: HashMap<Uuid, &String> = old_prerequisites
+        .iter()
+        .map(|p| (p.id, &p.prerequisite))
+        .collect();
+
+    let changed_prerequisites: Vec<EditCoursePrerequisite> = course_metadata
+        .course_prerequisites
+        .into_iter()
+        .filter(|p| match old_prerequisites_hash.get(&p.id) {
+            Some(old_prerequisite) => **old_prerequisite != p.prerequisite,
+            None => true,
+        })
+        .collect();
+
+    let (updated_prerequisite_ids, updated_prerequisites): (Vec<Uuid>, Vec<String>) =
+        changed_prerequisites
+            .iter()
+            .map(|p| (p.id, p.prerequisite.to_owned()))
+            .unzip();
+
+    let audience_ids: Vec<Uuid> = course_metadata
+        .course_audiences
+        .iter()
+        .map(|a| a.id)
+        .collect();
+
+    let old_audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+
+    let audiences_to_delete: Vec<Uuid> = old_audiences
+        .iter()
+        .filter(|a| !audience_ids.contains(&a.id))
+        .map(|a| a.id.to_owned())
+        .collect();
+
+    let old_audiences_hash: HashMap<Uuid, &String> =
+        old_audiences.iter().map(|a| (a.id, &a.audience)).collect();
+
+    let changed_audiences: Vec<EditCourseAudience> = course_metadata
+        .course_audiences
+        .into_iter()
+        .filter(|a| match old_audiences_hash.get(&a.id) {
+            Some(old_audience) => **old_audience != a.audience,
+            None => true,
+        })
+        .collect();
+
+    let (updated_audience_ids, updated_audiences): (Vec<Uuid>, Vec<String>) = changed_audiences
+        .iter()
+        .map(|a| (a.id, a.audience.to_owned()))
+        .unzip();
+
+    let prerequisite_embeddings = if updated_prerequisites.is_empty() {
+        None
+    } else {
+        Some(create_embeddings(app_config, updated_prerequisites.clone()).await?)
+    };
+
+    let audience_embeddings = if updated_audiences.is_empty() {
+        None
+    } else {
+        Some(create_embeddings(app_config, updated_audiences.clone()).await?)
+    };
+
+    let mut tx = conn.begin().await?;
+
+    if let Some(embeddings) = prerequisite_embeddings {
+        upsert_course_prerequisites(
+            &mut tx,
+            course_id,
+            updated_prerequisite_ids,
+            updated_prerequisites,
+            embeddings,
+        )
+        .await?
+    } else {
+        vec![]
+    };
+
+    if let Some(embeddings) = audience_embeddings {
+        upsert_course_audiences(
+            &mut tx,
+            course_id,
+            updated_audience_ids,
+            updated_audiences,
+            embeddings,
+        )
+        .await?
+    } else {
+        vec![]
+    };
+
+    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
+    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
+
+    let course = get_course(&mut tx, course_id).await?;
+
+    let update_payload = CourseUpdate {
+        name: course.name,
+        description: course_metadata.course_description,
+        is_draft: course.is_draft,
+        is_test_mode: course.is_test_mode,
+        can_add_chatbot: course.can_add_chatbot,
+        is_unlisted: course.is_unlisted,
+        is_joinable_by_code_only: course.is_joinable_by_code_only,
+        ask_marketing_consent: course.ask_marketing_consent,
+        flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(0),
+        flagged_answers_skip_manual_review_and_allow_retry: course
+            .flagged_answers_skip_manual_review_and_allow_retry,
+        closed_at: course.closed_at,
+        closed_additional_message: course.closed_additional_message,
+        closed_course_successor_id: course.closed_course_successor_id,
+        chapter_locking_enabled: course.chapter_locking_enabled,
+        ai_policy: course.ai_policy,
+        course_material_ai_instructions: course.course_material_ai_instructions,
+    };
+    let updated_course = update_course(&mut tx, app_config, course_id, update_payload).await?;
+
+    tx.commit().await?;
+
+    let prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let audiences = crate::course_audiences::get_by_course_id(conn, course_id).await?;
+
+    let res = CourseMetadata {
+        course_description: updated_course.description,
+        course_audiences: audiences,
+        course_prerequisites: prerequisites,
+        course_updated_at: updated_course.updated_at,
+    };
+    Ok(res)
+}
+
+pub async fn get_metadata(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CompleteCourseMetadata> {
+    let prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+    let course_data = get_course(conn, course_id).await?;
+    let instances =
+        crate::course_instances::get_course_instances_for_course(conn, course_id).await?;
+    let module = crate::course_modules::get_default_by_course_id(conn, course_id).await?;
+
+    let organization =
+        crate::organizations::get_organization(conn, course_data.organization_id).await?;
+
+    let metadata = CompleteCourseMetadata {
+        course: course_data,
+        course_instances: instances,
+        default_module: module,
+        course_prerequisites: prerequisites,
+        course_audiences: audiences,
+        course_organization: organization,
+    };
+    Ok(metadata)
+}
+
+pub async fn update_course_embeddings(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    course_id: Uuid,
+    title: Option<&str>,
+    description: Option<&str>,
+) -> ModelResult<()> {
+    let title_embedding = if let Some(title) = title {
+        Some(
+            create_embeddings(app_config, vec![title.to_owned()])
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| {
+                    model_err!(Generic, "The embedding API returned no title embedding.")
+                })
+                .map(Vector::from)?,
+        )
+    } else {
+        None
+    };
+
+    let description_embedding = if let Some(description) = description {
+        Some(
+            create_embeddings(app_config, vec![description.to_owned()])
+                .await?
+                .into_iter()
+                .next()
+                .ok_or_else(|| {
+                    model_err!(
+                        Generic,
+                        "The embedding API returned no description embedding."
+                    )
+                })
+                .map(Vector::from)?,
+        )
+    } else {
+        None
+    };
+
+    sqlx::query!(
+        r#"
+INSERT INTO course_embeddings (
+    course_id,
+    title_embedding,
+    description_embedding
+)
+VALUES ($1, $2, $3)
+ON CONFLICT (course_id) WHERE deleted_at IS NULL
+DO UPDATE SET
+    title_embedding = COALESCE(
+        $2,
+        course_embeddings.title_embedding
+    ),
+    description_embedding = COALESCE(
+        $3,
+        course_embeddings.description_embedding
+    )
+"#,
+        course_id,
+        title_embedding,
+        description_embedding,
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}
+
+pub async fn get_by_description_vectors(
+    conn: &mut PgConnection,
+    query_vecs: Vec<Vec<f32>>,
+    description_keywords: Vec<String>,
+) -> ModelResult<Vec<Uuid>> {
+    let vectors: Vec<Vector> = query_vecs.into_iter().map(Vector::from).collect();
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT id
+FROM (
+    SELECT
+        c.id,
+        LEAST(MIN(ce.title_embedding <#> v.embedding),
+              MIN(ce.description_embedding <#> v.embedding)) AS distance
+    FROM courses c, course_embeddings ce
+    CROSS JOIN unnest($1::vector[]) AS v(embedding)
+    WHERE c.deleted_at IS NULL AND ce.deleted_at IS NULL AND c.id = ce.course_id
+    GROUP BY c.id
+    ORDER BY distance ASC
+    LIMIT 10
+) t
+UNION ALL
+SELECT DISTINCT c.id
+FROM courses c
+CROSS JOIN unnest($2::text[]) AS k(keyword)
+WHERE deleted_at IS NULL
+  AND to_tsvector(
+      c.content_search_language::regconfig,
+      c.name || ' ' || coalesce(c.description, '')
+  ) @@ websearch_to_tsquery(
+      c.content_search_language::regconfig,
+      k.keyword
+  )
+        "#,
+        &vectors as _,
+        &description_keywords
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.into_iter().flatten().collect())
 }
 
 #[cfg(test)]
@@ -1265,6 +1764,8 @@ mod test {
 
         #[tokio::test]
         async fn allows_valid_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1276,6 +1777,7 @@ mod test {
             let new_course = create_new_course(org, "en-US");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1286,6 +1788,8 @@ mod test {
 
         #[tokio::test]
         async fn disallows_empty_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1297,6 +1801,7 @@ mod test {
             let new_course = create_new_course(org, "");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1307,6 +1812,8 @@ mod test {
 
         #[tokio::test]
         async fn disallows_wrong_case_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1318,6 +1825,7 @@ mod test {
             let new_course = create_new_course(org, "en-us");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1328,6 +1836,8 @@ mod test {
 
         #[tokio::test]
         async fn disallows_underscore_in_language_code() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1339,6 +1849,7 @@ mod test {
             let new_course = create_new_course(org, "en_US");
             let res = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("95d8ab4d-073c-4794-b8c5-f683f0856356").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1374,6 +1885,8 @@ mod test {
 
         #[tokio::test]
         async fn update_course_round_trips_ai_policy_fields() {
+            let app_config =
+                init_app_conf().expect("Application Configuration initialization failed");
             insert_data!(:tx, user: _user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
@@ -1402,6 +1915,7 @@ mod test {
             };
             let course_id = courses::insert(
                 tx.as_mut(),
+                &app_config,
                 PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000002").unwrap()),
                 course_language_group_id,
                 &new_course,
@@ -1417,6 +1931,7 @@ mod test {
             // A teacher selects a policy and indicates the material has its own AI instructions.
             let updated = courses::update_course(
                 tx.as_mut(),
+                &app_config,
                 course_id,
                 CourseUpdate {
                     name: created.name.clone(),

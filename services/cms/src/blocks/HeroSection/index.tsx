@@ -1,14 +1,13 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import HeroSectionEditor from "./HeroSectionEditor"
-import HeroSectionSave from "./HeroSectionSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import { baseTheme } from "@/shared-module/common/styles"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import HeroSectionEditor from "./HeroSectionEditor"
+import HeroSectionSave from "./HeroSectionSave"
 
 export interface HeroSectionAttributes {
   title: string
@@ -28,6 +27,7 @@ export interface HeroSectionAttributes {
 }
 
 const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
+  apiVersion: 3,
   title: "Hero Section",
   description: "A hero section for chapter front page with a heading and sub-heading.",
   category: MOOCFI_CATEGORY_SLUG,

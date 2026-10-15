@@ -4,7 +4,6 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import { screen } from "@testing-library/react"
 
 import { QueryResults } from "../src/components/queryResult/QueryResults"
-
 import { domClick, renderUi } from "./testUtils"
 
 function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQueryResult<T, E> {

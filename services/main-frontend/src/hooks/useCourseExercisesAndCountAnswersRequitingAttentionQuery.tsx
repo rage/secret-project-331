@@ -1,13 +1,14 @@
 "use client"
 
-import { useQuery, UseQueryOptions } from "@tanstack/react-query"
+import type { UseQueryOptions } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
 import { getCourseExercisesAndAnswersRequiringAttentionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseAnswersInCourseRequiringAttentionCount } from "@/generated/api/types.generated"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 type OptionsType = Omit<
-  UseQueryOptions<Array<ExerciseAnswersInCourseRequiringAttentionCount>>,
+  UseQueryOptions<ExerciseAnswersInCourseRequiringAttentionCount[]>,
   "queryKey" | "queryFn" | "enabled"
 >
 
@@ -27,7 +28,7 @@ const useCourseExercisesAndCountAnswersRequitingAttentionQuery = (
   })
 
   return useQuery({
-    ...(generatedOptions as UseQueryOptions<
+    ...(generatedOptions as unknown as UseQueryOptions<
       ExerciseAnswersInCourseRequiringAttentionCount[],
       Error,
       ExerciseAnswersInCourseRequiringAttentionCount[]

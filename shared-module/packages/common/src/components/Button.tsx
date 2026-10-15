@@ -1,7 +1,8 @@
 "use client"
 
 import styled from "@emotion/styled"
-import React, { forwardRef, Ref } from "react"
+import type { Ref } from "react"
+import React, { forwardRef } from "react"
 
 import { baseTheme, fontWeights, headingFont, theme } from "../styles"
 import { defaultFontSizePx } from "../styles/constants"

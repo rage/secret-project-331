@@ -1,16 +1,16 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { createBlock } from "@wordpress/blocks"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import LearningObjectiveSectionEditor from "./LearningObjectiveSectionEditor"
 import LearningObjectiveSectionSave from "./LearningObjectiveSectionSave"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 const LearningObjectiveSectionConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Learning Objective Section",
   description:
     "Learning Objective section where you describe what you will learn in this chapter/page.",
@@ -23,7 +23,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         transform(attributes: any, innerBlocks: any) {
           return createBlock("moocfi/learning-objectives", {}, [
             createBlock("core/list", attributes, innerBlocks),
@@ -35,9 +35,9 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        transform(_attributes: any, innerBlocks: any[]) {
-          return innerBlocks[0]
+        transform(_attributes: unknown, innerBlocks: unknown) {
+          // safe: transform is only invoked when the list block has at least one inner block
+          return (innerBlocks as BlockInstance[])[0] as BlockInstance
         },
       },
     ],

@@ -70,7 +70,6 @@ export function getDisplayHour(hour: number, hourCycle: SupportedHourCycle) {
       return hour % 12 === 0 ? 12 : hour % 12
     case "h24":
       return hour === 0 ? 24 : hour
-    case "h23":
     default:
       return hour
   }
@@ -122,7 +121,7 @@ function normalizeDigits(raw: string, locale: string) {
 
 function normalizeTimeInput(raw: string, locale: string) {
   return normalizeDigits(raw.normalize("NFKC"), locale)
-    .replace(/[\u200e\u200f\u061c]/g, "")
+    .replaceAll(/[\u200E\u200F\u061C]/g, "")
     .trim()
 }
 
@@ -186,7 +185,12 @@ export function parseTimeInputFromUser(
   }
 
   const [hourPart, minutePart, secondPart] = segments
-  if (minutePart.length !== 2 || (secondPart && secondPart.length !== 2)) {
+  if (
+    !hourPart ||
+    !minutePart ||
+    minutePart.length !== 2 ||
+    (secondPart && secondPart.length !== 2)
+  ) {
     return null
   }
 

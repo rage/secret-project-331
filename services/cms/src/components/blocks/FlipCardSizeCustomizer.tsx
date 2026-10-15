@@ -6,7 +6,8 @@ import { PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
 
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import { Radio, RadioGroup } from "@/shared-module/components"
+import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 const placeHolderFixHeightStyles = css`
@@ -24,9 +25,13 @@ export interface FlipCardCustomizerProps {
 }
 
 const FlipBoxSizeCustomizer: React.FC<React.PropsWithChildren<FlipCardCustomizerProps>> = ({
+  attributes,
   setAttributes,
 }) => {
   const { t } = useTranslation()
+  const { control } = useAttributeForm({ size: attributes.size }, ({ size }) =>
+    setAttributes({ size }),
+  )
   return (
     <PanelBody title={t("flip-card-size-customizer")} initialOpen={false}>
       <Placeholder
@@ -34,24 +39,13 @@ const FlipBoxSizeCustomizer: React.FC<React.PropsWithChildren<FlipCardCustomizer
         icon={<BlockIcon icon={icon} />}
         label={t("flip-card-size-customizer")}
       >
-        <RadioButton
-          // eslint-disable-next-line i18next/no-literal-string
-          label={"Xl (500x500)"}
-          name={t("flip-card-size-customizer")}
-          onChange={() => setAttributes({ size: "xl" })}
-        />
-        <RadioButton
-          // eslint-disable-next-line i18next/no-literal-string
-          label={"M (300x300)"}
-          name={t("flip-card-size-customizer")}
-          onChange={() => setAttributes({ size: "m" })}
-        />
-        <RadioButton
-          // eslint-disable-next-line i18next/no-literal-string
-          label={"S (200x200)"}
-          name={t("flip-card-size-customizer")}
-          onChange={() => setAttributes({ size: "s" })}
-        />
+        <RadioGroup name="size" control={control} label={t("flip-card-size-customizer")}>
+          {/* oxlint-disable i18next/no-literal-string */}
+          <Radio value="xl" label="Xl (500x500)" />
+          <Radio value="m" label="M (300x300)" />
+          <Radio value="s" label="S (200x200)" />
+          {/* oxlint-enable i18next/no-literal-string */}
+        </RadioGroup>
       </Placeholder>
     </PanelBody>
   )

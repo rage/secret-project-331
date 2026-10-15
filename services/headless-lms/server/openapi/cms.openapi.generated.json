@@ -14,6 +14,35 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v0/cms/ai-suggestions/chart-spec": {
+      "post": {
+        "tags": ["cms_ai_suggestions"],
+        "summary": "\nPOST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.\n\nThis endpoint is intended for the CMS chart block editor. It requires the user to have\nedit access to the referenced page when `page_id` is provided, otherwise it falls back\nto requiring a teaching role for some course via `Res::AnyCourse`.",
+        "operationId": "requestChartSpecGeneration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChartSpecGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Generated Vega-Lite chart specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChartSpecGenerationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/ai-suggestions/paragraph": {
       "post": {
         "tags": ["cms_ai_suggestions"],
@@ -762,6 +791,89 @@
         }
       }
     },
+    "/api/v0/cms/email-templates/{email_template_id}/preview": {
+      "post": {
+        "tags": ["cms_email_templates"],
+        "summary": "\nPOST `/api/v0/cms/email-templates/:id/preview`\n\nRenders the editor's unsaved state exactly as the sender would, with sample placeholder values.",
+        "operationId": "previewCmsEmailTemplate",
+        "parameters": [
+          {
+            "name": "email_template_id",
+            "in": "path",
+            "description": "Email template id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplatePreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Rendered email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplatePreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/cms/email-templates/{email_template_id}/send-test": {
+      "post": {
+        "tags": ["cms_email_templates"],
+        "summary": "\nPOST `/api/v0/cms/email-templates/:id/send-test`\n\nQueues the editor's unsaved state, with sample placeholder values, to the requesting user's own\naddress. Returns the id of the queued delivery.",
+        "operationId": "sendCmsEmailTemplateTest",
+        "parameters": [
+          {
+            "name": "email_template_id",
+            "in": "path",
+            "description": "Email template id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplatePreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Id of the queued test delivery",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/exams/{exam_id}/edit": {
       "get": {
         "tags": ["cms_exams"],
@@ -965,6 +1077,55 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/exercises-with-submissions": {
+      "post": {
+        "tags": ["cms_pages"],
+        "summary": "\nPOST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns\nthe subset that has at least one existing submission. Used by the editor to warn the teacher before\nsaving a page edit that would remove one of these exercises, since that soft-deletes it and orphans\nits submissions.",
+        "operationId": "getExercisesWithSubmissions",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Exercise ids, among the given ones, that have submissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/pages/{page_id}/info": {
       "get": {
         "tags": ["cms_pages"],
@@ -1059,6 +1220,56 @@
           }
         }
       }
+    },
+    "/api/v0/files/{exercise_service_slug}": {
+      "post": {
+        "tags": ["files"],
+        "summary": "\nPOST `/api/v0/files/:exercise_service_slug`\nUsed to upload data from exercise service iframes.\n\n# Returns\nAn ordered list of host-assigned file ids and stored URLs.",
+        "operationId": "uploadFilesFromExerciseService",
+        "parameters": [
+          {
+            "name": "exercise_service_slug",
+            "in": "path",
+            "description": "Exercise service slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "format": "binary"
+                },
+                "propertyNames": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseServiceUploadResultEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1085,13 +1296,46 @@
           }
         }
       },
+      "ChartSpecGenerationRequest": {
+        "type": "object",
+        "required": ["prompt"],
+        "properties": {
+          "current_spec": {
+            "type": ["string", "null"]
+          },
+          "data_format": {
+            "type": ["string", "null"]
+          },
+          "data_sample": {
+            "type": ["string", "null"]
+          },
+          "data_url": {
+            "type": ["string", "null"]
+          },
+          "page_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "prompt": {
+            "type": "string"
+          }
+        }
+      },
+      "ChartSpecGenerationResponse": {
+        "type": "object",
+        "required": ["spec"],
+        "properties": {
+          "spec": {
+            "type": "string"
+          }
+        }
+      },
       "ChatbotConfiguration": {
         "type": "object",
         "required": [
           "id",
           "created_at",
           "updated_at",
-          "course_id",
           "enabled_to_students",
           "chatbot_name",
           "model_id",
@@ -1110,16 +1354,17 @@
           "maintain_azure_search_index",
           "hide_citations",
           "use_semantic_reranking",
-          "use_tools",
+          "enabled_tool_categories",
           "default_chatbot",
-          "suggest_next_messages"
+          "suggest_next_messages",
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {
             "type": "string"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {
@@ -1139,6 +1384,12 @@
           },
           "enabled_to_students": {
             "type": "boolean"
+          },
+          "enabled_tool_categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolCategory"
+            }
           },
           "frequency_penalty": {
             "type": "number",
@@ -1178,6 +1429,9 @@
           "prompt": {
             "type": "string"
           },
+          "publicly_accessible": {
+            "type": "boolean"
+          },
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
           },
@@ -1200,9 +1454,6 @@
             "type": "boolean"
           },
           "use_semantic_reranking": {
-            "type": "boolean"
-          },
-          "use_tools": {
             "type": "boolean"
           },
           "verbosity": {
@@ -1322,7 +1573,15 @@
             "type": "integer",
             "format": "int32"
           },
-          "private_spec": {}
+          "private_spec": {},
+          "private_spec_files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The stored files this task's private spec references, as the exercise service declared them\nin the editor. The host cannot read the spec, so this list is the only thing keeping the\nfiles from being reclaimed as abandoned uploads — and the CMS round-trips it through a block\nattribute, so a load that leaves it empty makes the next save drop the references.\n\nOnly the private spec's. Each derived spec declares its own files in the response of the\nendpoint that produced it, since a derivation may upload files of its own."
+          }
         }
       },
       "CmsPageUpdate": {
@@ -1333,7 +1592,8 @@
           "exercise_slides",
           "exercise_tasks",
           "url_path",
-          "title"
+          "title",
+          "hidden"
         ],
         "properties": {
           "chapter_id": {
@@ -1363,6 +1623,9 @@
             "items": {
               "$ref": "#/components/schemas/CmsPageExercise"
             }
+          },
+          "hidden": {
+            "type": "boolean"
           },
           "title": {
             "type": "string"
@@ -1784,7 +2047,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "\n * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).",
+        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -1793,7 +2056,8 @@
           "order_number",
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled"
+          "certification_enabled",
+          "enable_credit_registration_via_suotar"
         ],
         "properties": {
           "certification_enabled": {
@@ -1825,6 +2089,9 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "enable_credit_registration_via_suotar": {
+            "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
@@ -1960,9 +2227,46 @@
           }
         }
       },
+      "EmailTemplatePreview": {
+        "type": "object",
+        "description": "A template rendered as it would be sent, with sample placeholder values.",
+        "required": ["subject", "html", "plain_text"],
+        "properties": {
+          "html": {
+            "type": "string",
+            "description": "The complete HTML document, layout included."
+          },
+          "plain_text": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          }
+        }
+      },
+      "EmailTemplatePreviewRequest": {
+        "type": "object",
+        "description": "The editor's unsaved subject and body.",
+        "required": ["subject", "content"],
+        "properties": {
+          "content": {},
+          "subject": {
+            "type": "string"
+          }
+        }
+      },
       "EmailTemplateType": {
         "type": "string",
-        "enum": ["reset_password_email", "delete_user_email", "confirm_email_code", "generic"]
+        "enum": [
+          "reset_password_email",
+          "delete_user_email",
+          "confirm_email_code",
+          "generic",
+          "credit_registration_account_linking",
+          "verify_email_address",
+          "credit_registration_action_needed",
+          "credit_registration_registered"
+        ]
       },
       "EmailTemplateUpdate": {
         "type": "object",
@@ -2022,6 +2326,20 @@
             "type": "string"
           },
           "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ExerciseServiceUploadResultEntry": {
+        "type": "object",
+        "description": "What an upload route returns for one stored file: the `file_uploads` row id an answer names it\nby, and the URL it can be fetched from.",
+        "required": ["id", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
             "type": "string"
           }
         }
@@ -2514,6 +2832,20 @@
             "format": "date-time"
           }
         }
+      },
+      "ToolCategory": {
+        "type": "string",
+        "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
+        "enum": [
+          "course_material",
+          "course_info",
+          "course_catalog",
+          "interaction",
+          "admin_support_accounts",
+          "admin_support_courses",
+          "admin_support_learning_progress",
+          "admin_support_academic_integrity"
+        ]
       },
       "UploadResult": {
         "type": "object",

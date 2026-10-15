@@ -3,43 +3,32 @@
 import { isServer, useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
-
-import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
 import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import type {
+  GradingRequest,
+  GradingRequestFile,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
+import type { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 import {
-  ExerciseServiceInfoApi,
-  ExerciseTaskGradingResult,
   parseExerciseServiceInfoApi,
   parseExerciseTaskGradingResult,
   parsePlaygroundViewsMessage,
-  SpecRequest,
 } from "@/utils/playgroundSchemas"
+import { fetchDerivedSpec, readJsonResponse } from "@/utils/playgroundSpecRequests"
+
+import type { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
   "/api/v0/main-frontend/playground-views/ws"
 const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
   "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
-
-async function readJsonResponse(res: Response): Promise<unknown> {
-  const text = await res.text()
-  if (!text) {
-    return null
-  }
-  try {
-    return JSON.parse(text) as unknown
-  } catch {
-    return text
-  }
-}
 
 interface UsePlaygroundQueriesArguments {
   url: string
@@ -87,8 +76,9 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       args.parsedPrivateSpec.privateSpecValidJson,
       args.parsedPrivateSpec.parsedPrivateSpec,
       serviceInfoQuery.data?.public_spec_endpoint_path,
+      serviceInfoQuery.data?.declares_spec_files,
     ],
-    queryFn: async (): Promise<unknown> => {
+    queryFn: (): Promise<unknown> => {
       if (
         !serviceInfoQuery.data ||
         !isValidServiceInfo ||
@@ -96,23 +86,13 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       ) {
         throw new Error("This query should be disabled.")
       }
-      const payload: SpecRequest = {
-        request_id: v4(),
-        private_spec: args.parsedPrivateSpec.parsedPrivateSpec,
-        upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
-      }
-      const res = await fetch(
-        `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      )
-      if (!res.ok) {
-        throw new Error(`Failed to load public spec (${res.status})`)
-      }
-      return readJsonResponse(res)
+      return fetchDerivedSpec({
+        endpointUrl: `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
+        privateSpec: args.parsedPrivateSpec.parsedPrivateSpec,
+        uploadUrl: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
+        declaresSpecFiles: serviceInfoQuery.data.declares_spec_files === true,
+        specDescription: "public spec",
+      })
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -131,8 +111,9 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       args.parsedPrivateSpec.privateSpecValidJson,
       args.parsedPrivateSpec.parsedPrivateSpec,
       serviceInfoQuery.data?.model_solution_spec_endpoint_path,
+      serviceInfoQuery.data?.declares_spec_files,
     ],
-    queryFn: async (): Promise<unknown> => {
+    queryFn: (): Promise<unknown> => {
       if (
         !serviceInfoQuery.data ||
         !isValidServiceInfo ||
@@ -140,23 +121,13 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       ) {
         throw new Error("This query should be disabled.")
       }
-      const payload: SpecRequest = {
-        request_id: v4(),
-        private_spec: args.parsedPrivateSpec.parsedPrivateSpec,
-        upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
-      }
-      const res = await fetch(
-        `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      )
-      if (!res.ok) {
-        throw new Error(`Failed to load model solution spec (${res.status})`)
-      }
-      return readJsonResponse(res)
+      return fetchDerivedSpec({
+        endpointUrl: `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
+        privateSpec: args.parsedPrivateSpec.parsedPrivateSpec,
+        uploadUrl: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
+        declaresSpecFiles: serviceInfoQuery.data.declares_spec_files === true,
+        specDescription: "model solution spec",
+      })
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -169,7 +140,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   // Mutations
   type submitAnswerMutationParam =
     // Submits the data to the exercise service and sets the returned grading as the data
-    | { type: "submit"; data: unknown }
+    | { type: "submit"; data: unknown; files: GradingRequestFile[] }
     // Directly sets the grading received from a websocket as the mutation's data
     | { type: "fromWebsocket"; data: ExerciseTaskGradingResult }
   const submitAnswerMutation = useToastMutation<
@@ -191,7 +162,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           throw new Error(t("playground.websocketNotRegistered"))
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: websocketId,
           })}?playground-grading-callback-claim=${encodeURIComponent(
@@ -199,6 +170,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           )}`,
           exercise_spec: args.parsedPrivateSpec.parsedPrivateSpec,
           submission_data: param.data,
+          submission_files: param.files,
         }
         args.setUserAnswer(param.data)
         const res = await fetch(
@@ -216,9 +188,8 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
-      } else {
-        throw new Error("unreachable")
       }
+      throw new Error("unreachable")
     },
     { notify: true, method: "POST" },
   )
@@ -235,23 +206,26 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
       return
     }
     const ws = websocket
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket intentional property-handler
     ws.onmessage = (ev) => {
       const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
-      if (msg.tag == "TimedOut") {
+      if (msg.tag === "TimedOut") {
         console.error("websocket timed out")
-      } else if (msg.tag == "Registered") {
+      } else if (msg.tag === "Registered") {
         console.info("Registered websocket", msg.data)
         setWebsocketId(msg.data.websocket_id)
         setPlaygroundGradingCallbackClaim(msg.data.playground_grading_callback_claim)
-      } else if (msg.tag == "ExerciseTaskGradingResult") {
+      } else if (msg.tag === "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
       } else {
         throw new Error(`Unexpected websocket message: ${ev}`)
       }
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket intentional property-handler
     ws.onclose = (ev) => {
       console.error("websocket closed unexpectedly", ev)
     }
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- WebSocket intentional property-handler
     ws.onerror = (err) => {
       console.error("websocket error", err)
     }

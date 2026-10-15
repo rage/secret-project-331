@@ -1,8 +1,8 @@
 "use client"
 
-import ExerciseServiceList from "./ExerciseServiceList"
+import type { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
 
-import { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
+import ExerciseServiceList from "./ExerciseServiceList"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void

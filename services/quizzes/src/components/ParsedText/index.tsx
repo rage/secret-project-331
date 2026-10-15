@@ -1,11 +1,10 @@
-"use client"
-
 import React, { useMemo } from "react"
+
 import "katex/dist/katex.min.css"
 
-import { formatText, isValidText } from "./tagParser"
-
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+
+import { formatText, isValidText } from "./tagParser"
 
 export interface TextNodeProps {
   text: string

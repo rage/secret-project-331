@@ -1,0 +1,118 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { Chapter, Page } from "@/generated/api/types.generated"
+import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { baseTheme, typography } from "@/shared-module/common/styles"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, useDialog } from "@/shared-module/components"
+
+import NewOrEditPageForm from "../NewOrEditPageForm"
+import PagesTable from "./PagesTable"
+
+interface Props {
+  data: Page[]
+  // oxlint-disable-next-line typescript/no-explicit-any
+  refetch: () => any
+  courseId: string
+  chapter?: Chapter
+  pageOrderDispatch: React.Dispatch<ManagePageOrderAction>
+}
+
+const PageList: React.FC<React.PropsWithChildren<Props>> = ({
+  data,
+  refetch,
+  courseId,
+  chapter,
+  pageOrderDispatch,
+}) => {
+  const { t } = useTranslation()
+  const { confirm } = useDialog()
+  const [showNewOrEditPageForm, setShowNewOrEditPageForm] = useState(false)
+  const deletePageMutation = useToastMutationOptions(
+    deletePageMutationOptions(),
+    { notify: true, method: "DELETE" },
+    { onSuccess: () => refetch() },
+  )
+  const handleCreateTopLevelPage = () => {
+    setShowNewOrEditPageForm(false)
+    refetch()
+  }
+
+  const handleDeletePage = async (pageId: string, title: string) => {
+    const result = await confirm({
+      message: t("page-deletion-confirmation-message", { title }),
+      isDestructive: true,
+    })
+    if (result) {
+      deletePageMutation.mutate({
+        path: {
+          page_id: pageId,
+        },
+      })
+    }
+  }
+
+  const items = data.filter((page) => !page.deleted_at)
+  const caption = chapter ? t("heading-pages-in-this-chapter") : t("heading-top-level-pages")
+  return (
+    <div
+      className={css`
+        margin: 2rem 0;
+        border: 2px solid ${baseTheme.colors.clear[500]};
+        border-radius: 8px;
+        background-color: white;
+        padding: 1.4rem 1.25rem;
+      `}
+    >
+      <h3
+        className={css`
+          font-size: ${typography.h5};
+          font-size: 1.375rem;
+          opacity: 0.8;
+          font-weight: 550;
+        `}
+      >
+        {caption}
+      </h3>
+      <PagesTable
+        caption={caption}
+        pages={items}
+        chapter={chapter}
+        pageOrderDispatch={pageOrderDispatch}
+        onDeletePage={(page) => handleDeletePage(page.id, page.title)}
+        reload={() => refetch()}
+      />
+      <Button
+        className={css`
+          margin-top: var(--space-4);
+        `}
+        size="medium"
+        variant="primary"
+        onClick={() => setShowNewOrEditPageForm(true)}
+      >
+        {t("button-text-new-page")}
+      </Button>
+
+      <NewOrEditPageForm
+        {...omitUndefined({ chapterId: chapter?.id })}
+        courseId={courseId}
+        onSubmitForm={handleCreateTopLevelPage}
+        {...includeIf(chapter, {
+          // oxlint-disable-next-line i18next/no-literal-string
+          prefix: `/chapter-${chapter?.chapter_number}/`,
+        })}
+        isUpdate={false}
+        open={showNewOrEditPageForm}
+        onClose={() => setShowNewOrEditPageForm(false)}
+      />
+    </div>
+  )
+}
+
+export default PageList

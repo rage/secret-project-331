@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test"
+import type { Locator } from "@playwright/test"
 
 //** Waits for animation to end and location to become stable */
 export async function waitForAnimationsToEnd(locator: Locator) {

@@ -1,10 +1,5 @@
 import { atom } from "jotai"
 
-import { viewParamsAtom } from "./params"
-import { examQueryAtom, materialQueryAtom } from "./queries"
-
-import { courseMaterialAtom } from "./index"
-
 import type {
   CourseInstance,
   CourseMaterialCourse,
@@ -14,7 +9,12 @@ import type {
   UserCourseSettings,
 } from "@/generated/course-material-api/types.generated"
 
+import { courseMaterialAtom } from "./index"
+import { viewParamsAtom } from "./params"
+import { examQueryAtom, materialQueryAtom } from "./queries"
+
 /** Refetches the current view's data (material or exam). */
+// oxlint-disable-next-line require-await -- async for the Promise-returning atom write contract
 export const refetchViewAtom = atom(null, async (get, _set) => {
   const viewParams = get(viewParamsAtom)
   if (viewParams?.type === "material") {
@@ -23,6 +23,7 @@ export const refetchViewAtom = atom(null, async (get, _set) => {
   if (viewParams?.type === "exam") {
     return get(examQueryAtom).refetch()
   }
+  return undefined
 })
 
 /** Current loading status of the course material view. */

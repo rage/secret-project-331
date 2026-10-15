@@ -1,17 +1,20 @@
 import "i18next"
-
-import countries from "@/shared-module/common/locales/en/countries.json"
-import ownTranslations from "@/shared-module/common/locales/en/main-frontend.json"
-import sharedModule from "@/shared-module/common/locales/en/shared-module.json"
+import type countries from "@/shared-module/common/locales/en/countries.json"
+import type creditRegistration from "@/shared-module/common/locales/en/credit-registration.json"
+import type errors from "@/shared-module/common/locales/en/errors.json"
+import type ownTranslations from "@/shared-module/common/locales/en/main-frontend.json"
+import type sharedModule from "@/shared-module/common/locales/en/shared-module.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {
     defaultNS: "main-frontend"
-    fallbackNS: "shared-module"
+    fallbackNS: ["main-frontend", "shared-module"]
     resources: {
       "main-frontend": typeof ownTranslations
+      "credit-registration": typeof creditRegistration
       "shared-module": typeof sharedModule
       countries: typeof countries
+      errors: typeof errors
     }
     allowObjectInHTMLChildren: true
   }

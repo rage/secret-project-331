@@ -1,14 +1,13 @@
-/* eslint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
+
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { Topbar } from "../utils/components/Topbar"
 import { UserSettingsPage } from "../utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import { logoutViaTopbar } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test("Research consent form is visible on login, if not yet answered", async ({
   page,
@@ -18,11 +17,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await page.goto("http://project-331.local/organizations")
     const topbar = new Topbar(page)
     await topbar.clickLogin()
-    await page.click(`label:has-text("Email")`)
-    await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    await page.fill(`label:has-text("Password")`, "student-without-research-consent")
+    await page
+      .getByRole("textbox", { name: "Email" })
+      .fill("student-without-research-consent@example.com")
+    await page
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-research-consent")
     await page.locator("id=login-button").click()
     await expect(page.getByText("Regarding research done on courses")).toBeVisible()
 
@@ -50,11 +50,12 @@ test("Research consent form is visible on login, if not yet answered", async ({
     await logoutViaTopbar(page)
     await topbar.clickLogin()
 
-    await page.click(`label:has-text("Email")`)
-    await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    await page.fill(`label:has-text("Password")`, "student-without-research-consent")
+    await page
+      .getByRole("textbox", { name: "Email" })
+      .fill("student-without-research-consent@example.com")
+    await page
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-research-consent")
     await page.locator("id=login-button").click()
     await expect(page.getByRole("heading", { name: "Organizations" })).toBeVisible()
   })
@@ -65,19 +66,20 @@ test("Research consent form is visible on login, if not yet answered", async ({
       page,
       "University of Helsinki, Department of Mathematics and Statistics",
     )
-    await page.getByRole("link", { name: "Navigate to course 'Change language course'" }).click()
+    await page.getByRole("link", { name: "Change language course", exact: true }).click()
     await selectCourseInstanceIfPrompted(page)
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
 
     const topbar2 = new Topbar(page)
     await topbar2.logout()
     await topbar2.clickLogin()
-    await page.click(`label:has-text("Email")`)
-    await page.fill(`label:has-text("Email")`, "student-without-research-consent@example.com")
-
-    await page.click(`label:has-text("Password")`)
-    await page.fill(`label:has-text("Password")`, "student-without-research-consent")
+    await page
+      .getByRole("textbox", { name: "Email" })
+      .fill("student-without-research-consent@example.com")
+    await page
+      .getByRole("textbox", { name: "Password", exact: true })
+      .fill("student-without-research-consent")
     await page.locator("id=login-button").click()
 
     await selectCourseInstanceIfPrompted(page)

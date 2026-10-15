@@ -1,19 +1,19 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
-
-import ExpandableContentEditor from "./ExpandableContentInnerBlockEditor"
-import ExpandableContentSave from "./ExpandableContentInnerBlockSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import ExpandableContentEditor from "./ExpandableContentInnerBlockEditor"
+import ExpandableContentSave from "./ExpandableContentInnerBlockSave"
 
 export interface ExpandableContentConfigurationProps {
   name: string
 }
 const ExpandableContentInnerBlockConfiguration: BlockConfiguration<ExpandableContentConfigurationProps> =
   {
+    apiVersion: 3,
     title: "Expandable Content",
     description: "One or more heading that has expandable/collapsible content",
     category: MOOCFI_CATEGORY_SLUG,

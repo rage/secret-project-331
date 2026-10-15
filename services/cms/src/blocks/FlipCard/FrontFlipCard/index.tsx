@@ -1,14 +1,15 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import FrontFlipCardEditor from "./FrontFlipCardEditor"
-import FrontFlipCardSave from "./FrontFlipCardSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import FrontFlipCardEditor from "./FrontFlipCardEditor"
+import FrontFlipCardSave from "./FrontFlipCardSave"
+
 const FrontFlipCardConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Inner Card",
   description: "Front side for the flip card block",
   category: MOOCFI_CATEGORY_SLUG,

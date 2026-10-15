@@ -2,17 +2,23 @@ use std::{error::Error as StdError, time::Duration};
 
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
+use crate::setup_tracing;
 use anyhow::{Context, Result};
-use chrono::{DateTime, Duration as ChronoDuration, Utc};
+use chrono::{DateTime, Utc};
 use futures::{FutureExt, StreamExt};
 use headless_lms_models::email_deliveries::{
-    Email, EmailDeliveryErrorInsert, FETCH_LIMIT, fetch_emails,
+    Email, EmailDeliveryErrorInsert, FETCH_LIMIT, RETRY_WINDOW_SECS, fetch_emails,
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,
-    insert_email_delivery_error, mark_as_sent,
+    insert_email_delivery_error, mark_as_sent, maybe_purge_expired_recipient_addresses,
 };
+use headless_lms_models::email_layouts::{self, EmailLayout, ResolvedLayout};
 use headless_lms_models::email_templates::EmailTemplateType;
+use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
-use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
+use headless_lms_utils::backoff;
+use headless_lms_utils::email_processor::{
+    self, EmailGutenbergBlock, EmailRenderInput, RenderedEmail,
+};
 use lettre::transport::smtp::Error as SmtpError;
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{
@@ -20,19 +26,28 @@ use lettre::{
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::HashMap;
 use uuid::Uuid;
 const BATCH_SIZE: usize = FETCH_LIMIT as usize;
 
-const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";
+/// How often the sender asks the model to purge expired recipient addresses. The model then rolls its
+/// own 1 in 10 chance, so a sweep lands roughly every ten hours.
+const RECIPIENT_ADDRESS_PURGE_INTERVAL: Duration = Duration::from_secs(60 * 60);
+
 const BASE_BACKOFF_SECS: i64 = 60;
 const MAX_BACKOFF_SECS: i64 = 24 * 60 * 60;
-const MAX_RETRY_AGE_SECS: i64 = 3 * 24 * 60 * 60;
 const JITTER_SECS: i64 = 30;
 
 static SMTP_FROM: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_FROM").expect("No moocfi email found in the env variables.")
+});
+/// The same variable the server reads into `ApplicationConfiguration::base_url`: a mailed link has to
+/// point at the environment that minted its token. Not `FRONTEND_BASE_URL`, which no overlay sets, so
+/// reading that sends dev and test links to production.
+static BASE_URL: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("BASE_URL").expect("No BASE_URL found in the env variables.")
 });
 static SMTP_HOST: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_HOST").expect("No email relay found in the env variables.")
@@ -59,16 +74,37 @@ static SMTP_USER: Lazy<String> = Lazy::new(|| {
 static SMTP_PASS: Lazy<String> = Lazy::new(|| {
     ProgramConfig::required("SMTP_PASS").expect("No smtp password found in env variables.")
 });
+/// When set, mail goes to `SMTP_HOST` on this port without TLS, for the local Mailpit in dev and
+/// test. Unset, the sender uses implicit TLS on port 465.
+static SMTP_PLAINTEXT_PORT: Lazy<Option<u16>> = Lazy::new(|| {
+    ProgramConfig::optional("SMTP_PLAINTEXT_PORT").map(|port| {
+        port.trim()
+            .parse()
+            .expect("SMTP_PLAINTEXT_PORT is not a port number.")
+    })
+});
 
-pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
+/// Sends one batch of due emails. `warned_layouts` is the `updated_at` of each layout last checked
+/// for problems, so each version is warned about once rather than every batch.
+pub async fn mail_sender(
+    pool: &PgPool,
+    mailer: &SmtpTransport,
+    warned_layouts: &mut HashMap<Uuid, DateTime<Utc>>,
+) -> Result<()> {
     let mut conn = pool.acquire().await?;
+
+    // Read per batch so a replaced layout takes effect without restarting the sender, and before
+    // claiming: a failure after claiming would hold the rows until their lease runs out.
+    let layouts = email_layouts::get_all_live(&mut conn).await?;
+    warn_about_layout_problems(&layouts, warned_layouts);
 
     let emails = fetch_emails(&mut conn).await?;
 
     let mut futures = tokio_stream::iter(emails)
         .map(|email| {
             let email_id = email.id;
-            send_message(email, mailer, pool.clone()).inspect(move |r| {
+            let layout = ResolvedLayout::for_language(&layouts, email.language.as_deref());
+            send_message(email, mailer, pool.clone(), layout).inspect(move |r| {
                 if let Err(err) = r {
                     tracing::error!("Failed to send email {}: {}", email_id, err)
                 }
@@ -81,7 +117,35 @@ pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
     Ok(())
 }
 
-pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) -> Result<()> {
+fn warn_about_layout_problems(
+    layouts: &[EmailLayout],
+    warned_layouts: &mut HashMap<Uuid, DateTime<Utc>>,
+) {
+    for layout in layouts {
+        if warned_layouts.get(&layout.id) == Some(&layout.updated_at) {
+            continue;
+        }
+        for warning in email_processor::layout_warnings(&layout.html) {
+            tracing::warn!(
+                "Email layout {} (language {:?}): {}",
+                layout.id,
+                layout.language,
+                warning
+            );
+        }
+    }
+    *warned_layouts = layouts
+        .iter()
+        .map(|layout| (layout.id, layout.updated_at))
+        .collect();
+}
+
+pub async fn send_message(
+    email: Email,
+    mailer: &SmtpTransport,
+    pool: PgPool,
+    layout: ResolvedLayout<'_>,
+) -> Result<()> {
     let mut conn = pool.acquire().await?;
     tracing::info!("Email send messages...");
 
@@ -99,7 +163,7 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
             attempt,
             "retry_window_expired",
             format!(
-                "Retry window expired before send attempt (email_id={}, user_id={}, template={:?}, first_failed_at={:?})",
+                "Retry window expired before send attempt (email_id={}, user_id={:?}, template={:?}, first_failed_at={:?})",
                 email.id, email.user_id, email.template_type, email.first_failed_at
             ),
         )
@@ -107,37 +171,61 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
         return Ok(());
     }
 
-    let mut email_block: Vec<EmailGutenbergBlock> =
-        match email.body.as_ref().context("No body").and_then(|value| {
-            serde_json::from_value(value.clone()).context("Failed to parse email body JSON")
-        }) {
-            Ok(blocks) => blocks,
-            Err(err) => {
-                record_message_build_failure(&mut conn, &email, attempt, &err).await?;
-                return Ok(());
-            }
-        };
+    let parsed = email
+        .subject
+        .as_deref()
+        .context("No subject")
+        .and_then(|subject| {
+            let body = email.body.as_ref().context("No body")?;
+            let blocks: Vec<EmailGutenbergBlock> =
+                serde_json::from_value(body.clone()).context("Failed to parse email body JSON")?;
+            Ok((subject, blocks))
+        });
+    let (subject, blocks) = match parsed {
+        Ok(parsed) => parsed,
+        Err(err) => {
+            record_message_build_failure(&mut conn, &email, attempt, &err).await?;
+            return Ok(());
+        }
+    };
 
-    if let Some(template_type) = email.template_type {
-        let template_result = apply_email_template_replacements(
+    let replacements = if email.is_test {
+        placeholder_bag_replacements(email.placeholders.as_ref())
+    } else if let Some(template_type) = email.template_type {
+        let template_result = template_replacements(
             &mut conn,
             template_type,
             email.id,
             email.user_id,
-            email_block,
+            email.placeholders.as_ref(),
             attempt,
         )
         .await?;
         match template_result {
-            TemplateApplyResult::Ready(blocks) => email_block = blocks,
-            TemplateApplyResult::Abandoned => return Ok(()),
+            TemplateReplacements::Ready(replacements) => replacements,
+            TemplateReplacements::Abandoned => return Ok(()),
         }
+    } else {
+        HashMap::new()
+    };
+
+    let rendered = email_processor::render_email(EmailRenderInput {
+        layout_html: layout.html,
+        theme: layout.theme,
+        subject,
+        body: blocks,
+        language: email.language.as_deref().unwrap_or_default(),
+        replacements: &replacements,
+    });
+    if !rendered.unfilled_placeholders.is_empty() {
+        tracing::warn!(
+            "Email {} has placeholders with no value, sent as typed: {:?}",
+            email.id,
+            rendered.unfilled_placeholders
+        );
     }
 
-    let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
-    let msg_as_html = email_processor::process_content_to_html(&email_block);
-
-    let msg = match build_email_message(&email, attempt, msg_as_plaintext, msg_as_html) {
+    let msg = match build_email_message(&email, attempt, rendered) {
         Ok(msg) => msg,
         Err(err) => {
             record_message_build_failure(&mut conn, &email, attempt, &err).await?;
@@ -212,40 +300,48 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     Ok(())
 }
 
-enum TemplateApplyResult {
-    Ready(Vec<EmailGutenbergBlock>),
+enum TemplateReplacements {
+    Ready(HashMap<String, String>),
     Abandoned,
 }
 
-async fn apply_email_template_replacements(
+async fn template_replacements(
     conn: &mut PgConnection,
     template_type: EmailTemplateType,
     email_id: Uuid,
-    user_id: Uuid,
-    blocks: Vec<EmailGutenbergBlock>,
+    user_id: Option<Uuid>,
+    placeholders: Option<&serde_json::Value>,
     attempt: i32,
-) -> anyhow::Result<TemplateApplyResult> {
+) -> anyhow::Result<TemplateReplacements> {
     let mut replacements = HashMap::new();
+
+    if template_type == EmailTemplateType::Generic {
+        return Ok(TemplateReplacements::Ready(replacements));
+    }
+
+    if template_type.uses_placeholder_bag() {
+        return Ok(TemplateReplacements::Ready(placeholder_bag_replacements(
+            placeholders,
+        )));
+    }
+
+    // Every remaining template derives its values from an account.
+    let Some(user_id) = user_id else {
+        let msg = format!(
+            "Template {template_type:?} requires a user but the delivery is addressed to a raw address"
+        );
+        record_non_retryable_failure(conn, email_id, attempt, "template", msg).await?;
+        return Ok(TemplateReplacements::Abandoned);
+    };
 
     match template_type {
         EmailTemplateType::ResetPasswordEmail => {
             if let Some(token_str) =
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
-                let base = ProgramConfig::optional("FRONTEND_BASE_URL")
-                    .and_then(|value| {
-                        let trimmed = value.trim();
-                        if trimmed.is_empty() {
-                            None
-                        } else {
-                            Some(trimmed.to_string())
-                        }
-                    })
-                    .unwrap_or_else(|| FRONTEND_BASE_URL.to_string());
-
                 let reset_url = format!(
                     "{}/reset-user-password/{}",
-                    base.trim_end_matches('/'),
+                    BASE_URL.trim_end_matches('/'),
                     token_str.token
                 );
 
@@ -254,91 +350,102 @@ async fn apply_email_template_replacements(
                 let msg = anyhow::anyhow!("No reset token found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
                     .await?;
-                return Ok(TemplateApplyResult::Abandoned);
+                return Ok(TemplateReplacements::Abandoned);
             }
         }
         EmailTemplateType::DeleteUserEmail => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn, user_id,
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::AccountDeletion,
                 )
                 .await?
             {
-                replacements.insert("CODE".to_string(), code.code);
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
             } else {
                 let msg = anyhow::anyhow!("No deletion code found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
                     .await?;
-                return Ok(TemplateApplyResult::Abandoned);
+                return Ok(TemplateReplacements::Abandoned);
             }
         }
         EmailTemplateType::ConfirmEmailCode => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn, user_id,
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::StaffLogin,
                 )
                 .await?
             {
-                replacements.insert("CODE".to_string(), code.code);
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
             } else {
                 let msg = anyhow::anyhow!("No verification code found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
                     .await?;
-                return Ok(TemplateApplyResult::Abandoned);
+                return Ok(TemplateReplacements::Abandoned);
             }
         }
-        EmailTemplateType::Generic => {
-            return Ok(TemplateApplyResult::Ready(blocks));
+        EmailTemplateType::VerifyEmailAddress => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::EmailOwnershipVerification,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
+            } else {
+                let msg = anyhow::anyhow!(
+                    "No email ownership verification code found for user {}",
+                    user_id
+                );
+                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
+                    .await?;
+                return Ok(TemplateReplacements::Abandoned);
+            }
         }
+        // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
+        EmailTemplateType::Generic
+        | EmailTemplateType::CreditRegistrationAccountLinking
+        | EmailTemplateType::CreditRegistrationActionNeeded
+        | EmailTemplateType::CreditRegistrationRegistered => {}
     }
 
-    Ok(TemplateApplyResult::Ready(insert_placeholders(
-        blocks,
-        &replacements,
-    )))
+    Ok(TemplateReplacements::Ready(replacements))
 }
 
-fn insert_placeholders(
-    blocks: Vec<EmailGutenbergBlock>,
-    replacements: &HashMap<String, String>,
-) -> Vec<EmailGutenbergBlock> {
-    blocks
-        .into_iter()
-        .map(|mut block| {
-            if let BlockAttributes::Paragraph {
-                content,
-                drop_cap,
-                rest,
-            } = block.attributes
-            {
-                let replaced_content = replacements.iter().fold(content, |acc, (key, value)| {
-                    acc.replace(&format!("{{{{{}}}}}", key), value)
-                });
-
-                block.attributes = BlockAttributes::Paragraph {
-                    content: replaced_content,
-                    drop_cap,
-                    rest,
-                };
-            }
-            block
+/// Turns a delivery's placeholder bag into `{{KEY}}` substitutions. Nested objects and arrays are
+/// skipped: there is no sensible rendering for them in body text.
+fn placeholder_bag_replacements(
+    placeholders: Option<&serde_json::Value>,
+) -> HashMap<String, String> {
+    let Some(serde_json::Value::Object(bag)) = placeholders else {
+        return HashMap::new();
+    };
+    bag.iter()
+        .filter_map(|(key, value)| {
+            let rendered = match value {
+                serde_json::Value::String(s) => s.clone(),
+                serde_json::Value::Number(n) => n.to_string(),
+                serde_json::Value::Bool(b) => b.to_string(),
+                _ => return None,
+            };
+            Some((key.clone(), rendered))
         })
         .collect()
 }
 
-fn build_email_message(
-    email: &Email,
-    attempt: i32,
-    msg_as_plaintext: String,
-    msg_as_html: String,
-) -> Result<Message> {
+fn build_email_message(email: &Email, attempt: i32, rendered: RenderedEmail) -> Result<Message> {
     Message::builder()
         .from(SMTP_FROM.parse()?)
         .to(email
             .to
             .parse()
             .with_context(|| format!("Invalid recipient address for email_id {}", email.id))?)
-        .subject(email.subject.clone().context("No subject")?)
+        .subject(rendered.subject)
         .message_id(Some(format!(
             "<{}-{}@{}>",
             email.id,
@@ -350,12 +457,12 @@ fn build_email_message(
                 .singlepart(
                     SinglePart::builder()
                         .header(header::ContentType::TEXT_PLAIN)
-                        .body(msg_as_plaintext),
+                        .body(rendered.plain_text),
                 )
                 .singlepart(
                     SinglePart::builder()
                         .header(header::ContentType::TEXT_HTML)
-                        .body(msg_as_html),
+                        .body(rendered.html),
                 ),
         )
         .context("Failed to build email message")
@@ -401,8 +508,9 @@ async fn record_message_build_failure(
 }
 
 pub async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt().init();
     dotenvy::dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
+    setup_tracing()?;
     tracing::info!("Email sender starting up...");
 
     if ProgramConfig::optional("SMTP_USER").is_none()
@@ -414,36 +522,57 @@ pub async fn main() -> anyhow::Result<()> {
     let pool = PgPool::connect(&DB_URL.to_string()).await?;
     let creds = Credentials::new(SMTP_USER.to_string(), SMTP_PASS.to_string());
 
-    let mailer = match SmtpTransport::relay(&SMTP_HOST) {
-        Ok(builder) => builder.credentials(creds).build(),
-        Err(e) => {
-            tracing::error!("Could not configure SMTP transport: {}", e);
-            return Err(e.into());
+    let builder = match *SMTP_PLAINTEXT_PORT {
+        Some(port) => {
+            tracing::warn!("Sending email without TLS to {}:{}", *SMTP_HOST, port);
+            SmtpTransport::builder_dangerous(SMTP_HOST.as_str()).port(port)
         }
+        None => SmtpTransport::relay(&SMTP_HOST).inspect_err(|e| {
+            tracing::error!("Could not configure SMTP transport: {}", e);
+        })?,
     };
+    let mailer = builder.credentials(creds).build();
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
+    // Startup counts as an attempt: pods restart often, and firing on the first tick would turn every
+    // restart into another sweep.
+    let mut last_purge_attempt = tokio::time::Instant::now();
+    let mut warned_layouts = HashMap::new();
     loop {
         interval.tick().await;
-        mail_sender(&pool, &mailer).await?;
+        mail_sender(&pool, &mailer, &mut warned_layouts).await?;
+
+        // An elapsed check rather than a second interval: another `tick().await` in this loop would
+        // stall the 10 second send cycle until the hour was up and stop mail going out.
+        if last_purge_attempt.elapsed() >= RECIPIENT_ADDRESS_PURGE_INTERVAL {
+            last_purge_attempt = tokio::time::Instant::now();
+            let purged = async {
+                let mut conn = pool.acquire().await?;
+                maybe_purge_expired_recipient_addresses(&mut conn).await
+            }
+            .await;
+            // Logged, not propagated: an error out of main() restarts the pod, which would stop mail
+            // going out over a retention sweep.
+            match purged {
+                Ok(purged) if purged > 0 => {
+                    tracing::info!(
+                        "Purged retained recipient addresses from {purged} email deliveries"
+                    )
+                }
+                Ok(_) => {}
+                Err(err) => tracing::error!("Failed to purge retained recipient addresses: {err}"),
+            }
+        }
     }
 }
 
 fn retry_window_expired(first_failed_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> bool {
-    match first_failed_at {
-        Some(ts) => (now - ts).num_seconds() > MAX_RETRY_AGE_SECS,
-        None => false,
-    }
+    backoff::window_expired(first_failed_at, now, RETRY_WINDOW_SECS)
 }
 
 fn compute_next_retry_at(now: DateTime<Utc>, retry_count: i32) -> DateTime<Utc> {
-    // Saturating math + MAX_BACKOFF_SECS clamp intentionally handles outlier values safely.
-    let exponent = retry_count.max(0) as u32;
-    let multiplier = 2_i64.checked_pow(exponent).unwrap_or(i64::MAX);
-    let backoff = BASE_BACKOFF_SECS.saturating_mul(multiplier);
-    let capped = backoff.min(MAX_BACKOFF_SECS);
-    let jitter = rand::rng().random_range(0..=JITTER_SECS);
-    now + ChronoDuration::seconds(capped + jitter)
+    let delay = backoff::exponential_backoff_secs(BASE_BACKOFF_SECS, MAX_BACKOFF_SECS, retry_count);
+    backoff::next_attempt_at(now, delay, JITTER_SECS)
 }
 
 fn is_transient_smtp_error(err: &SmtpError) -> bool {

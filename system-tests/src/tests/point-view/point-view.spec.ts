@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -12,9 +12,7 @@ test.use({
 test("Points view works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
   await page.getByText("Point view for teachers").click()
@@ -23,7 +21,10 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await page.getByText("Page One").first().click()
+  await page
+    .getByTestId("pages-in-chapter-container")
+    .getByRole("link", { name: "Page One" })
+    .click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await frame.getByText("b").click()
@@ -38,7 +39,7 @@ test("Points view works", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Point view for teachers'\"] svg").click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67",
+    "http://project-331.local/manage/courses/b4cb334c-11d6-4e93-8f3d-849c4abfcd67/overview",
   )
 
   await page.getByRole("tab", { name: "Course instances" }).click()

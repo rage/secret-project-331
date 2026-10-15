@@ -4,17 +4,18 @@ import React from "react"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-
-import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
+import { omitUndefined } from "../lib/utils/nullability"
 import type { FieldSize } from "./primitives/fieldStyles"
+import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const floatingLayout = "floating" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const dateTimeFieldKind = "datetime" as const
 
 /**
  * Segmented local date-time input with calendar; value is an ISO-like datetime string.
+ * A pointer click anywhere on the field opens the picker; the keyboard edits the segments.
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example
@@ -41,6 +42,7 @@ export type DateTimeLocalFieldProps<
   step?: number | string
   hourCycle?: 12 | 24
   inputRef?: React.Ref<HTMLInputElement>
+  "data-testid"?: string | undefined
 }
 
 export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -67,8 +69,14 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
     step,
     hourCycle,
     inputRef,
+    "data-testid": dataTestId,
   } = props
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    ...omitUndefined({ rules }),
+    errorMessage,
+  })
   const value = (field.value as string | undefined) ?? ""
 
   return (
@@ -80,20 +88,21 @@ export function DateTimeLocalField<T extends FieldValues, N extends Path<T> = Pa
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      fieldSize={fieldSize}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      isDisabled={isDisabled}
-      isReadOnly={isReadOnly}
-      isRequired={isRequired}
       isInvalid={isInvalid}
-      id={id}
-      className={className}
-      min={min}
-      max={max}
-      step={step}
-      hourCycle={hourCycle}
-      inputRef={inputRef}
+      {...omitUndefined({ fieldSize })}
+      {...omitUndefined({ isDisabled })}
+      {...omitUndefined({ isReadOnly })}
+      {...omitUndefined({ isRequired })}
+      {...omitUndefined({ id })}
+      {...omitUndefined({ className })}
+      {...omitUndefined({ min })}
+      {...omitUndefined({ max })}
+      {...omitUndefined({ step })}
+      {...omitUndefined({ hourCycle })}
+      {...omitUndefined({ inputRef })}
+      data-testid={dataTestId}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

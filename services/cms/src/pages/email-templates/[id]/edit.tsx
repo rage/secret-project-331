@@ -3,21 +3,23 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import CourseContext from "../../../contexts/CourseContext"
-
-import { EmailTemplateUpdate } from "@/generated/api"
+import type { EmailTemplateUpdate } from "@/generated/api"
 import { getCmsEmailTemplateOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsEmailTemplate } from "@/generated/api/sdk.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
+import CourseContext from "../../../contexts/CourseContext"
 
 const EmailEditor = dynamicImport(() => import("../../../components/editors/EmailEditor"))
 
@@ -28,16 +30,17 @@ export interface EmailTemplateEditProps {
 const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps>> = ({
   query,
 }) => {
+  const { t } = useTranslation()
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const emailTemplateId = query.id
   const templateQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: emailTemplateId,
-      isReady: (emailTemplateId): emailTemplateId is string => Boolean(emailTemplateId),
-      build: (emailTemplateId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCmsEmailTemplateOptions({
           path: {
-            email_template_id: emailTemplateId,
+            email_template_id: value,
           },
         }),
     }),
@@ -74,6 +77,7 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
         const courseId = data.course_id
         return (
           <CourseContext.Provider value={courseId ? { courseId } : null}>
+            <CmsPageTitle title={joinTitleSegments([t("edit-email-template"), data.subject])} />
             <EmailEditor
               data={data}
               saveMutation={saveMutation}

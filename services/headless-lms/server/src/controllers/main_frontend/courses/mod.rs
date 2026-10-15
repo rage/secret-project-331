@@ -9,11 +9,16 @@ use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOpe
 use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
+    course_audiences::CourseAudience,
+    course_prerequisites::CoursePrerequisite,
+    courses::CompleteCourseMetadata,
+    feedback::CategoryFeedbackCount,
     partner_block::PartnersBlock,
+    proposed_page_edits,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
 use std::sync::Arc;
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use headless_lms_utils::{services::sisu::SisuClient, strings::is_ietf_language_code_like};
 use models::{
@@ -21,13 +26,17 @@ use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     course_module_completions::CourseModuleCompletion,
     course_modules::ModuleUpdates,
-    courses::{Course, CourseBreadcrumbInfo, CourseStructure, CourseUpdate, NewCourse},
+    courses::{
+        Course, CourseBreadcrumbInfo, CourseMetadata, CourseMetadataUpdate, CourseStructure,
+        CourseUpdate, NewCourse,
+    },
     exercise_slide_submissions::{
         self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
     },
     exercises::{Exercise, ExerciseStatusSummaryForUser},
-    feedback::{self, Feedback, FeedbackCount},
+    feedback::{self, Feedback},
+    feedback_categories::{self, FeedbackCategory},
     glossary::{Term, TermUpdate},
     library,
     material_references::{MaterialReference, NewMaterialReference},
@@ -81,7 +90,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_submission_counts_by_exercise,
         get_course_instances,
         get_feedback,
-        get_feedback_count,
+        get_feedback_categories,
+        get_feedback_edit_proposals_count,
         new_course_instance,
         glossary,
         new_glossary_term,
@@ -118,7 +128,12 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         post_partners_block,
         get_partners_block,
         delete_partners_block,
-        get_sisu_course_llm_descriptions
+        get_sisu_course_llm_descriptions,
+        update_metadata,
+        get_course_prerequisites,
+        get_course_audiences,
+        get_course_metadata,
+        get_all_courses
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -418,6 +433,7 @@ async fn post_new_course(
     let mut tx = conn.begin().await?;
     let (course, ..) = library::content_management::create_new_course(
         &mut tx,
+        app_conf.as_ref(),
         PKeyPolicy::Generate,
         new_course,
         user.id,
@@ -469,9 +485,10 @@ Content-Type: application/json
         (status = 200, description = "Updated course", body = Course)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -489,7 +506,9 @@ async fn update_course(
     let locking_just_enabled =
         !course_before_update.chapter_locking_enabled && course_update.chapter_locking_enabled;
 
-    let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
+    let course =
+        models::courses::update_course(&mut conn, app_conf.as_ref(), *course_id, course_update)
+            .await?;
 
     if locking_just_enabled {
         use models::{user_chapter_locking_statuses, user_course_settings};
@@ -1139,6 +1158,12 @@ pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]
     pagination: Pagination,
+    category_filter: Option<Uuid>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetFeedbackCategoriesQuery {
+    read: bool,
 }
 
 /**
@@ -1153,7 +1178,8 @@ GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback fo
         ("course_id" = String, Path, description = "Course id"),
         ("read" = bool, Query, description = "Whether to fetch read feedback"),
         ("page" = Option<i64>, Query, description = "Page number"),
-        ("limit" = Option<i64>, Query, description = "Page size")
+        ("limit" = Option<i64>, Query, description = "Page size"),
+        ("category_filter" = Option<Uuid>, Query, description = "Selected category")
     ),
     responses(
         (status = 200, description = "Feedback for the course", body = [Feedback])
@@ -1174,11 +1200,27 @@ pub async fn get_feedback(
         Res::Course(*course_id),
     )
     .await?;
-    let feedback =
-        feedback::get_feedback_for_course(&mut conn, *course_id, read.read, read.pagination)
-            .await?;
+    let feedback = feedback::get_feedback_for_course(
+        &mut conn,
+        *course_id,
+        read.category_filter,
+        read.read,
+        read.pagination,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(feedback))
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct FeedbackEditProposalCounts {
+    pub read_feedback: u32,
+    pub unread_feedback: u32,
+    pub feedback_categories_counts: Vec<CategoryFeedbackCount>,
+    pub pending_edits: u32,
+    pub handled_edits: u32,
+    /// pending edits + unread feedback
+    pub total_waiting: u32,
 }
 
 /**
@@ -1193,15 +1235,15 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Feedback counts for the course", body = FeedbackCount)
+        (status = 200, description = "Feedback and edit proposal counts for the course", body = FeedbackEditProposalCounts)
     )
 )]
 #[instrument(skip(pool))]
-pub async fn get_feedback_count(
+pub async fn get_feedback_edit_proposals_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<FeedbackCount>> {
+) -> ControllerResult<web::Json<FeedbackEditProposalCounts>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -1212,8 +1254,55 @@ pub async fn get_feedback_count(
     .await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, *course_id).await?;
+    let edit_proposal_count =
+        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
 
-    token.authorized_ok(web::Json(feedback_count))
+    let res = FeedbackEditProposalCounts {
+        read_feedback: feedback_count.read,
+        unread_feedback: feedback_count.unread,
+        pending_edits: edit_proposal_count.pending,
+        handled_edits: edit_proposal_count.handled,
+        total_waiting: feedback_count.unread + edit_proposal_count.pending,
+        feedback_categories_counts: feedback_count.categories,
+    };
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/feedback-categories",
+    operation_id = "getCourseFeedbackCategories",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("read" = bool, Query, description = "Categories for read/unread status feedback")
+    ),
+    responses(
+        (status = 200, description = "All feedback categories used in feedback for the course", body = Vec<FeedbackCategory>)
+    )
+)]
+#[instrument(skip(pool))]
+pub async fn get_feedback_categories(
+    course_id: web::Path<Uuid>,
+    read: web::Query<GetFeedbackCategoriesQuery>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<FeedbackCategory>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let res = feedback_categories::get_all_by_read_status(&mut conn, *course_id, read.read).await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -1564,7 +1653,8 @@ async fn delete_material_reference_by_id(
     ),
     request_body = ModuleUpdates,
     responses(
-        (status = 200, description = "Course modules updated")
+        (status = 200, description = "Course modules updated"),
+        (status = 400, description = "A module or chapter is not in the course, or a completion registration link is not https")
     )
 )]
 #[instrument(skip(pool))]
@@ -1577,7 +1667,23 @@ pub async fn update_modules(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
+    let updates = payload.into_inner();
+    if models::course_modules::would_change_credit_registration_via_suotar(
+        &mut conn, *course_id, &updates,
+    )
+    .await?
+    {
+        // Editing a course is not enough to put a module on the live study registry path.
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?;
+    }
+
+    models::course_modules::update_modules(&mut conn, *course_id, updates).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -1669,11 +1775,13 @@ gets SCV of course exercise submissions
         (status = 200, description = "Course submissions CSV", body = String, content_type = "text/csv")
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
 pub async fn submission_export(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
@@ -1696,6 +1804,8 @@ pub async fn submission_export(
         ),
         CourseSubmissionExportOperation {
             course_id: *course_id,
+            file_store,
+            app_conf,
         },
         token,
     )
@@ -2686,6 +2796,153 @@ async fn get_sisu_course_llm_descriptions(
 }
 
 /**
+POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+
+*/
+#[utoipa::path(
+    post,
+    path = "/{course_id}/update-metadata",
+    operation_id = "updateMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CourseMetadataUpdate,
+    responses(
+        (status = 200, description = "Updated metadata", body = CourseMetadata)
+    )
+)]
+#[instrument(skip(pool, app_conf))]
+async fn update_metadata(
+    payload: web::Json<CourseMetadataUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMetadata>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata_update = payload.0;
+    let course =
+        models::courses::set_metadata(&mut conn, app_conf.as_ref(), *course_id, metadata_update)
+            .await?;
+
+    token.authorized_ok(web::Json(course))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-prerequisites",
+    operation_id= "getCoursePrerequisites",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course prerequisites", body = Vec<CoursePrerequisite>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_prerequisites(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CoursePrerequisite>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let prerequisites =
+        models::course_prerequisites::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(prerequisites))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-audiences",
+    operation_id= "getCourseAudiences",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course audiences", body = Vec<CourseAudience>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_audiences(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseAudience>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let audiences = models::course_audiences::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(audiences))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-metadata",
+    operation_id= "getCourseMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course metadata", body = CompleteCourseMetadata)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_metadata(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CompleteCourseMetadata>> {
+    let mut conn: sqlx::pool::PoolConnection<Postgres> = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata = models::courses::get_metadata(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(metadata))
+}
+/**
+GET `/api/v0/main-frontend/courses` - Get all courses
+
+Returns all courses.
+*/
+#[utoipa::path(
+    get,
+    path = "/",
+    operation_id = "getAllCourses",
+    tag = "courses",
+    responses(
+        (status = 200, description = "All courses", body = Vec<Course>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_all_courses(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let all_courses = models::courses::all_courses(&mut conn).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
+    token.authorized_ok(web::Json(all_courses))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -2749,7 +3006,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{course_id}/feedback", web::get().to(get_feedback))
         .route(
             "/{course_id}/feedback-count",
-            web::get().to(get_feedback_count),
+            web::get().to(get_feedback_edit_proposals_count),
+        )
+        .route(
+            "/{course_id}/feedback-categories",
+            web::get().to(get_feedback_categories),
         )
         .route(
             "/{course_id}/new-course-instance",
@@ -2905,5 +3166,22 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/sisu-course-llm-descriptions",
             web::get().to(get_sisu_course_llm_descriptions),
-        );
+        )
+        .route(
+            "/{course_id}/update-metadata",
+            web::post().to(update_metadata),
+        )
+        .route(
+            "/{course_id}/get-course-prerequisites",
+            web::get().to(get_course_prerequisites),
+        )
+        .route(
+            "/{course_id}/get-course-audiences",
+            web::get().to(get_course_audiences),
+        )
+        .route(
+            "/{course_id}/get-course-metadata",
+            web::get().to(get_course_metadata),
+        )
+        .route("/", web::get().to(get_all_courses));
 }

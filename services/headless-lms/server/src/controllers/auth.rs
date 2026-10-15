@@ -2,12 +2,13 @@
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
+use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
 use crate::{
     OAuthClient,
     domain::{
-        authorization::{
-            self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
-        },
+        authentication,
+        authorization::{ActionOnResource, is_permitted, skip_authorize},
+        email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
     prelude::*,
@@ -15,14 +16,16 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_models::{ModelErrorType, ModelResult};
+use chrono::Duration;
+use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
-    user_passwords, users,
+    user_email_codes::UserEmailCodePurpose, users,
 };
 use headless_lms_utils::{
-    prelude::UtilErrorType,
-    services::tmc::{NewUserInfo, TmcClient},
+    cache::Cache,
+    prelude::{UtilError, UtilErrorType},
+    services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
 use tracing_log::log;
@@ -218,21 +221,37 @@ pub async fn signup(
         .await;
         let user = match user {
             Ok(user) => user,
-            Err(error) => match error.error_type() {
-                ModelErrorType::DatabaseConstraint { constraint, .. }
-                    if constraint == "users_email" =>
-                {
-                    let token = skip_authorize();
-                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
-                }
-                _ => {
-                    return Err(controller_err!(
-                        InternalServerError,
-                        "Failed to insert user.".to_string(),
-                        anyhow!(error)
-                    ));
-                }
-            },
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::DatabaseConstraint { constraint, .. }
+                        if constraint == "users_email"
+                ) =>
+            {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
+            // while post_new_user_to_tmc is still in flight, so that callback has usually
+            // already created the user; continue with the existing row.
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::DatabaseConstraint { constraint, .. }
+                        if constraint == "users_upstream_id_active_uniq_idx"
+                ) =>
+            {
+                models::users::find_by_upstream_id(&mut conn, upstream_id)
+                    .await?
+                    .ok_or(error)?
+            }
+            Err(error) => {
+                return Err(controller_err!(
+                    InternalServerError,
+                    "Failed to insert user.".to_string(),
+                    anyhow!(error)
+                ));
+            }
         };
 
         let country = user_details.country.clone();
@@ -268,8 +287,16 @@ pub async fn signup(
         )
         .await;
 
+        // tmc.mooc.fi mails its own confirmation link but never tells us the outcome.
+        domain::email_ownership_verification::queue_verification_email_best_effort(
+            &mut conn,
+            app_conf.enable_email_ownership_verification,
+            user.id,
+        )
+        .await;
+
         let token = skip_authorize();
-        authorization::remember(&session, user)?;
+        authentication::remember(&session, user)?;
         token.authorized_ok(web::Json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
@@ -355,7 +382,14 @@ async fn handle_test_mode_signup(
                 anyhow!(e),
             )
         })?;
-    authorization::remember(session, user)?;
+    domain::email_ownership_verification::queue_verification_email_best_effort(
+        conn,
+        app_conf.enable_email_ownership_verification,
+        user.id,
+    )
+    .await;
+
+    authentication::remember(session, user)?;
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(SignupResponse::Success))
@@ -402,15 +436,14 @@ pub async fn authorize_multiple_actions_on_resources(
         let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
 
         for action_on_resource in input {
-            if (authorize_with_fetched_list_of_roles(
+            if is_permitted(
                 &mut conn,
                 action_on_resource.action,
-                Some(user.id),
                 action_on_resource.resource,
                 &user_roles,
             )
-            .await)
-                .is_ok()
+            .await
+            .unwrap_or(false)
             {
                 results.push(true);
             } else {
@@ -455,7 +488,7 @@ pub async fn login(
 
     // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
-        return handle_uuid_login(&session, &mut conn, &email, &app_conf).await;
+        return handle_uuid_login(&session, &mut conn, &email).await;
     }
 
     // Test mode: authenticate using seeded test credentials or stored password
@@ -463,41 +496,56 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    return handle_production_login(
-        &session,
-        &mut conn,
-        &client,
-        &tmc_client,
-        &email,
-        &password,
-        &app_conf,
-    )
-    .await;
+    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
+        .await;
 }
 
 async fn handle_uuid_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Trying development mode UUID login");
     let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
         let user = { models::users::get_by_id(conn, id).await? };
-        let is_admin = is_user_global_admin(conn, user.id).await?;
-
-        if app_conf.enable_admin_email_verification && is_admin {
-            return handle_email_verification(conn, &user).await;
-        }
-
-        authorization::remember(session, user)?;
+        authentication::remember(session, user)?;
         token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
         token.authorized_ok(web::Json(LoginResponse::Failed))
     }
+}
+
+/// Verifies `password` for `user_id`, trying the seeded test-mode credentials before falling
+/// back to the stored password hash.
+///
+/// Seeded test users (e.g. `admin@example.com`) have no `user_passwords` row, so outside test
+/// mode this always falls through to `verify_user_password`.
+async fn authenticate_by_password(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email: &str,
+    password: &SecretString,
+    app_conf: &ApplicationConfiguration,
+) -> Result<bool, ControllerError> {
+    if app_conf.test_mode {
+        let is_test_user_authenticated =
+            authentication::authenticate_test_user(conn, email, password, app_conf)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::Unauthorized,
+                        "Could not find the test user. Have you seeded the database?".to_string(),
+                        e,
+                    )
+                })?;
+        if is_test_user_authenticated {
+            return Ok(true);
+        }
+    }
+    Ok(models::user_passwords::verify_user_password(conn, user_id, password).await?)
 }
 
 async fn handle_test_mode_login(
@@ -518,31 +566,12 @@ async fn handle_test_mode_login(
         }
     };
 
-    let mut is_authenticated =
-        authorization::authenticate_test_user(conn, email, password, app_conf)
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "Could not find the test user. Have you seeded the database?".to_string(),
-                    e,
-                )
-            })?;
-
-    if !is_authenticated {
-        is_authenticated =
-            models::user_passwords::verify_user_password(conn, user.id, password).await?;
-    }
+    let is_authenticated =
+        authenticate_by_password(conn, user.id, email, password, app_conf).await?;
 
     if is_authenticated {
         info!("Authentication successful");
-        let is_admin = is_user_global_admin(conn, user.id).await?;
-
-        if app_conf.enable_admin_email_verification && is_admin {
-            return handle_email_verification(conn, &user).await;
-        }
-
-        authorization::remember(session, user)?;
+        authentication::remember(session, user)?;
     } else {
         warn!("Authentication failed");
     }
@@ -562,7 +591,6 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &SecretString,
-    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
     // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
@@ -587,7 +615,7 @@ async fn handle_production_login(
 
     // Try to authenticate via TMC and store password to courses.mooc.fi if successful
     if !is_authenticated {
-        let auth_result = authorization::authenticate_tmc_mooc_fi_user(
+        let auth_result = authentication::authenticate_tmc_mooc_fi_user(
             conn,
             client,
             email.to_string(),
@@ -633,13 +661,11 @@ async fn handle_production_login(
     let token = skip_authorize();
     if is_authenticated {
         if let Some(user) = authenticated_user {
-            let is_admin = is_user_global_admin(conn, user.id).await?;
-
-            if app_conf.enable_admin_email_verification && is_admin {
+            if requires_login_code(conn, user.id).await? {
                 return handle_email_verification(conn, &user).await;
             }
 
-            authorization::remember(session, user)?;
+            authentication::remember(session, user)?;
         }
         token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
@@ -661,7 +687,7 @@ POST `/api/v0/auth/logout` Logs out.
 #[instrument(skip(session))]
 #[allow(clippy::async_yields_async)]
 pub async fn logout(session: Session) -> HttpResponse {
-    authorization::forget(&session);
+    authentication::forget(&session);
     HttpResponse::Ok().finish()
 }
 
@@ -679,7 +705,7 @@ GET `/api/v0/auth/logged-in` Returns the current user's login status.
 )]
 #[instrument(skip(session))]
 pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<bool> {
-    let logged_in = authorization::has_auth_user_session(&session, pool).await;
+    let logged_in = authentication::has_auth_user_session(&session, pool).await;
     web::Json(logged_in)
 }
 
@@ -730,10 +756,21 @@ pub async fn user_info(
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct SendEmailCodeData {
-    pub email: String,
     #[schema(value_type = String)]
     pub password: SecretString,
     pub language: String,
+}
+
+/// Outcome of asking for an account deletion code.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SendDeleteUserEmailCodeResult {
+    Queued,
+    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.
+    RecentlySent {
+        retry_after_seconds: i64,
+    },
+    IncorrectPassword,
 }
 
 /**
@@ -746,87 +783,173 @@ POST `/api/v0/auth/send-email-code` If users password is correct, sends a code t
     operation_id = "postAuthSendEmailCode",
     request_body = SendEmailCodeData,
     responses(
-        (status = 200, description = "Whether a deletion code email was queued", body = bool)
+        (status = 200, description = "What the request did", body = SendDeleteUserEmailCodeResult)
     )
 )]
-#[instrument(skip(pool, payload, auth_user))]
-#[allow(clippy::async_yields_async)]
+#[instrument(skip(pool, payload, auth_user, app_conf))]
 pub async fn send_delete_user_email_code(
-    auth_user: Option<AuthUser>,
+    auth_user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<SendEmailCodeData>,
-) -> ControllerResult<web::Json<bool>> {
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<SendDeleteUserEmailCodeResult>> {
     let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
 
-    // Check user credentials
-    if let Some(auth_user) = auth_user {
-        let mut conn = pool.acquire().await?;
+    // The signed-in user's own address, never `payload.email`: the test-mode branch of
+    // `authenticate_by_password` matches on the address, so a client-supplied one would let
+    // any seeded account's credentials pass this check.
+    let user_details =
+        models::user_details::get_user_details_by_user_id(&mut conn, auth_user.id).await?;
+    let password_ok = authenticate_by_password(
+        &mut conn,
+        auth_user.id,
+        &user_details.email,
+        &payload.password,
+        &app_conf,
+    )
+    .await?;
 
-        let password_ok =
-            user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password)
-                .await?;
-
-        if !password_ok {
-            info!(
-                "User {} attempted account deletion with incorrect password",
-                auth_user.id
-            );
-
-            return token.authorized_ok(web::Json(false));
-        }
-
-        let language = &payload.language;
-
-        // Get user deletion email template
-        let delete_template = models::email_templates::get_generic_email_template_by_type_and_language(
-            &mut conn,
-            EmailTemplateType::DeleteUserEmail,
-            language,
-        )
-        .await
-        .map_err(|_e| {
-            anyhow::anyhow!(
-                "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}'",
-                language
-            )
-        })?;
-
-        let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
-
-        let code = if let Some(existing) =
-            models::user_email_codes::get_unused_user_email_code_with_user_id(
-                &mut conn,
-                auth_user.id,
-            )
-            .await?
-        {
-            existing.code
-        } else {
-            let new_code: String = rand::rng().random_range(100_000..1_000_000).to_string();
-            models::user_email_codes::insert_user_email_code(
-                &mut conn,
-                auth_user.id,
-                new_code.clone(),
-            )
-            .await?;
-            new_code
-        };
-
-        models::user_email_codes::insert_user_email_code(&mut conn, auth_user.id, code.clone())
-            .await?;
-        let _ =
-            models::email_deliveries::insert_email_delivery(&mut conn, user.id, delete_template.id)
-                .await?;
-
-        return token.authorized_ok(web::Json(true));
+    if !password_ok {
+        info!(
+            "User {} attempted account deletion with incorrect password",
+            auth_user.id
+        );
+        return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::IncorrectPassword));
     }
-    token.authorized_ok(web::Json(false))
+
+    let live_code = user_email_codes::get_unused_user_email_code_with_user_id(
+        &mut conn,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+    )
+    .await?;
+    if let Some(live_code) = live_code {
+        let retry_after_seconds =
+            (live_code.created_at + Duration::minutes(MIN_RESEND_INTERVAL_MINUTES) - Utc::now())
+                .num_seconds();
+        if retry_after_seconds > 0 {
+            return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::RecentlySent {
+                retry_after_seconds,
+            }));
+        }
+    }
+
+    let language = &payload.language;
+    let delete_template = models::email_templates::get_generic_email_template_by_type_and_language(
+        &mut conn,
+        EmailTemplateType::DeleteUserEmail,
+        language,
+    )
+    .await
+    .map_err(|_e| {
+        anyhow::anyhow!(
+            "Account deletion email template not configured. Missing template 'delete-user-email' for language '{}'",
+            language
+        )
+    })?;
+
+    // A fresh code every time: mailing the outstanding one again would keep a single code alive for
+    // as long as the user kept pressing resend.
+    let code = user_email_codes::generate_code();
+
+    let mut tx = conn.begin().await?;
+    user_email_codes::insert_user_email_code(
+        &mut tx,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        &code,
+    )
+    .await?;
+    models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, delete_template.id)
+        .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::Queued))
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema)]
 
 pub struct EmailCode {
-    pub code: String,
+    #[schema(value_type = String)]
+    pub code: DbSecret,
+}
+
+/// Outcome of spending an account deletion code.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum DeleteUserAccountResult {
+    Deleted,
+    /// Wrong, superseded and spent are one value: they are indistinguishable to someone typing
+    /// digits, and telling them apart only helps a guesser.
+    InvalidCode,
+    /// The outstanding code timed out. Read off that code's own expiry, so it reveals nothing about
+    /// what was typed.
+    ExpiredCode,
+    /// The code was retired after too many wrong guesses; only a new code can get past this.
+    TooManyAttempts,
+    /// tmc.mooc.fi could not be reached. Nothing was deleted and retrying is safe.
+    UpstreamUnavailable,
+    /// tmc.mooc.fi refused the deletion. `reference` identifies the recorded error, and is the only
+    /// thing the user can hand to support.
+    UpstreamRejected {
+        reference: Uuid,
+    },
+}
+
+/// How a failed TMC delete should be treated. The upstream status is what separates a retry that
+/// may work from one that never will.
+enum TmcDeletionFailure {
+    /// TMC has no such account, so the local deletion is still the right thing to do.
+    AlreadyGone,
+    Transient,
+    Rejected,
+}
+
+fn classify_tmc_deletion_failure(error: &UtilError) -> TmcDeletionFailure {
+    match error.error_type() {
+        // The request never completed, so TMC provably did not act on it.
+        UtilErrorType::TmcHttpError => TmcDeletionFailure::Transient,
+        // The deletion contract reports an unknown user in the body, but deployments predating it
+        // answer a bare 404.
+        UtilErrorType::TmcHttpStatusError(404) => TmcDeletionFailure::AlreadyGone,
+        UtilErrorType::TmcHttpStatusError(429) => TmcDeletionFailure::Transient,
+        UtilErrorType::TmcHttpStatusError(status) if *status >= 500 => {
+            TmcDeletionFailure::Transient
+        }
+        _ => TmcDeletionFailure::Rejected,
+    }
+}
+
+/// Records a TMC refusal under `reference` in `error_variants`/`error_occurrences`, so support can
+/// find it from the reference alone.
+///
+/// Best effort: the deletion has already failed, and failing to record that must not turn a
+/// reported outcome into a 500.
+async fn report_tmc_deletion_rejection(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    reference: Uuid,
+    error: &UtilError,
+) {
+    let report = models::errors::NewErrorReport {
+        service: "headless-lms".to_string(),
+        error_source: Some(models::errors::ErrorSource::Backend),
+        message: format!(
+            "TMC refused to delete the account of user {user_id} (reference {reference}): {error}"
+        ),
+        stack_trace: Some(format!("{error:?}")),
+        path: None,
+        app_version: None,
+        details: Some(serde_json::json!({
+            "kind": "tmc_account_deletion_rejected",
+            "reference": reference,
+            "user_id": user_id,
+        })),
+    };
+    if let Err(e) = models::errors::insert(conn, Some(user_id), &report).await {
+        warn!("Could not record TMC account deletion rejection {reference}: {e}");
+    }
 }
 
 /**
@@ -839,66 +962,132 @@ POST `/api/v0/auth/delete-user-account` If users single-use code is correct then
     operation_id = "postAuthDeleteUserAccount",
     request_body = EmailCode,
     responses(
-        (status = 200, description = "Whether the account was deleted", body = bool)
+        (status = 200, description = "Outcome of submitting the code", body = DeleteUserAccountResult)
     )
 )]
-#[instrument(skip(pool, payload, auth_user, session))]
-#[allow(clippy::async_yields_async)]
+#[instrument(skip(pool, payload, auth_user, session, cache, app_conf))]
 pub async fn delete_user_account(
-    auth_user: Option<AuthUser>,
+    auth_user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<EmailCode>,
     session: Session,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<web::Json<bool>> {
+    app_conf: web::Data<ApplicationConfiguration>,
+    cache: web::Data<Cache>,
+) -> ControllerResult<web::Json<DeleteUserAccountResult>> {
     let token = skip_authorize();
-    if let Some(auth_user) = auth_user {
-        let mut conn = pool.acquire().await?;
+    let mut conn = pool.acquire().await?;
 
-        // Check users code is valid
-        let code_ok = user_email_codes::is_reset_user_email_code_valid(
+    let code_ok = user_email_codes::is_reset_user_email_code_valid(
+        &mut conn,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        &payload.code,
+    )
+    .await?;
+
+    if !code_ok {
+        let outstanding = user_email_codes::get_outstanding_user_email_code(
             &mut conn,
             auth_user.id,
-            &payload.code,
+            UserEmailCodePurpose::AccountDeletion,
         )
         .await?;
-
-        if !code_ok {
+        // Before counting the guess: attempts against a code that can no longer be spent would
+        // only strand the user on "too many attempts" for a code they have to replace anyway.
+        if outstanding.is_some_and(|code| code.expires_at <= Utc::now()) {
             info!(
-                "User {} attempted account deletion with incorrect code",
+                "User {} attempted account deletion with an expired code",
                 auth_user.id
             );
-            return token.authorized_ok(web::Json(false));
+            return token.authorized_ok(web::Json(DeleteUserAccountResult::ExpiredCode));
         }
 
-        let mut tx = conn.begin().await?;
-        let user = users::get_by_id(&mut tx, auth_user.id).await?;
-
-        // Delete user from TMC if they have upstream_id
-        if let Some(upstream_id) = user.upstream_id {
-            let upstream_id_str = upstream_id.to_string();
-            let tmc_success = tmc_client
-                .delete_user_from_tmc(upstream_id_str)
-                .await
-                .unwrap_or(false);
-
-            if !tmc_success {
-                info!("TMC deletion failed for user {}", auth_user.id);
-                return token.authorized_ok(web::Json(false));
-            }
-        }
-
-        // Delete user locally and mark email code as used
-        users::delete_user(&mut tx, auth_user.id).await?;
-        user_email_codes::mark_user_email_code_used(&mut tx, auth_user.id, &payload.code).await?;
-
-        tx.commit().await?;
-
-        authorization::forget(&session);
-        token.authorized_ok(web::Json(true))
-    } else {
-        return token.authorized_ok(web::Json(false));
+        info!(
+            "User {} attempted account deletion with incorrect code",
+            auth_user.id
+        );
+        let code_retired = user_email_codes::record_failed_attempt(
+            &mut conn,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+            MAX_CODE_ATTEMPTS,
+        )
+        .await?;
+        return token.authorized_ok(web::Json(if code_retired {
+            DeleteUserAccountResult::TooManyAttempts
+        } else {
+            DeleteUserAccountResult::InvalidCode
+        }));
     }
+
+    let user = users::get_by_id(&mut conn, auth_user.id).await?;
+
+    // Outside the transaction below: this can wait minutes on tmc.mooc.fi, and a transaction held
+    // open that long pins a pool connection with it.
+    if let Some(upstream_id) = user.upstream_id
+        && !app_conf.test_mode
+    {
+        match tmc_client
+            .delete_user_from_tmc(upstream_id.to_string())
+            .await
+        {
+            Ok(TmcAccountDeletion::Deleted) => {}
+            Ok(TmcAccountDeletion::AlreadyDeleted) => {
+                info!(
+                    "TMC reported account {upstream_id} of user {} as already deleted; deleting locally anyway",
+                    auth_user.id
+                );
+            }
+            Err(error) => match classify_tmc_deletion_failure(&error) {
+                TmcDeletionFailure::AlreadyGone => {
+                    info!(
+                        "TMC has no account {upstream_id} for user {}; deleting locally anyway: {error}",
+                        auth_user.id
+                    );
+                }
+                TmcDeletionFailure::Transient => {
+                    warn!(
+                        "TMC was unavailable while deleting the account of user {}: {error}",
+                        auth_user.id
+                    );
+                    return token
+                        .authorized_ok(web::Json(DeleteUserAccountResult::UpstreamUnavailable));
+                }
+                TmcDeletionFailure::Rejected => {
+                    let reference = Uuid::new_v4();
+                    error!(
+                        "TMC refused to delete the account of user {} (reference {reference}): {error}",
+                        auth_user.id
+                    );
+                    report_tmc_deletion_rejection(&mut conn, auth_user.id, reference, &error).await;
+                    return token.authorized_ok(web::Json(
+                        DeleteUserAccountResult::UpstreamRejected { reference },
+                    ));
+                }
+            },
+        }
+    }
+
+    let mut tx = conn.begin().await?;
+    delete_user_and_invalidate_cached_tokens(
+        &mut tx,
+        &cache,
+        &app_conf.oauth_server_configuration.oauth_token_hmac_key,
+        auth_user.id,
+    )
+    .await?;
+    user_email_codes::mark_user_email_code_used(
+        &mut tx,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        &payload.code,
+    )
+    .await?;
+    tx.commit().await?;
+
+    authentication::forget(&session);
+    token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
 }
 
 pub async fn update_user_information_to_tmc(
@@ -922,42 +1111,47 @@ pub async fn update_user_information_to_tmc(
     Ok(())
 }
 
-pub async fn is_user_global_admin(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
-    let roles = models::roles::get_roles(conn, user_id).await?;
-    Ok(roles
-        .iter()
-        .any(|r| r.role == models::roles::UserRole::Admin && r.is_global))
+/// Whether a production login must also be confirmed with an emailed code. Any role at any scope
+/// counts: a teacher's account is as worth stealing as an admin's. Test-mode and UUID logins skip
+/// it, since the system tests have no mail capture.
+async fn requires_login_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> Result<bool, ControllerError> {
+    Ok(!models::roles::get_roles(conn, user_id).await?.is_empty())
 }
 
 async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
 ) -> ControllerResult<web::Json<LoginResponse>> {
-    let code: String = rand::rng().random_range(100_000..1_000_000).to_string();
+    let code = user_email_codes::generate_code();
 
-    let email_verification_token = email_verification_tokens::create_email_verification_token(
+    let email_verification_token =
+        email_verification_tokens::create_email_verification_token(conn, user.id, code.clone())
+            .await
+            .map_err(|e| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "Failed to create email verification token".to_string(),
+                    Some(anyhow!(e)),
+                )
+            })?;
+
+    user_email_codes::insert_user_email_code(
         conn,
         user.id,
-        DbSecret::new(code.clone()),
+        UserEmailCodePurpose::StaffLogin,
+        &code,
     )
     .await
     .map_err(|e| {
         ControllerError::new(
             ControllerErrorType::InternalServerError,
-            "Failed to create email verification token".to_string(),
+            "Failed to insert user email code".to_string(),
             Some(anyhow!(e)),
         )
     })?;
-
-    user_email_codes::insert_user_email_code(conn, user.id, code.clone())
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to insert user email code".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
 
     let email_template = models::email_templates::get_generic_email_template_by_type_and_language(
         conn,
@@ -1071,15 +1265,20 @@ pub async fn verify_email(
 
     let user_id = token_value.user_id;
 
-    user_email_codes::mark_user_email_code_used(&mut conn, user_id, payload.code.expose_secret())
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to mark user email code as used".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
+    user_email_codes::mark_user_email_code_used(
+        &mut conn,
+        user_id,
+        UserEmailCodePurpose::StaffLogin,
+        &payload.code,
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to mark user email code as used".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
 
     email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
         .await
@@ -1101,7 +1300,7 @@ pub async fn verify_email(
             )
         })?;
 
-    authorization::remember(&session, user)?;
+    authentication::remember(&session, user)?;
 
     let skip_token = skip_authorize();
     skip_token.authorized_ok(web::Json(true))
@@ -1127,11 +1326,13 @@ pub async fn verify_email(
         CreateAccountDetails,
         SignupResponse,
         UserInfo,
-        crate::domain::authorization::ActionOnResource,
-        crate::domain::authorization::Action,
-        crate::domain::authorization::Resource,
+        headless_lms_authorization::ActionOnResource,
+        headless_lms_authorization::Action,
+        headless_lms_authorization::Resource,
         SendEmailCodeData,
+        SendDeleteUserEmailCodeResult,
         EmailCode,
+        DeleteUserAccountResult,
         VerifyEmailRequest,
         headless_lms_models::roles::UserRole,
     ))

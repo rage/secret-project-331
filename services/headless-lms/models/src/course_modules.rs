@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use utoipa::ToSchema;
 
-use crate::{chapters, prelude::*};
+use crate::{chapters, error::missing_model_error, prelude::*};
 
-/// Matches the columns in the database.
+/// The subset of `course_modules` columns [`CourseModule`] is built from; the credit-registration
+/// ones are read through [`CourseModuleCreditRegistrationConfig`], hence no `SELECT *` here.
 struct CourseModulesSchema {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -23,12 +24,11 @@ struct CourseModulesSchema {
     ects_credits: Option<f32>,
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
+    enable_credit_registration_via_suotar: bool,
 }
-/**
- * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
- */
+/// Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+/// `completion_policy`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
 pub struct CourseModule {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -45,6 +45,7 @@ pub struct CourseModule {
     pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
+    pub enable_credit_registration_via_suotar: bool,
 }
 
 impl CourseModule {
@@ -64,6 +65,7 @@ impl CourseModule {
             ects_credits: None,
             enable_registering_completion_to_uh_open_university: false,
             certification_enabled: false,
+            enable_credit_registration_via_suotar: false,
         }
     }
     pub fn set_timestamps(
@@ -96,12 +98,14 @@ impl CourseModule {
         ects_credits: Option<f32>,
         completion_registration_link_override: Option<String>,
         enable_registering_completion_to_uh_open_university: bool,
+        enable_credit_registration_via_suotar: bool,
     ) -> Self {
         self.uh_course_code = uh_course_code;
         self.ects_credits = ects_credits;
         self.completion_registration_link_override = completion_registration_link_override;
         self.enable_registering_completion_to_uh_open_university =
             enable_registering_completion_to_uh_open_university;
+        self.enable_credit_registration_via_suotar = enable_credit_registration_via_suotar;
         self
     }
 
@@ -144,12 +148,12 @@ impl From<CourseModulesSchema> for CourseModule {
             enable_registering_completion_to_uh_open_university: schema
                 .enable_registering_completion_to_uh_open_university,
             certification_enabled: schema.certification_enabled,
+            enable_credit_registration_via_suotar: schema.enable_credit_registration_via_suotar,
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-
 pub struct NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
@@ -159,6 +163,7 @@ pub struct NewCourseModule {
     order_number: i32,
     uh_course_code: Option<String>,
     enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
 }
 
 impl NewCourseModule {
@@ -172,6 +177,7 @@ impl NewCourseModule {
             order_number,
             uh_course_code: None,
             enable_registering_completion_to_uh_open_university: false,
+            enable_credit_registration_via_suotar: false,
         }
     }
 
@@ -210,230 +216,59 @@ impl NewCourseModule {
             enable_registering_completion_to_uh_open_university;
         self
     }
-}
 
-pub async fn insert(
-    conn: &mut PgConnection,
-    pkey_policy: PKeyPolicy<Uuid>,
-    new_course_module: &NewCourseModule,
-) -> ModelResult<CourseModule> {
-    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
-        new_course_module.completion_policy.to_database_fields();
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-INSERT INTO course_modules (
-    id,
-    course_id,
-    name,
-    order_number,
-    automatic_completion,
-    automatic_completion_number_of_exercises_attempted_treshold,
-    automatic_completion_number_of_points_treshold,
-    automatic_completion_requires_exam,
-    ects_credits,
-    enable_registering_completion_to_uh_open_university,
-    uh_course_code
-  )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING *
-        ",
-        pkey_policy.into_uuid(),
-        new_course_module.course_id,
-        new_course_module.name,
-        new_course_module.order_number,
-        automatic_completion,
-        exercises_treshold,
-        points_treshold,
-        requires_exam,
-        new_course_module.ects_credits,
-        new_course_module.enable_registering_completion_to_uh_open_university,
-        new_course_module.uh_course_code
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.into())
-}
-
-pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE course_modules
-SET name = $1
-WHERE id = $2
-",
-        name,
-        id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    let associated_chapters = chapters::get_for_module(conn, id).await?;
-    if !associated_chapters.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            format!(
-                "Cannot remove module {id} because it has {} chapters associated with it",
-                associated_chapters.len()
-            ),
-            None,
-        ));
+    pub fn set_enable_credit_registration_via_suotar(
+        mut self,
+        enable_credit_registration_via_suotar: bool,
+    ) -> Self {
+        self.enable_credit_registration_via_suotar = enable_credit_registration_via_suotar;
+        self
     }
-    sqlx::query!(
-        "
-UPDATE course_modules
-SET deleted_at = now()
-WHERE id = $1
-AND deleted_at IS NULL
-",
-        id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModule> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-SELECT *
-FROM course_modules
-WHERE id = $1
-  AND deleted_at IS NULL
-        ",
-        id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.into())
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct NewModule {
+    name: String,
+    order_number: i32,
+    chapters: Vec<Uuid>,
+    uh_course_code: Option<String>,
+    ects_credits: Option<f32>,
+    completion_policy: CompletionPolicy,
+    completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
 }
 
-pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<CourseModule>> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-SELECT *
-FROM course_modules
-WHERE id = ANY($1)
-  AND deleted_at IS NULL
-        ",
-        ids,
-    )
-    .map(|x| x.into())
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ModifiedModule {
+    id: Uuid,
+    name: Option<String>,
+    order_number: i32,
+    uh_course_code: Option<String>,
+    ects_credits: Option<f32>,
+    completion_policy: CompletionPolicy,
+    completion_registration_link_override: Option<String>,
+    enable_registering_completion_to_uh_open_university: bool,
+    enable_credit_registration_via_suotar: bool,
 }
 
-pub async fn get_by_course_id(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<CourseModule>> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-SELECT *
-FROM course_modules
-WHERE course_id = $1
-AND deleted_at IS NULL
-",
-        course_id
-    )
-    .map(|x| x.into())
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct CourseAuditingModuleUpdate {
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub order_number: i32,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub completion_registration_link_override: Option<String>,
+    pub enable_registering_completion_to_uh_open_university: bool,
 }
 
-pub async fn get_by_course_id_only_with_open_chapters(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<Vec<CourseModule>> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-SELECT *
-FROM course_modules as cm
-WHERE EXISTS (
-  SELECT 1
-  FROM chapters as ch
-  WHERE ch.course_module_id = cm.id
-    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)
-    AND ch.deleted_at IS NULL
-)
-  AND cm.course_id = $1
-  AND cm.deleted_at IS NULL
-",
-        course_id
-    )
-    .map(|x| x.into())
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Gets course module where the given exercise belongs to. This will result in an error in the case
-/// of an exam exercise.
-pub async fn get_by_exercise_id(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-) -> ModelResult<CourseModule> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        r#"
-SELECT
-    course_modules.id AS "id!",
-    course_modules.created_at AS "created_at!",
-    course_modules.updated_at AS "updated_at!",
-    course_modules.deleted_at,
-    course_modules.name,
-    course_modules.course_id AS "course_id!",
-    course_modules.order_number AS "order_number!",
-    course_modules.copied_from,
-    course_modules.uh_course_code,
-    course_modules.automatic_completion AS "automatic_completion!",
-    course_modules.automatic_completion_number_of_exercises_attempted_treshold,
-    course_modules.automatic_completion_number_of_points_treshold,
-    course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
-    course_modules.completion_registration_link_override,
-    course_modules.ects_credits,
-    course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
-    course_modules.certification_enabled AS "certification_enabled!"
-FROM exercises
-  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
-  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
-WHERE exercises.id = $1
-AND chapters.deleted_at IS NULL
-AND course_modules.deleted_at IS NULL
-        "#,
-        exercise_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.into())
-}
-
-pub async fn get_course_module_id_by_chapter(
-    conn: &mut PgConnection,
-    chapter_id: Uuid,
-) -> ModelResult<Uuid> {
-    let res: Uuid = sqlx::query!(
-        r#"
-SELECT c.course_module_id
-from chapters c
-where c.id = $1
-  AND deleted_at IS NULL
-  "#,
-        chapter_id
-    )
-    .map(|record| record.course_module_id)
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ModuleUpdates {
+    new_modules: Vec<NewModule>,
+    deleted_modules: Vec<Uuid>,
+    modified_modules: Vec<ModifiedModule>,
+    moved_chapters: Vec<(Uuid, Uuid)>,
 }
 
 /// How many chapters and exercises a course module contains. Used for deciding whether the module
@@ -443,110 +278,29 @@ pub struct ModuleSizeCounts {
     pub exercises: i64,
 }
 
-pub async fn get_chapter_and_exercise_counts(
-    conn: &mut PgConnection,
-    course_module_id: Uuid,
-) -> ModelResult<ModuleSizeCounts> {
-    let res = sqlx::query_as!(
-        ModuleSizeCounts,
-        r#"
-SELECT COUNT(DISTINCT c.id) AS "chapters!",
-  COUNT(e.id) AS "exercises!"
-FROM chapters c
-  LEFT JOIN exercises e ON e.chapter_id = c.id
-  AND e.deleted_at IS NULL
-WHERE c.course_module_id = $1
-  AND c.deleted_at IS NULL
-        "#,
-        course_module_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_default_by_course_id(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<CourseModule> {
-    let res = sqlx::query_as!(
-        CourseModulesSchema,
-        "
-SELECT *
-FROM course_modules
-WHERE course_id = $1
-  AND name IS NULL
-  AND deleted_at IS NULL
-        ",
-        course_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res.into())
-}
-
-/// Gets all course modules with a matching `uh_course_code` or course `slug`.
-///
-/// In the latter case only one record at most is returned, but there is no way to distinguish between
-/// these two scenarios in advance.
-pub async fn get_ids_by_course_slug_or_uh_course_code(
-    conn: &mut PgConnection,
-    course_slug_or_code: &str,
-) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query!(
-        "
-SELECT course_modules.id
-FROM course_modules
-  LEFT JOIN courses ON (course_modules.course_id = courses.id)
-WHERE (
-    course_modules.uh_course_code = $1
-    OR courses.slug = $1
-  )
-  AND course_modules.deleted_at IS NULL
-        ",
-        course_slug_or_code,
-    )
-    .map(|record| record.id)
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Gets course modules for the given course as a map, indexed by the `id` field.
-pub async fn get_by_course_id_as_map(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<HashMap<Uuid, CourseModule>> {
-    let res = get_by_course_id(conn, course_id)
-        .await?
-        .into_iter()
-        .map(|course_module| (course_module.id, course_module))
-        .collect();
-    Ok(res)
-}
-
-pub async fn get_all_uh_course_codes_for_open_university(
-    conn: &mut PgConnection,
-) -> ModelResult<Vec<String>> {
-    let res = sqlx::query!(
-        "
-SELECT DISTINCT uh_course_code
-FROM course_modules
-WHERE uh_course_code IS NOT NULL
-  AND enable_registering_completion_to_uh_open_university = true
-  AND deleted_at IS NULL
-"
-    )
-    .fetch_all(conn)
-    .await?
-    .into_iter()
-    .filter_map(|x| x.uh_course_code)
-    .collect();
-    Ok(res)
+/// Per-module credit-registration configuration: the rollout switch and the module's own fields
+/// merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+/// here because a module with no configuration row is a valid, unconfigured module.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleCreditRegistrationConfig {
+    pub course_module_id: Uuid,
+    pub course_id: Uuid,
+    pub enable_credit_registration_via_suotar: bool,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub credit_registration_paused_at: Option<DateTime<Utc>>,
+    pub credit_registration_paused_by_user_id: Option<Uuid>,
+    pub credit_registration_pause_reason: Option<String>,
+    pub credit_registration_config_checked_at: Option<DateTime<Utc>>,
+    /// `None` means never checked, which is not the same as a failed check.
+    pub credit_registration_course_code_allowed: Option<bool>,
+    pub credit_registration_config_check_message: Option<String>,
+    /// Whether `completion_registration_link_override` is set, which is also the enrolment link for
+    /// students without a usable enrolment.
+    pub credit_registration_has_enrolment_link: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
 pub struct AutomaticCompletionRequirements {
     /// Course module associated with these requirements.
     pub course_module_id: Uuid,
@@ -613,6 +367,670 @@ impl CompletionPolicy {
     }
 }
 
+pub async fn insert(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    new_course_module: &NewCourseModule,
+) -> ModelResult<CourseModule> {
+    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
+        new_course_module.completion_policy.to_database_fields();
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+INSERT INTO course_modules (
+    id,
+    course_id,
+    name,
+    order_number,
+    automatic_completion,
+    automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_number_of_points_treshold,
+    automatic_completion_requires_exam,
+    ects_credits,
+    enable_registering_completion_to_uh_open_university,
+    uh_course_code,
+    enable_credit_registration_via_suotar,
+    completion_registration_link_override
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+        ",
+        pkey_policy.into_uuid(),
+        new_course_module.course_id,
+        new_course_module.name,
+        new_course_module.order_number,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        requires_exam,
+        new_course_module.ects_credits,
+        new_course_module.enable_registering_completion_to_uh_open_university,
+        new_course_module.uh_course_code,
+        new_course_module.enable_credit_registration_via_suotar,
+        new_course_module.completion_registration_link_override,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.into())
+}
+
+pub async fn rename(conn: &mut PgConnection, id: Uuid, name: &str) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET name = $1
+WHERE id = $2
+",
+        name,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    let associated_chapters = chapters::get_for_module(conn, id).await?;
+    if !associated_chapters.is_empty() {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            format!(
+                "Cannot remove module {id} because it has {} chapters associated with it",
+                associated_chapters.len()
+            ),
+            None,
+        ));
+    }
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET deleted_at = now()
+WHERE id = $1
+AND deleted_at IS NULL
+",
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_all_modules(conn: &mut PgConnection) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules
+WHERE deleted_at IS NULL
+        ",
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.into())
+}
+
+pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Batched [`get_by_course_id`]: modules for many courses in one query, to group in memory instead
+/// of one query per course.
+pub async fn get_by_course_ids(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules
+WHERE course_id = ANY($1)
+AND deleted_at IS NULL
+",
+        course_ids
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id_only_with_open_chapters(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT cm.id,
+  cm.created_at,
+  cm.updated_at,
+  cm.deleted_at,
+  cm.name,
+  cm.course_id,
+  cm.order_number,
+  cm.copied_from,
+  cm.uh_course_code,
+  cm.automatic_completion,
+  cm.automatic_completion_number_of_exercises_attempted_treshold,
+  cm.automatic_completion_number_of_points_treshold,
+  cm.automatic_completion_requires_exam,
+  cm.completion_registration_link_override,
+  cm.ects_credits,
+  cm.enable_registering_completion_to_uh_open_university,
+  cm.certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules as cm
+WHERE EXISTS (
+  SELECT 1
+  FROM chapters as ch
+  WHERE ch.course_module_id = cm.id
+    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)
+    AND ch.deleted_at IS NULL
+)
+  AND cm.course_id = $1
+  AND cm.deleted_at IS NULL
+",
+        course_id
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets course module where the given exercise belongs to. This will result in an error in the case
+/// of an exam exercise.
+pub async fn get_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        r#"
+SELECT course_modules.id AS "id!",
+  course_modules.created_at AS "created_at!",
+  course_modules.updated_at AS "updated_at!",
+  course_modules.deleted_at,
+  course_modules.name,
+  course_modules.course_id AS "course_id!",
+  course_modules.order_number AS "order_number!",
+  course_modules.copied_from,
+  course_modules.uh_course_code,
+  course_modules.automatic_completion AS "automatic_completion!",
+  course_modules.automatic_completion_number_of_exercises_attempted_treshold,
+  course_modules.automatic_completion_number_of_points_treshold,
+  course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
+  course_modules.completion_registration_link_override,
+  course_modules.ects_credits,
+  course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
+  course_modules.certification_enabled AS "certification_enabled!",
+  course_modules.enable_credit_registration_via_suotar AS "enable_credit_registration_via_suotar!"
+FROM exercises
+  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
+  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
+WHERE exercises.id = $1
+  AND chapters.deleted_at IS NULL
+  AND course_modules.deleted_at IS NULL
+        "#,
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.into())
+}
+
+pub async fn get_course_module_id_by_chapter(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res: Uuid = sqlx::query!(
+        r#"
+SELECT c.course_module_id
+from chapters c
+where c.id = $1
+  AND deleted_at IS NULL
+  "#,
+        chapter_id
+    )
+    .map(|record| record.course_module_id)
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_chapter_and_exercise_counts(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<ModuleSizeCounts> {
+    let res = sqlx::query_as!(
+        ModuleSizeCounts,
+        r#"
+SELECT COUNT(DISTINCT c.id) AS "chapters!",
+  COUNT(e.id) AS "exercises!"
+FROM chapters c
+  LEFT JOIN exercises e ON e.chapter_id = c.id
+  AND e.deleted_at IS NULL
+WHERE c.course_module_id = $1
+  AND c.deleted_at IS NULL
+        "#,
+        course_module_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_default_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseModule> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
+FROM course_modules
+WHERE course_id = $1
+  AND name IS NULL
+  AND deleted_at IS NULL
+        ",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.into())
+}
+
+/// Gets all course modules with a matching `uh_course_code` or course `slug`.
+///
+/// In the latter case only one record at most is returned, but there is no way to distinguish between
+/// these two scenarios in advance.
+pub async fn get_ids_by_course_slug_or_uh_course_code(
+    conn: &mut PgConnection,
+    course_slug_or_code: &str,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        r#"
+SELECT course_modules.id AS "id!"
+FROM course_modules
+  LEFT JOIN courses ON (course_modules.course_id = courses.id)
+WHERE (
+    course_modules.uh_course_code = $1
+    OR courses.slug = $1
+  )
+  AND course_modules.deleted_at IS NULL
+        "#,
+        course_slug_or_code,
+    )
+    .map(|record| record.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Gets course modules for the given course as a map, indexed by the `id` field.
+pub async fn get_by_course_id_as_map(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CourseModule>> {
+    let res = get_by_course_id(conn, course_id)
+        .await?
+        .into_iter()
+        .map(|course_module| (course_module.id, course_module))
+        .collect();
+    Ok(res)
+}
+
+pub async fn get_all_uh_course_codes_for_open_university(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<String>> {
+    let res = sqlx::query!(
+        "
+SELECT DISTINCT uh_course_code
+FROM course_modules
+WHERE uh_course_code IS NOT NULL
+  AND enable_registering_completion_to_uh_open_university = true
+  AND deleted_at IS NULL
+"
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .filter_map(|x| x.uh_course_code)
+    .collect();
+    Ok(res)
+}
+
+/// Ids of the course's modules opted in to credit registration; the flag is not on the
+/// [`CourseModule`] DTO.
+pub async fn get_credit_registration_enabled_ids_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT id
+FROM course_modules
+WHERE course_id = $1
+  AND enable_credit_registration_via_suotar
+  AND deleted_at IS NULL
+ORDER BY order_number
+        ",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Ids of the courses' modules whose new completions go through credit registration via Suotar when
+/// the student holds a linked student number.
+pub async fn get_ids_registering_eligible_new_completions_via_suotar(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT id
+FROM course_modules
+WHERE course_id = ANY($1)
+  AND enable_credit_registration_via_suotar
+  AND register_eligible_new_completions_via_suotar
+  AND deleted_at IS NULL
+        ",
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The gate for admin actions that are not tied to one course (e.g. resolving or manually
+/// linking a student number), where `get_credit_registration_enabled_ids_for_course` has no
+/// course to check against.
+pub async fn any_credit_registration_enabled(conn: &mut PgConnection) -> ModelResult<bool> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1
+  FROM course_modules
+  WHERE enable_credit_registration_via_suotar
+    AND deleted_at IS NULL
+) AS "exists!"
+        "#
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Every course the user is enrolled on that has at least one module opted in to credit
+/// registration, so the profile page can list a course the student was never asked about.
+pub async fn get_credit_registration_course_ids_for_enrolled_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT DISTINCT cm.course_id
+FROM course_modules cm
+  JOIN course_instance_enrollments cie ON cie.course_id = cm.course_id
+  JOIN courses c ON c.id = cm.course_id
+WHERE cie.user_id = $1
+  AND cie.deleted_at IS NULL
+  AND cm.enable_credit_registration_via_suotar
+  AND cm.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+        ",
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Shared by every getter below, so the 13-column join lives in one place. `enabled_only` isn't a
+/// "this id or any" filter like the other two: the by-id and by-course lookups want every module,
+/// opted in or not, while the all-modules listing wants only the opted-in ones.
+async fn credit_registration_configs(
+    conn: &mut PgConnection,
+    course_module_id: Option<Uuid>,
+    course_id: Option<Uuid>,
+    enabled_only: bool,
+) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
+    let res = sqlx::query_as!(
+        CourseModuleCreditRegistrationConfig,
+        r#"
+SELECT cm.id AS course_module_id,
+  cm.course_id,
+  cm.enable_credit_registration_via_suotar,
+  cm.uh_course_code,
+  cm.ects_credits,
+  c.paused_at AS "credit_registration_paused_at?",
+  c.paused_by_user_id AS "credit_registration_paused_by_user_id?",
+  c.pause_reason AS "credit_registration_pause_reason?",
+  c.config_checked_at AS "credit_registration_config_checked_at?",
+  c.course_code_allowed AS "credit_registration_course_code_allowed?",
+  c.config_check_message AS "credit_registration_config_check_message?",
+  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "credit_registration_has_enrolment_link!"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE ($1::uuid IS NULL OR cm.id = $1)
+  AND ($2::uuid IS NULL OR cm.course_id = $2)
+  AND (NOT $3::bool OR cm.enable_credit_registration_via_suotar)
+  AND cm.deleted_at IS NULL
+ORDER BY cm.course_id,
+  cm.order_number
+        "#,
+        course_module_id,
+        course_id,
+        enabled_only,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_credit_registration_config(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<CourseModuleCreditRegistrationConfig> {
+    credit_registration_configs(conn, Some(course_module_id), None, false)
+        .await?
+        .into_iter()
+        .next()
+        .ok_or_else(missing_model_error(
+            ModelErrorType::RecordNotFound,
+            "Course module not found".to_string(),
+        ))
+}
+
+/// Every module of one course with its Suotar configuration, opted in or not: the module editor has
+/// to show an unconfigured module's empty fields.
+pub async fn get_credit_registration_configs_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
+    credit_registration_configs(conn, None, Some(course_id), false).await
+}
+
+/// Every module opted in to credit registration via Suotar, paused ones included.
+pub async fn get_all_suotar_enabled(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CourseModuleCreditRegistrationConfig>> {
+    credit_registration_configs(conn, None, None, true).await
+}
+
 pub async fn update_automatic_completion_status(
     conn: &mut PgConnection,
     id: Uuid,
@@ -630,7 +1048,24 @@ SET automatic_completion = $1,
   automatic_completion_requires_exam = $4
 WHERE id = $5
   AND deleted_at IS NULL
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         automatic_completion,
         exercises_treshold,
@@ -655,7 +1090,24 @@ UPDATE course_modules
 SET uh_course_code = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         uh_course_code,
         id,
@@ -677,7 +1129,24 @@ UPDATE course_modules
 SET enable_registering_completion_to_uh_open_university = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING *
+RETURNING id,
+  created_at,
+  updated_at,
+  deleted_at,
+  name,
+  course_id,
+  order_number,
+  copied_from,
+  uh_course_code,
+  automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam,
+  completion_registration_link_override,
+  ects_credits,
+  enable_registering_completion_to_uh_open_university,
+  certification_enabled,
+  enable_credit_registration_via_suotar
         ",
         enable_registering_completion_to_uh_open_university,
         id,
@@ -685,41 +1154,6 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res.into())
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct NewModule {
-    name: String,
-    order_number: i32,
-    chapters: Vec<Uuid>,
-    uh_course_code: Option<String>,
-    ects_credits: Option<f32>,
-    completion_policy: CompletionPolicy,
-    completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-
-pub struct ModifiedModule {
-    id: Uuid,
-    name: Option<String>,
-    order_number: i32,
-    uh_course_code: Option<String>,
-    ects_credits: Option<f32>,
-    completion_policy: CompletionPolicy,
-    completion_registration_link_override: Option<String>,
-    enable_registering_completion_to_uh_open_university: bool,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
-
-pub struct ModuleUpdates {
-    new_modules: Vec<NewModule>,
-    deleted_modules: Vec<Uuid>,
-    modified_modules: Vec<ModifiedModule>,
-    moved_chapters: Vec<(Uuid, Uuid)>,
 }
 
 pub async fn update_with_order_number(
@@ -759,6 +1193,7 @@ pub async fn update(
         uh_course_code,
         completion_registration_link_override,
         enable_registering_completion_to_uh_open_university,
+        enable_credit_registration_via_suotar,
     } = updated_course_module;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
@@ -774,7 +1209,10 @@ SET name = COALESCE($2, name),
   automatic_completion_number_of_points_treshold = $8,
   automatic_completion_requires_exam = $9,
   completion_registration_link_override = $10,
-  enable_registering_completion_to_uh_open_university = $11
+  enable_registering_completion_to_uh_open_university = $11,
+  enable_credit_registration_via_suotar = $12,
+  register_eligible_new_completions_via_suotar = register_eligible_new_completions_via_suotar
+  AND $12
 WHERE id = $1
         ",
         id,
@@ -787,19 +1225,166 @@ WHERE id = $1
         points_treshold,
         requires_exam,
         completion_registration_link_override.as_ref(),
-        enable_registering_completion_to_uh_open_university
+        enable_registering_completion_to_uh_open_university,
+        enable_credit_registration_via_suotar
     )
     .execute(conn)
     .await?;
     Ok(())
 }
 
+/// Sets `register_eligible_new_completions_via_suotar`, which production sets by hand only. Errors
+/// if the module is not opted in to credit registration via Suotar.
+pub async fn set_register_eligible_new_completions_via_suotar(
+    conn: &mut PgConnection,
+    id: Uuid,
+    value: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET register_eligible_new_completions_via_suotar = $2
+WHERE id = $1
+        ",
+        id,
+        value,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Whether applying `updates` to `course_id` would flip `enable_credit_registration_via_suotar` on
+/// any module.
+///
+/// Only support may put a module on the live study registry path, but the module editor round-trips
+/// the flag on every save, so gate on an actual change rather than on the field being sent. A module
+/// the update creates, and one not in the course, count as currently off; [`update_modules`] rejects
+/// the latter.
+pub async fn would_change_credit_registration_via_suotar(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    updates: &ModuleUpdates,
+) -> ModelResult<bool> {
+    if updates
+        .new_modules
+        .iter()
+        .any(|module| module.enable_credit_registration_via_suotar)
+    {
+        return Ok(true);
+    }
+    let stored: HashMap<Uuid, bool> = get_by_course_id(conn, course_id)
+        .await?
+        .into_iter()
+        .map(|module| (module.id, module.enable_credit_registration_via_suotar))
+        .collect();
+    Ok(updates.modified_modules.iter().any(|module| {
+        stored.get(&module.id).copied().unwrap_or(false)
+            != module.enable_credit_registration_via_suotar
+    }))
+}
+
+/// Errors with `InvalidRequest` unless `link` is empty or an absolute `https://` URL. Students get
+/// the link as an `href`, so no other scheme may be stored.
+pub fn validate_completion_registration_link(link: Option<&str>) -> ModelResult<()> {
+    let Some(link) = link.map(str::trim).filter(|link| !link.is_empty()) else {
+        return Ok(());
+    };
+    match Url::parse(link) {
+        Ok(url) if url.scheme() == "https" && url.host().is_some() => Ok(()),
+        _ => Err(model_err!(
+            InvalidRequest,
+            "The completion registration link must be an absolute https:// URL.".to_string()
+        )),
+    }
+}
+
+/// Errors with `InvalidRequest` unless every module and chapter id is a live row of `course_id`.
+async fn ensure_belong_to_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    module_ids: &[Uuid],
+    chapter_ids: &[Uuid],
+) -> ModelResult<()> {
+    let res = sqlx::query!(
+        r#"
+SELECT NOT EXISTS (
+    SELECT 1
+    FROM UNNEST($2::uuid []) AS ids(id)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM course_modules cm
+        WHERE cm.id = ids.id
+          AND cm.course_id = $1
+          AND cm.deleted_at IS NULL
+      )
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM UNNEST($3::uuid []) AS ids(id)
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM chapters c
+        WHERE c.id = ids.id
+          AND c.course_id = $1
+          AND c.deleted_at IS NULL
+      )
+  ) AS "all_belong!"
+"#,
+        course_id,
+        module_ids,
+        chapter_ids,
+    )
+    .fetch_one(conn)
+    .await?;
+    if !res.all_belong {
+        return Err(model_err!(
+            InvalidRequest,
+            "Every module and chapter in the update must belong to the course.".to_string()
+        ));
+    }
+    Ok(())
+}
+
+/// Applies the module editor's changes to `course_id` in one transaction.
+///
+/// Rejects the whole update if any referenced module or chapter is not in the course, or if a
+/// completion registration link fails [`validate_completion_registration_link`].
 pub async fn update_modules(
     conn: &mut PgConnection,
     course_id: Uuid,
     updates: ModuleUpdates,
 ) -> ModelResult<()> {
+    for link in updates
+        .new_modules
+        .iter()
+        .map(|m| &m.completion_registration_link_override)
+        .chain(
+            updates
+                .modified_modules
+                .iter()
+                .map(|m| &m.completion_registration_link_override),
+        )
+    {
+        validate_completion_registration_link(link.as_deref())?;
+    }
+
     let mut tx = conn.begin().await?;
+
+    let module_ids: Vec<Uuid> = updates
+        .modified_modules
+        .iter()
+        .map(|m| m.id)
+        .chain(updates.deleted_modules.iter().copied())
+        .chain(updates.moved_chapters.iter().map(|(_, module)| *module))
+        .collect();
+    let chapter_ids: Vec<Uuid> = updates
+        .new_modules
+        .iter()
+        .flat_map(|m| m.chapters.iter().copied())
+        .chain(updates.moved_chapters.iter().map(|(chapter, _)| *chapter))
+        .collect();
+    ensure_belong_to_course(&mut tx, course_id, &module_ids, &chapter_ids).await?;
 
     // scramble order of modified and deleted modules
     for module_id in updates
@@ -824,6 +1409,7 @@ pub async fn update_modules(
             completion_policy,
             completion_registration_link_override,
             enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar,
         } = new;
         // insert with a random order number to avoid conflicts
         let new_course_module = NewCourseModule::new(course_id, Some(name.clone()), rand::random())
@@ -833,7 +1419,8 @@ pub async fn update_modules(
             .set_uh_course_code(uh_course_code)
             .set_enable_registering_completion_to_uh_open_university(
                 enable_registering_completion_to_uh_open_university,
-            );
+            )
+            .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar);
         let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
         for chapter in chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
@@ -849,6 +1436,7 @@ pub async fn update_modules(
             completion_registration_link_override: module.completion_registration_link_override,
             enable_registering_completion_to_uh_open_university: module
                 .enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar,
         })
     }
     // update modified and new modules
@@ -863,6 +1451,7 @@ pub async fn update_modules(
             completion_policy,
             completion_registration_link_override,
             enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar,
         } = module;
         update(
             &mut tx,
@@ -874,7 +1463,8 @@ pub async fn update_modules(
                 .set_uh_course_code(uh_course_code)
                 .set_enable_registering_completion_to_uh_open_university(
                     enable_registering_completion_to_uh_open_university,
-                ),
+                )
+                .set_enable_credit_registration_via_suotar(enable_credit_registration_via_suotar),
         )
         .await?;
     }

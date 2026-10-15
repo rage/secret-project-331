@@ -2,7 +2,7 @@
 pmOnFail: download
 
 # Check that packages are compatible with the runtime in package.json devEngines.runtime
-nodeVersion: 24.16.0
+nodeVersion: 24.18.0
 # Dont install packages that are not combatibile with the 'nodeVersion'
 engineStrict: true
 # Use pnpm-lock.yaml if we can
@@ -23,7 +23,7 @@ minimumReleaseAgeIgnoreMissingTime: false
 strictDepBuilds: true
 
 allowBuilds:
-  '@playwright/browser-chromium': true
+  "@playwright/browser-chromium": true
   node: false
 
 # Trust committed lockfiles instead of revalidating release-age policy on every install
@@ -46,3 +46,8 @@ registrySupportsTimeField: false
 
 # If trying to run a script when node_modules are not up to date, install them before proceeding
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - "typescript@7.0.2"
+  - "@typescript/typescript-*"
+  - "@typescript/typescript6@6.0.2"

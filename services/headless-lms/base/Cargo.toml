@@ -8,19 +8,20 @@ license.workspace = true
 
 [dependencies]
 tokio.workspace = true
-futures = "0.3.32"
-uuid = { version = "1.23.2", features = ["serde", "v4", "v5"] }
-serde = { version = "1.0.228", features = ["derive"] }
-chrono = { version = "0.4.44", features = ["serde"] }
-serde_json = "1.0.150"
+futures = "0.3.34"
+uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+serde = { version = "1.0.229", features = ["derive"] }
+chrono = { version = "0.4.45", features = ["serde"] }
+serde_json = "1.0.151"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tracing-error = "0.2.1"
 tracing-log = "0.2.0"
 backtrace = "0.3.76"
 url = "2.5.8"
-anyhow = "1.0.102"
+anyhow = "1.0.104"
 secrecy.workspace = true
+jsonwebtoken.workspace = true
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -1,4 +1,4 @@
-import { Download } from "playwright"
+import type { Download } from "playwright"
 
 export const downloadToString = async (download: Download): Promise<string> => {
   const readStream = await download.createReadStream()

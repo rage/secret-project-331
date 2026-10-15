@@ -28,7 +28,7 @@ const LockChapterEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
 > = () => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-lock-chapter" })
 
   return (
@@ -92,7 +92,6 @@ const LockChapterEditor: React.FC<
           </p>
 
           <Notice
-            // eslint-disable-next-line i18next/no-literal-string
             status="info"
             isDismissible={false}
             className={css`

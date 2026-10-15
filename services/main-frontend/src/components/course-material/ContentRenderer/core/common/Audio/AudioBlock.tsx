@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 
-import { BlockRendererProps } from "../../.."
-
-import { AudioAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { AudioAttributes } from "@/../types/GutenbergBlockAttributes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../../.."
 
 const AudioBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AudioAttributes>>> = ({
   data,
@@ -14,7 +14,7 @@ const AudioBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AudioAttri
   return (
     <figure>
       {/* Gutenberg schema has no support for captions */}
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
       <audio
         className={css`
           width: 100%;

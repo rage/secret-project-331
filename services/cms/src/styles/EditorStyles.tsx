@@ -13,7 +13,9 @@ export const gutenbergControlsHidden = css`
 
 /** Shows Gutenberg's add component button again if it was hidden in a parent component. */
 export const gutenbergControlsVisible = css`
-  .block-editor-button-block-appender {
+  /* Doubled class: an appender inside both wrappers must follow the inner one, whichever emotion
+   * emits first. */
+  && .block-editor-button-block-appender {
     display: block !important;
   }
 `

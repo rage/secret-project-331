@@ -1,9 +1,9 @@
 "use client"
 
 import { act, fireEvent, screen, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 
 import { Select } from "../src/components/Select"
-
 import { renderWithForm } from "./testUtils"
 
 const countryOptions = [
@@ -38,6 +38,20 @@ describe("Select", () => {
     expect(select.tagName).toBe("BUTTON")
     expect(select).toHaveAttribute("aria-describedby")
     expect(screen.getByText("Select your country")).toBeInTheDocument()
+  })
+
+  test("puts a caller-provided id on the trigger, for a label or a test to point at", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        id="country-select"
+        label="Country"
+        options={countryOptions}
+      />
+    ))
+
+    expect(screen.getByRole("button", { name: /Country/ })).toHaveAttribute("id", "country-select")
   })
 
   test("updates RHF value on selection", () => {
@@ -192,5 +206,124 @@ describe("Select", () => {
         />
       )),
     ).toThrow(/unique values/i)
+  })
+
+  test("renders search field when it is enabled", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+        searchEnabled={true}
+        searchPlaceholder="Search country"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+
+    fireEvent.click(trigger)
+
+    const search = screen.getByRole("searchbox", { name: "Search country" })
+    expect(search).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("Search country")).toBeInTheDocument()
+    expect(search).toHaveAttribute("aria-label")
+  })
+
+  test("search field correctly filters results", async () => {
+    const user = userEvent.setup()
+
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+        searchEnabled={true}
+        searchPlaceholder="Search country"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+
+    fireEvent.click(trigger)
+
+    expect(screen.getByRole("option", { name: "Choose" })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Finland" })).toBeInTheDocument()
+
+    const search = screen.getByRole("searchbox", { name: "Search country" })
+    await user.type(search, "fi")
+
+    expect(screen.getByRole("option", { name: "Finland" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Choose" })).not.toBeInTheDocument()
+  })
+
+  test("search field returns no results found when there are no matches", async () => {
+    const user = userEvent.setup()
+
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+        searchEnabled={true}
+        searchPlaceholder="Search country"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+    fireEvent.click(trigger)
+
+    const search = screen.getByRole("searchbox", { name: "Search country" })
+    await user.type(search, "This doesn't exist")
+
+    expect(screen.getByRole("presentation")).toBeInTheDocument()
+    expect(screen.getByRole("presentation")).toHaveTextContent("No results found")
+    // The trigger still has to point somewhere real, or aria-controls dangles on every empty search.
+    // Queried through the captured node: an open select makes the rest of the page inert, so the
+    // trigger is no longer reachable by role.
+    expect(trigger).toHaveAttribute("aria-controls", screen.getByRole("presentation").id)
+  })
+
+  test("data-testid lands on the trigger button", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        label="Country"
+        options={countryOptions}
+        data-testid="country-select"
+      />
+    ))
+
+    expect(screen.getByTestId("country-select")).toBe(
+      screen.getByRole("button", { name: /Country/ }),
+    )
+  })
+
+  test("keeps the caller's id on the trigger and a separate one on the listbox", async () => {
+    const user = userEvent.setup()
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        id="country-trigger"
+        label="Country"
+        options={countryOptions}
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+    expect(trigger).toHaveAttribute("id", "country-trigger")
+
+    await user.click(trigger)
+
+    const listBox = screen.getByRole("listbox")
+    expect(listBox.id).not.toBe(trigger.id)
+    expect(trigger).toHaveAttribute("aria-controls", listBox.id)
   })
 })

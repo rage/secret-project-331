@@ -1,15 +1,15 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import AuthorEditor from "./AuthorEditor"
-import AuthorSave from "./AuthorSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import AuthorEditor from "./AuthorEditor"
+import AuthorSave from "./AuthorSave"
+
 const AuthorConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: "Authors",
   description: "Section displaying brief bios and photos of the page author(s)",
   category: MOOCFI_CATEGORY_SLUG,

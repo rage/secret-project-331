@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"

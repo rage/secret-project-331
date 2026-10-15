@@ -4,17 +4,19 @@ import React from "react"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-
-import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
+import { omitUndefined } from "../lib/utils/nullability"
 import type { FieldSize } from "./primitives/fieldStyles"
+import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const floatingLayout = "floating" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const timeFieldKind = "time" as const
 
 /**
- * Segmented time input; value is a time string compatible with the segmented serializer.
+ * Segmented time input with a time picker popover; value is a time string compatible with the
+ * segmented serializer.
+ * A pointer click anywhere on the field opens the picker; the keyboard edits the segments.
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example
@@ -41,6 +43,7 @@ export type TimeFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   step?: number | string
   hourCycle?: 12 | 24
   inputRef?: React.Ref<HTMLInputElement>
+  "data-testid"?: string | undefined
 }
 
 export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -67,6 +70,7 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
     step,
     hourCycle,
     inputRef,
+    "data-testid": dataTestId,
   } = props
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const value = (field.value as string | undefined) ?? ""
@@ -80,20 +84,21 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
       description={description}
       errorMessage={resolvedError}
       notice={notice}
-      fieldSize={fieldSize}
+      {...omitUndefined({ fieldSize })}
       iconStart={iconStart}
       iconEnd={iconEnd}
-      isDisabled={isDisabled}
-      isReadOnly={isReadOnly}
-      isRequired={isRequired}
+      {...omitUndefined({ isDisabled })}
+      {...omitUndefined({ isReadOnly })}
+      {...omitUndefined({ isRequired })}
       isInvalid={isInvalid}
-      id={id}
-      className={className}
-      min={min}
-      max={max}
-      step={step}
-      hourCycle={hourCycle}
-      inputRef={inputRef}
+      {...omitUndefined({ id })}
+      {...omitUndefined({ className })}
+      {...omitUndefined({ min })}
+      {...omitUndefined({ max })}
+      {...omitUndefined({ step })}
+      {...omitUndefined({ hourCycle })}
+      {...omitUndefined({ inputRef })}
+      data-testid={dataTestId}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

@@ -1,0 +1,429 @@
+"use client"
+
+import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import React, { useState } from "react"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
+import InlineParts from "@/components/credit-registration/InlineParts"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import {
+  adminManuallyLinkStudentNumber,
+  adminResolveStudentNumberForLinking,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
+} from "@/generated/api/sdk.generated"
+import type {
+  AdminManuallyLinkStudentNumberResult,
+  AdminResolveStudentNumberResult,
+  UserDetail,
+} from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
+import type { DialogAction } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  DescriptionList,
+  Dialog,
+  Infobox,
+  TextField,
+} from "@/shared-module/components"
+
+import {
+  BUTTON_PRIMARY,
+  BUTTON_SECONDARY,
+  BUTTON_TERTIARY,
+  CREDIT_REGISTRATION_NS,
+  STACKED,
+  TONE,
+} from "../constants"
+import { validateStudentNumber } from "../studentNumber"
+import {
+  codeValueCss,
+  controlCss,
+  controlsCss,
+  dialogFormCss,
+  dividedListCss,
+  fieldActionCss,
+  noteCss,
+  spacedRowCss,
+  subheadingCss,
+} from "../styles"
+import { useActionResult } from "../useActionResult"
+import type { DialogOpenState } from "./AdminActionDialog"
+import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { candidateFullName } from "./linkingCandidate"
+import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
+import StudentCell from "./StudentCell"
+
+/** The account a student number is about to be linked to, as much of it as a human can check. */
+export interface ManualLinkAccount {
+  userId: string
+  name: string
+  email: string | null
+}
+
+interface Props extends DialogOpenState {
+  /** Seeds the number field; the preview still has to be run against it. */
+  studentNumber?: string
+  /** Seeds the account, where the caller already knows whose row this is. */
+  account?: ManualLinkAccount
+}
+
+interface Fields {
+  student_number: string
+  resending_cannot_work: boolean
+  reason: string
+}
+
+const LINKED = "linked"
+/** Enough to recognise the right person; a longer list means the search was too vague to trust. */
+const MAX_ACCOUNT_MATCHES = 8
+const STUDENT_NUMBER_FIELD = "student_number" as const
+
+/** The name Sisu holds beside the name on the account, which is the comparison being asserted. */
+const identityMatchCss = css`
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+`
+
+const identityCss = css`
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+`
+
+const accountResultsCss = css`
+  max-height: 14rem;
+  overflow-y: auto;
+`
+
+const mergeAccounts = (exact: UserDetail[], similar: UserDetail[]): UserDetail[] => {
+  const byUserId = new Map<string, UserDetail>()
+  for (const user of [...exact, ...similar]) {
+    byUserId.set(user.user_id, user)
+  }
+  return Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES)
+}
+
+interface SearchFields {
+  term: string
+}
+
+/** Picks the account by name or email, because nobody can check a uuid against a person. */
+const AccountPicker: React.FC<{
+  onChoose: (account: ManualLinkAccount) => void
+  /** Whether this is the wizard's current step, so its button reads as the thing to do next. */
+  isCurrentStep: boolean
+}> = ({ onChoose, isCurrentStep }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { control, handleSubmit } = useForm<SearchFields>({ defaultValues: { term: "" } })
+  const [query, setQuery] = useState("")
+  // Separate queries so an exact match shows without waiting for the slower similar-user search.
+  const exactQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchExact", query],
+    queryFn: () => searchUserDetailsExact({ body: { query } }),
+    enabled: query !== "",
+  })
+  const fuzzyQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchFuzzy", query],
+    queryFn: () => searchUserDetailsFuzzy({ body: { query } }),
+    enabled: query !== "",
+  })
+  const accounts = exactQuery.data
+    ? mergeAccounts(exactQuery.data, fuzzyQuery.data?.users ?? [])
+    : null
+  const hasNoAccounts = accounts?.length === 0 && fuzzyQuery.isSuccess
+
+  return (
+    <div className={dialogFormCss}>
+      <form className={controlsCss} onSubmit={handleSubmit(({ term }) => setQuery(term.trim()))}>
+        <TextField
+          name="term"
+          control={control}
+          className={controlCss}
+          label={t("credit-registration-admin-manual-link-account-search")}
+        />
+        <Button
+          type="submit"
+          variant={isCurrentStep ? BUTTON_PRIMARY : BUTTON_SECONDARY}
+          size="medium"
+          className={fieldActionCss}
+          disabled={exactQuery.isFetching}
+        >
+          {t("button-text-search")}
+        </Button>
+      </form>
+      {hasNoAccounts && (
+        <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
+      )}
+      {accounts &&
+        accounts.length > 0 && (
+          // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+          <ul className={cx(dividedListCss, accountResultsCss)} role="list">
+            {accounts.map((user) => (
+              <li key={user.user_id} className={spacedRowCss}>
+                <StudentCell row={user} />
+                <Button
+                  variant={BUTTON_TERTIARY}
+                  size="small"
+                  onClick={() =>
+                    onChoose({
+                      userId: user.user_id,
+                      name: formatUserName(user),
+                      email: user.email,
+                    })
+                  }
+                >
+                  {t("credit-registration-admin-manual-link-choose-account")}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+    </div>
+  )
+}
+
+/** The API enforces the same two gates: the preview must have run, and a reason is required. */
+const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber, account }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
+  const [chosenAccount, setChosenAccount] = useState<ManualLinkAccount | null>(account ?? null)
+  const { control, handleSubmit, watch, trigger } = useReasonRequiredForm<Fields>({
+    student_number: studentNumber ?? "",
+    resending_cannot_work: false,
+    reason: "",
+  })
+  const fields = watch()
+
+  const { result: preview, mutation: previewMutation } = useActionResult<
+    AdminResolveStudentNumberResult,
+    string
+  >((number) => adminResolveStudentNumberForLinking({ body: { student_number: number } }))
+  const {
+    result,
+    setResult,
+    mutation: linkMutation,
+  } = useActionResult<AdminManuallyLinkStudentNumberResult, Fields>((values) =>
+    adminManuallyLinkStudentNumber({
+      body: {
+        user_id: chosenAccount?.userId ?? "",
+        student_number: values.student_number.trim(),
+        // Echoed from the preview; the endpoint re-resolves and refuses if it no longer matches.
+        sisu_person_id: preview?.sisu_person_id ?? "",
+        reason: values.reason,
+      },
+    }),
+  )
+
+  const closeDialog = () => {
+    onClose()
+    if (result) {
+      setResult(null)
+      // Deferred to close, not fired from onSuccess: linking also resolves the waiting
+      // registrations, and a refetch that lifts this row out of the table the dialog is rendered
+      // in would unmount it — and the outcome it is showing — before anyone had read it.
+      void invalidateAfterLinkingChange()
+    }
+  }
+
+  // The two preconditions the endpoint refuses without; the reason and the checkbox are the form's.
+  const isResolved =
+    preview?.found === true && preview.sisu_person_id !== null && chosenAccount !== null
+
+  const submit = handleSubmit((values) => linkMutation.mutate(values))
+  const actions: readonly [DialogAction] = [
+    {
+      label: t("credit-registration-admin-manual-link-confirm"),
+      variant: BUTTON_PRIMARY,
+      isLoading: linkMutation.isPending,
+      disabled: !isResolved,
+      onPress: () => void submit(),
+    },
+  ]
+
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={closeDialog}
+      title={t("credit-registration-admin-manual-link-title")}
+      actions={actions}
+    >
+      <div className={dialogFormCss}>
+        <Infobox tone={TONE.WARNING}>{t("credit-registration-admin-manual-link-warning")}</Infobox>
+        <div className={controlsCss}>
+          <TextField
+            name="student_number"
+            control={control}
+            className={controlCss}
+            label={t("label-student-number")}
+            rules={{ required: t("required-field"), validate: validateStudentNumber(t) }}
+          />
+          <Button
+            // A wizard reads top to bottom: this is the first thing to do until it is done.
+            variant={preview?.found === true ? BUTTON_SECONDARY : BUTTON_PRIMARY}
+            size="medium"
+            className={fieldActionCss}
+            disabled={previewMutation.isPending}
+            onClick={async () => {
+              // A mistyped number is caught here rather than looked up in Sisu.
+              if (await trigger(STUDENT_NUMBER_FIELD)) {
+                previewMutation.mutate(fields.student_number.trim())
+              }
+            }}
+          >
+            {t("button-text-credit-registration-check-in-study-registry")}
+          </Button>
+        </div>
+        {preview && (
+          <Infobox tone={preview.found ? TONE.INFO : TONE.WARNING}>
+            {preview.study_registry_unavailable ? (
+              t("credit-registration-admin-manual-link-registry-unavailable")
+            ) : preview.lookup_error_code ? (
+              t("credit-registration-admin-manual-link-lookup-error", {
+                code: preview.lookup_error_code,
+              })
+            ) : preview.found ? (
+              <div className={dialogFormCss}>
+                <div className={identityMatchCss}>
+                  <span className={identityCss}>
+                    <span className={noteCss}>
+                      {t("credit-registration-admin-manual-link-sisu-holds")}
+                    </span>
+                    <span>{candidateFullName(preview) || <AbsentValue />}</span>
+                  </span>
+                  <span className={identityCss}>
+                    <span className={noteCss}>
+                      {t("credit-registration-admin-manual-link-account-holds")}
+                    </span>
+                    <span>{chosenAccount?.name ?? <AbsentValue />}</span>
+                    <span className={noteCss}>
+                      {chosenAccount?.email ? (
+                        <EmailAddress address={chosenAccount.email} />
+                      ) : (
+                        <AbsentValue />
+                      )}
+                    </span>
+                  </span>
+                </div>
+                <DescriptionList
+                  layout={STACKED}
+                  items={[
+                    {
+                      label: t("label-credit-registration-person-id"),
+                      value: (
+                        <code className={codeValueCss}>
+                          {preview.sisu_person_id ?? <AbsentValue />}
+                        </code>
+                      ),
+                    },
+                    {
+                      label: t("label-credit-registration-already-linked-to"),
+                      value: preview.already_linked_to_user_email ? (
+                        <EmailAddress address={preview.already_linked_to_user_email} />
+                      ) : (
+                        t("credit-registration-admin-not-linked")
+                      ),
+                    },
+                    {
+                      label: t("credit-registration-admin-send-status-header"),
+                      value:
+                        preview.linking_emails.length === 0 ? (
+                          t("credit-registration-admin-no-mails-sent")
+                        ) : (
+                          <ul>
+                            {preview.linking_emails.map((mail) => (
+                              <li key={mail.id}>
+                                <InlineParts
+                                  parts={[
+                                    <EmailAddress key="to" address={mail.emailed_to} />,
+                                    sendStatusLabel(t, mail.send_status.email_send_status),
+                                    <ZonedTimestamp
+                                      key="at"
+                                      at={mail.send_status.sent_at ?? mail.claimed_at}
+                                    />,
+                                  ]}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        ),
+                    },
+                  ]}
+                />
+              </div>
+            ) : (
+              t("credit-registration-admin-manual-link-not-found")
+            )}
+          </Infobox>
+        )}
+        <div className={dialogFormCss}>
+          <h3 className={subheadingCss}>
+            {t("credit-registration-admin-manual-link-account-heading")}
+          </h3>
+          {chosenAccount ? (
+            <span className={spacedRowCss}>
+              <span className={identityCss}>
+                <span>{chosenAccount.name}</span>
+                <span className={noteCss}>
+                  {chosenAccount.email ? (
+                    <EmailAddress address={chosenAccount.email} />
+                  ) : (
+                    <AbsentValue />
+                  )}
+                </span>
+              </span>
+              <Button
+                variant={BUTTON_TERTIARY}
+                size="small"
+                onClick={() => setChosenAccount(null)}
+                disabled={linkMutation.isPending}
+              >
+                {t("credit-registration-admin-manual-link-change-account")}
+              </Button>
+            </span>
+          ) : (
+            <AccountPicker onChoose={setChosenAccount} isCurrentStep={preview?.found === true} />
+          )}
+        </div>
+        <form onSubmit={submit} className={dialogFormCss}>
+          <Checkbox
+            name="resending_cannot_work"
+            control={control}
+            rules={{ required: t("required-field") }}
+            label={t("credit-registration-admin-manual-link-confirm-checkbox")}
+          />
+          <ReasonField
+            control={control}
+            description={t("credit-registration-admin-manual-link-reason-description")}
+          />
+        </form>
+        {/* Immediately above the confirm button below, which stays disabled for exactly this. */}
+        {!isResolved && (
+          <p className={noteCss}>{t("credit-registration-admin-manual-link-preview-required")}</p>
+        )}
+        {result && (
+          <Infobox tone={result.outcome === LINKED ? TONE.INFO : TONE.WARNING}>
+            <div>{manualLinkOutcomeLabel(t, result.outcome)}</div>
+            {result.affected_registration_count > 0 && (
+              <div>
+                {t("credit-registration-admin-manual-link-unblocked", {
+                  count: result.affected_registration_count,
+                })}
+              </div>
+            )}
+          </Infobox>
+        )}
+      </div>
+    </Dialog>
+  )
+}
+
+export default AdminManualLinkDialog

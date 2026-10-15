@@ -58,6 +58,15 @@ export type Action =
       type: "view_stats"
     }
   | {
+      type: "view_and_manage_credit_registrations"
+    }
+  | {
+      type: "administrate_user_account"
+    }
+  | {
+      type: "administrate_credit_registrations"
+    }
+  | {
       type: "administrate"
     }
 
@@ -76,6 +85,30 @@ export type CreateAccountDetails = {
   password: string
   password_confirmation: string
 }
+
+/**
+ * Outcome of spending an account deletion code.
+ */
+export type DeleteUserAccountResult =
+  | {
+      type: "deleted"
+    }
+  | {
+      type: "invalid_code"
+    }
+  | {
+      type: "expired_code"
+    }
+  | {
+      type: "too_many_attempts"
+    }
+  | {
+      type: "upstream_unavailable"
+    }
+  | {
+      reference: string
+      type: "upstream_rejected"
+    }
 
 export type EmailCode = {
   code: string
@@ -160,6 +193,12 @@ export type Resource =
       type: "role"
     }
   | {
+      /**
+       * A specific user account. Only a global role can hold anything on it: [is_permitted] has no
+       * per-user rule, so the id names the target for the audit trail and for a future scoping rule
+       * rather than widening who passes.
+       */
+      id: string
       type: "user"
     }
   | {
@@ -169,8 +208,22 @@ export type Resource =
       type: "exercise_service"
     }
 
+/**
+ * Outcome of asking for an account deletion code.
+ */
+export type SendDeleteUserEmailCodeResult =
+  | {
+      type: "queued"
+    }
+  | {
+      retry_after_seconds: number
+      type: "recently_sent"
+    }
+  | {
+      type: "incorrect_password"
+    }
+
 export type SendEmailCodeData = {
-  email: string
   language: string
   password: string
 }
@@ -203,6 +256,7 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+  | "CreditRegistrationAdmin"
 
 export type VerifyEmailRequest = {
   code: string
@@ -251,9 +305,9 @@ export type PostAuthDeleteUserAccountData = {
 
 export type PostAuthDeleteUserAccountResponses = {
   /**
-   * Whether the account was deleted
+   * Outcome of submitting the code
    */
-  200: boolean
+  200: DeleteUserAccountResult
 }
 
 export type PostAuthDeleteUserAccountResponse =
@@ -314,9 +368,9 @@ export type PostAuthSendEmailCodeData = {
 
 export type PostAuthSendEmailCodeResponses = {
   /**
-   * Whether a deletion code email was queued
+   * What the request did
    */
-  200: boolean
+  200: SendDeleteUserEmailCodeResult
 }
 
 export type PostAuthSendEmailCodeResponse =

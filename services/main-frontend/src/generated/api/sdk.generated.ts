@@ -22,24 +22,80 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminBulkTransitionCreditRegistrationsData,
+  AdminBulkTransitionCreditRegistrationsErrors,
+  AdminBulkTransitionCreditRegistrationsResponses,
+  AdminDismissCreditRegistrationAttentionData,
+  AdminDismissCreditRegistrationAttentionErrors,
+  AdminDismissCreditRegistrationAttentionResponses,
+  AdminDismissStudyRegistryConflictData,
+  AdminDismissStudyRegistryConflictErrors,
+  AdminDismissStudyRegistryConflictResponses,
+  AdminManuallyLinkStudentNumberData,
+  AdminManuallyLinkStudentNumberErrors,
+  AdminManuallyLinkStudentNumberResponses,
+  AdminMaterializeCreditRegistrationsData,
+  AdminMaterializeCreditRegistrationsResponses,
+  AdminPauseCourseModuleCreditRegistrationData,
+  AdminPauseCourseModuleCreditRegistrationErrors,
+  AdminPauseCourseModuleCreditRegistrationResponses,
+  AdminPausePhaseData,
+  AdminPausePhaseErrors,
+  AdminPausePhaseResponses,
+  AdminRequestEnrolmentListFetchData,
+  AdminRequestEnrolmentListFetchErrors,
+  AdminRequestEnrolmentListFetchResponses,
+  AdminRequeueRetryableCreditRegistrationsData,
+  AdminRequeueRetryableCreditRegistrationsErrors,
+  AdminRequeueRetryableCreditRegistrationsResponses,
+  AdminResendAccountLinkingEmailData,
+  AdminResendAccountLinkingEmailErrors,
+  AdminResendAccountLinkingEmailResponses,
+  AdminResolveStudentNumberForLinkingData,
+  AdminResolveStudentNumberForLinkingErrors,
+  AdminResolveStudentNumberForLinkingResponses,
+  AdminResumeCourseModuleCreditRegistrationData,
+  AdminResumeCourseModuleCreditRegistrationErrors,
+  AdminResumeCourseModuleCreditRegistrationResponses,
+  AdminResumePhaseData,
+  AdminResumePhaseErrors,
+  AdminResumePhaseResponses,
+  AdminRunPhaseNowData,
+  AdminRunPhaseNowErrors,
+  AdminRunPhaseNowResponses,
+  AdminTransitionCreditRegistrationData,
+  AdminTransitionCreditRegistrationErrors,
+  AdminTransitionCreditRegistrationResponses,
+  AdminUnlinkStudentNumberData,
+  AdminUnlinkStudentNumberErrors,
+  AdminUnlinkStudentNumberResponses,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
   ApproveOauthConsentResponses,
+  ApproveOauthDeviceVerificationData,
+  ApproveOauthDeviceVerificationErrors,
+  ApproveOauthDeviceVerificationResponses,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ClaimStudentNumberVerificationTokenData,
+  ClaimStudentNumberVerificationTokenErrors,
+  ClaimStudentNumberVerificationTokenResponses,
   ConfigureChatbotData,
+  ConfigureChatbotErrors,
   ConfigureChatbotResponses,
   ConfirmCourseSuspectedCheaterData,
   ConfirmCourseSuspectedCheaterResponses,
+  ConfirmMyEnrolmentData,
+  ConfirmMyEnrolmentResponses,
   CreateChapterData,
   CreateChapterResponses,
+  CreateChatbotData,
+  CreateChatbotResponses,
   CreateCodeGiveawayData,
   CreateCodeGiveawayResponses,
-  CreateCourseChatbotData,
-  CreateCourseChatbotResponses,
   CreateCourseCopyData,
   CreateCourseCopyResponses,
   CreateCourseData,
@@ -63,10 +119,14 @@ import type {
   CreateCourseReferencesData,
   CreateCourseReferencesResponses,
   CreateCourseResponses,
+  CreateEmailTemplateData,
+  CreateEmailTemplateResponses,
   CreateExerciseRepositoryData,
   CreateExerciseRepositoryResponses,
   CreateExerciseServiceData,
   CreateExerciseServiceResponses,
+  CreateExternalCourseData,
+  CreateExternalCourseResponses,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreateOrganizationExamResponses,
@@ -111,6 +171,8 @@ import type {
   DeleteExerciseRepositoryResponses,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponses,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponses,
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
@@ -126,10 +188,21 @@ import type {
   DeletePlaygroundExampleResponses,
   DenyOauthConsentData,
   DenyOauthConsentResponses,
+  DenyOauthDeviceVerificationData,
+  DenyOauthDeviceVerificationErrors,
+  DenyOauthDeviceVerificationResponses,
+  DeviceAuthorizationOauthData,
+  DeviceAuthorizationOauthErrors,
+  DeviceAuthorizationOauthResponses,
   DismissCourseSuspectedCheaterData,
   DismissCourseSuspectedCheaterResponses,
+  DismissCreditRegistrationEnrolmentBannerData,
+  DismissCreditRegistrationEnrolmentBannerErrors,
+  DismissCreditRegistrationEnrolmentBannerResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
+  DownloadExerciseAnswerFilesData,
+  DownloadExerciseAnswerFilesResponses,
   DuplicateExamData,
   DuplicateExamResponses,
   EditCourseInstanceData,
@@ -139,6 +212,10 @@ import type {
   ExchangeOauthTokenData,
   ExchangeOauthTokenErrors,
   ExchangeOauthTokenResponses,
+  ExerciseHasAnswerFilesData,
+  ExerciseHasAnswerFilesResponses,
+  ExportCourseCreditRegistrationsData,
+  ExportCourseCreditRegistrationsResponses,
   ExportCourseExerciseTasksCsvData,
   ExportCourseExerciseTasksCsvResponses,
   ExportCourseInstanceCompletionsCsvData,
@@ -169,6 +246,17 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponses,
+  GetAccountLinkingStatsData,
+  GetAccountLinkingStatsResponses,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAllChatbotsData,
+  GetAllChatbotsResponses,
+  GetAllCoursesData,
+  GetAllCoursesResponses,
   GetAvgTimeToFirstSubmissionHistoryData,
   GetAvgTimeToFirstSubmissionHistoryResponses,
   GetBulkUserDetailsData,
@@ -193,6 +281,8 @@ import type {
   GetCohortActivityHistoryResponses,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponses,
+  GetCourseAudiencesData,
+  GetCourseAudiencesResponses,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponses,
   GetCourseByJoinCodeData,
@@ -211,6 +301,16 @@ import type {
   GetCourseCompletionsHistoryResponses,
   GetCourseCompletionStatsForEmailDomainData,
   GetCourseCompletionStatsForEmailDomainResponses,
+  GetCourseCreditRegistrationActionsData,
+  GetCourseCreditRegistrationActionsResponses,
+  GetCourseCreditRegistrationModuleConfigsData,
+  GetCourseCreditRegistrationModuleConfigsResponses,
+  GetCourseCreditRegistrationsData,
+  GetCourseCreditRegistrationsForUsersData,
+  GetCourseCreditRegistrationsForUsersResponses,
+  GetCourseCreditRegistrationsResponses,
+  GetCourseCreditRegistrationSummaryData,
+  GetCourseCreditRegistrationSummaryResponses,
   GetCourseDailySubmissionCountsData,
   GetCourseDailySubmissionCountsResponses,
   GetCourseDailyUsersWhoSubmittedSomethingData,
@@ -228,6 +328,8 @@ import type {
   GetCourseExercisesResponses,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponses,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponses,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponses,
   GetCourseFeedbackData,
@@ -257,6 +359,8 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseMetadataData,
+  GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponses,
@@ -283,11 +387,15 @@ import type {
   GetCoursePartnersBlockResponses,
   GetCoursePlanMembersData,
   GetCoursePlanMembersResponses,
+  GetCoursePrerequisitesData,
+  GetCoursePrerequisitesResponses,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponses,
   GetCourseReferencesData,
   GetCourseReferencesResponses,
   GetCourseResponses,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponses,
   GetCourseStructureData,
   GetCourseStructureResponses,
   GetCourseStudentChapterLockingStatusesData,
@@ -298,6 +406,8 @@ import type {
   GetCourseStudentsCompletionsResponses,
   GetCourseStudentsProgressData,
   GetCourseStudentsProgressResponses,
+  GetCourseStudentsProgressStructureData,
+  GetCourseStudentsProgressStructureResponses,
   GetCourseStudentsUsersData,
   GetCourseStudentsUsersResponses,
   GetCourseSubmissionCountsByExerciseData,
@@ -312,14 +422,42 @@ import type {
   GetCourseUserSettingsForUserResponses,
   GetCourseWeekdayHourSubmissionCountsData,
   GetCourseWeekdayHourSubmissionCountsResponses,
+  GetCreditRegistrationAttentionItemsData,
+  GetCreditRegistrationAttentionItemsResponses,
+  GetCreditRegistrationDetailsData,
+  GetCreditRegistrationDetailsErrors,
+  GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEnrolmentChecksData,
+  GetCreditRegistrationEnrolmentChecksResponses,
+  GetCreditRegistrationErrorsByCodeData,
+  GetCreditRegistrationErrorsByCodeResponses,
+  GetCreditRegistrationForAdminData,
+  GetCreditRegistrationForAdminErrors,
+  GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationLinkingCandidatesData,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  GetCreditRegistrationLinkingCandidatesResponses,
+  GetCreditRegistrationOverviewData,
+  GetCreditRegistrationOverviewResponses,
+  GetCreditRegistrationPipelineHistoryData,
+  GetCreditRegistrationPipelineHistoryResponses,
+  GetCreditRegistrationReconciliationData,
+  GetCreditRegistrationReconciliationResponses,
+  GetCreditRegistrationSettingsData,
+  GetCreditRegistrationSettingsResponses,
+  GetCreditRegistrationStatsByCourseData,
+  GetCreditRegistrationStatsByCourseResponses,
+  GetCreditRegistrationThresholdsData,
+  GetCreditRegistrationThresholdsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
-  GetEditProposalCountData,
-  GetEditProposalCountResponses,
   GetEditProposalsData,
   GetEditProposalsResponses,
   GetEmailTemplatesData,
   GetEmailTemplatesResponses,
+  GetEmailVerificationCodeForTestModeData,
+  GetEmailVerificationCodeForTestModeErrors,
+  GetEmailVerificationCodeForTestModeResponses,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponses,
@@ -352,14 +490,32 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponses,
   GetExerciseSubmissionsResponses,
+  GetExternalCoursesData,
+  GetExternalCoursesResponses,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponses,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetMyCertificatesData,
+  GetMyCertificatesResponses,
   GetMyCoursesData,
   GetMyCoursesResponses,
+  GetMyCreditRegistrationEnrolmentBannersData,
+  GetMyCreditRegistrationEnrolmentBannersResponses,
+  GetMyCreditRegistrationForCourseModuleData,
+  GetMyCreditRegistrationForCourseModuleResponses,
+  GetMyCreditRegistrationsData,
+  GetMyCreditRegistrationsResponses,
+  GetMyEmailVerificationStatusData,
+  GetMyEmailVerificationStatusResponses,
+  GetMyEnrolmentRouteData,
+  GetMyEnrolmentRouteResponses,
+  GetMyStudiesData,
+  GetMyStudiesResponses,
+  GetMyVerifiedStudentNumberData,
+  GetMyVerifiedStudentNumberResponses,
   GetNumberOfPeopleCompletedACourseData,
   GetNumberOfPeopleCompletedACourseResponses,
   GetNumberOfPeopleDoneAtLeastOneExerciseData,
@@ -370,6 +526,9 @@ import type {
   GetNumberOfPeopleStartedCourseResponses,
   GetOauthAuthorizedClientsData,
   GetOauthAuthorizedClientsResponses,
+  GetOauthDeviceVerificationData,
+  GetOauthDeviceVerificationErrors,
+  GetOauthDeviceVerificationResponses,
   GetOauthJwksData,
   GetOauthJwksResponses,
   GetOauthOpenidConfigurationData,
@@ -422,6 +581,8 @@ import type {
   GetResetPasswordTokenStatusResponses,
   GetRolesData,
   GetRolesResponses,
+  GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoResponses,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponses,
   GetStatusCronjobsData,
@@ -452,6 +613,11 @@ import type {
   GetStudentEnrollmentsByCountryResponses,
   GetStudentsByCountryTotalsData,
   GetStudentsByCountryTotalsResponses,
+  GetSuotarApiCallData,
+  GetSuotarApiCallErrors,
+  GetSuotarApiCallResponses,
+  GetSuotarHealthData,
+  GetSuotarHealthResponses,
   GetTotalUsersCompletedCourseByInstanceData,
   GetTotalUsersCompletedCourseByInstanceResponses,
   GetTotalUsersCompletedCourseCustomTimePeriodData,
@@ -482,6 +648,8 @@ import type {
   GetUniqueUsersStartingHistoryResponses,
   GetUserCourseEnrollmentsData,
   GetUserCourseEnrollmentsResponses,
+  GetUserCourseSubmissionTimesData,
+  GetUserCourseSubmissionTimesResponses,
   GetUserData,
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponses,
@@ -497,6 +665,8 @@ import type {
   GetUserResetExerciseLogsData,
   GetUserResetExerciseLogsResponses,
   GetUserResponses,
+  GetUserRolesData,
+  GetUserRolesResponses,
   GetUsersByCourseIdForUserDetailsData,
   GetUsersByCourseIdForUserDetailsResponses,
   GetUsersIpCountryData,
@@ -505,10 +675,27 @@ import type {
   GetUsersReturningExercisesHistoryByInstanceResponses,
   GetUsersReturningExercisesHistoryData,
   GetUsersReturningExercisesHistoryResponses,
+  GetUserSuspectedCheatersData,
+  GetUserSuspectedCheatersResponses,
+  HideCourseFromMyCoursesData,
+  HideCourseFromMyCoursesResponses,
   IntrospectOauthTokenData,
+  IntrospectOauthTokenErrors,
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListCreditRegistrationAdminActionsData,
+  ListCreditRegistrationAdminActionsResponses,
+  ListCreditRegistrationPhasesData,
+  ListCreditRegistrationPhasesResponses,
+  ListCreditRegistrationsForAdminData,
+  ListCreditRegistrationsForAdminResponses,
+  ListOwnSubmissionSharesData,
+  ListOwnSubmissionSharesResponses,
+  ListSuotarApiCallsData,
+  ListSuotarApiCallsResponses,
+  ListVerifiedStudentNumbersForAdminData,
+  ListVerifiedStudentNumbersForAdminResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
   PostOauthUserInfoData,
@@ -516,10 +703,19 @@ import type {
   PostOauthUserInfoResponses,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponses,
+  PreviewStudentNumberVerificationTokenData,
+  PreviewStudentNumberVerificationTokenErrors,
+  PreviewStudentNumberVerificationTokenResponses,
   ProcessEditProposalData,
   ProcessEditProposalResponses,
   ReceivePlaygroundGradingData,
   ReceivePlaygroundGradingResponses,
+  RecheckCreditRegistrationEnrolmentData,
+  RecheckCreditRegistrationEnrolmentErrors,
+  RecheckCreditRegistrationEnrolmentResponses,
+  RecordMyEnrolmentPageVisitData,
+  RecordMyEnrolmentPageVisitErrors,
+  RecordMyEnrolmentPageVisitResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
   RemoveCoursePlanMemberData,
@@ -528,6 +724,15 @@ import type {
   RemoveRoleResponses,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponses,
+  RequestCreditRegistrationEnrolmentRecheckData,
+  RequestCreditRegistrationEnrolmentRecheckErrors,
+  RequestCreditRegistrationEnrolmentRecheckResponses,
+  RequestEmailVerificationCodeData,
+  RequestEmailVerificationCodeErrors,
+  RequestEmailVerificationCodeResponses,
+  ResendCourseCreditRegistrationLinkingEmailData,
+  ResendCourseCreditRegistrationLinkingEmailErrors,
+  ResendCourseCreditRegistrationLinkingEmailResponses,
   ResetCourseProgressForEveryoneData,
   ResetCourseProgressForEveryoneResponses,
   ResetCourseProgressForTeacherThemselvesData,
@@ -538,16 +743,23 @@ import type {
   ResetUserPasswordResponses,
   RestorePageHistoryData,
   RestorePageHistoryResponses,
+  RetryCreditRegistrationData,
+  RetryCreditRegistrationErrors,
+  RetryCreditRegistrationResponses,
+  RetryFailedCreditRegistrationsForCourseData,
+  RetryFailedCreditRegistrationsForCourseResponses,
   RevokeOauthTokenData,
   RevokeOauthTokenResponses,
+  RevokeSubmissionShareData,
+  RevokeSubmissionShareResponses,
+  RevokeSubmissionSharesOfSubmissionData,
+  RevokeSubmissionSharesOfSubmissionResponses,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponses,
-  SearchUserDetailsByEmailData,
-  SearchUserDetailsByEmailResponses,
-  SearchUserDetailsByOtherDetailsData,
-  SearchUserDetailsByOtherDetailsResponses,
-  SearchUserDetailsFuzzyMatchData,
-  SearchUserDetailsFuzzyMatchResponses,
+  SearchUserDetailsExactData,
+  SearchUserDetailsExactResponses,
+  SearchUserDetailsFuzzyData,
+  SearchUserDetailsFuzzyResponses,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponses,
   SetCourseChatbotAsDefaultData,
@@ -560,6 +772,10 @@ import type {
   SetCourseModuleCertificateGenerationResponses,
   SetExamCourseData,
   SetExamCourseResponses,
+  SetMyCreditJustificationData,
+  SetMyCreditJustificationResponses,
+  SetMyEnrolmentRouteData,
+  SetMyEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -568,6 +784,10 @@ import type {
   TeacherSetStudentChapterStatusResponses,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponses,
+  UnhideCourseFromMyCoursesData,
+  UnhideCourseFromMyCoursesResponses,
+  UnlinkMyStudentNumberData,
+  UnlinkMyStudentNumberResponses,
   UnsetExamCourseData,
   UnsetExamCourseResponses,
   UpdateCertificateConfigurationData,
@@ -576,6 +796,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponses,
   UpdateChapterResponses,
+  UpdateCourseAuditingDataData,
+  UpdateCourseAuditingDataResponses,
   UpdateCourseChapterOrderingData,
   UpdateCourseChapterOrderingResponses,
   UpdateCourseData,
@@ -584,6 +806,7 @@ import type {
   UpdateCourseDesignerStageWorkspaceData,
   UpdateCourseDesignerStageWorkspaceResponses,
   UpdateCourseModulesData,
+  UpdateCourseModulesErrors,
   UpdateCourseModulesResponses,
   UpdateCoursePageOrderingData,
   UpdateCoursePageOrderingResponses,
@@ -596,11 +819,15 @@ import type {
   UpdateExerciseRepositoryResponses,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponses,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponses,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponses,
   UpdateGlossaryTermData,
   UpdateGlossaryTermErrors,
   UpdateGlossaryTermResponses,
+  UpdateMetadataData,
+  UpdateMetadataResponses,
   UpdateOrganizationData,
   UpdateOrganizationImageData,
   UpdateOrganizationImageResponses,
@@ -613,22 +840,45 @@ import type {
   UpdateUserInfoResponses,
   UploadCourseMediaData,
   UploadCourseMediaResponses,
+  UploadFilesForExerciseAnswerData,
+  UploadFilesForExerciseAnswerResponses,
   UploadFilesFromExerciseServiceData,
   UploadFilesFromExerciseServiceResponses,
   UpsertCoursePartnersBlockData,
   UpsertCoursePartnersBlockResponses,
+  VerifyEmailOwnershipData,
+  VerifyEmailOwnershipErrors,
+  VerifyEmailOwnershipResponses,
+  WithdrawMyEnrolmentConfirmationData,
+  WithdrawMyEnrolmentConfirmationResponses,
 } from "./types.generated"
 import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminDismissCreditRegistrationAttentionResponse,
+  zAdminManuallyLinkStudentNumberResponse,
+  zAdminMaterializeCreditRegistrationsResponse,
+  zAdminPausePhaseResponse,
+  zAdminRequestEnrolmentListFetchResponse,
+  zAdminRequeueRetryableCreditRegistrationsResponse,
+  zAdminResendAccountLinkingEmailResponse,
+  zAdminResolveStudentNumberForLinkingResponse,
+  zAdminResumePhaseResponse,
+  zAdminRunPhaseNowResponse,
+  zAdminTransitionCreditRegistrationResponse,
+  zAdminUnlinkStudentNumberResponse,
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
+  zApproveOauthDeviceVerificationResponse,
   zChangeUserPasswordResponse,
+  zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
+  zConfirmMyEnrolmentResponse,
   zCreateChapterResponse,
+  zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
-  zCreateCourseChatbotResponse,
   zCreateCourseCopyResponse,
   zCreateCourseDesignerPlanResponse,
   zCreateCourseDesignerScheduleSuggestionResponse,
@@ -637,8 +887,10 @@ import {
   zCreateCourseInstanceEmailTemplateResponse,
   zCreateCourseInstanceResponse,
   zCreateCourseResponse,
+  zCreateEmailTemplateResponse,
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
+  zCreateExternalCourseResponse,
   zCreatePageAudioFileResponse,
   zCreatePageResponse,
   zCreatePlaygroundExampleResponse,
@@ -651,12 +903,18 @@ import {
   zDeleteEmailTemplateResponse,
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
+  zDeleteExternalCourseResponse,
   zDeleteOauthAuthorizedClientResponse,
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
   zDenyOauthConsentResponse,
+  zDenyOauthDeviceVerificationResponse,
+  zDeviceAuthorizationOauthResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
+  zDownloadExerciseAnswerFilesResponse,
   zDuplicateExamResponse,
+  zExerciseHasAnswerFilesResponse,
+  zExportCourseCreditRegistrationsResponse,
   zExportCourseExerciseTasksCsvResponse,
   zExportCourseInstanceCompletionsCsvResponse,
   zExportCourseInstancePointsCsvResponse,
@@ -672,6 +930,11 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCoursesResponse,
+  zGetAccountLinkingStatsResponse,
+  zGetAccountLinkingUnlinkedEnroleesResponse,
+  zGetAllChatbotsResponse,
+  zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
@@ -683,6 +946,7 @@ import {
   zGetCodeGiveawaysByCourseResponse,
   zGetCohortActivityHistoryResponse,
   zGetCompletionStatsByEmailDomainResponse,
+  zGetCourseAudiencesResponse,
   zGetCourseBreadcrumbInfoResponse,
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
@@ -692,6 +956,11 @@ import {
   zGetCourseCompletionsHistoryCustomTimePeriodResponse,
   zGetCourseCompletionsHistoryResponse,
   zGetCourseCompletionStatsForEmailDomainResponse,
+  zGetCourseCreditRegistrationActionsResponse,
+  zGetCourseCreditRegistrationModuleConfigsResponse,
+  zGetCourseCreditRegistrationsForUsersResponse,
+  zGetCourseCreditRegistrationsResponse,
+  zGetCourseCreditRegistrationSummaryResponse,
   zGetCourseDailySubmissionCountsResponse,
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
   zGetCourseDesignerPlanResponse,
@@ -699,6 +968,7 @@ import {
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
+  zGetCourseFeedbackCategoriesResponse,
   zGetCourseFeedbackCountResponse,
   zGetCourseFeedbackResponse,
   zGetCourseFlaggedSuspectedCheatersCountResponse,
@@ -710,6 +980,7 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
@@ -722,14 +993,17 @@ import {
   zGetCoursePageVisitDatumSummaryByPagesResponse,
   zGetCoursePageVisitDatumSummaryResponse,
   zGetCoursePlanMembersResponse,
+  zGetCoursePrerequisitesResponse,
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
+  zGetCoursesForAuditingResponse,
   zGetCourseStructureResponse,
   zGetCourseStudentChapterLockingStatusesResponse,
   zGetCourseStudentsCertificatesResponse,
   zGetCourseStudentsCompletionsResponse,
   zGetCourseStudentsProgressResponse,
+  zGetCourseStudentsProgressStructureResponse,
   zGetCourseStudentsUsersResponse,
   zGetCourseSubmissionCountsByExerciseResponse,
   zGetCourseSuspectedCheatersResponse,
@@ -737,10 +1011,22 @@ import {
   zGetCourseUsersCountsByExerciseResponse,
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
+  zGetCreditRegistrationAttentionItemsResponse,
+  zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEnrolmentChecksResponse,
+  zGetCreditRegistrationErrorsByCodeResponse,
+  zGetCreditRegistrationForAdminResponse,
+  zGetCreditRegistrationLinkingCandidatesResponse,
+  zGetCreditRegistrationOverviewResponse,
+  zGetCreditRegistrationPipelineHistoryResponse,
+  zGetCreditRegistrationReconciliationResponse,
+  zGetCreditRegistrationSettingsResponse,
+  zGetCreditRegistrationStatsByCourseResponse,
+  zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
-  zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
+  zGetEmailVerificationCodeForTestModeResponse,
   zGetExamExercisesResponse,
   zGetExamResponse,
   zGetExamSubmissionsWithExamIdResponse,
@@ -757,15 +1043,25 @@ import {
   zGetExerciseSlideSubmissionInfoResponse,
   zGetExerciseSubmissionsForUserResponse,
   zGetExerciseSubmissionsResponse,
+  zGetExternalCoursesResponse,
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetMyCertificatesResponse,
   zGetMyCoursesResponse,
+  zGetMyCreditRegistrationEnrolmentBannersResponse,
+  zGetMyCreditRegistrationForCourseModuleResponse,
+  zGetMyCreditRegistrationsResponse,
+  zGetMyEmailVerificationStatusResponse,
+  zGetMyEnrolmentRouteResponse,
+  zGetMyStudiesResponse,
+  zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
   zGetNumberOfPeopleDoneAtLeastOneExerciseResponse,
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   zGetNumberOfPeopleStartedCourseResponse,
   zGetOauthAuthorizedClientsResponse,
+  zGetOauthDeviceVerificationResponse,
   zGetOrganizationActiveCourseCountResponse,
   zGetOrganizationActiveCoursesResponse,
   zGetOrganizationBySlugResponse,
@@ -788,6 +1084,7 @@ import {
   zGetRegradingsResponse,
   zGetResetPasswordTokenStatusResponse,
   zGetRolesResponse,
+  zGetSharedSubmissionInfoResponse,
   zGetSisuCourseLlmDescriptionsResponse,
   zGetStatusCronjobsResponse,
   zGetStatusDeploymentsResponse,
@@ -803,6 +1100,8 @@ import {
   zGetStudentCompletionsByCountryResponse,
   zGetStudentEnrollmentsByCountryResponse,
   zGetStudentsByCountryTotalsResponse,
+  zGetSuotarApiCallResponse,
+  zGetSuotarHealthResponse,
   zGetTotalUsersCompletedCourseByInstanceResponse,
   zGetTotalUsersCompletedCourseCustomTimePeriodResponse,
   zGetTotalUsersCompletedCourseResponse,
@@ -818,51 +1117,78 @@ import {
   zGetUniqueUsersStartingHistoryCustomTimePeriodResponse,
   zGetUniqueUsersStartingHistoryResponse,
   zGetUserCourseEnrollmentsResponse,
+  zGetUserCourseSubmissionTimesResponse,
   zGetUserDetailsByCourseAndUserIdResponse,
   zGetUserDetailsByCoursesResponse,
   zGetUserDetailsForAuthenticatedUserResponse,
   zGetUserResearchConsentResponse,
   zGetUserResearchFormQuestionAnswersResponse,
   zGetUserResetExerciseLogsResponse,
+  zGetUserResponse,
+  zGetUserRolesResponse,
   zGetUsersByCourseIdForUserDetailsResponse,
   zGetUsersIpCountryResponse,
   zGetUsersReturningExercisesHistoryByInstanceResponse,
   zGetUsersReturningExercisesHistoryResponse,
+  zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListCreditRegistrationAdminActionsResponse,
+  zListCreditRegistrationPhasesResponse,
+  zListCreditRegistrationsForAdminResponse,
+  zListOwnSubmissionSharesResponse,
+  zListSuotarApiCallsResponse,
+  zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
+  zPreviewStudentNumberVerificationTokenResponse,
+  zRecheckCreditRegistrationEnrolmentResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
+  zRequestCreditRegistrationEnrolmentRecheckResponse,
+  zRequestEmailVerificationCodeResponse,
+  zResendCourseCreditRegistrationLinkingEmailResponse,
   zResetCourseProgressForEveryoneResponse,
   zResetCourseProgressForTeacherThemselvesResponse,
   zResetExercisesForSelectedUsersResponse,
   zResetUserPasswordResponse,
   zRestorePageHistoryResponse,
+  zRetryCreditRegistrationResponse,
+  zRetryFailedCreditRegistrationsForCourseResponse,
+  zRevokeSubmissionShareResponse,
+  zRevokeSubmissionSharesOfSubmissionResponse,
   zSaveCourseDesignerScheduleResponse,
-  zSearchUserDetailsByEmailResponse,
-  zSearchUserDetailsByOtherDetailsResponse,
-  zSearchUserDetailsFuzzyMatchResponse,
+  zSearchUserDetailsExactResponse,
+  zSearchUserDetailsFuzzyResponse,
   zSendResetPasswordEmailResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
+  zSetMyCreditJustificationResponse,
+  zSetMyEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
+  zUnlinkMyStudentNumberResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
+  zUpdateCourseAuditingDataResponse,
   zUpdateCourseDesignerStageTaskResponse,
   zUpdateCourseDesignerStageWorkspaceResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
   zUpdateCourseResponse,
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
+  zUpdateExternalCourseResponse,
   zUpdateGeneratedCertificateResponse,
+  zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
   zUploadCourseMediaResponse,
+  zUploadFilesForExerciseAnswerResponse,
   zUploadFilesFromExerciseServiceResponse,
+  zVerifyEmailOwnershipResponse,
+  zWithdrawMyEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
 export type Options<
@@ -885,11 +1211,43 @@ export type Options<
 
 /**
  *
+ * POST `/api/v0/files/answer-uploads/:exercise_task_id`
+ * Used to upload the files a student is attaching to an answer for the given exercise task.
+ *
+ * Unlike `POST /api/v0/files/:exercise_service_slug` this binds every stored file to the uploader and
+ * the task's exercise, which is what lets a later submission verify that the answer only names files
+ * the submitter uploaded for that exercise.
+ *
+ * # Returns
+ * An ordered list of `file_uploads` ids and stored URLs, in the order the parts were sent.
+ */
+export const uploadFilesForExerciseAnswer = <ThrowOnError extends boolean = true>(
+  options: Options<UploadFilesForExerciseAnswerData, ThrowOnError>,
+): RequestResult<UploadFilesForExerciseAnswerResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UploadFilesForExerciseAnswerResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    ...formDataBodySerializer,
+    responseValidator: async (data) => await zUploadFilesForExerciseAnswerResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/files/answer-uploads/{exercise_task_id}",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * POST `/api/v0/files/:exercise_service_slug`
  * Used to upload data from exercise service iframes.
  *
  * # Returns
- * The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
+ * An ordered list of host-assigned file ids and stored URLs.
  */
 export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = true>(
   options: Options<UploadFilesFromExerciseServiceData, ThrowOnError>,
@@ -1190,9 +1548,9 @@ export const getCourseChapters = <ThrowOnError extends boolean = true>(
  * GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
  */
 export const getChatbotModels = <ThrowOnError extends boolean = true>(
-  options: Options<GetChatbotModelsData, ThrowOnError>,
+  options?: Options<GetChatbotModelsData, ThrowOnError>,
 ): RequestResult<GetChatbotModelsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetChatbotModelsResponses, unknown, ThrowOnError, "data">({
+  (options?.client ?? client).get<GetChatbotModelsResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetChatbotModelsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbot-models/",
@@ -1209,6 +1567,36 @@ export const getChatbotModel = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetChatbotModelResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbot-models/{chatbot_model_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/chatbots`
+ */
+export const getAllChatbots = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAllChatbotsData, ThrowOnError>,
+): RequestResult<GetAllChatbotsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAllChatbotsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAllChatbotsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/chatbots/create`
+ */
+export const createChatbot = <ThrowOnError extends boolean = true>(
+  options: Options<CreateChatbotData, ThrowOnError>,
+): RequestResult<CreateChatbotResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateChatbotResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateChatbotResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/create",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1251,8 +1639,13 @@ export const getChatbotConfiguration = <ThrowOnError extends boolean = true>(
  */
 export const configureChatbot = <ThrowOnError extends boolean = true>(
   options: Options<ConfigureChatbotData, ThrowOnError>,
-): RequestResult<ConfigureChatbotResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<ConfigureChatbotResponses, unknown, ThrowOnError, "data">({
+): RequestResult<ConfigureChatbotResponses, ConfigureChatbotErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ConfigureChatbotResponses,
+    ConfigureChatbotErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseValidator: async (data) => await zConfigureChatbotResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}",
@@ -1374,6 +1767,330 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-auditing`
+ */
+export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCoursesForAuditingData, ThrowOnError>,
+): RequestResult<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursesForAuditingResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAuditingData = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseAuditingDataData, ThrowOnError>,
+): RequestResult<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCourseAuditingDataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateCourseAuditingDataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-auditing/{course_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions` - The manual
+ * actions taken on this course's credit registrations, newest first.
+ */
+export const getCourseCreditRegistrationActions = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationActionsData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationActionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationActionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationActionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
+ * registrations of the named students, for the students tab's current page.
+ */
+export const getCourseCreditRegistrationsForUsers = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationsForUsersData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationsForUsersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    GetCourseCreditRegistrationsForUsersResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationsForUsersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export` - Every credit
+ * registration of the course as csv.
+ */
+export const exportCourseCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<ExportCourseCreditRegistrationsData, ThrowOnError>,
+): RequestResult<ExportCourseCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    ExportCourseCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zExportCourseCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
+ * course's registrations, filtered by state and searched by student name, email or student number.
+ */
+export const getCourseCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
+ * course's per-module credit registration configuration.
+ */
+export const getCourseCreditRegistrationModuleConfigs = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationModuleConfigsData, ThrowOnError>,
+): RequestResult<
+  GetCourseCreditRegistrationModuleConfigsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationModuleConfigsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationModuleConfigsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs",
+    ...options,
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
+ * another account-linking mail for one person on this course.
+ *
+ * The target has to be on this course's roster in the study registry and hold no link with us. The caps
+ * of the ordinary claim path apply and nothing here relaxes them.
+ */
+export const resendCourseCreditRegistrationLinkingEmail = <ThrowOnError extends boolean = true>(
+  options: Options<ResendCourseCreditRegistrationLinkingEmailData, ThrowOnError>,
+): RequestResult<
+  ResendCourseCreditRegistrationLinkingEmailResponses,
+  ResendCourseCreditRegistrationLinkingEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ResendCourseCreditRegistrationLinkingEmailResponses,
+    ResendCourseCreditRegistrationLinkingEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zResendCourseCreditRegistrationLinkingEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
+ * course's failed registrations back on the pipeline.
+ *
+ * Refuses the same rows the single-row retry refuses and reports how many of each it left alone rather
+ * than failing the whole call over them. The cap applies to the rows a retry can actually move: the
+ * refused ones are counted across the whole course, because they would otherwise sit in the batch
+ * forever and a course that accumulated a capful of them could never retry anything again.
+ */
+export const retryFailedCreditRegistrationsForCourse = <ThrowOnError extends boolean = true>(
+  options: Options<RetryFailedCreditRegistrationsForCourseData, ThrowOnError>,
+): RequestResult<RetryFailedCreditRegistrationsForCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    RetryFailedCreditRegistrationsForCourseResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRetryFailedCreditRegistrationsForCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
+ * counts plus the two reasons a student of this course will not get credits.
+ *
+ * Course-wide unless `course_instance_id` narrows the per-module counts to one instance. The two
+ * student-number totals are course-wide either way: a student holds one number, not one per instance.
+ */
+export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCreditRegistrationSummaryData, ThrowOnError>,
+): RequestResult<GetCourseCreditRegistrationSummaryResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCreditRegistrationSummaryResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseCreditRegistrationSummaryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
+ * registration with its timeline and the other attempts for the same completion.
+ *
+ * Authorized on the row's own course: a course id from the caller would let a teacher of one course pair
+ * it with a foreign registration id.
+ */
+export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationDetailsData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationDetailsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationDetailsResponses,
+    GetCreditRegistrationDetailsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCreditRegistrationDetailsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST
+ * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
+ * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
+ * none.
+ *
+ * Shares the student's limit on asking, so between them they cannot start more than one check in 30
+ * minutes. Authorized on the row's own course, like the retry.
+ */
+export const recheckCreditRegistrationEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<RecheckCreditRegistrationEnrolmentData, ThrowOnError>,
+): RequestResult<
+  RecheckCreditRegistrationEnrolmentResponses,
+  RecheckCreditRegistrationEnrolmentErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecheckCreditRegistrationEnrolmentResponses,
+    RecheckCreditRegistrationEnrolmentErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRecheckCreditRegistrationEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry`
+ * - Puts one failed registration back on the pipeline.
+ *
+ * Authorized on the row's own course, which is why no course id appears in the path: a teacher of one
+ * course must not be able to pair it with a foreign registration id.
+ */
+export const retryCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<RetryCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  RetryCreditRegistrationResponses,
+  RetryCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RetryCreditRegistrationResponses,
+    RetryCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zRetryCreditRegistrationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
 
 /**
  *
@@ -2066,6 +2783,22 @@ export const createCourse = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/courses` - Get all courses
+ *
+ * Returns all courses.
+ */
+export const getAllCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAllCoursesData, ThrowOnError>,
+): RequestResult<GetAllCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAllCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAllCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/",
+    ...options,
+  })
+
+/**
+ *
  * GET /courses/join/:join_code - Gets the course related to join code
  */
 export const getCourseByJoinCode = <ThrowOnError extends boolean = true>(
@@ -2163,23 +2896,6 @@ export const getCourseChatbots = <ThrowOnError extends boolean = true>(
   })
 
 /**
- * POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
- */
-export const createCourseChatbot = <ThrowOnError extends boolean = true>(
-  options: Options<CreateCourseChatbotData, ThrowOnError>,
-): RequestResult<CreateCourseChatbotResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<CreateCourseChatbotResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zCreateCourseChatbotResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/chatbots",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`
  */
 export const setCourseChatbotAsDefault = <ThrowOnError extends boolean = true>(
@@ -2251,8 +2967,13 @@ export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean =
 
 export const updateCourseModules = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCourseModulesData, ThrowOnError>,
-): RequestResult<UpdateCourseModulesResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<UpdateCourseModulesResponses, unknown, ThrowOnError, "data">({
+): RequestResult<UpdateCourseModulesResponses, UpdateCourseModulesErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UpdateCourseModulesResponses,
+    UpdateCourseModulesErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/course-modules",
     ...options,
@@ -2578,6 +3299,25 @@ export const getCourseFeedback = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseFeedbackCategoriesData, ThrowOnError>,
+): RequestResult<GetCourseFeedbackCategoriesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseFeedbackCategoriesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseFeedbackCategoriesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
  */
 export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
@@ -2587,6 +3327,48 @@ export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackCountResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback-count",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+ */
+export const getCourseAudiences = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseAudiencesData, ThrowOnError>,
+): RequestResult<GetCourseAudiencesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseAudiencesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseAudiencesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
+ */
+export const getCourseMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseMetadataData, ThrowOnError>,
+): RequestResult<GetCourseMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-metadata",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+ */
+export const getCoursePrerequisites = <ThrowOnError extends boolean = true>(
+  options: Options<GetCoursePrerequisitesData, ThrowOnError>,
+): RequestResult<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursePrerequisitesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites",
     ...options,
   })
 
@@ -3711,12 +4493,12 @@ export const getCourseStructure = <ThrowOnError extends boolean = true>(
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/certificates`
  */
 export const getCourseStudentsCertificates = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseStudentsCertificatesData, ThrowOnError>,
 ): RequestResult<GetCourseStudentsCertificatesResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
+  (options.client ?? client).post<
     GetCourseStudentsCertificatesResponses,
     unknown,
     ThrowOnError,
@@ -3727,15 +4509,19 @@ export const getCourseStudentsCertificates = <ThrowOnError extends boolean = tru
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/certificates",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/completions`
  */
 export const getCourseStudentsCompletions = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseStudentsCompletionsData, ThrowOnError>,
 ): RequestResult<GetCourseStudentsCompletionsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
+  (options.client ?? client).post<
     GetCourseStudentsCompletionsResponses,
     unknown,
     ThrowOnError,
@@ -3745,22 +4531,52 @@ export const getCourseStudentsCompletions = <ThrowOnError extends boolean = true
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/completions",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/progress`
  */
 export const getCourseStudentsProgress = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseStudentsProgressData, ThrowOnError>,
 ): RequestResult<GetCourseStudentsProgressResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetCourseStudentsProgressResponses, unknown, ThrowOnError, "data">(
-    {
-      responseValidator: async (data) => await zGetCourseStudentsProgressResponse.parseAsync(data),
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/courses/{course_id}/students/progress",
-      ...options,
+  (options.client ?? client).post<
+    GetCourseStudentsProgressResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseStudentsProgressResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/students/progress",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
     },
-  )
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/progress-structure`
+ */
+export const getCourseStudentsProgressStructure = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseStudentsProgressStructureData, ThrowOnError>,
+): RequestResult<GetCourseStudentsProgressStructureResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseStudentsProgressStructureResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseStudentsProgressStructureResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/students/progress-structure",
+    ...options,
+  })
 
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/students/users`
@@ -4008,6 +4824,24 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+ */
+export const updateMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateMetadataData, ThrowOnError>,
+): RequestResult<UpdateMetadataResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/update-metadata",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-reviews-received`
  *
  * Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
@@ -4104,6 +4938,1296 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
+ * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
+ * a student number and the stale-address list.
+ */
+export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingStatsData, ThrowOnError>,
+): RequestResult<GetAccountLinkingStatsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingStatsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAccountLinkingStatsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountLinkingCoursesData, ThrowOnError>,
+): RequestResult<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountLinkingCoursesResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetAccountLinkingCoursesResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingUnlinkedEnroleesData, ThrowOnError>,
+): RequestResult<
+  GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAccountLinkingUnlinkedEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAccountLinkingUnlinkedEnroleesResponses,
+    GetAccountLinkingUnlinkedEnroleesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingUnlinkedEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
+ * one course code's enrolment list due at its next grid point.
+ *
+ * The fetch still waits for the rate limiter and any failure backoff, like any other.
+ */
+export const adminRequestEnrolmentListFetch = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRequestEnrolmentListFetchData, ThrowOnError>,
+): RequestResult<
+  AdminRequestEnrolmentListFetchResponses,
+  AdminRequestEnrolmentListFetchErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminRequestEnrolmentListFetchResponses,
+    AdminRequestEnrolmentListFetchErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminRequestEnrolmentListFetchResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
+ * number to an account on an admin's judgement.
+ *
+ * The last resort, for a student whose mailbox host will not accept our mail at all. An admin's judgement
+ * stands in for proof of mailbox control, so the link is marked `admin_manual` forever, carries the
+ * reason and names the admin.
+ */
+export const adminManuallyLinkStudentNumber = <ThrowOnError extends boolean = true>(
+  options: Options<AdminManuallyLinkStudentNumberData, ThrowOnError>,
+): RequestResult<
+  AdminManuallyLinkStudentNumberResponses,
+  AdminManuallyLinkStudentNumberErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminManuallyLinkStudentNumberResponses,
+    AdminManuallyLinkStudentNumberErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminManuallyLinkStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
+ * account-linking mail for one person on one course.
+ *
+ * The mail goes to the addresses the study registry holds, and the recipient still has to open the link
+ * while signed in, so the ownership proof is intact. An override does not ask a cap for an exemption: it
+ * retires the ledger rows the cap is counting, as its own audited action, then runs the ordinary path.
+ */
+export const adminResendAccountLinkingEmail = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResendAccountLinkingEmailData, ThrowOnError>,
+): RequestResult<
+  AdminResendAccountLinkingEmailResponses,
+  AdminResendAccountLinkingEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResendAccountLinkingEmailResponses,
+    AdminResendAccountLinkingEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminResendAccountLinkingEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resend",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
+ * student number up in the study registry without changing anything.
+ *
+ * The preview a manual link is gated on. Writes nothing but the call log row every study registry call
+ * writes.
+ */
+export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResolveStudentNumberForLinkingData, ThrowOnError>,
+): RequestResult<
+  AdminResolveStudentNumberForLinkingResponses,
+  AdminResolveStudentNumberForLinkingErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResolveStudentNumberForLinkingResponses,
+    AdminResolveStudentNumberForLinkingErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminResolveStudentNumberForLinkingResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
+ * Takes a student number clash off the list for good.
+ *
+ * The links stay as they are. A reason is required, so the request carries a body.
+ */
+export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissStudyRegistryConflictData, ThrowOnError>,
+): RequestResult<
+  AdminDismissStudyRegistryConflictResponses,
+  AdminDismissStudyRegistryConflictErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissStudyRegistryConflictResponses,
+    AdminDismissStudyRegistryConflictErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
+ * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
+ * recently dismissed.
+ *
+ * Superseded attempts are outside every detector: acting on a replaced attempt is never right.
+ * `total_count` is the one Needs attention count; `/overview`'s `needs_attention_count` is the same
+ * number.
+ */
+export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationAttentionItemsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationAttentionItemsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationAttentionItemsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationAttentionItemsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/attention",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
+ * newest first.
+ *
+ * Covers admin and course-teacher actors alike, and every target kind: a registration, a course
+ * module, a course, a phase, a student-number link or its token.
+ */
+export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationAdminActionsData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationAdminActionsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationAdminActionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListCreditRegistrationAdminActionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/audit",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * its validated configuration and its volumes.
+ */
+export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationStatsByCourseData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationStatsByCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationStatsByCourseResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationStatsByCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
+ * phase from claiming this module's rows.
+ *
+ * Freezes the rows where they stand rather than cancelling them, so resuming picks up what was already
+ * in flight.
+ */
+export const adminPauseCourseModuleCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPauseCourseModuleCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminPauseCourseModuleCreditRegistrationResponses,
+  AdminPauseCourseModuleCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminPauseCourseModuleCreditRegistrationResponses,
+    AdminPauseCourseModuleCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume` - Lets the
+ * phases claim this module's rows again.
+ */
+export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumeCourseModuleCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminResumeCourseModuleCreditRegistrationResponses,
+  AdminResumeCourseModuleCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminResumeCourseModuleCreditRegistrationResponses,
+    AdminResumeCourseModuleCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
+ * and findings of the enrolment checks, and the enrolment list schedule per course code.
+ */
+export const getCreditRegistrationEnrolmentChecks = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationEnrolmentChecksData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEnrolmentChecksResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationEnrolmentChecksResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEnrolmentChecksResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/enrolment-checks",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
+ * window and the window before it, with the terminal verdicts of the same window beside them.
+ *
+ * Counts events, not rows: an error that happened really happened, whether or not a later attempt
+ * succeeded, and hiding it would hide the configuration bug that caused it.
+ */
+export const getCreditRegistrationErrorsByCode = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationErrorsByCodeData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationErrorsByCodeResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationErrorsByCodeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationErrorsByCodeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/errors/by-code",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
+ * completions and recomputes preconditions, now.
+ *
+ * Runs the `materialize` phase's body and the precondition recompute directly rather than through the
+ * phase dispatcher, because the phase-state row describes the worker loops: an admin pressing a button
+ * must not make a dead worker look alive.
+ */
+export const adminMaterializeCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminMaterializeCreditRegistrationsData, ThrowOnError>,
+): RequestResult<AdminMaterializeCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminMaterializeCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminMaterializeCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/materialize",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
+ * alert banner render, in one request so the tiles cannot contradict each other.
+ */
+export const getCreditRegistrationOverview = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationOverviewData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationOverviewResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationOverviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationOverviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/overview",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
+ * and the queue it is responsible for, and the workers' circuit breakers.
+ */
+export const listCreditRegistrationPhases = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationPhasesData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationPhasesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationPhasesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zListCreditRegistrationPhasesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
+ * worker loop skips it on every tick until it is resumed.
+ */
+export const adminPausePhase = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPausePhaseData, ThrowOnError>,
+): RequestResult<AdminPausePhaseResponses, AdminPausePhaseErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminPausePhaseResponses,
+    AdminPausePhaseErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminPausePhaseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
+ * phase.
+ */
+export const adminResumePhase = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumePhaseData, ThrowOnError>,
+): RequestResult<AdminResumePhaseResponses, AdminResumePhaseErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminResumePhaseResponses,
+    AdminResumePhaseErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminResumePhaseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
+ * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
+ */
+export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRunPhaseNowData, ThrowOnError>,
+): RequestResult<AdminRunPhaseNowResponses, AdminRunPhaseNowErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminRunPhaseNowResponses,
+    AdminRunPhaseNowErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminRunPhaseNowResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
+ * ledger state, with what entered and left each state that day, and the count per timeline step and
+ * the Needs attention count from the day those snapshots began.
+ */
+export const getCreditRegistrationPipelineHistory = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationPipelineHistoryData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationPipelineHistoryResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationPipelineHistoryResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationPipelineHistoryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/pipeline-history",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/reconciliation` - The drift detectors: work the
+ * ledger should be doing and is not, and outcomes the study registry and the ledger disagree about.
+ */
+export const getCreditRegistrationReconciliation = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationReconciliationData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationReconciliationResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationReconciliationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationReconciliationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/reconciliation",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
+ * and sorted.
+ */
+export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = true>(
+  options?: Options<ListCreditRegistrationsForAdminData, ThrowOnError>,
+): RequestResult<ListCreditRegistrationsForAdminResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListCreditRegistrationsForAdminResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListCreditRegistrationsForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
+ * selection of rows by hand, one transaction for the lot.
+ *
+ * Resubmitting or cancelling refuses every row in `submission_uncertain`, whatever the selection
+ * said. Taking one of those back to `ready_to_submit` is a decision about one student's transcript,
+ * made after somebody has looked the attainment up; a checkbox in a list is not that, and a mis-click
+ * here would put a second attainment on every one of them. Those rows are reported back untouched, to
+ * be dealt with one at a time, as is a row whose earlier submission Suotar still holds open
+ * (`submission_pending`). Each attention item's `hand_actions` says in advance what this skips.
+ */
+export const adminBulkTransitionCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminBulkTransitionCreditRegistrationsData, ThrowOnError>,
+): RequestResult<
+  AdminBulkTransitionCreditRegistrationsResponses,
+  AdminBulkTransitionCreditRegistrationsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminBulkTransitionCreditRegistrationsResponses,
+    AdminBulkTransitionCreditRegistrationsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminBulkTransitionCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
+ * `failed_retryable` row waiting out a backoff due now.
+ *
+ * The button pressed once the study registry says an outage is over. Touches nothing but
+ * `next_attempt_at`: the rows are already where the pipeline wants them, they are merely waiting.
+ */
+export const adminRequeueRetryableCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<AdminRequeueRetryableCreditRegistrationsData, ThrowOnError>,
+): RequestResult<
+  AdminRequeueRetryableCreditRegistrationsResponses,
+  AdminRequeueRetryableCreditRegistrationsErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminRequeueRetryableCreditRegistrationsResponses,
+    AdminRequeueRetryableCreditRegistrationsErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminRequeueRetryableCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One
+ * row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
+ * the actions taken on it and its linking mails.
+ */
+export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationForAdminData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationForAdminResponses,
+  GetCreditRegistrationForAdminErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationForAdminResponses,
+    GetCreditRegistrationForAdminErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
+ * - Takes a row off the Needs attention queue.
+ *
+ * The dismissal covers the reasons the row carries now; it comes back only when a different one
+ * fires. Leaves the pipeline's own flag alone.
+ */
+export const adminDismissCreditRegistrationAttention = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDismissCreditRegistrationAttentionData, ThrowOnError>,
+): RequestResult<
+  AdminDismissCreditRegistrationAttentionResponses,
+  AdminDismissCreditRegistrationAttentionErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDismissCreditRegistrationAttentionResponses,
+    AdminDismissCreditRegistrationAttentionErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminDismissCreditRegistrationAttentionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
+ * - Who on the code's enrolment list a student stuck waiting for a student number may be.
+ *
+ * Lists the roster live and keeps the people no account is linked to who enrolled before account
+ * linking began, whom no linking email went to. Ranked by resemblance to the student's account, which
+ * is only a hint. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationLinkingCandidatesData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationLinkingCandidatesResponses,
+  GetCreditRegistrationLinkingCandidatesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationLinkingCandidatesResponses,
+    GetCreditRegistrationLinkingCandidatesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationLinkingCandidatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
+ * - Moves one row by hand.
+ *
+ * The escape hatch out of `submission_uncertain`, which the pipeline never leaves on its own because
+ * re-importing could put a second attainment on a real transcript. Even here, a row is not resubmitted
+ * while Suotar may still hold its earlier submission as pending (`submission_uncertain_too_recent`,
+ * `submission_pending`). The row's `hand_actions` says in advance what this refuses.
+ */
+export const adminTransitionCreditRegistration = <ThrowOnError extends boolean = true>(
+  options: Options<AdminTransitionCreditRegistrationData, ThrowOnError>,
+): RequestResult<
+  AdminTransitionCreditRegistrationResponses,
+  AdminTransitionCreditRegistrationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminTransitionCreditRegistrationResponses,
+    AdminTransitionCreditRegistrationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminTransitionCreditRegistrationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
+ * spot-checking and support.
+ */
+export const listVerifiedStudentNumbersForAdmin = <ThrowOnError extends boolean = true>(
+  options?: Options<ListVerifiedStudentNumbersForAdminData, ThrowOnError>,
+): RequestResult<ListVerifiedStudentNumbersForAdminResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    ListVerifiedStudentNumbersForAdminResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zListVerifiedStudentNumbersForAdminResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/student-numbers",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.
+ *
+ * A reason is required, so the request carries a body rather than being a `DELETE`. The row is
+ * soft-deleted: the number a student once held is part of the audit trail.
+ */
+export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
+  options: Options<AdminUnlinkStudentNumberData, ThrowOnError>,
+): RequestResult<
+  AdminUnlinkStudentNumberResponses,
+  AdminUnlinkStudentNumberErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminUnlinkStudentNumberResponses,
+    AdminUnlinkStudentNumberErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdminUnlinkStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/student-numbers/{verified_student_number_id}/unlink",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
+ * registry call log, newest first.
+ *
+ * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
+ * the bodies are scrubbed, so there is no student number in them to search.
+ */
+export const listSuotarApiCalls = <ThrowOnError extends boolean = true>(
+  options?: Options<ListSuotarApiCallsData, ThrowOnError>,
+): RequestResult<ListSuotarApiCallsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListSuotarApiCallsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zListSuotarApiCallsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-api-calls",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}` - One
+ * call with its stored bodies, the ledger rows it covered and the timeline entries it produced.
+ */
+export const getSuotarApiCall = <ThrowOnError extends boolean = true>(
+  options: Options<GetSuotarApiCallData, ThrowOnError>,
+): RequestResult<GetSuotarApiCallResponses, GetSuotarApiCallErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetSuotarApiCallResponses,
+    GetSuotarApiCallErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetSuotarApiCallResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
+ * success rates and latency percentiles over an hour, a day and a week.
+ */
+export const getSuotarHealth = <ThrowOnError extends boolean = true>(
+  options?: Options<GetSuotarHealthData, ThrowOnError>,
+): RequestResult<GetSuotarHealthResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetSuotarHealthResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetSuotarHealthResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/suotar-health",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/thresholds` - Every number the alert rules and
+ * the stuck detectors use.
+ *
+ * The same values `/overview` embeds in its health block. Separate so a tab explaining "stuck after
+ * 2 hours" can say so without reading the whole overview aggregate.
+ */
+export const getCreditRegistrationThresholds = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationThresholdsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationThresholdsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationThresholdsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationThresholdsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/thresholds",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
+ * account, newest completion first.
+ */
+export const getMyCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyCreditRegistrationsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zGetMyCreditRegistrationsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
+ * signed-in account's registration for one course module, or null when the pipeline has not created one
+ * yet.
+ */
+export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationForCourseModuleData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationForCourseModuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationForCourseModuleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationForCourseModuleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
+ * - Records why the caller needs the credits in the study registry rather than a certificate.
+ *
+ * Advisory: nothing reads it, and it neither gates nor speeds up the registration the student goes on
+ * to make. Asked on the old registration page, so unlike the enrolment answers it is stored for
+ * completions on either path.
+ */
+export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyCreditJustificationData, ThrowOnError>,
+): RequestResult<SetMyCreditJustificationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<SetMyCreditJustificationResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSetMyCreditJustificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
+ * - The caller opened the registration page after completing, and it is showing them how to enrol.
+ *
+ * Moves a waiting registration onto the schedule for students who have looked, or restarts that
+ * schedule at most once a day. Recorded against the completion too, so a visit before there is a
+ * registration, or before a student number is linked, still counts once there is; an unlinked
+ * caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+ * every page load; the page sends it once per load.
+ */
+export const recordMyEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
+  options: Options<RecordMyEnrolmentPageVisitData, ThrowOnError>,
+): RequestResult<
+  RecordMyEnrolmentPageVisitResponses,
+  RecordMyEnrolmentPageVisitErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecordMyEnrolmentPageVisitResponses,
+    RecordMyEnrolmentPageVisitErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - What the caller said about where they enrol this module.
+ */
+export const getMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyEnrolmentRouteData, ThrowOnError>,
+): RequestResult<GetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
+ * - Records which university relationship the caller has, which decides where they are told to enrol.
+ */
+export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyEnrolmentRouteData, ThrowOnError>,
+): RequestResult<SetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<SetMyEnrolmentRouteResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSetMyEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller takes back saying they had enrolled.
+ */
+export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyEnrolmentConfirmationData, ThrowOnError>,
+): RequestResult<WithdrawMyEnrolmentConfirmationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    WithdrawMyEnrolmentConfirmationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyEnrolmentConfirmationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
+ * - The caller says they have enrolled.
+ *
+ * Counts as a check request: a waiting registration restarts its checks on the check-requested
+ * schedule, under the limit every check request shares. Recorded against the completion too, so a
+ * registration that starts waiting later starts on that schedule. For a caller with no linked
+ * student number, it also makes the course code's enrolment list due sooner.
+ */
+export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<ConfirmMyEnrolmentData, ThrowOnError>,
+): RequestResult<ConfirmMyEnrolmentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<ConfirmMyEnrolmentResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zConfirmMyEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
+ * caller's registrations on one course that owe them the in-course re-enrol banner.
+ *
+ * Scoped to the course rather than filtered from `/my` on the client, because every course-material page
+ * view calls this. Empty is the normal answer.
+ */
+export const getMyCreditRegistrationEnrolmentBanners = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationEnrolmentBannersData, ThrowOnError>,
+): RequestResult<GetMyCreditRegistrationEnrolmentBannersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationEnrolmentBannersResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationEnrolmentBannersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
+ * from the signed-in account.
+ *
+ * Registrations that have not been sent go back to waiting; credits already in Sisu are untouched.
+ */
+export const unlinkMyStudentNumber = <ThrowOnError extends boolean = true>(
+  options?: Options<UnlinkMyStudentNumberData, ThrowOnError>,
+): RequestResult<UnlinkMyStudentNumberResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).delete<UnlinkMyStudentNumberResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUnlinkMyStudentNumberResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registrations/my/student-number",
+      ...options,
+    },
+  )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
+ * signed-in account, or null.
+ */
+export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyVerifiedStudentNumberData, ThrowOnError>,
+): RequestResult<GetMyVerifiedStudentNumberResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyVerifiedStudentNumberResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetMyVerifiedStudentNumberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/student-number",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
+ * in-course re-enrol banner for one registration.
+ *
+ * Idempotent. Not a permanent opt-out: a later entry into the same state clears the dismissal.
+ */
+export const dismissCreditRegistrationEnrolmentBanner = <ThrowOnError extends boolean = true>(
+  options: Options<DismissCreditRegistrationEnrolmentBannerData, ThrowOnError>,
+): RequestResult<
+  DismissCreditRegistrationEnrolmentBannerResponses,
+  DismissCreditRegistrationEnrolmentBannerErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DismissCreditRegistrationEnrolmentBannerResponses,
+    DismissCreditRegistrationEnrolmentBannerErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
+ * look for an enrolment again, for a row parked because the study registry had none.
+ */
+export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends boolean = true>(
+  options: Options<RequestCreditRegistrationEnrolmentRecheckData, ThrowOnError>,
+): RequestResult<
+  RequestCreditRegistrationEnrolmentRecheckResponses,
+  RequestCreditRegistrationEnrolmentRecheckErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RequestCreditRegistrationEnrolmentRecheckResponses,
+    RequestCreditRegistrationEnrolmentRecheckErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRequestCreditRegistrationEnrolmentRecheckResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
+ * switches.
+ */
+export const getCreditRegistrationSettings = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCreditRegistrationSettingsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCreditRegistrationSettingsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationSettingsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/settings",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
+ * mailed link would link, without linking it.
+ *
+ * Writes nothing: the link has to survive a mail scanner fetching it.
+ */
+export const previewStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
+  options: Options<PreviewStudentNumberVerificationTokenData, ThrowOnError>,
+): RequestResult<
+  PreviewStudentNumberVerificationTokenResponses,
+  PreviewStudentNumberVerificationTokenErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    PreviewStudentNumberVerificationTokenResponses,
+    PreviewStudentNumberVerificationTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPreviewStudentNumberVerificationTokenResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
+ * a mailed link and links the student number to the signed-in account.
+ *
+ * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
+ * and the session says which of our accounts the person wants to use.
+ */
+export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
+  options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
+): RequestResult<
+  ClaimStudentNumberVerificationTokenResponses,
+  ClaimStudentNumberVerificationTokenErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ClaimStudentNumberVerificationTokenResponses,
+    ClaimStudentNumberVerificationTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zClaimStudentNumberVerificationTokenResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/email-templates`
  */
 export const getEmailTemplates = <ThrowOnError extends boolean = true>(
@@ -4118,6 +6242,26 @@ export const getEmailTemplates = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * POST `/api/v0/main-frontend/email-templates`
+ *
+ * Creates a global template; rejects a second live one for the same type and language.
+ */
+export const createEmailTemplate = <ThrowOnError extends boolean = true>(
+  options: Options<CreateEmailTemplateData, ThrowOnError>,
+): RequestResult<CreateEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateEmailTemplateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateEmailTemplateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-templates",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * DELETE `/api/v0/main-frontend/email-templates/:id`
  */
 export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(
@@ -4128,6 +6272,110 @@ export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/email-templates/{email_template_id}",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the
+ * signed-in account's current address.
+ */
+export const requestEmailVerificationCode = <ThrowOnError extends boolean = true>(
+  options: Options<RequestEmailVerificationCodeData, ThrowOnError>,
+): RequestResult<
+  RequestEmailVerificationCodeResponses,
+  RequestEmailVerificationCodeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RequestEmailVerificationCodeResponses,
+    RequestEmailVerificationCodeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zRequestEmailVerificationCodeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/request",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
+ * proven, and what we last mailed about it.
+ */
+export const getMyEmailVerificationStatus = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyEmailVerificationStatusData, ThrowOnError>,
+): RequestResult<GetMyEmailVerificationStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetMyEmailVerificationStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetMyEmailVerificationStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/status",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
+ * verification code.
+ *
+ * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
+ * caller's own account, so an accidentally open gate only ever hands you your own code.
+ */
+export const getEmailVerificationCodeForTestMode = <ThrowOnError extends boolean = true>(
+  options?: Options<GetEmailVerificationCodeForTestModeData, ThrowOnError>,
+): RequestResult<
+  GetEmailVerificationCodeForTestModeResponses,
+  GetEmailVerificationCodeForTestModeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    GetEmailVerificationCodeForTestModeResponses,
+    GetEmailVerificationCodeForTestModeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetEmailVerificationCodeForTestModeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/test-mode-code",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+ *
+ * Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
+ * never has to identify anybody on its own.
+ */
+export const verifyEmailOwnership = <ThrowOnError extends boolean = true>(
+  options: Options<VerifyEmailOwnershipData, ThrowOnError>,
+): RequestResult<VerifyEmailOwnershipResponses, VerifyEmailOwnershipErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    VerifyEmailOwnershipResponses,
+    VerifyEmailOwnershipErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zVerifyEmailOwnershipResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-verification/verify",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -4619,7 +6867,7 @@ export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolea
 
 /**
  *
- * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = true>(
   options: Options<GetExerciseCsvExportTaskOptionsData, ThrowOnError>,
@@ -4634,6 +6882,25 @@ export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = t
       await zGetExerciseCsvExportTaskOptionsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+export const downloadExerciseAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<DownloadExerciseAnswerFilesData, ThrowOnError>,
+): RequestResult<DownloadExerciseAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    DownloadExerciseAnswerFilesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDownloadExerciseAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files",
     ...options,
   })
 
@@ -4672,6 +6939,20 @@ export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true
 
 /**
  *
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
+ */
+export const exerciseHasAnswerFiles = <ThrowOnError extends boolean = true>(
+  options: Options<ExerciseHasAnswerFilesData, ThrowOnError>,
+): RequestResult<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<ExerciseHasAnswerFilesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zExerciseHasAnswerFilesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/has-answer-files",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
 export const getExerciseSubmissions = <ThrowOnError extends boolean = true>(
@@ -4702,6 +6983,74 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = tru
     responseStyle: "data",
     url: "/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}",
     ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
+ */
+export const getExternalCourses = <ThrowOnError extends boolean = true>(
+  options?: Options<GetExternalCoursesData, ThrowOnError>,
+): RequestResult<GetExternalCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetExternalCoursesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetExternalCoursesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/all",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
+ */
+export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteExternalCourseData, ThrowOnError>,
+): RequestResult<DeleteExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<DeleteExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zDeleteExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/delete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
+ */
+export const createExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<CreateExternalCourseData, ThrowOnError>,
+): RequestResult<CreateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/new",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
+ */
+export const updateExternalCourse = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateExternalCourseData, ThrowOnError>,
+): RequestResult<UpdateExternalCourseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateExternalCourseResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateExternalCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/external-courses/update",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -5102,22 +7451,174 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * Handles `POST /device_authorization` — the RFC 8628 device authorization
+ * endpoint.
+ *
+ * Public, form-encoded, no session required (rate-limited like `/token`).
+ * Validates the client, checks it is allowed the device-code grant, validates
+ * requested scopes against the client's registered scopes, then issues an
+ * opaque `device_code` (stored only as an HMAC digest) plus a human-typable
+ * `user_code`.
+ *
+ * Follows [RFC 8628 §3.1–§3.2](https://datatracker.ietf.org/doc/html/rfc8628#section-3.1).
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/main-frontend/oauth/device_authorization HTTP/1.1
+ * Content-Type: application/x-www-form-urlencoded
+ *
+ * client_id=tmc-vscode&scope=exercise-services
+ * ```
+ *
+ * Successful response:
+ * ```http
+ * HTTP/1.1 200 OK
+ * Content-Type: application/json
+ *
+ * {
+ * "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS",
+ * "user_code": "WDJB-MJHT",
+ * "verification_uri": "https://courses.mooc.fi/oauth_device",
+ * "verification_uri_complete": "https://courses.mooc.fi/oauth_device?user_code=WDJB-MJHT",
+ * "expires_in": 900,
+ * "interval": 5
+ * }
+ * ```
+ */
+export const deviceAuthorizationOauth = <ThrowOnError extends boolean = true>(
+  options: Options<DeviceAuthorizationOauthData, ThrowOnError>,
+): RequestResult<
+  DeviceAuthorizationOauthResponses,
+  DeviceAuthorizationOauthErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DeviceAuthorizationOauthResponses,
+    DeviceAuthorizationOauthErrors,
+    ThrowOnError,
+    "data"
+  >({
+    ...urlSearchParamsBodySerializer,
+    responseValidator: async (data) => await zDeviceAuthorizationOauthResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_authorization",
+    ...options,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `GET /device_verification` — render data for the browser consent page.
+ *
+ * Session-authed. Looks up the still-pending, unexpired grant for the given
+ * `user_code` (normalizing the input first) and returns the client name and
+ * requested scopes so the page can ask the user to approve. A code that is
+ * unknown, expired, or no longer pending yields `404 Not Found` so the page can
+ * show a distinguishable "invalid or expired code" message.
+ */
+export const getOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<GetOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  GetOauthDeviceVerificationResponses,
+  GetOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetOauthDeviceVerificationResponses,
+    GetOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification",
+    ...options,
+  })
+
+/**
+ * Handles `POST /device_verification/approve`.
+ *
+ * Session-authed. Persists the user's consent via the same
+ * `OAuthUserClientScopes::insert` the web consent flow uses (consent is always
+ * recorded — never short-circuited on a pre-existing grant), then marks the
+ * device code approved and bound to the signed-in user.
+ */
+export const approveOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<ApproveOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  ApproveOauthDeviceVerificationResponses,
+  ApproveOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ApproveOauthDeviceVerificationResponses,
+    ApproveOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zApproveOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification/approve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Handles `POST /device_verification/deny`.
+ *
+ * Session-authed. Marks the pending device code denied; the polling client then
+ * receives `access_denied` at the token endpoint.
+ */
+export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>(
+  options: Options<DenyOauthDeviceVerificationData, ThrowOnError>,
+): RequestResult<
+  DenyOauthDeviceVerificationResponses,
+  DenyOauthDeviceVerificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    DenyOauthDeviceVerificationResponses,
+    DenyOauthDeviceVerificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zDenyOauthDeviceVerificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/device_verification/deny",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).
  *
  * This endpoint allows resource servers to query the authorization server about
  * the active state and metadata of an access token.
  *
  * ### Security Features
- * - Client authentication is required (client_id and client_secret for confidential clients)
- * - Returns `active: false` for invalid/expired tokens or authentication failures
- * to prevent token enumeration attacks
- * - Always returns 200 OK, even for invalid tokens (per RFC 7662)
+ * - Only a confidential client may introspect; an unknown client, a public client or a bad
+ * secret is 401 `invalid_client` (RFC 7662 §2.1, §2.3)
+ * - Returns 200 with `active: false` for an invalid/expired *token* (RFC 7662 §2.1), so token
+ * existence is never disclosed to an authenticated caller
  *
  * ### Request Parameters
  * - `token` (required): The token to be introspected
  * - `token_type_hint` (optional): Hint about token type ("access_token" or "refresh_token")
- * - `client_id` (required): Client identifier
- * - `client_secret` (required for confidential clients): Client secret
+ * - `client_id` (required): Client identifier of a confidential client
+ * - `client_secret` (required): Client secret
  *
  * ### Response
  * Returns a JSON object with:
@@ -5132,6 +7633,11 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
  * - `iss`: Issuer
  * - `jti`: JWT ID
  * - `token_type`: "Bearer" or "DPoP"
+ * - Non-standard members, returned only to callers that authenticated as a
+ * confidential client and omitted (never falsified) otherwise:
+ * - `upstream_id`: the token owner's legacy TMC user id
+ * - `client_bearer_allowed`: whether the client the token was issued to may use it
+ * as a plain Bearer credential. Consumers must fail closed if it is absent.
  *
  * Follows [RFC 7662 — OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662).
  *
@@ -5176,8 +7682,13 @@ export const denyOauthConsent = <ThrowOnError extends boolean = true>(
  */
 export const introspectOauthToken = <ThrowOnError extends boolean = true>(
   options: Options<IntrospectOauthTokenData, ThrowOnError>,
-): RequestResult<IntrospectOauthTokenResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<IntrospectOauthTokenResponses, unknown, ThrowOnError, "data">({
+): RequestResult<IntrospectOauthTokenResponses, IntrospectOauthTokenErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    IntrospectOauthTokenResponses,
+    IntrospectOauthTokenErrors,
+    ThrowOnError,
+    "data"
+  >({
     ...urlSearchParamsBodySerializer,
     responseStyle: "data",
     url: "/api/v0/main-frontend/oauth/introspect",
@@ -6024,20 +8535,6 @@ export const getEditProposals = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCount = <ThrowOnError extends boolean = true>(
-  options: Options<GetEditProposalCountData, ThrowOnError>,
-): RequestResult<GetEditProposalCountResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetEditProposalCountResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zGetEditProposalCountResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count",
-    ...options,
-  })
-
-/**
- *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
  */
 export const processEditProposal = <ThrowOnError extends boolean = true>(
@@ -6173,6 +8670,79 @@ export const removeRole = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
+ * newest first, so they can be reviewed and withdrawn.
+ */
+export const listOwnSubmissionShares = <ThrowOnError extends boolean = true>(
+  options?: Options<ListOwnSubmissionSharesData, ThrowOnError>,
+): RequestResult<ListOwnSubmissionSharesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListOwnSubmissionSharesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zListOwnSubmissionSharesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
+ * share the current user has minted for one submission.
+ */
+export const revokeSubmissionSharesOfSubmission = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeSubmissionSharesOfSubmissionData, ThrowOnError>,
+): RequestResult<RevokeSubmissionSharesOfSubmissionResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    RevokeSubmissionSharesOfSubmissionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zRevokeSubmissionSharesOfSubmissionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
+ * link stops resolving.
+ *
+ * Only the share's creator may revoke it: holding the token is authority to view, not to withdraw.
+ * Revoking an unknown or already-revoked share is a no-op, reported as `false`.
+ */
+export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeSubmissionShareData, ThrowOnError>,
+): RequestResult<RevokeSubmissionShareResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<RevokeSubmissionShareResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zRevokeSubmissionShareResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/{token}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
+ * render a shared submission.
+ *
+ * The `token` is the unguessable share id minted by the client share endpoint. Login is
+ * required, but holding the token is the only capability needed to view the submission —
+ * no teacher or course role.
+ */
+export const getSharedSubmissionInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetSharedSubmissionInfoData, ThrowOnError>,
+): RequestResult<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetSharedSubmissionInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/shared-submissions/{token}",
+    ...options,
   })
 
 /**
@@ -6423,41 +8993,15 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
-export const searchUserDetailsByEmail = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsByEmailData, ThrowOnError>,
-): RequestResult<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, "data">(
-    {
-      responseValidator: async (data) => await zSearchUserDetailsByEmailResponse.parseAsync(data),
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/user-details/search-by-email",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-    },
-  )
-
-/**
- *
- * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
- */
-export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsByOtherDetailsData, ThrowOnError>,
-): RequestResult<SearchUserDetailsByOtherDetailsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    SearchUserDetailsByOtherDetailsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zSearchUserDetailsByOtherDetailsResponse.parseAsync(data),
+export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
+  options: Options<SearchUserDetailsExactData, ThrowOnError>,
+): RequestResult<SearchUserDetailsExactResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SearchUserDetailsExactResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSearchUserDetailsExactResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/user-details/search-by-other-details",
+    url: "/api/v0/main-frontend/user-details/search-exact",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -6467,20 +9011,15 @@ export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = t
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
+ * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
-export const searchUserDetailsFuzzyMatch = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsFuzzyMatchData, ThrowOnError>,
-): RequestResult<SearchUserDetailsFuzzyMatchResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    SearchUserDetailsFuzzyMatchResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zSearchUserDetailsFuzzyMatchResponse.parseAsync(data),
+export const searchUserDetailsFuzzy = <ThrowOnError extends boolean = true>(
+  options: Options<SearchUserDetailsFuzzyData, ThrowOnError>,
+): RequestResult<SearchUserDetailsFuzzyResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SearchUserDetailsFuzzyResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSearchUserDetailsFuzzyResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/user-details/search-fuzzy-match",
+    url: "/api/v0/main-frontend/user-details/search-fuzzy",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -6636,6 +9175,23 @@ export const getUserResearchConsent = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
+ *
+ * No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
+ * verification id can already fetch its image; this only lists which ones are the caller's.
+ */
+export const getMyCertificates = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyCertificatesData, ThrowOnError>,
+): RequestResult<GetMyCertificatesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyCertificatesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyCertificatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-certificates",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
  */
 export const getMyCourses = <ThrowOnError extends boolean = true>(
@@ -6645,6 +9201,57 @@ export const getMyCourses = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetMyCoursesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
+ * authenticated user's "My courses" list.
+ */
+export const hideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
+  options: Options<HideCourseFromMyCoursesData, ThrowOnError>,
+): RequestResult<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<HideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-courses/{course_id}/hide",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
+ * back into the authenticated user's "My courses" list.
+ */
+export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
+  options: Options<UnhideCourseFromMyCoursesData, ThrowOnError>,
+): RequestResult<UnhideCourseFromMyCoursesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UnhideCourseFromMyCoursesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
+ * course they are enrolled in, its modules, and their completions.
+ *
+ * No user id parameter, so it cannot be pointed at another account. The teacher/admin equivalent is
+ * `getUserCourseEnrollments`.
+ */
+export const getMyStudies = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyStudiesData, ThrowOnError>,
+): RequestResult<GetMyStudiesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyStudiesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyStudiesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-studies",
     ...options,
   })
 
@@ -6746,6 +9353,7 @@ export const getUser = <ThrowOnError extends boolean = true>(
   options: Options<GetUserData, ThrowOnError>,
 ): RequestResult<GetUserResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetUserResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetUserResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/{user_id}",
     ...options,
@@ -6762,6 +9370,57 @@ export const getUserCourseEnrollments = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetUserCourseEnrollmentsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/{user_id}/course-enrollments",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
+ * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
+ */
+export const getUserCourseSubmissionTimes = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserCourseSubmissionTimesData, ThrowOnError>,
+): RequestResult<GetUserCourseSubmissionTimesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetUserCourseSubmissionTimesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetUserCourseSubmissionTimesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/courses/{course_id}/submission-times",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin
+ * (global) view; used to label the account (e.g. staff/teacher) on the user-details page.
+ */
+export const getUserRoles = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserRolesData, ThrowOnError>,
+): RequestResult<GetUserRolesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetUserRolesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetUserRolesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/roles",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for
+ * a user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;
+ * read-only (confirm/dismiss happen on the per-course cheaters page).
+ */
+export const getUserSuspectedCheaters = <ThrowOnError extends boolean = true>(
+  options: Options<GetUserSuspectedCheatersData, ThrowOnError>,
+): RequestResult<GetUserSuspectedCheatersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetUserSuspectedCheatersResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetUserSuspectedCheatersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/{user_id}/suspected-cheaters",
     ...options,
   })
 

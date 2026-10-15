@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::prelude::*;
+use crate::{course_page_markdown_content, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 
@@ -14,6 +14,7 @@ pub struct ChatbotPageSyncStatus {
     pub error_message: Option<String>,
     pub synced_page_revision_id: Option<Uuid>,
     pub consecutive_failures: i32,
+    pub converted_markdown_content_id: Option<Uuid>,
 }
 
 pub async fn ensure_sync_statuses_exist(
@@ -56,6 +57,57 @@ WHERE course_id = ANY($1)
     );
 
     Ok(all_statuses)
+}
+
+pub async fn save_markdown_content(
+    conn: &mut PgConnection,
+    page_id_to_history_id_md_content: HashMap<Uuid, (Uuid, String)>,
+) -> ModelResult<()> {
+    // If there are no updates to perform, return early
+    if page_id_to_history_id_md_content.is_empty() {
+        return Ok(());
+    }
+
+    let mut tx = conn.begin().await?;
+    let res = course_page_markdown_content::insert_batch(
+        &mut tx,
+        page_id_to_history_id_md_content
+            .clone()
+            .into_iter()
+            .collect(),
+    )
+    .await?;
+
+    let (md_ids, page_ids): (Vec<Uuid>, Vec<Uuid>) = page_id_to_history_id_md_content
+        .iter()
+        .filter_map(|(p_id, (ph_id, _))| {
+            let md_content = res.iter().find(|x| &x.page_history_id == ph_id);
+            md_content.map(|content| (content.id, p_id.to_owned()))
+        })
+        .collect::<Vec<(Uuid, Uuid)>>()
+        .into_iter()
+        .unzip();
+
+    sqlx::query!(
+        r#"
+UPDATE chatbot_page_sync_statuses AS cps
+SET converted_markdown_content_id = data.markdown_id
+FROM (
+    SELECT unnest($1::uuid []) AS markdown_id,
+      unnest($2::uuid []) AS page_id
+  ) AS data
+WHERE cps.page_id = data.page_id
+  AND cps.deleted_at IS NULL
+    "#,
+        &md_ids,
+        &page_ids
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(())
 }
 
 // Given a mapping from page id to the new revision id, update the sync statuses

@@ -19,7 +19,7 @@ run_command env SQLX_OFFLINE=1 cargo run --bin headless-lms-entrypoint -- doc-fi
 run_command find server/generated-docs/ -name '*.json' -exec jq --sort-keys . -M {} \;
 
 # Fix formatting
-run_command env CI=true pnpm run eslint:format-generated-docs
+run_command env CI=true pnpm run format:generated-docs
 
 echo ""
 echo -e "${GREEN}✅ New examples have been generated for the backend documentation.${RESET_EVERYTHING}"

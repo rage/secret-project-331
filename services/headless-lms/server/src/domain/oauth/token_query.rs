@@ -102,6 +102,24 @@ impl OAuthValidate for TokenQuery {
                 }
                 grant
             }
+            Some(grant @ TokenGrant::DeviceCode { .. }) => {
+                if let TokenGrant::DeviceCode { device_code } = &grant
+                    && device_code.expose_secret().is_empty()
+                {
+                    return Err(ControllerError::new(
+                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                            error: OAuthErrorCode::InvalidRequest.as_str().into(),
+                            error_description: "device_code is required".into(),
+                            redirect_uri: None,
+                            state: None,
+                            nonce: None,
+                        })),
+                        "Missing device code",
+                        None::<anyhow::Error>,
+                    ));
+                }
+                grant
+            }
             Some(TokenGrant::Unknown) => {
                 return Err(ControllerError::new(
                     ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
@@ -154,6 +172,10 @@ pub enum TokenGrant {
         #[serde(default)]
         scope: Option<String>,
     },
+    /// OAuth 2.0 Device Authorization Grant (RFC 8628). The `grant_type` value
+    /// is the exact URN `urn:ietf:params:oauth:grant-type:device_code`.
+    #[serde(rename = "urn:ietf:params:oauth:grant-type:device_code")]
+    DeviceCode { device_code: SecretString },
     #[serde(other)]
     Unknown,
 }
@@ -163,6 +185,7 @@ impl TokenGrant {
         match self {
             TokenGrant::AuthorizationCode { .. } => GrantTypeName::AuthorizationCode,
             TokenGrant::RefreshToken { .. } => GrantTypeName::RefreshToken,
+            TokenGrant::DeviceCode { .. } => GrantTypeName::DeviceCode,
             TokenGrant::Unknown => {
                 unreachable!(
                     "Unknown grant type should be caught by validate() before kind() is called"
@@ -343,6 +366,37 @@ mod tests {
     }
 
     #[test]
+    fn token_device_code_missing_field() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: None,
+            grant: Some(TokenGrant::DeviceCode {
+                device_code: "".into(),
+            }),
+            _extra: Default::default(),
+        };
+        let res = q.validate();
+        assert_oauth_error(
+            res,
+            OAuthErrorCode::InvalidRequest,
+            "device_code is required",
+        );
+    }
+
+    #[test]
+    fn token_valid_device_code() {
+        let q = TokenQuery {
+            client_id: Some("cid".into()),
+            client_secret: None,
+            grant: Some(TokenGrant::DeviceCode {
+                device_code: "dc".into(),
+            }),
+            _extra: Default::default(),
+        };
+        assert!(q.validate().is_ok());
+    }
+
+    #[test]
     fn token_valid_refresh_token() {
         let q = TokenQuery {
             client_id: Some("cid".into()),
@@ -416,6 +470,20 @@ mod tests {
                 assert_eq!(scope.as_deref(), Some("read write"));
             }
             _ => panic!("expected RefreshToken"),
+        }
+
+        // device_code branch (RFC 8628 URN grant_type)
+        let dc: TokenQuery = serde_json::from_value(json!({
+            "client_id": "cid",
+            "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+            "device_code": "DEV"
+        }))
+        .unwrap();
+        match dc.grant {
+            Some(TokenGrant::DeviceCode { device_code }) => {
+                assert_eq!(device_code.expose_secret(), "DEV");
+            }
+            _ => panic!("expected DeviceCode"),
         }
     }
 }

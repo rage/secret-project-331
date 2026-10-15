@@ -1,0 +1,185 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.course_module_id,\n  ts.step AS \"step!: TimelineStep\",\n  eng.engagement AS \"engagement?: Engagement\",\n  COUNT(*) AS \"count!\"\nFROM credit_registrations cr\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\n  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id\n  AND route.deleted_at IS NULL\n  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id\n  AND sig.deleted_at IS NULL\n  -- Computed exactly as in admin_facing_page; see there.\n  JOIN LATERAL (\n    SELECT m.step\n    FROM UNNEST(\n        $1::credit_registration_state [],\n        $2::boolean [],\n        $3::boolean [],\n        $4::boolean [],\n        $5::boolean [],\n        $6::credit_registration_timeline_step []\n      ) AS m(\n        state,\n        completion_eligible,\n        has_verified_student_number,\n        course_code_allowed,\n        enrolment_resolved,\n        step\n      )\n    WHERE m.state = cr.state\n      AND m.completion_eligible = p.completion_eligible\n      AND m.has_verified_student_number = p.has_verified_student_number\n      AND m.course_code_allowed = p.course_code_allowed\n      AND m.enrolment_resolved = (cr.selected_enrolment_id IS NOT NULL)\n  ) ts ON TRUE\n  CROSS JOIN LATERAL (\n    SELECT CASE\n        WHEN ts.step = ANY($7::credit_registration_timeline_step []) THEN CASE\n          WHEN route.enrolment_confirmed_at IS NOT NULL THEN 'pressed'::credit_registration_engagement\n          WHEN sig.last_visited_at IS NOT NULL THEN 'visited'::credit_registration_engagement\n          ELSE 'not_started'::credit_registration_engagement\n        END\n      END AS engagement,\n      ts.step = 'waiting_for_student_number'\n      AND cmc.completion_date < $8::timestamptz AS is_before_linking\n  ) eng\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND eng.is_before_linking IS NOT TRUE\nGROUP BY cr.course_module_id,\n  ts.step,\n  eng.engagement\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "step!: TimelineStep",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_timeline_step",
+            "kind": {
+              "Enum": [
+                "course_not_registrable_yet",
+                "waiting_for_student_number",
+                "held_for_course_code",
+                "looking_for_enrolment",
+                "waiting_for_enrolment",
+                "sending",
+                "answer_unclear",
+                "waiting_for_assessment_item",
+                "waiting_for_course_unit",
+                "registered",
+                "already_in_sisu",
+                "better_grade_in_sisu",
+                "recorded_wrongly",
+                "needs_a_person",
+                "not_registering",
+                "no_longer_registrable"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "engagement?: Engagement",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_engagement",
+            "kind": {
+              "Enum": [
+                "pressed",
+                "visited",
+                "not_started"
+              ]
+            }
+          }
+        },
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "partially_registered",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "BoolArray",
+        "BoolArray",
+        "BoolArray",
+        "BoolArray",
+        {
+          "Custom": {
+            "name": "credit_registration_timeline_step[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_timeline_step",
+                  "kind": {
+                    "Enum": [
+                      "course_not_registrable_yet",
+                      "waiting_for_student_number",
+                      "held_for_course_code",
+                      "looking_for_enrolment",
+                      "waiting_for_enrolment",
+                      "sending",
+                      "answer_unclear",
+                      "waiting_for_assessment_item",
+                      "waiting_for_course_unit",
+                      "registered",
+                      "already_in_sisu",
+                      "better_grade_in_sisu",
+                      "recorded_wrongly",
+                      "needs_a_person",
+                      "not_registering",
+                      "no_longer_registrable"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "credit_registration_timeline_step[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_timeline_step",
+                  "kind": {
+                    "Enum": [
+                      "course_not_registrable_yet",
+                      "waiting_for_student_number",
+                      "held_for_course_code",
+                      "looking_for_enrolment",
+                      "waiting_for_enrolment",
+                      "sending",
+                      "answer_unclear",
+                      "waiting_for_assessment_item",
+                      "waiting_for_course_unit",
+                      "registered",
+                      "already_in_sisu",
+                      "better_grade_in_sisu",
+                      "recorded_wrongly",
+                      "needs_a_person",
+                      "not_registering",
+                      "no_longer_registrable"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "29cd380d6d821ab4e8f28b4f7cc0a64f5784d47df11913d5fc173cdd6b9ffa3a"
+}

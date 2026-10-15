@@ -4,16 +4,16 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { breadcrumbBarCss } from "@/components/breadcrumbs/breadcrumbBarCss"
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import { getCourseMaterialPageChapterAndCourseInformation } from "@/generated/course-material-api/sdk.generated"
 import type {
   Page,
   PageChapterAndCourseInformation,
 } from "@/generated/course-material-api/types.generated"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, QueryResult } from "@/shared-module/components"
 
 interface CourseMaterialPageBreadcrumbsProps {
   page: Page | null
@@ -27,6 +27,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
   const { t } = useTranslation()
   const pageChapterAndCourseInformationQuery = useQuery({
     queryKey: [`page-chapter-and-course-${page?.id}`, page, page?.id],
+    // oxlint-disable-next-line require-await -- react-query queryFn is annotated to return a Promise
     queryFn: async (): Promise<PageChapterAndCourseInformation | null> => {
       if (!page) {
         return null
@@ -64,30 +65,29 @@ const CourseMaterialPageBreadcrumbs: React.FC<
         const pageOrderNumber = page.order_number
         const chapterFrontPageId = data.chapter_front_page_id
         const isChapterFrontPage = chapterFrontPageId && page.id === chapterFrontPageId
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const courseUrlPrefix = `/org/${data.organization_slug}/courses/${data.course_slug}`
 
-        const pieces = [{ text: data.course_name ?? t("course"), url: courseUrlPrefix }]
+        const crumbs = [{ label: data.course_name ?? t("course"), href: courseUrlPrefix }]
         if (page.chapter_id) {
-          pieces.push({
-            text: t("chapter-chapter-number-chapter-name", { chapterName, chapterNumber }),
-            url: `${courseUrlPrefix}${data.chapter_front_page_url_path}`,
+          crumbs.push({
+            label: t("chapter-chapter-number-chapter-name", { chapterName, chapterNumber }),
+            href: `${courseUrlPrefix}${data.chapter_front_page_url_path}`,
           })
         }
         if (!isChapterFrontPage && !isCourseFrontPage) {
-          if (page.chapter_id) {
-            pieces.push({
-              text: `${pageOrderNumber}: ${page.title}`,
-              url: `${courseUrlPrefix}${page.url_path}}`,
-            })
-          } else {
-            pieces.push({ text: page.title, url: `${courseUrlPrefix}${page.url_path}}` })
-          }
+          crumbs.push({
+            label: page.chapter_id ? `${pageOrderNumber}: ${page.title}` : page.title,
+            href: `${courseUrlPrefix}${page.url_path}`,
+          })
         }
+        const items: BreadcrumbItem[] = crumbs.map((crumb, index) =>
+          index === crumbs.length - 1 ? { label: crumb.label } : crumb,
+        )
 
         return (
           <BreakFromCentered sidebar={false}>
-            <Breadcrumbs pieces={pieces} />
+            <Breadcrumbs items={items} className={breadcrumbBarCss} />
           </BreakFromCentered>
         )
       }}

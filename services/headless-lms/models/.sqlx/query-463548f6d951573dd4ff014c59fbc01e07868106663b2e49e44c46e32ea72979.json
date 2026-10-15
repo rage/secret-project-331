@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET enrolment_check_group = GREATEST(enrolment_check_group, $2),\n  enrolment_check_anchor_at = $3,\n  enrolment_check_step = $4,\n  enrolment_check_due_at = $5,\n  is_enrolment_check_batched = $6,\n  enrolment_checks_stopped_at = CASE\n    WHEN $4::int IS NULL THEN COALESCE(enrolment_checks_stopped_at, now())\n  END,\n  enrolment_check_source = $7,\n  next_attempt_at = CASE\n    WHEN state <> 'no_usable_enrolment' THEN next_attempt_at\n    WHEN $9 THEN $8\n    ELSE LEAST(next_attempt_at, $8)\n  END\nWHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "enrolment_check_group",
+            "kind": {
+              "Enum": [
+                "completed",
+                "visited",
+                "check_requested"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Int4",
+        "Timestamptz",
+        "Bool",
+        {
+          "Custom": {
+            "name": "enrolment_check_source",
+            "kind": {
+              "Enum": [
+                "schedule",
+                "student_request",
+                "teacher_request",
+                "admin_request",
+                "roster_listing",
+                "account_link"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "463548f6d951573dd4ff014c59fbc01e07868106663b2e49e44c46e32ea72979"
+}

@@ -11,56 +11,525 @@ use headless_lms_utils::file_store::{FileStore, GenericPayload};
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
-use mime::Mime;
-use models::exercise_slides::ExerciseSlide;
-use models::exercise_tasks::ExerciseTask;
-use models::exercises::Exercise;
 use models::organizations::DatabaseOrganization;
 use rand::distr::Alphanumeric;
 use rand::distr::SampleString;
-use std::{collections::HashMap, path::Path};
-use std::{path::PathBuf, sync::Arc};
+use std::{collections::HashSet, path::Path};
+use std::{
+    path::PathBuf,
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicU64, Ordering},
+    },
+};
+use utoipa::ToSchema;
 
-/// Processes an upload from an exercise service or an exercise iframe.
+const EXERCISE_UPLOAD_MAX_FILES: usize = 10;
+const EXERCISE_UPLOAD_MAX_FILE_BYTES: u64 = 100 * 1024 * 1024;
+const EXERCISE_UPLOAD_MAX_BATCH_BYTES: u64 = 100 * 1024 * 1024;
+
+/// What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+/// by, and the URL it can be fetched from.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+pub struct ExerciseServiceUploadResultEntry {
+    pub id: Uuid,
+    pub url: String,
+}
+
+/// One stored upload, with the file details the iframe's wire result omits and the client API's
+/// response carries.
+pub struct ExerciseServiceUpload {
+    pub entry: ExerciseServiceUploadResultEntry,
+    pub name: String,
+    pub mime: String,
+    pub size_bytes: i64,
+}
+
+/** Tracks uploaded object paths for cleanup when the batch fails. */
+pub struct ExerciseServiceUploadCleanup {
+    pub path: String,
+}
+
+/// Deletes the objects an upload has already stored, unless the upload got far enough to
+/// [`disarm`](Self::disarm) it.
+///
+/// Objects reach the store before their rows are committed, so an upload that fails part way has to
+/// delete them itself; the reaper only finds objects through the rows that were never written. On
+/// the handler's own error path call [`clean_up`](Self::clean_up) and await it. The `Drop` path is
+/// the backstop for the case that has no error path at all: the client aborting the multipart body,
+/// which drops the handler future at an await point.
+pub struct UploadCleanup {
+    pub uploaded_paths: Vec<ExerciseServiceUploadCleanup>,
+    file_store: web::Data<dyn FileStore>,
+    armed: bool,
+}
+
+impl UploadCleanup {
+    pub fn new(file_store: web::Data<dyn FileStore>) -> Self {
+        Self {
+            uploaded_paths: Vec::new(),
+            file_store,
+            armed: true,
+        }
+    }
+
+    /// Deletes what has been stored so far and disarms, so the `Drop` backstop cannot delete the
+    /// same objects again.
+    pub async fn clean_up(&mut self) {
+        self.armed = false;
+        for uploaded in std::mem::take(&mut self.uploaded_paths) {
+            if let Err(delete_error) = self.file_store.delete(Path::new(&uploaded.path)).await {
+                error!(
+                    "Failed to delete file '{}' during cleanup: {delete_error}",
+                    uploaded.path
+                );
+            }
+        }
+    }
+
+    /// Call only once the uploads are recorded, with no await in between: an await would give the
+    /// runtime a chance to drop the handler and delete objects that already have rows.
+    pub fn disarm(&mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for UploadCleanup {
+    fn drop(&mut self) {
+        if !self.armed || self.uploaded_paths.is_empty() {
+            return;
+        }
+        let uploaded_paths = std::mem::take(&mut self.uploaded_paths);
+        let file_store = self.file_store.clone();
+        // `drop` cannot await, so the deletes run detached and outlive this request.
+        actix_web::rt::spawn(async move {
+            for uploaded in uploaded_paths {
+                if let Err(delete_error) = file_store.delete(Path::new(&uploaded.path)).await {
+                    error!(
+                        "Failed to delete file '{}' during cleanup: {delete_error}",
+                        uploaded.path
+                    );
+                }
+            }
+        });
+    }
+}
+
+struct ExerciseServiceUploadMetadata {
+    file_upload_id: Uuid,
+    path: String,
+    filename: String,
+    mime_type: String,
+    size_bytes: i64,
+    url: String,
+}
+
+/// Who an answer upload is bound to, and where its objects are stored.
+pub struct AnswerUploadDestination {
+    /// The course or exam the exercise belongs to, which the object path is filed under.
+    pub owner: CourseOrExamId,
+    pub exercise_id: Uuid,
+    pub user_id: Uuid,
+}
+
+/// Where an upload's objects are stored, and what the upload route hands back for them.
+pub enum UploadPathScheme<'a> {
+    /// `<exercise service slug>/<random>` and a permanent url naming that path, for files that
+    /// belong to course content rather than to one student: a teacher's spec files, and the
+    /// playground's throwaway uploads. The slug carries no authorization meaning.
+    ExerciseService { exercise_service_slug: &'a str },
+    /// `answers/v1/<course|exam>/<owner>/exercise/<exercise>/user/<user>/<file upload>`, so a
+    /// retention or takedown rule can find every object of one course, exercise or student without
+    /// reading the database, and every object leads back to its row.
+    ///
+    /// The path names the student, so the url handed back carries a claim instead of the path.
+    Answer(&'a AnswerUploadDestination),
+}
+
+impl UploadPathScheme<'_> {
+    /// Where one file of this upload is stored. Applies to new uploads only: old rows keep the
+    /// layout they were written under, since nothing derives a path from a row.
+    fn path(&self, file_upload_id: Uuid) -> String {
+        match self {
+            Self::ExerciseService {
+                exercise_service_slug,
+            } => format!("{exercise_service_slug}/{}", generate_random_string(32)),
+            Self::Answer(AnswerUploadDestination {
+                owner,
+                exercise_id,
+                user_id,
+            }) => {
+                // No fallback arm: a third kind of owner has to fail to compile here rather
+                // than land under a path no cleanup rule knows about.
+                let (owner_kind, owner_id) = match owner {
+                    CourseOrExamId::Course(course_id) => ("course", course_id),
+                    CourseOrExamId::Exam(exam_id) => ("exam", exam_id),
+                };
+                format!(
+                    "answers/v1/{owner_kind}/{owner_id}/exercise/{exercise_id}/user/{user_id}/{file_upload_id}"
+                )
+            }
+        }
+    }
+
+    /// The url the upload route hands back for one stored file.
+    fn download_url(
+        &self,
+        file_upload_id: Uuid,
+        path: &str,
+        file_store: &dyn FileStore,
+        app_conf: &ApplicationConfiguration,
+    ) -> Result<String, ControllerError> {
+        match self {
+            Self::ExerciseService { .. } => {
+                Ok(format!("{}/api/v0/files/{path}", app_conf.base_url))
+            }
+            Self::Answer(_) => Ok(file_store.get_claimed_download_url(file_upload_id, app_conf)?),
+        }
+    }
+}
+
+/// Processes a spec-file upload from an exercise service or the playground.
 /// This function assumes that any permission checks have already been made.
+///
+/// `exercise_service_slug` namespaces the stored objects and is recorded with the upload; it
+/// carries no authorization meaning. The playground passes its reserved `playground` slug, which
+/// names no exercise service.
 pub async fn process_exercise_service_upload(
     conn: &mut PgConnection,
     exercise_service_slug: &str,
+    payload: Multipart,
+    file_store: &dyn FileStore,
+    uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
+    uploader: Option<Uuid>,
+    app_conf: &ApplicationConfiguration,
+) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
+    let streamed = stream_exercise_service_upload(
+        UploadPathScheme::ExerciseService {
+            exercise_service_slug,
+        },
+        payload,
+        file_store,
+        uploaded_paths,
+        app_conf,
+    )
+    .await?;
+    let mut tx = conn.begin().await?;
+    let uploads = record_exercise_service_upload(&mut tx, streamed, uploader).await?;
+    let file_upload_ids: Vec<Uuid> = uploads.iter().map(|upload| upload.entry.id).collect();
+    // Recorded in the same transaction as the file rows: an upload the reaper cannot see is an
+    // upload nothing will ever reclaim, since a spec's references are invisible to the host.
+    models::exercise_spec_uploads::insert_many(
+        &mut tx,
+        exercise_service_slug,
+        uploader,
+        &file_upload_ids,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(uploads)
+}
+
+/// The parts of an upload that have reached the object store but have no database row yet.
+pub struct StreamedExerciseServiceUpload {
+    parts: Vec<ExerciseServiceUploadMetadata>,
+}
+
+/// Streams every multipart part to the object store, issuing no statements at all.
+///
+/// Split from the row inserts on purpose: the limits here are byte-based, not time-based, so a
+/// handler that opened a transaction first would hold a connection `idle in transaction` for as
+/// long as the client cares to trickle 100 MiB, and enough concurrent slow uploads would exhaust
+/// the pool and hold back the vacuum xmin horizon.
+pub async fn stream_exercise_service_upload(
+    path_scheme: UploadPathScheme<'_>,
     mut payload: Multipart,
     file_store: &dyn FileStore,
-    paths: &mut HashMap<String, String>,
-    uploader: Option<AuthUser>,
-    base_url: &str,
-) -> Result<(), ControllerError> {
-    let mut tx = conn.begin().await?;
+    uploaded_paths: &mut Vec<ExerciseServiceUploadCleanup>,
+    app_conf: &ApplicationConfiguration,
+) -> Result<StreamedExerciseServiceUpload, ControllerError> {
+    let mut parts = Vec::new();
+    let mut ids = HashSet::new();
+    let batch_bytes = Arc::new(AtomicU64::new(0));
     while let Some(item) = payload.next().await {
         let field = item.map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
+            controller_err!(
+                BadRequest,
                 format!("Failed to read multipart field: {}", err),
-                Some(anyhow::anyhow!("Multipart error: {}", err)),
+                anyhow::anyhow!("Multipart error: {}", err)
             )
         })?;
+        validate_exercise_upload_file_count(parts.len())?;
         let field_name = {
             let name_ref = field.name().ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Tried to upload a file without a file name".to_string(),
-                    None,
+                controller_err!(
+                    BadRequest,
+                    "Tried to upload a multipart field without a field name or field ID"
+                        .to_string()
                 )
             })?;
             name_ref.to_string()
         };
 
-        let random_filename = generate_random_string(32);
-        let path = format!("{exercise_service_slug}/{random_filename}");
+        validate_exercise_upload_id(&field_name, &mut ids)?;
+        let filename = validate_exercise_upload_filename(
+            field
+                .content_disposition()
+                .and_then(|disposition| disposition.get_filename()),
+        )?
+        .to_string();
 
-        upload_field_to_storage(&mut tx, Path::new(&path), field, file_store, uploader).await?;
-        let url = format!("{base_url}/api/v0/files/{path}");
-        paths.insert(field_name, url);
+        // Minted here rather than by the insert: the object is streamed to the store before its
+        // row exists, and a path may name the row it belongs to.
+        let file_upload_id = Uuid::new_v4();
+        let path = path_scheme.path(file_upload_id);
+        uploaded_paths.push(ExerciseServiceUploadCleanup { path: path.clone() });
+        let mime_type = field
+            .content_type()
+            .map(ToString::to_string)
+            .unwrap_or_default();
+        let (stream, stream_error, uploaded_bytes) =
+            limited_exercise_upload_stream(field, batch_bytes.clone());
+        let upload_result = file_store
+            .upload_stream(Path::new(&path), stream, &mime_type)
+            .await;
+        if let Some(error) = stream_error
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .take()
+        {
+            return Err(error);
+        }
+        upload_result?;
+        let url = path_scheme.download_url(file_upload_id, &path, file_store, app_conf)?;
+        parts.push(ExerciseServiceUploadMetadata {
+            file_upload_id,
+            path,
+            filename,
+            mime_type,
+            size_bytes: uploaded_bytes.load(Ordering::SeqCst) as i64,
+            url,
+        });
     }
-    tx.commit().await?;
-    Ok(())
+    validate_exercise_upload_not_empty(parts.len())?;
+    Ok(StreamedExerciseServiceUpload { parts })
+}
+
+/// Records the `file_uploads` rows for an already-streamed upload.
+///
+/// Takes the caller's transaction so that a caller which has further rows to write — the answer
+/// upload routes bind each upload to an exercise and user — lands them together with these.
+pub async fn record_exercise_service_upload(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    streamed: StreamedExerciseServiceUpload,
+    uploader: Option<Uuid>,
+) -> Result<Vec<ExerciseServiceUpload>, ControllerError> {
+    let StreamedExerciseServiceUpload { parts } = streamed;
+    let mut uploads = Vec::with_capacity(parts.len());
+    for part in parts {
+        models::file_uploads::insert_with_id(
+            tx,
+            part.file_upload_id,
+            &part.filename,
+            &part.path,
+            &part.mime_type,
+            uploader,
+            Some(part.size_bytes),
+        )
+        .await?;
+        uploads.push(ExerciseServiceUpload {
+            entry: ExerciseServiceUploadResultEntry {
+                id: part.file_upload_id,
+                url: part.url,
+            },
+            name: part.filename,
+            mime: part.mime_type,
+            size_bytes: part.size_bytes,
+        });
+    }
+    Ok(uploads)
+}
+
+/// Returns a side channel for typed upload-limit errors because the stream yields `anyhow` errors,
+/// and the running byte count of this part. Both are only meaningful once `upload_stream` has
+/// returned: the count is still climbing while the stream is being consumed.
+fn limited_exercise_upload_stream(
+    field: mp::Field,
+    batch_bytes: Arc<AtomicU64>,
+) -> (
+    GenericPayload,
+    Arc<Mutex<Option<ControllerError>>>,
+    Arc<AtomicU64>,
+) {
+    let per_file_bytes = Arc::new(AtomicU64::new(0));
+    let stream_error = Arc::new(Mutex::new(None));
+    let payload_stream_error = stream_error.clone();
+    let payload_per_file_bytes = per_file_bytes.clone();
+    let stream = Box::pin(futures::stream::try_unfold(
+        (
+            field,
+            payload_per_file_bytes,
+            batch_bytes,
+            payload_stream_error,
+        ),
+        |(mut field, per_file_bytes, batch_bytes, stream_error)| async move {
+            let Some(chunk) = field.next().await else {
+                return Ok(None);
+            };
+            let chunk = chunk.map_err(|error| anyhow::Error::msg(error.to_string()))?;
+            if let Err(error) =
+                consume_exercise_upload_bytes(&per_file_bytes, &batch_bytes, chunk.len())
+            {
+                *stream_error
+                    .lock()
+                    .unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(error);
+                return Err(anyhow::Error::msg("Exercise upload exceeds the size limit"));
+            }
+            Ok(Some((
+                chunk,
+                (field, per_file_bytes, batch_bytes, stream_error),
+            )))
+        },
+    ));
+    (stream, stream_error, per_file_bytes)
+}
+
+fn validate_exercise_upload_file_count(files_received: usize) -> Result<(), ControllerError> {
+    if files_received < EXERCISE_UPLOAD_MAX_FILES {
+        return Ok(());
+    }
+    Err(controller_err!(
+        BadRequest,
+        format!("A maximum of {EXERCISE_UPLOAD_MAX_FILES} files can be uploaded at once")
+    ))
+}
+
+fn validate_exercise_upload_id(
+    field_name: &str,
+    ids: &mut HashSet<String>,
+) -> Result<(), ControllerError> {
+    Uuid::parse_str(field_name).map_err(|_| {
+        controller_err!(
+            BadRequest,
+            "Each exercise upload field name must be a UUID".to_string()
+        )
+    })?;
+    if ids.insert(field_name.to_string()) {
+        return Ok(());
+    }
+    Err(controller_err!(
+        BadRequest,
+        "Duplicate exercise upload field id".to_string()
+    ))
+}
+
+fn validate_exercise_upload_filename(filename: Option<&str>) -> Result<&str, ControllerError> {
+    filename
+        .filter(|filename| !filename.is_empty())
+        .ok_or_else(|| {
+            controller_err!(
+                BadRequest,
+                "Every exercise upload part must be a file with a filename".to_string()
+            )
+        })
+}
+
+fn validate_exercise_upload_not_empty(files_received: usize) -> Result<(), ControllerError> {
+    if files_received > 0 {
+        return Ok(());
+    }
+    Err(controller_err!(
+        BadRequest,
+        "At least one file must be uploaded".to_string()
+    ))
+}
+
+fn consume_exercise_upload_bytes(
+    per_file_bytes: &AtomicU64,
+    batch_bytes: &AtomicU64,
+    chunk_len: usize,
+) -> Result<(), ControllerError> {
+    let chunk_len = u64::try_from(chunk_len).map_err(|error| {
+        controller_err!(
+            BadRequest,
+            "exercise upload chunk length overflow".to_string(),
+            error
+        )
+    })?;
+    let file_total = per_file_bytes.fetch_add(chunk_len, Ordering::Relaxed) + chunk_len;
+    let batch_total = batch_bytes.fetch_add(chunk_len, Ordering::Relaxed) + chunk_len;
+    if file_total <= EXERCISE_UPLOAD_MAX_FILE_BYTES
+        && batch_total <= EXERCISE_UPLOAD_MAX_BATCH_BYTES
+    {
+        return Ok(());
+    }
+    Err(controller_err!(
+        BadRequest,
+        "Exercise upload exceeds the 100 MiB per-file or batch limit"
+    ))
+}
+
+#[cfg(test)]
+mod exercise_upload_tests {
+    use super::*;
+
+    #[test]
+    fn exercise_upload_ids_must_be_unique_uuids() {
+        let id = Uuid::new_v4().to_string();
+        let mut ids = HashSet::new();
+
+        assert!(validate_exercise_upload_id(&id, &mut ids).is_ok());
+        assert!(
+            validate_exercise_upload_id(&id, &mut ids)
+                .unwrap_err()
+                .to_string()
+                .contains("Duplicate")
+        );
+        assert!(
+            validate_exercise_upload_id("filename.pdf", &mut ids)
+                .unwrap_err()
+                .to_string()
+                .contains("must be a UUID")
+        );
+    }
+
+    #[test]
+    fn exercise_upload_limits_are_enforced_from_streamed_bytes() {
+        let per_file = AtomicU64::new(EXERCISE_UPLOAD_MAX_FILE_BYTES - 1);
+        let batch = AtomicU64::new(EXERCISE_UPLOAD_MAX_BATCH_BYTES - 1);
+        assert!(consume_exercise_upload_bytes(&per_file, &batch, 1).is_ok());
+        let error = consume_exercise_upload_bytes(&per_file, &batch, 1).unwrap_err();
+        assert!(matches!(
+            error.error_type(),
+            ControllerErrorType::BadRequest
+        ));
+
+        let per_file = AtomicU64::new(0);
+        let batch = AtomicU64::new(EXERCISE_UPLOAD_MAX_BATCH_BYTES);
+        let error = consume_exercise_upload_bytes(&per_file, &batch, 1).unwrap_err();
+        assert!(matches!(
+            error.error_type(),
+            ControllerErrorType::BadRequest
+        ));
+    }
+
+    #[test]
+    fn exercise_upload_rejects_an_eleventh_file() {
+        assert!(validate_exercise_upload_file_count(EXERCISE_UPLOAD_MAX_FILES - 1).is_ok());
+        assert!(validate_exercise_upload_file_count(EXERCISE_UPLOAD_MAX_FILES).is_err());
+    }
+
+    #[test]
+    fn exercise_upload_rejects_empty_and_non_file_parts() {
+        assert!(validate_exercise_upload_not_empty(0).is_err());
+        assert!(validate_exercise_upload_not_empty(1).is_ok());
+        assert!(validate_exercise_upload_filename(None).is_err());
+        assert!(validate_exercise_upload_filename(Some("")).is_err());
+        assert_eq!(
+            validate_exercise_upload_filename(Some("report.pdf")).unwrap(),
+            "report.pdf"
+        );
+    }
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
@@ -267,50 +736,6 @@ pub async fn upload_certificate_svg(
     Ok((id, safe_path))
 }
 
-pub struct ExerciseTaskInfo<'a> {
-    pub course_id: Uuid,
-    pub exercise: &'a Exercise,
-    pub exercise_slide: &'a ExerciseSlide,
-    pub exercise_task: &'a ExerciseTask,
-}
-
-pub async fn upload_exercise_archive(
-    conn: &mut PgConnection,
-    file: GenericPayload,
-    file_store: &dyn FileStore,
-    exercise: ExerciseTaskInfo<'_>,
-    mime: Mime,
-    uploader: Uuid,
-) -> Result<(Uuid, PathBuf), ControllerError> {
-    let file_name = &exercise.exercise.name;
-    let path = nested_path(
-        &[
-            "user-exercise-uploads",
-            "exercise",
-            &exercise.exercise.id.to_string(),
-            "slide",
-            &exercise.exercise_slide.id.to_string(),
-            "task",
-            &exercise.exercise_task.id.to_string(),
-            file_name,
-        ],
-        FileType::File,
-        StoreKind::Course(exercise.course_id),
-    );
-    let safe_path = make_filename_safe(&path);
-    let id = upload_file_to_storage(
-        conn,
-        &safe_path,
-        file_name,
-        mime.as_ref(),
-        file,
-        file_store,
-        Some(uploader),
-    )
-    .await?;
-    Ok((id, safe_path))
-}
-
 async fn upload_file_to_storage(
     conn: &mut PgConnection,
     path: &Path,
@@ -321,11 +746,27 @@ async fn upload_file_to_storage(
     uploader: Option<Uuid>,
 ) -> Result<Uuid, ControllerError> {
     let mut tx = conn.begin().await?;
-    let path_string = path.to_str().context("invalid path")?.to_string();
-    let id =
-        models::file_uploads::insert(&mut tx, file_name, &path_string, mime_type, uploader).await?;
-    file_store.upload_stream(path, file, mime_type).await?;
+    let id = upload_file_to_storage_in_existing_transaction(
+        &mut tx, path, file_name, mime_type, file, file_store, uploader,
+    )
+    .await?;
     tx.commit().await?;
+    Ok(id)
+}
+
+async fn upload_file_to_storage_in_existing_transaction(
+    conn: &mut PgConnection,
+    path: &Path,
+    file_name: &str,
+    mime_type: &str,
+    file: GenericPayload,
+    file_store: &dyn FileStore,
+    uploader: Option<Uuid>,
+) -> Result<Uuid, ControllerError> {
+    let path_string = path.to_str().context("invalid path")?.to_string();
+    let id = models::file_uploads::insert(conn, file_name, &path_string, mime_type, uploader, None)
+        .await?;
+    file_store.upload_stream(path, file, mime_type).await?;
     Ok(id)
 }
 
@@ -527,10 +968,6 @@ enum FileType {
 }
 
 fn path(file_name: &str, file_type: FileType, store_kind: StoreKind) -> PathBuf {
-    nested_path(&[file_name], file_type, store_kind)
-}
-
-fn nested_path(components: &[&str], file_type: FileType, store_kind: StoreKind) -> PathBuf {
     let (base_dir, base_id) = match store_kind {
         StoreKind::Organization(id) => ("organization", id),
         StoreKind::Course(id) => ("course", id),
@@ -541,8 +978,7 @@ fn nested_path(components: &[&str], file_type: FileType, store_kind: StoreKind) 
         FileType::Audio => "audios",
         FileType::File => "files",
     };
-    [base_dir, &base_id.to_string(), file_type_subdir]
+    [base_dir, &base_id.to_string(), file_type_subdir, file_name]
         .iter()
-        .chain(components)
         .collect()
 }

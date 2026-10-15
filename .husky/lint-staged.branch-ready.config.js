@@ -1,8 +1,11 @@
-// Runs when you run bin/git-run-branch-ready-checks.
-// These checks are slower and more likely to fail than the precommit checks.
-// See lint-staged.precommit.config.js for precommit checks.
+// Runs when you run bin/git-run-branch-ready-checks. This is the "finishing touches" pass: it
+// applies the remaining autofixes AND runs the slow, failing gates (lint, type-check, clippy,
+// sqlx, actionlint) so you catch what CI (.github/workflows/code-style.yml + tests.yml) would
+// catch before pushing. See lint-staged.precommit.config.js for the fast per-commit formatters.
 export default {
-  "*.{js,jsx,ts,tsx}": ["eslint --cache --fix", "stylelint --fix lax"],
+  // oxfmt --no-error-on-unmatched-pattern: tolerate a fileset that is entirely oxfmt-ignored
+  // (e.g. generated *.guard.ts), which otherwise makes oxfmt exit non-zero.
+  "*.{js,jsx,ts,tsx}": ["oxlint --fix", "oxfmt --no-error-on-unmatched-pattern", "stylelint --fix"],
   "services/example-exercise/src/**/*.{js,jsx,ts,tsx}": () =>
     "pnpm exec tsc -p services/example-exercise/ --noEmit",
   "services/cms/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/cms/ --noEmit",
@@ -10,7 +13,21 @@ export default {
     "pnpm exec tsc -p services/main-frontend/ --noEmit",
   "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/quizzes/ --noEmit",
   "services/tmc/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/tmc/ --noEmit",
-  "*.{md,json,scss,css}": "prettier --write",
+  "shared-module/packages/exercise-protocol/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-protocol --noEmit",
+  "shared-module/packages/exercise-client/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-client --noEmit",
+  "shared-module/packages/exercise-react/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-react --noEmit",
+  "shared-module/packages/create-exercise-service/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/create-exercise-service --noEmit",
+  "shared-module/packages/common/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/common --noEmit",
+  "shared-module/packages/components/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/components --noEmit",
+  "shared-module/packages/exercise-iframe-host/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-iframe-host --noEmit",
+  "*.{md,json,scss,css}": "oxfmt --no-error-on-unmatched-pattern",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
     "cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings",

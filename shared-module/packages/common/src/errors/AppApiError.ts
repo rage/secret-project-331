@@ -1,8 +1,12 @@
+import { APP_API_ERROR_NAME } from "@/shared-module/components/lib/errors/normalizeErrorForDisplay"
+
+import { isRecord } from "../utils/objects"
+
 export type AppApiErrorKind = "api" | "network" | "abort" | "parse" | "client" | "stream"
 
 export interface CanonicalApiIssue {
-  path?: string
-  code?: string
+  path?: string | undefined
+  code?: string | undefined
   message: string
 }
 
@@ -37,11 +41,6 @@ export interface AppApiErrorInit {
   cause?: unknown
 }
 
-/** Returns true when a value is a plain object. */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null
-}
-
 /** Returns a string value if present. */
 function asString(value: unknown): string | null {
   return typeof value === "string" && value.trim() !== "" ? value : null
@@ -71,29 +70,29 @@ function parseIssues(value: unknown): CanonicalApiIssue[] {
 }
 
 export class AppApiError extends Error {
-  kind: AppApiErrorKind
-  status: number | null
-  requestId: string | null
-  messageKey: string | null
-  type: string | null
+  public kind: AppApiErrorKind
+  public status: number | null
+  public requestId: string | null
+  public messageKey: string | null
+  public type: string | null
   /** Optional backend machine code. Keep separate from semantic `type` and `messageKey`. */
-  code: string | null
-  userMessage: string | null
-  detail: string | null
-  issues: CanonicalApiIssue[]
-  metadata: Record<string, unknown> | null
-  extra: Record<string, unknown> | null
-  retryAfterSeconds: number | null
-  url: string | null
-  method: string | null
-  body: unknown
-  rawText: string | null
-  cause?: unknown
+  public code: string | null
+  public userMessage: string | null
+  public detail: string | null
+  public issues: CanonicalApiIssue[]
+  public metadata: Record<string, unknown> | null
+  public extra: Record<string, unknown> | null
+  public retryAfterSeconds: number | null
+  public url: string | null
+  public method: string | null
+  public body: unknown
+  public rawText: string | null
+  public override cause?: unknown
 
-  constructor(init: AppApiErrorInit) {
+  public constructor(init: AppApiErrorInit) {
     const title = init.title?.trim() ? init.title : "Request failed"
     super(title)
-    this.name = "AppApiError"
+    this.name = APP_API_ERROR_NAME
     this.kind = init.kind
     this.status = init.status ?? null
     this.requestId = init.requestId ?? null
@@ -119,6 +118,17 @@ export function isAppApiError(error: unknown): error is AppApiError {
   return error instanceof AppApiError
 }
 
+/**
+ * Returns true for a request that was cancelled rather than failed: the canonicalised failure when
+ * the abort beats the response headers, and the raw `DOMException` when it lands mid-stream.
+ */
+export function isAbortError(error: unknown): boolean {
+  return (
+    (isAppApiError(error) && error.kind === "abort") ||
+    (error instanceof Error && error.name === "AbortError")
+  )
+}
+
 /** Reads request id from headers, supporting common header casing variants. */
 export function extractRequestIdFromHeaders(headers: Headers | null | undefined): string | null {
   if (!headers) {
@@ -136,6 +146,7 @@ export function extractRetryAfterSeconds(headers: Headers | null | undefined): n
   if (!raw) {
     return null
   }
+  // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
   const parsed = Number.parseInt(raw, 10)
   return Number.isFinite(parsed) ? parsed : null
 }

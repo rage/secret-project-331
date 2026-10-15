@@ -24,7 +24,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
 
     await frame.getByText("Choose the right answer from given options.").waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })

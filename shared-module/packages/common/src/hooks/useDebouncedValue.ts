@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { startTransition, useEffect, useState } from "react"
 
 /** Returns a value that updates only after no changes for the given delay. */
 const useDebouncedValue = <T>(value: T, delayMs: number): T => {
@@ -6,7 +6,9 @@ const useDebouncedValue = <T>(value: T, delayMs: number): T => {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      setDebouncedValue(value)
+      startTransition(() => {
+        setDebouncedValue(value)
+      })
     }, delayMs)
 
     return () => {

@@ -17,14 +17,28 @@ export type AutomaticCompletionRequirements = {
   requires_exam: boolean
 }
 
+export type ChartSpecGenerationRequest = {
+  current_spec?: string | null
+  data_format?: string | null
+  data_sample?: string | null
+  data_url?: string | null
+  page_id?: string | null
+  prompt: string
+}
+
+export type ChartSpecGenerationResponse = {
+  spec: string
+}
+
 export type ChatbotConfiguration = {
   chatbot_name: string
-  course_id: string
+  course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
   default_chatbot: boolean
   deleted_at?: string | null
   enabled_to_students: boolean
+  enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
   hide_citations: boolean
   id: string
@@ -35,6 +49,7 @@ export type ChatbotConfiguration = {
   model_id: string
   presence_penalty: number
   prompt: string
+  publicly_accessible: boolean
   reasoning_effort: ReasoningEffortLevel
   suggest_next_messages: boolean
   temperature: number
@@ -42,7 +57,6 @@ export type ChatbotConfiguration = {
   updated_at: string
   use_azure_search: boolean
   use_semantic_reranking: boolean
-  use_tools: boolean
   verbosity: VerbosityLevel
   weekly_tokens_per_user: number
 }
@@ -76,6 +90,16 @@ export type CmsPageExerciseTask = {
   id: string
   order_number: number
   private_spec?: unknown
+  /**
+   * The stored files this task's private spec references, as the exercise service declared them
+   * in the editor. The host cannot read the spec, so this list is the only thing keeping the
+   * files from being reclaimed as abandoned uploads — and the CMS round-trips it through a block
+   * attribute, so a load that leaves it empty makes the next save drop the references.
+   *
+   * Only the private spec's. Each derived spec declares its own files in the response of the
+   * endpoint that produced it, since a derivation may upload files of its own.
+   */
+  private_spec_files?: Array<string>
 }
 
 export type CmsPageUpdate = {
@@ -84,6 +108,7 @@ export type CmsPageUpdate = {
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
   exercises: Array<CmsPageExercise>
+  hidden: boolean
   title: string
   url_path: string
 }
@@ -200,8 +225,8 @@ export type CourseInstance = {
 }
 
 /**
- *
- * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * `completion_policy`.
  */
 export type CourseModule = {
   certification_enabled: boolean
@@ -215,6 +240,7 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
+  enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
@@ -254,11 +280,35 @@ export type EmailTemplate = {
   updated_at: string
 }
 
+/**
+ * A template rendered as it would be sent, with sample placeholder values.
+ */
+export type EmailTemplatePreview = {
+  /**
+   * The complete HTML document, layout included.
+   */
+  html: string
+  plain_text: string
+  subject: string
+}
+
+/**
+ * The editor's unsaved subject and body.
+ */
+export type EmailTemplatePreviewRequest = {
+  content: unknown
+  subject: string
+}
+
 export type EmailTemplateType =
   | "reset_password_email"
   | "delete_user_email"
   | "confirm_email_code"
   | "generic"
+  | "credit_registration_account_linking"
+  | "verify_email_address"
+  | "credit_registration_action_needed"
+  | "credit_registration_registered"
 
 export type EmailTemplateUpdate = {
   content: unknown
@@ -286,6 +336,15 @@ export type ExerciseServiceIframeRenderingInfo = {
   name: string
   public_iframe_url: string
   slug: string
+}
+
+/**
+ * What an upload route returns for one stored file: the `file_uploads` row id an answer names it
+ * by, and the URL it can be fetched from.
+ */
+export type ExerciseServiceUploadResultEntry = {
+  id: string
+  url: string
 }
 
 export type GutenbergBlock = {
@@ -467,6 +526,21 @@ export type ResearchFormQuestion = {
 }
 
 /**
+ * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
+ * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
+ * this kind of tool", not "may this caller use it".
+ */
+export type ToolCategory =
+  | "course_material"
+  | "course_info"
+  | "course_catalog"
+  | "interaction"
+  | "admin_support_accounts"
+  | "admin_support_courses"
+  | "admin_support_learning_progress"
+  | "admin_support_academic_integrity"
+
+/**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
  */
 export type UploadResult = {
@@ -474,6 +548,23 @@ export type UploadResult = {
 }
 
 export type VerbosityLevel = "low" | "medium" | "high"
+
+export type RequestChartSpecGenerationData = {
+  body: ChartSpecGenerationRequest
+  path?: never
+  query?: never
+  url: "/api/v0/cms/ai-suggestions/chart-spec"
+}
+
+export type RequestChartSpecGenerationResponses = {
+  /**
+   * Generated Vega-Lite chart specification
+   */
+  200: ChartSpecGenerationResponse
+}
+
+export type RequestChartSpecGenerationResponse =
+  RequestChartSpecGenerationResponses[keyof RequestChartSpecGenerationResponses]
 
 export type RequestParagraphSuggestionsData = {
   body: ParagraphSuggestionRequest
@@ -949,6 +1040,50 @@ export type UpdateCmsEmailTemplateResponses = {
 export type UpdateCmsEmailTemplateResponse =
   UpdateCmsEmailTemplateResponses[keyof UpdateCmsEmailTemplateResponses]
 
+export type PreviewCmsEmailTemplateData = {
+  body: EmailTemplatePreviewRequest
+  path: {
+    /**
+     * Email template id
+     */
+    email_template_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/email-templates/{email_template_id}/preview"
+}
+
+export type PreviewCmsEmailTemplateResponses = {
+  /**
+   * Rendered email
+   */
+  200: EmailTemplatePreview
+}
+
+export type PreviewCmsEmailTemplateResponse =
+  PreviewCmsEmailTemplateResponses[keyof PreviewCmsEmailTemplateResponses]
+
+export type SendCmsEmailTemplateTestData = {
+  body: EmailTemplatePreviewRequest
+  path: {
+    /**
+     * Email template id
+     */
+    email_template_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/email-templates/{email_template_id}/send-test"
+}
+
+export type SendCmsEmailTemplateTestResponses = {
+  /**
+   * Id of the queued test delivery
+   */
+  200: string
+}
+
+export type SendCmsEmailTemplateTestResponse =
+  SendCmsEmailTemplateTestResponses[keyof SendCmsEmailTemplateTestResponses]
+
 export type GetCmsExamInstructionsData = {
   body?: never
   path: {
@@ -1074,6 +1209,28 @@ export type UpdateCmsPageResponses = {
 
 export type UpdateCmsPageResponse = UpdateCmsPageResponses[keyof UpdateCmsPageResponses]
 
+export type GetExercisesWithSubmissionsData = {
+  body: Array<string>
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/exercises-with-submissions"
+}
+
+export type GetExercisesWithSubmissionsResponses = {
+  /**
+   * Exercise ids, among the given ones, that have submissions
+   */
+  200: Array<string>
+}
+
+export type GetExercisesWithSubmissionsResponse =
+  GetExercisesWithSubmissionsResponses[keyof GetExercisesWithSubmissionsResponses]
+
 export type GetCmsPageInfoData = {
   body?: never
   path: {
@@ -1138,3 +1295,27 @@ export type GetCmsRepositoryExercisesForCourseResponses = {
 
 export type GetCmsRepositoryExercisesForCourseResponse =
   GetCmsRepositoryExercisesForCourseResponses[keyof GetCmsRepositoryExercisesForCourseResponses]
+
+export type UploadFilesFromExerciseServiceData = {
+  body: {
+    [key: string]: Blob | File
+  }
+  path: {
+    /**
+     * Exercise service slug
+     */
+    exercise_service_slug: string
+  }
+  query?: never
+  url: "/api/v0/files/{exercise_service_slug}"
+}
+
+export type UploadFilesFromExerciseServiceResponses = {
+  /**
+   * Uploaded files
+   */
+  200: Array<ExerciseServiceUploadResultEntry>
+}
+
+export type UploadFilesFromExerciseServiceResponse =
+  UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses]

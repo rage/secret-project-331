@@ -234,6 +234,28 @@
         }
       }
     },
+    "/api/v0/course-material/chatbot/conversations/all": {
+      "get": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nGET `/api/v0/course-material/chatbot/conversations/all`\n\nReturns all conversations that a user has.",
+        "operationId": "AllUserConversations",
+        "responses": {
+          "200": {
+            "description": "All chatbot conversations for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConversation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/course-material/chatbot/default-for-course/{course_id}": {
       "get": {
         "tags": ["course-material-chatbot"],
@@ -266,11 +288,52 @@
         }
       }
     },
-    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current": {
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations": {
       "get": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nPOST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`\n\nReturns the current conversation for the user.",
-        "operationId": "getChatbotCurrentConversationInfo",
+        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`\n\nReturns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.",
+        "operationId": "getConversationInfo",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "query",
+            "description": "Conversation id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Selected chatbot conversation info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConversationInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id": {
+      "get": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`\n\nReturns current chatbot conversation id.",
+        "operationId": "getCurrentConversationId",
         "parameters": [
           {
             "name": "chatbot_configuration_id",
@@ -285,11 +348,12 @@
         ],
         "responses": {
           "200": {
-            "description": "Current chatbot conversation info",
+            "description": "Current conversation ID",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatbotConversationInfo"
+                  "type": ["string", "null"],
+                  "format": "uuid"
                 }
               }
             }
@@ -359,7 +423,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "string"
+                "$ref": "#/components/schemas/SendChatbotMessage"
               }
             }
           },
@@ -369,12 +433,107 @@
           "200": {
             "description": "Chatbot response stream",
             "content": {
-              "text/event-stream": {
+              "application/x-ndjson": {
                 "schema": {
                   "$ref": "#/components/schemas/ChatbotChatStreamEvent"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response": {
+      "post": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPOST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`\n\nAnswers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else\nis outstanding. Responds with the same stream `send-message` does, carrying either the resumed\nturn or a lone `Suspended` event when the turn is still waiting for another answer.",
+        "operationId": "sendChatbotToolResponse",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatbotToolResponse"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chatbot response stream",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title": {
+      "put": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`\n\nUpdates the title of a chatbot conversation.",
+        "operationId": "updateTitle",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Conversation title updated"
           }
         }
       }
@@ -593,6 +752,50 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/CourseModuleCompletion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/course-modules/{course_module_id}/points-breakdown": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.",
+        "operationId": "getCourseMaterialCourseModulePointsBreakdown",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's points by chapter, page and exercise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChapterPointsBreakdown"
                   }
                 }
               }
@@ -2452,7 +2655,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/submissions": {
       "post": {
         "tags": ["course-material-exercises"],
-        "summary": "\nPOST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"data_json\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n    }\n  ]\n}\n```",
+        "summary": "\nPOST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"answer\": {\n        \"kind\": \"json\",\n        \"data\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n      }\n    }\n  ]\n}\n```",
         "operationId": "postSubmission",
         "parameters": [
           {
@@ -2885,6 +3088,42 @@
         "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
         "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
       },
+      "AnswerFile": {
+        "type": "object",
+        "description": "One host-stored file that an answer consists of.",
+        "required": ["id", "name", "mime", "order_number", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mime": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name the file was uploaded under. Not necessarily what a viewer should be shown -- a\nplugin that anonymizes filenames keeps its display name in `AnswerData::File::metadata`."
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size_bytes": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "`None` for a file stored before the size was recorded. Omitted from the serialized form\nrather than nulled: the exercise service protocol's `size_bytes` is optional, not nullable,\nand its generated guard rejects a null."
+          },
+          "url": {
+            "type": "string",
+            "description": "Capability download URL, minted at read time and carrying a claim that expires within the\nhour. Never persisted, and a response containing one cannot be cached for another reader."
+          }
+        }
+      },
+      "AnswerKind": {
+        "type": "string",
+        "description": "Which of a submission's two answer representations is the answer: the opaque blob in\n`data_json`, or the rows in `exercise_task_submission_files`.",
+        "enum": ["json", "file"]
+      },
       "ChapterLockPreview": {
         "type": "object",
         "required": [
@@ -2911,6 +3150,45 @@
       "ChapterLockingStatus": {
         "type": "string",
         "enum": ["unlocked", "completed_and_locked", "not_unlocked_yet"]
+      },
+      "ChapterPointsBreakdown": {
+        "type": "object",
+        "description": "A chapter's pages in a points breakdown, with their subtotal.",
+        "required": [
+          "chapter_id",
+          "chapter_number",
+          "name",
+          "score_given",
+          "score_maximum",
+          "pages"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PagePointsBreakdown"
+            }
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "ChapterStatus": {
         "type": "string",
@@ -3099,30 +3377,47 @@
           },
           {
             "type": "object",
+            "description": "The turn stopped to wait for the client to answer a tool call, so it ends with neither an\nanswer nor an error. Terminal like `Done`: the client stops reading, answers the call\nthrough the tool-response endpoint, and reads the stream that returns.\n\nCarries nothing, because the call it waits on was already streamed as an unfinished\n`ToolCall` event, and survives a reload only through the conversation's messages anyway.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Suspended"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
             "required": ["data", "type"],
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["message"],
+                "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+                "required": ["tool_call_id", "payload"],
                 "properties": {
-                  "message": {
+                  "payload": {},
+                  "tool_call_id": {
                     "type": "string"
                   }
                 }
               },
               "type": {
                 "type": "string",
-                "enum": ["Error"]
+                "enum": ["ActionExecuted"]
               }
             }
           },
           {
             "type": "object",
-            "required": ["type"],
+            "required": ["data", "type"],
             "properties": {
+              "data": {
+                "$ref": "#/components/schemas/StreamEventError"
+              },
               "type": {
                 "type": "string",
-                "enum": ["None"]
+                "enum": ["Error"]
               }
             }
           }
@@ -3130,21 +3425,20 @@
       },
       "ChatbotConversation": {
         "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "course_id",
-          "user_id",
-          "chatbot_configuration_id"
-        ],
+        "required": ["id", "created_at", "updated_at", "chatbot_configuration_id"],
         "properties": {
+          "anonymous_token": {
+            "type": ["string", "null"]
+          },
           "chatbot_configuration_id": {
             "type": "string",
             "format": "uuid"
           },
+          "conversation_title": {
+            "type": ["string", "null"]
+          },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {
@@ -3164,21 +3458,21 @@
             "format": "date-time"
           },
           "user_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           }
         }
       },
       "ChatbotConversationInfo": {
         "type": "object",
-        "description": "Should contain all information required to display the chatbot to the user.",
-        "required": ["chatbot_name", "course_name", "hide_citations"],
+        "description": "Everything needed to display the chatbot to the user.",
+        "required": ["chatbot_name", "hide_citations"],
         "properties": {
           "chatbot_name": {
             "type": "string"
           },
           "course_name": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "current_conversation": {
             "oneOf": [
@@ -3209,7 +3503,8 @@
             "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/ChatbotConversationSuggestedMessage"
-            }
+            },
+            "description": "What to offer the learner as their next message. Absent when nothing should be offered: the\nconfiguration has suggestions off, or the conversation is at a point where a suggestion does\nnot belong, such as a turn suspended on a question to the learner. Empty means suggestions\nare wanted but none have been generated yet, which is what makes the endpoint generate them."
           }
         }
       },
@@ -3437,7 +3732,8 @@
             "type": "string"
           },
           "tool_arguments": {
-            "type": "string"
+            "type": "string",
+            "description": "Is type = string in the OpenApi schema, because there is no known shape\nfor this JSON value/object so we treat it as 'string' instead of\n'unknown' in the API autogenerated types. Since it's valid JSON, we save\nit as JSON in our DB."
           },
           "tool_call_id": {
             "type": "string"
@@ -3470,6 +3766,10 @@
           "chatbot_conversation_message_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "client_answer": {
+            "type": ["object", "null"],
+            "description": "The answer payload the client sent, in the shape the answered tool defines. None for\noutputs no client answered."
           },
           "created_at": {
             "type": "string",
@@ -3529,6 +3829,73 @@
             "format": "date-time"
           }
         }
+      },
+      "ChatbotPageContext": {
+        "type": "object",
+        "description": "What the learner has open when they send a message.\n\nOnly the page id is accepted: everything the model reads is looked up from the database.\nThe context becomes a developer message, which the model weighs above the learner's own\nwords, so a client that could write its text could give itself instructions.",
+        "required": ["page_id"],
+        "properties": {
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ChatbotToolResponse": {
+        "type": "object",
+        "required": ["tool_call_id", "tool_name", "answer"],
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/ClientToolAnswer"
+          },
+          "tool_call_id": {
+            "type": "string",
+            "description": "The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event."
+          },
+          "tool_name": {
+            "$ref": "#/components/schemas/ClientToolName",
+            "description": "The tool the caller believes `tool_call_id` belongs to, checked against the call's\nrecorded name so a client answering the wrong bubble fails clearly instead of being\nsilently accepted as whatever tool the call actually was."
+          }
+        }
+      },
+      "ClientToolAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+                "required": ["result"],
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not\nknown here. Unlike the tool call arguments we hand back to clients, this one is built\nby the client, so declaring it a string would make the generated binding unusable."
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Data"]
+              }
+            }
+          }
+        ],
+        "description": "What a client answered a tool call with.\n\nThe tool the call belongs to decides what shape the answer has to be in and what the model is\ntold it means."
+      },
+      "ClientToolName": {
+        "type": "string",
+        "description": "The name of a client tool, generated into the frontend as a string union so it names one of\n[ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.\n\nThe bounds a tool enforces on its arguments and the shape of its answer stay hand-written on\nthe frontend: routing those through the OpenAPI schema would need either a schema per tool or\nwidening the argument and answer types this crate uses to serialize them, for a part of the\ncontract that only fails loudly, unlike the name.",
+        "enum": [
+          "ask_multiple_choice_question",
+          "generate_password_reset_link",
+          "reset_exercises",
+          "update_cheating_status",
+          "edit_user_account",
+          "update_certificate"
+        ]
       },
       "CodeGiveawayStatus": {
         "oneOf": [
@@ -4021,6 +4388,17 @@
           "should_show_reset_message": {
             "type": ["string", "null"]
           },
+          "teacher_grading_decision": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseMaterialTeacherGradingDecision",
+                "description": "The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden."
+              }
+            ]
+          },
           "user_course_instance_exercise_service_variables": {
             "type": "array",
             "items": {
@@ -4279,6 +4657,19 @@
           }
         }
       },
+      "CourseMaterialTeacherGradingDecision": {
+        "type": "object",
+        "description": "What the student is told about a teacher's grading decision.\n\nThe decision type is included so the material can explain the decision in the student's own\nlanguage; the justification is whatever the teacher wrote on top of that, if anything.",
+        "required": ["teacher_decision"],
+        "properties": {
+          "justification": {
+            "type": ["string", "null"]
+          },
+          "teacher_decision": {
+            "$ref": "#/components/schemas/TeacherDecisionType"
+          }
+        }
+      },
       "CourseModuleCompletion": {
         "type": "object",
         "required": [
@@ -4294,7 +4685,8 @@
           "email",
           "passed",
           "prerequisite_modules_completed",
-          "needs_to_be_reviewed"
+          "needs_to_be_reviewed",
+          "register_credits_via_suotar"
         ],
         "properties": {
           "completion_date": {
@@ -4350,6 +4742,10 @@
           },
           "prerequisite_modules_completed": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether the push path owns this completion. See the column comment."
           },
           "updated_at": {
             "type": "string",
@@ -4496,14 +4892,27 @@
           "created_at",
           "exercise_slide_submission_id",
           "exercise_slide_id",
-          "exercise_task_id"
+          "exercise_task_id",
+          "answer_kind"
         ],
         "properties": {
+          "answer_kind": {
+            "$ref": "#/components/schemas/AnswerKind"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/AnswerFile"
+            },
+            "description": "The files the answer consists of, in grading order. Omitted when it has none."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one. A custom view is handed this row as its `user_answer`, so this is\nwhere a plugin reads the answer from."
+          },
           "exercise_slide_id": {
             "type": "string",
             "format": "uuid"
@@ -4549,6 +4958,11 @@
             }
           }
         }
+      },
+      "EmailVerificationMethod": {
+        "type": "string",
+        "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
+        "enum": ["emailed_code", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
       },
       "ExamData": {
         "type": "object",
@@ -4961,6 +5375,57 @@
           }
         }
       },
+      "ExercisePointsBreakdown": {
+        "type": "object",
+        "description": "One exercise's row in a points breakdown.",
+        "required": ["exercise_id", "name", "status", "score_given", "score_maximum", "attempts"],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Submissions to the slide the user was given, which is what the attempt limit counts."
+          },
+          "attempts_limit": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` when the exercise allows unlimited attempts."
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float",
+            "description": "Rounded to two decimals; 0 until the answer counts towards the module's points."
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ExercisePointsStatus"
+          }
+        }
+      },
+      "ExercisePointsStatus": {
+        "type": "string",
+        "description": "Where a user's answer to an exercise stands, as far as the student may know.\n\nCollapses the exercise state into what the exercise block itself tells the student, so the\nunderlying reviewing and grading stages never reach the client.",
+        "enum": [
+          "NotStarted",
+          "GradingInProgress",
+          "GradingFailed",
+          "PeerReviewToGive",
+          "SelfReviewToGive",
+          "WaitingForPeerReviews",
+          "WaitingForTeacherGrading",
+          "NotAnswered",
+          "Done"
+        ]
+      },
       "ExerciseSlideSubmission": {
         "type": "object",
         "required": [
@@ -5127,14 +5592,27 @@
           "updated_at",
           "exercise_slide_submission_id",
           "exercise_task_id",
-          "exercise_slide_id"
+          "exercise_slide_id",
+          "answer_kind"
         ],
         "properties": {
+          "answer_kind": {
+            "$ref": "#/components/schemas/AnswerKind"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "data_json": {},
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/AnswerFile"
+            },
+            "description": "The files the answer consists of, in grading order. Omitted when it has none."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one."
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -5327,6 +5805,16 @@
         "type": "object",
         "required": ["feedback_given", "related_blocks", "page_id"],
         "properties": {
+          "category": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NewFeedbackCategory"
+              }
+            ]
+          },
           "feedback_given": {
             "type": "string"
           },
@@ -5342,6 +5830,15 @@
           },
           "selected_text": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "NewFeedbackCategory": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -5618,6 +6115,38 @@
                 "$ref": "#/components/schemas/PageRoutingData"
               }
             ]
+          }
+        }
+      },
+      "PagePointsBreakdown": {
+        "type": "object",
+        "description": "A page's exercises in a points breakdown, with their subtotal.",
+        "required": ["page_id", "title", "url_path", "score_given", "score_maximum", "exercises"],
+        "properties": {
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExercisePointsBreakdown"
+            }
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string",
+            "description": "Path within the course; the exercise's block is anchored on the page by its exercise id."
           }
         }
       },
@@ -6139,7 +6668,8 @@
           "WaitingForPeerReviews",
           "WaitingForManualGrading",
           "ReviewedAndLocked",
-          "Locked"
+          "Locked",
+          "NotAnsweredAndLocked"
         ]
       },
       "SaveCourseSettingsPayload": {
@@ -6163,12 +6693,45 @@
           }
         }
       },
+      "SendChatbotMessage": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "What the learner wrote."
+          },
+          "page_context": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatbotPageContext",
+                "description": "The course material page the learner has open, when they are on one."
+              }
+            ]
+          }
+        }
+      },
       "ShowExerciseAnswers": {
         "type": "object",
         "required": ["show_exercise_answers"],
         "properties": {
           "show_exercise_answers": {
             "type": "boolean"
+          }
+        }
+      },
+      "StreamEventError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "details": {
+            "type": ["string", "null"]
+          },
+          "message": {
+            "type": "string"
           }
         }
       },
@@ -6262,9 +6825,30 @@
       },
       "StudentExerciseTaskSubmission": {
         "type": "object",
-        "required": ["exercise_task_id", "data_json"],
+        "required": ["exercise_task_id"],
         "properties": {
-          "data_json": {},
+          "answer_kind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnswerKind",
+                "description": "Absent means `json`, so a client that only ever answers with JSON never sends it."
+              }
+            ]
+          },
+          "data_files": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The uploads that are the answer, in the order they are to be graded and displayed. Every id\nmust be an upload this user made for this exercise."
+          },
+          "data_json": {
+            "description": "The plugin's own JSON: the whole answer for a `json` answer, the plugin's metadata about the\nfiles for a `file` one."
+          },
           "exercise_task_id": {
             "type": "string",
             "format": "uuid"
@@ -6301,7 +6885,10 @@
           "ZeroPoints",
           "CustomPoints",
           "SuspectedPlagiarism",
-          "RejectAndReset"
+          "RejectAndReset",
+          "UnauthorizedAiUse",
+          "BadAnswer",
+          "Other"
         ]
       },
       "Term": {
@@ -6350,7 +6937,8 @@
       },
       "ToolKind": {
         "type": "string",
-        "enum": ["function", "azure_ai_search"]
+        "description": "Who answers a tool call, which decides what happens to a call that has no output yet.",
+        "enum": ["function", "azure_ai_search", "client_tool"]
       },
       "UnreturnedExercise": {
         "type": "object",
@@ -6503,7 +7091,9 @@
           "course_module_id",
           "course_module_name",
           "course_module_order_number",
-          "score_given"
+          "score_given",
+          "automatic_completion",
+          "requires_exam"
         ],
         "properties": {
           "attempted_exercises": {
@@ -6513,6 +7103,10 @@
           "attempted_exercises_required": {
             "type": ["integer", "null"],
             "format": "int32"
+          },
+          "automatic_completion": {
+            "type": "boolean",
+            "description": "False when a teacher grades the module, in which case neither threshold applies."
           },
           "course_module_id": {
             "type": "string",
@@ -6524,6 +7118,10 @@
           "course_module_order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "requires_exam": {
+            "type": "boolean",
+            "description": "When true, the thresholds only qualify the user to sit an exam that completion also needs."
           },
           "score_given": {
             "type": "number",
@@ -6553,7 +7151,8 @@
           "created_at",
           "updated_at",
           "current_course_id",
-          "current_course_instance_id"
+          "current_course_instance_id",
+          "hidden"
         ],
         "properties": {
           "course_language_group_id": {
@@ -6575,6 +7174,10 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Whether the user has hidden this course from their personal \"My courses\" list. Does not\naffect course progress."
           },
           "updated_at": {
             "type": "string",
@@ -6603,13 +7206,25 @@
           "email_communication_consent": {
             "type": ["boolean", "null"]
           },
+          "email_verified_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the user last proved control of the address in `email`. `None` means unproven. Cleared\nby a database trigger on every address change, so a value here always refers to `email`."
+          },
+          "email_verified_method": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailVerificationMethod"
+              }
+            ]
+          },
           "first_name": {
             "type": ["string", "null"]
           },
           "last_name": {
-            "type": ["string", "null"]
-          },
-          "search_helper": {
             "type": ["string", "null"]
           },
           "updated_at": {
@@ -6724,6 +7339,8 @@
           "order_number",
           "prerequisite_modules_completed",
           "enable_registering_completion_to_uh_open_university",
+          "enable_credit_registration_via_suotar",
+          "register_credits_via_suotar",
           "certification_enabled"
         ],
         "properties": {
@@ -6738,6 +7355,9 @@
             "type": "boolean"
           },
           "default": {
+            "type": "boolean"
+          },
+          "enable_credit_registration_via_suotar": {
             "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
@@ -6763,6 +7383,10 @@
           },
           "prerequisite_modules_completed": {
             "type": "boolean"
+          },
+          "register_credits_via_suotar": {
+            "type": "boolean",
+            "description": "Whether the module's registration flow is the push path, decided by\n[`course_module_completions::select_registration_completion`] rather than by the shown\ncompletion. False when no completion is shown."
           }
         }
       },

@@ -10,6 +10,8 @@ use serde_json::{Map, Value};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
+use crate::strings::strip_html_tags;
+
 /// Blocks that are not allowed in top-level pages (pages without chapter_id).
 /// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
 static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
@@ -364,9 +366,105 @@ fn validate_unique_client_ids_inner(
     Ok(input)
 }
 
+/// The text a block and everything nested inside it carries, one entry per block that has any.
+///
+/// Blocks hold their text as HTML in a `content` attribute, which is stripped here: callers render
+/// this as plain text, and the markup is several times the size of the words in it. A block with
+/// no text of its own (a layout wrapper, an image) contributes only what its children do.
+fn blocks_text_content(blocks: &[GutenbergBlock], texts: &mut Vec<String>) {
+    for block in blocks {
+        if let Some(content) = block.attributes.get("content").and_then(Value::as_str) {
+            let text = strip_html_tags(content);
+            let text = text.trim();
+            if !text.is_empty() {
+                texts.push(text.to_string());
+            }
+        }
+        blocks_text_content(&block.inner_blocks, texts);
+    }
+}
+
+/// The learning objectives declared anywhere in `blocks`, one per line, or `None` when the page
+/// declares none.
+///
+/// Objectives are authored as list items inside a learning-objectives block, so the lines are the
+/// objectives themselves. Whether they cover the page, the chapter or the course depends on which
+/// page the blocks came from, which is the caller's to know.
+pub fn get_learning_objectives(blocks: &[GutenbergBlock]) -> Option<String> {
+    let mut objectives = Vec::new();
+    collect_learning_objectives(blocks, &mut objectives);
+    (!objectives.is_empty()).then(|| objectives.join("\n"))
+}
+
+fn collect_learning_objectives(blocks: &[GutenbergBlock], objectives: &mut Vec<String>) {
+    for block in blocks {
+        if block.name == "moocfi/learning-objectives"
+            || block.name == "moocfi/course-objective-section"
+        {
+            blocks_text_content(std::slice::from_ref(block), objectives);
+        } else {
+            collect_learning_objectives(&block.inner_blocks, objectives);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A learning-objectives block whose items are the list items authors actually write.
+    fn objectives_block(items: &[&str]) -> GutenbergBlock {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/learning-objectives",
+            attributes! {"title": "Learning objectives"},
+            vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                "core/list",
+                attributes! {},
+                items
+                    .iter()
+                    .map(|item| {
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/list-item",
+                            attributes! {"content": *item},
+                        )
+                    })
+                    .collect(),
+            )],
+        )
+    }
+
+    /// Objectives are authored as HTML and shown to a reader as text, and the block sits several
+    /// levels down from the page's top-level blocks.
+    #[test]
+    fn learning_objectives_come_back_as_one_plain_text_line_each() {
+        let page = vec![
+            GutenbergBlock::paragraph("Intro"),
+            GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                "core/columns",
+                attributes! {},
+                vec![objectives_block(&[
+                    "Ymmärrät mitä <strong>muuttuja</strong> tarkoittaa",
+                    "Osaat <em>tulostaa</em> tekstiä",
+                ])],
+            ),
+        ];
+
+        assert_eq!(
+            get_learning_objectives(&page).as_deref(),
+            Some("Ymmärrät mitä muuttuja tarkoittaa\nOsaat tulostaa tekstiä")
+        );
+    }
+
+    /// A block that declares no objectives counts as no objectives, the same as no block at all:
+    /// the caller omits the field either way rather than printing an empty one.
+    #[test]
+    fn a_page_without_objectives_has_none_whether_or_not_the_block_is_there() {
+        assert_eq!(
+            get_learning_objectives(&[GutenbergBlock::paragraph("Just prose")]),
+            None
+        );
+        assert_eq!(get_learning_objectives(&[objectives_block(&[])]), None);
+    }
 
     fn collect_ids(blocks: &Vec<GutenbergBlock>, ids: &mut Vec<Uuid>) {
         for block in blocks {

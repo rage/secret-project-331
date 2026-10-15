@@ -1,8 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query"
 import { atomWithQuery } from "jotai-tanstack-query"
 
-import { viewParamsAtom } from "./params"
-
 import { getCourseMaterialUserChapterLocksQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import {
   fetchExam,
@@ -10,6 +8,8 @@ import {
   getCourseMaterialCoursePageByPath,
 } from "@/generated/course-material-api/sdk.generated"
 import { getCourseMaterialPageRequestHeaders } from "@/utils/courseMaterialPageRequestHeaders"
+
+import { viewParamsAtom } from "./params"
 
 const QUERY_KEYS = {
   MATERIAL_ROOT: "course-page",

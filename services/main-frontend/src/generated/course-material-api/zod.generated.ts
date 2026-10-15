@@ -19,6 +19,35 @@ export const zActivityProgress = z.enum([
   "Completed",
 ])
 
+/**
+ * One host-stored file that an answer consists of.
+ */
+export const zAnswerFile = z.object({
+  id: z.uuid(),
+  mime: z.string(),
+  name: z.string(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  size_bytes: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+  url: z.string(),
+})
+
+/**
+ * Which of a submission's two answer representations is the answer: the opaque blob in
+ * `data_json`, or the rows in `exercise_task_submission_files`.
+ */
+export const zAnswerKind = z.enum(["json", "file"])
+
 export const zChapterLockingStatus = z.enum([
   "unlocked",
   "completed_and_locked",
@@ -64,52 +93,16 @@ export const zChapterWithStatus = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zChatbotChatStreamEvent = z.union([
-  z.object({
-    data: z.object({
-      message_id: z.uuid(),
-      text: z.string(),
-    }),
-    type: z.enum(["Delta"]),
-  }),
-  z.object({
-    data: z.object({
-      finished: z.boolean(),
-      reasoning_id: z.string(),
-    }),
-    type: z.enum(["Reasoning"]),
-  }),
-  z.object({
-    data: z.object({
-      arguments: z.string().nullish(),
-      finished: z.boolean(),
-      tool_call_id: z.string(),
-      tool_name: z.string().nullish(),
-    }),
-    type: z.enum(["ToolCall"]),
-  }),
-  z.object({
-    type: z.enum(["Done"]),
-  }),
-  z.object({
-    data: z.object({
-      message: z.string(),
-    }),
-    type: z.enum(["Error"]),
-  }),
-  z.object({
-    type: z.enum(["None"]),
-  }),
-])
-
 export const zChatbotConversation = z.object({
+  anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
-  course_id: z.uuid(),
+  conversation_title: z.string().nullish(),
+  course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
-  user_id: z.uuid(),
+  user_id: z.uuid().nullish(),
 })
 
 export const zChatbotConversationMessageCitation = z.object({
@@ -151,6 +144,51 @@ export const zChatbotConversationSuggestedMessage = z.object({
   id: z.uuid(),
   message: z.string(),
   updated_at: z.iso.datetime(),
+})
+
+/**
+ * What the learner has open when they send a message.
+ *
+ * Only the page id is accepted: everything the model reads is looked up from the database.
+ * The context becomes a developer message, which the model weighs above the learner's own
+ * words, so a client that could write its text could give itself instructions.
+ */
+export const zChatbotPageContext = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+ */
+export const zClientToolAnswer = z.object({
+  data: z.object({
+    result: z.record(z.string(), z.unknown()),
+  }),
+  type: z.enum(["Data"]),
+})
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export const zClientToolName = z.enum([
+  "ask_multiple_choice_question",
+  "generate_password_reset_link",
+  "reset_exercises",
+  "update_cheating_status",
+  "edit_user_account",
+  "update_certificate",
+])
+
+export const zChatbotToolResponse = z.object({
+  answer: zClientToolAnswer,
+  tool_call_id: z.string(),
+  tool_name: zClientToolName,
 })
 
 export const zCodeGiveawayStatus = z.union([
@@ -364,6 +402,7 @@ export const zCourseModuleCompletion = z.object({
   needs_to_be_reviewed: z.boolean(),
   passed: z.boolean(),
   prerequisite_modules_completed: z.boolean(),
+  register_credits_via_suotar: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -387,7 +426,9 @@ export const zCustomViewExerciseTaskSpec = z.object({
 })
 
 export const zCustomViewExerciseTaskSubmission = z.object({
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
   data_json: z.unknown().optional(),
   exercise_slide_id: z.uuid(),
   exercise_slide_submission_id: z.uuid(),
@@ -401,6 +442,16 @@ export const zCustomViewExerciseTasks = z.object({
   task_gradings: z.array(zCustomViewExerciseTaskGrading),
   task_submissions: z.array(zCustomViewExerciseTaskSubmission),
 })
+
+/**
+ * How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.
+ */
+export const zEmailVerificationMethod = z.enum([
+  "emailed_code",
+  "password_reset_backfill",
+  "tmc_confirmed",
+  "admin_asserted",
+])
 
 export const zExamEnrollment = z.object({
   created_at: z.iso.datetime(),
@@ -447,8 +498,55 @@ export const zExercise = z.object({
   use_course_default_peer_or_self_review_config: z.boolean(),
 })
 
+/**
+ * Where a user's answer to an exercise stands, as far as the student may know.
+ *
+ * Collapses the exercise state into what the exercise block itself tells the student, so the
+ * underlying reviewing and grading stages never reach the client.
+ */
+export const zExercisePointsStatus = z.enum([
+  "NotStarted",
+  "GradingInProgress",
+  "GradingFailed",
+  "PeerReviewToGive",
+  "SelfReviewToGive",
+  "WaitingForPeerReviews",
+  "WaitingForTeacherGrading",
+  "NotAnswered",
+  "Done",
+])
+
+/**
+ * One exercise's row in a points breakdown.
+ */
+export const zExercisePointsBreakdown = z.object({
+  attempts: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  attempts_limit: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  exercise_id: z.uuid(),
+  name: z.string(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  status: zExercisePointsStatus,
+})
+
 export const zExerciseTaskSubmission = z.object({
+  answer_kind: zAnswerKind,
   created_at: z.iso.datetime(),
+  data_files: z.array(zAnswerFile).nullish(),
   data_json: z.unknown().optional(),
   deleted_at: z.iso.datetime().nullish(),
   exercise_slide_id: z.uuid(),
@@ -587,7 +685,12 @@ export const zNewCourseBackgroundQuestionAnswer = z.object({
   course_background_question_id: z.uuid(),
 })
 
+export const zNewFeedbackCategory = z.object({
+  name: z.string(),
+})
+
 export const zNewFeedback = z.object({
+  category: zNewFeedbackCategory.nullish(),
   feedback_given: z.string(),
   page_id: z.uuid(),
   related_blocks: z.array(zFeedbackBlock),
@@ -665,6 +768,39 @@ export const zPageChapterAndCourseInformation = z.object({
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
   organization_slug: z.string().nullish(),
+})
+
+/**
+ * A page's exercises in a points breakdown, with their subtotal.
+ */
+export const zPagePointsBreakdown = z.object({
+  exercises: z.array(zExercisePointsBreakdown),
+  page_id: z.uuid(),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * A chapter's pages in a points breakdown, with their subtotal.
+ */
+export const zChapterPointsBreakdown = z.object({
+  chapter_id: z.uuid(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  name: z.string(),
+  pages: z.array(zPagePointsBreakdown),
+  score_given: z.number(),
+  score_maximum: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zPageRoutingData = z.object({
@@ -890,6 +1026,7 @@ export const zReviewingStage = z.enum([
   "WaitingForManualGrading",
   "ReviewedAndLocked",
   "Locked",
+  "NotAnsweredAndLocked",
 ])
 
 export const zExerciseStatus = z.object({
@@ -907,9 +1044,62 @@ export const zSearchRequest = z.object({
   query: z.string(),
 })
 
+export const zSendChatbotMessage = z.object({
+  message: z.string(),
+  page_context: zChatbotPageContext.nullish(),
+})
+
 export const zShowExerciseAnswers = z.object({
   show_exercise_answers: z.boolean(),
 })
+
+export const zStreamEventError = z.object({
+  details: z.string().nullish(),
+  message: z.string(),
+})
+
+export const zChatbotChatStreamEvent = z.union([
+  z.object({
+    data: z.object({
+      message_id: z.uuid(),
+      text: z.string(),
+    }),
+    type: z.enum(["Delta"]),
+  }),
+  z.object({
+    data: z.object({
+      finished: z.boolean(),
+      reasoning_id: z.string(),
+    }),
+    type: z.enum(["Reasoning"]),
+  }),
+  z.object({
+    data: z.object({
+      arguments: z.string().nullish(),
+      finished: z.boolean(),
+      tool_call_id: z.string(),
+      tool_name: z.string().nullish(),
+    }),
+    type: z.enum(["ToolCall"]),
+  }),
+  z.object({
+    type: z.enum(["Done"]),
+  }),
+  z.object({
+    type: z.enum(["Suspended"]),
+  }),
+  z.object({
+    data: z.object({
+      payload: z.unknown(),
+      tool_call_id: z.string(),
+    }),
+    type: z.enum(["ActionExecuted"]),
+  }),
+  z.object({
+    data: zStreamEventError,
+    type: z.enum(["Error"]),
+  }),
+])
 
 export const zStudentCountry = z.object({
   country_code: z.string(),
@@ -922,7 +1112,9 @@ export const zStudentCountry = z.object({
 })
 
 export const zStudentExerciseTaskSubmission = z.object({
-  data_json: z.unknown(),
+  answer_kind: zAnswerKind.nullish(),
+  data_files: z.array(z.uuid()).nullish(),
+  data_json: z.unknown().optional(),
   exercise_task_id: z.uuid(),
 })
 
@@ -947,7 +1139,21 @@ export const zTeacherDecisionType = z.enum([
   "CustomPoints",
   "SuspectedPlagiarism",
   "RejectAndReset",
+  "UnauthorizedAiUse",
+  "BadAnswer",
+  "Other",
 ])
+
+/**
+ * What the student is told about a teacher's grading decision.
+ *
+ * The decision type is included so the material can explain the decision in the student's own
+ * language; the justification is whatever the teacher wrote on top of that, if anything.
+ */
+export const zCourseMaterialTeacherGradingDecision = z.object({
+  justification: z.string().nullish(),
+  teacher_decision: zTeacherDecisionType,
+})
 
 export const zExamEnrollmentData = z.union([
   z.object({
@@ -1050,7 +1256,10 @@ export const zTermUpdate = z.object({
   term: z.string(),
 })
 
-export const zToolKind = z.enum(["function", "azure_ai_search"])
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export const zToolKind = z.enum(["function", "azure_ai_search", "client_tool"])
 
 export const zChatbotConversationMessageToolCall = z.object({
   chatbot_conversation_message_id: z.uuid(),
@@ -1067,6 +1276,7 @@ export const zChatbotConversationMessageToolCall = z.object({
 
 export const zChatbotConversationMessageToolOutput = z.object({
   chatbot_conversation_message_id: z.uuid(),
+  client_answer: z.record(z.string(), z.unknown()).nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
@@ -1098,11 +1308,11 @@ export const zChatbotConversationMessage = z.object({
 })
 
 /**
- * Should contain all information required to display the chatbot to the user.
+ * Everything needed to display the chatbot to the user.
  */
 export const zChatbotConversationInfo = z.object({
   chatbot_name: z.string(),
-  course_name: z.string(),
+  course_name: z.string().nullish(),
   current_conversation: zChatbotConversation.nullish(),
   current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),
   current_conversation_messages: z.array(zChatbotConversationMessage).nullish(),
@@ -1194,12 +1404,14 @@ export const zUserCourseProgress = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  automatic_completion: z.boolean(),
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -1224,6 +1436,7 @@ export const zUserCourseSettings = z.object({
   current_course_id: z.uuid(),
   current_course_instance_id: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
+  hidden: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -1244,9 +1457,10 @@ export const zUserDetail = z.object({
   created_at: z.iso.datetime(),
   email: z.string(),
   email_communication_consent: z.boolean().nullish(),
+  email_verified_at: z.iso.datetime().nullish(),
+  email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
-  search_helper: z.string().nullish(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -1284,6 +1498,7 @@ export const zUserModuleCompletionStatus = z.object({
   certification_enabled: z.boolean(),
   completed: z.boolean(),
   default: z.boolean(),
+  enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
   grade: z
     .int()
@@ -1298,6 +1513,7 @@ export const zUserModuleCompletionStatus = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   passed: z.boolean().nullish(),
   prerequisite_modules_completed: z.boolean(),
+  register_credits_via_suotar: z.boolean(),
 })
 
 export const zUserPointsUpdateStrategy = z.enum([
@@ -1342,6 +1558,7 @@ export const zCourseMaterialExercise = z.object({
   peer_or_self_review_config: zCourseMaterialPeerOrSelfReviewConfig.nullish(),
   previous_exercise_slide_submission: zExerciseSlideSubmission.nullish(),
   should_show_reset_message: z.string().nullish(),
+  teacher_grading_decision: zCourseMaterialTeacherGradingDecision.nullish(),
   user_course_instance_exercise_service_variables: z.array(zUserCourseExerciseServiceVariable),
 })
 
@@ -1400,6 +1617,11 @@ export const zGetCourseMaterialChapterPagesExcludingFrontPagePath = z.object({
  */
 export const zGetCourseMaterialChapterPagesExcludingFrontPageResponse = z.array(zPage)
 
+/**
+ * All chatbot conversations for user
+ */
+export const zAllUserConversationsResponse = z.array(zChatbotConversation)
+
 export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
   course_id: z.uuid(),
 })
@@ -1409,14 +1631,27 @@ export const zGetDefaultChatbotConfigurationForCoursePath = z.object({
  */
 export const zGetDefaultChatbotConfigurationForCourseResponse = z.uuid().nullable()
 
-export const zGetChatbotCurrentConversationInfoPath = z.object({
+export const zGetConversationInfoPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+export const zGetConversationInfoQuery = z.object({
+  conversation_id: z.uuid().optional(),
+})
+
+/**
+ * Selected chatbot conversation info
+ */
+export const zGetConversationInfoResponse = zChatbotConversationInfo
+
+export const zGetCurrentConversationIdPath = z.object({
   chatbot_configuration_id: z.uuid(),
 })
 
 /**
- * Current chatbot conversation info
+ * Current conversation ID
  */
-export const zGetChatbotCurrentConversationInfoResponse = zChatbotConversationInfo
+export const zGetCurrentConversationIdResponse = z.uuid().nullable()
 
 export const zNewChatbotConversationPath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -1427,7 +1662,7 @@ export const zNewChatbotConversationPath = z.object({
  */
 export const zNewChatbotConversationResponse = zChatbotConversation
 
-export const zSendChatbotMessageBody = z.string()
+export const zSendChatbotMessageBody = zSendChatbotMessage
 
 export const zSendChatbotMessagePath = z.object({
   chatbot_configuration_id: z.uuid(),
@@ -1438,6 +1673,25 @@ export const zSendChatbotMessagePath = z.object({
  * Chatbot response stream
  */
 export const zSendChatbotMessageResponse = zChatbotChatStreamEvent
+
+export const zSendChatbotToolResponseBody = zChatbotToolResponse
+
+export const zSendChatbotToolResponsePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
+/**
+ * Chatbot response stream
+ */
+export const zSendChatbotToolResponseResponse = zChatbotChatStreamEvent
+
+export const zUpdateTitleBody = z.string()
+
+export const zUpdateTitlePath = z.object({
+  chatbot_configuration_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),
@@ -1499,6 +1753,17 @@ export const zGetCourseMaterialCourseModuleCompletionsForUserPath = z.object({
  */
 export const zGetCourseMaterialCourseModuleCompletionsForUserResponse =
   z.array(zCourseModuleCompletion)
+
+export const zGetCourseMaterialCourseModulePointsBreakdownPath = z.object({
+  course_instance_id: z.uuid(),
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The user's points by chapter, page and exercise
+ */
+export const zGetCourseMaterialCourseModulePointsBreakdownResponse =
+  z.array(zChapterPointsBreakdown)
 
 export const zGetCourseMaterialUserModuleCompletionsPath = z.object({
   course_instance_id: z.uuid(),

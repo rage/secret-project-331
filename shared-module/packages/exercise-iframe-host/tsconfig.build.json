@@ -1,0 +1,7 @@
+{
+  "//": "Build-only tsconfig for the published (tsdown) build. Extends the dev tsconfig but switches JSX from the inherited 'preserve' to the React automatic runtime, so the emitted dist/*.js contains plain JS (jsx-runtime calls) rather than raw JSX. The dev tsconfig keeps 'preserve' for the repo's internal (Next.js) consumption.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx"
+  }
+}

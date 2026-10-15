@@ -12,6 +12,10 @@ pub struct ChatbotConversationMessageToolOutput {
     pub tool_call_id: String,
     pub tool_kind: ToolKind,
     pub response_id: String,
+    /// The answer payload the client sent, in the shape the answered tool defines. None for
+    /// outputs no client answered.
+    #[schema(value_type = Option<Object>)]
+    pub client_answer: Option<serde_json::Value>,
 }
 
 impl Default for ChatbotConversationMessageToolOutput {
@@ -26,6 +30,7 @@ impl Default for ChatbotConversationMessageToolOutput {
             tool_call_id: Default::default(),
             tool_kind: ToolKind::Function,
             response_id: Default::default(),
+            client_answer: None,
         }
     }
 }
@@ -43,25 +48,18 @@ INSERT INTO chatbot_conversation_message_tool_outputs (
     output,
     tool_call_id,
     tool_kind,
-    response_id
+    response_id,
+    client_answer
   )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *
         "#,
         msg_id,
         input.output,
         input.tool_call_id,
         input.tool_kind as ToolKind,
-        input.response_id
+        input.response_id,
+        input.client_answer
     )
     .fetch_one(conn)
     .await?;
@@ -75,16 +73,7 @@ pub async fn get_by_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_outputs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -103,16 +92,7 @@ pub async fn get_by_message_id(
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolOutput,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+SELECT *
 FROM chatbot_conversation_message_tool_outputs
 WHERE chatbot_conversation_message_id = $1
   AND deleted_at IS NULL
@@ -135,16 +115,7 @@ UPDATE chatbot_conversation_message_tool_outputs
 SET deleted_at = NOW()
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    output,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
+RETURNING *
         "#,
         id
     )

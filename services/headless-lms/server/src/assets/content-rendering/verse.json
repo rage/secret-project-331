@@ -1,0 +1,12 @@
+[
+  {
+    "clientId": "bf84634b-cd98-40ed-955c-74e1553c7a27",
+    "isValid": true,
+    "name": "core/verse",
+    "attributes": {
+      "content": "Insert poetry. Use special spacing formats. Or quote song lyrics. <mark style=\"background-color:#CF2E2E;color:#FCB900\" class=\"has-inline-color\">Background and text <strong>color</strong></mark> <em>italy</em>",
+      "textAlign": "center"
+    },
+    "innerBlocks": []
+  }
+]

@@ -1,6 +1,6 @@
-import { UserAnswer } from "../../../types/quizTypes/answer"
-import { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
-import {
+import type { UserAnswer } from "../../../types/quizTypes/answer"
+import type { QuizItemAnswerGrading } from "../../../types/quizTypes/grading"
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemChooseN,
   PrivateSpecQuizItemClosedEndedQuestion,
@@ -10,7 +10,6 @@ import {
   PrivateSpecQuizItemMultiplechoiceDropdown,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-
 import { assessChooseN } from "./choose-n"
 import { assessClosedEndedQuestion } from "./closed-ended-question"
 import { assessEssay } from "./essay"
@@ -31,7 +30,7 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
     throw new Error("Quiz was not provided")
   }
   return quizAnswer.itemAnswers.map((itemAnswer) => {
-    const quizItem = quiz.items.find((quizItem) => quizItem.id === itemAnswer.quizItemId)
+    const quizItem = quiz.items.find((item) => item.id === itemAnswer.quizItemId)
     if (!quizItem) {
       const allAvailableIds = quiz.items.map((item) => item.id)
       const allAnsweredIds = quizAnswer.itemAnswers.map((item) => item.quizItemId)
@@ -40,6 +39,13 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
           allAnsweredIds.join(", ") +
           ". Available ids: " +
           allAvailableIds.join(", "),
+      )
+    }
+    // The answer's type is student-supplied; grade by the quiz item's real type or a crafted
+    // answer could route e.g. a multiple-choice item to the always-correct checkbox branch.
+    if (quizItem.type !== itemAnswer.type) {
+      throw new Error(
+        `Answer type '${itemAnswer.type}' does not match quiz item type '${quizItem.type}' for item ${quizItem.id}`,
       )
     }
     switch (itemAnswer.type) {
@@ -62,7 +68,17 @@ const assessAnswers = (quizAnswer: UserAnswer, quiz: PrivateSpecQuiz): QuizItemA
       case "essay":
         return assessEssay(itemAnswer, quizItem as PrivateSpecQuizItemEssay)
       case "matrix":
-        return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+        // Marked failed rather than thrown, so the other items still get graded and this one can be regraded.
+        try {
+          return assessMatrixQuiz(itemAnswer, quizItem as PrivateSpecQuizItemMatrix)
+        } catch (error) {
+          console.error(`Failed to grade matrix item ${quizItem.id}:`, error)
+          return {
+            quizItemId: itemAnswer.quizItemId,
+            correctnessCoefficient: 0,
+            gradingFailed: true,
+          }
+        }
       case "checkbox":
       case "scale":
         return {

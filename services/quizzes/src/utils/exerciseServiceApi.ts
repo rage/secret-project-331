@@ -1,6 +1,6 @@
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
 
-export type ExerciseTaskGradingResult = {
+export interface ExerciseTaskGradingResult {
   feedback_json: unknown
   feedback_text: string | null
   grading_progress: GradingProgress
@@ -8,7 +8,7 @@ export type ExerciseTaskGradingResult = {
   score_maximum: number
 }
 
-export type ExerciseServiceInfoApi = {
+export interface ExerciseServiceInfoApi {
   service_name: string
   user_interface_iframe_path: string
   grade_endpoint_path: string
@@ -18,15 +18,13 @@ export type ExerciseServiceInfoApi = {
   csv_export_answers_endpoint_path?: string | null
 }
 
-export type SpecRequest = {
+export interface SpecRequest {
   request_id: string
   private_spec: unknown
   upload_url: string | null
 }
 
-export type StudentExerciseTaskSubmissionResult = {
-  [key: string]: unknown
-}
+export type StudentExerciseTaskSubmissionResult = Record<string, unknown>
 
 const GRADING_PROGRESS_VALUES = new Set<GradingProgress>([
   "Failed",
@@ -44,7 +42,7 @@ export function isExerciseTaskGradingResult(value: unknown): value is ExerciseTa
     return false
   }
   return (
-    (value.feedback_json === null || typeof value.feedback_json !== "undefined") &&
+    (value.feedback_json === null || value.feedback_json !== undefined) &&
     (typeof value.feedback_text === "string" || value.feedback_text === null) &&
     typeof value.score_given === "number" &&
     typeof value.score_maximum === "number" &&
@@ -63,10 +61,10 @@ export function isExerciseServiceInfoApi(value: unknown): value is ExerciseServi
     typeof value.grade_endpoint_path === "string" &&
     typeof value.public_spec_endpoint_path === "string" &&
     typeof value.model_solution_spec_endpoint_path === "string" &&
-    (typeof value.csv_export_definitions_endpoint_path === "undefined" ||
+    (value.csv_export_definitions_endpoint_path === undefined ||
       typeof value.csv_export_definitions_endpoint_path === "string" ||
       value.csv_export_definitions_endpoint_path === null) &&
-    (typeof value.csv_export_answers_endpoint_path === "undefined" ||
+    (value.csv_export_answers_endpoint_path === undefined ||
       typeof value.csv_export_answers_endpoint_path === "string" ||
       value.csv_export_answers_endpoint_path === null)
   )

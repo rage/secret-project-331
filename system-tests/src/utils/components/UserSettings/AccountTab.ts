@@ -1,15 +1,20 @@
-import { expect, Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 export class AccountTab {
-  constructor(private readonly page: Page) {}
+  private readonly page: Page
 
-  async waitForTab(): Promise<void> {
+  public constructor(page: Page) {
+    this.page = page
+  }
+
+  public async waitForTab(): Promise<void> {
     await expect(this.page.getByRole("heading", { name: "Personal Information" })).toBeVisible()
   }
 
-  async updatePersonalInformation(
+  public async updatePersonalInformation(
     options: {
       firstName?: string
       lastName?: string
@@ -31,10 +36,12 @@ export class AccountTab {
       await this.page.getByLabel("Last name").fill(options.lastName)
     }
     if (options.email !== undefined) {
-      await this.page.getByLabel("Email").fill(options.email)
+      // Role-scoped: the consent checkbox's label also contains "email".
+      await this.page.getByRole("textbox", { name: "Email" }).fill(options.email)
     }
     if (options.country !== undefined) {
-      await this.page.getByLabel("Where do you live?").click()
+      // Role-scoped: the combobox's toggle button also carries "Where do you live?" in its label.
+      await this.page.getByRole("combobox", { name: "Where do you live?" }).click()
       await this.page.getByRole("option", { name: options.country }).click()
     }
     if (options.emailConsent !== undefined) {
@@ -79,11 +86,11 @@ export class AccountTab {
     }
   }
 
-  async cancelEditingPersonalInformation(): Promise<void> {
+  public async cancelEditingPersonalInformation(): Promise<void> {
     await this.page.getByRole("button", { name: "Cancel" }).click()
   }
 
-  async getPersonalInformation(): Promise<{
+  public async getPersonalInformation(): Promise<{
     email: string | null
     firstName: string | null
     lastName: string | null
@@ -99,11 +106,11 @@ export class AccountTab {
     }
   }
 
-  async openPasswordChangeForm(): Promise<void> {
+  public async openPasswordChangeForm(): Promise<void> {
     await this.page.getByTestId("change-password-button").click()
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  public async changePassword(currentPassword: string, newPassword: string): Promise<void> {
     await this.openPasswordChangeForm()
     await this.page.getByLabel("Old password").fill(currentPassword)
     await this.page.getByLabel("New password").fill(newPassword)

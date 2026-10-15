@@ -1,9 +1,7 @@
-"use client"
-
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { Alternative } from "@/util/stateInterfaces"
+import type { Alternative } from "@/util/stateInterfaces"
 interface Props {
   item: Alternative
   onDelete: () => void
@@ -46,20 +44,24 @@ const ButtonEditor: React.FC<React.PropsWithChildren<Props>> = ({ item, onDelete
     <StyledButtonEditor>
       <InputCheckbox
         type="checkbox"
+        aria-label={t("mark-option-correct")}
         checked={item.correct || false}
         onChange={(e) => {
           onChange({ ...item, correct: e.target.checked })
         }}
       />
       <Input
+        aria-label={t("input-placeholder-option-text")}
         placeholder={t("input-placeholder-option-text")}
         value={item.name}
         onChange={(e) => {
           onChange({ ...item, name: e.target.value })
         }}
       />
-      {/* eslint-disable-next-line i18next/no-literal-string */}
-      <DeleteButton onClick={onDelete}>x</DeleteButton>
+      <DeleteButton aria-label={t("delete-option")} onClick={onDelete}>
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
+        <span aria-hidden="true">x</span>
+      </DeleteButton>
     </StyledButtonEditor>
   )
 }

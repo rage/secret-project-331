@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS(\n  SELECT 1 FROM page_audio_files WHERE path = $1 AND deleted_at IS NULL\n) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "cfac9638782429b5f4cbd40d6fbd313496db479ee3fa1e7f8199b83ed4b7b028"
+}

@@ -9,7 +9,7 @@ export const modifyBlocks = (
   return blocks.map((block) => {
     const innerBlocks = block.innerBlocks ?? []
 
-    if (supportedBlocks.find((supportedBlock) => supportedBlock === block.name) === undefined) {
+    if (!supportedBlocks.some((supportedBlock) => supportedBlock === block.name)) {
       return {
         clientId: block.clientId,
         name: "moocfi/unsupported-block-type",
@@ -19,7 +19,7 @@ export const modifyBlocks = (
       }
     }
 
-    if (!innerBlocks.length) {
+    if (innerBlocks.length === 0) {
       return block
     }
 

@@ -1,0 +1,90 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (ess.created_at, ess.id)\n  ess.id,\n  ess.exercise_id,\n  ess.created_at,\n  etg.score_given,\n  etg.grading_progress AS \"grading_progress?: GradingProgress\"\nFROM exercise_slide_submissions AS ess\n  LEFT JOIN exercise_task_submissions AS ets ON ets.exercise_slide_submission_id = ess.id\n  AND ets.deleted_at IS NULL\n  LEFT JOIN exercise_task_gradings AS etg ON etg.id = ets.exercise_task_grading_id\n  AND etg.deleted_at IS NULL\nWHERE ess.user_id = $1\n  AND ess.exercise_id = $2\n  AND ess.deleted_at IS NULL\nORDER BY ess.created_at DESC, ess.id DESC, ets.created_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_gradings",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "grading_progress?: GradingProgress",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_task_gradings",
+            "name": "grading_progress"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "3fcddba3e5718578572eeeea28938d4f8bb8594d38cb2670c8a20a9edd0c2159"
+}

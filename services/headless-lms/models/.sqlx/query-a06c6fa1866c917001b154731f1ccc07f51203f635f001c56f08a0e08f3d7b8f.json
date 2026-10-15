@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercises\nSET limit_number_of_tries = $2,\n  max_tries_per_slide = $3\nWHERE id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a06c6fa1866c917001b154731f1ccc07f51203f635f001c56f08a0e08f3d7b8f"
+}

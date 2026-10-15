@@ -1,9 +1,12 @@
-import { BrowserContext, expect, Page, test } from "@playwright/test"
+import type { BrowserContext, Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-
+import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
+import { Checkbox } from "@/utils/components/Checkbox"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 /**
  * The peer-review candidate is offered best-effort and the giving view does not auto-retry
@@ -11,14 +14,15 @@ import { selectOrganization } from "@/utils/organizationUtils"
  * reviewable answer is assigned. Click Refresh until the given-reviews progress appears,
  * instead of bare-waiting for a state the page can't reach on its own.
  */
+/** `expectedProgress` is the peer review progress bar's value text, e.g. "0 / 2". */
 async function refreshUntilPeerReviewCandidate(page: Page, expectedProgress: string) {
-  const progress = page.getByText(expectedProgress)
+  const progress = page.getByRole("progressbar", { name: "Peer reviews given" })
   await expect(async () => {
     const refresh = page.getByRole("button", { name: "Refresh" })
     if (await refresh.isVisible()) {
       await refresh.click()
     }
-    await expect(progress).toBeVisible({ timeout: 3_000 })
+    await expect(progress).toHaveAttribute("aria-valuetext", expectedProgress, { timeout: 3_000 })
   }).toPass({ timeout: 30_000 })
 }
 
@@ -61,29 +65,31 @@ test.describe("Peer review followed by self review works", () => {
         .getByRole("button")
         .first()
         .click()
-      await teacherPage.getByText("Peer and self review").click()
-      await teacherPage.getByText("Add peer review").click()
-      await teacherPage.getByText("Add self review").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
+      await Checkbox.labelled(teacherPage, "Add peer review").setChecked(true)
+      await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
       await waitForSuccessNotification(teacherPage, async () => {
         await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
       })
-      await teacherPage.getByText("Peer and self review").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
       const page1Promise = teacherPage.waitForEvent("popup")
       await teacherPage.getByRole("link", { name: "Course default peer review" }).click()
       const page1 = await page1Promise
       await page1.getByLabel("Add default block").click()
       await page1.getByLabel("Empty block; start writing or").fill("Here's what you will do: x.")
       await page1
-        .getByLabel("Peer review questionThe answer was easy to read")
+        .getByLabel("Peer review question", { exact: true })
+        .nth(0)
         .fill("The answer was hard to read")
       await page1
-        .getByLabel("Peer review questionThe answer was correct")
+        .getByLabel("Peer review question", { exact: true })
+        .nth(1)
         .fill("The answer was incorrect")
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()
       })
-      await page1.getByLabel("Peer reviews to receive *").fill("1")
-      await page1.getByLabel("Peer reviews to give *").fill("2")
+      await page1.getByLabel("Peer reviews to receive", { exact: true }).fill("1")
+      await page1.getByLabel("Peer reviews to give", { exact: true }).fill("2")
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()
       })
@@ -135,11 +141,13 @@ test.describe("Peer review followed by self review works", () => {
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student2Page.getByRole("button", { name: "Submit" }).click()
       await student2Page.getByRole("button", { name: "Start peer review" }).click()
-      await refreshUntilPeerReviewCandidate(student2Page, "0 / 2 Peer reviews given")
+      await refreshUntilPeerReviewCandidate(student2Page, "0 / 2")
       await student2Page.getByRole("heading", { name: "Peer review instructions" }).waitFor()
       await student2Page.getByText("Here's what you will do: x.").waitFor()
       await student2Page.getByRole("heading", { name: "Answer submitted by another" }).waitFor()
-      await student2Page.getByPlaceholder("Write a review").fill("Best answer of our generation!")
+      await student2Page
+        .getByRole("textbox", { name: "The answer was hard to read" })
+        .fill("Best answer of our generation!")
       await student2Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student2Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).click()
       await waitForSuccessNotification(student2Page, async () => {
@@ -173,16 +181,16 @@ test.describe("Peer review followed by self review works", () => {
         .getByText("Your answer was correct.")
         .waitFor()
       await student3Page.getByRole("button", { name: "Start peer review" }).click()
-      await refreshUntilPeerReviewCandidate(student3Page, "0 / 2 Peer reviews given")
+      await refreshUntilPeerReviewCandidate(student3Page, "0 / 2")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
       await waitForSuccessNotification(student3Page, async () => {
         await student3Page.getByRole("button", { name: "Submit" }).click()
       })
-      await refreshUntilPeerReviewCandidate(student3Page, "1 / 2 Peer reviews given")
+      await refreshUntilPeerReviewCandidate(student3Page, "1 / 2")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
-      await student3Page.getByPlaceholder("Write a review").fill("LOL")
+      await student3Page.getByRole("textbox", { name: "The answer was hard to read" }).fill("LOL")
       await student3Page.getByRole("button", { name: "Submit" }).click()
     })
 
@@ -191,7 +199,7 @@ test.describe("Peer review followed by self review works", () => {
       await student3Page.getByRole("heading", { name: "Self review instructions" }).waitFor()
       await student3Page.getByText("Here's what you will do: x.").waitFor()
       await student3Page
-        .getByPlaceholder("Write a review")
+        .getByRole("textbox", { name: "The answer was hard to read" })
         .fill("I agree with myself. I am the best!")
       await student3Page.getByRole("radio", { name: "Strongly agree", exact: true }).first().click()
       await student3Page
@@ -206,7 +214,9 @@ test.describe("Peer review followed by self review works", () => {
 
     await test.step(`Student 1 reviews student 3's answer`, async () => {
       await student1Page.getByRole("button", { name: "Refresh" }).click()
-      await student1Page.getByPlaceholder("Write a review").fill("Good point. I agree with you.")
+      await student1Page
+        .getByRole("textbox", { name: "The answer was hard to read" })
+        .fill("Good point. I agree with you.")
       await student1Page.getByRole("radio", { name: "Strongly agree", exact: true }).first().click()
       await student1Page
         .getByRole("radio", { name: "Strongly disagree", exact: true })

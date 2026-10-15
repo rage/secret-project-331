@@ -1,10 +1,13 @@
 "use client"
 
-import KaTex from "katex"
+import { renderToString } from "katex"
+
+import type { StringWithHTML } from "@/../types"
+
 import "katex/dist/katex.min.css"
 
-import { StringWithHTML } from "@/../types"
 import type { Term } from "@/generated/course-material-api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
@@ -22,7 +25,30 @@ const TERM_REGEX_CACHE = new Map<string, RegExp>()
 const TERM_REGEX_CACHE_MAX_SIZE = 100
 
 /** Escapes regex metacharacters in a string so it can be used literally in a RegExp. */
-const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+const escapeRegex = (value: string): string => value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+
+const ANCHOR_TAG_NAME = "A"
+
+const isDescendantOfAnchor = (node: Node): boolean => {
+  let current = node.parentElement
+  while (current) {
+    if (current.tagName === ANCHOR_TAG_NAME) {
+      return true
+    }
+    current = current.parentElement
+  }
+  return false
+}
+
+/**
+ * Rejects text nodes inside `<a>` elements so the glossary tooltip's trigger `<button>` never
+ * gets portaled inside a link's visible text, which would nest an interactive element inside
+ * another one and break click/focus/screen-reader behavior.
+ */
+const glossaryTextNodeFilter: NodeFilter = {
+  acceptNode: (node) =>
+    isDescendantOfAnchor(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+}
 
 const getTermRegex = (term: string): RegExp => {
   let regex = TERM_REGEX_CACHE.get(term)
@@ -53,7 +79,7 @@ const getDomParser = (): DOMParser => {
     return domParser
   }
   if (typeof DOMParser === "undefined") {
-    throw new Error("DOMParser is not available in this environment.")
+    throw new TypeError("DOMParser is not available in this environment.")
   }
   domParser = new DOMParser()
   return domParser
@@ -102,24 +128,25 @@ export const replaceTextNodeWithGlossarySpans = (
   glossaryId: string,
 ): void => {
   const text = textNode.textContent ?? ""
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- split text node is mounted, so it always has a parent
   const parent = textNode.parentNode!
   const fragment = doc.createDocumentFragment()
   let lastIndex = 0
 
   for (const m of matches) {
     if (m.index > lastIndex) {
-      fragment.appendChild(doc.createTextNode(text.substring(lastIndex, m.index)))
+      fragment.append(doc.createTextNode(text.slice(lastIndex, m.index)))
     }
     // Empty span is a mounting point for the glossary tooltip portal; the user-visible
     // text is rendered later by the React tooltip component rather than being kept here.
     const span = doc.createElement(SPAN_TAG)
     span.setAttribute(DATA_GLOSSARY_ID_ATTR, glossaryId)
-    fragment.appendChild(span)
+    fragment.append(span)
     lastIndex = m.index + m.length
   }
 
   if (lastIndex < text.length) {
-    fragment.appendChild(doc.createTextNode(text.substring(lastIndex)))
+    fragment.append(doc.createTextNode(text.slice(lastIndex)))
   }
 
   parent.replaceChild(fragment, textNode)
@@ -136,7 +163,7 @@ const convertToLatex = (data: string) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
     const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, AMPERSAND_CHAR)
     count++
-    return KaTex.renderToString(processed, {
+    return renderToString(processed, {
       throwOnError: false,
       output: KATEX_OUTPUT_FORMAT,
     })
@@ -159,7 +186,7 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
   const doc = getDomParser().parseFromString(data, HTML_MIME_TYPE)
 
   for (const item of glossary) {
-    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT)
+    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, glossaryTextNodeFilter)
     const textNodes: Text[] = []
     while (walker.nextNode()) {
       textNodes.push(walker.currentNode as Text)
@@ -223,10 +250,13 @@ const MAX_UNICODE_CODE_POINT = 0x10ffff
 const decodeHtmlEntities = (value: string): string =>
   value.replace(HTML_ENTITY_REGEX, (whole, body: string) => {
     if (body[0] === "#") {
-      const codePoint =
-        body[1] === "x" || body[1] === "X"
-          ? parseInt(body.slice(2), 16)
-          : parseInt(body.slice(1), 10)
+      let codePoint: number
+      if (body[1] === "x" || body[1] === "X") {
+        codePoint = parseInt(body.slice(2), 16)
+      } else {
+        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+        codePoint = parseInt(body.slice(1), 10)
+      }
       if (Number.isNaN(codePoint) || codePoint < 0 || codePoint > MAX_UNICODE_CODE_POINT) {
         return whole
       }
@@ -257,8 +287,7 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
     const notes = normalizeCitationNotes(prenote, postnote)
     matches.push({
       citationKey: decodeHtmlEntities(citationId ?? ""),
-      prenote: notes.prenote,
-      postnote: notes.postnote,
+      ...omitUndefined({ prenote: notes.prenote, postnote: notes.postnote }),
     })
   }
   return matches
@@ -291,7 +320,7 @@ const parseCitation = (data: string) => {
 const parseText = (
   content: string | undefined | StringWithHTML,
   terms: Term[],
-  options: { glossary: boolean } = { glossary: true },
+  { glossary = true }: { glossary?: boolean } = {},
 ) => {
   const { count, converted: parsedLatex } = convertToLatex(content ?? "")
   const parsedCitation = parseCitation(parsedLatex)
@@ -299,7 +328,7 @@ const parseText = (
   let parsedText = parsedCitation
   let glossaryEntries: Term[] = []
 
-  if (options.glossary) {
+  if (glossary) {
     const { parsedText: glossaryParsedText, terms: usedGlossary } = parseGlossary(
       parsedCitation,
       terms ?? [],

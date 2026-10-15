@@ -1,0 +1,455 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
+import { useQuery } from "@tanstack/react-query"
+import { ArrowLeft } from "@vectopus/atlas-icons-react"
+import React, { useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
+
+import {
+  CREDIT_REGISTRATION_NS,
+  QUIET_REFRESH,
+  TIME_DATE,
+  TIME_IN_TITLE,
+} from "@/components/credit-registration/constants"
+import {
+  registrationExplanation,
+  registrationGradeLabel,
+  myRegistrationStatusLabel,
+  registrationStatusLabel,
+} from "@/components/credit-registration/creditRegistrationCopy"
+import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
+import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
+import { LinkingEmailQuestions } from "@/components/credit-registration/LinkingEmailQuestions"
+import {
+  RegistrationActions,
+  type RegistrationCardAction,
+} from "@/components/credit-registration/RegistrationStatusCard"
+import { StudentNumberLinkStep } from "@/components/credit-registration/StudentNumberLinkStep"
+import {
+  RECHECK_ENROLMENT_ACTION_KEY,
+  useStudentRegistrationActions,
+} from "@/components/credit-registration/studentRegistrationActions"
+import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
+import {
+  bandCss,
+  bandedCardCss,
+  cardTitleBandCss,
+  narrowPageCss,
+  noteCss,
+  pageTitleCss,
+  sectionsCss,
+  subheadingCss,
+} from "@/components/credit-registration/styles"
+import {
+  asksWhereYouEnrolled,
+  isWaitingForEnrolment,
+  saysWhatIsHappening,
+  showsRegistrationFacts,
+} from "@/components/credit-registration/trackerView"
+import {
+  getMyCreditRegistrationForCourseModuleOptions,
+  getMyEnrolmentRouteOptions,
+  getMyVerifiedStudentNumberOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  MyCreditRegistration,
+  MyEnrolmentRoute,
+  MyVerifiedStudentNumber,
+  StudentFacingCreditRegistrationStatus,
+} from "@/generated/api/types.generated"
+import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
+import { DescriptionList, Link, QueryResults, RelativeTime } from "@/shared-module/components"
+
+export interface CreditRegistrationStatusProps {
+  courseModuleId: string
+  courseName: string
+  /** `null` on the course's default module. */
+  moduleName: string | null | undefined
+  /** What the module is configured to be worth now, which a past registration may not match. */
+  ectsCredits: number | null | undefined
+  /** What the student is told while the completion has no registration yet. */
+  statusBeforeRegistration: StudentFacingCreditRegistrationStatus
+}
+
+const MOVING_REFETCH_INTERVAL_MS = 10_000
+/** Sisu answers on its own schedule, so polling it hard buys nothing. */
+const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000
+/** A waiting row changes only once a check finds the enrolment; a minute is soon enough. */
+const WAITING_FOR_ENROLMENT_REFETCH_INTERVAL_MS = 60_000
+
+const BACK_ARROW_SIZE = 16
+
+const backLinkCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+`
+
+const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
+  courseModuleId,
+  courseName,
+  moduleName,
+  ectsCredits,
+  statusBeforeRegistration,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isRegistrationComing = statusBeforeRegistration !== "not_registering"
+  const query = useQuery({
+    ...getMyCreditRegistrationForCourseModuleOptions({
+      path: { course_module_id: courseModuleId },
+    }),
+    // Returning to the tab, say after enrolling elsewhere, shows where things stand now.
+    refetchOnWindowFocus: true,
+    refetchInterval: (latestQuery) => {
+      const registration = latestQuery.state.data?.registration
+      if (!registration) {
+        return isRegistrationComing && latestQuery.state.status === "success"
+          ? MOVING_REFETCH_INTERVAL_MS
+          : false
+      }
+      if (registration.student_facing_status === "needs_enrolment") {
+        return WAITING_FOR_ENROLMENT_REFETCH_INTERVAL_MS
+      }
+      if (!registration.status_is_moving) {
+        return false
+      }
+      return registration.student_facing_status === "waiting_for_sisu"
+        ? WAITING_FOR_SISU_REFETCH_INTERVAL_MS
+        : MOVING_REFETCH_INTERVAL_MS
+    },
+  })
+  const routeQuery = useQuery({
+    ...getMyEnrolmentRouteOptions({ path: { course_module_id: courseModuleId } }),
+    refetchOnWindowFocus: true,
+  })
+  const numberQuery = useQuery({
+    ...getMyVerifiedStudentNumberOptions(),
+    refetchOnWindowFocus: true,
+  })
+
+  const data = query.data ?? null
+  const enrolmentRoute = routeQuery.data ?? null
+  const verifiedNumber = numberQuery.data ?? null
+  const checkedAt = query.dataUpdatedAt === 0 ? null : new Date(query.dataUpdatedAt).toISOString()
+  const heading = (
+    <CardHeading courseName={courseName} moduleName={moduleName} ectsCredits={ectsCredits} />
+  )
+
+  const body = data ? (
+    <Tracker
+      courseModuleId={courseModuleId}
+      heading={heading}
+      ectsCredits={ectsCredits}
+      registration={data.registration}
+      enrolmentRoute={enrolmentRoute}
+      verifiedNumber={verifiedNumber}
+      checkedAt={checkedAt}
+      earlierAttempts={data.earlier_attempts}
+    />
+  ) : null
+
+  return (
+    <div className={narrowPageCss}>
+      <div>
+        <Link href={profileStudiesRoute()} className={backLinkCss}>
+          <ArrowLeft size={BACK_ARROW_SIZE} aria-hidden="true" />
+          {t("heading-my-studies")}
+        </Link>
+      </div>
+      {/* Awaits both: which bands the card shows is decided from the two together, so drawing it
+          from the registration alone can leave a card with no band on it at all. */}
+      <QueryResults
+        queries={[query, routeQuery] as const}
+        treatNullAsEmpty
+        refreshIndicator={QUIET_REFRESH}
+        emptyFallback={
+          <NoRegistrationYet
+            heading={heading}
+            status={statusBeforeRegistration}
+            checkedAt={checkedAt}
+          />
+        }
+        contentClassName={sectionsCss}
+        renderData={() => body}
+      />
+    </div>
+  )
+}
+
+/** The card's title band: which credits the page is about. */
+const CardHeading: React.FC<{
+  courseName: string
+  moduleName: string | null | undefined
+  ectsCredits: number | null | undefined
+}> = ({ courseName, moduleName, ectsCredits }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <header className={cardTitleBandCss}>
+      <h1 className={pageTitleCss}>{t("register-completion")}</h1>
+      <p className={subheadingCss}>
+        {t("course")}:{" "}
+        {moduleName
+          ? t("credit-registration-course-and-module", { course: courseName, module: moduleName })
+          : courseName}
+      </p>
+      {typeof ectsCredits === "number" ? (
+        <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+      ) : null}
+    </header>
+  )
+}
+
+const LastChecked: React.FC<{ checkedAt: string }> = ({ checkedAt }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <p className={noteCss}>
+      {t("credit-registration-last-checked")}{" "}
+      <RelativeTime at={checkedAt} absoluteTime={TIME_IN_TITLE} />.{" "}
+      {t("credit-registration-checks-again-automatically")}
+    </p>
+  )
+}
+
+/**
+ * The completion while it has no registration. One that is coming gets it within a minute or two
+ * and reads as already being registered, because to the student it is.
+ */
+const NoRegistrationYet: React.FC<{
+  heading: React.ReactNode
+  status: StudentFacingCreditRegistrationStatus
+  checkedAt: string | null
+}> = ({ heading, status, checkedAt }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isComing = status !== "not_registering"
+  return (
+    <article className={bandedCardCss}>
+      {heading}
+      <section className={bandCss}>
+        <h2 className={subheadingCss}>{registrationStatusLabel(t, status)}</h2>
+        <p>
+          {isComing
+            ? t("credit-registration-explanation-starting")
+            : registrationExplanation(t, status)}
+        </p>
+        {isComing && checkedAt ? <LastChecked checkedAt={checkedAt} /> : null}
+      </section>
+    </article>
+  )
+}
+
+interface TrackerProps {
+  courseModuleId: string
+  heading: React.ReactNode
+  ectsCredits: number | null | undefined
+  registration: MyCreditRegistration
+  enrolmentRoute: MyEnrolmentRoute | null
+  verifiedNumber: MyVerifiedStudentNumber | null
+  checkedAt: string | null
+  earlierAttempts: MyCreditRegistration[]
+}
+
+/**
+ * One card showing only where the registration stands right now.
+ *
+ * Never a checklist. Steps still to come would have the student reading about work they cannot
+ * affect, and steps already behind them stay on screen only while their own answers can still
+ * change something: once an enrolment exists the page is about the registration, and once the
+ * credits are in Sisu it is about the credits.
+ */
+const Tracker: React.FC<TrackerProps> = ({
+  courseModuleId,
+  heading,
+  ectsCredits,
+  registration,
+  enrolmentRoute,
+  verifiedNumber,
+  checkedAt,
+  earlierAttempts,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const statusLabel = myRegistrationStatusLabel(t, registration)
+  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
+    registration,
+    linkToStatusPage: false,
+  })
+
+  // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
+  const announcedStatusLabel = useRef(statusLabel)
+  useEffect(() => {
+    if (announcedStatusLabel.current !== statusLabel) {
+      announcedStatusLabel.current = statusLabel
+      announce(t("credit-registration-status-is-now", { status: statusLabel }))
+    }
+  }, [statusLabel, t])
+
+  const view = { registration, enrolmentRoute }
+  const recheckAction =
+    [primaryAction, ...secondaryActions].find(
+      (action) => action?.key === RECHECK_ENROLMENT_ACTION_KEY,
+    ) ?? null
+  useRecordEnrolmentPageVisitOnce(
+    courseModuleId,
+    asksWhereYouEnrolled(view) || isWaitingForEnrolment(view),
+  )
+
+  return (
+    <>
+      <article className={bandedCardCss}>
+        {heading}
+
+        <StudentNumberLinkStep
+          registration={registration}
+          verifiedNumber={verifiedNumber}
+          enrolmentRoute={enrolmentRoute}
+        />
+
+        {asksWhereYouEnrolled(view) && enrolmentRoute ? (
+          <EnrolmentRouteStep
+            courseId={registration.course_id}
+            courseModuleId={courseModuleId}
+            enrolmentRoute={enrolmentRoute}
+            openUniversityEnrolmentLink={registration.enrolment_link}
+          />
+        ) : null}
+
+        {isWaitingForEnrolment(view) ? (
+          <WaitingForEnrolment
+            registration={registration}
+            // Only this lever: the plan's other one sends the student off to the open university,
+            // under a band where half of them have just said they enrolled through Sisu.
+            recheckAction={recheckAction}
+          />
+        ) : null}
+
+        {saysWhatIsHappening(view) ? (
+          <section className={bandCss}>
+            <h2 className={subheadingCss}>{statusLabel}</h2>
+            <StudentRegistrationExplanation registration={registration} />
+            <RegistrationActions
+              primaryAction={primaryAction}
+              secondaryActions={secondaryActions}
+            />
+            {showsRegistrationFacts(registration) ? (
+              <RegistrationFacts registration={registration} moduleEctsCredits={ectsCredits} />
+            ) : null}
+            {registration.status_is_moving && checkedAt ? (
+              <LastChecked checkedAt={checkedAt} />
+            ) : null}
+          </section>
+        ) : null}
+      </article>
+
+      {earlierAttempts.length > 0 ? (
+        <section className={bandCss}>
+          <h2 className={subheadingCss}>{t("heading-earlier-attempts")}</h2>
+          {earlierAttempts.map((attempt) => {
+            const summary = {
+              attempt: attempt.attempt_number,
+              grade: registrationGradeLabel(t, attempt.grade_id, attempt.grade_scale_id),
+            }
+            return (
+              <p key={attempt.id} className={noteCss}>
+                {/* A replaced attempt keeps the state it reached, which reads as still held. */}
+                {attempt.superseded
+                  ? t("credit-registration-earlier-attempt-summary", summary)
+                  : t("credit-registration-earlier-attempt-summary-with-status", {
+                      ...summary,
+                      status: registrationStatusLabel(t, attempt.student_facing_status),
+                    })}
+              </p>
+            )
+          })}
+        </section>
+      ) : null}
+
+      <LinkingEmailQuestions
+        registration={registration}
+        verifiedNumber={verifiedNumber}
+        enrolmentRoute={enrolmentRoute}
+      />
+    </>
+  )
+}
+
+/**
+ * The wait between the student enrolling and the enrolment becoming visible to us in Sisu.
+ *
+ * Says the expectation before anything else, because the pipeline reaches "not there yet" within
+ * minutes of the student pressing the button, and a student reading that as a verdict concludes
+ * something is broken when nothing is.
+ */
+const WaitingForEnrolment: React.FC<{
+  registration: MyCreditRegistration
+  recheckAction: RegistrationCardAction | null
+}> = ({ registration, recheckAction }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <section className={bandCss}>
+      <h2 className={subheadingCss}>{t("credit-registration-waiting-for-enrolment-heading")}</h2>
+      <p>{t("credit-registration-waiting-for-enrolment-body")}</p>
+      <p>{t("credit-registration-waiting-for-enrolment-timing")}</p>
+      <RegistrationActions primaryAction={recheckAction} />
+      {registration.enrolment_checked_at ? (
+        <p className={noteCss}>
+          {t("credit-registration-last-checked")}{" "}
+          <RelativeTime at={registration.enrolment_checked_at} absoluteTime={TIME_IN_TITLE} />
+        </p>
+      ) : null}
+    </section>
+  )
+}
+
+/** The transcript facts: what was registered, and under which number. */
+const RegistrationFacts: React.FC<{
+  registration: MyCreditRegistration
+  moduleEctsCredits: number | null | undefined
+}> = ({ registration, moduleEctsCredits }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const credits = registration.credits ?? moduleEctsCredits
+
+  if (!registration.registered_at) {
+    return null
+  }
+  const items = [
+    {
+      label: t("label-registered-at"),
+      value: <RelativeTime at={registration.registered_at} absoluteTime={TIME_DATE} />,
+    },
+    {
+      label: t("label-grade"),
+      value: registrationGradeLabel(t, registration.grade_id, registration.grade_scale_id),
+    },
+    ...(typeof credits === "number"
+      ? [{ label: t("label-credits"), value: t("ects-n", { n: credits }) }]
+      : []),
+    ...(registration.student_number
+      ? [{ label: t("label-student-number"), value: registration.student_number }]
+      : []),
+  ]
+
+  const wasRegisteredAtAnotherAmount =
+    typeof registration.credits === "number" &&
+    typeof moduleEctsCredits === "number" &&
+    registration.credits !== moduleEctsCredits
+
+  return (
+    <>
+      <DescriptionList items={items} />
+      {wasRegisteredAtAnotherAmount ? (
+        <p className={noteCss}>
+          {registration.course_module_name
+            ? t("credit-registration-module-credits-differ-from-current", {
+                current: moduleEctsCredits,
+              })
+            : t("credit-registration-course-credits-differ-from-current", {
+                current: moduleEctsCredits,
+              })}
+        </p>
+      ) : null}
+    </>
+  )
+}
+
+export default CreditRegistrationStatus

@@ -1,0 +1,72 @@
+// Widths are measured off-DOM so a 1000-row table does not have to be rendered to be sized.
+// Keyed by font + text because the same string is a different width in the header and body fonts.
+const widthCache = new Map<string, number>()
+
+// Bounded so tab switches across courses with many distinct long names cannot grow it forever.
+const MAX_CACHED_MEASUREMENTS = 20000
+
+let cachedContext: CanvasRenderingContext2D | null | undefined
+
+function getMeasurementContext(): CanvasRenderingContext2D | null {
+  if (cachedContext === undefined) {
+    cachedContext = document.createElement("canvas").getContext("2d")
+  }
+  return cachedContext
+}
+
+/**
+ * Width in CSS pixels of `text` rendered in `font`, or null where canvas text measurement is
+ * unavailable (jsdom). Callers must treat null as "cannot measure" and fall back, never as zero.
+ *
+ * `font` must be a CSS font shorthand; build it with {@link resolveFontShorthand}.
+ */
+export function measureTextWidth(text: string, font: string): number | null {
+  const context = getMeasurementContext()
+  if (!context) {
+    return null
+  }
+  const key = `${font}\n${text}`
+  const cached = widthCache.get(key)
+  if (cached !== undefined) {
+    return cached
+  }
+  context.font = font
+  const width = context.measureText(text).width
+  if (widthCache.size >= MAX_CACHED_MEASUREMENTS) {
+    widthCache.clear()
+  }
+  widthCache.set(key, width)
+  return width
+}
+
+/**
+ * CSS font shorthand for `element`, suitable for canvas. Some engines return an empty `font`
+ * from getComputedStyle even though the longhands are set, so it is rebuilt when that happens.
+ */
+export function resolveFontShorthand(element: Element): string {
+  const style = window.getComputedStyle(element)
+  if (style.font) {
+    return style.font
+  }
+  return `${style.fontStyle} ${style.fontWeight} ${style.fontSize} / ${style.lineHeight} ${style.fontFamily}`
+}
+
+// oxlint-disable-next-line unicorn/prefer-number-coercion -- computed styles carry a unit ("16px"), which Number() reads as NaN
+const toPixels = (value: string) => Number.parseFloat(value || "0")
+
+/** Horizontal padding and border of `element`, which text measurement does not account for. */
+export function resolveHorizontalChrome(element: Element): number {
+  const style = window.getComputedStyle(element)
+  return (
+    toPixels(style.paddingLeft) +
+    toPixels(style.paddingRight) +
+    toPixels(style.borderLeftWidth) +
+    toPixels(style.borderRightWidth)
+  )
+}
+
+/** Exposed so tests can assert cache behaviour without leaking state between cases. */
+export function clearMeasurementCacheForTests(): void {
+  widthCache.clear()
+  cachedContext = undefined
+}

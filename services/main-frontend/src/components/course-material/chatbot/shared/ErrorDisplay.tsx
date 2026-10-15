@@ -1,22 +1,24 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ArrowRight } from "@vectopus/atlas-icons-react"
-import { TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { zStreamEventError } from "@/generated/course-material-api/zod.generated"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import { Disclosure } from "@/shared-module/components"
 
 interface ErrorDisplayProps {
+  /// An unknown error type, can also be StreamEventError
   error: unknown
 }
 
 /** Formats chatbot errors using normalized display metadata. */
 const formatErrorMessage = (
   error: unknown,
-  t: TFunction,
+  t: TFunction<"errors">,
 ): { boldPart: string; normalPart: string; details: string[]; originalMessage: string } => {
   const normalized = normalizeErrorForDisplay(error, t)
   const details: string[] = []
@@ -58,7 +60,7 @@ const formatOriginalErrorMessage = (originalMessage: string): string => {
     const formatted = JSON.stringify(parsed, null, 2)
 
     // Replace the JSON part in the original message with the formatted version
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return originalMessage.replace(jsonMatch[0], `\n${formatted}`)
   } catch {
     return originalMessage
@@ -66,10 +68,19 @@ const formatOriginalErrorMessage = (originalMessage: string): string => {
 }
 
 const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   const [showDetails, setShowDetails] = useState(false)
 
-  const formattedError = formatErrorMessage(error, t)
+  const parsed = zStreamEventError.safeParse(error)
+
+  const formattedError = parsed.success
+    ? {
+        boldPart: t("failed-to-send-message"),
+        normalPart: parsed.data.message,
+        details: parsed.data.details ? [parsed.data.message] : [],
+        originalMessage: parsed.data.details ?? "",
+      }
+    : formatErrorMessage(error, t)
   const hasDetails = formattedError.details.length > 0
 
   return (
@@ -84,11 +95,14 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           box-shadow:
             0 2px 8px ${baseTheme.colors.red[200]}60,
             0 1px 3px ${baseTheme.colors.red[300]}40;
-          overflow: hidden;
+          overflow: auto;
           backdrop-filter: blur(4px);
         `}
       >
+        {/* role=alert is atomic, so it must not reach the details: expanding them would otherwise
+            re-speak the whole block, raw JSON included. */}
         <div
+          role="alert"
           className={css`
             padding: 16px 20px;
             background: ${baseTheme.colors.red[100]}20;
@@ -101,6 +115,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           <span
             className={css`
               font-weight: bold;
+              margin-right: 0.5rem;
             `}
           >
             {formattedError.boldPart}
@@ -122,136 +137,57 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
               border-top: 1px solid ${baseTheme.colors.red[200]}50;
             `}
           >
-            <button
-              onClick={() => setShowDetails(!showDetails)}
-              className={css`
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                background: none;
-                border: none;
-                color: ${baseTheme.colors.red[600]};
-                font-size: 0.85rem;
-                font-weight: 500;
-                cursor: pointer;
-                padding: 0;
-                transition: all 0.2s ease;
-
-                &:hover {
-                  color: ${baseTheme.colors.red[700]};
-                  transform: translateX(2px);
-                }
-
-                svg {
-                  width: 12px;
-                  height: 12px;
-                  transition: transform 0.2s ease;
-                  transform: ${showDetails ? "rotate(90deg)" : "rotate(0deg)"};
-                }
-              `}
+            <Disclosure
+              variant="plain"
+              title={showDetails ? t("error-hide-details") : t("error-show-details")}
+              expanded={showDetails}
+              onExpandedChange={setShowDetails}
             >
-              <ArrowRight />
-              {showDetails ? t("error-hide-details") : t("error-show-details")}
-            </button>
-
-            {showDetails && (
-              <div
-                className={css`
-                  margin-top: 12px;
-                  padding-top: 12px;
-                  border-top: 1px solid ${baseTheme.colors.red[200]}33;
-                  animation: slideDown 0.2s ease-out;
-
-                  @keyframes slideDown {
-                    from {
-                      opacity: 0;
-                      transform: translateY(-8px);
-                    }
-                    to {
-                      opacity: 1;
-                      transform: translateY(0);
-                    }
-                  }
-                `}
-              >
-                {formattedError.details.map((detail, index) => (
-                  <div
-                    key={index}
-                    className={css`
-                      margin-bottom: 8px;
-                      padding: 8px 12px;
-                      background-color: ${baseTheme.colors.red[100]}20;
-                      border-radius: 4px;
-                      font-size: 0.85rem;
-                      color: ${baseTheme.colors.red[600]};
-                      font-family: ${monospaceFont};
-                    `}
-                  >
-                    {detail}
-                  </div>
-                ))}
-
-                <details
+              {formattedError.details.map((detail, index) => (
+                <div
+                  key={index}
                   className={css`
-                    margin-top: 12px;
-                    border: 1px solid ${baseTheme.colors.red[200]}50;
+                    margin-bottom: 8px;
+                    padding: 8px 12px;
+                    background-color: ${baseTheme.colors.red[100]}20;
                     border-radius: 4px;
-                    overflow: hidden;
-
-                    summary {
-                      cursor: pointer;
-                      font-size: 0.8rem;
-                      color: ${baseTheme.colors.red[500]};
-                      font-weight: 500;
-                      padding: 8px 12px;
-                      list-style: none;
-                      background-color: ${baseTheme.colors.red[100]}30;
-                      transition: all 0.2s ease;
-
-                      &::-webkit-details-marker {
-                        display: none;
-                      }
-
-                      &::before {
-                        content: "▶";
-                        margin-right: 8px;
-                        transition: transform 0.2s ease;
-                        font-size: 0.7rem;
-                        display: inline-block;
-                      }
-
-                      &:hover {
-                        color: ${baseTheme.colors.red[600]};
-                        background-color: ${baseTheme.colors.red[100]}40;
-                      }
-                    }
-
-                    &[open] summary::before {
-                      transform: rotate(90deg);
-                    }
-
-                    pre {
-                      margin: 0;
-                      font-size: 0.75rem;
-                      background-color: ${baseTheme.colors.red[100]}15;
-                      padding: 16px;
-                      border: none;
-                      overflow-x: auto;
-                      white-space: pre-wrap;
-                      overflow-wrap: break-word;
-                      font-family: ${monospaceFont};
-                      color: ${baseTheme.colors.red[600]};
-                      line-height: 1.5;
-                      max-height: 400px;
-                      overflow-y: auto;
-                    }
+                    font-size: 0.85rem;
+                    color: ${baseTheme.colors.red[600]};
+                    font-family: ${monospaceFont};
                   `}
                 >
-                  <summary>{t("error-original-message")}</summary>
-                  <pre>{formatOriginalErrorMessage(formattedError.originalMessage)}</pre>
-                </details>
-              </div>
-            )}
+                  {detail}
+                </div>
+              ))}
+
+              <Disclosure
+                title={t("error-original-message")}
+                className={css`
+                  margin-top: 12px;
+                  font-size: 0.8rem;
+                `}
+              >
+                <pre
+                  className={css`
+                    margin: 0;
+                    font-size: 0.75rem;
+                    background-color: ${baseTheme.colors.red[100]}15;
+                    padding: 16px;
+                    border: none;
+                    overflow-x: auto;
+                    white-space: pre-wrap;
+                    overflow-wrap: break-word;
+                    font-family: ${monospaceFont};
+                    color: ${baseTheme.colors.red[600]};
+                    line-height: 1.5;
+                    max-height: 400px;
+                    overflow-y: auto;
+                  `}
+                >
+                  {formatOriginalErrorMessage(formattedError.originalMessage)}
+                </pre>
+              </Disclosure>
+            </Disclosure>
           </div>
         )}
       </div>

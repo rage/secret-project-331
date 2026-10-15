@@ -4,8 +4,7 @@ import { css } from "@emotion/css"
 import { ArrowRight } from "@vectopus/atlas-icons-react"
 import React from "react"
 
-import { UnifiedMenuItem } from "../hooks/types"
-
+import type { UnifiedMenuItem } from "../hooks/types"
 import { iconClass, menuItemClass, separatorClass } from "./styles"
 
 interface MenuItemProps {

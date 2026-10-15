@@ -2,7 +2,7 @@ import { useTranslation as useI18nTranslation } from "react-i18next"
 
 type CmsTFunction = (key: string, options?: Record<string, unknown>) => string
 
-type CmsTranslationResult = {
+interface CmsTranslationResult {
   t: CmsTFunction
   i18n: unknown
   ready: boolean

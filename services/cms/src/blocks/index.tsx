@@ -1,12 +1,15 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import Aside from "./Aside"
 import AsideWithImage from "./AsideWithImage"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
+import Chart from "./Chart"
 import ChatbotBlock from "./Chatbot"
 import CodeGiveaway from "./CodeGiveaway"
 import ConditionalBlock from "./ConditionalBlock"
@@ -14,6 +17,8 @@ import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
 import CourseProgress from "./CourseProgress"
+import EmailCallout from "./EmailCallout"
+import EmailOneTimeCode from "./EmailOneTimeCode"
 import Exercise from "./Exercise"
 import ExerciseSettings from "./Exercise/ExerciseSettings"
 import ExerciseSlide from "./Exercise/ExerciseSlide"
@@ -49,13 +54,12 @@ import TerminologyBlock from "./Terminology"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 /**
  * List of custom blocks to be passed on to Gutenberg.
  */
 export const blockTypeMapForPages = [
   ["moocfi/aside", Aside],
+  ["moocfi/chart", Chart],
   ["moocfi/chapter-progress", ChapterProgress],
   ["moocfi/congratulations", Congratulations],
   ["moocfi/lock-chapter", LockChapter],
@@ -100,8 +104,8 @@ export const blockTypeMapForPages = [
   ["moocfi/terminology-block", TerminologyBlock],
   ["moocfi/partners", PartnersBlock],
   // ["moocfi/logo-link", LogoLink],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForFrontPages = [
   ["moocfi/congratulations", Congratulations],
@@ -124,18 +128,23 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/expandable-content", ExpendableContent],
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
   ["moocfi/partners", PartnersBlock],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForTopLevelPages = [
   ...blockTypeMapForFrontPages,
   ["moocfi/hero-section", HeroSection],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-] as Array<[string, BlockConfiguration<Record<string, any>>]>
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as [string, BlockConfiguration<Record<string, any>>][]
 
 export const blockTypeMapForResearchConsentForm = [
   ["moocfi/research-consent-question", ResearchFormQuestion],
-] as Array<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [string, BlockConfiguration<Record<string, any>>]
->
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as unknown as [string, BlockConfiguration<Record<string, any>>][]
+
+/** Must match the custom blocks in `EmailBlockName` in headless-lms `email_processor.rs`. */
+export const blockTypeMapForEmails = [
+  ["moocfi/email-callout", EmailCallout],
+  ["moocfi/email-one-time-code", EmailOneTimeCode],
+  // oxlint-disable-next-line typescript/no-explicit-any
+] as unknown as [string, BlockConfiguration<Record<string, any>>][]

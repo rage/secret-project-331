@@ -1,6 +1,7 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -11,7 +12,7 @@ test.use({
 test("widget, scale", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes example, scale" })
+  await Select.labelled(page, "Playground examples").chooseOption("Quizzes example, scale")
 
   const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
@@ -47,10 +48,19 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   // No idea how to fix.
 
   // Change second item to 4
-  await iframeLocator.locator("div:nth-child(2) div:nth-child(5) span").first().click()
+  // react-aria radio's input is visually hidden under the label; click the label text instead.
+  await iframeLocator
+    .getByRole("radiogroup", {
+      name: "Regex is what some people consider to be a 'write-only' language.",
+    })
+    .getByText("4", { exact: true })
+    .click()
 
   // Change third item to 15
-  await iframeLocator.locator("div:nth-child(3) div:nth-child(15) span").first().click()
+  await iframeLocator
+    .getByRole("radiogroup", { name: "Regex can be useful when parsing HTML." })
+    .getByText("15", { exact: true })
+    .click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,

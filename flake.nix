@@ -21,9 +21,54 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        # The nixpkgs Node crashes under pnpm on macOS; use the official upstream
+        # binaries there instead (keeps node and pnpm's embedded nodejs-slim stable).
+        # Bump version+hash together:
+        # nix-prefetch-url https://nodejs.org/dist/v<VER>/node-v<VER>-darwin-arm64.tar.xz
+        nodeVersion = "24.19.0";
+        officialNodeSrcs = {
+          aarch64-darwin = {
+            url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.xz";
+            sha256 = "153v346r9pxn8rviazlfx7nhil7rz89mw44340sq054w8xbz271z";
+          };
+          x86_64-darwin = {
+            url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-x64.tar.xz";
+            sha256 = "1r4g6afmn03ak4q1dyz1sl2mwwy649kcb5zl3msz1xj61wirapnk";
+          };
+        };
+        officialNodeOverlay = final: prev:
+          prev.lib.optionalAttrs (prev.stdenv.isDarwin && officialNodeSrcs ? ${system}) (
+            let
+              officialNode = prev.stdenvNoCC.mkDerivation {
+                pname = "nodejs-official";
+                version = nodeVersion;
+                src = prev.fetchurl officialNodeSrcs.${system};
+                dontStrip = true;
+                dontFixup = true;
+                installPhase = ''
+                  runHook preInstall
+                  mkdir -p "$out"
+                  cp -R ./* "$out/"
+                  runHook postInstall
+                '';
+                passthru = { inherit (prev.nodejs) pkgs; };
+                meta.mainProgram = "node";
+              };
+            in
+            {
+              nodejs = officialNode;
+              nodejs_24 = officialNode;
+              nodejs-slim = officialNode;
+              nodejs-slim_24 = officialNode;
+            }
+          );
+
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ rust-overlay.overlays.default ];
+          overlays = [
+            rust-overlay.overlays.default
+            officialNodeOverlay
+          ];
         };
 
         lib = pkgs.lib;
@@ -47,6 +92,22 @@
           (mkPackageManagerStub "npx" "Example: pnpm exec <pkg>, or pnpm dlx <pkg>.")
           (mkPackageManagerStub "yarn" "Example: pnpm install, pnpm run <script>.")
           (mkPackageManagerStub "yarnpkg" "Example: pnpm install, pnpm run <script>.")
+        ];
+
+        # eslint and prettier were replaced by oxlint and oxfmt. Stub the removed binaries so an
+        # accidental `eslint`/`prettier` (or `pnpm exec eslint`, which falls through to PATH) prints
+        # how to run the real tools instead of "command not found" now that the packages are gone.
+        mkRemovedToolStub =
+          name: replacement: hint:
+          pkgs.writeShellScriptBin name ''
+            echo "error: ${name} was removed from this project; use ${replacement} instead." >&2
+            echo "${hint}" >&2
+            exit 1
+          '';
+
+        removedToolStubs = [
+          (mkRemovedToolStub "eslint" "oxlint" "Run: pnpm run lint (autofix) or pnpm run lint:ci (check only).")
+          (mkRemovedToolStub "prettier" "oxfmt" "Run: pnpm run format (write) or pnpm run format:check (check only).")
         ];
 
         # passwd-only getent when /usr/bin/getent is missing (Tilt). Exit 0 only if every key matched.
@@ -154,19 +215,20 @@
           pkgs.skaffold
           pkgs.sqlx-cli
           pkgs.stern
+          pkgs.zizmor
         ];
         localClusterPackages = [
           pkgs.ctlptl
           pkgs.kind
+          pkgs.minikube
           pkgs.tilt
         ];
         linuxOnlyPackages = lib.optionals pkgs.stdenv.isLinux [
           getentCompat
           playwrightCli
-          pkgs.minikube
           pkgs.mold
         ];
-        pathPriorityPackages = packageManagerStubs ++ [
+        pathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [
           pkgs.nodejs_24
           rustToolchain
         ]
@@ -176,6 +238,7 @@
         shellSupportPackages = [
           pkgs.bc
           pkgs.cargo-chef
+          pkgs.cargo-edit
           pkgs.cargo-watch
           pkgs.cmake
           pkgs.coreutils
@@ -205,9 +268,14 @@
           pkgs.which
           pkgs.zlib
           pkgs.zstd
+          pkgs.svgo
         ];
 
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
+
+        nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_24 ];
+        clusterShellPathPriorityPackages =
+          nodeShellPathPriorityPackages ++ projectCliPackages ++ [ pkgs.minikube ];
       in
       {
         devShells.default = pkgs.mkShell (
@@ -220,9 +288,17 @@
               "fortify3"
             ];
 
+            # If you add or rename an attr or shellHook export here, also update the
+            # matching env-var list in .github/actions/setup-nix-env/action.yml — it
+            # forwards a fixed set of names into CI steps, not the whole environment.
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
             LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
+            # Cargo resolves subcommands from $CARGO_HOME/bin before $PATH, so rustup's
+            # cargo-clippy shim shadows this toolchain's one. Pointing rustup at the Nix
+            # toolchain stops that shim from swapping in a rustc that cannot load the proc
+            # macros built here.
+            RUSTUP_TOOLCHAIN = "${rustToolchain}";
             TILT_DISABLE_ANALYTICS = "1";
 
             shellHook = ''
@@ -232,9 +308,48 @@
               if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
                 export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
               fi
+
+              # Base images are amd64-only, so on arm64 hosts (Apple Silicon) build for
+              # linux/amd64 under emulation — else skaffold fails with "no match for platform".
+              # Only sets it when the user hasn't.
+              if [ -z "''${SKAFFOLD_PLATFORM:-}" ]; then
+                case "$(uname -m)" in
+                  arm64 | aarch64) export SKAFFOLD_PLATFORM="linux/amd64" ;;
+                esac
+              fi
             '';
           }
         );
+
+        # For CI jobs that only need Node: the default shell's closure (Chromium, Rust, clang, …)
+        # takes minutes to fetch on a runner with an empty Nix store.
+        devShells.node = pkgs.mkShell {
+          packages = nodeShellPathPriorityPackages ++ [
+            pkgs.pnpm
+            pkgs.rsync
+          ];
+          shellHook = ''
+            export PATH="${lib.makeBinPath nodeShellPathPriorityPackages}:$PATH"
+          '';
+        };
+
+        # For CI jobs that build images and drive a cluster: the build runs inside Docker, so
+        # they skip the default shell's Rust, clang and Chromium.
+        devShells.cluster = pkgs.mkShell {
+          packages =
+            clusterShellPathPriorityPackages
+            ++ [
+              pkgs.bc
+              pkgs.git-lfs
+              pkgs.jq
+              pkgs.moreutils
+              pkgs.pnpm
+              pkgs.rsync
+            ];
+          shellHook = ''
+            export PATH="${lib.makeBinPath clusterShellPathPriorityPackages}:$PATH"
+          '';
+        };
       }
     );
 }

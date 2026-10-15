@@ -3,18 +3,20 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 
-import { ExamInstructionsUpdate } from "@/generated/api"
+import type { ExamInstructionsUpdate } from "@/generated/api"
 import { getCmsExamInstructionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsExamInstructions } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import CmsPageTitle from "../../../components/CmsPageTitle"
 
 const ExamsInstructionsGutenbergEditor = dynamicImport(
   () => import("../../../components/editors/ExamsInstructionsEditor"),
@@ -27,6 +29,7 @@ export interface ExamInstructionsEditProps {
 const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructionsEditProps>> = ({
   query,
 }) => {
+  const { t } = useTranslation()
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
   const getExamsInstructions = useQuery({
@@ -63,16 +66,19 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   )
 
   return (
-    <QueryResult query={getExamsInstructions}>
-      {(data) => (
-        <ExamsInstructionsGutenbergEditor
-          data={data}
-          saveMutation={saveMutation}
-          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-        />
-      )}
-    </QueryResult>
+    <>
+      <CmsPageTitle title={t("edit-exam-instructions")} />
+      <QueryResult query={getExamsInstructions}>
+        {(data) => (
+          <ExamsInstructionsGutenbergEditor
+            data={data}
+            saveMutation={saveMutation}
+            needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+            setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+          />
+        )}
+      </QueryResult>
+    </>
   )
 }
 

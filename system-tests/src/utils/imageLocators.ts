@@ -1,4 +1,4 @@
-import { Locator, Page } from "playwright"
+import type { Locator, Page } from "playwright"
 
 export function getImgByURLPrefixAndSuffix(
   page: Page,

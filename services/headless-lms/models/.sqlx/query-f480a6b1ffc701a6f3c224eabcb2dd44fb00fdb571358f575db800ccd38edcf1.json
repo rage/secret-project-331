@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT endpoint,\n  updated_at,\n  rate_share,\n  full_rate_per_minute,\n  available\nFROM suotar_endpoint_rate_limits\nORDER BY endpoint\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "endpoint",
+        "type_info": {
+          "Custom": {
+            "name": "suotar_endpoint",
+            "kind": {
+              "Enum": [
+                "resolve_persons",
+                "resolve_enrolments",
+                "import_attainments",
+                "verify_attainments",
+                "list_by_course",
+                "validate_course_codes"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "endpoint"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "rate_share",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "rate_share"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "full_rate_per_minute",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "full_rate_per_minute"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "available",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "suotar_endpoint_rate_limits",
+            "name": "available"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f480a6b1ffc701a6f3c224eabcb2dd44fb00fdb571358f575db800ccd38edcf1"
+}

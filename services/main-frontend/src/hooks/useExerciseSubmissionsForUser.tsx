@@ -18,11 +18,11 @@ export const useExerciseSubmissionsForUser = (
         exerciseId: string
         userId: string
       } => Boolean(value?.exerciseId && value?.userId),
-      build: ({ exerciseId, userId }) =>
+      build: (value) =>
         getExerciseSubmissionsForUserOptions({
           path: {
-            exercise_id: exerciseId,
-            user_id: userId,
+            exercise_id: value.exerciseId,
+            user_id: value.userId,
           },
         }),
     }),

@@ -29,7 +29,7 @@ test.describe("Quizzes timeline feedback", () => {
 
     await page.frameLocator("iframe").getByText("1995").first().waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
@@ -51,15 +51,11 @@ test.describe("Quizzes timeline feedback", () => {
       label: "Finland joins the Economic and Monetary Union of the European Union",
     })
 
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
-    await page.locator(`button:disabled:text("Submit")`).waitFor()
+    await page.locator(`button[aria-disabled="true"]:text("Submit")`).waitFor()
 
-    await page
-      .frameLocator("iframe")
-      .locator(`[aria-label="Remove"]:right-of(:text("2002"))`)
-      .nth(0)
-      .click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 2002"]`).click()
 
     await page
       .frameLocator("iframe")
@@ -88,9 +84,9 @@ test.describe("Quizzes timeline feedback", () => {
 
     await page.getByText("Try again").click()
     // Clear previous answers
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1995"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1998"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 2002"]`).click()
 
     await page
       .frameLocator("iframe")
@@ -122,9 +118,9 @@ test.describe("Quizzes timeline feedback", () => {
 
     await page.getByText("Try again").click()
     // Clear previous answers
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1995"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1998"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 2002"]`).click()
 
     await page
       .frameLocator("iframe")

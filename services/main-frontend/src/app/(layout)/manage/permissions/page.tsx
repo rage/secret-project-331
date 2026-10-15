@@ -1,0 +1,28 @@
+"use client"
+
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { pageTitleCss } from "@/components/credit-registration/styles"
+import { PermissionPage } from "@/components/PermissionPage"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+
+const GlobalPermissions: React.FC = () => {
+  const { t } = useTranslation()
+  usePageTitle(t("global-permissions"))
+
+  return (
+    <div>
+      <h1 className={pageTitleCss}>{t("global-permissions")}</h1>
+      <PermissionPage
+        domain={{
+          // oxlint-disable-next-line i18next/no-literal-string
+          tag: "Global",
+        }}
+      />
+    </div>
+  )
+}
+
+export default withSignedIn(GlobalPermissions)

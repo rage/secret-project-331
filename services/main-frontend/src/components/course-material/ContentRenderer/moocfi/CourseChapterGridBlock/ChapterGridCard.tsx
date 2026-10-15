@@ -1,9 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
+import { differenceInSeconds, formatDuration } from "date-fns"
 import { useAtomValue } from "jotai"
-import { useTranslation } from "react-i18next"
 
 import Card from "@/components/Card"
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
@@ -18,6 +17,8 @@ import Intersection from "@/shared-module/common/img/card-defualt-bg/intersectio
 import PixelSquare from "@/shared-module/common/img/card-defualt-bg/pixel-square.svg"
 import QuadrupleCircle from "@/shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "@/shared-module/common/img/card-defualt-bg/triangle.svg"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { coursePageRoute } from "@/utils/course-material/routing"
@@ -33,8 +34,6 @@ interface ChapterProps {
   isLocked: boolean
 }
 
-const NUMERIC = "numeric"
-const LONG = "long"
 const OPEN = "open"
 
 const arr: string[] = [
@@ -60,7 +59,6 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   backgroundImage,
   isLocked,
 }) => {
-  const { i18n } = useTranslation()
   const courseInstance = useAtomValue(materialInstanceAtom)
 
   const getChapterPageUrl = useQuery({
@@ -72,9 +70,8 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             current_page_id: chapter.front_page_id,
           },
         })
-      } else {
-        return `/chapter-${chapter.chapter_number}`
       }
+      return `/chapter-${chapter.chapter_number}`
     },
   })
 
@@ -100,15 +97,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             })
           } else {
             // opens in over 10 minutes
-            date = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
-              year: NUMERIC,
-              month: LONG,
-              day: NUMERIC,
-            })
-            time = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
-              hour: NUMERIC,
-              minute: NUMERIC,
-            })
+            date = dateToString(chapter.opens_at)
           }
         }
         const open = chapter.status === OPEN
@@ -125,6 +114,10 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
               }
             : undefined
 
+        const cardBg = chapter.color !== null ? chapter.color : bg
+        const cardBackgroundImage = backgroundImage
+          ? backgroundImage
+          : arr[chapter.chapter_number - 1]
         const showLock = !open && !previewable
         const hasExerciseDeadlineOverrides = chapter.exercise_deadline_override_count > 0
         const exerciseDeadlinesMultiple = chapter.exercise_deadline_override_distinct_count > 1
@@ -136,17 +129,19 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             chapterNumber={chapter.chapter_number}
             key={chapter.id}
             open={open}
-            date={date}
-            time={time}
-            url={url}
-            bg={chapter.color !== null ? chapter.color : bg}
-            backgroundImage={backgroundImage ? backgroundImage : arr[chapter.chapter_number - 1]}
-            points={pointsData}
+            {...omitUndefined({ date })}
+            {...omitUndefined({ time })}
+            {...omitUndefined({ url })}
+            {...omitUndefined({ bg: cardBg })}
+            {...omitUndefined({ backgroundImage: cardBackgroundImage })}
+            {...omitUndefined({ points: pointsData })}
             showLock={showLock}
             isLocked={isLocked}
-            deadline={chapter.deadline}
+            deadline={chapter.deadline ?? null}
             exerciseDeadline={
-              hasExerciseDeadlineOverrides ? chapter.earliest_exercise_deadline_override : null
+              hasExerciseDeadlineOverrides
+                ? (chapter.earliest_exercise_deadline_override ?? null)
+                : null
             }
             exerciseDeadlinesMultiple={hasExerciseDeadlineOverrides && exerciseDeadlinesMultiple}
           />

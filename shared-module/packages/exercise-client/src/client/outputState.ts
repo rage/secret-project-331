@@ -8,7 +8,7 @@
 
 import { produce } from "immer"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export type UpdateFunction<R> = (draftState: R | null) => void
 
@@ -34,36 +34,40 @@ export function postCurrentStateMessage(
   nextState: unknown,
   valid: boolean,
   wrapper?: string,
+  validityMessages?: string[],
 ): void {
   const message: CurrentStateMessage = {
     data: wrapper ? { [wrapper]: nextState } : nextState,
     message: "current-state",
     valid,
+    ...(validityMessages && validityMessages.length > 0 ? { validityMessages } : {}),
   }
   port.postMessage(message)
 }
 
 export interface OutputStateEngine<OutputType> {
-  getState(): OutputType | null
+  getState: () => OutputType | null
   /** Replace the state without posting a message. */
-  setState(state: OutputType | null): void
+  setState: (state: OutputType | null) => void
   /** Set (or clear) the port that `current-state` messages are posted to. */
-  setPort(port: MessagePort | null): void
+  setPort: (port: MessagePort | null) => void
   /**
    * Apply an update via a selector + draft mutation, post the resulting `current-state`
    * message (with validity computed from `validate`), and store the new state.
    * No-op (returns the unchanged state) if no port is set.
    */
-  update<SelectorReturnType>(
+  update: <SelectorReturnType>(
     selector: (arg: OutputType | null) => SelectorReturnType | null,
     func: UpdateFunction<SelectorReturnType>,
     options?: { wrapper?: string },
-  ): OutputType | null
+  ) => OutputType | null
 }
 
 export interface OutputStateEngineOptions<OutputType> {
   port?: MessagePort | null
   validate: (state: OutputType | null) => boolean
+  /** Optional already-localized reasons the state is not yet submittable; sent with `current-state`. */
+  getValidityMessages?: (state: OutputType | null) => string[]
   initialState?: OutputType | null
   /** Notified whenever the state changes (lets adapters mirror it into their own store). */
   onState?: (state: OutputType | null) => void
@@ -93,7 +97,13 @@ export function createOutputStateEngine<OutputType>(
         return state
       }
       const nextState = applyOutputStateUpdate(state, selector, func)
-      postCurrentStateMessage(port, nextState, options.validate(nextState), updateOptions?.wrapper)
+      postCurrentStateMessage(
+        port,
+        nextState,
+        options.validate(nextState),
+        updateOptions?.wrapper,
+        options.getValidityMessages?.(nextState),
+      )
       state = nextState
       options.onState?.(nextState)
       return nextState

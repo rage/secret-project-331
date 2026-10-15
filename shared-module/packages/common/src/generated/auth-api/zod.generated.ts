@@ -16,6 +16,31 @@ export const zCreateAccountDetails = z.object({
   password_confirmation: z.string(),
 })
 
+/**
+ * Outcome of spending an account deletion code.
+ */
+export const zDeleteUserAccountResult = z.union([
+  z.object({
+    type: z.enum(["deleted"]),
+  }),
+  z.object({
+    type: z.enum(["invalid_code"]),
+  }),
+  z.object({
+    type: z.enum(["expired_code"]),
+  }),
+  z.object({
+    type: z.enum(["too_many_attempts"]),
+  }),
+  z.object({
+    type: z.enum(["upstream_unavailable"]),
+  }),
+  z.object({
+    reference: z.uuid(),
+    type: z.enum(["upstream_rejected"]),
+  }),
+])
+
 export const zEmailCode = z.object({
   code: z.string(),
 })
@@ -100,6 +125,7 @@ export const zResource = z.union([
     type: z.enum(["role"]),
   }),
   z.object({
+    id: z.uuid(),
     type: z.enum(["user"]),
   }),
   z.object({
@@ -110,8 +136,30 @@ export const zResource = z.union([
   }),
 ])
 
+/**
+ * Outcome of asking for an account deletion code.
+ */
+export const zSendDeleteUserEmailCodeResult = z.union([
+  z.object({
+    type: z.enum(["queued"]),
+  }),
+  z.object({
+    retry_after_seconds: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+    type: z.enum(["recently_sent"]),
+  }),
+  z.object({
+    type: z.enum(["incorrect_password"]),
+  }),
+])
+
 export const zSendEmailCodeData = z.object({
-  email: z.string(),
   language: z.string(),
   password: z.string(),
 })
@@ -145,6 +193,7 @@ export const zUserRole = z.enum([
   "MaterialViewer",
   "TeachingAndLearningServices",
   "StatsViewer",
+  "CreditRegistrationAdmin",
 ])
 
 /**
@@ -198,6 +247,15 @@ export const zAction = z.union([
     type: z.enum(["view_stats"]),
   }),
   z.object({
+    type: z.enum(["view_and_manage_credit_registrations"]),
+  }),
+  z.object({
+    type: z.enum(["administrate_user_account"]),
+  }),
+  z.object({
+    type: z.enum(["administrate_credit_registrations"]),
+  }),
+  z.object({
     type: z.enum(["administrate"]),
   }),
 ])
@@ -229,9 +287,9 @@ export const zPostAuthAuthorizeMultipleResponse = z.array(z.boolean())
 export const zPostAuthDeleteUserAccountBody = zEmailCode
 
 /**
- * Whether the account was deleted
+ * Outcome of submitting the code
  */
-export const zPostAuthDeleteUserAccountResponse = z.boolean()
+export const zPostAuthDeleteUserAccountResponse = zDeleteUserAccountResult
 
 /**
  * True when an authenticated session exists
@@ -248,9 +306,9 @@ export const zPostAuthLoginResponse = zLoginResponse
 export const zPostAuthSendEmailCodeBody = zSendEmailCodeData
 
 /**
- * Whether a deletion code email was queued
+ * What the request did
  */
-export const zPostAuthSendEmailCodeResponse = z.boolean()
+export const zPostAuthSendEmailCodeResponse = zSendDeleteUserEmailCodeResult
 
 export const zPostAuthSignupBody = zCreateAccountDetails
 

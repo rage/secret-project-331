@@ -22,11 +22,15 @@ const sizesCss = css`
 const meta = {
   title: "Components/Link",
   component: Link,
+  args: {
+    href: "/",
+    children: "Visit homepage",
+  },
   parameters: {
     docs: {
       description: {
         component:
-          "Accessible link component built on React Aria with optional button styling, loading state, and icon slots. When `styledAsButton` is set, padding, variants, and sizes use the same `buttonStyles` primitives as `Button` for visual parity.",
+          "Accessible link component built on React Aria with optional button styling, loading state, and icon slots. A plain link is a text link; `appearance` chooses between the underlined body-copy form, a `quiet` form for dense lists, and `inherit` for a link wrapping a badge or a card. When `styledAsButton` is set, padding, variants, and sizes use the same `buttonStyles` primitives as `Button` for visual parity.",
       },
     },
   },
@@ -37,7 +41,7 @@ const meta = {
     },
     size: {
       control: "select",
-      options: ["sm", "md", "lg"],
+      options: ["small", "medium", "large"],
     },
   },
 } satisfies Meta<typeof Link>
@@ -46,11 +50,22 @@ export default meta
 
 type StoryType = StoryObj<typeof meta>
 
-export const Plain = {
-  args: {
-    href: "/",
-    children: "Visit homepage",
-  },
+export const Plain = {} satisfies StoryType
+
+export const Appearances = {
+  render: () => (
+    <div className={stackCss}>
+      <p>
+        A sentence with a <Link href="/">body-copy link</Link> in it.
+      </p>
+      <Link href="/" appearance="quiet">
+        Quiet, for a table cell
+      </Link>
+      <Link href="/" appearance="inherit">
+        Inherit, for a link wrapping a badge
+      </Link>
+    </div>
+  ),
 } satisfies StoryType
 
 export const StyledAsButton = {
@@ -58,7 +73,7 @@ export const StyledAsButton = {
     href: "/",
     styledAsButton: true,
     variant: "primary",
-    size: "md",
+    size: "medium",
     icon: <ArrowRight aria-hidden="true" size={16} />,
     iconPosition: "start",
     children: "Open",
@@ -84,13 +99,13 @@ export const Variants = {
 export const Sizes = {
   render: () => (
     <div className={sizesCss}>
-      <Link href="/" styledAsButton size="sm">
+      <Link href="/" styledAsButton size="small">
         Small
       </Link>
-      <Link href="/" styledAsButton size="md">
+      <Link href="/" styledAsButton size="medium">
         Medium
       </Link>
-      <Link href="/" styledAsButton size="lg">
+      <Link href="/" styledAsButton size="large">
         Large
       </Link>
     </div>

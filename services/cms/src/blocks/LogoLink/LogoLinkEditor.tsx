@@ -4,9 +4,9 @@ import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import BlockWrapper from "../BlockWrapper"
-
 import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+
+import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/columns"]
 
@@ -22,11 +22,11 @@ const LOGO_LINK_TEMPLATE: Template[] = [
   ],
 ]
 
-const LogoLinkEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  clientId,
-}) => {
+const LogoLinkEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = () => {
   return (
-    <BlockWrapper id={clientId}>
+    <BlockWrapper>
       <div
         className={css`
           background: #fafbfb;

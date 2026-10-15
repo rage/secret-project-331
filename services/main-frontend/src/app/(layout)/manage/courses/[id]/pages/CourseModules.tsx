@@ -1,0 +1,672 @@
+"use client"
+
+import { useQuery } from "@tanstack/react-query"
+import { isEqual } from "lodash"
+import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
+
+import BottomPanel from "@/components/BottomPanel"
+import {
+  dividedListCss,
+  pageTitleCss,
+  sectionsCss,
+  subheadingCss,
+  subsectionCss,
+} from "@/components/credit-registration/styles"
+import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
+import {
+  getCourseCreditRegistrationModuleConfigsOptions,
+  getCourseCreditRegistrationSummaryOptions,
+  getCourseStructureOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { updateCourseModules } from "@/generated/api/sdk.generated"
+import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { Button, QueryResults } from "@/shared-module/components"
+
+import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
+import type { CourseModuleFormFields, CourseModuleFormMode } from "./CourseModuleForm"
+import CourseModuleForm from "./CourseModuleForm"
+import type { CreditRegistrationModuleFields } from "./creditRegistrationModuleFields"
+import {
+  creditRegistrationFieldsOf,
+  EMPTY_CREDIT_REGISTRATION_FIELDS,
+} from "./creditRegistrationModuleFields"
+import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
+
+const AUTOMATIC = "automatic"
+const MANUAL = "manual"
+
+const STUDENTS_SUBTAB_COMPLETIONS = "completions"
+const REGISTRATION_VIEW_FAILED = "failed"
+
+const CREATE: CourseModuleFormMode = "create"
+const EDIT: CourseModuleFormMode = "edit"
+
+const CONFIGURE_STUDY_REGISTRY = [
+  { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+] as const
+
+interface Props {
+  courseId: string
+}
+
+export interface ModuleView {
+  id: string
+  name: string | null
+  order_number: number
+  firstChapter: number | null
+  lastChapter: number | null
+  isNew: boolean
+  ects_credits: number | null
+  uh_course_code: string | null
+  automatic_completion: boolean
+  automatic_completion_number_of_points_treshold: number | null
+  automatic_completion_number_of_exercises_attempted_treshold: number | null
+  automatic_completion_requires_exam: boolean
+  completion_registration_link_override: string | null
+  enable_registering_completion_to_uh_open_university: boolean
+  credit_registration: CreditRegistrationModuleFields
+}
+
+interface ChapterView {
+  id: string
+  name: string
+  module: string | null
+  chapter_number: number
+}
+
+interface ModuleList {
+  modules: ModuleView[]
+  chapters: ChapterView[]
+  error: string | null
+}
+
+const firstAndLastChaptersOfModule = (
+  moduleId: string,
+  chapters: ChapterView[],
+): [number | null, number | null] => {
+  let first = null
+  let last = null
+
+  for (const chapter of chapters) {
+    if (chapter.module === moduleId) {
+      if (first === null || first > chapter.chapter_number) {
+        first = chapter.chapter_number
+      }
+      if (last === null || last < chapter.chapter_number) {
+        last = chapter.chapter_number
+      }
+    }
+  }
+
+  return [first, last]
+}
+
+/** The empty module a create card fills in; its id is the one the module is saved under. */
+const blankModule = (chapters: number[]): ModuleView => ({
+  id: v4(),
+  name: "",
+  order_number: 0,
+  firstChapter: chapters[0] ?? 1,
+  lastChapter: chapters.at(-1) ?? 1,
+  isNew: true,
+  ects_credits: null,
+  uh_course_code: null,
+  automatic_completion: false,
+  automatic_completion_number_of_points_treshold: null,
+  automatic_completion_number_of_exercises_attempted_treshold: null,
+  automatic_completion_requires_exam: false,
+  completion_registration_link_override: null,
+  enable_registering_completion_to_uh_open_university: false,
+  credit_registration: EMPTY_CREDIT_REGISTRATION_FIELDS,
+})
+
+/** The completions roster, filtered to one module and, when `failed`, to its failed registrations. */
+const rosterHrefOf = (courseId: string, moduleId: string, failed?: boolean): string =>
+  `${manageCourseStudentsRoute(courseId, STUDENTS_SUBTAB_COMPLETIONS)}?${new URLSearchParams({
+    [MODULE_PARAM]: moduleId,
+    ...includeIf(failed, { [REGISTRATION_PARAM]: REGISTRATION_VIEW_FAILED }),
+  })}`
+
+/** What the save sends. `order_number` is renumbered locally as chapters move and is not an edit of its own. */
+const savedFieldsOf = ({ order_number: _orderNumber, ...fields }: ModuleView) => fields
+
+const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
+  modules.sort((l, r) => {
+    // sort default module first
+    if (l.name === null) {
+      return -1
+    } else if (r.name === null) {
+      return 1
+    }
+    // sort according to first chapters, empty modules last
+    return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)
+  })
+
+  // update order numbers
+  let order = 0
+  modules.forEach((m) => {
+    m.order_number = order
+    order += 1
+  })
+  return modules
+}
+
+const CourseModules: React.FC<Props> = ({ courseId }) => {
+  const { t } = useTranslation()
+
+  const [edited, setEdited] = useState(false)
+  const [moduleList, setModuleList] = useState<ModuleList | null>(null)
+  const [newModule, setNewModule] = useState<ModuleView | null>(null)
+  const canConfigureStudyRegistry =
+    useAuthorizeMultiple([...CONFIGURE_STUDY_REGISTRY]).data?.[0] === true
+
+  // helper functions
+  const validateModuleList = (modules: ModuleView[], chapters: ChapterView[]): string | null => {
+    const seenModules = new Map<string, number>()
+
+    chapters.sort((l, r) => l.chapter_number - r.chapter_number)
+
+    // check that the first chapter is in the default module
+    const firstChapter = chapters[0]
+    if (firstChapter !== undefined) {
+      const firstModule = modules.find((m) => m.id === firstChapter.module)
+      if (firstModule !== undefined && firstModule.name !== null) {
+        return t("error-modules-first-chapter-not-in-default-module")
+      }
+    }
+
+    // check that the chapters are continuous to disallow configurations such as:
+    // module 1: [chapter 1, chapter 3], module 2: [chapter 2]
+    // also checks that all chapters belong to some module
+    let currentModule: string | null = null
+    for (const chapter of chapters) {
+      if (chapter.module !== null) {
+        if (chapter.module !== currentModule) {
+          currentModule = chapter.module
+          // should be unseen module
+          const prevChapter = seenModules.get(chapter.module)
+          if (prevChapter !== undefined) {
+            // oxlint-disable-next-line no-loop-func -- find runs synchronously; currentModule read immediately
+            const erroringModule = modules.find((m) => m.id === currentModule)
+            return erroringModule?.name === null
+              ? t("error-modules-default-noncontinuous-chapters", {
+                  prevChapter,
+                  currChapter: chapter.chapter_number,
+                })
+              : t("error-modules-noncontinuous-chapters", {
+                  moduleName: erroringModule?.name ?? "",
+                  prevChapter,
+                  currChapter: chapter.chapter_number,
+                })
+          }
+        }
+        seenModules.set(chapter.module, chapter.chapter_number)
+      } else {
+        return t("error-modules-chapter-not-in-module", {
+          chapterNumber: chapter.chapter_number,
+          chapterName: chapter.name,
+        })
+      }
+    }
+
+    // check that no module is empty
+    for (const courseModule of modules) {
+      if (!seenModules.has(courseModule.id)) {
+        return t("error-modules-empty-module", { moduleName: courseModule.name })
+      }
+    }
+
+    // all ok
+    return null
+  }
+
+  // queries and mutations
+  const creditRegistrationConfigsQuery = useQuery(
+    getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: courseId } }),
+  )
+  const creditRegistrationConfigs = creditRegistrationConfigsQuery.data
+  // A registration carries the student's Sisu identity, so the counts need their own permission.
+  const canViewCreditRegistrations = useCanViewCreditRegistrations(courseId)
+  const courseUsesStudyRegistry = (creditRegistrationConfigs ?? []).some(
+    (module) => module.enable_credit_registration_via_suotar,
+  )
+  const registrationSummaryQuery = useQuery({
+    ...getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
+    enabled: canViewCreditRegistrations && courseUsesStudyRegistry,
+  })
+  const registrationSummaries = registrationSummaryQuery.data?.modules
+  const courseStructureQuery = useQuery({
+    ...getCourseStructureOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+    select: (courseStructure) => {
+      const chapterNumbers = courseStructure.chapters
+        .toSorted((l, r) => l.chapter_number - r.chapter_number)
+        .map((c) => c.chapter_number)
+
+      const makeModuleList = () => {
+        const chapters = courseStructure.chapters
+          .toSorted((l, r) => l.chapter_number - r.chapter_number)
+          .map((c) => {
+            return {
+              id: c.id,
+              name: c.name,
+              module: c.course_module_id,
+              chapter_number: c.chapter_number,
+            }
+          })
+        const modules = courseStructure.modules.map<ModuleView>((m) => {
+          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+          if (m.completion_policy.policy === "automatic") {
+            return {
+              id: m.id,
+              name: m.name ?? null,
+              order_number: m.order_number,
+              firstChapter,
+              lastChapter,
+              isNew: false,
+              uh_course_code: m.uh_course_code ?? null,
+              ects_credits: m.ects_credits ?? null,
+              automatic_completion: true,
+              automatic_completion_number_of_points_treshold:
+                m.completion_policy.number_of_points_treshold ?? null,
+              automatic_completion_number_of_exercises_attempted_treshold:
+                m.completion_policy.number_of_exercises_attempted_treshold ?? null,
+              automatic_completion_requires_exam: m.completion_policy.requires_exam,
+              completion_registration_link_override:
+                m.completion_registration_link_override ?? null,
+              enable_registering_completion_to_uh_open_university:
+                m.enable_registering_completion_to_uh_open_university,
+              credit_registration: creditRegistrationFieldsOf(creditRegistrationConfigs, m.id),
+            }
+          }
+          return {
+            id: m.id,
+            name: m.name ?? null,
+            order_number: m.order_number,
+            firstChapter,
+            lastChapter,
+            isNew: false,
+            uh_course_code: m.uh_course_code ?? null,
+            ects_credits: m.ects_credits ?? null,
+            automatic_completion: false,
+            automatic_completion_number_of_points_treshold: null,
+            automatic_completion_number_of_exercises_attempted_treshold: null,
+            automatic_completion_requires_exam: false,
+            completion_registration_link_override: m.completion_registration_link_override ?? null,
+            enable_registering_completion_to_uh_open_university:
+              m.enable_registering_completion_to_uh_open_university,
+            credit_registration: creditRegistrationFieldsOf(creditRegistrationConfigs, m.id),
+          }
+        })
+        const error = validateModuleList(modules, chapters)
+        return { modules, chapters, error }
+      }
+      return {
+        initialModuleList: makeModuleList(),
+        moduleList: makeModuleList(),
+        chapterNumbers,
+      }
+    },
+  })
+  const initialModuleList = courseStructureQuery.data?.initialModuleList
+  useEffect(() => {
+    // Waits for the configuration too, or the staged list would save credit registration off.
+    if (!courseStructureQuery.data || !creditRegistrationConfigs) {
+      return
+    }
+    if (moduleList === null) {
+      setModuleList(courseStructureQuery.data.moduleList)
+    }
+  }, [courseStructureQuery.data, creditRegistrationConfigs, moduleList])
+
+  const moduleUpdatesMutation = useToastMutation(
+    () => {
+      if (!initialModuleList) {
+        throw new Error("initialModuleList is undefined")
+      }
+      if (!moduleList) {
+        throw new Error("moduleList is undefined")
+      }
+
+      // check new and modified modules
+      const newModules = new Map<string, NewModule>()
+      const modifiedModules = new Array<ModifiedModule>()
+      const idToInitialModule = initialModuleList.modules.reduce<Map<string, ModuleView>>(
+        (map, module) => map.set(module.id, module),
+        new Map(),
+      )
+      for (const courseModule of moduleList.modules) {
+        // cannot add or modify default module
+        const initialModule = idToInitialModule.get(courseModule.id)
+        if (initialModule === undefined && courseModule.name !== null) {
+          // new module
+          newModules.set(courseModule.id, {
+            name: courseModule.name,
+            order_number: courseModule.order_number,
+            chapters: moduleList.chapters
+              .filter((c) => c.module === courseModule.id)
+              .map((c) => c.id),
+            uh_course_code: courseModule.uh_course_code,
+            ects_credits: courseModule.ects_credits,
+            completion_policy: mapFieldsToCompletionPolicy(courseModule),
+            completion_registration_link_override:
+              courseModule.completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university:
+              courseModule.enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
+          })
+        } else if (
+          initialModule !== undefined &&
+          // old module, check for modifications
+          (courseModule.name !== initialModule.name ||
+            courseModule.uh_course_code !== initialModule.uh_course_code ||
+            courseModule.ects_credits !== initialModule.ects_credits ||
+            courseModule.automatic_completion !== initialModule.automatic_completion ||
+            courseModule.automatic_completion_number_of_points_treshold !==
+              initialModule.automatic_completion_number_of_points_treshold ||
+            courseModule.ects_credits !== initialModule.ects_credits ||
+            courseModule.automatic_completion_number_of_exercises_attempted_treshold !==
+              initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
+            courseModule.automatic_completion_requires_exam !==
+              initialModule.automatic_completion_requires_exam ||
+            courseModule.completion_registration_link_override !==
+              initialModule.completion_registration_link_override ||
+            courseModule.enable_registering_completion_to_uh_open_university !==
+              initialModule.enable_registering_completion_to_uh_open_university ||
+            !isEqual(courseModule.credit_registration, initialModule.credit_registration))
+        ) {
+          modifiedModules.push({
+            id: courseModule.id,
+            name: courseModule.name,
+            order_number: courseModule.order_number,
+            uh_course_code: courseModule.uh_course_code,
+            ects_credits: courseModule.ects_credits,
+            completion_policy: mapFieldsToCompletionPolicy(courseModule),
+            completion_registration_link_override:
+              courseModule.completion_registration_link_override,
+            enable_registering_completion_to_uh_open_university:
+              courseModule.enable_registering_completion_to_uh_open_university,
+            enable_credit_registration_via_suotar: courseModule.credit_registration.enabled,
+          })
+        }
+      }
+
+      // check deleted modules
+      const deletedModules = new Array<string>()
+      const idToUpdatedModule = moduleList.modules.reduce<Map<string, ModuleView>>(
+        (map, module) => map.set(module.id, module),
+        new Map(),
+      )
+      for (const courseModule of initialModuleList.modules) {
+        if (!idToUpdatedModule.has(courseModule.id)) {
+          deletedModules.push(courseModule.id)
+        }
+      }
+
+      // check moved chapters
+      const movedChapters = new Array<[string, string]>()
+      const idToInitialChapter = initialModuleList.chapters.reduce<Map<string, ChapterView>>(
+        (map, chapter) => map.set(chapter.id, chapter),
+        new Map(),
+      )
+      for (const chapter of moduleList.chapters) {
+        const initialChapter = idToInitialChapter.get(chapter.id)
+        if (
+          initialChapter !== undefined &&
+          chapter.module !== null &&
+          // chapters moved to a new module are handled as part of creating the new module
+          !newModules.has(chapter.module) &&
+          initialChapter.module !== chapter.module
+        ) {
+          movedChapters.push([chapter.id, chapter.module])
+        }
+      }
+
+      return updateCourseModules({
+        body: {
+          new_modules: Array.from(newModules.values()),
+          deleted_modules: deletedModules,
+          modified_modules: modifiedModules,
+          moved_chapters: movedChapters,
+        },
+        path: {
+          course_id: courseId,
+        },
+      })
+    },
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        setEdited(false)
+        courseStructureQuery.refetch()
+        creditRegistrationConfigsQuery.refetch()
+      },
+    },
+  )
+
+  /**
+   * Applies one card's fields to the staged list, adding the module when it is not in it yet, so
+   * creating and editing take the same path through validation and chapter reassignment.
+   */
+  const handleSaveModule = (
+    id: string,
+    {
+      name,
+      starts,
+      ends,
+      ects_credits,
+      uh_course_code,
+      automatic_completion,
+      automatic_completion_number_of_points_treshold,
+      automatic_completion_number_of_exercises_attempted_treshold,
+      automatic_completion_requires_exam,
+      completion_registration_link_override,
+      override_completion_link,
+      enable_registering_completion_to_uh_open_university,
+      credit_registration,
+    }: CourseModuleFormFields,
+  ) => {
+    setEdited(true)
+    setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
+      const chapters = old.chapters.map((c) => {
+        if (starts <= c.chapter_number && c.chapter_number <= ends) {
+          return { ...c, module: id }
+        } else if (c.module === id) {
+          return { ...c, module: null }
+        }
+        return c
+      })
+      const existing = old.modules.find((m) => m.id === id)
+      const saved: ModuleView = {
+        id,
+        name,
+        order_number: existing?.order_number ?? old.modules.length,
+        ects_credits,
+        uh_course_code: nullIfEmptyString(uh_course_code),
+        automatic_completion,
+        automatic_completion_number_of_points_treshold,
+        automatic_completion_number_of_exercises_attempted_treshold,
+        automatic_completion_requires_exam,
+        completion_registration_link_override: override_completion_link
+          ? completion_registration_link_override
+          : null,
+        // Overwritten below, along with every other module's.
+        firstChapter: null,
+        lastChapter: null,
+        isNew: existing?.isNew ?? true,
+        enable_registering_completion_to_uh_open_university,
+        credit_registration,
+      }
+      const upserted = existing
+        ? old.modules.map((m) => (m.id === id ? saved : m))
+        : [...old.modules, saved]
+      // The saved module claimed chapters from its neighbours, so every module's span has moved.
+      const modules = upserted.map((m) => {
+        const [first, last] = firstAndLastChaptersOfModule(m.id, chapters)
+        return { ...m, firstChapter: first, lastChapter: last }
+      })
+      return {
+        modules: sortAndUpdateOrderNumbers(modules),
+        chapters,
+        error: validateModuleList(modules, chapters),
+      }
+    })
+  }
+  const handleDeleteModule = (moduleId: string) => {
+    setEdited(true)
+    setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
+      const modules = old.modules.filter((m) => m.id !== moduleId)
+      const chapters = [...old.chapters].map((c) => {
+        const updated = { ...c }
+        if (updated.module === moduleId) {
+          updated.module = null
+        }
+        return updated
+      })
+      return {
+        modules: sortAndUpdateOrderNumbers(modules),
+        chapters,
+        error: validateModuleList(modules, chapters),
+      }
+    })
+  }
+  const handleSubmit = () => moduleUpdatesMutation.mutate()
+  const handleReset = () => {
+    if (!initialModuleList) {
+      throw new Error("initialModuleList is undefined")
+    }
+    setEdited(false)
+    setModuleList(initialModuleList)
+  }
+
+  return (
+    <QueryResults
+      queries={[courseStructureQuery, creditRegistrationConfigsQuery] as const}
+      treatEmptyAsData
+      renderData={([data]) => (
+        <>
+          <div className={sectionsCss}>
+            <h1 className={pageTitleCss}>{t("modules")}</h1>
+            {moduleList?.modules
+              .toSorted((l, r) => {
+                return l.order_number - r.order_number
+              })
+              .map((module) => {
+                const initialModule = initialModuleList?.modules.find((m) => m.id === module.id)
+                const moduleChapters = moduleList.chapters.filter((c) => c.module === module.id)
+                const registrationSummary = registrationSummaries?.find(
+                  (summary) => summary.course_module_id === module.id,
+                )
+                return (
+                  <CourseModuleForm
+                    key={module.id}
+                    mode={EDIT}
+                    module={module}
+                    chapters={data.chapterNumbers}
+                    creditRegistrationConfig={creditRegistrationConfigs?.find(
+                      (config) => config.course_module_id === module.id,
+                    )}
+                    canConfigureStudyRegistry={canConfigureStudyRegistry}
+                    hasUnsavedChanges={
+                      edited &&
+                      (initialModule === undefined ||
+                        !isEqual(savedFieldsOf(module), savedFieldsOf(initialModule)))
+                    }
+                    onSubmitForm={handleSaveModule}
+                    onDeleteModule={handleDeleteModule}
+                  >
+                    {registrationSummary && (
+                      <ModuleRegistrationStatus
+                        summary={registrationSummary}
+                        rosterHrefOf={(failed) => rosterHrefOf(courseId, module.id, failed)}
+                      />
+                    )}
+                    {moduleChapters.length > 0 && (
+                      <div className={subsectionCss}>
+                        <h2 className={subheadingCss}>{t("heading-module-chapters")}</h2>
+                        <ul className={dividedListCss}>
+                          {moduleChapters.map((c) => (
+                            <li key={c.id}>
+                              {c.chapter_number}. {c.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </CourseModuleForm>
+                )
+              })}
+            {newModule ? (
+              <CourseModuleForm
+                mode={CREATE}
+                module={newModule}
+                chapters={data.chapterNumbers}
+                creditRegistrationConfig={undefined}
+                canConfigureStudyRegistry={canConfigureStudyRegistry}
+                onSubmitForm={handleSaveModule}
+                onCancel={() => setNewModule(null)}
+              />
+            ) : (
+              <div>
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  type="button"
+                  onClick={() => setNewModule(blankModule(data.chapterNumbers))}
+                >
+                  {t("button-text-add-module")}
+                </Button>
+              </div>
+            )}
+          </div>
+          <BottomPanel
+            title={t("title-dialog-module-save")}
+            {...omitUndefined({ error: moduleList?.error })}
+            show={edited}
+            leftButtonText={t("save-changes")}
+            leftButtonDisabled={
+              (moduleList?.error !== null && moduleList?.error !== undefined) ||
+              moduleUpdatesMutation.isPending
+            }
+            onClickLeft={handleSubmit}
+            rightButtonText={t("button-reset")}
+            onClickRight={handleReset}
+            rightButtonDisabled={moduleUpdatesMutation.isPending}
+          />
+        </>
+      )}
+    />
+  )
+}
+
+export default CourseModules
+
+function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
+  if (fields.automatic_completion) {
+    return {
+      policy: AUTOMATIC,
+      course_module_id: fields.id,
+      number_of_exercises_attempted_treshold:
+        fields.automatic_completion_number_of_exercises_attempted_treshold,
+      number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
+      requires_exam: fields.automatic_completion_requires_exam,
+    }
+  }
+  return { policy: MANUAL }
+}

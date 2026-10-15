@@ -28,6 +28,7 @@ export interface UseLoginFlowReturn {
   isSubmittingVerification: boolean
   submitCredentials: (email: string, password: string) => Promise<void>
   submitVerification: (code: string) => Promise<void>
+  cancelVerification: () => void
   onConsentSubmitted: () => void
 }
 
@@ -60,10 +61,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
         setVerificationToken(response.email_verification_token)
         setStep({ step: "verification", token: response.email_verification_token })
         return false
-      } else {
-        setCredentialsError(true)
-        return false
       }
+      setCredentialsError(true)
+      return false
     },
     { notify: false },
   )
@@ -84,10 +84,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
         await loginStateContext.refresh()
         setStep({ step: "awaiting_consent_check" })
         return true
-      } else {
-        setVerificationError(t("verification-failed"))
-        return false
       }
+      setVerificationError(t("verification-failed"))
+      return false
     },
     { notify: false },
   )
@@ -132,6 +131,12 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     }
   }
 
+  const cancelVerification = () => {
+    setVerificationError(null)
+    setVerificationToken(null)
+    setStep({ step: "credentials" })
+  }
+
   const onConsentSubmitted = () => {
     setStep({ step: "complete" })
   }
@@ -145,6 +150,7 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     isSubmittingVerification: verifyMutation.isPending,
     submitCredentials,
     submitVerification,
+    cancelVerification,
     onConsentSubmitted,
   }
 }

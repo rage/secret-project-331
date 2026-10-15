@@ -1,4 +1,4 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
 
 import { useDispatch } from "@wordpress/data"
@@ -8,11 +8,15 @@ import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboar
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface UseCommonKeyboardShortcutsProps {
-  onUndo?: () => void
-  onRedo?: () => void
+  onUndo?: (() => void) | undefined
+  onRedo?: (() => void) | undefined
 }
 
-const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
+/**
+ * Whether an undo/redo shortcut should run our document-level history instead of being left to the
+ * element under the caret. Text fields keep their own native undo.
+ */
+export const shouldHandleBlockEditorHistoryShortcut = (event: Event): boolean => {
   const target = event.target
 
   return !(

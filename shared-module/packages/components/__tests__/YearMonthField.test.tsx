@@ -3,7 +3,6 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { YearMonthField } from "../src/components/YearMonthField"
-
 import { renderWithForm } from "./testUtils"
 
 describe("YearMonthField", () => {
@@ -76,5 +75,19 @@ describe("YearMonthField", () => {
     fireEvent.keyDown(trigger, { key: "Escape" })
     expect(screen.queryByText("Choose month")).not.toBeInTheDocument()
     expect(trigger).toHaveFocus()
+  })
+
+  test("forwards data-testid to the control, hidden value, and picker trigger", () => {
+    renderWithForm<{ ym: string }>(
+      (control) => (
+        <YearMonthField name="ym" control={control} label="Start month" data-testid="start-month" />
+      ),
+      { defaultValues: { ym: "2026-05" } },
+    )
+    const trigger = screen.getByRole("button", { name: /May 2026/ })
+
+    expect(screen.getByTestId("start-month-trigger")).toBe(trigger)
+    expect(screen.getByTestId("start-month-value")).toHaveValue("2026-05")
+    expect(screen.getByTestId("start-month")).toContainElement(trigger)
   })
 })

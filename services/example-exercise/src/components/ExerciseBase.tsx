@@ -1,9 +1,8 @@
-"use client"
-
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/styles/theme"
-import { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+import type { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
 
 interface Props {
   alternatives: PublicAlternative[]
@@ -20,6 +19,7 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
   interactable,
   model_solutions,
 }) => {
+  const { t } = useTranslation()
   return (
     <div
       className={css`
@@ -27,7 +27,7 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
         flex-direction: column;
       `}
     >
-      {alternatives.map((option) => {
+      {alternatives.map((option, index) => {
         let correct = false
         if (model_solutions) {
           correct = model_solutions.correctOptionIds.includes(option.id)
@@ -39,10 +39,11 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
         // Background of the buttons
         const color = baseTheme.colors.blue[300]
         const chosenColor = baseTheme.colors.blue[700]
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const border = model_solutions ? `4px solid ${correct ? green : red}` : `0`
         return (
           <button
+            // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled button uses role=checkbox; an input would change styling
             role="checkbox"
             className={
               interactable
@@ -52,17 +53,17 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
                     background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
                     border: ${border};
-                    color: ${selected
-                      ? baseTheme.colors.primary[100]
-                      : baseTheme.colors.primary[200]};
+                    color: ${
+                      selected ? baseTheme.colors.primary[100] : baseTheme.colors.primary[200]
+                    };
                     transition: all 0.3s;
                     cursor: pointer;
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;
                     &:hover {
-                      background-color: ${selected
-                        ? baseTheme.colors.blue[700]
-                        : baseTheme.colors.blue[500]};
+                      background-color: ${
+                        selected ? baseTheme.colors.blue[700] : baseTheme.colors.blue[500]
+                      };
                     }
                   `
                 : css`
@@ -79,7 +80,9 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
             onClick={() => onClick(option.id, option.name)}
             key={option.id}
           >
-            {option.name}
+            {/* The button's accessible name is its text; fall back to a localized label so a
+                draft option with no name is never announced as an empty/unnamed control. */}
+            {option.name || t("option-n", { n: index + 1 })}
           </button>
         )
       })}

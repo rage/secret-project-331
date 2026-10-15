@@ -1,0 +1,231 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React, { useEffect } from "react"
+import { Controller, useForm, useWatch } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import {
+  createChapterMutation as createChapterMutationOptions,
+  updateChapterMutation as updateChapterMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { Chapter, NewChapter } from "@/generated/api/types.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
+import { Checkbox, DateTimeLocalField, TextField } from "@/shared-module/components"
+
+const DEFAULT_COLOR = "#000000"
+
+// Shared with ChapterFormDialog.tsx, whose footer submit button targets this form by id.
+export const NEW_CHAPTER_FORM_ID = "new-chapter-form"
+
+interface NewChapterFormProps {
+  courseId: string
+  onSubmitForm: () => void
+  chapterNumber: number
+  initialData: Chapter | null
+  newRecord: boolean
+  /** Reports whether the footer's submit action should be enabled, since that button now lives outside this form. */
+  onCanSubmitChange: (canSubmit: boolean) => void
+}
+
+interface Fields {
+  name: string
+  color: string | null
+  has_color: boolean
+  opens_at: string | null
+  has_opens_at: boolean
+  deadline: string | null
+  has_deadline: boolean
+  chapter_number: number
+}
+
+const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = ({
+  courseId,
+  onSubmitForm,
+  chapterNumber,
+  initialData,
+  newRecord,
+  onCanSubmitChange,
+}) => {
+  const { t } = useTranslation()
+  const {
+    control,
+    handleSubmit,
+    formState: { isValid, isSubmitting },
+  } = useForm<Fields>({
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      color: null,
+      chapter_number: chapterNumber,
+      ...initialData,
+      opens_at: initialData?.opens_at ? dateToDateTimeLocalString(initialData.opens_at) : null,
+      deadline: initialData?.deadline ? dateToDateTimeLocalString(initialData.deadline) : null,
+      has_color: Boolean(initialData?.color),
+      has_opens_at: Boolean(initialData?.opens_at),
+      has_deadline: Boolean(initialData?.deadline),
+    },
+  })
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const hasColor = useWatch({ name: "has_color", control })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const hasOpensAt = useWatch({ name: "has_opens_at", control })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const hasDeadline = useWatch({ name: "has_deadline", control })
+
+  const createChapterMutation = useToastMutationOptions(
+    createChapterMutationOptions(),
+    { notify: true, method: "POST" },
+    { onSuccess: () => onSubmitForm() },
+  )
+  const updateChapterMutation = useToastMutationOptions(
+    updateChapterMutationOptions(),
+    { notify: true, method: "PUT" },
+    { onSuccess: () => onSubmitForm() },
+  )
+  const isPending = createChapterMutation.isPending || updateChapterMutation.isPending
+  const canSubmit = isValid && !isSubmitting && !isPending
+
+  useEffect(() => {
+    onCanSubmitChange(canSubmit)
+  }, [canSubmit, onCanSubmitChange])
+
+  const submitForm = async (data: NewChapter) => {
+    if (newRecord) {
+      await createChapterMutation.mutateAsync({
+        body: {
+          ...data,
+          // Temp solution to retain module information without having a way to edit modules in frontend yet.
+          course_module_id: initialData?.course_module_id ?? null,
+        },
+      })
+      return
+    }
+
+    if (!initialData?.id) {
+      throw new Error("No id for chapter")
+    }
+
+    await updateChapterMutation.mutateAsync({
+      path: {
+        chapter_id: initialData.id,
+      },
+      body: {
+        ...data,
+        course_module_id: initialData.course_module_id,
+      },
+    })
+  }
+
+  return (
+    <form
+      id={NEW_CHAPTER_FORM_ID}
+      onSubmit={handleSubmit(async (data) => {
+        await submitForm({
+          course_id: courseId,
+          name: data.name,
+          color: data.has_color ? data.color : null,
+          chapter_number: chapterNumber,
+          front_page_id: null,
+          opens_at:
+            data.has_opens_at && data.opens_at ? new Date(data.opens_at).toISOString() : null,
+          deadline:
+            data.has_deadline && data.deadline ? new Date(data.deadline).toISOString() : null,
+          course_module_id: null,
+        })
+      })}
+      className={css`
+        padding: 1rem 0;
+      `}
+    >
+      <div
+        className={css`
+          display: grid;
+          gap: var(--space-4);
+        `}
+      >
+        <TextField
+          name="name"
+          control={control}
+          label={t("text-field-label-name")}
+          rules={{ required: t("required-field") }}
+        />
+        <TextField
+          name="chapter_number"
+          control={control}
+          label={t("text-field-label-chapter-number")}
+          type="number"
+          isDisabled={!newRecord}
+          rules={{ required: t("required-field") }}
+        />
+        <Checkbox
+          name="has_color"
+          control={control}
+          label={t("set-field-value", { name: t("input-field-chapter-color") })}
+        />
+        {hasColor && (
+          <Controller
+            name="color"
+            control={control}
+            render={({ field }) => (
+              <label
+                className={css`
+                  display: flex;
+                  align-items: center;
+                  gap: var(--space-3);
+                `}
+              >
+                <input
+                  type="color"
+                  name={field.name}
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  value={field.value ?? DEFAULT_COLOR}
+                  onChange={(event) => field.onChange(event.target.value)}
+                  className={css`
+                    width: 3rem;
+                    height: 2.5rem;
+                    padding: 0;
+                    cursor: pointer;
+                  `}
+                />
+                {t("input-field-chapter-color")}
+              </label>
+            )}
+          />
+        )}
+        <Checkbox
+          name="has_opens_at"
+          control={control}
+          label={t("set-field-value", { name: t("label-opens-at") })}
+        />
+        {hasOpensAt && (
+          <DateTimeLocalField
+            name="opens_at"
+            control={control}
+            data-testid="chapter-opens-at-field"
+            label={t("label-opens-at")}
+          />
+        )}
+        <Checkbox
+          name="has_deadline"
+          control={control}
+          label={t("set-field-value", { name: t("label-deadline") })}
+        />
+        {hasDeadline && (
+          <DateTimeLocalField
+            name="deadline"
+            control={control}
+            data-testid="chapter-deadline-field"
+            label={t("label-deadline")}
+          />
+        )}
+      </div>
+    </form>
+  )
+}
+
+export default NewChapterForm

@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { css, cx } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
@@ -9,10 +9,9 @@ import { mergeProps, useButton, useDateFormatter, useOverlayTrigger } from "reac
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { omitUndefined } from "../lib/utils/nullability"
 import { parseYearMonth, serializeYearMonth } from "../lib/utils/yearMonth"
-
 import { FieldShell } from "./primitives/FieldShell"
-import { YearMonthPicker } from "./primitives/YearMonthPicker"
 import type { FieldSize } from "./primitives/fieldStyles"
 import {
   resolveSelectLabelCss,
@@ -21,6 +20,7 @@ import {
 } from "./primitives/fieldStyles"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
+import { YearMonthPicker } from "./primitives/YearMonthPicker"
 
 export type YearMonthFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
   T,
@@ -41,6 +41,7 @@ export type YearMonthFieldProps<T extends FieldValues, N extends Path<T> = Path<
   min?: string
   max?: string
   placeholder?: React.ReactNode
+  "data-testid"?: string | undefined
 }
 
 const rootControlCss = css`
@@ -94,7 +95,11 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
     min,
     max,
     placeholder,
+    "data-testid": dataTestId,
   } = props
+
+  const valueTestId = dataTestId ? `${dataTestId}-value` : undefined
+  const triggerTestId = dataTestId ? `${dataTestId}-trigger` : undefined
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const value = typeof field.value === "string" ? field.value : ""
@@ -111,7 +116,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
   const [hasFocusWithin, setHasFocusWithin] = useState(false)
 
   const state = useOverlayTriggerState({})
-  const { triggerProps } = useOverlayTrigger({ type: "dialog" }, state, triggerRef)
+  const { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, triggerRef)
   const { buttonProps } = useButton(
     {
       ...triggerProps,
@@ -167,12 +172,12 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
   const displayValue = selectedValue
     ? dateFormatter.format(new Date(Date.UTC(selectedValue.year, selectedValue.month - 1, 1)))
     : null
-  const isPlaceholder = displayValue == null
-  const isFloated = state.isOpen || selectedValue != null || hasFocusWithin
+  const isPlaceholder = displayValue === null
+  const isFloated = state.isOpen || selectedValue !== null || hasFocusWithin
 
   return (
     <FieldShell
-      className={className}
+      {...omitUndefined({ className })}
       controlClassName={rootControlCss}
       controlProps={{
         "data-field-control": "true",
@@ -180,6 +185,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
         "data-floated": isFloated ? "true" : "false",
         "data-invalid": isInvalid ? "true" : "false",
         "data-placeholder": isPlaceholder ? "true" : "false",
+        "data-testid": dataTestId,
       }}
       label={label}
       labelProps={{ id: labelId, className: resolveSelectLabelCss(fieldSize) }}
@@ -198,6 +204,7 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
         {...mergedButtonProps}
         ref={triggerRef}
         className={resolveSelectTriggerCss(fieldSize)}
+        data-testid={triggerTestId}
         type="button"
         aria-labelledby={`${labelId} ${valueId}`}
       >
@@ -215,7 +222,14 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           <span className={comboChevronCss} />
         </span>
       </button>
-      <input ref={field.ref} type="hidden" name={field.name} value={value} readOnly />
+      <input
+        ref={field.ref}
+        type="hidden"
+        name={field.name}
+        data-testid={valueTestId}
+        value={value}
+        readOnly
+      />
       {state.isOpen ? (
         <Popover
           className={popoverSizeCss}
@@ -224,6 +238,9 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           triggerRef={triggerRef}
           placement="bottom"
           surfaceProps={{
+            id: overlayProps.id,
+            role: "dialog",
+            "aria-labelledby": labelId,
             onFocus: () => emitCompositeFocus(),
             onBlur: (event: React.FocusEvent<HTMLDivElement>) => {
               emitCompositeBlur(event.relatedTarget)
@@ -233,10 +250,10 @@ export function YearMonthField<T extends FieldValues, N extends Path<T> = Path<T
           <YearMonthPicker
             selectedYear={selectedValue?.year ?? null}
             selectedMonth={selectedValue?.month ?? null}
-            minYear={minValue?.year}
-            minMonth={minValue?.month}
-            maxYear={maxValue?.year}
-            maxMonth={maxValue?.month}
+            {...omitUndefined({ minYear: minValue?.year })}
+            {...omitUndefined({ minMonth: minValue?.month })}
+            {...omitUndefined({ maxYear: maxValue?.year })}
+            {...omitUndefined({ maxMonth: maxValue?.month })}
             isDisabled={isDisabled}
             isReadOnly={isReadOnly}
             onSelect={(year, month) => {

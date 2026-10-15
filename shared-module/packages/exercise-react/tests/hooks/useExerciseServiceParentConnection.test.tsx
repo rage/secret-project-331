@@ -9,7 +9,7 @@ describe("useExerciseServiceParentConnection", () => {
   let addEventListenerSpy: jest.SpyInstance
   let removeEventListenerSpy: jest.SpyInstance
   let parentPostMessageSpy: jest.SpyInstance
-  let messageListeners: Array<(event: MessageEvent) => void>
+  let messageListeners: ((event: MessageEvent) => void)[]
 
   beforeEach(() => {
     jest.useFakeTimers()
@@ -259,6 +259,7 @@ describe("useExerciseServiceParentConnection", () => {
       const mockChannel = createMockMessageChannel()
       let handlerSetBeforeStateUpdate = false
 
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       mockChannel.port2.onmessage = null
       const originalSetOnmessage = Object.getOwnPropertyDescriptor(mockChannel.port2, "onmessage")
 

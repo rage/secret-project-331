@@ -1,7 +1,7 @@
+import type { BrowserTestSpec } from "@/util/stateInterfaces"
+
 import { getPythonBrowserTestAdapter } from "./pythonAdapter"
 import type { BrowserTestRunnerAdapter, GetBrowserTestAdapter } from "./types"
-
-import type { BrowserTestSpec } from "@/util/stateInterfaces"
 
 export type { BrowserTestRunnerAdapter, GetBrowserTestAdapter } from "./types"
 export { getPythonBrowserTestAdapter } from "./pythonAdapter"

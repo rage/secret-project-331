@@ -1,22 +1,23 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
-
-import { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
-import EditorCard from "../common/EditorCard"
-import MultipleChoiceOption from "../common/MultipleChoiceOption"
-import ParsedTextField from "../common/ParsedTextField"
 
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
+import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
+import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import ParsedTextField from "../common/ParsedTextField"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -83,15 +84,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const [optionTitle, setOptionTitle] = useState("")
   const [correct, setCorrect] = useState(false)
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemChooseN>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemChooseN>(quiz, quizItemId, "choose-n")
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -117,7 +119,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               return
             }
             try {
-              draft.n = parseInt(value)
+              // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
+              draft.n = parseInt(value, 10)
             } catch (_e) {
               /* NOP */
             }
@@ -138,24 +141,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(
-              title,
-              messageAfterSubmissionWhenThisOptionSelected,
-              messageOnModelSolutionWhenThisOptionSelected,
-              correct,
-            ) => {
+            onUpdateValues={(title, feedbackMessages, correctValue) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
-                    opt.messageAfterSubmissionWhenSelected =
-                      messageAfterSubmissionWhenThisOptionSelected
-                    opt.additionalCorrectnessExplanationOnModelSolution =
-                      messageOnModelSolutionWhenThisOptionSelected
+                    opt.correct = correctValue
+                    opt.feedbackMessages = feedbackMessages
                   }
                   return opt
                 })
@@ -201,11 +196,10 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ...draft.options,
                 {
                   order: draft.options.length + 1,
-                  additionalCorrectnessExplanationOnModelSolution: null,
                   body: null,
                   correct: correct,
                   id: v4(),
-                  messageAfterSubmissionWhenSelected: null,
+                  feedbackMessages: [],
                   title: optionTitle,
                 },
               ]
@@ -226,42 +220,17 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
-            <OptionTitle> {t("feedback-message")} </OptionTitle>
-            <ParsedTextField
-              value={selected.successMessage ?? ""}
-              onChange={(successMessage) => {
+            <FeedbackMessagesEditor
+              value={selected.feedbackMessages}
+              visibilityOptions={itemFeedbackVisibilityOptions}
+              onChange={(feedbackMessages) => {
                 updateState((draft) => {
                   if (!draft) {
                     return
                   }
-                  draft.successMessage = successMessage ?? ""
+                  draft.feedbackMessages = feedbackMessages
                 })
               }}
-              label={t("success-message")}
-            />
-            <ParsedTextField
-              value={selected.failureMessage ?? ""}
-              onChange={(failureMessage) => {
-                updateState((draft) => {
-                  if (!draft) {
-                    return
-                  }
-                  draft.failureMessage = failureMessage ?? ""
-                })
-              }}
-              label={t("failure-message")}
-            />
-            <ParsedTextField
-              value={selected.messageOnModelSolution ?? ""}
-              onChange={(newValue) => {
-                updateState((draft) => {
-                  if (!draft) {
-                    return
-                  }
-                  draft.messageOnModelSolution = newValue
-                })
-              }}
-              label={t("label-message-on-model-solution")}
             />
           </AdvancedOptionsContainer>
         </details>

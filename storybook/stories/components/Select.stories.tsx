@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { useState } from "react"
+import { useForm } from "react-hook-form"
 
 import { Select } from "../../src/shared-module/components"
 
@@ -27,7 +27,7 @@ const meta = {
 
 export default meta
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof Select>
 
 const countryOptions = [
   { value: "fi", label: "Finland" },
@@ -36,30 +36,38 @@ const countryOptions = [
 ]
 
 function ControlledSelectStory() {
-  const [value, setValue] = useState("b")
+  const { control } = useForm<{ letter: string }>({ defaultValues: { letter: "b" } })
 
   return (
     <Select
+      name="letter"
+      control={control}
       label="Controlled"
       options={[
         { value: "a", label: "Option A" },
         { value: "b", label: "Option B" },
         { value: "c", label: "Option C" },
       ]}
-      value={value}
-      onChange={(event) => setValue(event.currentTarget.value)}
     />
   )
 }
 
-export const Playground = {
-  render: () => <Select defaultValue="fi" label="Country" options={countryOptions} />,
-} satisfies Story
+function PlaygroundStory() {
+  const { control } = useForm<{ country: string }>({ defaultValues: { country: "fi" } })
 
-export const States = {
-  render: () => (
+  return <Select name="country" control={control} label="Country" options={countryOptions} />
+}
+
+function StatesStory() {
+  const { control } = useForm<{ default: string; disabled: string; invalid: string }>({
+    defaultValues: { default: "", disabled: "", invalid: "" },
+  })
+
+  return (
     <div className={stackCss}>
       <Select
+        name="default"
+        control={control}
         label="Default"
         options={[
           { value: "1", label: "One" },
@@ -67,18 +75,34 @@ export const States = {
         ]}
         placeholder="Choose"
       />
-      <Select disabled label="Disabled" options={[{ value: "1", label: "One" }]} />
       <Select
-        errorMessage="Selection required"
+        name="disabled"
+        control={control}
+        label="Disabled"
+        options={[{ value: "1", label: "One" }]}
+        isDisabled
+      />
+      <Select
+        name="invalid"
+        control={control}
         label="Invalid"
         options={[
           { value: "1", label: "One" },
           { value: "2", label: "Two" },
         ]}
         placeholder="Choose"
+        errorMessage="Selection required"
       />
     </div>
-  ),
+  )
+}
+
+export const Playground = {
+  render: () => <PlaygroundStory />,
+} satisfies Story
+
+export const States = {
+  render: () => <StatesStory />,
 } satisfies Story
 
 export const Controlled = {

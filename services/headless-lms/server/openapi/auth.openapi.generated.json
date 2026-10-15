@@ -95,11 +95,11 @@
         },
         "responses": {
           "200": {
-            "description": "Whether the account was deleted",
+            "description": "Outcome of submitting the code",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "boolean"
+                  "$ref": "#/components/schemas/DeleteUserAccountResult"
                 }
               }
             }
@@ -184,11 +184,11 @@
         },
         "responses": {
           "200": {
-            "description": "Whether a deletion code email was queued",
+            "description": "What the request did",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "boolean"
+                  "$ref": "#/components/schemas/SendDeleteUserEmailCodeResult"
                 }
               }
             }
@@ -444,6 +444,39 @@
           },
           {
             "type": "object",
+            "description": "Seeing a course's credit registrations and acting on them. Separate from\n`ViewUserProgressOrDetails` and `Edit` because these surfaces carry every student's unmasked\nstudent number, which is their key in the national study registry, and an assistant on a\ncourse is often another student on it.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_and_manage_credit_registrations"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Editing someone else's account identity or credentials: their email, its verification\nstate, a password reset link minted on their behalf. Separate from `Edit` because `Edit` is\nheld by teachers and assistants on their own courses, and account administration is not a\ncourse-scoped power.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["administrate_user_account"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Operating the credit registration pipeline across all courses from the admin dashboard.\nSeparate from `Administrate` so it can be handed out without the rest of global admin.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["administrate_credit_registrations"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["type"],
             "properties": {
               "type": {
@@ -505,6 +538,80 @@
             "type": "string"
           }
         }
+      },
+      "DeleteUserAccountResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["deleted"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Wrong, superseded and spent are one value: they are indistinguishable to someone typing\ndigits, and telling them apart only helps a guesser.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["invalid_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The outstanding code timed out. Read off that code's own expiry, so it reveals nothing about\nwhat was typed.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["expired_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The code was retired after too many wrong guesses; only a new code can get past this.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["too_many_attempts"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "tmc.mooc.fi could not be reached. Nothing was deleted and retrying is safe.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["upstream_unavailable"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "tmc.mooc.fi refused the deletion. `reference` identifies the recorded error, and is the only\nthing the user can hand to support.",
+            "required": ["reference", "type"],
+            "properties": {
+              "reference": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["upstream_rejected"]
+              }
+            }
+          }
+        ],
+        "description": "Outcome of spending an account deletion code."
       },
       "EmailCode": {
         "type": "object",
@@ -765,8 +872,14 @@
           },
           {
             "type": "object",
-            "required": ["type"],
+            "description": "A specific user account. Only a global role can hold anything on it: [is_permitted] has no\nper-user rule, so the id names the target for the audit trail and for a future scoping rule\nrather than widening who passes.",
+            "required": ["id", "type"],
             "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "A specific user account. Only a global role can hold anything on it: [is_permitted] has no\nper-user rule, so the id names the target for the audit trail and for a future scoping rule\nrather than widening who passes."
+              },
               "type": {
                 "type": "string",
                 "enum": ["user"]
@@ -796,13 +909,50 @@
         ],
         "description": "The target of an action."
       },
+      "SendDeleteUserEmailCodeResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["queued"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.",
+            "required": ["retry_after_seconds", "type"],
+            "properties": {
+              "retry_after_seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["recently_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["incorrect_password"]
+              }
+            }
+          }
+        ],
+        "description": "Outcome of asking for an account deletion code."
+      },
       "SendEmailCodeData": {
         "type": "object",
-        "required": ["email", "password", "language"],
+        "required": ["password", "language"],
         "properties": {
-          "email": {
-            "type": "string"
-          },
           "language": {
             "type": "string"
           },
@@ -862,7 +1012,8 @@
           "CourseOrExamCreator",
           "MaterialViewer",
           "TeachingAndLearningServices",
-          "StatsViewer"
+          "StatsViewer",
+          "CreditRegistrationAdmin"
         ]
       },
       "VerifyEmailRequest": {

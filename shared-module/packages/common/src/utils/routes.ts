@@ -1,6 +1,6 @@
 import { assertNotNullOrUndefined } from "./nullability"
 
-type PageRouteInfo = {
+interface PageRouteInfo {
   organization_slug?: string | null
   course_slug?: string | null
 }
@@ -29,24 +29,14 @@ export function manageCourseFeedbackRoute(courseId: string) {
   return `/manage/courses/${courseId}/feedback`
 }
 
-export function manageCourseFeedbackUnreadRoute(courseId: string) {
-  return `/manage/courses/${courseId}/feedback/unread`
+export function manageCourseFeedbackFeedbackRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/feedback/feedback`
+  return subtab ? `${base}/${subtab}` : base
 }
 
-export function manageCourseFeedbackReadRoute(courseId: string) {
-  return `/manage/courses/${courseId}/feedback/read`
-}
-
-export function manageCourseChangeRequestsRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests`
-}
-
-export function manageCourseChangeRequestsPendingRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests/pending`
-}
-
-export function manageCourseChangeRequestsOldRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests/old`
+export function manageCourseFeedbackChangeRequestsRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/feedback/change-requests`
+  return subtab ? `${base}/${subtab}` : base
 }
 
 export function manageCourseExercisesRoute(courseId: string) {
@@ -81,6 +71,14 @@ export function signUpRoute(returnTo: string, language?: string) {
 
 export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
+}
+
+export function chatbotCommandCenterRoute() {
+  return "/chatbot-command-center"
+}
+
+export function courseAuditingRoute() {
+  return "/manage/course-auditing"
 }
 
 export function manageOrganizationRoute(organizationId: string) {
@@ -316,4 +314,66 @@ export function exerciseExamSubmissionsRoute(exerciseId: string) {
 
 export function userSettingsRoute() {
   return "/user-settings/account"
+}
+
+export function profileStudiesRoute() {
+  return "/profile/studies"
+}
+
+export function profileCreditRegistrationRoute() {
+  return "/profile/credit-registration"
+}
+
+export function userSettingsStudentNumberRoute() {
+  return "/user-settings/student-number"
+}
+
+export function completionRegistrationRoute(courseModuleId: string) {
+  return `/completion-registration/${courseModuleId}`
+}
+
+/** Must match the backend's `LINK_STUDENT_NUMBER_PATH`; a divergence breaks every mail already sent. */
+export function linkStudentNumberRoute(token: string) {
+  return `/link-student-number/${token}`
+}
+
+export function creditRegistrationOverviewRoute() {
+  return "/manage/credit-registration/overview"
+}
+
+export function creditRegistrationRegistrationsRoute() {
+  return "/manage/credit-registration/registrations"
+}
+
+export function creditRegistrationErrorsRoute() {
+  return "/manage/credit-registration/errors"
+}
+
+export function creditRegistrationCoursesRoute() {
+  return "/manage/credit-registration/courses"
+}
+
+export function creditRegistrationLinkingRoute() {
+  return "/manage/credit-registration/linking"
+}
+
+export function creditRegistrationSystemRoute() {
+  return "/manage/credit-registration/system"
+}
+
+/** The System page's API log with one call's full bodies open, every registration it carried. */
+export function creditRegistrationSuotarApiCallRoute(suotarApiCallId: string) {
+  return `/manage/credit-registration/system?suotar_api_call_id=${encodeURIComponent(suotarApiCallId)}`
+}
+
+export function creditRegistrationEnrolmentChecksRoute() {
+  return "/manage/credit-registration/enrolment-checks"
+}
+
+export function creditRegistrationAuditRoute() {
+  return "/manage/credit-registration/audit"
+}
+
+export function creditRegistrationItemRoute(creditRegistrationId: string) {
+  return `/manage/credit-registration/registrations/${creditRegistrationId}`
 }

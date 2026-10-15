@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 
 export type NotificationPermission = "default" | "granted" | "denied" | null
 
-type NotificationOptions = {
+interface NotificationOptions {
   body?: string
   icon?: string
   tag?: string
@@ -59,11 +59,13 @@ export const useLocalNotifications = (): UseLocalNotificationsReturn => {
       }
 
       if (notificationPermission === "granted") {
+        // oxlint-disable-next-line no-new -- Notification constructed for its side effect
         new Notification(title, options)
       } else if (notificationPermission !== "denied") {
         Notification.requestPermission().then((permission) => {
           setNotificationPermission(permission)
           if (permission === "granted") {
+            // oxlint-disable-next-line no-new -- Notification constructed for its side effect
             new Notification(title, options)
           }
         })

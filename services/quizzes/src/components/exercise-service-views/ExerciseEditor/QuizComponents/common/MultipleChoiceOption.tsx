@@ -1,22 +1,23 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
-
-import ParsedTextField from "./ParsedTextField"
-
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
-import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type {
+  QuizItemOption,
+  QuizOptionFeedbackMessage,
+} from "../../../../../../types/quizTypes/privateSpec"
+import FeedbackMessagesEditor, {
+  useOptionFeedbackVisibilityOptions,
+} from "./FeedbackMessagesEditor"
 
 const OptionCard = styled.div`
   height: 50px;
@@ -104,8 +105,7 @@ interface MultipleChoiceOptionProps {
   option: QuizItemOption
   onUpdateValues: (
     title: string | null,
-    messageAfterSubmissionWhenThisOptionSelected: string | null,
-    messageOnModelSolutionWhenThisOptionSelected: string | null,
+    feedbackMessages: QuizOptionFeedbackMessage[],
     correct: boolean,
   ) => void
   onDelete: () => void
@@ -120,17 +120,13 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
   const [editMode, setEditMode] = useState(false)
 
   const [title, setTitle] = useState(option.title)
-  const [
-    messageAfterSubmissionWhenThisOptionSelected,
-    setMessageAfterSubmissionWhenThisOptionSelected,
-  ] = useState<string | null>(option.messageAfterSubmissionWhenSelected)
-  const [
-    messageOnModelSolutionWhenThisOptionSelected,
-    setMessageOnModelSolutionWhenThisOptionSelected,
-  ] = useState<string | null>(option.additionalCorrectnessExplanationOnModelSolution)
+  const [feedbackMessages, setFeedbackMessages] = useState<QuizOptionFeedbackMessage[]>(
+    option.feedbackMessages,
+  )
   const [correct, setCorrect] = useState(option.correct)
 
   const { t } = useTranslation()
+  const optionFeedbackVisibilityOptions = useOptionFeedbackVisibilityOptions()
 
   const handleVisibility = useCallback(() => {
     setVisible(!visible)
@@ -141,28 +137,16 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
   }, [editMode])
 
   const startEditMode = useCallback(() => {
-    setMessageAfterSubmissionWhenThisOptionSelected(option.messageAfterSubmissionWhenSelected ?? "")
+    setFeedbackMessages(option.feedbackMessages)
     setTitle(option.title)
     setCorrect(option.correct)
     toggleEditMode()
-  }, [option.correct, option.messageAfterSubmissionWhenSelected, option.title, toggleEditMode])
+  }, [option.correct, option.feedbackMessages, option.title, toggleEditMode])
 
   const saveChanges = useCallback(() => {
-    onUpdateValues(
-      title,
-      messageAfterSubmissionWhenThisOptionSelected,
-      messageOnModelSolutionWhenThisOptionSelected,
-      correct,
-    )
+    onUpdateValues(title, feedbackMessages, correct)
     toggleEditMode()
-  }, [
-    correct,
-    messageAfterSubmissionWhenThisOptionSelected,
-    messageOnModelSolutionWhenThisOptionSelected,
-    onUpdateValues,
-    title,
-    toggleEditMode,
-  ])
+  }, [correct, feedbackMessages, onUpdateValues, title, toggleEditMode])
 
   return (
     <>
@@ -179,9 +163,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             </CheckboxContainer>
           </CenteredContainer>
         ) : (
-          <>
-            <ChoiceTitle>{option.title}</ChoiceTitle>
-          </>
+          <ChoiceTitle>{option.title}</ChoiceTitle>
         )}
         <OptionButtonGroup>
           {option.correct && !editMode && <CorrectTag> {t("label-correct")} </CorrectTag>}
@@ -282,59 +264,42 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
           </Button>
         </OptionButtonGroup>
       </OptionCard>
-      {!visible && (
-        <>
-          {!editMode ? (
-            <MultipleChoiceMessageDialogContainer>
+      {!visible &&
+        (!editMode ? (
+          <MultipleChoiceMessageDialogContainer>
+            {option.feedbackMessages.length === 0 ? (
               <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-after-submission-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogDescription
-                  isNull={option.messageAfterSubmissionWhenSelected === null}
-                >
-                  {option.messageAfterSubmissionWhenSelected ?? `(${t("label-null")})`}
+                <MessageDialogDescription isNull={true}>
+                  {`(${t("label-null")})`}
                 </MessageDialogDescription>
               </MessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-on-model-solution-when-this-option-selected")}
-                </MessageDialogTitle>
-                <MessageDialogDescription
-                  isNull={option.additionalCorrectnessExplanationOnModelSolution === null}
-                >
-                  {option.additionalCorrectnessExplanationOnModelSolution ?? `(${t("label-null")})`}
-                </MessageDialogDescription>
-              </MessageDialogContainer>
-            </MultipleChoiceMessageDialogContainer>
-          ) : (
-            <MultipleChoiceMessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTextFieldContainer>
-                  <ParsedTextField
-                    label={t("message-after-submission-when-this-option-selected")}
-                    value={messageAfterSubmissionWhenThisOptionSelected ?? ""}
-                    onChange={(value) =>
-                      setMessageAfterSubmissionWhenThisOptionSelected(nullIfEmptyString(value))
-                    }
-                  />
-                </MessageDialogTextFieldContainer>
-              </MessageDialogContainer>
-              <MessageDialogContainer>
-                <MessageDialogTextFieldContainer>
-                  <ParsedTextField
-                    label={t("message-on-model-solution-when-this-option-selected")}
-                    value={messageOnModelSolutionWhenThisOptionSelected ?? ""}
-                    onChange={(value) =>
-                      setMessageOnModelSolutionWhenThisOptionSelected(nullIfEmptyString(value))
-                    }
-                  />
-                </MessageDialogTextFieldContainer>
-              </MessageDialogContainer>
-            </MultipleChoiceMessageDialogContainer>
-          )}
-        </>
-      )}
+            ) : (
+              option.feedbackMessages.map((message, index) => (
+                <MessageDialogContainer key={index}>
+                  <MessageDialogTitle>
+                    {optionFeedbackVisibilityOptions.find((o) => o.value === message.visibility)
+                      ?.label ?? message.visibility}
+                  </MessageDialogTitle>
+                  <MessageDialogDescription isNull={false}>
+                    {message.message}
+                  </MessageDialogDescription>
+                </MessageDialogContainer>
+              ))
+            )}
+          </MultipleChoiceMessageDialogContainer>
+        ) : (
+          <MultipleChoiceMessageDialogContainer>
+            <MessageDialogContainer>
+              <MessageDialogTextFieldContainer>
+                <FeedbackMessagesEditor
+                  value={feedbackMessages}
+                  visibilityOptions={optionFeedbackVisibilityOptions}
+                  onChange={setFeedbackMessages}
+                />
+              </MessageDialogTextFieldContainer>
+            </MessageDialogContainer>
+          </MultipleChoiceMessageDialogContainer>
+        ))}
     </>
   )
 }

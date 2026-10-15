@@ -122,6 +122,21 @@ pub async fn update_certificate_configuration(
         Ok(files_to_delete) => {
             tx.commit().await?;
             for file_to_delete in files_to_delete {
+                // A course copy reuses the source course's file_upload id, so another course's
+                // certificate can still point at it.
+                match models::certificate_configurations::file_upload_is_referenced(
+                    &mut conn,
+                    file_to_delete,
+                )
+                .await
+                {
+                    Ok(true) => continue,
+                    Ok(false) => {}
+                    Err(err) => {
+                        error!("Failed to check if file '{file_to_delete}' is still in use: {err}");
+                        continue;
+                    }
+                }
                 if let Err(err) = file_uploading::delete_file_from_storage(
                     &mut conn,
                     file_to_delete,
@@ -566,7 +581,10 @@ pub async fn delete_certificate_configuration(
             Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?);
     }
 
-    models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
+    let mut tx = conn.begin().await?;
+    models::certificate_configurations::delete(&mut tx, *configuration_id).await?;
+    tx.commit().await?;
+
     let token = token.ok_or_else(|| {
         controller_err!(
             InternalServerError,
@@ -639,8 +657,10 @@ pub async fn update_generated_certificate(
         *certificate_id,
         payload.date_issued,
         payload.name_on_certificate.clone(),
+        None,
     )
-    .await?;
+    .await?
+    .ok_or_else(|| controller_err!(NotFound, "Certificate not found".to_string()))?;
 
     token.authorized_ok(web::Json(updated))
 }

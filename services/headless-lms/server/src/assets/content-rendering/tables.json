@@ -1,0 +1,620 @@
+[
+  {
+    "clientId": "44b434c7-be41-4eb4-850f-cd8922246062",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Table not fixed",
+              "tag": "td"
+            },
+            {
+              "content": "what ",
+              "tag": "td"
+            },
+            {
+              "content": "is",
+              "tag": "td"
+            },
+            {
+              "content": "this",
+              "tag": "td"
+            },
+            {
+              "content": "x",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "20095120-4882-4cf5-b064-c39a568d99b4",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "table fixed stripes",
+              "tag": "td"
+            },
+            {
+              "content": "what",
+              "tag": "td"
+            },
+            {
+              "content": "is",
+              "tag": "td"
+            },
+            {
+              "content": "this",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "hello",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "Caption",
+      "className": "is-style-stripes",
+      "foot": [
+        {
+          "cells": [
+            {
+              "content": "Foot",
+              "tag": "td"
+            },
+            {
+              "content": "er",
+              "tag": "td"
+            },
+            {
+              "content": "1",
+              "tag": "td"
+            },
+            {
+              "content": "2",
+              "tag": "td"
+            },
+            {
+              "content": "3",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "hasFixedLayout": true,
+      "head": [
+        {
+          "cells": [
+            {
+              "content": "Head",
+              "tag": "th"
+            },
+            {
+              "content": "er",
+              "tag": "th"
+            },
+            {
+              "content": "1",
+              "tag": "th"
+            },
+            {
+              "content": "2",
+              "tag": "th"
+            },
+            {
+              "content": "3",
+              "tag": "th"
+            }
+          ]
+        }
+      ]
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "7cf072f2-9ec9-49b5-8abb-7b5d79d87f5f",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Color",
+              "tag": "td"
+            },
+            {
+              "content": "Background",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "Center",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "Right",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "<mark style=\"background-color:rgba(0, 0, 0, 0);color:#CF2E2E\" class=\"has-inline-color\">Red</mark>",
+              "tag": "td"
+            },
+            {
+              "content": "<mark style=\"background-color:#000000;color:#FFFFFF\" class=\"has-inline-color\">Black</mark>",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "<em>Center</em>",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "<strong>Right</strong>",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "Wow",
+      "foot": [],
+      "hasFixedLayout": true,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "bf8c42bd-2c8d-49b3-8fae-eb14da4913d4",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "align": "left",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "left",
+              "tag": "td"
+            },
+            {
+              "content": "1",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "align",
+              "tag": "td"
+            },
+            {
+              "content": "2",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "cd111f82-a267-4c2c-9097-d0436d783c91",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "align": "right",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "right",
+              "tag": "td"
+            },
+            {
+              "content": "1",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "align",
+              "tag": "td"
+            },
+            {
+              "content": "2",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "7f846e97-70d9-4eec-b1c1-8a3d09c4dc14",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "align": "center",
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Center",
+              "tag": "td"
+            },
+            {
+              "content": "Align",
+              "tag": "td"
+            },
+            {
+              "content": "Table",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [],
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "6eeff73a-5237-48e5-bb52-7293b64ad69b",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "Left",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "Center",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "Right",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "foot": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "center",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "align": "right",
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "hasFixedLayout": true,
+      "head": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "content": "Left",
+              "tag": "th"
+            },
+            {
+              "align": "center",
+              "content": "Center",
+              "tag": "th"
+            },
+            {
+              "align": "right",
+              "content": "Right",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            },
+            {
+              "content": "",
+              "tag": "th"
+            }
+          ]
+        }
+      ]
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "35566ee4-06f8-4b3b-8979-5677d6b89311",
+    "isValid": true,
+    "name": "core/table",
+    "attributes": {
+      "body": [
+        {
+          "cells": [
+            {
+              "content": "Hello",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "stripe",
+              "tag": "td"
+            },
+            {
+              "content": "Background",
+              "tag": "td"
+            },
+            {
+              "content": "Hello",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "content": "",
+              "tag": "td"
+            },
+            {
+              "content": "Looks awful",
+              "tag": "td"
+            },
+            {
+              "content": "",
+              "tag": "td"
+            }
+          ]
+        }
+      ],
+      "caption": "",
+      "className": "is-style-stripes",
+      "foot": [],
+      "gradient": "cool-to-warm-spectrum",
+      "hasFixedLayout": false,
+      "head": []
+    },
+    "innerBlocks": []
+  }
+]

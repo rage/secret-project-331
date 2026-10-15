@@ -1,6 +1,8 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 import { expect, test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
+import { Select } from "@/utils/components/Select"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -11,15 +13,15 @@ test.use({
 })
 
 // TODO: Temporarily disabled
-// eslint-disable-next-line playwright/no-skipped-test
+// oxlint-disable-next-line playwright/no-skipped-test
 test.skip("Testing exam works", async ({ page }) => {
   await test.step("Create exam", async () => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).nth(1).click()
     await page.getByLabel("Name", { exact: true }).fill("Exam for testing")
-    await page.getByLabel("Starts at").fill("1990-12-03T12:00")
-    await page.getByLabel("Ends at").fill("2052-03-09T09:08:01")
+    await new DateTimeLocalField(page, "exam-starts-at-field").setValue("1990-12-03T12:00")
+    await new DateTimeLocalField(page, "exam-ends-at-field").setValue("2052-03-09T09:08")
     await page.getByLabel("Time in minutes", { exact: true }).fill("60")
     await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Exam created successfully").waitFor()
@@ -34,9 +36,10 @@ test.skip("Testing exam works", async ({ page }) => {
       .click()
 
     await page.getByRole("link", { name: "Manage page" }).click()
-    await page.getByLabel("Toggle view").selectOption("block-menu")
+    const sidebarView = new Select(page, page.locator("#select-sidebar-view"))
+    await sidebarView.chooseOptionByValue("block-menu")
     await page.getByRole("option", { name: "Exercise", exact: true }).click()
-    await page.getByPlaceholder("Exercise name").fill("Exercise name")
+    await page.getByLabel("Exercise name", { exact: true }).fill("Exercise name")
 
     await page.getByLabel("Edit").click()
     await page.getByRole("button", { name: "Quizzes" }).click()
@@ -105,7 +108,10 @@ test.skip("Testing exam works", async ({ page }) => {
     await waitForViewType(quizzesIframe, "answer-exercise")
 
     await quizzesIframe.getByRole("button", { name: "Correct answer" }).waitFor()
-    await page.getByRole("button", { name: "Submit" }).isDisabled()
+    await expect(page.getByRole("button", { name: "Submit" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    )
 
     await quizzesIframe.getByRole("button", { name: "Correct answer" }).click()
     await page.getByRole("button", { name: "Submit" }).click()
@@ -114,7 +120,7 @@ test.skip("Testing exam works", async ({ page }) => {
     await page.waitForTimeout(100)
     await page.getByText("Your submission has been saved.").isVisible()
     await page.waitForTimeout(100)
-    await page.getByText("Show answers").click()
+    await page.getByRole("checkbox", { name: "Show answers" }).check()
     await page.waitForTimeout(100)
     await expect(quizzesIframe.getByText("Your answer was correct.")).toBeVisible()
   })

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_phase_state\nSET paused_at = NULL,\n  paused_by_user_id = NULL,\n  pause_reason = NULL\nWHERE phase = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d3ff2b565f8b897c7e077a79bf209b1eefa60227d87343b300de21dfb5f3f9a3"
+}

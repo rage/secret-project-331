@@ -6,13 +6,13 @@
 import { PYODIDE_INDEX_URL, PYODIDE_SCRIPT_URL } from "@/util/pyodideConfig"
 
 export interface PyodideInterface {
-  runPythonAsync(code: string): Promise<unknown>
-  setStdout(options: { batched?: (msg: string) => void; raw?: (byte: number) => void }): void
-  setStderr(options: { batched?: (msg: string) => void; raw?: (byte: number) => void }): void
-  setStdin?(options: { stdin?: () => string | undefined }): void
+  runPythonAsync: (code: string) => Promise<unknown>
+  setStdout: (options: { batched?: (msg: string) => void; raw?: (byte: number) => void }) => void
+  setStderr: (options: { batched?: (msg: string) => void; raw?: (byte: number) => void }) => void
+  setStdin?: (options: { stdin?: () => string | undefined }) => void
   FS: {
-    mkdirTree(path: string): void
-    writeFile(path: string, data: string | Uint8Array, opts?: { encoding?: string }): void
+    mkdirTree: (path: string) => void
+    writeFile: (path: string, data: string | Uint8Array, opts?: { encoding?: string }) => void
   }
 }
 
@@ -40,7 +40,9 @@ function loadScript(src: string): Promise<void> {
         resolve()
         return
       }
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       existing.onload = () => resolve()
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
       existing.onerror = () => {
         existing.remove()
         reject(new Error(`Failed to load script: ${src}`))
@@ -50,15 +52,18 @@ function loadScript(src: string): Promise<void> {
     const script = document.createElement("script")
     script.src = src
     script.async = true
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     script.onload = () => resolve()
+    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
     script.onerror = () => {
       script.remove()
       reject(new Error(`Failed to load script: ${src}`))
     }
-    document.head.appendChild(script)
+    document.head.append(script)
   })
 }
 
+// oxlint-disable-next-line require-await -- kept async for the Promise-returning public contract
 export async function getPyodide(): Promise<PyodideInterface> {
   if (pyodidePromise !== null) {
     return pyodidePromise

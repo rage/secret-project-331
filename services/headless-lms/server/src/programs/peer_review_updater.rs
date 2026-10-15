@@ -4,7 +4,6 @@ use dotenvy::dotenv;
 use headless_lms_models::error::TryToOptional;
 use headless_lms_models::peer_review_queue_entries;
 use sqlx::{Connection, PgConnection};
-use std::env;
 
 async fn process_course_instance(
     conn: &mut PgConnection,
@@ -99,9 +98,8 @@ async fn process_course_instance(
 }
 
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     let db_url = ProgramConfig::database_url_with_default();
     let mut conn = PgConnection::connect(&db_url).await?;

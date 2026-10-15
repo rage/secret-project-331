@@ -15,11 +15,11 @@ const useCourseInstances = (courseId: string | null, options: UseCourseInstances
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled,
-      isReady: (courseId): courseId is string => Boolean(courseId),
-      build: (courseId) =>
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
         getCourseMaterialCourseInstancesOptions({
           path: {
-            course_id: courseId,
+            course_id: value,
           },
         }),
     }),

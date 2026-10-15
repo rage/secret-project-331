@@ -1,8 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { RefObject } from "react"
-import { AriaButtonProps } from "react-aria"
+import type { RefObject } from "react"
+import React from "react"
+import type { AriaButtonProps } from "react-aria"
 import { Button } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -25,9 +26,9 @@ const buttonStyle = (hide: boolean) => css`
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
-  background-color: ${baseTheme.colors.green[300]};
+  background-color: ${baseTheme.colors.green[600]};
   &:hover {
-    background-color: ${baseTheme.colors.green[400]};
+    background-color: ${baseTheme.colors.green[700]};
   }
   ${hide ? `visibility: hidden;` : ``}
 `

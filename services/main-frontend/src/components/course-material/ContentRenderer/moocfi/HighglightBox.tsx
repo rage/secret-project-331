@@ -3,12 +3,12 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { BlockRendererProps } from ".."
-
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
 
 interface HighlightBoxAttributes {
   title: string
@@ -19,55 +19,53 @@ const HightlightBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HighlightBoxAttributes>>
 > = (props) => {
   return (
-    <>
+    <div
+      className={css`
+        background-color: #fafbfb;
+        margin: 1rem 0;
+        border: 1px solid #e2e4e6;
+        padding: 1rem 0rem;
+
+        ${respondToOrLarger.md} {
+          padding: 1rem 1.5rem;
+        }
+      `}
+    >
       <div
         className={css`
-          background-color: #fafbfb;
-          margin: 1rem 0;
-          border: 1px solid #e2e4e6;
-          padding: 1rem 0rem;
+          max-width: 48rem;
+          margin-left: auto;
+          margin-right: auto;
+          padding: 0rem 1.375rem;
 
+          span {
+            font-size: 18px;
+
+            ${respondToOrLarger.md} {
+              font-size: 20px;
+            }
+          }
           ${respondToOrLarger.md} {
-            padding: 1rem 1.5rem;
+            padding: 0rem;
           }
         `}
       >
-        <div
-          className={css`
-            max-width: 48rem;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0rem 1.375rem;
-
-            span {
-              font-size: 18px;
-
-              ${respondToOrLarger.md} {
-                font-size: 20px;
-              }
-            }
-            ${respondToOrLarger.md} {
-              padding: 0rem;
-            }
-          `}
-        >
-          <ParsedText
-            text={props.data.attributes.title}
-            tag="span"
-            tagProps={{
-              className: css`
-                color: ${baseTheme.colors.green[700]};
-                font-weight: 700;
-                font-family: ${monospaceFont};
-                margin-right: 0.25em;
-              `,
-            }}
-            useWrapperElement={true}
-          />
-          <ParsedText text={props.data.attributes.content} tag="span" useWrapperElement={true} />
-        </div>
+        <ParsedText
+          text={props.data.attributes.title}
+          tag="span"
+          tagProps={{
+            className: css`
+              color: ${baseTheme.colors.green[700]};
+              font-weight: 700;
+              font-family: ${monospaceFont};
+              margin-right: 0.25em;
+            `,
+          }}
+          useWrapperElement={true}
+        />
+        <ParsedText text={props.data.attributes.content} tag="span" useWrapperElement={true} />
       </div>
-    </>
+    </div>
   )
 }
 

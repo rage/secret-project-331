@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_tasks (\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    private_spec,\n    public_spec,\n    model_solution_spec,\n    order_number,\n    copied_from\n  )\nSELECT uuid_generate_v5($1, t.id::text),\n  copied_slide.id,\n  t.exercise_type,\n  t.assignment,\n  t.private_spec,\n  t.public_spec,\n  t.model_solution_spec,\n  t.order_number,\n  t.id\nFROM exercise_tasks t\n  JOIN exercise_slides s ON s.id = t.exercise_slide_id\n  JOIN exercises e ON e.id = s.exercise_id\n  JOIN exercise_slides copied_slide ON copied_slide.id = uuid_generate_v5($1, t.exercise_slide_id::text)\nWHERE (e.course_id = $2 OR e.exam_id = $2)\n  AND t.deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a1ef26ae73214f167d642d9049d1bf7e2572f89af1cda66da12f6b2877385112"
+}

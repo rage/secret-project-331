@@ -1,0 +1,148 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
+import useExerciseQuery from "@/hooks/useExeciseQuery"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { EmptyState, Pagination, QueryResult } from "@/shared-module/components"
+
+import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
+
+const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
+const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
+
+const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
+  <h5
+    className={css`
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 2.5rem;
+      margin-top: 0.5rem;
+      color: ${baseTheme.colors.gray[500]};
+      font-family: ${primaryFont};
+    `}
+  >
+    {children}
+  </h5>
+)
+
+const SubmissionsPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>()
+  const { t } = useTranslation()
+  const exerciseQuery = useExerciseQuery(id)
+  usePageTitle(
+    joinTitleSegments([t("header-answers-requiring-attention"), exerciseQuery.data?.name]),
+    { order: 10 },
+  )
+  const paginationInfo = usePaginationInfo(ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT)
+  const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
+
+  const crumbs = useMemo(
+    () => [{ isLoading: false as const, label: t("header-answers-requiring-attention") }],
+    [t],
+  )
+
+  useRegisterBreadcrumbs({
+    key: `exercise:${id}:answers-requiring-attention`,
+    order: 60,
+    crumbs,
+  })
+
+  const exerciseContext = useMemo(() => {
+    if (!courseStructure.data || !exerciseQuery.data) {
+      return null
+    }
+
+    const pageId = exerciseQuery.data.page_id
+    const chapterId = exerciseQuery.data.chapter_id
+
+    return {
+      exercisePage: courseStructure.data.pages.find((page) => page.id === pageId),
+      exercise: exerciseQuery.data,
+      chapter: courseStructure.data.chapters.find((chapter) => chapter.id === chapterId),
+    }
+  }, [courseStructure.data, exerciseQuery.data])
+
+  const answersQuery = useQuery({
+    ...getExerciseAnswersRequiringAttentionOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
+  })
+
+  return (
+    <div>
+      <h4
+        className={css`
+          color: ${baseTheme.colors.gray[700]};
+          font-family: ${primaryFont};
+          font-size: 28px;
+          font-weight: 600;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
+          margin-bottom: 0.75rem;
+          margin-top: 1rem;
+        `}
+      >
+        {t("header-answers-requiring-attention")}
+      </h4>
+
+      {exerciseContext && (
+        <ExerciseTitle>
+          {exerciseContext.exercise.name}{" "}
+          <span
+            className={css`
+              font-size: 16px;
+            `}
+          >
+            ({exerciseContext.chapter?.name} / {exerciseContext.exercisePage?.title})
+          </span>
+        </ExerciseTitle>
+      )}
+
+      <QueryResult query={answersQuery}>
+        {(answers) =>
+          answers.data.length === 0 ? (
+            <EmptyState title={t("no-answers-requiring-attention")} />
+          ) : (
+            <>
+              <AnswersRequiringAttentionList
+                answersRequiringAttention={answers.data}
+                exercise_max_points={answers.exercise_max_points}
+                courseId={exerciseQuery.data?.course_id ?? null}
+                refetch={answersQuery.refetch}
+              />
+              <Pagination
+                totalPages={answers.total_pages}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
+                itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+              />
+            </>
+          )
+        }
+      </QueryResult>
+    </div>
+  )
+}
+
+export default withErrorBoundary(withSignedIn(SubmissionsPage))

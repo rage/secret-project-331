@@ -3,7 +3,6 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import { OtpField } from "../src/components/OtpField"
-
 import { FormHarness, pasteText, renderWithForm } from "./testUtils"
 
 describe("OtpField", () => {
@@ -137,5 +136,24 @@ describe("OtpField", () => {
     expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-required", "true")
     expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-invalid", "true")
     expect(screen.getByRole("alert")).toHaveTextContent("Required")
+  })
+
+  test("data-testid lands on the slot group", () => {
+    renderWithForm<{ otp: string }>(
+      (control) => (
+        <OtpField
+          name="otp"
+          control={control}
+          label="Verification code"
+          length={4}
+          data-testid="otp-slots"
+        />
+      ),
+      { defaultValues: { otp: "" } },
+    )
+
+    expect(screen.getByTestId("otp-slots")).toBe(
+      screen.getByRole("group", { name: /Verification code/ }),
+    )
   })
 })

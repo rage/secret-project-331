@@ -3,7 +3,7 @@
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
-import { i18n, TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import { useAtomValue } from "jotai"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -17,12 +17,12 @@ import type {
   UserCourseInstanceChapterProgress,
 } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
-import NextSectionLink, {
-  NextSectionLinkProps,
-} from "@/shared-module/common/components/NextSectionLink"
+import type { NextSectionLinkProps } from "@/shared-module/common/components/NextSectionLink"
+import NextSectionLink from "@/shared-module/common/components/NextSectionLink"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { courseFrontPageRoute, coursePageRoute } from "@/utils/course-material/routing"
@@ -91,8 +91,12 @@ const ChapterProgress = styled.div`
   }
 `
 
-const NUMERIC = "numeric"
-const LONG = "long"
+function calculatePercentage(attempted: number, total: number): string {
+  if (total === 0) {
+    return "0%"
+  }
+  return Math.round((attempted / total) * 100) + "%"
+}
 
 const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   chapterId,
@@ -100,7 +104,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   organizationSlug,
   courseSlug,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const now = useTime()
   const materialInstance = useAtomValue(materialInstanceAtom)
   const courseInstanceId = materialInstance?.id
@@ -137,6 +141,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     getUserChapterProgress.isSuccess && getUserChapterProgress.data
       ? {
           maxScore: getUserChapterProgress.data.score_maximum ?? 0,
+          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseFloat intended; Number() differs
           givenScore: parseFloat((getUserChapterProgress.data.score_given ?? 0).toFixed(2)),
           attemptedExercises: getUserChapterProgress.data.attempted_exercises ?? 0,
           totalExercises: getUserChapterProgress.data.total_exercises ?? 0,
@@ -152,28 +157,11 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
       getPageRoutingData.data,
       chapterId,
       now,
-      i18n,
       organizationSlug,
       courseSlug,
       currentPageId,
     )
-  }, [
-    chapterId,
-    courseSlug,
-    currentPageId,
-    getPageRoutingData.data,
-    i18n,
-    now,
-    organizationSlug,
-    t,
-  ])
-
-  function calculatePercentage(attempted: number, total: number): string {
-    if (total === 0) {
-      return "0%"
-    }
-    return Math.round((attempted / total) * 100) + "%"
-  }
+  }, [chapterId, courseSlug, currentPageId, getPageRoutingData.data, now, organizationSlug, t])
 
   return (
     <QueryResult query={getPageRoutingData}>
@@ -219,7 +207,6 @@ function deriveNextpageProps(
   info: PageNavigationInformation,
   chapterId: string | null,
   now: Date,
-  i18n: i18n,
   organizationSlug: string,
   courseSlug: string,
   currentPageId: string,
@@ -235,23 +222,23 @@ function deriveNextpageProps(
     ),
   }
 
-  const endOfCourse = info.next_page == null
+  const endOfCourse = info.next_page === null || info.next_page === undefined
   const endOfChapter = info.next_page?.chapter_id !== chapterId
   const currentPageIsChapterFrontPage = Boolean(
     info.chapter_front_page && info.chapter_front_page.chapter_front_page_id === currentPageId,
   )
   let nextPageIsNotOpen = false
-  if (info.next_page?.chapter_opens_at != null) {
+  if (info.next_page?.chapter_opens_at !== null && info.next_page?.chapter_opens_at !== undefined) {
     const diffSeconds = differenceInSeconds(parseISO(info.next_page.chapter_opens_at), now)
     if (diffSeconds > 0) {
       nextPageIsNotOpen = true
     }
   }
 
-  if (info.previous_page != null) {
+  if (info.previous_page !== null && info.previous_page !== undefined) {
     res.previous = coursePageRoute(organizationSlug, courseSlug, info.previous_page.url_path)
   }
-  if (info.next_page != null) {
+  if (info.next_page !== null && info.next_page !== undefined) {
     res.nextTitle = info.next_page.title
     res.url = coursePageRoute(organizationSlug, courseSlug, info.next_page.url_path)
   }
@@ -259,7 +246,7 @@ function deriveNextpageProps(
   if (currentPageIsChapterFrontPage) {
     res.title = t("start-studying")
     res.subtitle = t("proceed-to-the-first-topic")
-    res.chapterFrontPageURL = undefined
+    delete res.chapterFrontPageURL
   }
 
   if (endOfChapter) {
@@ -276,8 +263,11 @@ function deriveNextpageProps(
 
   if (nextPageIsNotOpen) {
     res.nextTitle = t("closed")
-    res.url = undefined
-    if (info.next_page?.chapter_opens_at != null) {
+    delete res.url
+    if (
+      info.next_page?.chapter_opens_at !== null &&
+      info.next_page?.chapter_opens_at !== undefined
+    ) {
       const diffSeconds = differenceInSeconds(parseISO(info.next_page.chapter_opens_at), now)
       if (diffSeconds <= 0) {
         res.nextTitle = t("opens-now")
@@ -290,16 +280,9 @@ function deriveNextpageProps(
         })
         res.nextTitle = t("opens-in-time", { "relative-time": formatted })
       } else {
-        const date = parseISO(info.next_page.chapter_opens_at).toLocaleString(i18n.language, {
-          year: NUMERIC,
-          month: LONG,
-          day: NUMERIC,
+        res.nextTitle = t("available-at-timestamp", {
+          timestamp: dateToString(info.next_page.chapter_opens_at),
         })
-        const time = parseISO(info.next_page.chapter_opens_at).toLocaleString(i18n.language, {
-          hour: NUMERIC,
-          minute: NUMERIC,
-        })
-        res.nextTitle = t("available-on-date-at-time", { date: date, time: time })
       }
     }
   }

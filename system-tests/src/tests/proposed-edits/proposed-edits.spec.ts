@@ -1,12 +1,12 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
-import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -24,13 +24,13 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await Promise.all([page.getByRole("link", { name: "1 Page One" }).click()])
+  await page.getByRole("link", { name: "1 Page One" }).click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
 
   await frame.getByText("b").waitFor()
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
 
   await page.getByText("Give feedback").click()
@@ -70,11 +70,11 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   )
 
   await page.getByText("Like this.").click()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.fill("text=Like this.", "Like this!")
   await page.click("text=The abacus is one of the oldest known calculating tools")
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.fill(
     "text=The abacus is one of the oldest known calculating tools",
@@ -86,7 +86,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.click('button:has-text("Preview")')
 
   // Wait for the preview to load
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
 
   await expectScreenshotsToMatchSnapshots({
@@ -110,26 +110,26 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
 
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage course 'Introduction to edit proposals'\"] svg").click()
 
-  await page.getByText("Change requests").click()
+  await page.getByText("Feedback").click()
+  await page.getByText("Feedback and change requests").last().waitFor()
+  await page.getByRole("tab", { name: "Change requests" }).click()
   await page.getByText("Accept").first().waitFor({ state: "visible" })
 
-  await page.click(':nth-match(:text("Accept"), 1)')
+  await page.getByRole("radio", { name: "Accept", exact: true }).nth(0).check()
 
-  await page.click(':nth-match(:text("Edit and accept"), 2)')
+  await page.getByRole("radio", { name: "Edit and accept", exact: true }).nth(1).check()
   await page.fill('textarea:has-text("Like this!")', "Like this!!!!!")
-  await page.click(':nth-match(:text("Reject"), 3)')
+  await page.getByRole("radio", { name: "Reject", exact: true }).nth(2).check()
 
   await waitForSuccessNotification(page, async () => {
-    await page.click('text="Send"')
+    await page.getByRole("button", { name: "Send" }).first().click()
   })
 
-  await page.click('text="Old"')
+  await page.click('text="Handled"')
 
   await page.getByRole("tab", { name: "Pending" }).click()
 

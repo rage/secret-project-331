@@ -2,6 +2,8 @@ import { css, keyframes } from "@emotion/css"
 
 export type ThemeMode = "light" | "dark"
 
+export type RefreshIndicator = "blur" | "quiet"
+
 const shimmer = keyframes`
   0% { transform: translateX(-130%); }
   100% { transform: translateX(130%); }
@@ -13,9 +15,13 @@ const progressBeam = keyframes`
 `
 
 /**
- * `width: 100%` keeps the frame layout-transparent: it replaces content that relies on a full-width
- * parent (echarts in a flex container collapses to ~0 width otherwise, painting nothing).
- * `min-width: 0` lets it shrink in flex parents instead of overflowing. Do not remove.
+ * `width: 100%` keeps the frame as wide as the content it stands in for (echarts in a flex
+ * container collapses to ~0 width otherwise, painting nothing). `min-width: 0` lets it shrink in
+ * flex parents instead of overflowing. Do not remove.
+ *
+ * Width is all it preserves: the frame is an element between the parent and the children, so the
+ * parent's `gap` applies to the frame and never to the children. `contentClassName` is how a
+ * caller lays them out instead.
  */
 export const wrapperCss = css`
   position: relative;
@@ -180,6 +186,14 @@ export const animatedContentRefreshingCss = css`
   transform: scale(var(--query-refresh-content-scale));
 `
 
+/**
+ * Blocks clicks while the refresh blur is animating in, held, or animating out. Playwright's
+ * actionability checks make `.click()` wait for this to clear.
+ */
+export const animatedContentNonInteractiveCss = css`
+  pointer-events: none;
+`
+
 export const errorTextCss = css`
   margin: 0 0 var(--space-3);
 `
@@ -201,21 +215,4 @@ export const blockingErrorCss = css`
 export const staleStatusCss = css`
   font-size: var(--font-size-1);
   color: var(--field-message-color-invalid);
-`
-
-const querySpin = keyframes`
-  to { transform: rotate(360deg); }
-`
-
-export const queryLoadingSpinnerCss = css`
-  width: var(--space-5);
-  height: var(--space-5);
-  border-radius: 50%;
-  border: var(--space-1) solid var(--color-green-600);
-  border-right-color: transparent;
-  animation: ${querySpin} var(--query-spinner-duration) linear infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 `

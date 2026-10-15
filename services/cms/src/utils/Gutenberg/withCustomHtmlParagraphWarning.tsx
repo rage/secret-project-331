@@ -3,11 +3,12 @@
 import { css } from "@emotion/css"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
-import { Fragment } from "@wordpress/element"
-
-import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
+import { Fragment, useMemo } from "@wordpress/element"
 
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { useIsBlockPreviewMode } from "./blockPreviewMode"
+import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
 
 interface CustomHtmlBlockProps {
   name: string
@@ -22,15 +23,16 @@ const CUSTOM_HTML_BLOCK_NAME = "core/html"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) => {
-  const CustomHtmlWithParagraphWarning = (props: CustomHtmlBlockProps) => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
+  const CustomHtmlParagraphWarning = (props: CustomHtmlBlockProps) => {
     const { t } = useTranslation()
-
-    if (props.name !== CUSTOM_HTML_BLOCK_NAME) {
-      return <BlockEdit {...props} />
-    }
+    const isPreviewMode = useIsBlockPreviewMode()
 
     const html = typeof props.attributes?.content === "string" ? props.attributes.content : ""
-    const shouldShowWarning = shouldWarnAboutMissingParagraphWrapperInCustomHtml(html)
+    const shouldShowWarning = useMemo(
+      () => !isPreviewMode && shouldWarnAboutMissingParagraphWrapperInCustomHtml(html),
+      [isPreviewMode, html],
+    )
 
     return (
       <Fragment>
@@ -41,7 +43,6 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
               margin-top: 0.75rem;
             `}
           >
-            {/* eslint-disable-next-line i18next/no-literal-string */}
             <Notice status="warning" isDismissible={false}>
               {t("warning-custom-html-missing-paragraph-wrapper")}
             </Notice>
@@ -51,9 +52,15 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
     )
   }
 
-  CustomHtmlWithParagraphWarning.displayName = "CustomHtmlParagraphWarning"
-  return CustomHtmlWithParagraphWarning
-  // eslint-disable-next-line i18next/no-literal-string
+  const BlockEditWithCustomHtmlParagraphWarning = (props: CustomHtmlBlockProps) =>
+    props.name === CUSTOM_HTML_BLOCK_NAME ? (
+      <CustomHtmlParagraphWarning {...props} />
+    ) : (
+      <BlockEdit {...props} />
+    )
+
+  return BlockEditWithCustomHtmlParagraphWarning
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withCustomHtmlParagraphWarning")
 
 export default withCustomHtmlParagraphWarning

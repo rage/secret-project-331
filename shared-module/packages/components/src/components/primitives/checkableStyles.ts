@@ -7,6 +7,12 @@ export const checkableRootCss = css`
   gap: var(--space-2);
 `
 
+/** Overrides the full-line width every field root takes, which in a flex row costs a whole row. */
+export const checkableRootInlineCss = css`
+  display: inline-grid;
+  width: auto;
+`
+
 export const checkableRowCss = css`
   position: relative;
   display: inline-flex;
@@ -25,9 +31,17 @@ export const switchRowCss = css`
   align-items: center;
 `
 
+/**
+ * The transparent input covering the whole row, which is what a press anywhere on it must hit.
+ *
+ * `z-index` because the indicator is a later positioned sibling and would otherwise paint over it,
+ * taking the press on a row that has no visible label — a selection checkbox in a table header or
+ * cell, where the indicator is the entire row.
+ */
 export const checkableInputCss = css`
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -52,8 +66,8 @@ export const switchTrackCss = css`
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  width: 48px;
-  height: 30px;
+  width: 53px;
+  height: 35px;
   padding: 3px;
   border-radius: 999px;
   background: var(--switch-track-off);
@@ -225,7 +239,6 @@ export function resolveCheckableSizeCss(fieldSize: FieldSize) {
       return css`
         font-size: var(--font-size-lg);
       `
-    case "md":
     default:
       return css`
         font-size: var(--font-size-md);

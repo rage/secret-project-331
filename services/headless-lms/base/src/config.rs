@@ -1,4 +1,6 @@
+use crate::jwt::DEVELOPMENT_JWT_PASSWORD;
 use anyhow::Context;
+use chrono::{DateTime, Utc};
 use secrecy::{ExposeSecret, SecretBox, SecretString};
 use std::sync::Arc;
 use std::{env, str::FromStr};
@@ -18,18 +20,48 @@ pub fn bool_env_false_by_default(key: &str) -> bool {
     }
 }
 
+/// Reads an env var, treating a blank value the same as an unset one.
+fn non_empty_env(key: &str) -> Option<String> {
+    match env::var(key) {
+        Ok(value) if !value.trim().is_empty() => Some(value.trim().to_string()),
+        _ => None,
+    }
+}
+
+/// Parses a [`Url::join`] base, adding the trailing slash one needs: joining onto a base without it
+/// replaces the base's last path segment instead of extending it.
+///
+/// On the parsed path, never the raw string: a slash appended to the string lands inside any query
+/// or fragment the value carries, and makes trailing whitespace the parser would have trimmed
+/// interior, where it percent-encodes instead.
+fn parse_join_base(url: &str) -> Result<Url, url::ParseError> {
+    let mut url = Url::parse(url)?;
+    if !url.path().ends_with('/') {
+        url.set_path(&format!("{}/", url.path()));
+    }
+    Ok(url)
+}
+
 #[derive(Clone)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
     pub test_chatbot: bool,
     pub test_sisu: bool,
+    pub test_suotar: bool,
+    pub disable_embedding_vector_creation_when_seeding: bool,
     pub development_uuid_login: bool,
-    pub enable_admin_email_verification: bool,
+    pub enable_email_ownership_verification: bool,
     pub azure_configuration: Option<AzureConfiguration>,
+    pub suotar_configuration: SuotarConfiguration,
     pub tmc_account_creation_origin: Option<String>,
     pub tmc_admin_access_token: SecretString,
     pub oauth_server_configuration: OAuthServerConfiguration,
+    /// Signing secret for the claims the host mints for exercise services and for the URLs it
+    /// hands out for answer files; callers build a [`crate::jwt::JwtKey`] from it at the point of
+    /// use. Carried here because the answer readers that mint those URLs live below the crate that
+    /// owns the claims.
+    pub jwt_password: SecretString,
 }
 
 impl ApplicationConfiguration {
@@ -38,18 +70,29 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = bool_env_false_by_default("TEST_MODE");
         let development_uuid_login = bool_env_false_by_default("DEVELOPMENT_UUID_LOGIN");
-        let enable_admin_email_verification =
-            bool_env_false_by_default("ENABLE_ADMIN_EMAIL_VERIFICATION");
+        let enable_email_ownership_verification =
+            bool_env_false_by_default("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
         let test_chatbot = test_mode
             && (bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
                 || env::var("AZURE_CHATBOT_API_KEY").is_err());
 
         let test_sisu = test_mode && bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT");
 
+        // No mock fallback unlike Azure: credit registration writes to the real student registry.
+        let test_suotar = test_mode && bool_env_false_by_default("USE_MOCK_SUOTAR_ENDPOINT");
+
+        let disable_embedding_vector_creation_when_seeding = false;
+
         let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?
         } else {
             AzureConfiguration::try_from_env()?
+        };
+
+        let suotar_configuration = if test_suotar {
+            SuotarConfiguration::mock_conf(&base_url)?
+        } else {
+            SuotarConfiguration::try_from_env()?
         };
 
         let tmc_account_creation_origin = Some(
@@ -70,18 +113,144 @@ impl ApplicationConfiguration {
         );
         let oauth_server_configuration = OAuthServerConfiguration::try_from_env()
             .context("Failed to load OAuth server configuration")?;
+        let jwt_password = SecretString::new(
+            env::var("JWT_PASSWORD")
+                .context("JWT_PASSWORD must be defined")?
+                .into(),
+        );
 
         Ok(Self {
             base_url,
             test_mode,
             test_chatbot,
             test_sisu,
+            test_suotar,
+            disable_embedding_vector_creation_when_seeding,
             development_uuid_login,
-            enable_admin_email_verification,
+            enable_email_ownership_verification,
             azure_configuration,
+            suotar_configuration,
             tmc_account_creation_origin,
             tmc_admin_access_token,
             oauth_server_configuration,
+            jwt_password,
+        })
+    }
+
+    pub fn mock_conf() -> anyhow::Result<Self> {
+        let test_mode = true;
+        let base_url = "http://project-331.local/".to_string();
+        let development_uuid_login = false;
+        let enable_email_ownership_verification = false;
+        let azure_configuration = AzureConfiguration::mock_conf()?;
+        let test_chatbot = true;
+        let test_sisu = true;
+        let test_suotar = false;
+        let disable_embedding_vector_creation_when_seeding = true;
+        let suotar_configuration = SuotarConfiguration::mock_conf("http://project-331.local")
+            .expect("Failed to build the mock Suotar configuration");
+        let tmc_account_creation_origin = None;
+        let tmc_admin_access_token = SecretString::new("mock-access-token".to_string().into());
+        let oauth_server_configuration = OAuthServerConfiguration {
+            rsa_public_key: "temp-change-when-needed".into(),
+            rsa_private_key: SecretString::new("test-change".into()),
+            oauth_token_hmac_key: SecretString::new("pippuri".into()),
+            dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
+                "test-key".into(),
+            ))),
+        };
+        let jwt_password = SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into());
+        Ok(Self {
+            base_url,
+            test_mode,
+            test_chatbot,
+            test_sisu,
+            test_suotar,
+            disable_embedding_vector_creation_when_seeding,
+            development_uuid_login,
+            enable_email_ownership_verification,
+            azure_configuration,
+            suotar_configuration,
+            tmc_account_creation_origin,
+            tmc_admin_access_token,
+            oauth_server_configuration,
+            jwt_password,
+        })
+    }
+}
+
+/// The scheme word Suotar requires before the API key.
+pub const SUOTAR_AUTH_SCHEME: &str = "Bearer";
+
+/// The only token the mock Suotar accepts. Public on purpose: never a real credential.
+pub const MOCK_SUOTAR_TOKEN: &str = "mock-suotar-token";
+
+/// Where and how to reach Suotar's moocfi API. In production the base url is
+/// `https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/`.
+#[derive(Clone)]
+pub struct SuotarConfiguration {
+    /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
+    pub api_base_url: Url,
+    pub api_token: SecretString,
+    /// Switches account linking on, and only people who enrolled at or after it are mailed a link,
+    /// so turning it on does not mail everyone already on a roster. `None` where students get their
+    /// number linked some other way.
+    pub account_linking_since: Option<DateTime<Utc>>,
+}
+
+impl SuotarConfiguration {
+    /// Points the client at our own mock controller. Only reachable with `TEST_MODE` and
+    /// `USE_MOCK_SUOTAR_ENDPOINT` both on.
+    pub fn mock_conf(base_url: &str) -> anyhow::Result<Self> {
+        Ok(Self {
+            api_base_url: Url::parse(base_url)
+                .context("Invalid URL in BASE_URL")?
+                .join("/api/v0/mock-suotar/")?,
+            api_token: SecretString::new(MOCK_SUOTAR_TOKEN.to_string().into()),
+            account_linking_since: Self::account_linking_since_from_env()?,
+        })
+    }
+
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        Self::from_values(
+            non_empty_env("SUOTAR_API_BASE_URL"),
+            non_empty_env("SUOTAR_API_KEY"),
+            Self::account_linking_since_from_env()?,
+        )
+    }
+
+    /// Whether account linking is on.
+    pub fn is_account_linking_enabled(&self) -> bool {
+        self.account_linking_since.is_some()
+    }
+
+    fn account_linking_since_from_env() -> anyhow::Result<Option<DateTime<Utc>>> {
+        non_empty_env("SUOTAR_ACCOUNT_LINKING_SINCE")
+            .map(|since| {
+                DateTime::parse_from_rfc3339(&since)
+                    .map(|since| since.with_timezone(&Utc))
+                    .context("SUOTAR_ACCOUNT_LINKING_SINCE must be an RFC 3339 timestamp")
+            })
+            .transpose()
+    }
+
+    /// Pure so the no-mock-fallback rule can be tested without touching process env.
+    fn from_values(
+        api_base_url: Option<String>,
+        api_token: Option<String>,
+        account_linking_since: Option<DateTime<Utc>>,
+    ) -> anyhow::Result<Self> {
+        let api_base_url = api_base_url.context(
+            "SUOTAR_API_BASE_URL must be defined unless TEST_MODE and USE_MOCK_SUOTAR_ENDPOINT are both on. Credit registration writes to the real student registry, so there is no mock fallback.",
+        )?;
+        let api_token = api_token.context(
+            "SUOTAR_API_KEY must be defined unless TEST_MODE and USE_MOCK_SUOTAR_ENDPOINT are both on. Credit registration writes to the real student registry, so there is no mock fallback.",
+        )?;
+        Ok(Self {
+            api_base_url: parse_join_base(&api_base_url)
+                .context("Invalid URL in SUOTAR_API_BASE_URL")?,
+            api_token: SecretString::new(api_token.into()),
+            account_linking_since,
         })
     }
 }
@@ -89,28 +258,59 @@ impl ApplicationConfiguration {
 #[derive(Clone)]
 pub struct AzureChatbotConfiguration {
     pub api_key: SecretString,
-    pub api_endpoint: Url,
+    /// Ends in `/` because it is a [`Url::join`] base and joined paths must be relative.
+    pub api_base: Url,
+    pub project_name: String,
 }
 
 impl AzureChatbotConfiguration {
     /// Attempts to create an AzureChatbotConfiguration from environment variables.
-    /// Returns `Ok(Some(AzureChatbotConfiguration))` if both environment variables are set.
-    /// Returns `Ok(None)` if no environment variables are set for chatbot.
-    /// Returns an error if set environment variables fail to parse.
+    ///
+    /// Needs all three of `AZURE_CHATBOT_API_KEY`, `AZURE_CHATBOT_API_ENDPOINT` and
+    /// `AZURE_PROJECT_NAME`. Any of them missing gives `Ok(None)` rather than an error, so a caller
+    /// that requires a chatbot has to reject the `None` itself. Errors only on a set value that
+    /// fails to parse.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
-        let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+        let api_endpoint = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+        let project_name = env::var("AZURE_PROJECT_NAME").ok();
 
-        if let (Some(api_key), Some(api_endpoint_str)) = (api_key, api_endpoint_str) {
-            let api_endpoint = Url::parse(&api_endpoint_str)
-                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
-            Ok(Some(AzureChatbotConfiguration {
-                api_key: SecretString::new(api_key.into()),
-                api_endpoint,
-            }))
+        if let (Some(api_key), Some(api_endpoint), Some(project_name)) =
+            (api_key, api_endpoint, project_name)
+        {
+            Ok(Some(Self::from_values(
+                api_key,
+                &api_endpoint,
+                project_name,
+            )?))
         } else {
             Ok(None)
         }
+    }
+
+    /// Pure so the join base can be tested without touching process env.
+    fn from_values(
+        api_key: String,
+        api_endpoint: &str,
+        project_name: String,
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
+            api_key: SecretString::new(api_key.into()),
+            api_base: parse_join_base(api_endpoint)
+                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?,
+            project_name,
+        })
+    }
+
+    pub fn responses_endpoint(&self) -> anyhow::Result<Url> {
+        Ok(self.api_base.join(&format!(
+            "api/projects/{}/openai/v1/responses",
+            self.project_name
+        ))?)
+    }
+
+    pub fn embeddings_endpoint(&self) -> anyhow::Result<Url> {
+        Ok(self.api_base.join("openai/v1/embeddings")?)
     }
 }
 
@@ -229,7 +429,6 @@ impl AzureConfiguration {
         let chatbot = AzureChatbotConfiguration::try_from_env()?;
         let search_config = AzureSearchConfiguration::try_from_env()?;
         let blob_storage_config = AzureBlobStorageConfiguration::try_from_env()?;
-
         if chatbot.is_some() || search_config.is_some() || blob_storage_config.is_some() {
             Ok(Some(AzureConfiguration {
                 chatbot_config: chatbot,
@@ -246,11 +445,14 @@ impl AzureConfiguration {
     /// mocked with the api_endpoint from our application.
     /// Returns `Ok(Some(AzureConfiguration))`
     pub fn mock_conf() -> anyhow::Result<Option<Self>> {
-        let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
+        let base_url =
+            env::var("BASE_URL").unwrap_or_else(|_| "http://project-331.local/".to_string());
         let chatbot_config = Some(AzureChatbotConfiguration {
             api_key: SecretString::new(String::new().into()),
-            api_endpoint: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/v1/responses")?,
+            api_base: Url::parse(&base_url)?.join("/api/v0/mock-azure/")?,
+            project_name: String::from("test"),
         });
+
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),
             vectorizer_deployment_id: "".to_string(),
@@ -322,5 +524,151 @@ impl OAuthServerConfiguration {
             oauth_token_hmac_key,
             dpop_nonce_key,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn suotar_configuration_has_no_mock_fallback() {
+        assert!(SuotarConfiguration::from_values(None, None, None).is_err());
+        assert!(
+            SuotarConfiguration::from_values(
+                Some("https://suotar.example.com/api".to_string()),
+                None,
+                None
+            )
+            .is_err()
+        );
+        assert!(SuotarConfiguration::from_values(None, Some("token".to_string()), None).is_err());
+        assert!(
+            SuotarConfiguration::from_values(
+                Some("https://suotar.example.com/api".to_string()),
+                Some("token".to_string()),
+                None
+            )
+            .is_ok()
+        );
+    }
+
+    /// `Url::join` replaces the whole path unless the base ends in `/`, so a base without one
+    /// silently drops the `/api` prefix from every call.
+    #[test]
+    fn suotar_configuration_normalises_the_join_base() {
+        let conf = SuotarConfiguration::from_values(
+            Some("https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi".to_string()),
+            Some("token".to_string()),
+            None,
+        )
+        .expect("valid fixture values");
+        assert_eq!(
+            conf.api_base_url.as_str(),
+            "https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/"
+        );
+        assert_eq!(
+            conf.api_base_url
+                .join("persons/resolve-by-student-numbers")
+                .expect("a relative join on a base ending in a slash")
+                .as_str(),
+            "https://opetushallinto.cs.helsinki.fi/suoritustarkistin/api/moocfi/persons/resolve-by-student-numbers"
+        );
+    }
+
+    fn azure_chatbot_conf(api_endpoint: &str) -> AzureChatbotConfiguration {
+        AzureChatbotConfiguration::from_values(
+            "key".to_string(),
+            api_endpoint,
+            "some-project".to_string(),
+        )
+        .expect("valid fixture values")
+    }
+
+    fn azure_chatbot_embeddings_endpoint(api_endpoint: &str) -> String {
+        azure_chatbot_conf(api_endpoint)
+            .embeddings_endpoint()
+            .expect("a relative join on a base ending in a slash")
+            .to_string()
+    }
+
+    #[test]
+    fn azure_chatbot_configuration_normalises_the_join_base() {
+        let conf = azure_chatbot_conf("https://example.services.ai.azure.com/foundry");
+        assert_eq!(
+            conf.api_base.as_str(),
+            "https://example.services.ai.azure.com/foundry/"
+        );
+        assert_eq!(
+            conf.responses_endpoint()
+                .expect("a relative join on a base ending in a slash")
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry/api/projects/some-project/openai/v1/responses"
+        );
+        assert_eq!(
+            conf.embeddings_endpoint()
+                .expect("a relative join on a base ending in a slash")
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+    }
+
+    /// `AZURE_CHATBOT_API_ENDPOINT` is read untrimmed, so a file-mounted secret hands over whatever
+    /// whitespace the file ends with, and a deployment pinning `api-version` hands over a query.
+    #[test]
+    fn a_query_a_fragment_or_stray_whitespace_does_not_move_the_join_base() {
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint(
+                "https://example.services.ai.azure.com/foundry?api-version=2024-10-21"
+            ),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint(
+                "https://example.services.ai.azure.com/foundry#anchor"
+            ),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint("https://example.services.ai.azure.com/foundry "),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+        assert_eq!(
+            azure_chatbot_embeddings_endpoint("https://example.services.ai.azure.com/foundry/ "),
+            "https://example.services.ai.azure.com/foundry/openai/v1/embeddings"
+        );
+    }
+
+    #[test]
+    fn a_join_base_that_already_ends_in_a_slash_is_left_as_it_is() {
+        assert_eq!(
+            azure_chatbot_conf("https://example.services.ai.azure.com/foundry/")
+                .api_base
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry/"
+        );
+        assert_eq!(
+            azure_chatbot_conf("https://example.services.ai.azure.com/foundry//")
+                .api_base
+                .as_str(),
+            "https://example.services.ai.azure.com/foundry//"
+        );
+        assert_eq!(
+            azure_chatbot_conf("https://example.services.ai.azure.com")
+                .api_base
+                .as_str(),
+            "https://example.services.ai.azure.com/"
+        );
+    }
+
+    #[test]
+    fn mock_conf_points_at_our_own_mock_controller() {
+        let conf = SuotarConfiguration::mock_conf("http://project-331.local")
+            .expect("valid fixture values");
+        assert_eq!(
+            conf.api_base_url.as_str(),
+            "http://project-331.local/api/v0/mock-suotar/"
+        );
+        assert_eq!(conf.api_token.expose_secret(), MOCK_SUOTAR_TOKEN);
     }
 }

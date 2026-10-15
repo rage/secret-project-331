@@ -4,18 +4,18 @@ import { cx } from "@emotion/css"
 import { useToggleState } from "@react-stately/toggle"
 import React, { useEffect, useId, useRef } from "react"
 import { mergeProps, useCheckbox, useFocusRing } from "react-aria"
-import type { FieldValues, Path } from "react-hook-form"
+import type { FieldValues, Path, RegisterOptions } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
-
-import { FieldShell } from "./primitives/FieldShell"
+import { includeIf, omitUndefined } from "../lib/utils/nullability"
 import {
   checkableContentCss,
   checkableInputCss,
   checkableLabelCss,
   checkableRootCss,
+  checkableRootInlineCss,
   checkableRowCss,
   checkboxMarkCss,
   choiceMarkCss,
@@ -24,9 +24,10 @@ import {
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "./primitives/checkableStyles"
+import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
 /**
@@ -36,10 +37,14 @@ const stackedLayout = "stacked" as const
  * @example
  * <Checkbox name="terms" control={control} label="I agree" />
  */
-export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
-  T,
-  N
+export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = Omit<
+  RhfFieldProps<T, N>,
+  "rules"
 > & {
+  // `onChange`/`onBlur` side effects belong in a `watch` + `useEffect` on the settled field value,
+  // not here: react-hook-form invokes these itself, from a native listener that on this component
+  // observes a stale `checked` value.
+  rules?: Omit<RegisterOptions<T, N>, "onChange" | "onBlur"> | undefined
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -48,6 +53,11 @@ export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   isReadOnly?: boolean
   isRequired?: boolean
   isIndeterminate?: boolean
+  /**
+   * Lays the control out at its own width rather than filling the line, so it can sit in a flex
+   * toolbar beside the other controls instead of taking a row of its own.
+   */
+  isInline?: boolean
   id?: string
   /** Optional `value` attribute on the native checkbox (not the form field value). */
   checkboxValue?: string | number | readonly string[]
@@ -55,6 +65,7 @@ export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
   "aria-label"?: string
   className?: string
+  "data-testid"?: string | undefined
 }
 
 export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -73,14 +84,23 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     isReadOnly = false,
     isRequired = false,
     isIndeterminate = false,
+    isInline = false,
     className,
     checkboxValue,
     onKeyDown,
     onKeyUp,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
-  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const { field, resolvedError, isInvalid } = useRhfField({
+    name,
+    control,
+    // `rules` excludes `onChange`/`onBlur` at the public API boundary above; react-hook-form's
+    // own `RegisterOptions` union just doesn't factor through `Omit` cleanly.
+    ...omitUndefined({ rules: rules as RegisterOptions<T, N> | undefined }),
+    errorMessage,
+  })
   const selected = Boolean(field.value)
 
   const generatedInputId = useId()
@@ -88,7 +108,6 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
   const descriptionId = useId()
   const errorMessageId = useId()
   const describedBy = resolveFieldDescribedBy({
-    ariaDescribedBy: undefined,
     descriptionId,
     errorMessageId,
     hasDescription: Boolean(description),
@@ -100,13 +119,11 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     isDisabled,
     isReadOnly,
     isSelected: selected,
-    onChange: (next) => {
-      field.onChange(next)
-    },
+    onChange: field.onChange,
   })
 
   const inputValue =
-    checkboxValue == null
+    checkboxValue === undefined
       ? undefined
       : Array.isArray(checkboxValue)
         ? checkboxValue.join(",")
@@ -117,14 +134,16 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
       children: label,
       id: inputId,
       name: field.name,
-      value: inputValue,
       isDisabled,
       isReadOnly,
       isRequired,
       isInvalid,
       isIndeterminate,
-      "aria-label": ariaLabel,
-      "aria-describedby": describedBy,
+      ...omitUndefined({
+        value: inputValue,
+        "aria-label": ariaLabel,
+        "aria-describedby": describedBy,
+      }),
     },
     toggleState,
     inputRef,
@@ -149,11 +168,11 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      className={cx(checkableRootCss, className)}
+      className={cx(checkableRootCss, isInline && checkableRootInlineCss, className)}
       description={description}
-      descriptionId={description ? descriptionId : undefined}
+      {...includeIf(description, { descriptionId })}
       errorMessage={resolvedError}
-      errorMessageId={resolvedError ? errorMessageId : undefined}
+      {...includeIf(resolvedError, { errorMessageId })}
       layout={stackedLayout}
     >
       <label
@@ -166,6 +185,7 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(inputRef, field.ref)}
           className={checkableInputCss}
           type="checkbox"
+          data-testid={dataTestId}
         />
         <span
           className={resolveChoiceIndicatorCss(fieldSize, "checkbox")}

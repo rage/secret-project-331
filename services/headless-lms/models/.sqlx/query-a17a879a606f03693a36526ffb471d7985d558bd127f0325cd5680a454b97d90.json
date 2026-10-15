@@ -79,6 +79,28 @@
             "name": "chatbot_configuration_id"
           }
         }
+      },
+      {
+        "ordinal": 7,
+        "name": "anonymous_token",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "anonymous_token"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "conversation_title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversations",
+            "name": "conversation_title"
+          }
+        }
       }
     ],
     "parameters": {
@@ -91,9 +113,11 @@
       false,
       false,
       true,
+      true,
+      true,
       false,
-      false,
-      false
+      true,
+      true
     ]
   },
   "hash": "a17a879a606f03693a36526ffb471d7985d558bd127f0325cd5680a454b97d90"

@@ -1,0 +1,89 @@
+"use client"
+
+import { useQueryClient } from "@tanstack/react-query"
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import {
+  getCreditRegistrationOverviewQueryKey,
+  listCreditRegistrationPhasesQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Menu, type MenuItemDescriptor, useDialog } from "@/shared-module/components"
+
+import { CREDIT_REGISTRATION_NS } from "../constants"
+import { usePauseResumeAction } from "./usePauseResumeAction"
+
+const LINK_EMAILS_PHASE = "link-emails"
+
+interface Props {
+  phase: string
+  paused: boolean
+  isKnownPhase: boolean
+}
+
+/** Pause, resume and run-now for one pipeline phase, collapsed into the System tab's row menu. */
+const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const queryClient = useQueryClient()
+  const { confirm } = useDialog()
+
+  const invalidatePhases = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: getCreditRegistrationOverviewQueryKey() }),
+      queryClient.invalidateQueries({ queryKey: listCreditRegistrationPhasesQueryKey() }),
+    ])
+
+  const { pauseItem, resumeItem, dialog } = usePauseResumeAction({
+    pause: (fields) => adminPausePhase({ path: { phase }, body: { reason: fields.reason } }),
+    resume: () => adminResumePhase({ path: { phase }, body: { reason: null } }),
+    invalidate: () => void invalidatePhases(),
+    resumeConfirmMessage: t("credit-registration-admin-phase-resume-confirm", { phase }),
+    pauseActionLabel: t("button-text-credit-registration-phase-pause"),
+    resumeActionLabel: t("button-text-credit-registration-phase-resume"),
+    pauseDialogTitle: t("credit-registration-admin-phase-pause-title", { phase }),
+    pauseReasonDescription:
+      phase === LINK_EMAILS_PHASE
+        ? `${t("credit-registration-admin-phase-pause-reason-description")} ${t("credit-registration-admin-link-emails-pause-note")}`
+        : t("credit-registration-admin-phase-pause-reason-description"),
+  })
+
+  const runNowMutation = useToastMutation(
+    () => adminRunPhaseNow({ path: { phase }, body: { reason: null } }),
+    { notify: true, method: "POST" },
+    { onSuccess: () => void invalidatePhases() },
+  )
+
+  if (!isKnownPhase) {
+    return null
+  }
+
+  const runNowItem: MenuItemDescriptor = {
+    // oxlint-disable-next-line i18next/no-literal-string -- menu item identity, not user-facing text
+    key: "run-now",
+    label: t("button-text-credit-registration-phase-run-now"),
+    isDisabled: runNowMutation.isPending,
+    onAction: async () => {
+      const confirmed = await confirm({
+        message: t("credit-registration-admin-phase-run-now-confirm", { phase }),
+        confirmLabel: t("button-text-credit-registration-phase-run-now"),
+      })
+      if (confirmed) {
+        runNowMutation.mutate()
+      }
+    },
+  }
+
+  return (
+    <>
+      <Menu
+        aria-label={t("credit-registration-admin-phase-row-actions", { phase })}
+        items={paused ? [resumeItem] : [pauseItem, runNowItem]}
+      />
+      {dialog}
+    </>
+  )
+}
+
+export default AdminPhaseActions

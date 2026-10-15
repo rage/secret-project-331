@@ -1,10 +1,8 @@
 import { uniq } from "lodash"
 
-import {
-  CitationMatch,
-  extractCitationsFromText,
-} from "@/components/course-material/ContentRenderer/util/textParsing"
-import { Block } from "@/types/courseMaterialBlock"
+import type { CitationMatch } from "@/components/course-material/ContentRenderer/util/textParsing"
+import { extractCitationsFromText } from "@/components/course-material/ContentRenderer/util/textParsing"
+import type { Block } from "@/types/courseMaterialBlock"
 
 /**
  * Extracts citations from the page content block tree instead of the rendered DOM.
@@ -178,7 +176,7 @@ const renderedInnerBlocksOf = (block: Block<unknown>): Block<unknown>[] => {
 
 /** Depth-first walk pushing occurrences into `out` in document order (avoids per-level re-spreads). */
 const collectCitations = (
-  blocks: ReadonlyArray<Block<unknown>> | null | undefined,
+  blocks: readonly Block<unknown>[] | null | undefined,
   out: CitationMatch[],
 ): void => {
   if (!Array.isArray(blocks)) {
@@ -204,7 +202,7 @@ const collectCitations = (
  * renders each block's own text and inner blocks). Duplicates are preserved.
  */
 export const extractPageCitations = (
-  blocks: ReadonlyArray<Block<unknown>> | null | undefined,
+  blocks: readonly Block<unknown>[] | null | undefined,
 ): CitationMatch[] => {
   const occurrences: CitationMatch[] = []
   collectCitations(blocks, occurrences)
@@ -217,7 +215,7 @@ export const extractPageCitations = (
  * never resolve to a reference.
  */
 export const orderedUniqueCitationKeys = (
-  blocks: ReadonlyArray<Block<unknown>> | null | undefined,
+  blocks: readonly Block<unknown>[] | null | undefined,
 ): string[] =>
   uniq(
     extractPageCitations(blocks)

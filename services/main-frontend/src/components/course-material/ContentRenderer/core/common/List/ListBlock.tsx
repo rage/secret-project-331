@@ -1,16 +1,18 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useContext } from "react"
 
-import { BlockRendererProps } from "../../.."
-
-import { ListAttributes } from "@/../types/GutenbergBlockAttributes"
+import type { ListAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper, mobileFontSizeMapper } from "@/styles/course-material/fontSizeMapper"
+
+import type { BlockRendererProps } from "../../.."
+import ListFontSizeContext from "./listFontSizeContext"
 
 const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
 
@@ -28,6 +30,8 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     // style,
     // type,
   } = props.data.attributes
+
+  const parentFontSize = useContext(ListFontSizeContext)
 
   const listItemClass = cx(
     css`
@@ -64,31 +68,34 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
           useWrapperElement={true}
         />
       )
-    } else {
-      return (
-        <ParsedText
-          text={values}
-          tag="ul"
-          tagProps={{
-            className: listItemClass,
-          }}
-          useWrapperElement={true}
-        />
-      )
     }
-  } else {
-    children = <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+    return (
+      <ParsedText
+        text={values}
+        tag="ul"
+        tagProps={{
+          className: listItemClass,
+        }}
+        useWrapperElement={true}
+      />
+    )
   }
+  children = <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
 
   if (ordered) {
     return (
-      <ol className={listItemClass} {...(start && { start: start })} reversed={reversed}>
-        {children}
-      </ol>
+      <ListFontSizeContext.Provider value={fontSize ?? parentFontSize}>
+        <ol className={listItemClass} {...(start && { start: start })} reversed={reversed}>
+          {children}
+        </ol>
+      </ListFontSizeContext.Provider>
     )
-  } else {
-    return <ul className={listItemClass}>{children}</ul>
   }
+  return (
+    <ListFontSizeContext.Provider value={fontSize ?? parentFontSize}>
+      <ul className={listItemClass}>{children}</ul>
+    </ListFontSizeContext.Provider>
+  )
 }
 
 const exported = withErrorBoundary(ListBlock)

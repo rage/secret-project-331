@@ -1,15 +1,15 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
-
-import ExerciseSettingsEditor from "./ExerciseSettingsEditor"
-import ExerciseSettingsSave from "./ExerciseSettingsSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import ExerciseSettingsEditor from "./ExerciseSettingsEditor"
+import ExerciseSettingsSave from "./ExerciseSettingsSave"
+
 const ExerciseSettingsConfiguration: BlockConfiguration<Record<string, never>> = {
+  apiVersion: 3,
   title: "ExerciseSettings",
   description: "Wrapper block for exercise settings, required for the exercise block to work",
   category: MOOCFI_CATEGORY_SLUG,

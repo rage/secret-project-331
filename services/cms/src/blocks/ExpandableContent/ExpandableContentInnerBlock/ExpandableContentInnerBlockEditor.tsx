@@ -4,12 +4,13 @@ import { css } from "@emotion/css"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import React from "react"
 
-import { ExpandableContentConfigurationProps } from "."
-
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
+import { TextField } from "@/shared-module/components"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ExpandableContentConfigurationProps } from "."
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",
@@ -20,13 +21,16 @@ const ALLOWED_NESTED_BLOCKS = [
 ]
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  const { control } = useAttributeForm({ name: attributes.name }, ({ name }) =>
+    setAttributes({ name }),
+  )
+  // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-expandable-content-inner-block" })
 
   return (
-    <div {...blockProps} id={`placeholder-block-${clientId}`}>
+    <div {...blockProps}>
       <div
         className={css`
           display: flex;
@@ -62,9 +66,11 @@ const ExpandableContentInnerBlockEditor: React.FC<
           `}
         >
           <TextField
+            name="name"
+            control={control}
+            label={t("label-title")}
+            isLabelHidden
             placeholder={t("label-title")}
-            value={attributes.name}
-            onChangeByValue={(value) => setAttributes({ name: value })}
             className={css`
               margin: 0 !important;
               width: 100%;

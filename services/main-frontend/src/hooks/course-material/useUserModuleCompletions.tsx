@@ -9,11 +9,11 @@ const useUserModuleCompletions = (courseInstanceId: string | undefined | null) =
   const query = useQuery(
     optionalGeneratedQueryOptions({
       value: courseInstanceId,
-      isReady: (courseInstanceId): courseInstanceId is string => Boolean(courseInstanceId),
-      build: (courseInstanceId) =>
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
         getCourseMaterialUserModuleCompletionsOptions({
           path: {
-            course_instance_id: courseInstanceId,
+            course_instance_id: id,
           },
         }),
     }),

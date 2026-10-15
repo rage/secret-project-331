@@ -2,14 +2,14 @@
 
 import { cx } from "@emotion/css"
 import React, { useEffect, useId, useRef } from "react"
-import { mergeProps, useTextField } from "react-aria"
+import { mergeProps, useTextField, VisuallyHidden } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -22,19 +22,19 @@ import {
 } from "./primitives/fieldStyles"
 import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const textareaInputType = "textarea" as const
 
 /** Adjusts the element height to fit its scrollable content. Returns the new height when it changed. */
 function applyAutoResize(el: HTMLTextAreaElement, maxHeightPx: number | undefined): number | null {
   const prevHeight = el.style.height
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   el.style.height = "auto"
   const scrollH = el.scrollHeight
   const clampedH = maxHeightPx ? Math.min(scrollH, maxHeightPx) : scrollH
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   el.style.height = `${clampedH}px`
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   el.style.overflowY = maxHeightPx && scrollH > maxHeightPx ? "auto" : "hidden"
   return prevHeight !== el.style.height ? clampedH : null
 }
@@ -51,6 +51,8 @@ export type TextAreaProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   N
 > & {
   label: React.ReactNode
+  /** Keeps `label` as the accessible name but renders it visually hidden instead of floating. */
+  isLabelHidden?: boolean
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
@@ -66,9 +68,15 @@ export type TextAreaProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   autoComplete?: string
   maxLength?: number
   minLength?: number
+  /** Only shown when `isLabelHidden` is true; a visible label already serves as the hint otherwise. */
   placeholder?: string
   rows?: number
   className?: string
+  /** Composed with the field's own ref, so both receive the textarea node. */
+  inputRef?: React.Ref<HTMLTextAreaElement>
+  /** Chained with react-aria's own handler via `mergeProps`, not replacing it. */
+  onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement>
+  "data-testid"?: string | undefined
 }
 
 export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -79,6 +87,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     control,
     rules,
     label,
+    isLabelHidden,
     description,
     errorMessage,
     fieldSize = "md",
@@ -94,15 +103,19 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoComplete,
     maxLength,
     minLength,
+    placeholder,
     rows,
     className,
+    inputRef,
+    onKeyDown,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const generatedInputId = useId()
   const inputId = id ?? generatedInputId
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const stringValue = field.value == null ? "" : String(field.value)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
 
   const floatingState = useFloatingFieldState({
     defaultValue: undefined,
@@ -116,15 +129,10 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     errorMessage: resolvedError,
     id: inputId,
     value: stringValue,
-    autoComplete,
     name: field.name,
-    maxLength,
-    minLength,
-    isDisabled,
-    isReadOnly,
-    isRequired,
     isInvalid,
     inputElementType: textareaInputType,
+    ...omitUndefined({ autoComplete, maxLength, minLength, isDisabled, isReadOnly, isRequired }),
   }
 
   const {
@@ -141,7 +149,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
       return
     }
     const nextHeight = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
-    if (nextHeight != null) {
+    if (nextHeight !== null) {
       onAutoResized?.(nextHeight)
     }
   }, [stringValue, autoResize, autoResizeMaxHeightPx, onAutoResized])
@@ -150,7 +158,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     field.onChange(e.target.value)
     if (autoResize && textareaRef.current) {
       const nextHeight = applyAutoResize(textareaRef.current, autoResizeMaxHeightPx)
-      if (nextHeight != null) {
+      if (nextHeight !== null) {
         onAutoResized?.(nextHeight)
       }
     }
@@ -169,8 +177,9 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     onChange: handleChange,
     onFocus: handleFocus,
     onBlur: handleBlur,
-    placeholder: resolveFloatingPlaceholder(),
+    placeholder: resolveFloatingPlaceholder(isLabelHidden ? placeholder : undefined),
     rows,
+    onKeyDown,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(
@@ -197,17 +206,25 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
         data-filled={floatingState.hasValue ? "true" : "false"}
         data-floated={floatingState.isFloated ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
+        data-label-hidden={isLabelHidden ? "true" : undefined}
       >
         <textarea
           {...mergedTextareaProps}
-          ref={composeRefs(textareaRef, field.ref)}
+          ref={composeRefs(textareaRef, field.ref, inputRef)}
           className={resolveTextareaCss(fieldSize)}
           aria-describedby={resolvedAriaDescribedBy}
           aria-invalid={resolvedAriaInvalid}
+          data-testid={dataTestId}
         />
-        <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
-          {label}
-        </label>
+        {isLabelHidden ? (
+          <VisuallyHidden>
+            <label {...labelProps}>{label}</label>
+          </VisuallyHidden>
+        ) : (
+          <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
+            {label}
+          </label>
+        )}
         {iconStart ? (
           <span className={textareaIconSlotStartStyles[fieldSize]} aria-hidden="true">
             {iconStart}

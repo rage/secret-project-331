@@ -35,9 +35,8 @@ export interface CenteredProps {
 const Centered: React.FC<React.PropsWithChildren<CenteredProps>> = ({ children, variant }) => {
   if (variant === "narrow") {
     return <div className={narrowWidthCenteredComponentStyles}>{children}</div>
-  } else {
-    return <div className={defaultWidthCenteredComponentStyles}>{children}</div>
   }
+  return <div className={defaultWidthCenteredComponentStyles}>{children}</div>
 }
 
 export default Centered

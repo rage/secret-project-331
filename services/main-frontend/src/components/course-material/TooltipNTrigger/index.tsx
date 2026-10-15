@@ -1,11 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { ReactNode } from "react"
+import type { ReactNode } from "react"
+import React from "react"
 import { Tooltip, TooltipTrigger } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import GlossaryTriggerNPopover from "./GlossaryTriggerNPopover"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { GlossaryTriggerNPopover } from "./GlossaryTriggerNPopover"
 import { TooltipBox } from "./TooltipBox"
 import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
 
@@ -48,7 +51,7 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
 
   return (
     <GlossaryTriggerNPopover
-      className={props.className}
+      {...omitUndefined({ className: props.className })}
       tooltipContent={tooltipContent}
       dialogAriaLabel={t("definition")}
     >

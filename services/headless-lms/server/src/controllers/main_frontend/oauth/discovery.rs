@@ -127,11 +127,12 @@ pub async fn well_known_openid(
         "token_endpoint":                  format!("{}/api/v0/main-frontend/oauth/token", base_url),
         "userinfo_endpoint":               format!("{}/api/v0/main-frontend/oauth/userinfo", base_url),
         "revocation_endpoint":             format!("{}/api/v0/main-frontend/oauth/revoke", base_url),
+        "device_authorization_endpoint":   format!("{}/api/v0/main-frontend/oauth/device_authorization", base_url),
         "jwks_uri":                        format!("{}/api/v0/main-frontend/oauth/jwks.json", base_url),
 
         // Core capabilities
         "response_types_supported":        ["code"],
-        "grant_types_supported":           ["authorization_code","refresh_token"],
+        "grant_types_supported":           ["authorization_code","refresh_token","urn:ietf:params:oauth:grant-type:device_code"],
         "subject_types_supported":         ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
 
@@ -149,7 +150,7 @@ pub async fn well_known_openid(
         "dpop_signing_alg_values_supported": ["ES256","RS256"],
 
         // Nice-to-have hints for clients (optional but common)
-        "scopes_supported":                ["openid","profile","email","offline_access"],
+        "scopes_supported":                ["openid","profile","email","offline_access","exercise-services"],
         "claims_supported":                ["sub","iss","aud","exp","iat","auth_time","nonce","email","email_verified","name","given_name","family_name"],
         "response_modes_supported":        ["query"],
         "userinfo_signing_alg_values_supported": [], // we return plain JSON at /userinfo

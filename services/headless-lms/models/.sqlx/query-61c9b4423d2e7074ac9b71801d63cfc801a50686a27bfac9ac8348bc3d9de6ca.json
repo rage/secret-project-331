@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_custom_privacy_policy_checkbox_texts\nSET text_html = rewritten.text_html\nFROM UNNEST($1::uuid [], $2::text []) AS rewritten(id, text_html)\nWHERE course_custom_privacy_policy_checkbox_texts.id = rewritten.id;\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "61c9b4423d2e7074ac9b71801d63cfc801a50686a27bfac9ac8348bc3d9de6ca"
+}

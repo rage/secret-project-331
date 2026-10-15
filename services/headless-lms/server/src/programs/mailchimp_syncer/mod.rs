@@ -9,10 +9,7 @@ use headless_lms_utils::http::REQWEST_CLIENT;
 use secrecy::ExposeSecret;
 use serde_json::json;
 use sqlx::{PgConnection, PgPool};
-use std::{
-    env,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 mod batch_client;
@@ -95,6 +92,9 @@ const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 
 const BATCH_POLL_INTERVAL_SECS: u64 = 10;
 const BATCH_POLL_TIMEOUT_SECS: u64 = 300;
+/// Bulk archive of every operation's result, so it can be far larger and slower than the JSON
+/// calls the shared client's default timeout is sized for.
+const BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS: u64 = 600;
 
 #[derive(Debug)]
 struct SyncUser {
@@ -200,9 +200,8 @@ pub async fn main() -> anyhow::Result<()> {
 
 /// Initializes environment variables, logging, and tracing setup.
 fn initialize_environment() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     Ok(())
 }

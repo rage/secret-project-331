@@ -1,4 +1,5 @@
 pub mod seed_accessibility_course;
+use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
 pub mod seed_lock_chapter_course;
@@ -6,13 +7,18 @@ pub use seed_lock_chapter_course::seed_lock_chapter_course;
 pub mod seed_material_reference_course;
 pub use seed_material_reference_course::seed_material_reference_course;
 pub mod seed_course_with_peer_review;
+pub mod seed_credit_registration;
+pub use seed_credit_registration::seed_credit_registration;
 pub mod seed_graded;
+pub mod seed_metadata_course;
 pub use seed_graded::seed_graded_course;
 pub mod seed_generated_description;
 pub mod seed_glossary;
 pub use seed_generated_description::seed_generated_description;
 pub mod seed_introduction_to_codes;
 pub use seed_introduction_to_codes::seed_introduction_to_codes;
+pub mod seed_introduction_to_course_auditing;
+pub use seed_introduction_to_course_auditing::seed_introduction_to_course_auditing;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
 
@@ -21,8 +27,8 @@ use std::sync::Arc;
 use crate::domain::models_requests::{self, JwtKey};
 
 use crate::programs::seed::seed_helpers::{
-    ExampleExerciseFlexibleParams, create_best_exercise, create_best_peer_review, create_page,
-    example_exercise_flexible, paragraph, quizzes_exercise, submit_and_grade,
+    ExampleExerciseFlexibleParams, chart_block, create_best_exercise, create_best_peer_review,
+    create_page, example_exercise_flexible, paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
@@ -80,6 +86,7 @@ pub struct CommonCourseData {
 }
 
 pub async fn seed_sample_course(
+    app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -98,6 +105,11 @@ pub async fn seed_sample_course(
         base_url: _base_url,
     } = common_course_data;
     let spec_fetcher = get_seed_spec_fetcher();
+    let file_store = crate::setup_file_store(
+        &crate::config::FileStoreRuntimeConfig::try_from_env()?,
+        &app_config.base_url,
+    )
+    .await;
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -121,6 +133,7 @@ pub async fn seed_sample_course(
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
+            &app_config,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
                 course_id,
                 default_course_instance_id: Uuid::new_v5(
@@ -451,6 +464,7 @@ pub async fn seed_sample_course(
 
                 paragraph("In recent years, digital adaptations of the abacus have also emerged, blending traditional methods with modern interfaces. These tools not only preserve the historical legacy of the abacus but also make it more accessible to new generations of learners. Whether used physically or virtually, the abacus continues to bridge the gap between tactile learning and abstract thinking.", block_id_9),
             ],
+            hidden: false,
         },
 
     )
@@ -547,6 +561,7 @@ pub async fn seed_sample_course(
                 exercise_block_3,
                 exercise_block_4,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1021,6 +1036,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_1,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1044,6 +1060,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_2,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1067,6 +1084,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_3,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1090,6 +1108,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_4,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1113,6 +1132,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_5,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1136,6 +1156,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_7,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1159,6 +1180,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_6,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1182,6 +1204,7 @@ pub async fn seed_sample_course(
                 ),
                 quizzes_exercise_block_8,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1289,6 +1312,7 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_1,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1329,6 +1353,7 @@ pub async fn seed_sample_course(
             exercise_slides: vec![exercise_slide_5],
             exercise_tasks: vec![exercise_task_5],
             content: vec![exercise_block_5],
+            hidden: false,
         },
     )
     .await?;
@@ -1599,6 +1624,7 @@ pub async fn seed_sample_course(
                 ),
                 multi_exercise_block_2,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -1674,7 +1700,8 @@ pub async fn seed_sample_course(
                         },
                     ],
                 }]
-            }]
+            }],
+            hidden: false,
         },
 
     )
@@ -1699,6 +1726,7 @@ pub async fn seed_sample_course(
                 attributes: attributes! {},
                 inner_blocks: vec![],
             }],
+            hidden: false,
         },
     )
     .await?;
@@ -1731,6 +1759,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_1_id.to_string(),
             100.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         // this submission is for the same exercise, but no points are removed due to the update strategy
@@ -1745,6 +1775,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_2_id.to_string(),
             1.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1758,6 +1790,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_3_id.to_string(),
             0.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1771,6 +1805,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_1_id.to_string(),
             60.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1784,6 +1820,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_2_slide_1_task_1_spec_1_id.to_string(),
             70.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1797,6 +1835,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_5_slide_1_task_1_spec_1_id.to_string(),
             80.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
         submit_and_grade(
@@ -1810,6 +1850,8 @@ pub async fn seed_sample_course(
             default_instance.id,
             exercise_1_slide_1_task_1_spec_1_id.to_string(),
             90.0,
+            &*file_store,
+            &app_config,
         )
         .await?;
     }
@@ -1838,6 +1880,7 @@ pub async fn seed_sample_course(
             order_number: Some(0),
         }],
         page_id: page_3,
+        category: None,
     };
     let feedback = feedback::insert(
         &mut conn,
@@ -1869,6 +1912,7 @@ pub async fn seed_sample_course(
             },
         ],
         page_id: page_3,
+        category: None,
     };
     feedback::insert(
         &mut conn,
@@ -1892,6 +1936,7 @@ pub async fn seed_sample_course(
                 order_number: Some(0),
             }],
             page_id: page_3,
+            category: None,
         },
     )
     .await?;
@@ -1905,6 +1950,7 @@ pub async fn seed_sample_course(
             selected_text: None,
             related_blocks: vec![],
             page_id: page_3,
+            category: None,
         },
     )
     .await?;
@@ -1969,6 +2015,7 @@ pub async fn seed_sample_course(
         &background_svg_path,
         "image/svg+xml",
         None,
+        None,
     )
     .await?;
     let configuration = DatabaseCertificateConfiguration {
@@ -2024,6 +2071,7 @@ pub async fn seed_sample_course(
 
 pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
+    app_config: &ApplicationConfiguration,
     org: Uuid,
     teacher_user_id: Uuid,
     langs_user_id: Uuid,
@@ -2053,6 +2101,7 @@ pub async fn seed_cs_course_material(
     let (course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
+            app_config,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
                 course_id: Uuid::parse_str("d6b52ddc-6c34-4a59-9a59-7e8594441007")?,
                 default_course_instance_id: Uuid::parse_str(
@@ -2351,6 +2400,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2414,6 +2464,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2479,6 +2530,7 @@ pub async fn seed_cs_course_material(
             )
             .with_id(Uuid::parse_str("0d47c02a-194e-42a4-927e-fb29a4fda39c")?),
         ],
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2525,6 +2577,7 @@ pub async fn seed_cs_course_material(
             )
             .with_id(Uuid::parse_str("c96f56d5-ea35-4aae-918a-72a36847a49c")?),
         ],
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2580,6 +2633,7 @@ pub async fn seed_cs_course_material(
                 exercises: vec![],
                 exercise_slides: vec![],
                 exercise_tasks: vec![],
+                hidden: false,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -2625,6 +2679,7 @@ pub async fn seed_cs_course_material(
         exercise_tasks: vec![],
         url_path: "/chapter-2/user-research".to_string(),
         title: "User research".to_string(),
+        hidden: false,
     };
     create_page(
         &mut conn,
@@ -2635,21 +2690,164 @@ pub async fn seed_cs_course_material(
     )
     .await?;
 
-    let page_content = include_str!("../../../assets/example-page.json");
-    let parse_page_content = serde_json::from_str(page_content)?;
+    let content_rendering_pages: [(&str, &str, &str); 13] = [
+        (
+            "/chapter-2/content-rendering-paragraphs",
+            "Content rendering: Paragraphs",
+            include_str!("../../../assets/content-rendering/paragraphs.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-headings",
+            "Content rendering: Headings",
+            include_str!("../../../assets/content-rendering/headings.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-lists",
+            "Content rendering: Lists",
+            include_str!("../../../assets/content-rendering/lists.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-quotes",
+            "Content rendering: Quotes",
+            include_str!("../../../assets/content-rendering/quotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-images",
+            "Content rendering: Images",
+            include_str!("../../../assets/content-rendering/images.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-code",
+            "Content rendering: Code and preformatted",
+            include_str!("../../../assets/content-rendering/code.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-pullquotes",
+            "Content rendering: Pullquotes",
+            include_str!("../../../assets/content-rendering/pullquotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-callouts",
+            "Content rendering: Info boxes",
+            include_str!("../../../assets/content-rendering/callouts.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-tables",
+            "Content rendering: Tables",
+            include_str!("../../../assets/content-rendering/tables.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-verse",
+            "Content rendering: Verse",
+            include_str!("../../../assets/content-rendering/verse.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-buttons",
+            "Content rendering: Buttons",
+            include_str!("../../../assets/content-rendering/buttons.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-separators",
+            "Content rendering: Separators",
+            include_str!("../../../assets/content-rendering/separators.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-columns",
+            "Content rendering: Columns",
+            include_str!("../../../assets/content-rendering/columns.json"),
+        ),
+    ];
+    for (url_path, title, page_content) in content_rendering_pages {
+        let parsed_page_content = serde_json::from_str(page_content)?;
+        create_page(
+            &mut conn,
+            course.id,
+            teacher_user_id,
+            Some(chapter_2.id),
+            CmsPageUpdate {
+                content: parsed_page_content,
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                url_path: url_path.to_string(),
+                title: title.to_string(),
+                chapter_id: Some(chapter_2.id),
+                hidden: false,
+            },
+        )
+        .await?;
+    }
+
+    // /chapter-2/chart-rendering
+    let vega_lite_schema_url = "https://vega.github.io/schema/vega-lite/v6.json";
+    let chart_data_url =
+        "http://project-331.local/api/v0/files/uploads/jsons/chart-example-data.json";
+    let chart_with_data_spec = serde_json::json!({
+        "$schema": vega_lite_schema_url,
+        "description": "A simple bar chart",
+        "data": { "url": chart_data_url, "format": { "type": "json" } },
+        "mark": "bar",
+        "encoding": {
+            "x": { "field": "category", "type": "nominal", "axis": { "labelAngle": 0 } },
+            "y": { "field": "value", "type": "quantitative" }
+        }
+    })
+    .to_string();
+    let chart_without_data_spec = serde_json::json!({
+        "$schema": vega_lite_schema_url,
+        "mark": "bar",
+        "encoding": {
+            "x": { "field": "category", "type": "nominal" },
+            "y": { "field": "value", "type": "quantitative" }
+        }
+    })
+    .to_string();
+    // Malformed on purpose, to seed the chart block's invalid-specification state.
+    let chart_invalid_spec = "{ this is not valid json";
     create_page(
         &mut conn,
         course.id,
         teacher_user_id,
         Some(chapter_2.id),
         CmsPageUpdate {
-            content: parse_page_content,
+            content: vec![
+                heading(
+                    "Chart rendering",
+                    Uuid::new_v5(&course.id, b"c4a1f3d0-3a0e-4f1a-9e2a-1d6b8f0c5a11"),
+                    2,
+                ),
+                chart_block(
+                    Uuid::new_v5(&course.id, b"d2b6e9a4-7c3f-4b8d-8a1e-2f9c0d3e4b55"),
+                    &chart_with_data_spec,
+                    "Figure 1: a simple bar chart rendered from an external data file.",
+                    300,
+                    true,
+                    Some(chart_data_url),
+                ),
+                chart_block(
+                    Uuid::new_v5(&course.id, b"e7c8f1b2-5d4a-4c6e-9f0b-3a1d7e2c8f66"),
+                    &chart_without_data_spec,
+                    "",
+                    300,
+                    true,
+                    None,
+                ),
+                chart_block(
+                    Uuid::new_v5(&course.id, b"f1a2b3c4-6e5d-4a7b-8c9d-0e1f2a3b4c77"),
+                    chart_invalid_spec,
+                    "",
+                    300,
+                    true,
+                    None,
+                ),
+            ],
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
-            url_path: "/chapter-2/content-rendering".to_string(),
-            title: "Content rendering".to_string(),
+            url_path: "/chapter-2/chart-rendering".to_string(),
+            title: "Chart rendering".to_string(),
             chapter_id: Some(chapter_2.id),
+            hidden: false,
         },
     )
     .await?;
@@ -2675,6 +2873,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_5,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2698,6 +2897,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_6,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2722,6 +2922,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_7,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2745,6 +2946,7 @@ pub async fn seed_cs_course_material(
                 ),
                 quizzes_exercise_block_8,
             ],
+            hidden: false,
         },
     )
     .await?;
@@ -2765,6 +2967,7 @@ pub async fn seed_cs_course_material(
 }
 
 pub async fn seed_peer_review_course_without_submissions(
+    app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -2804,6 +3007,7 @@ pub async fn seed_peer_review_course_without_submissions(
 
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
+        &app_config,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id,
             default_course_instance_id: Uuid::new_v5(
@@ -2923,6 +3127,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;
@@ -2979,6 +3184,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_2],
+            hidden: false,
         },
     )
     .await?;
@@ -3035,6 +3241,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_3],
+            hidden: false,
         },
     )
     .await?;
@@ -3091,6 +3298,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;
@@ -3147,6 +3355,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_slides: vec![slide_1],
             exercise_tasks: vec![task_1],
             content: vec![exercise_block_1],
+            hidden: false,
         },
     )
     .await?;

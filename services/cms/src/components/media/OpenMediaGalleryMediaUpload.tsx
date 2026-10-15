@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@wordpress/components"
+import type { JSX } from "react"
 
 import { useTranslation } from "@/utils/useCmsTranslation"
 

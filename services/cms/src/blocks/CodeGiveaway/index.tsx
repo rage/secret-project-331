@@ -1,19 +1,19 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-
-import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
-import CodeGiveawayBlockEditor from "./CodeGiveawayBlockEditor"
-import CodeGiveawayBlockSave from "./CodeGiveawayBlockSave"
+/* oxlint-disable i18next/no-literal-string */
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import CodeGiveawayBlockEditor from "./CodeGiveawayBlockEditor"
+import CodeGiveawayBlockSave from "./CodeGiveawayBlockSave"
 
 export interface ConditionAttributes {
   code_giveaway_id: string
 }
 
 const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
+  apiVersion: 3,
   title: "CodeGiveaway",
   description:
     "Used to place a code giveaway to a page. Make sure to have created a code giveaway in the manage page.",

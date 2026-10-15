@@ -14,6 +14,7 @@ pub mod email_templates;
 pub mod exams;
 pub mod exercise_services;
 pub mod gutenberg;
+pub mod migration;
 pub mod organizations;
 pub mod pages;
 pub mod repository_exercises;
@@ -51,5 +52,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
         .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes))
+        .service(web::scope("/migration").configure(migration::_add_routes))
         .service(web::scope("/ai-suggestions").configure(ai_suggestions::_add_routes));
 }

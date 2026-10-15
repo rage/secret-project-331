@@ -5,7 +5,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Progress from "../CourseProgress/index"
+import { Meter } from "@/shared-module/components/components/Meter"
+import { METER_KIND, TONE } from "@/shared-module/components/lib/displayConstants"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -35,13 +36,13 @@ const PeerReviewProgress: React.FC<React.PropsWithChildren<ReviewComponentProps>
           flex: 1;
         `}
       >
-        <Progress
-          variant="bar"
-          exercisesTotal={total}
-          exercisesAttempted={attempt}
-          showAsPercentage={false}
-          height="small"
+        <Meter
+          kind={METER_KIND.PROGRESS}
+          tone={TONE.SUCCESS}
           label={t("peer-reviews-given")}
+          value={attempt}
+          maxValue={total}
+          valueLabel={t("value-of-maximum", { value: attempt, maximum: total })}
         />
       </div>
     </Wrapper>

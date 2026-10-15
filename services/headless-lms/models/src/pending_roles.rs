@@ -1,6 +1,6 @@
 use crate::{
     prelude::*,
-    roles::{RoleDomain, RoleInfo, UserRole},
+    roles::{RoleDomain, UserRole},
 };
 use utoipa::ToSchema;
 
@@ -16,70 +16,6 @@ pub struct PendingRole {
     pub course_id: Option<Uuid>,
     pub course_instance_id: Option<Uuid>,
     pub expires_at: DateTime<Utc>,
-}
-
-pub async fn insert(
-    conn: &mut PgConnection,
-    pkey_policy: PKeyPolicy<Uuid>,
-    role_info: RoleInfo,
-) -> ModelResult<Uuid> {
-    match role_info.domain {
-        crate::roles::RoleDomain::Global
-        | crate::roles::RoleDomain::Organization(_)
-        | crate::roles::RoleDomain::Exam(_) => {
-            return Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Cannot use a pending role for a role this broad".to_string(),
-                None,
-            ));
-        }
-
-        crate::roles::RoleDomain::Course(_) | crate::roles::RoleDomain::CourseInstance(_) => (),
-    };
-
-    match role_info.role {
-        UserRole::Admin | UserRole::Teacher => {
-            return Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Cannot use a pending role with this much power".to_string(),
-                None,
-            ));
-        }
-        _ => (),
-    }
-
-    let course_id = match role_info.domain {
-        crate::roles::RoleDomain::Course(id) => Some(id),
-        _ => None,
-    };
-
-    let course_instance_id = match role_info.domain {
-        crate::roles::RoleDomain::CourseInstance(id) => Some(id),
-        _ => None,
-    };
-
-    let id = sqlx::query!(
-        r#"
-INSERT INTO pending_roles (
-    id,
-    user_email,
-    role,
-    course_id,
-    course_instance_id
-  )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING *;
-        "#,
-        pkey_policy.into_uuid(),
-        role_info.email,
-        role_info.role as UserRole,
-        course_id,
-        course_instance_id
-    )
-    .fetch_one(conn)
-    .await?
-    .id;
-    Ok(id)
 }
 
 pub async fn get_all(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult<Vec<PendingRole>> {

@@ -14,6 +14,7 @@ const AuthorInnerBlockConfiguration: BlockConfiguration = {
   description: "Author InnerBlock",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  parent: ["moocfi/author"],
   edit: AuthorInnerBlockEditor,
   save: AuthorInnerBlockSave,
 }

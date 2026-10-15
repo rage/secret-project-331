@@ -170,17 +170,18 @@ test.describe("A submission the study registry reversed after accepting it", () 
       ).toBe(before)
     })
 
+    const move = async (toState: "cancelled" | "ready_to_submit") => {
+      const response = await adminApi.post(adminRegistrationTransitionUrl(submitted.id), {
+        data: {
+          action: { kind: "state_move", to_state: toState },
+          reason: "System test: resend a row by way of cancelled.",
+        },
+      })
+      await expect(response).toBeOK()
+      return response.json()
+    }
+
     await test.step("Cancelling a sent row does not open a way to send it again", async () => {
-      const move = async (toState: "cancelled" | "ready_to_submit") => {
-        const response = await adminApi.post(adminRegistrationTransitionUrl(submitted.id), {
-          data: {
-            action: { kind: "state_move", to_state: toState },
-            reason: "System test: resend a row by way of cancelled.",
-          },
-        })
-        await expect(response).toBeOK()
-        return response.json()
-      }
       expect(await move("cancelled")).toMatchObject({ refusal: null, state: "cancelled" })
       expect(await move("ready_to_submit")).toMatchObject({
         refusal: "already_submitted",

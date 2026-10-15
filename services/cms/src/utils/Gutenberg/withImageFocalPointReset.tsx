@@ -39,6 +39,7 @@ const toPx = (value: string | number | undefined): number | undefined => {
  * is back to auto, or the box matches the image's aspect ratio.
  */
 const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const ImageFocalPointReset = (props: ImageEditProps) => {
     const { attributes, setAttributes } = props
     const url = attributes?.url
@@ -102,6 +103,7 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
     return <BlockEdit {...props} />
   }
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const BlockEditWithImageFocalPointReset = (props: ImageEditProps) =>
     props.name === IMAGE_BLOCK_NAME ? <ImageFocalPointReset {...props} /> : <BlockEdit {...props} />
 

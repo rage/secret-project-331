@@ -36,7 +36,7 @@ const CODE_LANGUAGES: { label: string; value: string }[] = [
 // Adds a language selector for core/code, both as a block-toolbar dropdown and as a settings-sidebar
 // panel. An empty value clears the attribute, leaving highlight.js to auto-detect on render.
 const withCodeLanguageControls = createHigherOrderComponent((BlockEdit) => {
-  // oxlint-disable-next-line typescript/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any, unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const CodeWithLanguageControls = (props: any) => {
     const { t } = useTranslation()
     if (props.name !== CODE_BLOCK_NAME) {

@@ -525,7 +525,7 @@ const CoursesPage: React.FC = () => {
                       cell: (row) => {
                         const isPaused = row.paused_at !== null
                         const target = row.external_credit_target
-                        const isOff = target != null && !target.enabled_at
+                        const isOff = Boolean(target) && !target?.enabled_at
                         const heldCount = heldForCourseSetupCount(row)
                         return (
                           <span className={stackedCellCss}>

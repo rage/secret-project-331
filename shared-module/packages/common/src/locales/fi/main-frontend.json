@@ -31,7 +31,7 @@
   "admin-tools-managed-by-administrators": "Nämä ylläpidon tukityökalut ottaa käyttöön globaali ylläpitäjä, eikä niitä voi muuttaa täällä.",
   "advanced-settings": "Edistyneet asetukset",
   "ai-metadata-form-title": "Ehdotetut metatiedot",
-  "ai-policy-help": "Valitse opiskelijoille näytettävä tekoälyn käyttöpolitiikka. Jos arvona on ”Ei asetettu”, näytetään oletusilmoitus.",
+  "ai-policy-help": "Valitse opiskelijoille näytettävä tekoälyn käyttöpolitiikka. Jos arvona on ”Ei asetettu”, näytetään oletusilmoitus. Ellei politiikkana ole ”Vapaa käyttö” tai ”Vaadittu”, tekoälyavustus on myös pois päältä TestMyCode-editorissa.",
   "ai-policy-label": "Tekoälyn käyttöpolitiikka",
   "ai-policy-option-full-use": "Vapaa käyttö: tekoälyä saa käyttää vapaasti, opiskelija ohjaa, käytöstä kerrottava",
   "ai-policy-option-limited": "Rajoitettu: tekoäly vain tiettyihin tehtäviin, käytöstä kerrottava",

@@ -1667,7 +1667,6 @@ pub async fn seed_sample_course(
                                 client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
                                 attributes: attributes! {
                                     "alt": "Add alt",
-                                    "anchor": "author-photo",
                                     "blurDataUrl": "",
                                     "href": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
                                     "linkDestination": "media",

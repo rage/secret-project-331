@@ -1,7 +1,7 @@
 //! Deciding whether one module's credit-registration configuration is usable.
 //!
 //! Pure: the facts are gathered by
-//! [`crate::course_module_suotar_configurations::get_config_facts_for_enabled_modules`], the course
+//! [`crate::course_module_suotar_configurations::get_config_facts_for_modules_with_course_code`], the course
 //! code verdict comes from Suotar's `course-codes/validate`, and the result is stamped back by
 //! [`crate::course_module_suotar_configurations::record_config_check`].
 

@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::course_module_suotar_configurations::{
-    self, SuotarModuleOverview, get_config_facts_for_enabled_modules,
+    self, SuotarModuleOverview, get_config_facts_for_modules_with_course_code,
 };
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
@@ -129,7 +129,7 @@ pub async fn get_credit_registration_stats_by_course(
     let overviews =
         course_module_suotar_configurations::get_module_overviews(&mut conn, COURSES_LIMIT).await?;
     let mut checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
-        get_config_facts_for_enabled_modules(&mut conn, None)
+        get_config_facts_for_modules_with_course_code(&mut conn, None)
             .await?
             .into_iter()
             .map(|facts| {

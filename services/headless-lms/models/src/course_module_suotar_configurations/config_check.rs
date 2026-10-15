@@ -20,7 +20,7 @@ pub struct SuotarModuleConfigFacts {
 /// The configuration facts of every module with a course code, optionally narrowed to one course. Paused
 /// modules are included: a paused module's configuration is exactly what an operator is about to
 /// fix.
-pub async fn get_config_facts_for_enabled_modules(
+pub async fn get_config_facts_for_modules_with_course_code(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
 ) -> ModelResult<Vec<SuotarModuleConfigFacts>> {

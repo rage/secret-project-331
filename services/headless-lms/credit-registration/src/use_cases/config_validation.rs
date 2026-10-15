@@ -5,7 +5,7 @@
 //! reads the database.
 
 use headless_lms_models::course_module_suotar_configurations::{
-    SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_enabled_modules,
+    SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_modules_with_course_code,
     record_config_check,
 };
 use headless_lms_models::library::credit_registration::config_validation::{
@@ -26,7 +26,7 @@ pub(crate) async fn run<R: StudyRegistry>(
 ) -> CreditRegistrationResult<Counts> {
     let modules = {
         let mut conn = pool.acquire().await?;
-        get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?
+        get_config_facts_for_modules_with_course_code(&mut conn, scope.course_id).await?
     };
     let course_codes = distinct_course_codes(&modules);
 

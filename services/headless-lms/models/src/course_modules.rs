@@ -794,9 +794,7 @@ pub async fn get_by_course_id_as_map(
     Ok(res)
 }
 
-pub async fn get_all_uh_course_codes_for_open_university(
-    conn: &mut PgConnection,
-) -> ModelResult<Vec<String>> {
+pub async fn get_all_uh_course_codes(conn: &mut PgConnection) -> ModelResult<Vec<String>> {
     let res = sqlx::query!(
         "
 SELECT DISTINCT uh_course_code

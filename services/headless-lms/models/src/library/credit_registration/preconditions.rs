@@ -393,8 +393,8 @@ WITH facts AS (
     -- Only a human moves a row the study registry reversed.
     AND cr.state <> 'misregistered'
     AND conf.paused_at IS NULL
-    -- A mooc.fi target not switched on keeps every phase away, unlike a module, whose rows carry
-    -- their own opt-in; a deleted one still lets its rows be cancelled.
+    -- A mooc.fi target not switched on keeps every phase away; a module has no such switch. A
+    -- deleted target still lets its rows be cancelled.
     AND t.paused_at IS NULL
     AND (
       cr.external_credit_target_id IS NULL

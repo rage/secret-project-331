@@ -563,8 +563,6 @@ WHERE cie.user_id = $1
     Ok(course_instances)
 }
 
-/// Course instances the user is enrolled on that contain at least one task of any of the
-/// given exercise types. An empty `exercise_types` matches nothing.
 /// [`CourseInstanceWithCourseInfo`] plus the course's AI policy.
 #[derive(Debug)]
 pub struct CourseInstanceWithCourseInfoAndAiPolicy {
@@ -579,6 +577,8 @@ pub struct CourseInstanceWithCourseInfoAndAiPolicy {
     pub organization_name: String,
 }
 
+/// Course instances the user is enrolled on that contain at least one task of any of the
+/// given exercise types. An empty `exercise_types` matches nothing.
 pub async fn get_enrolled_course_instances_for_user_with_exercise_types(
     conn: &mut PgConnection,
     user_id: Uuid,

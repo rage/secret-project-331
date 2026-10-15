@@ -7,6 +7,9 @@ static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Invalid IETF language code regex.")
 });
 
+static HTML_TAG_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"<[^>]*>").expect("Invalid HTML tag regex."));
+
 pub fn generate_random_string(length: usize) -> String {
     rng()
         .sample_iter(Alphanumeric)
@@ -31,6 +34,29 @@ pub fn is_ietf_language_code_like(string: &str) -> bool {
     IETF_LANGUAGE_CODE_REGEX.is_match(string)
 }
 
+/// Removes all HTML tags from the input, leaving only the text content.
+pub fn strip_html_tags(input: &str) -> String {
+    HTML_TAG_REGEX.replace_all(input, "").into_owned()
+}
+
+/// Trims the string and returns `None` if the trimmed result is empty.
+pub fn non_empty_trimmed(s: &str) -> Option<&str> {
+    let trimmed = s.trim();
+    (!trimmed.is_empty()).then_some(trimmed)
+}
+
+/// Truncates UTF-8 text to a max byte length at a valid char boundary.
+pub fn truncate_utf8_at_boundary(s: &str, max_bytes: usize) -> &str {
+    if s.len() <= max_bytes {
+        return s;
+    }
+    let mut idx = max_bytes;
+    while idx > 0 && !s.is_char_boundary(idx) {
+        idx -= 1;
+    }
+    &s[..idx]
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -49,5 +75,48 @@ mod test {
         assert!(is_ietf_language_code_like("eng"));
         assert!(is_ietf_language_code_like("en-US"));
         assert!(is_ietf_language_code_like("in-Cans-CA"));
+    }
+
+    #[test]
+    fn non_empty_trimmed_trims_and_rejects_blank() {
+        assert_eq!(non_empty_trimmed("  hello  "), Some("hello"));
+        assert_eq!(non_empty_trimmed(""), None);
+        assert_eq!(non_empty_trimmed("   "), None);
+    }
+
+    #[test]
+    fn strip_html_tags_removes_all_tags() {
+        assert_eq!(
+            strip_html_tags("<em>Intro</em> to <strong>X</strong>"),
+            "Intro to X"
+        );
+        assert_eq!(strip_html_tags(r#"<a href="/x">link</a>"#), "link");
+        assert_eq!(strip_html_tags("plain text"), "plain text");
+        assert_eq!(strip_html_tags("<br>"), "");
+    }
+
+    #[test]
+    fn truncate_utf8_at_boundary_returns_original_when_short() {
+        let input = "heillä";
+        let result = truncate_utf8_at_boundary(input, 255);
+        assert_eq!(result, input);
+    }
+
+    #[test]
+    fn truncate_utf8_at_boundary_handles_finnish_characters() {
+        let input = format!("{}äz", "a".repeat(254));
+        let result = truncate_utf8_at_boundary(&input, 255);
+        assert_eq!(result.len(), 254);
+        assert!(result.is_char_boundary(result.len()));
+        assert_eq!(result, "a".repeat(254));
+    }
+
+    #[test]
+    fn truncate_utf8_at_boundary_handles_emoji() {
+        let input = format!("{}😀z", "a".repeat(254));
+        let result = truncate_utf8_at_boundary(&input, 255);
+        assert_eq!(result.len(), 254);
+        assert!(result.is_char_boundary(result.len()));
+        assert_eq!(result, "a".repeat(254));
     }
 }

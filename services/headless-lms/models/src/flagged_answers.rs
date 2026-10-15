@@ -3,9 +3,10 @@ use crate::{
     prelude::*,
     user_exercise_states::{self, ReviewingStage},
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct FlaggedAnswer {
     pub id: Uuid,
     pub submission_id: Uuid,
@@ -18,8 +19,7 @@ pub struct FlaggedAnswer {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "report_reason")]
 pub enum ReportReason {
     #[sqlx(rename = "flagging-reason-spam")]
@@ -31,7 +31,7 @@ pub enum ReportReason {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewFlaggedAnswer {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,
@@ -40,8 +40,8 @@ pub struct NewFlaggedAnswer {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewFlaggedAnswerWithToken {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,
@@ -189,15 +189,7 @@ INSERT INTO flagged_answers (
     description
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id,
-  submission_id,
-  flagged_user,
-  flagged_by,
-  reason AS "reason: _",
-  description,
-  created_at,
-  updated_at,
-  deleted_at
+RETURNING *
         "#,
         flagged_answer.submission_id,
         flagged_answer.flagged_user,
@@ -219,7 +211,7 @@ pub async fn increment_flag_count(
         UPDATE exercise_slide_submissions
         SET flag_count = COALESCE(flag_count, 0) + 1
         WHERE id = $1
-        RETURNING flag_count
+        RETURNING *
         "#,
         submission_id
     )
@@ -236,16 +228,7 @@ pub async fn get_flagged_answers_by_submission_id(
     let results = sqlx::query_as!(
         FlaggedAnswer,
         r#"
-        SELECT
-            id,
-            submission_id,
-            flagged_user,
-            flagged_by,
-            reason AS "reason: _",
-            description,
-            created_at,
-            updated_at,
-            deleted_at
+        SELECT *
         FROM flagged_answers
         WHERE submission_id = $1
           AND deleted_at IS NULL
@@ -265,16 +248,7 @@ pub async fn get_flagged_answers_submission_ids_by_flaggers_id(
     let flagged_submissions = sqlx::query_as!(
         FlaggedAnswer,
         r#"
-        SELECT
-            id,
-            submission_id,
-            flagged_user,
-            flagged_by,
-            reason AS "reason: _",
-            description,
-            created_at,
-            updated_at,
-            deleted_at
+        SELECT *
         FROM flagged_answers
         WHERE flagged_by = $1
           AND deleted_at IS NULL

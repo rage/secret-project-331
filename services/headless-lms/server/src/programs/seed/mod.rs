@@ -1,12 +1,14 @@
 #![allow(clippy::unwrap_used)]
 
 pub mod builder;
+pub mod certificate_fonts_data;
 pub mod seed_application_task_llms;
 pub mod seed_certificate_fonts;
 pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
 pub mod seed_generic_emails;
+pub mod seed_global_chatbots;
 pub mod seed_helpers;
 pub mod seed_oauth_clients;
 pub mod seed_organizations;
@@ -18,6 +20,7 @@ pub mod seed_users;
 use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{
+    config::program_config::ProgramConfig,
     domain::models_requests::JwtKey,
     programs::seed::{
         seed_application_task_llms::seed_application_task_llms,
@@ -26,17 +29,19 @@ use crate::{
     setup_tracing,
 };
 
-use anyhow::Context;
 use futures::try_join;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::futures::run_parallelly;
 use sqlx::{Pool, Postgres, migrate::MigrateDatabase, postgres::PgPoolOptions};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
-    let base_url = std::env::var("BASE_URL").context("BASE_URL must be defined")?;
+    let base_url = ProgramConfig::required("BASE_URL")?;
     let db_pool = setup_seed_environment().await?;
-    let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
+    let app_config = ApplicationConfiguration::mock_conf()?;
+    let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
+    let jwt_key = Arc::new(JwtKey::new(&jwt_password).expect("Failed to create JwtKey"));
 
     // Initialize the global spec fetcher before any seeding
     seed_helpers::init_seed_spec_fetcher(base_url.clone(), Arc::clone(&jwt_key))
@@ -60,6 +65,7 @@ pub async fn main() -> anyhow::Result<()> {
     let (uh_cs_organization_result, _uh_mathstat_organization_id, _no_users_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
+            app_config.clone(),
             seed_users_result,
             base_url.clone(),
             Arc::clone(&jwt_key),
@@ -68,6 +74,7 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
+                app_config.clone(),
                 seed_users_result,
                 seed_llms_result,
                 base_url.clone(),
@@ -79,6 +86,18 @@ pub async fn main() -> anyhow::Result<()> {
             db_pool.clone()
         ))
     )?;
+
+    // Sequential rather than in the group above: it shares the default study registry registrar with
+    // the graded course, and get-or-create is not atomic.
+    seed_organizations::credit_registration::seed_organization_credit_registration(
+        db_pool.clone(),
+        &app_config,
+        seed_users_result,
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+        seed_file_storage_result.clone(),
+    )
+    .await?;
 
     try_join!(
         run_parallelly(seed_roles::seed_roles(
@@ -99,20 +118,18 @@ pub async fn main() -> anyhow::Result<()> {
         )),
         run_parallelly(seed_oauth_clients(db_pool.clone()))
     )?;
-
+    seed_global_chatbots::seed_global_chatbots(db_pool.clone()).await?;
     Ok(())
 }
 
 async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,sqlx=warn,headless_lms_models=info") };
-
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
+    ProgramConfig::ensure_default_rust_log("info,sqlx=warn,headless_lms_models=info");
     setup_tracing()?;
 
     let clean = env::args().any(|a| a == "clean");
 
-    let db_url = env::var("DATABASE_URL")?;
+    let db_url = ProgramConfig::required("DATABASE_URL")?;
     let cpu_count = std::thread::available_parallelism()
         .map(|n| n.get())
         .unwrap_or(2);
@@ -141,7 +158,7 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
             .arg("headless_lms_dev")
             .status()?;
         assert!(status.success());
-        let db_url = env::var("DATABASE_URL")?;
+        let db_url = ProgramConfig::required("DATABASE_URL")?;
         Postgres::create_database(&db_url).await?;
     }
 

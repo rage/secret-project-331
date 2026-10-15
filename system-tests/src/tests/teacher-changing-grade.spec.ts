@@ -1,9 +1,11 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { tableRowByCell } from "@/utils/tableRows"
 
 test.describe("test teacher changing grade behavior", () => {
   let studentContext: BrowserContext
@@ -32,7 +34,7 @@ test.describe("test teacher changing grade behavior", () => {
         "University of Helsinki, Department of Mathematics and Statistics",
       )
 
-      await studentPage.getByRole("link", { name: "Navigate to course 'Custom" }).click()
+      await studentPage.getByRole("link", { name: "Custom points", exact: true }).click()
       await selectCourseInstanceIfPrompted(studentPage)
       const studentChapterSelector = new ChapterSelector(studentPage)
       await studentChapterSelector.clickChapter(1)
@@ -55,7 +57,7 @@ test.describe("test teacher changing grade behavior", () => {
         .filter({ has: teacherPage.getByRole("heading", { name: "Default", exact: true }) })
         .getByRole("link", { name: "View points" })
         .click()
-      await teacherPage.getByRole("link", { name: "02364d40-2aac-4763-8a06-2381fd298d79	" }).click()
+      await tableRowByCell(teacherPage, "student1@example.com").getByRole("link").click()
 
       const exerciseDetailsComponent = teacherPage
         .getByTestId("exercise-status")
@@ -66,13 +68,10 @@ test.describe("test teacher changing grade behavior", () => {
 
       await exerciseDetailsComponent.getByRole("button", { name: "View details" }).click()
 
-      await exerciseDetailsComponent.getByRole("button", { name: "Give custom points" }).click()
+      await exerciseDetailsComponent.getByRole("button", { name: "Grade" }).click()
       await teacherPage.getByRole("slider").fill("0.5")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage
-          .locator("#custom-point-popup")
-          .getByRole("button", { name: "Give custom points" })
-          .click()
+        await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
       })
       await expect(exerciseDetailsComponent).toContainText("0.5/1")
     })

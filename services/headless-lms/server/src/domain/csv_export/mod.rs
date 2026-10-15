@@ -1,6 +1,7 @@
 pub mod code_giveaway_codes;
 pub mod course_instance_export;
 pub mod course_research_form_questions_answers_export;
+pub mod credit_registrations_export;
 pub mod exercise_tasks_export;
 pub mod points;
 pub mod submissions;
@@ -20,7 +21,10 @@ use sqlx::PgConnection;
 use std::{
     io,
     io::Write,
-    sync::{Arc, Mutex},
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 use tokio::{sync::mpsc::UnboundedSender, task::JoinHandle};
 use tokio_stream::wrappers::UnboundedReceiverStream;
@@ -165,7 +169,7 @@ HttpResponse::Ok()
 ```
 */
 pub fn make_authorized_streamable(
-    stream: UnboundedReceiverStream<Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
+    stream: impl Stream<Item = Result<AuthorizedResponse<bytes::Bytes>, ControllerError>>,
 ) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
     stream.map(|item| item.map(|item2| item2.data))
 }
@@ -176,7 +180,12 @@ pub fn make_authorized_streamable(
 pub fn serializable_sqlx_result_stream_to_json_stream(
     stream: impl Stream<Item = sqlx::Result<impl Serialize>>,
 ) -> impl Stream<Item = Result<bytes::Bytes, ControllerError>> {
-    let res_stream = stream.enumerate().map(|(n, item)| {
+    // The opening bracket rides along with the first item, so the terminator has to know whether
+    // one was ever emitted; without this an empty stream would answer with a bare `]`.
+    let emitted_any_item = Arc::new(AtomicBool::new(false));
+    let mark_emitted = Arc::clone(&emitted_any_item);
+    let res_stream = stream.enumerate().map(move |(n, item)| {
+        mark_emitted.store(true, Ordering::Relaxed);
         item.map(|item2| {
             match serde_json::to_vec(&item2) {
                 Ok(mut v) => {
@@ -210,7 +219,15 @@ pub fn serializable_sqlx_result_stream_to_json_stream(
         })
     });
     // Chaining the end of the json array character here because in the previous map we don't know the length of the stream
-    res_stream.chain(tokio_stream::iter(vec![Ok(Bytes::from_static(b"]"))]))
+    res_stream.chain(futures::stream::once(async move {
+        Ok(Bytes::from_static(
+            if emitted_any_item.load(Ordering::Relaxed) {
+                b"]"
+            } else {
+                b"[]"
+            },
+        ))
+    }))
 }
 
 #[async_trait]
@@ -255,7 +272,7 @@ mod test {
     use std::{collections::HashMap, io::Cursor};
 
     use headless_lms_models::{
-        exercise_slides,
+        course_instance_enrollments, exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
@@ -285,12 +302,20 @@ mod test {
         let u2 = users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
-            "second@example.org",
+            "second@example.com",
             None,
             None,
         )
         .await
         .unwrap();
+
+        course_instance_enrollments::insert(tx.as_mut(), user, course, instance.id)
+            .await
+            .unwrap();
+        course_instance_enrollments::insert(tx.as_mut(), u2, course, instance.id)
+            .await
+            .unwrap();
+
         let c2 = chapters::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,
@@ -417,15 +442,16 @@ mod test {
         let mut exercise_with_user_state =
             ExerciseWithUserState::new(exercise, user_exercise_state).unwrap();
         let jwt_key = Arc::new(JwtKey::test_key());
+        let app_conf = crate::test_helper::init_app_conf().expect("app conf");
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,
             &StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
-                exercise_task_submissions: vec![StudentExerciseTaskSubmission {
-                    exercise_task_id: et,
-                    data_json: Value::Null,
-                }],
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    et,
+                    Value::Null,
+                )],
             },
             GradingPolicy::Fixed(HashMap::from([(
                 et,
@@ -439,7 +465,9 @@ mod test {
                 },
             )])),
             models_requests::fetch_service_info,
-            models_requests::make_grading_request_sender(jwt_key),
+            models_requests::make_grading_request_sender(jwt_key, app_conf.base_url.clone()),
+            &crate::test_helper::init_file_store(),
+            &app_conf,
         )
         .await
         .unwrap();

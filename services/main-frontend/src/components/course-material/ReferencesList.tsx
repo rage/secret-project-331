@@ -2,10 +2,10 @@
 
 import React from "react"
 
-import References from "./references/index"
-
 import usePageReferences from "@/hooks/course-material/usePageReferences"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import References from "./references/index"
 
 interface ReferencesProps {
   courseId: string

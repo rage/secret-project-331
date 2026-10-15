@@ -1,7 +1,8 @@
 // Require imports needs to happen in a specific order.
 
-import { Block } from "@wordpress/blocks"
 import * as jsdom from "jsdom"
+
+import type { BlockType } from "@/utils/Gutenberg/types"
 const { JSDOM } = jsdom
 
 const dom = new JSDOM(`<body>
@@ -33,20 +34,20 @@ global.navigator = dom.window.navigator
 global.CSS = {}
 
 // The following import order matters and are dependant on above window definition.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// oxlint-disable-next-line typescript/no-require-imports
 const blockLibrary = require("@wordpress/block-library")
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// oxlint-disable-next-line typescript/no-require-imports
 const blocks = require("@wordpress/blocks")
 
-async function main() {
+function main() {
   blockLibrary.registerCoreBlocks()
-  const allBlockInstances: Block<Record<string, unknown>>[] = blocks.getBlockTypes()
+  const allBlockInstances: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const coreBlocks = allBlockInstances.map((block) => block.name)
   console.log("Gutenberg all Core block names:")
   console.log(coreBlocks)
   const embedBlocks = blocks
     .getBlockType("core/embed")
-    .variations.map((block: Block<Record<string, unknown>>) => block.name)
+    .variations.map((block: BlockType<Record<string, unknown>>) => block.name)
   console.log("Gutenberg all core/embed names:")
   console.log(embedBlocks)
 }

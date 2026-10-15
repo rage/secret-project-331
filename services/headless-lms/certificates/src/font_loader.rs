@@ -2,13 +2,11 @@
 
 use std::path::Path;
 
-use headless_lms_models::prelude::PgConnection;
 use headless_lms_utils::file_store::FileStore;
-use headless_lms_utils::prelude::*;
-use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
-use tracing::info;
 use tracing::log::warn;
 use usvg::fontdb;
+
+use crate::prelude::*;
 
 /// Creates an empty [fontdb::Database] and loads all the fonts specified in the database table `certificate_fonts` into it. Note that the font database will not contain any system fonts to prevent us from creating any accidential hidden dependencies on the system fonts.
 pub async fn get_font_database_with_fonts(

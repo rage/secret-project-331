@@ -1,6 +1,8 @@
 "use client"
 
-import React, { DetailedHTMLProps, HTMLAttributes } from "react"
+import type { DetailedHTMLProps, HTMLAttributes } from "react"
+import React from "react"
+
 import "katex/dist/katex.min.css"
 
 const LatexParagraph: React.FC<

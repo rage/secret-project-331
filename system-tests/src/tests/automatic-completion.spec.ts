@@ -1,10 +1,11 @@
 import { expect, test } from "@playwright/test"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -32,7 +33,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Have to wait until the submit is done
   await page.getByText(`Good job!`).waitFor()
 
-  await page.getByText("Automatic Completions").click()
+  await page.getByRole("link", { name: "Automatic Completions" }).click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.getByText("Congratulations!").waitFor()
   await expectScreenshotsToMatchSnapshots({
@@ -49,32 +50,41 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     beforeScreenshot: () => page.getByText("Congratulations!").scrollIntoViewIfNeeded(),
   })
 
+  // Only the completed module's CTA is an enabled link; others render as disabled buttons
+  await page.getByRole("link", { name: "Register", exact: true }).click()
+
+  // The page still has to load its completion data; clicking "No" before that resolves races
+  // the control being replaced under the click, which can drop the click.
   await page
-    .getByLabel("Register completion for Automatic Completions")
-    .getByRole("button", { name: "Register" })
-    .click()
+    .getByText("Are you a student or an exchange student at the University of Helsinki?")
+    .waitFor()
+  await page.getByRole("radio", { name: "No", exact: true }).check()
+  await page
+    .getByText(
+      "Completions of this course are registered through the Open University of the University of Helsinki.",
+    )
+    .waitFor()
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "automatic-completion-registration-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Register completion")],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Register completion" })],
   })
 
-  await page.getByText("To the registration form").click()
+  await page.getByText("Go to the enrolment form").click()
   await page.waitForURL("https://www.example.com", { waitUntil: "commit" })
 
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
-  await Promise.all([
-    page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click(),
-  ])
+  await page.getByRole("link", { name: "Manage course 'Automatic Completions'" }).click()
   await expect(page).toHaveURL(
-    "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f",
+    "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/overview",
   )
 
-  await Promise.all([page.getByRole("tab", { name: "Modules" }).click()])
+  await page.getByRole("tab", { name: "Modules" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/b39b64f3-7718-4556-ac2b-333f3ed4096f/modules",
   )
@@ -84,14 +94,14 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     .locator('form:has-text("Default module")')
     .getByRole("button", { name: "Edit" })
     .click()
-  // await page.locator('[aria-label="Edit"]').nth(1).click()
   await page.getByLabel("Override completion registration link").check()
-  await page.getByPlaceholder("Completion registration link").click()
   await page
-    .getByPlaceholder("Completion registration link")
+    .getByLabel("Completion registration link", { exact: true })
     .fill("https://www.example.com/override")
-  await page.getByLabel("Confirm").click()
-  await page.getByRole("button", { name: "Save changes" }).click()
+  await page.getByRole("button", { name: "Done" }).click()
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save changes" }).click()
+  })
 
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
@@ -100,13 +110,23 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.getByText("Congratulations!").waitFor()
 
-  await page
-    .getByLabel("Register completion for Automatic Completions")
-    .getByRole("button", { name: "Register" })
-    .click()
+  // Only the completed module's CTA is an enabled link; others render as disabled buttons
+  await page.getByRole("link", { name: "Register", exact: true }).click()
 
-  await page.getByText("Use this email address").first().waitFor()
-  await page.getByText("To the registration form").click()
+  // The page still has to load its completion data; clicking "No" before that resolves races
+  // the control being replaced under the click, which can drop the click.
+  await page
+    .getByText("Are you a student or an exchange student at the University of Helsinki?")
+    .waitFor()
+  await page.getByRole("radio", { name: "No", exact: true }).check()
+  await page
+    .getByText(
+      "Completions of this course are registered through the Open University of the University of Helsinki.",
+    )
+    .waitFor()
+
+  await page.getByText("Use this email address on the enrolment form").first().waitFor()
+  await page.getByText("Go to the enrolment form").click()
   // Wait for the redirection
   await page.waitForURL("https://www.example.com/override", { waitUntil: "commit" })
 })

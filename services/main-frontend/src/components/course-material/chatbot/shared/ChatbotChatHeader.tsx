@@ -1,38 +1,41 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
-import React, { DOMAttributes } from "react"
+import { Account, AddMessage, ArrowDownToBracket, Pencil } from "@vectopus/atlas-icons-react"
+import { useRouter } from "next/navigation"
+import type { DOMAttributes } from "react"
+import React from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import ClarificationTooltip from "../../../ClarificationTooltip"
-
-import DropdownMenu, { DropdownMenuItem } from "@/components/DropdownMenu"
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import type { DropdownMenuItem } from "@/components/DropdownMenu"
+import DropdownMenu from "@/components/DropdownMenu"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
+import { removeSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
 
+import ClarificationTooltip from "../../../ClarificationTooltip"
+import { useChatbotContext } from "./ChatbotContext"
+
+const ERROR_DETAILS_MAX_HEIGHT = "35vh"
+
 interface ChatbotDialogHeaderProps {
-  isCourseMaterialBlock: false
+  isAlwaysOpen: false
   closeChatbot: () => void
   titleProps: DOMAttributes<Element>
 }
 
 interface ChatbotNoDialogHeaderProps {
-  isCourseMaterialBlock: true
+  isAlwaysOpen: true
 }
 
-type ChatbotChatHeaderProps = {
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-} & (ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps)
+type ChatbotChatHeaderProps = ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps
 
 const headerContainerStyle = css`
   display: flex;
@@ -91,9 +94,13 @@ const buttonsWrapper = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
+  const { isAlwaysOpen } = props
 
+  const { currentConversationInfo, newConversationMutation } = useChatbotContext()
+
+  const router = useRouter()
   const createTranscript = useToastMutation(
+    // oxlint-disable-next-line require-await -- async for the mutation Promise contract
     async () => {
       let info = currentConversationInfo.data
       if (info === undefined) {
@@ -102,7 +109,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       let transcript = createChatbotTranscript(info)
       downloadStringAsFile(
         transcript,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "txt",
         `${t("conversation-with", { name: info?.chatbot_name })}`,
       )
@@ -116,11 +123,12 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   let items: DropdownMenuItem[] = [
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-new-conversation-button",
       onAction: () => {
         if (!newConversationMutation.isPending) {
           newConversationMutation.mutate()
+          removeSavedChatbotAnonymousToken()
         }
       },
       disabled: newConversationMutation.isPending,
@@ -140,7 +148,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   if (currentConversationInfo.data?.current_conversation) {
     items.push({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-dl-transcript-button",
       onAction: createTranscript.mutate,
       disabled: createTranscript.isPending,
@@ -160,8 +168,51 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     })
   }
 
+  const chatbotConversationInfo = currentConversationInfo.data?.current_conversation
+
+  const permissionCheck = useAuthorizeMultiple(
+    chatbotConversationInfo?.course_id
+      ? [
+          {
+            action: { type: "teach" },
+            resource: { type: "course", id: chatbotConversationInfo.course_id },
+          },
+        ]
+      : [
+          {
+            action: { type: "edit" },
+            resource: { type: "global_permissions" },
+          },
+        ],
+  )
+
+  const hasPermission = permissionCheck.isSuccess && permissionCheck.data?.some(Boolean)
+
+  if (hasPermission && chatbotConversationInfo) {
+    items.push({
+      // oxlint-disable-next-line i18next/no-literal-string
+      id: "chatbot-header-menu-edit-chatbot-button",
+      onAction: () => {
+        router.push(manageChatbotRoute(chatbotConversationInfo.chatbot_configuration_id))
+      },
+      icon: (
+        <Pencil
+          className={css`
+            color: ${baseTheme.colors.green[700]};
+            position: relative;
+            height: 22px;
+            width: 22px;
+            top: -0.275rem;
+          `}
+        />
+      ),
+      type: "action",
+
+      label: t("edit-chatbot"),
+    })
+  }
   if (currentConversationInfo.isLoading) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion minHeight={64} />
   }
 
   if (currentConversationInfo.isError) {
@@ -174,7 +225,11 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           padding: 20px;
         `}
       >
-        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+        <ErrorNotice
+          error={currentConversationInfo.error}
+          maxHeight="50vh"
+          detailsMaxHeight={ERROR_DETAILS_MAX_HEIGHT}
+        />
       </div>
     )
   }
@@ -184,18 +239,14 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       <div className={iconStyle}>
         <Account />
       </div>
-      <Heading
-        slot="title"
-        className={titleStyle}
-        {...(isCourseMaterialBlock ? {} : props.titleProps)}
-      >
+      <Heading slot="title" className={titleStyle} {...(isAlwaysOpen ? {} : props.titleProps)}>
         {currentConversationInfo.data?.chatbot_name}
       </Heading>
       <div className={buttonsWrapper}>
         <DropdownMenu
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           menuTestId="chatbot-header-menu"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           menuButtonTestId="chatbot-header-menu-button"
           controlButtonClassName={buttonStyle}
           controlButtonIconColor={`${baseTheme.colors.green[700]}`}
@@ -204,7 +255,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
           controlButtonIconWidth={24}
           items={items}
         />
-        {!isCourseMaterialBlock && (
+        {!isAlwaysOpen && (
           <ClarificationTooltip text={t("close")}>
             <Button
               slot="close"

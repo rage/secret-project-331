@@ -6,15 +6,19 @@ enforce_inotify_watches_limit_sufficient
 
 ensure_program_in_path docker
 
-if groups | grep -q '\bdocker\b'; then
-    echo "Current user is in the docker group."
-else
-    echo 'Error: you are not in the docker group. Please follow the instructions from https://docs.docker.com/engine/install/linux-postinstall/'
-    exit 255
+# The docker group is a Linux-only concept.
+if [ "$(uname -s)" = "Linux" ]; then
+  if { id -Gn 2> /dev/null || true; } | tr ' ' '\n' | grep -xq docker; then
+      echo "Current user is in the docker group."
+  else
+      echo 'Error: you are not in the docker group. Please follow the instructions from https://docs.docker.com/engine/install/linux-postinstall/'
+      exit 255
+  fi
 fi
 echo "Testing if docker works"
 
-if [ "$(docker context inspect | grep '"Name"' | grep -c "desktop-linux")" -eq "1" ]; then
+# The "switch to native Docker Engine" advice below only applies on Linux.
+if [ "$(uname -s)" = "Linux" ] && [ "$(docker context inspect | grep '"Name"' | grep -c "desktop-linux")" -eq "1" ]; then
   echo -e "$RED"
   echo "Warning: You are using the docker desktop docker context. Other developers have reported problems with this setup."
   echo "If you encounter problems with running docker try the following:"
@@ -40,10 +44,211 @@ fi
 
 echo ""
 
+echo "Checking if certificate seed fonts are hydrated"
+SEED_FONTS_PATH="services/headless-lms/server/src/programs/seed/data"
+GIT_ROOT="$(git -C "$BASEDIR" rev-parse --show-toplevel)"
+if (cd "$GIT_ROOT" && git grep -I -l -m 1 "version https://git-lfs.github.com/spec/v1" -- "$SEED_FONTS_PATH") > /dev/null 2>&1; then
+  echo "Certificate seed fonts are git-lfs pointer files, please run: git lfs pull --include=\"$SEED_FONTS_PATH\""
+  exit 255
+fi
+echo "Certificate seed fonts are hydrated"
+
+echo ""
+
 DOMAIN="project-331.local"
+HOSTS_FILE="/etc/hosts"
+
+function confirm() {
+  local prompt="$1"
+  local answer
+
+  if [ ! -t 0 ]; then
+    return 1
+  fi
+
+  while true; do
+    read -r -p "$prompt [y/N] " answer
+    case "$answer" in
+      [Yy]|[Yy][Ee][Ss])
+        return 0
+        ;;
+      ""|[Nn]|[Nn][Oo])
+        return 1
+        ;;
+      *)
+        echo "Please answer yes or no."
+        ;;
+    esac
+  done
+}
+
+function run_as_root() {
+  if command -v pkexec &> /dev/null; then
+    if run_command pkexec "$@"; then
+      return 0
+    fi
+    echo "pkexec failed. Falling back to sudo."
+  fi
+
+  if command -v sudo &> /dev/null; then
+    run_command sudo "$@"
+  else
+    echo "Neither pkexec nor sudo is installed or in your \$PATH. Please update $HOSTS_FILE manually."
+    return 255
+  fi
+}
+
+function resolve_domain_ip() {
+  local domain="$1"
+  # macOS has no getent; use dscacheutil there, getent elsewhere. Non-zero = unresolved.
+  if [ "$(uname -s)" = "Darwin" ]; then
+    local ip
+    ip=$(dscacheutil -q host -a name "$domain" | awk '/^ip_address:/{ print $2; exit }')
+    [ -n "$ip" ] || return 2
+    printf '%s\n' "$ip"
+  else
+    getent hosts "$domain" | awk '{ print $1; exit }'
+  fi
+}
+
+function create_proposed_hosts_file() {
+  local domain="$1"
+  local ip="$2"
+  local proposed_hosts_file="$3"
+  local updated_hosts_file
+
+  updated_hosts_file=$(mktemp)
+  cp "$HOSTS_FILE" "$proposed_hosts_file"
+  awk -v domain="$domain" '
+    /^[[:space:]]*#/ || NF == 0 {
+      print
+      next
+    }
+    {
+      contains_domain = 0
+      comment_start = NF + 1
+      for (i = 1; i <= NF; i++) {
+        if ($i ~ /^#/) {
+          comment_start = i
+          break
+        }
+      }
+
+      output = $1
+      alias_count = 0
+      for (i = 2; i < comment_start; i++) {
+        if ($i == domain) {
+          contains_domain = 1
+        } else {
+          output = output "\t" $i
+          alias_count++
+        }
+      }
+      if (!contains_domain) {
+        print
+        next
+      }
+      if (alias_count > 0) {
+        if (comment_start <= NF) {
+          output = output "\t"
+          for (i = comment_start; i <= NF; i++) {
+            output = output (i == comment_start ? "" : " ") $i
+          }
+        }
+        print output
+      }
+    }
+  ' "$proposed_hosts_file" > "$updated_hosts_file"
+  printf "%s\t%s\n" "$ip" "$domain" >> "$updated_hosts_file"
+  mv "$updated_hosts_file" "$proposed_hosts_file"
+}
+
+function print_colored_diff() {
+  local line
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      +++*|---*)
+        printf "%s\n" "$line"
+        ;;
+      +*)
+        printf "%b%s%b\n" "$GREEN" "$line" "$RESET_EVERYTHING"
+        ;;
+      -*)
+        printf "%b%s%b\n" "$RED" "$line" "$RESET_EVERYTHING"
+        ;;
+      *)
+        printf "%s\n" "$line"
+        ;;
+    esac
+  done < "$1"
+}
+
+function ask_to_update_hosts() {
+  local domain="$1"
+  local ip="$2"
+  local proposed_hosts_file
+  local patch_file
+  local patch_command
+  local diff_status
+
+  if [ ! -t 0 ]; then
+    echo "Cannot ask to update $HOSTS_FILE automatically because stdin is not interactive."
+    echo "Please update $HOSTS_FILE manually."
+    return 255
+  fi
+
+  ensure_program_in_path diff
+  ensure_program_in_path patch
+
+  proposed_hosts_file=$(mktemp)
+  patch_file=$(mktemp)
+  create_proposed_hosts_file "$domain" "$ip" "$proposed_hosts_file"
+
+  if diff -u -L "$HOSTS_FILE" -L "$HOSTS_FILE (updated)" "$HOSTS_FILE" "$proposed_hosts_file" > "$patch_file"; then
+    diff_status=0
+  else
+    diff_status=$?
+  fi
+  rm -f "$proposed_hosts_file"
+
+  if [ "$diff_status" -gt 1 ]; then
+    rm -f "$patch_file"
+    echo "Failed to create a diff for $HOSTS_FILE. Please update it manually."
+    return 255
+  fi
+
+  if [ "$diff_status" -eq 0 ]; then
+    rm -f "$patch_file"
+    echo "$HOSTS_FILE already contains the expected entry."
+    return 0
+  fi
+
+  echo "Proposed change to $HOSTS_FILE:"
+  print_colored_diff "$patch_file"
+  echo ""
+
+  if confirm "Apply this change to $HOSTS_FILE?"; then
+    patch_command=$(command -v patch)
+    if ! run_as_root "$patch_command" --batch --forward "$HOSTS_FILE" "$patch_file"; then
+      rm -f "$patch_file"
+      return 255
+    fi
+    rm -f "$patch_file"
+    echo "Updated $HOSTS_FILE."
+    echo ""
+  else
+    rm -f "$patch_file"
+    echo "Please update $HOSTS_FILE manually."
+    return 255
+  fi
+}
 
 ensure_program_in_path minikube
-ensure_program_in_path getent
+# getent is Linux-only.
+if [ "$(uname -s)" = "Linux" ]; then
+  ensure_program_in_path getent
+fi
 
 if [ "$(minikube status --format '{{.APIServer}}')" = "Running" ]; then
   echo "Minikube is running."
@@ -55,24 +260,53 @@ fi
 
 echo ""
 
-if ! getent hosts "$DOMAIN" > /dev/null; then
-    echo "Error: cannot resolve an ip for $DOMAIN. Please update your /etc/hosts according to the documentation."
-    exit 255
-fi
-
-
-PROJECT_DOMAIN_IP=$(getent hosts "$DOMAIN" | awk '{ print $1 }')
-echo "Resolved ip for $DOMAIN: $PROJECT_DOMAIN_IP"
-
 MINIKUBE_IP=$(minikube ip)
 echo "Minikube ip: $MINIKUBE_IP"
 
-if [ "$PROJECT_DOMAIN_IP" = "$MINIKUBE_IP" ]; then
+# On macOS the docker driver's IP isn't routable from the host, so the domain
+# must point at 127.0.0.1 via `minikube tunnel`; use that as the expected IP.
+EXPECTED_IP="$MINIKUBE_IP"
+if [ "$(uname -s)" = "Darwin" ]; then
+  MINIKUBE_DRIVER=$(minikube profile list -o json 2>/dev/null | grep -o '"Driver":"[^"]*"' | head -n1 | cut -d'"' -f4)
+  if [ "$MINIKUBE_DRIVER" = "docker" ]; then
+    EXPECTED_IP="127.0.0.1"
+    echo "Detected the docker driver on macOS: $DOMAIN should point at $EXPECTED_IP, served via 'minikube tunnel' (not the minikube IP, which is unreachable from the host)."
+    if command -v pgrep > /dev/null 2>&1 && ! pgrep -f "minikube tunnel" > /dev/null 2>&1; then
+      echo -e "${RED}Warning: 'minikube tunnel' does not appear to be running. Start it in a separate terminal that stays open (it needs sudo), otherwise the site is unreachable even with a correct $HOSTS_FILE entry.${RESET_EVERYTHING}"
+    fi
+  fi
+fi
+
+if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
+  echo "Error: cannot resolve an ip for $DOMAIN."
+  ask_to_update_hosts "$DOMAIN" "$EXPECTED_IP"
+fi
+
+if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
+  echo "Error: still cannot resolve an ip for $DOMAIN. Please check $HOSTS_FILE manually."
+  exit 255
+fi
+echo "Resolved ip for $DOMAIN: $PROJECT_DOMAIN_IP"
+
+if [ "$PROJECT_DOMAIN_IP" = "$EXPECTED_IP" ]; then
   echo "The ips match."
   echo ""
 else
- echo "The ips don't match. Please update your /etc/hosts"
- exit 255
+  echo "The ips don't match."
+  ask_to_update_hosts "$DOMAIN" "$EXPECTED_IP"
+
+  if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
+    echo "Error: cannot resolve an ip for $DOMAIN after updating $HOSTS_FILE. Please check it manually."
+    exit 255
+  fi
+  echo "Resolved ip for $DOMAIN after updating $HOSTS_FILE: $PROJECT_DOMAIN_IP"
+
+  if [ "$PROJECT_DOMAIN_IP" != "$EXPECTED_IP" ]; then
+    echo "The ips still don't match. Please check $HOSTS_FILE manually."
+    exit 255
+  fi
+  echo "The ips match."
+  echo ""
 fi
 
 echo "Checking if the ingress works"

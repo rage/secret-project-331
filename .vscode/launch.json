@@ -51,13 +51,13 @@
       "request": "launch",
       "name": "Debug executable 'doc-file-generator'",
       "cargo": {
-        "args": ["build", "--bin=doc-file-generator", "--package=headless-lms-actix"],
+        "args": ["build", "--bin=headless-lms-entrypoint", "--package=headless-lms-entrypoint"],
         "filter": {
-          "name": "doc-file-generator",
+          "name": "headless-lms-entrypoint",
           "kind": "bin"
         }
       },
-      "args": [],
+      "args": ["doc-file-generator"],
       "cwd": "${workspaceFolder}"
     },
     {
@@ -65,13 +65,18 @@
       "request": "launch",
       "name": "Debug unit tests in executable 'doc-file-generator'",
       "cargo": {
-        "args": ["test", "--no-run", "--bin=doc-file-generator", "--package=headless-lms-actix"],
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=headless-lms-entrypoint",
+          "--package=headless-lms-entrypoint"
+        ],
         "filter": {
-          "name": "doc-file-generator",
+          "name": "headless-lms-entrypoint",
           "kind": "bin"
         }
       },
-      "args": [],
+      "args": ["doc-file-generator"],
       "cwd": "${workspaceFolder}"
     },
     {

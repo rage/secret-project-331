@@ -5,13 +5,14 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
-
-import { fetchUserChapterInstanceChapterProgress } from "@/services/course-material/backend"
-import Progress from "@/shared-module/common/components/CourseProgress"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import CircularProgress from "@/components/course-progress/CircularProgress"
+import ProgressBar from "@/components/course-progress/ProgressBar"
+import { describeProgress, PROGRESS_UNIT } from "@/components/course-progress/progressText"
+import { getCourseMaterialChapterProgress } from "@/generated/course-material-api/sdk.generated"
+import type { UserCourseInstanceChapterProgress } from "@/generated/course-material-api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 interface ChapterProgressProps {
   chapterId: string
@@ -22,54 +23,73 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
   chapterId,
   courseInstanceId,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const getUserChapterProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    queryFn: () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
+    queryFn: (): Promise<UserCourseInstanceChapterProgress> =>
+      getCourseMaterialChapterProgress({
+        path: {
+          chapter_id: chapterId,
+          course_instance_id: courseInstanceId,
+        },
+      }),
   })
 
   return (
     <div>
-      {getUserChapterProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
-      )}
-      {getUserChapterProgress.isLoading && <Spinner variant={"medium"} />}
-      {getUserChapterProgress.isSuccess && (
-        <div
-          className={css`
-            width: 100%;
-            text-align: center;
-            padding: 1em 0 2em 0;
-            margin: 5em auto;
-            background: rgba(242, 245, 247, 0.8);
-          `}
-        >
-          {/* TODO: Verify how it looks when score_given is a floating number */}
-          <Progress
-            variant="circle"
-            max={getUserChapterProgress.data.score_maximum}
-            given={getUserChapterProgress.data.score_given}
-            label={t("chapter-progress")}
-          />
-          <div
-            className={css`
-              padding: 0 2rem;
-              ${respondToOrLarger.md} {
-                padding: 0 6rem;
-              }
-            `}
-          >
-            <Progress
-              variant={"bar"}
-              showAsPercentage={false}
-              exercisesAttempted={getUserChapterProgress.data.attempted_exercises}
-              exercisesTotal={getUserChapterProgress.data.total_exercises}
-              label={t("exercises-attempted")}
-            />
-            <ColorsIdentifier />
-          </div>
-        </div>
-      )}
+      <QueryResult query={getUserChapterProgress}>
+        {(data) => {
+          const points = { given: data.score_given, max: data.score_maximum, required: null }
+          const exercises = {
+            given: data.attempted_exercises ?? null,
+            max: data.total_exercises ?? null,
+            required: null,
+          }
+          const pointsText = describeProgress(PROGRESS_UNIT.POINTS, points, t, i18n.language, false)
+          const exercisesText = describeProgress(
+            PROGRESS_UNIT.EXERCISES,
+            exercises,
+            t,
+            i18n.language,
+            false,
+          )
+          return (
+            <div
+              className={css`
+                width: 100%;
+                text-align: center;
+                padding: 1em 0 2em 0;
+                margin: 5em auto;
+                background: ${baseTheme.colors.blue[50]}CC;
+              `}
+            >
+              <CircularProgress
+                max={data.score_maximum}
+                given={data.score_given}
+                label={t("chapter-progress")}
+                valueText={pointsText.valueText}
+                explanations={pointsText.explanations}
+              />
+              <div
+                className={css`
+                  padding: 0 2rem;
+                  ${respondToOrLarger.md} {
+                    padding: 0 6rem;
+                  }
+                `}
+              >
+                <ProgressBar
+                  exercisesAttempted={exercises.given}
+                  exercisesTotal={exercises.max}
+                  label={t("exercises-attempted")}
+                  valueText={exercisesText.valueText}
+                  explanations={exercisesText.explanations}
+                />
+              </div>
+            </div>
+          )
+        }}
+      </QueryResult>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -10,6 +11,7 @@ interface DynamicSvgProps {
 }
 
 const DynamicSvg: React.FC<DynamicSvgProps> = ({ src }) => {
+  const { t } = useTranslation()
   const [svgContent, setSvgContent] = useState<string | null>(null)
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const DynamicSvg: React.FC<DynamicSvgProps> = ({ src }) => {
   }, [src])
 
   if (!svgContent) {
-    return <p>Loading SVG...</p>
+    return <p>{t("loading")}</p>
   }
 
   return (

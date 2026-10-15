@@ -1,10 +1,12 @@
-import { expect, Page, test } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { hideToasts, waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -15,7 +17,7 @@ const pageOrderingText = "Do you want to save the changes to the page ordering?"
 
 async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisible: boolean) {
   await test.step("Verify dialog state", async () => {
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (chapterVisible) {
       await expect(page.getByText(chapterOrderingText)).toBeVisible()
     } else {
@@ -23,7 +25,7 @@ async function verifyDialogState(page: Page, chapterVisible: boolean, pageVisibl
       await expect(page.getByText(chapterOrderingText)).toHaveCount(0)
     }
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (pageVisible) {
       await expect(page.getByText(pageOrderingText)).toBeVisible()
     } else {
@@ -39,7 +41,7 @@ async function moveChapter(page: Page, chapterHeading: string, direction: "up" |
       .getByRole("heading", { name: new RegExp(chapterHeading) })
       .getByRole("button", { name: "Dropdown menu" })
       .click()
-    await page.getByRole("button", { name: `Move ${direction}` }).click()
+    await page.getByRole("menuitem", { name: `Move ${direction}` }).click()
     await verifyDialogState(page, true, false)
   })
 }
@@ -48,7 +50,7 @@ async function movePage(page: Page, pageText: string, direction: "up" | "down") 
   await test.step(`Move page "${pageText}" ${direction}`, async () => {
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
     await pageRow.getByLabel("Dropdown menu").click()
-    await page.getByRole("button", { name: `Move ${direction}` }).click()
+    await page.getByRole("menuitem", { name: `Move ${direction}` }).click()
     await verifyDialogState(page, false, true)
   })
 }
@@ -59,9 +61,10 @@ async function deletePage(page: Page, pageText: string) {
     await pageRow.getByLabel("Dropdown menu").click()
 
     await hideToasts(page)
-    await page.getByRole("button", { name: "Delete" }).click()
+    await page.getByRole("menuitem", { name: "Delete" }).click()
     await respondToConfirmDialog(page, true)
     await expect(page.getByText("Successfully deleted")).toBeVisible()
+    await expect(page.getByRole("row").filter({ hasText: pageText })).toHaveCount(0)
     await verifyDialogState(page, false, true)
   })
 }
@@ -142,11 +145,11 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
       .getByRole("heading", { name: /Chapter 2: The intermediaries/ })
       .getByRole("button", { name: "Dropdown menu" })
       .click()
-    await page.getByRole("button", { name: "Edit", exact: true }).click()
+    await page.getByRole("menuitem", { name: "Edit", exact: true }).click()
 
     await page.getByLabel("Name").first().fill("The intermediaries TEST change")
-    await page.getByLabel("Set Deadline").first().check()
-    await page.getByLabel("Deadline", { exact: true }).first().fill("2050-01-01T23:59:13")
+    await page.getByRole("checkbox", { name: "Set Deadline" }).first().check()
+    await new DateTimeLocalField(page, "chapter-deadline-field").setValue("2050-01-01T23:59")
 
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Update" }).click()

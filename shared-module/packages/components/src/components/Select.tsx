@@ -1,15 +1,35 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { Item, Section } from "@react-stately/collections"
+import { useAutocompleteState } from "@react-stately/autocomplete"
+import { useSearchFieldState } from "@react-stately/searchfield"
 import { useSelectState } from "@react-stately/select"
-import type { CollectionElement, ItemElement } from "@react-types/shared"
-import React, { useId, useImperativeHandle, useMemo, useRef } from "react"
-import { HiddenSelect, useButton, useSelect } from "react-aria"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import { omit } from "lodash"
+import React, { useId, useMemo, useRef, useState, type RefObject } from "react"
+import {
+  mergeProps,
+  useButton,
+  useSelect,
+  useSearchField,
+  useFilter,
+  useAutocomplete,
+  FocusScope,
+} from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 
-import { resolveFieldState, toInputValue } from "../lib/utils/field"
-
-import { ListBox } from "./primitives/ListBox"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { composeRefs } from "../lib/utils/compositeField"
+import { toInputValue } from "../lib/utils/field"
+import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
+import {
+  buildSelectCollectionNodes,
+  type NormalizedSelectOption,
+  normalizeSelectOptions,
+  type SelectOption,
+  type SelectOptionGroup,
+} from "../lib/utils/select"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -19,55 +39,41 @@ import {
   resolveSelectTriggerCss,
   selectTriggerValuePlaceholderCss,
 } from "./primitives/fieldStyles"
+import { ListBox } from "./primitives/ListBox"
 import { Popover } from "./primitives/popover"
 import { comboChevronCss } from "./primitives/selectStyles"
 
-type SelectOptionRecord = {
-  key: string
-  value: string
-  textValue: string
-  rendered: React.ReactNode
-  isDisabled: boolean
-}
+export type { SelectOption, SelectOptionGroup }
 
-type ChildrenProp = {
-  children?: React.ReactNode
-}
-
-type OptionElement = React.ReactElement<React.ComponentPropsWithoutRef<"option">, "option">
-type OptGroupElement = React.ReactElement<React.ComponentPropsWithoutRef<"optgroup">, "optgroup">
-
-function isElementWithChildren(node: React.ReactNode): node is React.ReactElement<ChildrenProp> {
-  return React.isValidElement<ChildrenProp>(node)
-}
-
-function isOptionElement(node: React.ReactNode): node is OptionElement {
-  return (
-    React.isValidElement<React.ComponentPropsWithoutRef<"option">>(node) && node.type === "option"
-  )
-}
-
-function isOptGroupElement(node: React.ReactNode): node is OptGroupElement {
-  return (
-    React.isValidElement<React.ComponentPropsWithoutRef<"optgroup">>(node) &&
-    node.type === "optgroup"
-  )
-}
-
-export type SelectProps = React.ComponentPropsWithoutRef<"select"> & {
+/**
+ * Custom select (listbox + button trigger) with label and error display.
+ * Uses react-hook-form; pass `name` and `control`. Field value is the option `value` string.
+ *
+ * @example
+ * <Select name="role" control={control} label="Role" options={[{ value: "a", label: "A" }]} />
+ */
+export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
   isDisabled?: boolean
   isRequired?: boolean
-  isInvalid?: boolean
+  options: readonly (SelectOption | SelectOptionGroup)[]
+  placeholder?: React.ReactNode
+  id?: string
+  autoComplete?: string
+  onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
+  className?: string
+  searchEnabled?: boolean
+  searchPlaceholder?: string
+  /** Lands on the trigger button; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
-
-// eslint-disable-next-line i18next/no-literal-string
-const optionKeyFallback = "option"
-// eslint-disable-next-line i18next/no-literal-string
-const eventTargetValueProperty = "value"
 
 const selectRootCss = css`
   position: relative;
@@ -92,327 +98,313 @@ const triggerChevronCss = css`
   color: var(--field-chrome);
 `
 
-function getNodeTextValue(node: React.ReactNode): string {
-  if (node == null || typeof node === "boolean") {
-    return ""
+const searchfieldCss = css`
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  padding: 0 2rem;
+  width: 100%;
+  outline: none;
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  min-height: 2.5rem;
+  &:focus-visible {
+    box-shadow: none;
+    outline: 2px solid var(--field-border-color-focus);
   }
+`
 
-  if (typeof node === "string" || typeof node === "number") {
-    return String(node)
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(getNodeTextValue).join("")
-  }
-
-  if (isElementWithChildren(node)) {
-    return getNodeTextValue(node.props.children)
-  }
-
-  return ""
+function isRefObjectHTMLUListElementOrNull(
+  ref: RefObject<HTMLElement | null>,
+): ref is RefObject<HTMLUListElement | null> {
+  return ref.current === null || ref.current instanceof HTMLUListElement
 }
 
-function buildSelectCollection(children: React.ReactNode) {
-  const collectionChildren: CollectionElement<SelectOptionRecord>[] = []
-  const disabledKeys: string[] = []
-  const options: SelectOptionRecord[] = []
-  const valueToKey = new Map<string, string>()
-  const seenKeys = new Set<string>()
-  let generatedIndex = 0
-
-  function getOptionKey(value: string) {
-    if (!seenKeys.has(value)) {
-      seenKeys.add(value)
-      return value
-    }
-
-    generatedIndex += 1
-    const fallbackKey = `${value || optionKeyFallback}-${generatedIndex}`
-    seenKeys.add(fallbackKey)
-    return fallbackKey
-  }
-
-  function createOption(child: OptionElement) {
-    const textValue = getNodeTextValue(child.props.children)
-    const value = toInputValue(child.props.value ?? textValue)
-    const key = getOptionKey(value)
-
-    if (!valueToKey.has(value)) {
-      valueToKey.set(value, key)
-    }
-
-    const option = {
-      key,
-      value,
-      textValue,
-      rendered: child.props.children,
-      isDisabled: Boolean(child.props.disabled),
-    }
-
-    options.push(option)
-
-    if (option.isDisabled) {
-      disabledKeys.push(option.key)
-    }
-
-    return (
-      <Item key={option.key} textValue={option.textValue} aria-label={child.props["aria-label"]}>
-        {option.rendered}
-      </Item>
-    )
-  }
-
-  function walk(node: React.ReactNode) {
-    React.Children.forEach(node, (child, index) => {
-      if (!isElementWithChildren(child)) {
-        return
-      }
-
-      if (child.type === React.Fragment) {
-        walk(child.props.children)
-        return
-      }
-
-      if (isOptionElement(child)) {
-        collectionChildren.push(createOption(child) as CollectionElement<SelectOptionRecord>)
-        return
-      }
-
-      if (isOptGroupElement(child)) {
-        const sectionChildren: ItemElement<SelectOptionRecord>[] = []
-
-        React.Children.forEach(child.props.children, (optionChild) => {
-          if (isOptionElement(optionChild)) {
-            sectionChildren.push(createOption(optionChild) as ItemElement<SelectOptionRecord>)
-          }
-        })
-
-        collectionChildren.push(
-          (
-            <Section
-              key={`${child.props.label || "group"}-${index}`}
-              aria-label={child.props.label}
-              title={child.props.label}
-            >
-              {sectionChildren}
-            </Section>
-          ) as CollectionElement<SelectOptionRecord>,
-        )
-      }
-    })
-  }
-
-  walk(children)
-
-  return {
-    collectionChildren,
-    disabledKeys,
+export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: SelectProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    id,
+    label,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    isDisabled = false,
+    isRequired = false,
+    className,
     options,
-    valueToKey,
-  }
-}
+    placeholder,
+    autoComplete,
+    onKeyDown,
+    onKeyUp,
+    searchEnabled = false,
+    searchPlaceholder = "search",
+    "data-testid": dataTestId,
+  } = props
 
-function buildSelectChangeEvent(
-  name: string | undefined,
-  nextValue: string,
-): React.ChangeEvent<HTMLSelectElement> {
-  const eventTarget = document.createElement("select")
+  const [filterValue, setFilterValue] = useState("")
 
-  if (name) {
-    eventTarget.name = name
-  }
-
-  Object.defineProperty(eventTarget, eventTargetValueProperty, {
-    configurable: true,
-    enumerable: true,
-    value: nextValue,
+  let { contains } = useFilter({
+    // oxlint-disable-next-line i18next/no-literal-string
+    sensitivity: "base",
   })
 
-  return {
-    currentTarget: eventTarget,
-    target: eventTarget,
-  } as React.ChangeEvent<HTMLSelectElement>
-}
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
 
-export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
-  function Select(props, forwardedRef) {
-    const {
-      id,
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
+  const generatedInputId = useId()
+  const triggerId = id ?? generatedInputId
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const listBoxRef = useRef(null)
+  const hasFocusWithinRef = useRef(false)
+
+  const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
+
+  const collectionChildren = buildSelectCollectionNodes({
+    ...normalizedCollection,
+    options:
+      searchRef.current === document.activeElement
+        ? normalizedCollection.options.filter((option) => contains(option.textValue, filterValue))
+        : normalizedCollection.options,
+  })
+  const optionsByKey = useMemo(
+    () => new Map(normalizedCollection.options.map((option) => [option.key, option])),
+    [normalizedCollection.options],
+  )
+
+  const selectedKey = normalizedCollection.valueToKey.get(toInputValue(field.value)) ?? null
+  const state = useSelectState<NormalizedSelectOption>({
+    children: collectionChildren as never,
+    disabledKeys: normalizedCollection.disabledKeys,
+    value: selectedKey,
+    onSelectionChange: (key) => {
+      const selectedOption = key !== null ? optionsByKey.get(String(key)) : undefined
+      const nextValue = selectedOption?.value ?? ""
+      field.onChange(nextValue)
+    },
+    isDisabled,
+    isRequired,
+    isInvalid,
+    label,
+    description,
+    errorMessage: resolvedError,
+  })
+
+  const searchFieldState = useSearchFieldState({
+    value: filterValue,
+    onChange: setFilterValue,
+  })
+
+  const autoCompleteState = useAutocompleteState({})
+
+  const {
+    inputProps: autoCompleteInputProps,
+    collectionProps: collectionPropsWrong,
+    collectionRef: mergedCollectionRef,
+  } = useAutocomplete(
+    {
+      inputRef: searchRef,
+      collectionRef: listBoxRef,
+    },
+    autoCompleteState,
+  )
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionProps = omit(collectionPropsWrong, ["aria-label"])
+
+  // The collection id belongs to the listbox alone. Spreading it into useSelect below would land it
+  // on the trigger too, dropping the caller's id and leaving aria-controls pointing at the trigger.
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionPropsWithoutId = omit(collectionProps, ["id"])
+
+  const {
+    triggerProps,
+    valueProps,
+    labelProps: useSelectLabelProps,
+    menuProps,
+    descriptionProps,
+    errorMessageProps,
+    isInvalid: hookIsInvalid,
+    validationErrors,
+  } = useSelect(
+    {
+      id: triggerId,
+      disabledKeys: normalizedCollection.disabledKeys,
+      value: selectedKey,
       isDisabled,
       isRequired,
       isInvalid,
-      className,
-      disabled,
-      required,
-      children,
-      value,
-      defaultValue,
-      onChange,
-      onFocus,
-      onBlur,
-      onKeyDown,
-      onKeyUp,
-      name,
-      autoComplete,
-      form,
-      "aria-describedby": ariaDescribedBy,
-      "aria-invalid": ariaInvalid,
-      ...rest
-    } = props
-
-    const generatedInputId = useId()
-    const triggerId = id ?? generatedInputId
-    const buttonRef = useRef<HTMLButtonElement>(null)
-    const popoverRef = useRef<HTMLDivElement>(null)
-    const wrapperRef = useRef<HTMLDivElement>(null)
-
-    useImperativeHandle(forwardedRef, () => wrapperRef.current as HTMLDivElement)
-
-    const collection = useMemo(() => buildSelectCollection(children), [children])
-    const optionsByKey = useMemo(
-      () => new Map(collection.options.map((option) => [option.key, option])),
-      [collection.options],
-    )
-    const controlledValue = value !== undefined ? toInputValue(value) : undefined
-    const uncontrolledValue = defaultValue !== undefined ? toInputValue(defaultValue) : undefined
-    const resolvedState = resolveFieldState({
-      disabled,
-      required,
-      isDisabled,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
-
-    const selectedKey =
-      controlledValue !== undefined
-        ? (collection.valueToKey.get(controlledValue) ?? null)
-        : undefined
-    const defaultSelectedKey =
-      controlledValue === undefined
-        ? uncontrolledValue !== undefined
-          ? (collection.valueToKey.get(uncontrolledValue) ?? null)
-          : (collection.options[0]?.key ?? null)
-        : undefined
-
-    const state = useSelectState<SelectOptionRecord>({
-      children: collection.collectionChildren,
-      disabledKeys: collection.disabledKeys,
-      selectedKey,
-      defaultSelectedKey: defaultSelectedKey ?? undefined,
-      onSelectionChange: (key) => {
-        const option = key != null ? optionsByKey.get(String(key)) : undefined
-        onChange?.(buildSelectChangeEvent(name, option?.value ?? ""))
-      },
-      isDisabled: resolvedState.isDisabled,
-      isRequired: resolvedState.isRequired,
-      isInvalid: resolvedState.isInvalid,
       label,
       description,
-      errorMessage,
-      onBlur: onBlur as React.FocusEventHandler<Element> | undefined,
-      onFocus: onFocus as React.FocusEventHandler<Element> | undefined,
-      onKeyDown: onKeyDown as React.KeyboardEventHandler<Element> | undefined,
-      onKeyUp: onKeyUp as React.KeyboardEventHandler<Element> | undefined,
-    })
+      errorMessage: resolvedError,
+      name: field.name,
+      ...collectionPropsWithoutId,
+      ...omitUndefined({ autoComplete }),
+    },
+    state,
+    buttonRef,
+  )
 
-    const {
-      labelProps,
-      triggerProps,
-      valueProps,
-      menuProps,
-      descriptionProps,
-      errorMessageProps,
-      hiddenSelectProps,
-      isInvalid: hookIsInvalid,
-      validationErrors,
-    } = useSelect(
-      {
-        ...rest,
-        id: triggerId,
-        disabledKeys: collection.disabledKeys,
-        selectedKey,
-        defaultSelectedKey: defaultSelectedKey ?? undefined,
-        isDisabled: resolvedState.isDisabled,
-        isRequired: resolvedState.isRequired,
-        isInvalid: resolvedState.isInvalid,
-        label,
-        description,
-        errorMessage,
-        name,
-        autoComplete,
-        form,
-        "aria-describedby": ariaDescribedBy,
-        onBlur: onBlur as React.FocusEventHandler<Element> | undefined,
-        onFocus: onFocus as React.FocusEventHandler<Element> | undefined,
-        onKeyDown: onKeyDown as React.KeyboardEventHandler<Element> | undefined,
-        onKeyUp: onKeyUp as React.KeyboardEventHandler<Element> | undefined,
-      },
-      state,
-      buttonRef,
-    )
+  const { buttonProps } = useButton(triggerProps, buttonRef)
+  const { labelProps: useSearchFieldLabelProps, inputProps } = useSearchField(
+    { ...autoCompleteInputProps, placeholder: searchPlaceholder, "aria-label": searchPlaceholder },
+    searchFieldState,
+    searchRef,
+  )
 
-    const { buttonProps } = useButton(triggerProps, buttonRef)
-    const resolvedErrorMessage =
-      errorMessage ??
-      (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
-    const isFloated = state.isFocused || state.selectedItem != null
-    const selectedOption =
-      state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
-    const isPlaceholderState = selectedOption == null || selectedOption.value === ""
+  const labelProps = mergeProps(useSelectLabelProps, useSearchFieldLabelProps)
 
-    return (
-      <div ref={wrapperRef} className={cx(fieldRootCss, className)}>
-        <div
-          className={cx(fieldControlCss, selectRootCss)}
-          data-focused={state.isFocused ? "true" : "false"}
-          data-floated={isFloated ? "true" : "false"}
-          data-invalid={hookIsInvalid ? "true" : "false"}
-          data-placeholder={isPlaceholderState ? "true" : "false"}
+  const emitCompositeBlur = (relatedTarget: EventTarget | null) => {
+    const nextFocusedNode = relatedTarget as Node | null
+
+    if (
+      buttonRef.current?.contains(nextFocusedNode) ||
+      popoverRef.current?.contains(nextFocusedNode)
+    ) {
+      return
+    }
+
+    if (!hasFocusWithinRef.current) {
+      return
+    }
+
+    hasFocusWithinRef.current = false
+    field.onBlur()
+  }
+
+  const emitCompositeFocus = () => {
+    if (hasFocusWithinRef.current) {
+      return
+    }
+
+    hasFocusWithinRef.current = true
+  }
+  const mergedButtonProps = mergeProps(buttonProps, {
+    onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
+      emitCompositeBlur(event.relatedTarget)
+    },
+    onFocus: () => {
+      emitCompositeFocus()
+    },
+    onKeyDown,
+    onKeyUp,
+  })
+
+  const resolvedRenderedError = resolveRenderedErrorMessage(
+    resolvedError,
+    hookIsInvalid,
+    validationErrors,
+  )
+
+  const selectedOption = optionsByKey.get(String(state.value))
+  const isPlaceholderState = selectedOption === undefined
+  // A placeholder is drawn in the same band as the resting label, so one has to give way.
+  const isFloated = state.isOpen || selectedOption !== undefined || placeholder !== undefined
+  return (
+    <div className={cx(fieldRootCss, className)}>
+      <div
+        className={cx(fieldControlCss, selectRootCss)}
+        data-field-control="true"
+        data-focused={state.isFocused ? "true" : "false"}
+        data-floated={isFloated ? "true" : "false"}
+        data-invalid={hookIsInvalid ? "true" : "false"}
+        data-placeholder={isPlaceholderState ? "true" : "false"}
+      >
+        <button
+          {...mergedButtonProps}
+          // react-aria merges its own generated id over the one given to `useSelect`, so the
+          // caller's `id` only reaches the DOM if it is set here.
+          id={triggerId}
+          ref={composeRefs(buttonRef, field.ref)}
+          className={resolveSelectTriggerCss(fieldSize)}
+          type="button"
+          data-testid={dataTestId}
         >
-          <HiddenSelect {...hiddenSelectProps} />
-
-          <button {...buttonProps} ref={buttonRef} className={resolveSelectTriggerCss(fieldSize)}>
-            <span
-              {...valueProps}
-              className={cx(
-                triggerValueCss,
-                isPlaceholderState ? selectTriggerValuePlaceholderCss : undefined,
-              )}
-            >
-              {state.selectedItem?.rendered ?? null}
-            </span>
-            <span className={triggerChevronCss} aria-hidden="true">
-              <span className={comboChevronCss} />
-            </span>
-          </button>
-
-          <span {...labelProps} className={resolveSelectLabelCss(fieldSize)}>
-            {label}
+          <span
+            {...valueProps}
+            data-select-placeholder={isPlaceholderState ? "true" : undefined}
+            className={cx(
+              triggerValueCss,
+              isPlaceholderState ? selectTriggerValuePlaceholderCss : undefined,
+            )}
+          >
+            {selectedOption?.label ?? placeholder ?? null}
           </span>
+          <span className={triggerChevronCss} aria-hidden="true">
+            <span className={comboChevronCss} />
+          </span>
+        </button>
 
-          {state.isOpen ? (
-            <Popover popoverRef={popoverRef} state={state} triggerRef={buttonRef}>
-              <ListBox {...menuProps} state={state} />
-            </Popover>
-          ) : null}
-        </div>
+        <span {...labelProps} className={resolveSelectLabelCss(fieldSize)}>
+          {label}
+        </span>
 
-        {resolvedErrorMessage ? (
-          <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
-            {resolvedErrorMessage}
-          </p>
-        ) : description ? (
-          <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
-            {description}
-          </p>
+        {state.isOpen ? (
+          <Popover
+            popoverRef={popoverRef}
+            state={state}
+            triggerRef={buttonRef}
+            surfaceProps={{
+              onBlur: (event) => {
+                emitCompositeBlur(event.relatedTarget)
+              },
+              onFocus: () => {
+                emitCompositeFocus()
+              },
+            }}
+          >
+            {/*oxlint-disable-next-line jsx-a11y/no-autofocus*/}
+            <FocusScope autoFocus>
+              {searchEnabled && (
+                <div
+                  className={css`
+                    position: relative;
+                    padding: 0 6px;
+                  `}
+                >
+                  <span
+                    className={css`
+                      display: inline-block;
+                      position: absolute;
+                      left: 1rem;
+                      top: 1.125rem;
+                    `}
+                  >
+                    <MagnifyingGlass size={16} weight="bold" />
+                  </span>
+                  <input className={searchfieldCss} {...inputProps} ref={searchRef} />
+                </div>
+              )}
+              {isRefObjectHTMLUListElementOrNull(mergedCollectionRef) && (
+                <ListBox
+                  {...mergeProps(menuProps, collectionProps)}
+                  // useSelect asks for native-select behaviour, where the press that opens the
+                  // listbox also selects whatever it is released over. A long listbox is clamped
+                  // to the viewport and can then cover the trigger, so that release picks an
+                  // option the user never aimed at. Selecting needs its own press instead.
+                  shouldSelectOnPressUp={false}
+                  state={state}
+                  listBoxRef={mergedCollectionRef}
+                />
+              )}
+            </FocusScope>
+          </Popover>
         ) : null}
       </div>
-    )
-  },
-)
+
+      {resolvedRenderedError ? (
+        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+          {resolvedRenderedError}
+        </p>
+      ) : description ? (
+        <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
+          {description}
+        </p>
+      ) : null}
+    </div>
+  )
+}

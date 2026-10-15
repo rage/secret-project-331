@@ -2,12 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchSystemHealth } from "../services/backend/status"
+import { getStatusSystemHealthOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useSystemHealth = () => {
-  return useQuery<boolean>({
-    queryKey: ["status", "system-health"],
-    queryFn: () => fetchSystemHealth(),
+  return useQuery({
+    ...getStatusSystemHealthOptions(),
     refetchInterval: 10000,
   })
 }

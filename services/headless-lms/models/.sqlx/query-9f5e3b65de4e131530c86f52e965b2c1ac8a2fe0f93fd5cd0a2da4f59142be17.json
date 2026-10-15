@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_deliveries\nSET deleted_at = NOW()\nWHERE email_template_id = $1\n  AND sent = FALSE\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9f5e3b65de4e131530c86f52e965b2c1ac8a2fe0f93fd5cd0a2da4f59142be17"
+}

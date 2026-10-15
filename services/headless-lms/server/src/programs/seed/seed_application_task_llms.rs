@@ -2,14 +2,14 @@ use headless_lms_models::{
     application_task_default_language_models::{
         self, ApplicationTask, ApplicationTaskDefaultLanguageModel,
     },
-    chatbot_configurations_models::{self, NewChatbotConfigurationModel},
+    chatbot_configurations_models::{self, ModelType, NewChatbotConfigurationModel},
 };
 
 use crate::prelude::*;
 
 pub struct SeedApplicationLLMsResult {
     pub llm_default_model_id: Uuid,
-    pub llm_default_model_thinking: bool,
+    pub llm_default_model_type: ModelType,
 }
 
 pub async fn seed_application_task_llms(
@@ -21,10 +21,9 @@ pub async fn seed_application_task_llms(
         &mut conn,
         NewChatbotConfigurationModel {
             id: Uuid::parse_str("f14d70bd-c228-4447-bddd-4f6f66705356")?,
-            model: "mock-gpt".to_string(),
-            thinking: false,
+            model: "gpt-5.6-luna".to_string(),
             default_model: true,
-            deployment_name: "mock-gpt".to_string(),
+            model_type: ModelType::GPTHardThinking,
             context_size: 10000,
         },
     )
@@ -63,8 +62,52 @@ pub async fn seed_application_task_llms(
     )
     .await?;
 
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: llm.id,
+            task: ApplicationTask::SisuDescriptionSummary,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: llm.id,
+            task: ApplicationTask::ChartSpecGeneration,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: llm.id,
+            task: ApplicationTask::PromptCreation,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
+    application_task_default_language_models::insert(
+        &mut conn,
+        ApplicationTaskDefaultLanguageModel {
+            model_id: llm.id,
+            task: ApplicationTask::FeedbackCategorization,
+            context_utilization: 0.75,
+            ..Default::default()
+        },
+    )
+    .await?;
+
     Ok(SeedApplicationLLMsResult {
         llm_default_model_id: llm.id,
-        llm_default_model_thinking: llm.thinking,
+        llm_default_model_type: llm.model_type,
     })
 }

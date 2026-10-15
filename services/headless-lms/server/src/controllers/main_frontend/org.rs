@@ -1,13 +1,29 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/org`.
 
 use models::organizations::Organization;
+use utoipa::OpenApi;
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
+
+#[derive(OpenApi)]
+#[openapi(paths(get_organization_by_slug))]
+pub(crate) struct MainFrontendOrgApiDoc;
 
 /**
 GET `/api/v0/main-frontend/org/:slug
 */
-
+#[utoipa::path(
+    get,
+    path = "/{organization_slug}",
+    operation_id = "getOrganizationBySlug",
+    tag = "org",
+    params(
+        ("organization_slug" = String, Path, description = "Organization slug")
+    ),
+    responses(
+        (status = 200, description = "Organization", body = Organization)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization_by_slug(
     pool: web::Data<PgPool>,

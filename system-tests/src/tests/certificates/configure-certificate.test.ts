@@ -1,9 +1,10 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
+import { Select } from "@/utils/components/Select"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -58,7 +59,8 @@ test("Configuring certificates works", async ({ page, headless }, testInfo) => {
   await page.locator("input[name=gradePosY]").fill("88%")
   await page.locator("input[name=gradeFontSize]").fill("30px")
   await page.locator("input[name=gradeTextColor]").fill("black")
-  await page.locator("select[name=gradeTextAnchor]").selectOption("middle")
+  const gradeTextAnchor = new Select(page, page.locator("#gradeTextAnchor"))
+  await gradeTextAnchor.chooseOptionByValue("middle")
   await page.getByRole("button", { name: "Save" }).click()
 
   // disable/enable generating certs with confirmation dialog

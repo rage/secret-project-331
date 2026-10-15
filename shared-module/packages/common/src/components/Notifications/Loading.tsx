@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "../../styles"
 import { respondToOrLarger } from "../../styles/respond"
 import Spinner from "../Spinner"
-
 import { NotificationWrapper } from "./Base"
 
 interface LoadingNotificationProps {

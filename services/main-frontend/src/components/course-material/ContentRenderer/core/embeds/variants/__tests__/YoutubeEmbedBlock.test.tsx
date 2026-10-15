@@ -1,13 +1,8 @@
 "use client"
 
 import "@testing-library/jest-dom"
-
-import {
-  buildYoutubeEmbedUrl,
-  parseTimeParameter,
-  parseYoutubeUrl,
-  YouTubeVideoParams,
-} from "../YoutubeEmbedBlock"
+import type { YouTubeVideoParams } from "../YoutubeEmbedBlock"
+import { buildYoutubeEmbedUrl, parseTimeParameter, parseYoutubeUrl } from "../YoutubeEmbedBlock"
 
 // Silence console.error during tests
 const originalConsoleError = console.error

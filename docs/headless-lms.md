@@ -1,8 +1,8 @@
-# Notes on headless lms
+# Headless LMS
 
 ## Database
 
-Interaction with the database is done with the SQLx library. Please place all your SQL queries inside the `models`-folder.
+Interaction with the database is done with the SQLx library. Place all SQL queries inside the `models` folder.
 
 ### SQLx prepare
 
@@ -10,7 +10,7 @@ Creating new SQL queries in headless-lms using SQLx requires running `bin/sqlx-p
 
 ### SQLx data types
 
-https://docs.rs/sqlx/0.5.5/sqlx/postgres/types/index.html
+https://docs.rs/sqlx/latest/sqlx/postgres/types/index.html
 
 ### New migrations
 
@@ -56,17 +56,16 @@ If you want to reset the database, run `bin/sqlx-database-reset` followed by `bi
 
 ### Using postgres enums in SQLx queries
 
-SQLx isn't able to automatically use postgres enums in its queries; it needs a type hint. For example, given the following postgres enum
+Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/models/sqlx.toml`](services/headless-lms/models/sqlx.toml) under `[macros.type-overrides]`. Non-enum custom column types and enum-array columns live under `[macros.table-overrides.'table']`, which lets single-table `query!` / `query_as!` calls use `SELECT *` / `RETURNING *` without per-query `AS "col: Type"` hints.
 
-```postgres
-CREATE TYPE user_role AS ENUM ('admin', 'assistant', 'teacher', 'reviewer');
-```
+A struct that models a table should contain all of that table's columns. If a table-backed query struct is missing columns and the query is otherwise a plain single-table projection, prefer completing the struct over keeping an explicit projection. Completing serialized API types is acceptable unless the missing column is a genuinely dangerous secret that should not be newly exposed through an external API.
 
-and corresponding Rust enum
+When you add a new Postgres enum or custom column type, define the Rust type and add the appropriate entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/models/.env`; copy from `.env.example`).
+
+Example Rust enum:
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -76,28 +75,35 @@ pub enum UserRole {
 }
 ```
 
-you could use `sqlx::query!` like this
+Example `sqlx.toml` entry:
 
-```rust
-let role: UserRole = sqlx::query!(r#"SELECT role AS "role: UserRole" FROM roles"#)
-    .fetch_one(&mut connection) //               ^^^^^^^^^^^^^^^^^^^
-    .await?
-    .role;
+```toml
+[macros.type-overrides]
+'user_role' = "crate::roles::UserRole"
 ```
 
-The same syntax can be used with `sqlx::query_as!`
+Example `table-overrides` entry:
+
+```toml
+[macros.table-overrides.'oauth_clients']
+'client_secret' = "crate::library::oauth::Digest"
+'allowed_grant_types' = "Vec<crate::library::oauth::GrantTypeName>"
+'pkce_methods_allowed' = "Vec<crate::library::oauth::pkce::PkceMethod>"
+```
+
+You can then write:
 
 ```rust
-    let roles = sqlx::query_as!(
-        Role,
-        r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
-        //                                         ^^^^^^^^^^^^^^^^^^^
-    )
-    .fetch_all(&mut connection)
+let role = sqlx::query_scalar!(r#"SELECT role FROM roles WHERE user_id = $1"#, user_id)
+    .fetch_one(&mut connection)
     .await?;
 ```
 
-Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+For single-table queries that read or write every column, prefer `SELECT *` / `RETURNING *`. Reserve explicit column lists for joins, subsets, computed expressions, casts, or renames.
+
+For one-off cases that truly cannot be registered globally, the older syntax still works: `column AS "alias: MyType"` or `column AS "column: _"`. Use it sparingly; for custom types and enum arrays, `sqlx.toml` is the default place to register the mapping.
+
+Models code must continue to use SQLx macros (`query!`, `query_as!`, `query_scalar!`, `query_file!`, etc.) rather than runtime SQLx query APIs.
 
 ### Analyzing SQL queries
 
@@ -115,18 +121,6 @@ SELECT * FROM organizations WHERE deleted_at IS NULL;
 ```
 
 Now run the command `bin/psql-analyze explain.sql analyze.json` and then add the contents of both `explain.sql` and newly generated `analyze.json` on [https://tatiyants.com/pev/#/plans/new](https://tatiyants.com/pev/#/plans/new).
-
-### Setup development with a local Postgres
-
-Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
-
-1. cd services/headless-lms/models/ && cp .env.example .env
-2. In `.env` setup `DATABASE_URL=postgres://localhost/headless_lms_dev`
-3. `bin/local-dev-db-create-user`
-4. `bin/local-dev-db-create`
-5. Run `bin/sqlx-migrate-run`
-6. (Optional) `bin/seed-local`
-7. If migrations succeed, run `bin/dev`
 
 ## New struct/enum
 
@@ -150,7 +144,7 @@ QueryBuilder docs at https://docs.rs/sqlx/latest/sqlx/query_builder/struct.Query
 SQLx querybuilder can be used to create more complex and dynamic SQL queries.
 
 ```rs
-import sqlx::query_builder::QueryBuilder;
+use sqlx::query_builder::QueryBuilder;
 
 // QueryBuilder is initiated with new() function, which takes 'init' sql statement.
 let sql = QueryBuilder::new("INSERT INTO exercises (id, name, course_id)");
@@ -180,15 +174,19 @@ Resulting sql query is
 INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id), (e2.id, e2.name, e2.course_id),... ON CONFLICT (id) DO UPDATE SET name = excluded.name, course_id = excluded.course_id RETURNING id
 ```
 
-Most usable QueryBuilder is for bulk inserting or updating.
+QueryBuilder is most useful for bulk inserts and updates.
 
-## Generating type bindings for frontend
+## Generating frontend API clients and types
 
-Some structures and enums are also used by frontend services, primarily those that represent a request or response data. When these types are either changed or new ones added, their type bindings need to be regenerated.
+Run `bin/generate-bindings` from repo root to regenerate the frontend API clients and types used for backend calls.
 
-The configuration for which types should be generated is located in `/services/headless-lms/server/src/ts_binding_generator.rs`. Any new type added there should derive the `ts_rs::TS` type. The ts_rs crate is behind a feature flag for [compilation performance reasons](https://github.com/rage/secret-project-331/pull/685), so you need to do the derive like this: `#[cfg_attr(feature = "ts_rs", derive(TS))]`.
+To ensure endpoints are included in generated clients:
 
-To generate bindings, run the `bin/generate-bindings` binary. This will generate bindings for all services and makes sure they are properly formated.
+1. Add `#[utoipa::path(...)]` to each endpoint handler with correct method, path, params, request body, and response types.
+2. Ensure all request/response DTOs used by the endpoint derive the OpenAPI schema traits (for example `ToSchema`), including nested DTOs.
+3. Register the endpoint in the correct OpenAPI document in `services/headless-lms/server/src/openapi.rs` under the matching `paths(...)` section.
+4. Register any schemas that are not auto-collected into the same document's `components(schemas(...))` section.
+5. Run `bin/generate-bindings` after changes.
 
 ## New endpoint
 
@@ -273,9 +271,9 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 ### Adding documentation to an endpoint
 
-When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it.
+Add documentation to each endpoint: a short description and an example response.
 
-The binary at `server/src/bin/doc-file-generator.rs` can be used to generate documentation for the response type from Rust code, ensuring they stay up to date. The binary can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call. This should be used only for public API endpoints, not internal ones.
+The `doc-file-generator` program in `headless-lms-entrypoint` can be used to generate documentation for response types from Rust code, ensuring they stay up to date. The program can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call. This should be used only for public API endpoints, not internal ones.
 
 For example
 
@@ -291,13 +289,11 @@ async fn some_controller() -> ControllerResult<web::Json<MyType>> {
 }
 ```
 
-Easiest way to get the example response data and double check that endpoint works as itended is to write request to an **requests.rest** file and run the request. Before this, if needed, remember to update **seed.sql** file so that the needed data exists in a database.
-
-After this the docs are ready to go. Docs are created automatically upon mergin your feature branch to master.
+The easiest way to get example response data is to write a request in a `requests.rest` file and run it. If needed, update seed data first so the required records exist. Docs are generated automatically when merging to master.
 
 ## Sqlx
 
-Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/0.5.5/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only
+Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/latest/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only
 
 ### Formatting inline SQL in Visual Studio Code
 

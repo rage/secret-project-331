@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
-import { useState } from "react"
+import type { ReactNode } from "react"
+import { useForm } from "react-hook-form"
 
 import { ComboBox } from "../../src/shared-module/components"
 
@@ -12,14 +13,19 @@ const stackCss = css`
   max-width: 420px;
 `
 
-const items = [
+interface Item {
+  id: string
+  label: string
+}
+
+const items: Item[] = [
   { id: "alpha", label: "Alpha" },
   { id: "beta", label: "Beta" },
   { id: "gamma", label: "Gamma" },
   { id: "delta", label: "Delta" },
 ]
 
-const longOptionItems = [
+const longOptionItems: Item[] = [
   {
     id: "long1",
     label:
@@ -28,64 +34,66 @@ const longOptionItems = [
   { id: "long2", label: "Short" },
 ]
 
-const meta = {
-  title: "Components/ComboBox",
-  component: ComboBox,
-} satisfies Meta<typeof ComboBox>
+interface ComboBoxDemoProps {
+  label: ReactNode
+  items: Item[]
+  allowsCustomValue?: boolean
+  errorMessage?: ReactNode
+  defaultSelectedKey?: string | null
+}
 
-export default meta
-
-type Story = StoryObj<typeof meta>
-
-function ControlledComboBoxStory() {
-  const [selectedKey, setSelectedKey] = useState<React.Key | null>("beta")
-
+/** Wires a standalone react-hook-form field so the combobox can be storied on its own. */
+function ComboBoxDemo({ defaultSelectedKey = null, items: data, ...rest }: ComboBoxDemoProps) {
+  const { control } = useForm<{ value: string | null }>({
+    defaultValues: { value: defaultSelectedKey },
+  })
   return (
     <ComboBox
-      label="Controlled"
-      items={items}
-      selectedKey={selectedKey}
-      onSelectionChange={setSelectedKey}
+      name="value"
+      control={control}
+      getItemKey={(item) => item.id}
+      getItemTextValue={(item) => item.label}
+      items={data}
+      {...rest}
     >
       {(item) => item.label}
     </ComboBox>
   )
 }
 
-export const Playground = {
-  render: () => (
-    <ComboBox label="Project" items={items}>
-      {(item) => item.label}
-    </ComboBox>
-  ),
-} satisfies Story
+const meta = {
+  title: "Components/ComboBox",
+  component: ComboBoxDemo,
+  args: {
+    label: "Project",
+    items,
+  },
+} satisfies Meta<typeof ComboBoxDemo>
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
+export const Playground = {} satisfies Story
 
 export const States = {
   render: () => (
     <div className={stackCss}>
-      <ComboBox label="Default" items={items}>
-        {(item) => item.label}
-      </ComboBox>
-      <ComboBox label="Custom value" items={items} allowsCustomValue>
-        {(item) => item.label}
-      </ComboBox>
-      <ComboBox label="Invalid" items={items} errorMessage="Selection required">
-        {(item) => item.label}
-      </ComboBox>
+      <ComboBoxDemo label="Default" items={items} />
+      <ComboBoxDemo label="Custom value" items={items} allowsCustomValue />
+      <ComboBoxDemo label="Invalid" items={items} errorMessage="Selection required" />
     </div>
   ),
 } satisfies Story
 
 export const Controlled = {
-  render: () => <ControlledComboBoxStory />,
+  render: () => <ComboBoxDemo label="Controlled" items={items} defaultSelectedKey="beta" />,
 } satisfies Story
 
 export const LongOptions = {
   render: () => (
     <div className={stackCss}>
-      <ComboBox label="Project" items={longOptionItems}>
-        {(item) => item.label}
-      </ComboBox>
+      <ComboBoxDemo label="Project" items={longOptionItems} />
     </div>
   ),
 } satisfies Story

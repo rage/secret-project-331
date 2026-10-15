@@ -4,6 +4,7 @@ use std::{path::PathBuf, str::FromStr, sync::Arc};
 
 use headless_lms_models::chapters::DatabaseChapter;
 use models::chapters::{Chapter, ChapterUpdate, NewChapter};
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{
     domain::{
@@ -12,6 +13,24 @@ use crate::{
     },
     prelude::*,
 };
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    post_new_chapter,
+    delete_chapter,
+    update_chapter,
+    set_chapter_image,
+    remove_chapter_image,
+    get_all_chapters_by_course_id
+))]
+pub(crate) struct MainFrontendChaptersApiDoc;
+
+#[allow(dead_code)]
+#[derive(Debug, ToSchema)]
+struct ChapterImageUploadPayload {
+    #[schema(content_media_type = "application/octet-stream")]
+    file: Vec<u8>,
+}
 
 /**
 POST `/api/v0/main-frontend/chapters` - Create a new course part.
@@ -32,6 +51,16 @@ Content-Type: application/json
 */
 
 #[instrument(skip(pool, file_store, app_conf))]
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createChapter",
+    tag = "chapters",
+    request_body = NewChapter,
+    responses(
+        (status = 200, description = "Created chapter", body = Chapter)
+    )
+)]
 async fn post_new_chapter(
     request_id: RequestId,
     pool: web::Data<PgPool>,
@@ -75,6 +104,18 @@ DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
 */
 
 #[instrument(skip(pool, file_store, app_conf))]
+#[utoipa::path(
+    delete,
+    path = "/{chapter_id}",
+    operation_id = "deleteChapter",
+    tag = "chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Deleted chapter", body = Chapter)
+    )
+)]
 async fn delete_chapter(
     chapter_id: web::Path<String>,
     pool: web::Data<PgPool>,
@@ -119,6 +160,19 @@ Content-Type: application/json
 */
 
 #[instrument(skip(payload, pool, file_store, app_conf))]
+#[utoipa::path(
+    put,
+    path = "/{chapter_id}",
+    operation_id = "updateChapter",
+    tag = "chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    request_body = ChapterUpdate,
+    responses(
+        (status = 200, description = "Updated chapter", body = Chapter)
+    )
+)]
 async fn update_chapter(
     payload: web::Json<ChapterUpdate>,
     chapter_id: web::Path<String>,
@@ -154,6 +208,19 @@ BINARY_DATA
 */
 
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
+#[utoipa::path(
+    put,
+    path = "/{chapter_id}/image",
+    operation_id = "updateChapterImage",
+    tag = "chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    request_body(content = inline(ChapterImageUploadPayload), content_type = "multipart/form-data"),
+    responses(
+        (status = 200, description = "Updated chapter image", body = Chapter)
+    )
+)]
 async fn set_chapter_image(
     request: HttpRequest,
     payload: Multipart,
@@ -189,8 +256,10 @@ async fn set_chapter_image(
         models::chapters::update_chapter_image_path(&mut conn, chapter.id, Some(chapter_image))
             .await?;
 
-    // Remove old image if one exists.
-    if let Some(old_image_path) = chapter.chapter_image_path {
+    // Course copies share chapter images with their source.
+    if let Some(old_image_path) = chapter.chapter_image_path
+        && !models::chapters::chapter_image_path_is_referenced(&mut conn, &old_image_path).await?
+    {
         let file = PathBuf::from_str(&old_image_path).map_err(|original_error| {
             ControllerError::new(
                 ControllerErrorType::InternalServerError,
@@ -225,6 +294,18 @@ DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image
 */
 
 #[instrument(skip(pool, file_store))]
+#[utoipa::path(
+    delete,
+    path = "/{chapter_id}/image",
+    operation_id = "deleteChapterImage",
+    tag = "chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Deleted chapter image")
+    )
+)]
 async fn remove_chapter_image(
     chapter_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -241,21 +322,26 @@ async fn remove_chapter_image(
     )
     .await?;
     if let Some(chapter_image_path) = chapter.chapter_image_path {
-        let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
         let _res = models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
-        file_store.delete(&file).await.map_err(|original_error| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                original_error.to_string(),
-                Some(original_error.into()),
-            )
-        })?;
+        // Course copies share chapter images with their source.
+        if !models::chapters::chapter_image_path_is_referenced(&mut conn, &chapter_image_path)
+            .await?
+        {
+            let file = PathBuf::from_str(&chapter_image_path).map_err(|original_error| {
+                controller_err!(
+                    InternalServerError,
+                    original_error.to_string(),
+                    original_error
+                )
+            })?;
+            file_store.delete(&file).await.map_err(|original_error| {
+                controller_err!(
+                    InternalServerError,
+                    original_error.to_string(),
+                    original_error
+                )
+            })?;
+        }
     }
     token.authorized_ok(web::Json(()))
 }
@@ -263,6 +349,18 @@ async fn remove_chapter_image(
 /**
 GET `/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course - Gets all chapters with a course_id
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/all-chapters-for-course",
+    operation_id = "getCourseChapters",
+    tag = "chapters",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course chapters", body = Vec<DatabaseChapter>)
+    )
+)]
 async fn get_all_chapters_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -271,9 +369,9 @@ async fn get_all_chapters_by_course_id(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
 
-    let mut chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
+    let mut chapters = models::chapters::get_course_chapters(&mut conn, *course_id).await?;
 
-    chapters.sort_by(|a, b| a.chapter_number.cmp(&b.chapter_number));
+    chapters.sort_by_key(|a| a.chapter_number);
 
     token.authorized_ok(web::Json(chapters))
 }

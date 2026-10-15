@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT MAX(citation.citation_number)\nFROM chatbot_conversation_messages_citations citation\n  JOIN chatbot_conversation_messages message ON message.id = citation.conversation_message_id\n  JOIN chatbot_conversation_message_tool_outputs tool_output ON tool_output.chatbot_conversation_message_id = message.id\nWHERE citation.conversation_id = $1\n  AND citation.deleted_at IS NULL\n  AND message.deleted_at IS NULL\n  AND tool_output.deleted_at IS NULL\n  AND message.order_number > COALESCE(\n    (\n      SELECT MAX(user_message.order_number)\n      FROM chatbot_conversation_messages user_message\n        JOIN chatbot_conversation_message_messages text_message ON text_message.chatbot_conversation_message_id = user_message.id\n      WHERE user_message.conversation_id = $1\n        AND user_message.deleted_at IS NULL\n        AND text_message.deleted_at IS NULL\n        AND text_message.message_role = 'user'\n    ),\n    0\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "max",
+        "type_info": "Int4",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "82d2b3d34b457081040a568faa3b1191f2f2a91b26b5dd1add8215759afc4f21"
+}

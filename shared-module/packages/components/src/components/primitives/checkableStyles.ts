@@ -7,6 +7,12 @@ export const checkableRootCss = css`
   gap: var(--space-2);
 `
 
+/** Overrides the full-line width every field root takes, which in a flex row costs a whole row. */
+export const checkableRootInlineCss = css`
+  display: inline-grid;
+  width: auto;
+`
+
 export const checkableRowCss = css`
   position: relative;
   display: inline-flex;
@@ -25,9 +31,17 @@ export const switchRowCss = css`
   align-items: center;
 `
 
+/**
+ * The transparent input covering the whole row, which is what a press anywhere on it must hit.
+ *
+ * `z-index` because the indicator is a later positioned sibling and would otherwise paint over it,
+ * taking the press on a row that has no visible label — a selection checkbox in a table header or
+ * cell, where the indicator is the entire row.
+ */
 export const checkableInputCss = css`
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -52,8 +66,8 @@ export const switchTrackCss = css`
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  width: 48px;
-  height: 30px;
+  width: 53px;
+  height: 35px;
   padding: 3px;
   border-radius: 999px;
   background: var(--switch-track-off);
@@ -123,6 +137,7 @@ export const choiceIndicatorCss = css`
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
+  line-height: 0;
   width: 20px;
   height: 20px;
   border: 1px solid var(--field-border);
@@ -179,7 +194,9 @@ export const radioStandaloneNativeIndicatorCss = css`
 `
 
 export const choiceMarkCss = css`
-  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
   opacity: 0;
   transition: opacity 0.18s ease;
 `
@@ -193,7 +210,7 @@ export const checkboxMarkCss = css`
   height: 6px;
   border-left: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
-  transform: rotate(-45deg) translateY(-1px);
+  transform: translate(-50%, -70%) rotate(-45deg);
 `
 
 export const indeterminateMarkCss = css`
@@ -201,6 +218,7 @@ export const indeterminateMarkCss = css`
   height: 2px;
   border-radius: 999px;
   background: currentColor;
+  transform: translate(-50%, -50%);
 `
 
 export const radioMarkCss = css`
@@ -208,6 +226,7 @@ export const radioMarkCss = css`
   height: 8px;
   border-radius: 999px;
   background: currentColor;
+  transform: translate(-50%, -50%);
 `
 
 export function resolveCheckableSizeCss(fieldSize: FieldSize) {
@@ -220,7 +239,6 @@ export function resolveCheckableSizeCss(fieldSize: FieldSize) {
       return css`
         font-size: var(--font-size-lg);
       `
-    case "md":
     default:
       return css`
         font-size: var(--font-size-md);

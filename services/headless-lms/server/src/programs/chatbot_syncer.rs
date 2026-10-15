@@ -1,17 +1,21 @@
 use std::{
     collections::{HashMap, HashSet},
-    env,
     time::Duration,
 };
 
 use chrono::Utc;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use sqlx::{PgConnection, PgPool};
 use url::Url;
 use uuid::Uuid;
 
+use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
+use headless_lms_utils::periodic_worker::{
+    PeriodicWorkerConfig, StillRunningLog, run_periodic_worker,
+};
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_chatbot::{
     azure_blob_storage::AzureBlobClient,
     azure_datasources::{create_azure_datasource, does_azure_datasource_exist},
@@ -26,11 +30,10 @@ use headless_lms_chatbot::{
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
-    page_history::PageHistory,
+    course_page_markdown_content::CoursePageMarkdownContent,
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
-    ApplicationConfiguration,
     document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
     url_encoding::url_encode,
 };
@@ -61,32 +64,49 @@ pub async fn main() -> anyhow::Result<()> {
     }
 
     let db_pool = initialize_database_pool(&config.database_url).await?;
-    let mut conn = db_pool.acquire().await?;
     let blob_client = initialize_blob_client(&config).await?;
 
-    let mut interval = tokio::time::interval(Duration::from_secs(SYNC_INTERVAL_SECS));
-    let mut ticks = 0;
+    let mut reported_permanently_failing_page_ids: HashSet<Uuid> = HashSet::new();
 
     info!("Starting chatbot syncer.");
 
-    loop {
-        interval.tick().await;
-        ticks += 1;
-
-        if ticks >= PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD {
-            ticks = 0;
-            info!("Still syncing for chatbot.");
-        }
-        if let Err(e) = sync_pages(&mut conn, &config, &blob_client).await {
-            error!("Error during synchronization: {:?}", e);
-        }
-    }
+    run_periodic_worker(
+        PeriodicWorkerConfig {
+            tick_interval: Duration::from_secs(SYNC_INTERVAL_SECS),
+            still_running: Some(StillRunningLog {
+                every: PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD,
+                message: "Still syncing for chatbot.",
+                initial_ticks: 0,
+            }),
+            delay_missed_ticks: false,
+        },
+        async || {
+            // Acquired per tick so that the pool's liveness check replaces a connection that died
+            // while we were idle; a checked out connection is never healed.
+            match db_pool.acquire().await {
+                Ok(mut conn) => {
+                    if let Err(e) = sync_pages(
+                        &mut conn,
+                        &config,
+                        &blob_client,
+                        &mut reported_permanently_failing_page_ids,
+                    )
+                    .await
+                    {
+                        error!("Error during synchronization: {:?}", e);
+                    }
+                }
+                Err(e) => error!("Failed to acquire a database connection: {:?}", e),
+            }
+            Ok(())
+        },
+    )
+    .await
 }
 
 fn initialize_environment() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     Ok(())
 }
@@ -98,15 +118,14 @@ struct SyncerConfig {
 }
 
 async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
-
-    let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
-        .expect("BASE_URL must be a valid URL");
+    let database_url = ProgramConfig::database_url_with_default();
+    let base_url_raw = ProgramConfig::required("BASE_URL")?;
+    let base_url =
+        Url::parse(&base_url_raw).map_err(|e| anyhow::anyhow!("invalid BASE_URL: {}", e))?;
 
     let name = base_url
         .host_str()
-        .expect("BASE_URL must have a host")
+        .ok_or_else(|| anyhow::anyhow!("BASE_URL must have a host"))?
         .replace(".", "-");
 
     let app_configuration = ApplicationConfiguration::try_from_env()?;
@@ -137,10 +156,13 @@ async fn initialize_blob_client(config: &SyncerConfig) -> anyhow::Result<AzureBl
 }
 
 /// Synchronizes pages to the chatbot backend.
+/// `reported_permanently_failing_page_ids` carries the previously warned-about set across ticks so
+/// the warning is emitted on change rather than on every sweep.
 async fn sync_pages(
     conn: &mut PgConnection,
     config: &SyncerConfig,
     blob_client: &AzureBlobClient,
+    reported_permanently_failing_page_ids: &mut HashSet<Uuid>,
 ) -> anyhow::Result<()> {
     let base_url = Url::parse(&config.app_configuration.base_url)?;
     let chatbot_configs =
@@ -148,7 +170,7 @@ async fn sync_pages(
 
     let course_ids: Vec<Uuid> = chatbot_configs
         .iter()
-        .map(|config| config.course_id)
+        .filter_map(|config| config.course_id)
         .collect::<HashSet<_>>()
         .into_iter()
         .collect();
@@ -160,8 +182,9 @@ async fn sync_pages(
         )
         .await?;
 
-    let latest_histories =
-        headless_lms_models::page_history::get_latest_history_entries_for_pages_by_course_ids(
+    // (page_id, page_history_id)
+    let latest_history_ids =
+        headless_lms_models::page_history::get_latest_page_history_ids_by_course_ids(
             conn,
             &course_ids,
         )
@@ -181,6 +204,7 @@ async fn sync_pages(
     }
 
     let mut any_changes = false;
+    let mut permanently_failing_page_ids: HashSet<Uuid> = HashSet::new();
 
     for (course_id, statuses) in sync_statuses.iter() {
         let page_ids: Vec<Uuid> = statuses.iter().map(|s| s.page_id).collect();
@@ -202,19 +226,18 @@ async fn sync_pages(
                     return false;
                 }
 
-                let is_outdated = latest_histories
+                let is_outdated = latest_history_ids
                     .get(&status.page_id)
-                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id));
+                    .is_some_and(|history_id| {
+                        status.synced_page_revision_id != Some(*history_id)
+                    });
 
                 if !is_outdated {
                     return false;
                 }
 
                 if status.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
-                    debug!(
-                        "Skipping page {} due to permanent failure ({} consecutive failures). Manual intervention required.",
-                        status.page_id, status.consecutive_failures
-                    );
+                    permanently_failing_page_ids.insert(status.page_id);
                     return false;
                 }
 
@@ -252,6 +275,10 @@ async fn sync_pages(
         }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
+        let md_ids: Vec<Uuid> = outdated_statuses
+            .iter()
+            .filter_map(|s| s.converted_markdown_content_id)
+            .collect();
         let pages = headless_lms_models::pages::get_by_ids_and_visibility(
             conn,
             &page_ids,
@@ -263,10 +290,11 @@ async fn sync_pages(
             sync_pages_batch(
                 conn,
                 &pages,
+                &md_ids,
                 blob_client,
                 &base_url,
                 &config.app_configuration,
-                &latest_histories,
+                &latest_history_ids,
             )
             .await?;
         } else {
@@ -296,6 +324,20 @@ async fn sync_pages(
         }
 
         delete_old_files(conn, *course_id, blob_client).await?;
+    }
+
+    // Only on change: a page stays permanently failing until someone intervenes, and this runs
+    // every SYNC_INTERVAL_SECS, so warning unconditionally would repeat the same line all day.
+    if permanently_failing_page_ids != *reported_permanently_failing_page_ids {
+        if !permanently_failing_page_ids.is_empty() {
+            warn!(
+                "Skipping {} pages that have failed to sync at least {} times in a row. Manual intervention required: {:?}",
+                permanently_failing_page_ids.len(),
+                MAX_CONSECUTIVE_FAILURES,
+                permanently_failing_page_ids
+            );
+        }
+        *reported_permanently_failing_page_ids = permanently_failing_page_ids;
     }
 
     if any_changes {
@@ -332,10 +374,12 @@ async fn ensure_search_index_exists(
 async fn sync_pages_batch(
     conn: &mut PgConnection,
     pages: &[Page],
+    // map from page id to course page markdown content id
+    md_ids: &[Uuid],
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
-    latest_histories: &HashMap<Uuid, PageHistory>,
+    latest_history_ids: &HashMap<Uuid, Uuid>,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -344,6 +388,9 @@ async fn sync_pages_batch(
         .ok_or_else(|| anyhow::anyhow!("The first page does not belong to any course."))?;
 
     let course = headless_lms_models::courses::get_course(conn, course_id).await?;
+    let chapters = headless_lms_models::chapters::get_course_chapters(conn, course_id).await?;
+    let md_contents =
+        headless_lms_models::course_page_markdown_content::get_many(conn, md_ids).await?;
     let organization =
         headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
     let task_lm = headless_lms_models::application_task_default_language_models::get_for_task(
@@ -359,6 +406,9 @@ async fn sync_pages_batch(
     ));
 
     let mut allowed_file_paths = Vec::new();
+    let mut page_revision_map = HashMap::new();
+    // newly created md. map page_id to page_history_id and md content
+    let mut new_markdown_contents_map = HashMap::new();
 
     for page in pages {
         info!("Syncing page id: {}.", page.id);
@@ -369,60 +419,83 @@ async fn sync_pages_batch(
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_blocks = remove_sensitive_attributes(parsed_content);
 
-        let content_to_upload = match convert_material_blocks_to_markdown_with_llm(
-            &sanitized_blocks,
-            app_config,
-            &task_lm,
-        )
-        .await
-        {
-            Ok(markdown) => {
-                info!("Successfully cleaned content for page {}", page.id);
-                // Check if the markdown is empty, or if it just contains all spaces or newlines
-                if markdown.trim().is_empty() {
-                    warn!(
-                        "Markdown is empty for page {}. Generating fallback content with a fake heading.",
-                        page.id
-                    );
-                    format!("# {}", page.title)
+        let page_md_content: Option<&CoursePageMarkdownContent> =
+            md_contents.iter().find(|x| x.page_id == page.id);
+        let latest_page_history_id: Option<&Uuid> = latest_history_ids.get(&page.id);
+
+        let up_to_date_md_content = page_md_content.and_then(|c| {
+            latest_page_history_id.and_then(|id| {
+                if id == &c.page_history_id {
+                    Some(c.markdown_content.to_string())
                 } else {
-                    markdown
+                    None
                 }
-            }
-            Err(e) => {
-                let error_msg = format!("Sync failed: LLM processing error: {}", e);
-                warn!(
-                    "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
-                    page.id, error_msg
-                );
-                if let Err(db_err) =
-                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-                        conn, page.id, &error_msg,
-                    )
-                    .await
-                {
+            })
+        });
+
+        let content_as_markdown = if let Some(content) = up_to_date_md_content.to_owned() {
+            info!("Using previously generated Markdown for page {}", page.id);
+            content
+        } else {
+            match convert_material_blocks_to_markdown_with_llm(
+                &sanitized_blocks,
+                app_config,
+                &task_lm,
+            )
+            .await
+            {
+                Ok(markdown) => {
+                    info!("Successfully cleaned content for page {}", page.id);
+                    // Check if the markdown is empty, or if it just contains all spaces or newlines
+                    if markdown.trim().is_empty() {
+                        warn!(
+                            "Markdown is empty for page {}. Generating fallback content with a fake heading.",
+                            page.id
+                        );
+                        format!("# {}", page.title)
+                    } else {
+                        markdown
+                    }
+                }
+                Err(e) => {
+                    let error_msg = format!("Sync failed: LLM processing error: {}", e);
                     warn!(
-                        "Failed to record sync error for page {}: {:?}",
-                        page.id, db_err
+                        "Failed to clean content with LLM for page {}: {}. Using serialized sanitized content instead.",
+                        page.id, error_msg
                     );
+                    if let Err(db_err) =
+                        headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
+                            conn, page.id, &error_msg,
+                        )
+                        .await
+                    {
+                        warn!(
+                            "Failed to record sync error for page {}: {:?}",
+                            page.id, db_err
+                        );
+                    }
+                    // Fallback to original content
+                    serde_json::to_string(&sanitized_blocks)?
                 }
-                // Fallback to original content
-                serde_json::to_string(&sanitized_blocks)?
             }
         };
 
+        // save markdown content if new markdown was generated
+        // if there is an error saving it to blobs, we can try uploading the same content
+        // if the page hasn't been changed between tries.
+        if let Some(history_id) = latest_page_history_id
+            && up_to_date_md_content.is_none()
+        {
+            new_markdown_contents_map.insert(
+                page.id,
+                (history_id.to_owned(), content_as_markdown.to_owned()),
+            );
+        }
+
         let blob_path = generate_blob_path(page)?;
-        let chapter: Option<DatabaseChapter> = if page.chapter_id.is_some() {
-            match headless_lms_models::chapters::get_chapter_by_page_id(conn, page.id).await {
-                Ok(c) => Some(c),
-                Err(e) => {
-                    debug!("Chapter lookup failed for page {}: {}", page.id, e);
-                    None
-                }
-            }
-        } else {
-            None
-        };
+        let chapter: Option<&DatabaseChapter> = chapters
+            .iter()
+            .find(|c| page.chapter_id.is_some_and(|c_id| c_id == c.id));
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
@@ -459,7 +532,7 @@ async fn sync_pages_batch(
         }
 
         if let Err(e) = blob_client
-            .upload_file(&blob_path, content_to_upload.as_bytes(), Some(metadata))
+            .upload_file(&blob_path, content_as_markdown.as_bytes(), Some(metadata))
             .await
         {
             let error_msg = format!("Sync failed: Upload error: {}", e);
@@ -475,32 +548,26 @@ async fn sync_pages_batch(
                     page.id, db_err
                 );
             }
-        } else if let Some(history_id) = latest_histories.get(&page.id) {
-            let mut page_revision_map = HashMap::new();
-            page_revision_map.insert(page.id, history_id.id);
-            if let Err(e) =
-                headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
-                    conn,
-                    page_revision_map,
-                )
-                .await
-            {
-                let error_msg = format!("Sync failed: Status update error: {}", e);
-                warn!("Failed to update sync status for page {}: {:?}", page.id, e);
-                if let Err(db_err) =
-                    headless_lms_models::chatbot_page_sync_statuses::set_page_sync_error(
-                        conn, page.id, &error_msg,
-                    )
-                    .await
-                {
-                    warn!(
-                        "Failed to record status update error for page {}: {:?}",
-                        page.id, db_err
-                    );
-                }
-            }
+        } else if let Some(history_id) = latest_page_history_id {
+            page_revision_map.insert(page.id, *history_id);
         }
     }
+
+    if let Err(e) = headless_lms_models::chatbot_page_sync_statuses::save_markdown_content(
+        conn,
+        new_markdown_contents_map,
+    )
+    .await
+    {
+        warn!("Failed to save converted page content in DB: {}", e);
+    };
+
+    // update revision ids for all pages
+    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+        conn,
+        page_revision_map,
+    )
+    .await?;
 
     Ok(())
 }

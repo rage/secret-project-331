@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use headless_lms_base::config::ApplicationConfiguration;
 use sqlx::{Connection, PgConnection};
 use tracing::log::warn;
 use uuid::Uuid;
@@ -218,6 +219,7 @@ impl CourseBuilder {
     pub async fn seed(
         self,
         conn: &mut PgConnection,
+        app_config: &ApplicationConfiguration,
         cx: &SeedContext,
     ) -> Result<(Course, CourseInstance, CourseModule)> {
         let course_id = self.course_id.unwrap_or(cx.base_course_ns);
@@ -253,6 +255,7 @@ impl CourseBuilder {
 
         let course_id = courses::insert(
             &mut tx,
+            app_config,
             headless_lms_models::PKeyPolicy::Fixed(course_id),
             course_language_group_id,
             &new_course,
@@ -270,7 +273,7 @@ impl CourseBuilder {
                 &mut tx,
                 PKeyPolicy::Fixed(chatbotconf_id),
                 NewChatbotConf {
-                    course_id,
+                    course_id: Some(course_id),
                     ..chatbot_conf
                 },
             )
@@ -350,6 +353,7 @@ impl CourseBuilder {
             exercise_slides: vec![],
             exercise_tasks: vec![],
             content_search_language: None,
+            hidden: false,
         };
 
         pages::insert_page(
@@ -410,6 +414,7 @@ impl CourseBuilder {
                 &cert_config.background_svg_path,
                 "image/svg+xml",
                 None,
+                None,
             )
             .await
             .context("inserting certificate background file")?;
@@ -466,6 +471,12 @@ impl CourseBuilder {
         }
         tx.commit().await.context("committing transaction")?;
 
+        // Seeded courses are completed in seconds by system tests, which would flag every seeded
+        // user and break the suite, so disable cheater detection for builder-created courses.
+        courses::set_cheater_detection_enabled(conn, course.id, false)
+            .await
+            .context("disabling cheater detection")?;
+
         if self.chapter_locking_enabled || self.flagged_answers_skip_manual_review_and_allow_retry {
             use headless_lms_models::courses::CourseUpdate;
             let course_update = CourseUpdate {
@@ -484,8 +495,10 @@ impl CourseBuilder {
                 closed_additional_message: course.closed_additional_message.clone(),
                 closed_course_successor_id: course.closed_course_successor_id,
                 chapter_locking_enabled: self.chapter_locking_enabled,
+                ai_policy: course.ai_policy,
+                course_material_ai_instructions: course.course_material_ai_instructions,
             };
-            let updated_course = courses::update_course(conn, course.id, course_update)
+            let updated_course = courses::update_course(conn, app_config, course.id, course_update)
                 .await
                 .context("updating course")?;
             return Ok((

@@ -2,20 +2,20 @@ use crate::{
     course_background_question_answers::CourseBackgroundQuestionAnswer,
     course_instances::CourseInstance, prelude::*,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Type, ToSchema)]
 #[sqlx(
     type_name = "course_background_question_type",
     rename_all = "snake_case"
 )]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CourseBackgroundQuestionType {
     Checkbox,
     Text,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseBackgroundQuestion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -27,8 +27,8 @@ pub struct CourseBackgroundQuestion {
     pub question_type: CourseBackgroundQuestionType,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseBackgroundQuestionsAndAnswers {
     pub background_questions: Vec<CourseBackgroundQuestion>,
     pub answers: Vec<CourseBackgroundQuestionAnswer>,
@@ -42,17 +42,10 @@ pub async fn get_background_questions_for_course_instance(
     let res: Vec<CourseBackgroundQuestion> = sqlx::query_as!(
         CourseBackgroundQuestion,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_instance_id,
-  course_id,
-  question_text,
-  question_type as "question_type: CourseBackgroundQuestionType"
-FROM course_background_questions
-WHERE deleted_at IS NULL
-  AND (
+	SELECT *
+	FROM course_background_questions
+	WHERE deleted_at IS NULL
+	  AND (
     (
       course_instance_id IS NULL
       AND course_id = $1

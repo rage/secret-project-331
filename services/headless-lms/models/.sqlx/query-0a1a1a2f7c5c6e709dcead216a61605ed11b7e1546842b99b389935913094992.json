@@ -1,0 +1,91 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH modules AS (\n  SELECT id AS module_id, name AS module_name, order_number\n  FROM course_modules\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n),\ntargets AS (\n  SELECT DISTINCT user_id\n  FROM course_instance_enrollments\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n    AND user_id = ANY($2::uuid[])\n),\nlatest_cmc AS (\n  SELECT DISTINCT ON (cmc.user_id, cmc.course_module_id)\n    cmc.id,\n    cmc.user_id,\n    cmc.course_module_id,\n    cmc.grade,\n    cmc.passed,\n    cmc.completion_date,\n    cmc.needs_to_be_reviewed\n  FROM course_module_completions cmc\n  WHERE cmc.course_id = $1\n    AND cmc.deleted_at IS NULL\n    AND cmc.user_id = ANY($2::uuid[])\n  ORDER BY cmc.user_id, cmc.course_module_id, cmc.completion_date DESC\n),\ncmcr AS (\n  SELECT course_module_completion_id\n  FROM course_module_completion_registered_to_study_registries\n  WHERE course_id = $1\n    AND deleted_at IS NULL\n)\nSELECT\n  e.user_id AS \"user_id!\",\n  m.module_id AS \"module_id!\",\n  m.module_name AS \"module?\",\n  r.grade AS \"grade?\",\n  r.passed AS \"passed?\",\n  (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS \"registered!\",\n  COALESCE(r.needs_to_be_reviewed, false) AS \"needs_to_be_reviewed!\"\nFROM modules m\nCROSS JOIN targets e\nLEFT JOIN latest_cmc r\n  ON r.user_id = e.user_id\n AND r.course_module_id = m.module_id\nORDER BY m.order_number, e.user_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_instance_enrollments",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "module?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "grade?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "grade"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "passed?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "passed"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "registered!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 6,
+        "name": "needs_to_be_reviewed!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "0a1a1a2f7c5c6e709dcead216a61605ed11b7e1546842b99b389935913094992"
+}

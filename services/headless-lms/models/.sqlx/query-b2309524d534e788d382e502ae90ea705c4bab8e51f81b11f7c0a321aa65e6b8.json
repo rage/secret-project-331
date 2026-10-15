@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  ct.duration_seconds AS \"configured_duration_seconds?\",\n  COUNT(DISTINCT c.id) AS \"chapters!\",\n  COUNT(e.id) AS \"exercises!\"\nFROM course_modules cm\n  LEFT JOIN cheater_thresholds ct ON ct.course_module_id = cm.id\n  AND ct.deleted_at IS NULL\n  LEFT JOIN chapters c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\n  LEFT JOIN exercises e ON e.chapter_id = c.id\n  AND e.deleted_at IS NULL\nWHERE cm.course_id = $1\n  AND cm.deleted_at IS NULL\nGROUP BY cm.id, ct.duration_seconds\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "configured_duration_seconds?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "cheater_thresholds",
+            "name": "duration_seconds"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "chapters!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "exercises!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "b2309524d534e788d382e502ae90ea705c4bab8e51f81b11f7c0a321aa65e6b8"
+}

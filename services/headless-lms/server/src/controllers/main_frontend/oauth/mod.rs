@@ -1,4 +1,5 @@
 use actix_web::web::ServiceConfig;
+use utoipa::OpenApi;
 
 /// OAuth 2.0 and OpenID Connect implementation.
 ///
@@ -29,11 +30,34 @@ use actix_web::web::ServiceConfig;
 mod authorize;
 mod authorized_clients;
 mod consent;
+mod device;
 mod discovery;
 mod introspect;
 mod revoke;
 mod token;
 mod userinfo;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    discovery::jwks,
+    discovery::well_known_openid,
+    authorize::authorize_get_doc,
+    authorize::authorize_post_doc,
+    token::token,
+    userinfo::user_info_get_doc,
+    userinfo::user_info_post_doc,
+    revoke::revoke,
+    consent::approve_consent,
+    consent::deny_consent,
+    device::device_authorization,
+    device::device_verification,
+    device::approve_device_verification,
+    device::deny_device_verification,
+    authorized_clients::get_authorized_clients,
+    authorized_clients::delete_authorized_client,
+    introspect::introspect
+))]
+pub(crate) struct MainFrontendOauthApiDoc;
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     authorize::_add_routes(cfg);
@@ -42,6 +66,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     discovery::_add_routes(cfg);
     revoke::_add_routes(cfg);
     consent::_add_routes(cfg);
+    device::_add_routes(cfg);
     authorized_clients::_add_routes(cfg);
     introspect::_add_routes(cfg);
 }

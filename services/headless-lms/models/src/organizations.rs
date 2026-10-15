@@ -1,10 +1,11 @@
 use std::path::PathBuf;
 
-use headless_lms_utils::{ApplicationConfiguration, file_store::FileStore};
+use headless_lms_utils::file_store::FileStore;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct DatabaseOrganization {
     pub id: Uuid,
     pub slug: String,
@@ -17,8 +18,8 @@ pub struct DatabaseOrganization {
     pub hidden: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Organization {
     pub id: Uuid,
     pub slug: String,
@@ -67,7 +68,7 @@ pub async fn insert(
         "
         INSERT INTO organizations (id, name, slug, description, hidden)
         VALUES ($1, $2, $3, $4, $5)
-        RETURNING id
+        RETURNING *
         ",
         pkey_policy.into_uuid(),
         name,
@@ -110,6 +111,25 @@ where id = $1;",
     .fetch_one(conn)
     .await?;
     Ok(org)
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    organization_ids: &[Uuid],
+) -> ModelResult<Vec<DatabaseOrganization>> {
+    let organizations = sqlx::query_as!(
+        DatabaseOrganization,
+        "
+SELECT *
+FROM organizations
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        organization_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(organizations)
 }
 
 pub async fn get_organization_by_slug(
@@ -177,10 +197,12 @@ pub async fn update_name_and_hidden(
 }
 
 pub async fn soft_delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query("UPDATE organizations SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL")
-        .bind(id)
-        .execute(conn)
-        .await?;
+    sqlx::query!(
+        "UPDATE organizations SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
+        id
+    )
+    .execute(conn)
+    .await?;
     Ok(())
 }
 

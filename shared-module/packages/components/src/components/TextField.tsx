@@ -1,12 +1,20 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React, { useEffect, useState } from "react"
-import { mergeProps, useObjectRef, useTextField } from "react-aria"
+import React, { useRef } from "react"
+import { mergeProps, useTextField, VisuallyHidden } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-
+import { composeRefs } from "../lib/utils/compositeField"
+import {
+  isVisuallyHiddenLabel,
+  resolveFloatingPlaceholder,
+  resolveRenderedErrorMessage,
+} from "../lib/utils/floatingField"
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -17,209 +25,215 @@ import {
   resolveInputCss,
   resolveMessageCss,
 } from "./primitives/fieldStyles"
+import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-export type TextFieldProps = React.ComponentPropsWithoutRef<"input"> & {
-  /** Visible floating label – required for accessibility. */
+/**
+ * Text input with floating label, description, and error display.
+ * Uses react-hook-form; pass `name` and `control`.
+ *
+ * @example
+ * // Basic usage
+ * <TextField name="email" control={control} label="Email" type="email" />
+ *
+ * @example
+ * // Usage with validation rules
+ * <TextField name="email" control={control} label="Email" type="email" rules={{ required: t("required-field") }} />
+ */
+export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
   label: React.ReactNode
-  /** Help text shown below the field when there is no error. */
+  /** Keeps `label` as the accessible name but renders it visually hidden instead of floating. */
+  isLabelHidden?: boolean
   description?: React.ReactNode
-  /** Error message; also sets the field to invalid when provided. */
   errorMessage?: React.ReactNode
-  /** Visual size of the field control. Distinct from the native `size` (character-width) attribute. */
   fieldSize?: FieldSize
-  /** Decorative icon rendered at the leading edge of the input. */
   iconStart?: React.ReactNode
-  /** Decorative icon rendered at the trailing edge of the input. */
   iconEnd?: React.ReactNode
-  /** React Aria alias for the native `disabled` prop. */
   isDisabled?: boolean
-  /** React Aria alias for the native `readOnly` prop. */
   isReadOnly?: boolean
-  /** React Aria alias for the native `required` prop. */
   isRequired?: boolean
-  /** Marks the field invalid regardless of validation state. */
-  isInvalid?: boolean
-  validationBehavior?: AriaTextFieldProps["validationBehavior"]
-  validate?: AriaTextFieldProps["validate"]
+  id?: string
+  type?: React.HTMLInputTypeAttribute
+  autoComplete?: string
+  min?: number | string
+  max?: number | string
+  maxLength?: number
+  minLength?: number
+  pattern?: string
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
+  /** Only shown when `isLabelHidden` is true; a visible label already serves as the hint otherwise. */
+  placeholder?: string
+  className?: string
+  step?: string
+  "data-testid"?: string | undefined
 }
 
-/** Returns true when the current input value is non-empty. */
-function isFilled(value: unknown): boolean {
-  return typeof value === "string" ? value.length > 0 : false
-}
+export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: TextFieldProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    label,
+    isLabelHidden,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    iconStart,
+    iconEnd,
+    isDisabled,
+    isReadOnly,
+    isRequired,
+    id,
+    type = "text",
+    autoComplete,
+    maxLength,
+    minLength,
+    pattern,
+    inputMode,
+    placeholder,
+    className,
+    min,
+    max,
+    step,
+    "data-testid": dataTestId,
+  } = props
 
-export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
-  function TextField(props, forwardedRef) {
-    const {
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
-      iconStart,
-      iconEnd,
-      onChange,
-      onFocus,
-      onBlur,
-      disabled,
-      readOnly,
-      required,
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const inputRef = useRef<HTMLInputElement>(null)
+  const hasHiddenLabel = !!isLabelHidden || isVisuallyHiddenLabel(label)
+  const stringValue = field.value === null || field.value === undefined ? "" : String(field.value)
+
+  const floatingState = useFloatingFieldState({
+    defaultValue: undefined,
+    elementRef: inputRef,
+    value: stringValue,
+  })
+
+  const ariaProps: AriaTextFieldProps = {
+    label,
+    description,
+    errorMessage: resolvedError,
+    name: field.name,
+    type,
+    value: stringValue,
+    isInvalid,
+    ...omitUndefined({
+      id,
+      autoComplete,
+      maxLength,
+      minLength,
+      pattern,
+      inputMode,
+      placeholder,
       isDisabled,
       isReadOnly,
       isRequired,
-      isInvalid,
-      validationBehavior,
-      validate,
-      id,
-      value,
-      defaultValue,
-      name,
-      type = "text",
-      autoComplete,
-      maxLength,
-      minLength,
-      pattern,
-      inputMode,
-      className,
-      "aria-describedby": ariaDescribedByProp,
-      ...domProps
-    } = props
+    }),
+  }
 
-    const inputRef = useObjectRef(forwardedRef)
-    const [isFocused, setIsFocused] = useState(false)
-    const [isContentFilled, setIsContentFilled] = useState(() =>
-      isFilled(value) ? true : isFilled(defaultValue),
-    )
+  const {
+    labelProps,
+    inputProps,
+    descriptionProps,
+    errorMessageProps,
+    isInvalid: hookIsInvalid,
+    validationErrors,
+  } = useTextField(ariaProps, inputRef)
 
-    const ariaProps: AriaTextFieldProps = {
-      label,
-      description,
-      errorMessage,
-      id,
-      name,
-      type,
-      value: value as string | undefined,
-      defaultValue: defaultValue as string | undefined,
-      autoComplete,
-      maxLength,
-      minLength,
-      pattern,
-      inputMode,
-      validate,
-      validationBehavior,
-      isDisabled: isDisabled ?? disabled,
-      isReadOnly: isReadOnly ?? readOnly,
-      isRequired: isRequired ?? required,
-      isInvalid: isInvalid ?? !!errorMessage,
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === "number" && !Number.isNaN(e.target.valueAsNumber)) {
+      field.onChange(e.target.valueAsNumber)
+    } else if (type === "number" && e.target.value === "") {
+      field.onChange(null)
+    } else {
+      field.onChange(e.target.value)
     }
+  }
 
-    const {
-      labelProps,
-      inputProps,
-      descriptionProps,
-      errorMessageProps,
-      isInvalid: hookIsInvalid,
-      validationErrors,
-    } = useTextField(ariaProps, inputRef)
+  const handleFocus = () => {
+    floatingState.setIsFocused(true)
+  }
 
-    useEffect(() => {
-      if (isFilled(value)) {
-        setIsContentFilled(true)
-        return
-      }
-      if (typeof value === "string") {
-        setIsContentFilled(false)
-        return
-      }
-      if (inputRef.current) {
-        setIsContentFilled(inputRef.current.value.length > 0)
-      } else {
-        setIsContentFilled(isFilled(defaultValue))
-      }
-    }, [value, defaultValue, inputRef])
+  const handleBlur = () => {
+    floatingState.setIsFocused(false)
+    field.onBlur()
+  }
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (typeof value !== "string") {
-        setIsContentFilled(e.target.value.length > 0)
-      }
-      onChange?.(e)
-    }
+  const mergedInputProps = mergeProps(inputProps, {
+    onChange: handleChange,
+    onFocus: handleFocus,
+    onBlur: handleBlur,
+    placeholder: resolveFloatingPlaceholder(hasHiddenLabel ? placeholder : undefined),
+    min,
+    max,
+    step,
+  })
 
-    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(true)
-      onFocus?.(e)
-    }
+  const resolvedRenderedError = resolveRenderedErrorMessage(
+    resolvedError,
+    hookIsInvalid,
+    validationErrors,
+  )
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(false)
-      onBlur?.(e)
-    }
+  const resolvedAriaDescribedBy = joinAriaDescribedBy(
+    undefined,
+    mergedInputProps["aria-describedby"],
+  )
 
-    const mergedInputProps = mergeProps(inputProps, domProps, {
-      onChange: handleChange,
-      onFocus: handleFocus,
-      onBlur: handleBlur,
-      // Single space keeps :placeholder-shown false only when the field has content,
-      // which drives the floating-label CSS transition.
-      placeholder: " ",
-    })
-
-    const resolvedErrorMessage =
-      errorMessage ??
-      (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
-
-    // Combine the hook-generated aria-describedby (description/error IDs) with
-    // any external aria-describedby the caller may have passed.
-    const resolvedAriaDescribedBy = joinAriaDescribedBy(
-      ariaDescribedByProp,
-      mergedInputProps["aria-describedby"],
-    )
-
-    const isFloated = isFocused || isContentFilled
-
-    return (
-      <div className={cx(fieldRootCss, className)}>
-        <div
-          className={fieldControlCss}
-          data-has-icon-start={iconStart ? "true" : undefined}
-          data-has-icon-end={iconEnd ? "true" : undefined}
-          data-focused={isFocused ? "true" : "false"}
-          data-filled={isContentFilled ? "true" : "false"}
-          data-floated={isFloated ? "true" : "false"}
-          data-invalid={hookIsInvalid ? "true" : "false"}
-        >
-          <input
-            {...mergedInputProps}
-            ref={inputRef}
-            className={resolveInputCss(fieldSize)}
-            aria-describedby={resolvedAriaDescribedBy}
-          />
+  return (
+    <div className={cx(fieldRootCss, className)}>
+      <div
+        className={fieldControlCss}
+        data-field-control="true"
+        data-has-icon-start={iconStart ? "true" : undefined}
+        data-has-icon-end={iconEnd ? "true" : undefined}
+        data-focused={floatingState.isFocused ? "true" : "false"}
+        data-filled={floatingState.hasValue ? "true" : "false"}
+        data-floated={floatingState.isFloated && !hasHiddenLabel ? "true" : "false"}
+        data-invalid={hookIsInvalid ? "true" : "false"}
+        data-label-hidden={hasHiddenLabel ? "true" : undefined}
+      >
+        <input
+          {...mergedInputProps}
+          ref={composeRefs(inputRef, field.ref)}
+          className={resolveInputCss(fieldSize)}
+          aria-describedby={resolvedAriaDescribedBy}
+          data-testid={dataTestId}
+        />
+        {hasHiddenLabel ? (
+          <VisuallyHidden>
+            <label {...labelProps}>{label}</label>
+          </VisuallyHidden>
+        ) : (
           <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
             {label}
           </label>
-          {iconStart ? (
-            <span className={iconSlotStartCss} aria-hidden="true">
-              {iconStart}
-            </span>
-          ) : null}
-          {iconEnd ? (
-            <span className={iconSlotEndCss} aria-hidden="true">
-              {iconEnd}
-            </span>
-          ) : null}
-        </div>
-
-        {resolvedErrorMessage ? (
-          <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
-            {resolvedErrorMessage}
-          </p>
-        ) : description ? (
-          <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
-            {description}
-          </p>
+        )}
+        {iconStart ? (
+          <span className={iconSlotStartCss} aria-hidden="true">
+            {iconStart}
+          </span>
+        ) : null}
+        {iconEnd ? (
+          <span className={iconSlotEndCss} aria-hidden="true">
+            {iconEnd}
+          </span>
         ) : null}
       </div>
-    )
-  },
-)
 
-TextField.displayName = "TextField"
+      {resolvedRenderedError ? (
+        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+          {resolvedRenderedError}
+        </p>
+      ) : description ? (
+        <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
+          {description}
+        </p>
+      ) : null}
+    </div>
+  )
+}

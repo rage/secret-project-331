@@ -15,6 +15,8 @@ build:
       context: services/headless-lms
       docker:
         dockerfile: Dockerfile.production.slim.dockerfile
+        buildArgs:
+          GIT_COMMIT: '{{default "unknown" .GITHUB_SHA}}'
 
     # cms
     - image: eu.gcr.io/moocfi-public/secret-project-cms-production-slim
@@ -50,8 +52,7 @@ build:
     gitCommit:
       variant: CommitSha
   local:
-    useDockerCLI:
-      true
+    useDockerCLI: true
       # Allow parallel builds
     concurrency: 0
     push: false

@@ -1,7 +1,24 @@
 use models::page_audio_files::PageAudioFile;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
 
+#[derive(OpenApi)]
+#[openapi(paths(get_page_audio))]
+pub(crate) struct CourseMaterialPageAudioApiDoc;
+
+#[utoipa::path(
+    get,
+    path = "/{page_id}/files",
+    operation_id = "getCourseMaterialPageAudioFiles",
+    tag = "course-material-page-audio",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Page audio files", body = Vec<PageAudioFile>)
+    )
+)]
 async fn get_page_audio(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

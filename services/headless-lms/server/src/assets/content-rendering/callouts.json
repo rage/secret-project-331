@@ -1,0 +1,130 @@
+[
+  {
+    "clientId": "223a087c-e5ea-43ee-a384-83f671f082e7",
+    "isValid": true,
+    "name": "moocfi/infobox",
+    "attributes": {
+      "backgroundColor": "#faf5f3"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "fcd2d80b-be77-49ee-b318-cbaa3016689c",
+        "isValid": true,
+        "name": "core/heading",
+        "attributes": {
+          "content": "What is inside this infobox?",
+          "level": 3
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "ce46dfae-ec7f-4137-a5c5-4606aa71446f",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "be771fdc-7f94-4fc9-8e03-0ca375a3e2bd",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "9a6b79ac-c0d9-4f17-8d67-2475187a3d35",
+    "isValid": true,
+    "name": "moocfi/aside",
+    "attributes": {
+      "backgroundColor": "#ebf5fb",
+      "separatorColor": "#007acc"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "dc631127-cd91-4022-826c-f5c1d7450c7a",
+        "isValid": true,
+        "name": "core/heading",
+        "attributes": {
+          "content": "What is inside this aside?",
+          "level": 3
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "61f83af4-2916-44f5-8605-2786f6eb168f",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum logic</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "a7544e6f-e55a-4a97-a5fb-9c8b4d91e64e",
+        "isValid": true,
+        "name": "core/paragraph",
+        "attributes": {
+          "content": "<strong>Lorem ipsum summary</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur arcu sit amet aliquam dignissim. Nam finibus interdum massa, vitae fermentum lectus",
+          "dropCap": false
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "1d7f1ee6-4128-457c-b293-14ca913f0dc8",
+    "isValid": true,
+    "name": "moocfi/learning-objectives",
+    "attributes": {},
+    "innerBlocks": [
+      {
+        "clientId": "5747acc6-d5d0-4399-b406-f9ec14fd92b0",
+        "isValid": true,
+        "name": "core/list",
+        "attributes": {
+          "ordered": false,
+          "placeholder": "Insert text...",
+          "values": ""
+        },
+        "innerBlocks": [
+          {
+            "clientId": "63f8f525-1ff1-4ffc-8b80-6661b4074185",
+            "isValid": true,
+            "name": "core/list-item",
+            "attributes": {
+              "content": "This is the first objective of this chapter"
+            },
+            "innerBlocks": []
+          },
+          {
+            "clientId": "9d576d0e-0708-4ef5-9bf6-2aadd6fe489f",
+            "isValid": true,
+            "name": "core/list-item",
+            "attributes": {
+              "content": "This is the second objective of this chapter"
+            },
+            "innerBlocks": []
+          },
+          {
+            "clientId": "942fb13e-21c0-4516-936a-5d2de463f309",
+            "isValid": true,
+            "name": "core/list-item",
+            "attributes": {
+              "content": "This is the third objective of this chapter"
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  }
+]

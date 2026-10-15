@@ -1,26 +1,27 @@
 import { atom } from "jotai"
 
-import { viewParamsAtom } from "./params"
-import { examQueryAtom, materialQueryAtom } from "./queries"
-
 import type {
-  Course,
   CourseInstance,
+  CourseMaterialCourse,
   ExamData,
   Organization,
   Page,
   UserCourseSettings,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 
-export type CourseMaterialState = {
+import { viewParamsAtom } from "./params"
+import { examQueryAtom, materialQueryAtom } from "./queries"
+
+export interface CourseMaterialState {
   status: "loading" | "ready" | "error"
   error: unknown | null
   page: Page | null
-  course: Course | null
+  course: CourseMaterialCourse | null
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   organization: Organization | null
   examData: ExamData | null
+  lockChapterContentState: "not_locked" | "waiting_teacher_review" | "visible" | null
   isTestMode: boolean
   wasRedirected: boolean
 }
@@ -38,6 +39,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
     settings: null,
     organization: null,
     examData: null,
+    lockChapterContentState: null,
     isTestMode: false,
     wasRedirected: false,
   }
@@ -76,6 +78,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       settings: data.settings ?? null,
       organization: data.organization ?? null,
       examData: null,
+      lockChapterContentState: data.lock_chapter_content_state ?? null,
       isTestMode: data.is_test_mode ?? false,
       wasRedirected: data.was_redirected ?? false,
     }
@@ -93,7 +96,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       return emptyState
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const enrollmentData = (data as any).enrollment_data
     const examPage = enrollmentData?.tag === "EnrolledAndStarted" ? enrollmentData.page : null
 
@@ -106,6 +109,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       settings: null,
       organization: null,
       examData: data as ExamData,
+      lockChapterContentState: null,
       isTestMode: viewParams.isTestMode,
       wasRedirected: false,
     }

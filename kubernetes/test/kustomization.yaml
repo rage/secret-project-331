@@ -4,9 +4,8 @@
 
 resources:
   - ../production
-  # Test mode uses the same db server as dev so that the dev db is availabe for type checking while the test environment is running. The test environment uses a different databases ('headless_lms_test') in the same postgres.
-  - ./postgres-dev.yml
-  - redis-dev.yml
+  - ../base-data
+  - ../mailpit
   - headless-lms/env.yml
   - access-ingress-internally.yml
   - tmc-service-account.yml
@@ -16,6 +15,11 @@ patches:
       version: v1
       kind: Ingress
       name: project-331-ingress
+  - path: patch-ingress.yml
+    target:
+      version: v1
+      kind: Ingress
+      name: project-331-ai-suggestions
   - path: patch-ingress-other-domains.yml
     target:
       version: v1

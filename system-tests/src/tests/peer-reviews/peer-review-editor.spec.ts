@@ -1,19 +1,21 @@
-import { test } from "@playwright/test"
+import { type Page, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
+import { Checkbox } from "@/utils/components/Checkbox"
+import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("create peer review", async ({ page }) => {
+async function openPeerReviewConfig(page: Page) {
   await page.goto("http://project-331.local/organizations")
 
-  await Promise.all([
-    await selectOrganization(page, "University of Helsinki, Department of Computer Science"),
-  ])
+  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click()
 
@@ -26,8 +28,15 @@ test("create peer review", async ({ page }) => {
     .click()
 
   await page.getByText("Peer and self review configuration").click()
-  await page.getByText("Add peer review").check()
-  await page.getByText("Use course default peer review config").uncheck()
+  // Wait out the editor's async QueryResult frames so checkbox clicks aren't lost to a re-render.
+  await waitForSpinnersToDisappear(page, "Peer review editor did not finish loading")
+}
+
+test("create peer review", async ({ page }) => {
+  await openPeerReviewConfig(page)
+
+  await Checkbox.labelled(page, "Add peer review").setChecked(true)
+  await Checkbox.labelled(page, "Use course default peer review config").setChecked(false)
 
   await page.getByText("Add peer review question").click()
   // Fill text=Insert question here
@@ -39,22 +48,11 @@ test("create peer review", async ({ page }) => {
 })
 
 test("default peer review editing", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/organizations")
+  await openPeerReviewConfig(page)
 
-  await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-
-  await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] path").click()
-
-  await page.getByText("Pages").click()
-
-  await page
-    .getByRole("row", { name: "Page One /chapter-1/page-1" })
-    .getByRole("button")
-    .first()
-    .click()
-
-  await page.getByText("Peer and self review configuration").click()
-  await page.getByText("Use course default peer review config").click()
+  // "Use course default" only renders once peer review is enabled.
+  await Checkbox.labelled(page, "Add peer review").setChecked(true)
+  await Checkbox.labelled(page, "Use course default peer review config").setChecked(true)
 
   const [page1] = await Promise.all([
     page.waitForEvent("popup"),
@@ -77,7 +75,9 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   // Fill input[type="number"] >> nth=1
   await page1.locator('input[type="number"]').nth(1).fill("4")
   // Select ManualReviewEverything
-  await page1.getByLabel("Peer review processing").selectOption("ManualReviewEverything")
+  await Select.labelled(page1, "Peer review processing strategy").chooseOption(
+    "Manual review everything",
+  )
 
   await page1.getByRole("button", { name: "Delete" }).nth(1).click()
   // Fill text=General comments

@@ -1,7 +1,12 @@
-import { PageInfo } from "../bindings"
+import { assertNotNullOrUndefined } from "./nullability"
 
-export function pageRoute(pageInfo: PageInfo, urlPath: string): string {
-  return `/org/${pageInfo.organization_slug}/courses/${pageInfo.course_slug}${urlPath}`
+interface PageRouteInfo {
+  organization_slug?: string | null
+  course_slug?: string | null
+}
+
+export function pageRoute(pageInfo: PageRouteInfo, urlPath: string): string {
+  return `/org/${assertNotNullOrUndefined(pageInfo.organization_slug)}/courses/${assertNotNullOrUndefined(pageInfo.course_slug)}${urlPath}`
 }
 
 export function manageCourseRoute(courseId: string) {
@@ -24,24 +29,14 @@ export function manageCourseFeedbackRoute(courseId: string) {
   return `/manage/courses/${courseId}/feedback`
 }
 
-export function manageCourseFeedbackUnreadRoute(courseId: string) {
-  return `/manage/courses/${courseId}/feedback/unread`
+export function manageCourseFeedbackFeedbackRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/feedback/feedback`
+  return subtab ? `${base}/${subtab}` : base
 }
 
-export function manageCourseFeedbackReadRoute(courseId: string) {
-  return `/manage/courses/${courseId}/feedback/read`
-}
-
-export function manageCourseChangeRequestsRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests`
-}
-
-export function manageCourseChangeRequestsPendingRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests/pending`
-}
-
-export function manageCourseChangeRequestsOldRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests/old`
+export function manageCourseFeedbackChangeRequestsRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/feedback/change-requests`
+  return subtab ? `${base}/${subtab}` : base
 }
 
 export function manageCourseExercisesRoute(courseId: string) {
@@ -78,6 +73,14 @@ export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
 }
 
+export function chatbotCommandCenterRoute() {
+  return "/chatbot-command-center"
+}
+
+export function courseAuditingRoute() {
+  return "/manage/course-auditing"
+}
+
 export function manageOrganizationRoute(organizationId: string) {
   return `/manage/organizations/${organizationId}`
 }
@@ -96,6 +99,10 @@ export function globalStatsRoute() {
 
 export function domainStatsRoute() {
   return "/domain-stats"
+}
+
+export function certificateValidateRoute(certificateVerificationId: string) {
+  return `/certificates/validate/${certificateVerificationId}`
 }
 
 export function courseStatsRoute(courseId: string) {
@@ -171,8 +178,12 @@ export function manageCourseOtherCheatersSuspectedRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/cheaters/suspected`
 }
 
-export function manageCourseOtherCheatersArchivedRoute(courseId: string) {
-  return `/manage/courses/${courseId}/other/cheaters/archived`
+export function manageCourseOtherCheatersConfirmedRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/cheaters/confirmed`
+}
+
+export function manageCourseOtherCheatersDismissedRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/cheaters/dismissed`
 }
 
 export function manageCourseOtherCodeGiveawaysRoute(courseId: string) {
@@ -261,6 +272,26 @@ export function manageExamQuestionsRoute(examId: string) {
   return `/manage/exams/${examId}/questions`
 }
 
+export function manageCoursePlansListRoute() {
+  return `/manage/course-plans`
+}
+
+export function manageCoursePlanRoute(planId: string) {
+  return `/manage/course-plans/${planId}`
+}
+
+export function manageCoursePlanScheduleRoute(planId: string) {
+  return `/manage/course-plans/${planId}/schedule`
+}
+
+export function manageCoursePlanWorkspaceRoute(planId: string) {
+  return `/manage/course-plans/${planId}/workspace`
+}
+
+export function manageCoursePlanPermissionsRoute(planId: string) {
+  return `/manage/course-plans/${planId}/permissions`
+}
+
 export function testExamRoute(organizationSlug: string, examId: string) {
   return `/org/${organizationSlug}/exams/testexam/${examId}`
 }
@@ -283,4 +314,66 @@ export function exerciseExamSubmissionsRoute(exerciseId: string) {
 
 export function userSettingsRoute() {
   return "/user-settings/account"
+}
+
+export function profileStudiesRoute() {
+  return "/profile/studies"
+}
+
+export function profileCreditRegistrationRoute() {
+  return "/profile/credit-registration"
+}
+
+export function userSettingsStudentNumberRoute() {
+  return "/user-settings/student-number"
+}
+
+export function completionRegistrationRoute(courseModuleId: string) {
+  return `/completion-registration/${courseModuleId}`
+}
+
+/** Must match the backend's `LINK_STUDENT_NUMBER_PATH`; a divergence breaks every mail already sent. */
+export function linkStudentNumberRoute(token: string) {
+  return `/link-student-number/${token}`
+}
+
+export function creditRegistrationOverviewRoute() {
+  return "/manage/credit-registration/overview"
+}
+
+export function creditRegistrationRegistrationsRoute() {
+  return "/manage/credit-registration/registrations"
+}
+
+export function creditRegistrationErrorsRoute() {
+  return "/manage/credit-registration/errors"
+}
+
+export function creditRegistrationCoursesRoute() {
+  return "/manage/credit-registration/courses"
+}
+
+export function creditRegistrationLinkingRoute() {
+  return "/manage/credit-registration/linking"
+}
+
+export function creditRegistrationSystemRoute() {
+  return "/manage/credit-registration/system"
+}
+
+/** The System page's API log with one call's full bodies open, every registration it carried. */
+export function creditRegistrationSuotarApiCallRoute(suotarApiCallId: string) {
+  return `/manage/credit-registration/system?suotar_api_call_id=${encodeURIComponent(suotarApiCallId)}`
+}
+
+export function creditRegistrationEnrolmentChecksRoute() {
+  return "/manage/credit-registration/enrolment-checks"
+}
+
+export function creditRegistrationAuditRoute() {
+  return "/manage/credit-registration/audit"
+}
+
+export function creditRegistrationItemRoute(creditRegistrationId: string) {
+  return `/manage/credit-registration/registrations/${creditRegistrationId}`
 }

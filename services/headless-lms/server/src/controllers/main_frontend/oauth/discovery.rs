@@ -2,7 +2,12 @@ use crate::domain::oauth::jwks::{Jwk, Jwks};
 use crate::domain::oauth::oidc::rsa_n_e_and_kid_from_pem;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use headless_lms_utils::ApplicationConfiguration;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(jwks, well_known_openid))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthDiscoveryApiDoc;
 
 /// Handles `/jwks.json` for returning the JSON Web Key Set (JWKS).
 ///
@@ -31,6 +36,15 @@ use headless_lms_utils::ApplicationConfiguration;
 /// }
 /// ```
 #[instrument(skip(app_conf))]
+#[utoipa::path(
+    get,
+    path = "/jwks.json",
+    operation_id = "getOauthJwks",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "OAuth JSON Web Key Set", body = serde_json::Value)
+    )
+)]
 pub async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerResult<HttpResponse> {
     let server_token = skip_authorize();
 
@@ -90,6 +104,15 @@ pub async fn jwks(app_conf: web::Data<ApplicationConfiguration>) -> ControllerRe
 /// }
 /// ```
 #[instrument(skip(app_conf))]
+#[utoipa::path(
+    get,
+    path = "/.well-known/openid-configuration",
+    operation_id = "getOauthOpenidConfiguration",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "OAuth/OpenID Connect discovery document", body = serde_json::Value)
+    )
+)]
 pub async fn well_known_openid(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
@@ -104,11 +127,12 @@ pub async fn well_known_openid(
         "token_endpoint":                  format!("{}/api/v0/main-frontend/oauth/token", base_url),
         "userinfo_endpoint":               format!("{}/api/v0/main-frontend/oauth/userinfo", base_url),
         "revocation_endpoint":             format!("{}/api/v0/main-frontend/oauth/revoke", base_url),
+        "device_authorization_endpoint":   format!("{}/api/v0/main-frontend/oauth/device_authorization", base_url),
         "jwks_uri":                        format!("{}/api/v0/main-frontend/oauth/jwks.json", base_url),
 
         // Core capabilities
         "response_types_supported":        ["code"],
-        "grant_types_supported":           ["authorization_code","refresh_token"],
+        "grant_types_supported":           ["authorization_code","refresh_token","urn:ietf:params:oauth:grant-type:device_code"],
         "subject_types_supported":         ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
 
@@ -126,7 +150,7 @@ pub async fn well_known_openid(
         "dpop_signing_alg_values_supported": ["ES256","RS256"],
 
         // Nice-to-have hints for clients (optional but common)
-        "scopes_supported":                ["openid","profile","email","offline_access"],
+        "scopes_supported":                ["openid","profile","email","offline_access","exercise-services"],
         "claims_supported":                ["sub","iss","aud","exp","iat","auth_time","nonce","email","email_verified","name","given_name","family_name"],
         "response_modes_supported":        ["query"],
         "userinfo_signing_alg_values_supported": [], // we return plain JSON at /userinfo

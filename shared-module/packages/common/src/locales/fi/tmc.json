@@ -1,4 +1,6 @@
 {
+  "answer-load-failed": "Tehtävätiedostojen avaaminen epäonnistui. Mitään ei ole menetetty; yritä uudelleen.",
+  "answer-save-failed": "Vastauksen tallentaminen epäonnistui. Työsi on yhä tallessa, mutta et voi palauttaa ennen kuin tallennus onnistuu.",
   "are-you-sure": "Oletko varma?",
   "button.cancel": "Peruuta",
   "button.ok": "OK",
@@ -35,6 +37,7 @@
   "test": "Testi",
   "test-results": "Testitulokset",
   "tests-unavailable": "Testit eivät ole saatavilla",
+  "try-again": "Yritä uudelleen",
   "upload-solution-instructions": "Tallenna vastaus. Tuetut arkistotyypit: .tar.zst",
   "waiting-for-content": "Odotetaan sisältöä...",
   "waiting-for-input": "Odotetaan syötettä",

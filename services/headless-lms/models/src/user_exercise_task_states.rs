@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserExerciseTaskState {
     pub exercise_task_id: Uuid,
     pub user_exercise_slide_state_id: Uuid,
@@ -78,13 +78,7 @@ UPDATE
 SET deleted_at = NULL,
   score_given = $3,
   grading_progress = $4
-RETURNING exercise_task_id,
-  user_exercise_slide_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress as "grading_progress: _"
+RETURNING *
     "#,
         exercise_task_id,
         user_exercise_slide_state_id,
@@ -104,13 +98,7 @@ pub async fn get(
     let res = sqlx::query_as!(
         UserExerciseTaskState,
         r#"
-SELECT exercise_task_id,
-  user_exercise_slide_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress as "grading_progress: _"
+SELECT *
 FROM user_exercise_task_states
 WHERE exercise_task_id = $1
   AND user_exercise_slide_state_id = $2
@@ -130,8 +118,7 @@ pub async fn get_grading_summary_by_user_exercise_slide_state_id(
 ) -> ModelResult<(Option<f32>, GradingProgress)> {
     let res = sqlx::query!(
         r#"
-SELECT score_given,
-  grading_progress AS "grading_progress: GradingProgress"
+SELECT *
 FROM user_exercise_task_states
 WHERE user_exercise_slide_state_id = $1
   AND deleted_at IS NULL

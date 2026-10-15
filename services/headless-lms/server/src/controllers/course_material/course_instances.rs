@@ -8,14 +8,44 @@ use models::{
     course_instance_enrollments::CourseInstanceEnrollment,
     course_module_completions::CourseModuleCompletion,
     library::progressing::UserModuleCompletionStatus,
+    points_breakdowns::ChapterPointsBreakdown,
     user_exercise_states::{UserCourseChapterExerciseProgress, UserCourseProgress},
 };
+use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::{
+    domain::authorization::{authorize_access_to_course_material, skip_authorize},
+    prelude::*,
+};
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_user_progress_for_course_instance,
+    get_user_progress_for_course_instance_chapter,
+    get_user_progress_for_course_instance_chapter_exercises,
+    get_user_points_breakdown_for_course_module,
+    get_module_completions_for_course_instance,
+    save_course_settings,
+    get_all_get_all_course_module_completions_for_user_by_course_instance_id,
+    get_background_questions_and_answers
+))]
+pub(crate) struct CourseMaterialCourseInstancesApiDoc;
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/progress",
+    operation_id = "getCourseMaterialUserCourseProgress",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "User course progress", body = Vec<UserCourseProgress>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
@@ -39,6 +69,19 @@ async fn get_user_progress_for_course_instance(
 /**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/chapters/{chapter_id}/progress",
+    operation_id = "getCourseMaterialChapterProgress",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Course instance chapter progress", body = UserCourseInstanceChapterProgress)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
@@ -47,6 +90,18 @@ async fn get_user_progress_for_course_instance_chapter(
 ) -> ControllerResult<web::Json<UserCourseInstanceChapterProgress>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, chapter_id).await?;
+    if chapter.course_id != course_instance.course_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Chapter does not belong to the requested course instance".to_string()
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_instance.course_id)
+            .await?;
     let user_course_instance_chapter_progress =
         models::chapters::get_user_course_instance_chapter_progress(
             &mut conn,
@@ -55,13 +110,25 @@ async fn get_user_progress_for_course_instance_chapter(
             user.id,
         )
         .await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/chapters/{chapter_id}/exercises/progress",
+    operation_id = "getCourseMaterialChapterExerciseProgress",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Course instance chapter exercise progress", body = Vec<UserCourseChapterExerciseProgress>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
@@ -70,11 +137,21 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 ) -> ControllerResult<web::Json<Vec<UserCourseChapterExerciseProgress>>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, chapter_id).await?;
+    if chapter.course_id != course_instance.course_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Chapter does not belong to the requested course instance".to_string()
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_instance.course_id)
+            .await?;
     let chapter_exercises =
         models::exercises::get_exercises_by_chapter_id(&mut conn, chapter_id).await?;
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
-    let course_instance =
-        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
     let user_course_instance_exercise_progress =
         models::user_exercise_states::get_user_course_chapter_exercises_progress(
             &mut conn,
@@ -91,13 +168,69 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    let token = skip_authorize();
     token.authorized_ok(web::Json(rounded_score_given_instances))
+}
+
+/**
+GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/course-modules/{course_module_id}/points-breakdown",
+    operation_id = "getCourseMaterialCourseModulePointsBreakdown",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "The user's points by chapter, page and exercise", body = Vec<ChapterPointsBreakdown>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_user_points_breakdown_for_course_module(
+    user: AuthUser,
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ChapterPointsBreakdown>>> {
+    let mut conn = pool.acquire().await?;
+    let (course_instance_id, course_module_id) = params.into_inner();
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let course_module = models::course_modules::get_by_id(&mut conn, course_module_id).await?;
+    if course_module.course_id != course_instance.course_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Course module does not belong to the requested course instance".to_string()
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_instance.course_id)
+            .await?;
+    let breakdown = models::points_breakdowns::get_user_course_module_points_breakdown(
+        &mut conn,
+        course_module_id,
+        user.id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(breakdown))
 }
 
 /**
 GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/module-completions",
+    operation_id = "getCourseMaterialUserModuleCompletions",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "User module completion statuses", body = Vec<UserModuleCompletionStatus>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_module_completions_for_course_instance(
     user: AuthUser,
@@ -126,8 +259,8 @@ async fn get_module_completions_for_course_instance(
     token.authorized_ok(web::Json(module_completion_statuses))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+
 pub struct SaveCourseSettingsPayload {
     pub background_question_answers: Vec<NewCourseBackgroundQuestionAnswer>,
 }
@@ -135,6 +268,19 @@ pub struct SaveCourseSettingsPayload {
 /**
 POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_instance_id}/save-course-settings",
+    operation_id = "saveCourseMaterialCourseSettings",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    request_body = SaveCourseSettingsPayload,
+    responses(
+        (status = 200, description = "Course instance enrollment", body = CourseInstanceEnrollment)
+    )
+)]
 #[instrument(skip(pool))]
 async fn save_course_settings(
     pool: web::Data<PgPool>,
@@ -158,6 +304,19 @@ async fn save_course_settings(
 /**
 GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/course-module-completions/{user_id}",
+    operation_id = "getCourseMaterialCourseModuleCompletionsForUser",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Course module completions for user", body = Vec<CourseModuleCompletion>)
+    )
+)]
 #[instrument(skip(pool))]
 
 async fn get_all_get_all_course_module_completions_for_user_by_course_instance_id(
@@ -191,6 +350,18 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/background-questions-and-answers",
+    operation_id = "getCourseMaterialBackgroundQuestionsAndAnswers",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "Background questions and answers", body = CourseBackgroundQuestionsAndAnswers)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_background_questions_and_answers(
     pool: web::Data<PgPool>,
@@ -225,6 +396,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/chapters/{chapter_id}/progress",
         web::get().to(get_user_progress_for_course_instance_chapter),
+    )
+    .route(
+        "/{course_instance_id}/course-modules/{course_module_id}/points-breakdown",
+        web::get().to(get_user_points_breakdown_for_course_module),
     )
     .route(
         "/{course_instance_id}/module-completions",

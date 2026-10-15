@@ -1,15 +1,21 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { mergeProps } from "@react-aria/utils"
 import type { TabListState } from "@react-stately/tabs"
 import type { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useRef } from "react"
-import { useFocusRing, useHover, useTab } from "react-aria"
+import { useFocusRing, useHover, useTab, VisuallyHidden } from "react-aria"
 
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+
+import { tabPillCss } from "../../Tabs/tabStrip"
+
+/** How loud a tab's count is: `danger` is for a backlog someone has to work through. */
+export type RouteTabCountTone = "neutral" | "danger"
 
 export interface RouteTabDefinition {
   key: string
@@ -19,86 +25,100 @@ export interface RouteTabDefinition {
   pathPrefix?: string
   disabled?: boolean
   countHook?: () => UseQueryResult<number, unknown>
+  /**
+   * Tone for the badge `countHook` fills. Defaults to neutral, because only the surface knows
+   * which of its counts is urgent, and a strip where every count is red ranks nothing.
+   */
+  countTone?: RouteTabCountTone
+  /** Whether to show a dot for a problem the count leaves out, named by `dotLabel`. */
+  dotHook?: () => boolean
+  dotLabel?: string
 }
+
+const dotCss = css`
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: ${baseTheme.colors.red[600]};
+`
+
+const COUNT_TONE = {
+  neutral: {
+    background: baseTheme.colors.gray[100],
+    text: baseTheme.colors.gray[700],
+    spinner: baseTheme.colors.gray[400],
+  },
+  danger: {
+    background: baseTheme.colors.red[600],
+    text: baseTheme.colors.primary[100],
+    spinner: baseTheme.colors.red[400],
+  },
+} satisfies Record<RouteTabCountTone, { background: string; text: string; spinner: string }>
 
 interface RouteTabProps {
   item: RouteTabDefinition
   state: TabListState<object>
+  /** False when the current route matches no tab; see `RouteTabList`'s `isCurrentRouteATab`. */
+  isCurrentRouteATab: boolean
 }
 
-export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
+export const RouteTab: React.FC<RouteTabProps> = ({ item, state, isCurrentRouteATab }) => {
   const ref = useRef<HTMLAnchorElement>(null)
 
   const { tabProps, isSelected, isDisabled } = useTab(
     {
       key: item.key,
-      isDisabled: item.disabled,
+      ...omitUndefined({ isDisabled: item.disabled }),
     },
     state,
     ref,
   )
+  const isCurrent = isSelected && isCurrentRouteATab
 
   const { focusProps, isFocusVisible } = useFocusRing()
   const { hoverProps, isHovered } = useHover({})
 
   const count = item.countHook?.()
+  const hasDot = item.dotHook?.() ?? false
+  const countTone = item.countTone === undefined ? COUNT_TONE.neutral : COUNT_TONE[item.countTone]
 
   if (count?.isError) {
     console.error("Could not fetch count:", count.error)
   }
 
   const { "aria-controls": _ariaControls, ...restTabProps } = tabProps
+  // next/link declares onMouseEnter/onClick/onTouchStart as optional but without `undefined`, so
+  // under exactOptionalPropertyTypes they cannot receive the possibly-undefined handlers that
+  // mergeProps produces. Pull them out and only spread them back when actually defined.
+  const { onMouseEnter, onClick, onTouchStart, ...linkProps } = mergeProps(
+    restTabProps,
+    focusProps,
+    hoverProps,
+  )
 
   return (
     <Link
-      {...mergeProps(restTabProps, focusProps, hoverProps)}
+      {...linkProps}
+      {...includeIf(onMouseEnter, { onMouseEnter })}
+      {...includeIf(onClick, { onClick })}
+      {...includeIf(onTouchStart, { onTouchStart })}
       ref={ref}
       href={item.href}
       replace
       aria-disabled={isDisabled}
-      className={css`
-        flex: 0 1 auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        font-weight: ${isSelected ? fontWeights.semibold : fontWeights.medium};
-        font-size: 0.875rem;
-        color: ${isDisabled
-          ? baseTheme.colors.gray[300]
-          : isSelected
-            ? baseTheme.colors.green[700]
-            : baseTheme.colors.gray[500]};
-        background: ${isSelected ? "#fff" : "transparent"};
-        border-radius: 6px;
-        padding: 0.5rem 0.75rem;
-        transition: all 0.15s ease;
-        position: relative;
-        cursor: ${isDisabled ? "not-allowed" : "pointer"};
-        white-space: nowrap;
-        ${isSelected &&
+      aria-selected={isCurrent}
+      className={cx(
+        tabPillCss({ isSelected: isCurrent, isFocusVisible, isHovered, isDisabled }),
         css`
-          box-shadow:
-            0 1px 3px rgba(0, 0, 0, 0.08),
-            0 1px 2px rgba(0, 0, 0, 0.06);
-        `}
-        ${respondToOrLarger.sm} {
-          padding: 0.625rem 1.125rem;
-          font-size: 0.9rem;
-        }
-        ${isFocusVisible &&
-        css`
-          outline: 2px solid ${baseTheme.colors.green[400]};
-          outline-offset: 2px;
-        `}
-        ${isHovered &&
-        !isSelected &&
-        !isDisabled &&
-        css`
-          color: ${baseTheme.colors.gray[700]};
-          background: rgba(255, 255, 255, 0.5);
-        `}
-      `}
+          font-size: 0.875rem;
+          ${respondToOrLarger.sm} {
+            padding: 0.625rem 1.125rem;
+            font-size: 0.9rem;
+          }
+        `,
+      )}
     >
       <span>{item.title}</span>
       {count?.isLoading && (
@@ -108,7 +128,7 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            border: 2px solid ${baseTheme.colors.red[400]};
+            border: 2px solid ${countTone.spinner};
             border-top-color: transparent;
             animation: spin 0.8s linear infinite;
 
@@ -129,16 +149,22 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
             flex-shrink: 0;
             min-height: 20px;
             box-sizing: border-box;
-            background: ${baseTheme.colors.red[400]};
+            background: ${countTone.background};
             border-radius: 20px;
             font-size: 12px;
-            color: ${baseTheme.colors.primary[100]};
+            color: ${countTone.text};
             margin-left: 3px;
             padding: 0 6px;
           `}
         >
           {count.data}
         </span>
+      )}
+      {hasDot && (
+        <>
+          <span className={dotCss} aria-hidden="true" />
+          {item.dotLabel && <VisuallyHidden>{item.dotLabel}</VisuallyHidden>}
+        </>
       )}
     </Link>
   )

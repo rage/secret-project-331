@@ -1,6 +1,8 @@
-import { Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+
+import { Disclosure } from "./components/Disclosure"
 
 /**
  * Saves the current CMS page and waits for the success notification
@@ -10,4 +12,12 @@ export async function saveCMSPage(page: Page): Promise<void> {
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Save", exact: true }).click()
   })
+}
+
+const PEER_AND_SELF_REVIEW_CONFIG = "Peer and self review configuration"
+
+/** Expands the exercise's peer and self review configuration in the CMS block editor. */
+export async function expandPeerAndSelfReviewConfig(page: Page): Promise<void> {
+  const trigger = page.getByRole("button", { name: PEER_AND_SELF_REVIEW_CONFIG })
+  await new Disclosure(page, trigger, { name: PEER_AND_SELF_REVIEW_CONFIG }).expand()
 }

@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
@@ -20,7 +20,7 @@ test("Changing course instance preserves completions and points", async ({ page 
   })
 
   await test.step("Open course and navigate to first exercise", async () => {
-    await page.getByRole("link", { name: "Navigate to course 'Changing course instance'" }).click()
+    await page.getByRole("link", { name: "Changing course instance", exact: true }).click()
     await selectCourseInstanceIfPrompted(page)
     const chapterSelector = new ChapterSelector(page)
     await chapterSelector.clickChapter(1)
@@ -51,7 +51,7 @@ test("Changing course instance preserves completions and points", async ({ page 
     await page.getByRole("radio", { name: "Non-default instance" }).check()
     await page.getByTestId("select-course-instance-continue-button").click()
     await page.getByTestId("select-course-instance-continue-button").waitFor({ state: "detached" })
-    // eslint-disable-next-line playwright/no-networkidle
+    // oxlint-disable-next-line playwright/no-networkidle
     await page.waitForLoadState("networkidle")
     await page.reload()
   })
@@ -63,5 +63,22 @@ test("Changing course instance preserves completions and points", async ({ page 
     await page.getByLabel("Grade: Passed").waitFor()
     await page.getByText("1/1Points").waitFor()
     await page.getByText("1 / 1 Exercises attempted").waitFor()
+  })
+
+  await test.step("Explain the points chart and list every exercise", async () => {
+    await expect(async () => {
+      await page.getByRole("button", { name: "About the points chart" }).click()
+      await expect(page.getByText("Your points: 1")).toBeVisible({ timeout: 1000 })
+    }).toPass()
+    await expect(page.getByText("Maximum: 1")).toBeVisible()
+    await page.keyboard.press("Escape")
+
+    await page.getByRole("button", { name: "Show all exercises in this course" }).click()
+    const dialog = page.getByRole("dialog", { name: "All exercises" })
+    await expect(dialog).toContainText("1 / 1 point")
+    await expect(dialog).toContainText("1 of 1 exercise attempted")
+    await expect(dialog.getByRole("listitem").first()).toContainText("Done")
+    await page.keyboard.press("Escape")
+    await expect(dialog).toBeHidden()
   })
 })

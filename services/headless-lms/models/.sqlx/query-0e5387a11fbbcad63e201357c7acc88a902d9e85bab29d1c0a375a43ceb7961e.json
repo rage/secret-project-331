@@ -1,0 +1,125 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)\nVALUES ($1, $2, $3, 'not_unlocked_yet'::chapter_locking_status, NULL)\nON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "chapter_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "chapter_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "chapter_locking_status",
+            "kind": {
+              "Enum": [
+                "unlocked",
+                "completed_and_locked",
+                "not_unlocked_yet"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "status"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0e5387a11fbbcad63e201357c7acc88a902d9e85bab29d1c0a375a43ceb7961e"
+}

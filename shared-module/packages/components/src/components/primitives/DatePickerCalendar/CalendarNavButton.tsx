@@ -3,8 +3,8 @@
 import React from "react"
 import { useButton } from "react-aria"
 
-import { ChevronIcon } from "./ChevronIcon"
-import { calendarNavButtonCss } from "./datePickerCalendarStyles"
+import { ChevronIcon } from "../ChevronIcon"
+import { calendarNavButtonCss, calendarNavIconCss } from "./datePickerCalendarStyles"
 
 /** Icon button for paging the calendar by month or year range. */
 export function CalendarNavButton({
@@ -30,7 +30,7 @@ export function CalendarNavButton({
 
   return (
     <button {...buttonProps} ref={ref} className={calendarNavButtonCss} type="button">
-      <ChevronIcon direction={direction} />
+      <ChevronIcon className={calendarNavIconCss} direction={direction} />
     </button>
   )
 }

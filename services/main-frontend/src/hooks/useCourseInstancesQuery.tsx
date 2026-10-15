@@ -1,33 +1,45 @@
 "use client"
 
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { fetchCourseInstances } from "../services/backend/courses"
-
-import { HookQueryOptions } from "."
-
-import { CourseInstance } from "@/shared-module/common/bindings"
+import {
+  getCourseInstancesOptions,
+  getCourseInstancesQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseInstance } from "@/generated/api/types.generated"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
-const getCourseInstancesQueryKey = (courseId: string | null) => [
-  // eslint-disable-next-line i18next/no-literal-string
-  `course-course-instances`,
-  courseId,
-]
+import type { HookQueryOptions } from "."
 
 export const invalidateCourseInstances = (courseId: string) => {
-  queryClient.invalidateQueries({ queryKey: getCourseInstancesQueryKey(courseId) })
+  queryClient.invalidateQueries({
+    queryKey: getCourseInstancesQueryKey({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
 }
 
 const useCourseInstancesQuery = (
   courseId: string | null,
   options: HookQueryOptions<CourseInstance[]> = {},
 ): UseQueryResult<CourseInstance[], Error> => {
+  const generatedOptions = optionalGeneratedQueryOptions({
+    value: courseId,
+    isReady: (id): id is string => Boolean(id),
+    build: (id) =>
+      getCourseInstancesOptions({
+        path: {
+          course_id: id,
+        },
+      }),
+  })
+
   return useQuery({
-    queryKey: getCourseInstancesQueryKey(courseId),
-    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
+    ...(generatedOptions as unknown as UseQueryOptions<CourseInstance[], Error, CourseInstance[]>),
     ...options,
   })
 }

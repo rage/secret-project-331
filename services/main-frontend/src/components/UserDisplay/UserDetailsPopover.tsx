@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useOverlayTriggerState } from "@react-stately/overlays"
+import type { useOverlayTriggerState } from "@react-stately/overlays"
 import React, { useRef } from "react"
 import { DismissButton, mergeProps, Overlay, useDialog, usePopover } from "react-aria"
 
@@ -28,7 +28,7 @@ export function UserDetailsPopover({
     {
       triggerRef,
       popoverRef,
-      // eslint-disable-next-line i18next/no-literal-string -- placement value for popover positioning
+      // oxlint-disable-next-line i18next/no-literal-string -- placement value for popover positioning
       placement: "bottom start" as const,
       offset: 8,
     },

@@ -1,0 +1,32 @@
+# The AI suggestion endpoints are on their own ingress only so that they can have a longer timeout
+# than the rest of the API: they wait on a thinking model, which takes minutes on a large prompt.
+#
+# Every overlay that rewrites the host needs a patch entry for this ingress too -- without one it
+# keeps project-331.local and quietly never matches.
+#
+# Deliberately no cert-manager annotation: project-331-ingress orders the certificate for this host,
+# and a second issuer for it would race.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: project-331-ai-suggestions
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 101m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+spec:
+  rules:
+    - host: project-331.local
+      http:
+        paths:
+          - path: /api/v0/cms/ai-suggestions
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001

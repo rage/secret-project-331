@@ -1,14 +1,14 @@
 "use client"
 
 import { cx } from "@emotion/css"
+import type { FocusableElement } from "@react-types/shared"
 import React from "react"
-import { useButton, useObjectRef, VisuallyHidden } from "react-aria"
+import { mergeProps, useButton, useObjectRef, VisuallyHidden } from "react-aria"
 import type { AriaButtonOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-import { mergeHandlers } from "../lib/utils/handlers"
-
+import { omitUndefined } from "../lib/utils/nullability"
 import {
   type ButtonSize,
   type ButtonVariant,
@@ -18,26 +18,79 @@ import {
   iconSlotCss,
   type PressHandlers,
   resolveButtonRootCss,
-  spinnerCss,
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
+import { spinnerGlyphCss } from "./primitives/spinnerStyles"
 
-export type ButtonProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> &
-  PressHandlers & {
-    variant?: ButtonVariant
-    size?: ButtonSize
-    icon?: React.ReactNode
-    iconPosition?: IconPosition
-    isLoading?: boolean
-    loadingLabel?: string
-    disabled?: boolean
-  }
+type OwnedButtonDomKeys =
+  | keyof PressHandlers
+  | "children"
+  | "className"
+  | "disabled"
+  | "type"
+  | "name"
+  | "value"
+  | "formAction"
+  | "onClick"
+  | "onPointerDown"
+  | "onPointerUp"
+  | "onPointerCancel"
+  | "onKeyDown"
+  | "onKeyUp"
+  | "onFocus"
+  | "onBlur"
+  | "aria-describedby"
+  | "aria-labelledby"
+  | "aria-label"
+  | "variant"
+  | "size"
+  | "icon"
+  | "iconPosition"
+  | "isLoading"
+  | "loadingLabel"
+
+export type ButtonDomProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, OwnedButtonDomKeys>
+
+export type ButtonProps = PressHandlers & {
+  variant?: ButtonVariant
+  size?: ButtonSize
+  icon?: React.ReactNode
+  iconPosition?: IconPosition
+  isLoading?: boolean
+  loadingLabel?: string
+  disabled?: boolean
+  type?: "button" | "submit" | "reset"
+  name?: string
+  value?: string | number | readonly string[]
+  formAction?: string
+  /**
+   * An alternative to onPress. onPress is preferred, as it works better for
+   * non-mouse interactions, but using onClick is required when using our
+   * Button component with some other react-aria hooks. Providing useButton
+   * with both onPress and onClick works: it combines the event handlers.
+   */
+  onClick?: (e: React.MouseEvent<FocusableElement>) => void
+  onPointerDown?: React.PointerEventHandler<HTMLButtonElement>
+  onPointerUp?: React.PointerEventHandler<HTMLButtonElement>
+  onPointerCancel?: React.PointerEventHandler<HTMLButtonElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
+  onFocus?: React.FocusEventHandler<HTMLButtonElement>
+  onBlur?: React.FocusEventHandler<HTMLButtonElement>
+  "aria-describedby"?: string
+  "aria-labelledby"?: string
+  "aria-label"?: string
+  className?: string
+  children?: React.ReactNode
+  domProps?: ButtonDomProps
+  "data-testid"?: string | undefined
+}
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(props, forwardedRef) {
     const {
       variant = "primary",
-      size = "md",
+      size = "medium",
       icon,
       iconPosition = "start",
       isLoading = false,
@@ -62,10 +115,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onFocus,
       onBlur,
       className,
-      ...rest
+      domProps,
+      name,
+      "data-testid": dataTestId,
     } = props
 
-    const { t } = useTranslation()
+    const { t } = useTranslation("shared-module")
     const loadingLabel = loadingLabelProp ?? t("button.loading")
 
     const isDisabled = disabled || isLoading
@@ -83,41 +138,47 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const ref = useObjectRef(forwardedRef)
 
     const ariaOptions: AriaButtonOptions<"button"> = {
-      onPress,
-      onPressStart,
-      onPressEnd,
-      onPressChange,
-      onPressUp,
       isDisabled,
-      "aria-label": userAriaLabel,
-      "aria-describedby": describedBy,
-      "aria-labelledby": labelledBy,
+      ...omitUndefined({
+        onPress,
+        onClick,
+        onPressStart,
+        onPressEnd,
+        onPressChange,
+        onPressUp,
+        "aria-label": userAriaLabel,
+        "aria-describedby": describedBy,
+        "aria-labelledby": labelledBy,
+      }),
     }
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)
 
     const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
 
+    const mergedButtonProps = mergeProps(buttonProps, domProps ?? {}, {
+      onPointerDown,
+      onPointerUp,
+      onPointerCancel,
+      onKeyDown,
+      onKeyUp,
+      onFocus,
+      onBlur,
+    } satisfies React.ButtonHTMLAttributes<HTMLButtonElement>)
+
     return (
       <button
-        {...buttonProps}
-        {...rest}
+        {...mergedButtonProps}
         ref={ref}
         className={rootClassName}
         data-pressed={isPressed ? "true" : "false"}
         data-disabled-reason={isLoading ? "loading" : isDisabled ? "disabled" : undefined}
+        data-testid={dataTestId}
         aria-busy={isLoading ? "true" : undefined}
-        onClick={mergeHandlers(buttonProps.onClick, onClick)}
         formAction={formAction}
-        onPointerDown={mergeHandlers(buttonProps.onPointerDown, onPointerDown)}
-        onPointerUp={mergeHandlers(buttonProps.onPointerUp, onPointerUp)}
-        onPointerCancel={mergeHandlers(buttonProps.onPointerCancel, onPointerCancel)}
-        onKeyDown={mergeHandlers(buttonProps.onKeyDown, onKeyDown)}
-        onKeyUp={mergeHandlers(buttonProps.onKeyUp, onKeyUp)}
-        onFocus={mergeHandlers(buttonProps.onFocus, onFocus)}
-        onBlur={mergeHandlers(buttonProps.onBlur, onBlur)}
         disabled={isDisabled}
         type={props.type ?? "button"}
+        name={name}
       >
         <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
           {icon && iconPosition === "start" ? <span className={iconSlotCss}>{icon}</span> : null}
@@ -128,7 +189,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <span className={spinnerOverlayCss} aria-hidden="true">
-              <span className={spinnerCss} />
+              <span className={spinnerGlyphCss("sm", "current")} />
             </span>
             <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
           </>

@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
@@ -20,9 +21,13 @@ use crate::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
-            seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
-            seed_material_reference_course, seed_peer_review_course_without_submissions,
-            seed_sample_course, seed_switching_course_instances_course,
+            seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
+            seed_introduction_to_codes::seed_introduction_to_codes,
+            seed_introduction_to_course_auditing::seed_introduction_to_course_auditing,
+            seed_lock_chapter_course, seed_material_reference_course,
+            seed_metadata_course::seed_metadata_course,
+            seed_peer_review_course_without_submissions, seed_sample_course,
+            seed_switching_course_instances_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -33,6 +38,7 @@ use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
+    app_config: ApplicationConfiguration,
     seed_users_result: SeedUsersResult,
     seed_llm_result: SeedApplicationLLMsResult,
     base_url: String,
@@ -112,6 +118,7 @@ pub async fn seed_organization_uh_mathstat(
         _statistics_default_course_module,
     ) = library::content_management::create_new_course(
         &mut conn,
+        &app_config,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("f307d05f-be34-4148-bb0c-21d6f7a35cdb")?,
             default_course_instance_id: Uuid::parse_str("8e4aeba5-1958-49bc-9b40-c9f0f0680911")?,
@@ -122,6 +129,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, statistics_course.id, false).await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?),
@@ -156,8 +164,9 @@ pub async fn seed_organization_uh_mathstat(
         flagged_answers_threshold: Some(3),
         can_add_chatbot: false,
     };
-    library::content_management::create_new_course(
+    let (draft_course_created, _, _, _) = library::content_management::create_new_course(
         &mut conn,
+        &app_config,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
             default_course_instance_id: Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
@@ -168,9 +177,11 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, draft_course_created.id, false).await?;
 
     let (cody_only_course, _, _, _) = library::content_management::create_new_course(
         &mut conn,
+        &app_config,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("39a52e8c-ebbf-4b9a-a900-09aa344f3691")?,
             default_course_instance_id: Uuid::parse_str("5b7286ce-22c5-4874-ade1-262949c4a604")?,
@@ -200,6 +211,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, cody_only_course.id, false).await?;
 
     roles::insert(
         &mut conn,
@@ -220,6 +232,7 @@ pub async fn seed_organization_uh_mathstat(
         base_url,
     };
     let _material_reference_course = seed_material_reference_course(
+        &app_config,
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
         "Material references course",
         "material-references-course",
@@ -228,6 +241,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let change_language_course = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("5c8b1f3e-d7a2-4e9f-b3c1-8a7f6d5e4c3b")?,
         "Change language course",
         "change-language-course",
@@ -264,6 +278,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _preview_unopened_chapters = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
         "Preview unopened chapters",
         "preview-unopened-chapters",
@@ -274,6 +289,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _reset_progress = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("841ea3f5-0269-4146-a4c6-4fd2f51e4150")?,
         "Reset progress",
         "reset-progress",
@@ -284,6 +300,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _change_path = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("c783777b-426e-4cfd-9a5f-4a36b2da503a")?,
         "Change path",
         "change-path",
@@ -294,6 +311,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _self_review = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("3cbaac48-59c4-4e31-9d7e-1f51c017390d")?,
         "Self review",
         "self-review",
@@ -304,6 +322,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _audio_course = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
         "Audio course",
         "audio-course",
@@ -313,7 +332,44 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _generate_description_course = seed_generated_description(
+        &app_config,
+        Uuid::parse_str("84d392c8-3d44-4109-bff1-938fec5cd642")?,
+        "Description generation course",
+        "description-generation-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _introduction_to_codes = seed_introduction_to_codes(
+        &app_config,
+        Uuid::parse_str("da099841-4e90-4080-a6ae-48b7dd1f6e26")?,
+        "Introduction to codes",
+        "introduction-to-codes",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _introduction_to_course_auditing = seed_introduction_to_course_auditing(
+        &app_config,
+        Uuid::parse_str("1f696688-5d8a-494f-9abc-a3b5d9e5f04a")?,
+        "Introduction to course auditing",
+        "introduction-to-course-auditing",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _metadata_course = seed_metadata_course(
+        &app_config,
+        Uuid::parse_str("6237f9a6-15d5-46f6-89fb-d9d59bdc7b65")?,
+        "Metadata course",
+        "metadata-course",
+        uh_data.clone(),
+    )
+    .await?;
+
     let suspected_cheaters_course_id = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
         "Course for Suspected Cheaters",
         "course-for-suspected-cheaters",
@@ -322,6 +378,9 @@ pub async fn seed_organization_uh_mathstat(
         seed_users_result,
     )
     .await?;
+    // This course is the one the suspected-cheaters system-test spec relies on, so it keeps
+    // detection on (seed_sample_course disables it by default for every other seeded course).
+    courses::set_cheater_detection_enabled(&mut conn, suspected_cheaters_course_id, true).await?;
 
     // configure automatic completions
     let automatic_default_module =
@@ -345,6 +404,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let chatbot_course_id = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("c7753361-5b78-4307-aad6-f139ea3865d4")?,
         "Chatbot",
         "chatbot",
@@ -358,7 +418,7 @@ pub async fn seed_organization_uh_mathstat(
         &mut conn,
         PKeyPolicy::Generate,
         NewChatbotConf {
-            course_id: chatbot_course_id,
+            course_id: Some(chatbot_course_id),
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
             prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
@@ -366,13 +426,13 @@ pub async fn seed_organization_uh_mathstat(
             use_azure_search: true,
             default_chatbot: true,
             model_id: seed_llm_result.llm_default_model_id,
-            thinking_model: seed_llm_result.llm_default_model_thinking,
             ..Default::default()
         },
     )
     .await?;
 
     let _giveaway_course_id = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("f118ce1e-3511-4b5e-ba92-9ab91b81de22")?,
         "Giveaway",
         "giveaway",
@@ -383,6 +443,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _custom_points_course_id = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("db5cd9c7-1658-4214-896e-8213678d3534")?,
         "Custom points",
         "custom-points",
@@ -393,6 +454,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _closed_course_id = seed_sample_course(
+        app_config.clone(),
         Uuid::parse_str("7622eb8e-15a5-40c8-8136-0956d9f25b16")?,
         "Closed course",
         "closed-course",
@@ -403,6 +465,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _closed_course_id = seed_peer_review_course_without_submissions(
+        app_config.clone(),
         Uuid::parse_str("16159801-cf70-4f9c-9cba-2110c3bd4622")?,
         "Peer review accessibility course",
         "peer-review-accessibility-course",
@@ -411,6 +474,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _changing_course_instance_id = seed_switching_course_instances_course(
+        &app_config,
         Uuid::parse_str("813ce3c6-acbc-47a5-9d95-47ade9d09a74")?,
         "Changing course instance",
         "changing-course-instance",
@@ -421,6 +485,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _advanced_chatbot_id = seed_chatbot_course(
+        &app_config,
         Uuid::parse_str("ced2f632-25ba-4e93-8e38-8df53ef7ab41")?,
         "Advanced Chatbot course",
         "advanced-chatbot-course",
@@ -430,6 +495,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _seed_reject_and_reset_submission_peer_review_course = seed_peer_review_course(
+        &app_config,
         Uuid::parse_str("5158f2c6-98d9-4be9-b372-528f2c736dd7")?,
         "Reject and reset submission with peer reviews course",
         "reject-and-reset-submission-with-peer-reviews-course",
@@ -441,6 +507,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _seed_spam_answers_skip_teacher_review_course = seed_peer_review_course(
+        &app_config,
         Uuid::parse_str("e91eb0d0-1737-44e8-9554-a9492e69ddc7")?,
         "Spam answers skip teacher review course",
         "spam-answers-skip-teacher-review-course",
@@ -452,7 +519,8 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _accessibility_course_id = seed_accessibility_course(
-        Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
+        &app_config,
+        Uuid::parse_str("883c8ed0-08db-4cd1-a0a4-5cc79c69bdfe")?,
         "Accessibility course",
         "accessibility-course",
         uh_data.clone(),
@@ -460,7 +528,8 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _lock_chapter_course_id = seed_lock_chapter_course(
-        Uuid::parse_str("a1b2c3d4-e5f6-7890-abcd-ef1234567890")?,
+        &app_config,
+        Uuid::parse_str("1799a6d1-c1b1-4f51-a92f-e832554fc924")?,
         "Lock Chapter Test Course",
         "lock-chapter-test-course",
         uh_data.clone(),

@@ -2,16 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getExercise } from "../services/backend/exercises"
-
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const useExerciseQuery = (exerciseId: string | null) => {
-  return useQuery({
-    queryKey: [`exercise-${exerciseId}`],
-    queryFn: () => getExercise(assertNotNullOrUndefined(exerciseId)),
-    enabled: exerciseId !== null,
-  })
+  return useQuery(
+    optionalGeneratedQueryOptions({
+      value: exerciseId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getExerciseOptions({
+          path: {
+            exercise_id: value,
+          },
+        }),
+    }),
+  )
 }
 
 export default useExerciseQuery

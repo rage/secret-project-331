@@ -1,5 +1,5 @@
 # This image is used in skaffold.production.yaml to create a slim image that is used in production
-FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest as chef
+FROM eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest AS chef
 RUN chown -R user /app
 USER user
 WORKDIR /app
@@ -9,7 +9,7 @@ FROM chef AS planner
 COPY --chown=user . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM chef as builder
+FROM chef AS builder
 
 USER user
 
@@ -29,7 +29,7 @@ USER root
 RUN mkdir /bins && find /app/target/release -maxdepth 1 -executable -type f -not -name "*.so" -exec cp "{}" /bins \;
 
 # The runtime target is used in skaffold.production.yaml to create a slim image that is used in production
-FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest as runtime
+FROM eu.gcr.io/moocfi-public/project-331-headless-lms-production-base:latest AS runtime
 
 WORKDIR /app
 
@@ -49,6 +49,10 @@ COPY --from=builder /ips-to-country /ips-to-country
 COPY --from=builder /icu4x.postcard /icu4x.postcard
 # TODO: Remove this in the next release, this is a temporary file for compatibility
 COPY --from=builder /icu4x.postcard.2 /icu4x.postcard.2
+
+# Last, so a new commit rebuilds only this layer. Read by the credit registration admin's System tab.
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=$GIT_COMMIT
 
 USER user
 

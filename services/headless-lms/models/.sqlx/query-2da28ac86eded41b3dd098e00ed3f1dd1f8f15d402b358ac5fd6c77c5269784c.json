@@ -6,42 +6,90 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "code_giveaway_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "code_giveaway_id"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "code_given_to_user_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "code_given_to_user_id"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "added_by_user_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "added_by_user_id"
+          }
+        }
       },
       {
         "ordinal": 7,
         "name": "code",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "code_giveaway_codes",
+            "name": "code"
+          }
+        }
       }
     ],
     "parameters": {

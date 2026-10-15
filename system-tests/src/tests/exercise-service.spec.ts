@@ -1,4 +1,7 @@
-import { expect, Page, test } from "@playwright/test"
+import type { Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
+
+import { submitDialog } from "@/utils/dialogs"
 
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -27,21 +30,14 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
 
   await expectUrlPathWithRandomUuid(page, "/manage/exercise-services")
 
-  await page.click(`button:text("New")`)
+  await page.getByRole("button", { name: "New", exact: true }).click()
 
-  await page.click('[placeholder="Name..."]')
+  const creationDialog = page.getByRole("dialog", { name: "New exercise service" })
+  await creationDialog.getByLabel("Name", { exact: true }).fill("New exercise service")
+  await creationDialog.getByLabel("Public URL", { exact: true }).fill("http://example.com")
+  await creationDialog.getByLabel("Internal URL", { exact: true }).click()
 
-  // Fill [placeholder="Name..."]
-  await page.fill('[placeholder="Name..."]', "New exercise service")
-
-  await page.click('[placeholder="Public URL..."]')
-
-  // Fill [placeholder="Public URL..."]
-  await page.fill('[placeholder="Public URL..."]', "http://example.com")
-
-  await page.click('[placeholder="Internal URL..."]')
-
-  await page.click('button:text("Create")')
+  await submitDialog(creationDialog, "Create")
   await page.getByText("New exercise service").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
@@ -58,8 +54,7 @@ test("can add and delete exercise service", async ({ page, headless }, testInfo)
   })
 
   await page.getByTestId("exercise-service-card-new-exercise-service").getByLabel("Delete").click()
-  // confirm
-  await page.getByRole("button").getByText("Delete").click()
+  await submitDialog(page.getByRole("dialog", { name: "Delete" }), "Delete")
   for (const locator of await page.getByText("New exercise service").all()) {
     await expect(locator).toBeHidden()
   }

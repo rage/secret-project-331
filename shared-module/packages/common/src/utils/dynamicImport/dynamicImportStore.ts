@@ -46,7 +46,7 @@ dynamicImportStatusFamily.setShouldRemove((createdAt /* ms */) => {
  * Imperatively update dynamic import status for a given id.
  */
 export const setDynamicImportStatus = (id: string, status: DynamicImportStatus): void => {
-  dynamicImportStore.set(dynamicImportStatusFamily(id), status)
+  dynamicImportStore.set(dynamicImportStatusFamily(id) as never, status as never)
 }
 
 /**

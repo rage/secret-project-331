@@ -2,15 +2,19 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchPageInfo } from "@/services/backend/pages"
+import { getPageInfo } from "@/generated/api/sdk.generated"
+import type { PageInfo } from "@/generated/api/types.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
-export const usePageInfo = (pageId: string | null) => {
-  return useQuery({
-    queryKey: [`page-info-id-${pageId}`],
-    queryFn: () => {
-      return fetchPageInfo(assertNotNullOrUndefined(pageId))
-    },
-    enabled: !!pageId,
+export const usePageInfo = (pageId: string | null) =>
+  useQuery({
+    queryKey: ["getPageInfo", pageId],
+    // oxlint-disable-next-line eslint/require-await -- kept async for the Promise<PageInfo> return contract
+    queryFn: async (): Promise<PageInfo> =>
+      getPageInfo({
+        path: {
+          page_id: assertNotNullOrUndefined(pageId),
+        },
+      }),
+    enabled: pageId !== null,
   })
-}

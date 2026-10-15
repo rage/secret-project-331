@@ -1,9 +1,14 @@
 use models::feedback;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(mark_as_read))]
+pub(crate) struct MainFrontendFeedbackApiDoc;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+
 pub struct MarkAsRead {
     read: bool,
 }
@@ -11,6 +16,19 @@ pub struct MarkAsRead {
 /**
 POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
 */
+#[utoipa::path(
+    post,
+    path = "/{feedback_id}",
+    operation_id = "markFeedbackAsRead",
+    tag = "feedback",
+    params(
+        ("feedback_id" = String, Path, description = "Feedback id")
+    ),
+    request_body = MarkAsRead,
+    responses(
+        (status = 200, description = "Feedback read state updated")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn mark_as_read(
     feedback_id: web::Path<Uuid>,
@@ -19,9 +37,18 @@ pub async fn mark_as_read(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    feedback::mark_as_read(&mut conn, *feedback_id, mark_as_read.into_inner().read).await?;
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let feedback = feedback::get_by_id(&mut conn, *feedback_id).await?;
+    let course_id = feedback
+        .course_id
+        .ok_or_else(|| controller_err!(Forbidden, "Feedback is not course-scoped".to_string()))?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    feedback::set_read_state_by_id_and_course_id(
+        &mut conn,
+        *feedback_id,
+        course_id,
+        mark_as_read.into_inner().read,
+    )
+    .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

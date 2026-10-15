@@ -1,5 +1,7 @@
-import { BlockInstance, getBlockType } from "@wordpress/blocks"
+import { getBlockType } from "@wordpress/blocks"
 import { produce } from "immer"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const ENABLED_BLOCKS = ["moocfi/aside", "moocfi/infobox"]
 type MutableBlockInstance = {
@@ -21,7 +23,7 @@ export default function runMigrationsAndValidations(
       const innerBlocks = block.innerBlocks ?? []
 
       if (ENABLED_BLOCKS.indexOf(block.name) === -1) {
-        innerBlocks.forEach(migrateBlockRecursively)
+        innerBlocks.forEach((innerBlock) => migrateBlockRecursively(innerBlock))
         return
       }
 
@@ -57,7 +59,7 @@ export default function runMigrationsAndValidations(
       }
 
       const nestedInnerBlocks = block.innerBlocks ?? []
-      nestedInnerBlocks.forEach(migrateBlockRecursively)
+      nestedInnerBlocks.forEach((innerBlock) => migrateBlockRecursively(innerBlock))
     }
 
     for (const block of draftContent) {

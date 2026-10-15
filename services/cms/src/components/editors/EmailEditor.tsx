@@ -1,24 +1,41 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
+import type { UseMutationResult } from "@tanstack/react-query"
+import React, { useContext, useEffect, useMemo, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 
+import type {
+  EmailTemplate,
+  EmailTemplatePreviewRequest,
+  EmailTemplateUpdate,
+} from "@/generated/api"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { Button, Infobox, TONE, ErrorNotice } from "@/shared-module/components"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { blockTypeMapForEmails } from "../../blocks"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import type { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
+import type { MediaUploadProps } from "../../services/mediaUpload"
+import { stripProtocolBeforePlaceholderLinks } from "../../utils/emailPlaceholderLinks"
+import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
+import {
+  emailEditorAllowedFormats,
+  emailEditorRootLayout,
+  emailEditorSettings,
+} from "../../utils/Gutenberg/emailEditorSettings"
+import { findImagesNeedingAltText } from "../../utils/Gutenberg/imageAltWarning"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
-import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
-import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
-
-import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import EmailPreviewDialog from "../email/EmailPreviewDialog"
+import type { EmailDetailsFormFields } from "../forms/UpdateEmailDetailsForm"
+import UpdateEmailDetailsForm, {
+  SUBJECT_FIELD_NAME,
+  TEMPLATE_TYPE_FIELD_NAME,
+} from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
   data: EmailTemplate
@@ -29,6 +46,18 @@ interface EmailEditorProps {
 
 const EmailGutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
+const allowedEmailBlocks = [
+  ...allowedEmailCoreBlocks,
+  ...blockTypeMapForEmails.map(([blockName]) => blockName),
+]
+
+const imageFileName = (url: unknown): string | null => {
+  if (typeof url !== "string") {
+    return null
+  }
+  return url.split(/[?#]/)[0]?.split("/").pop() || null
+}
+
 const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   data,
   saveMutation,
@@ -38,40 +67,53 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   const courseId = useContext(CourseContext)?.courseId
   const { t } = useTranslation()
 
-  const normalizeBlocks = useCallback((blocks: unknown[]): BlockInstance[] => {
-    return blocks.map((block) => {
-      const blockObj = block as Record<string, unknown>
-      const normalized = { ...blockObj }
-      if (blockObj.type && !blockObj.name) {
-        normalized.name = blockObj.type
-        delete normalized.type
-      }
-      if (normalized.innerBlocks && Array.isArray(normalized.innerBlocks)) {
-        normalized.innerBlocks = normalizeBlocks(normalized.innerBlocks)
-      }
-      return normalized as unknown as BlockInstance
-    })
-  }, [])
+  // The renderer in headless-lms `email_processor.rs` reads these style names.
+  /* oxlint-disable i18next/no-literal-string */
+  const emailBlockStyles = useMemo(
+    () => ({
+      "core/paragraph": [
+        { name: "default", label: t("block-style-default"), isDefault: true },
+        { name: "lead", label: t("email-block-style-lead") },
+      ],
+      "core/button": [
+        { name: "default", label: t("block-style-default"), isDefault: true },
+        { name: "arrow", label: t("email-block-style-arrow") },
+      ],
+      // Their stock variations only add CSS classes the renderer ignores.
+      "core/image": [],
+      "core/table": [],
+      "core/quote": [],
+      "core/separator": [],
+    }),
+    [t],
+  )
+  /* oxlint-enable i18next/no-literal-string */
 
   const [content, setContent] = useState<BlockInstance[]>(() => {
-    const normalizedBlocks = normalizeBlocks((data.content ?? []) as unknown[])
-    const initialContent = modifyBlocks(normalizedBlocks, allowedEmailCoreBlocks) as BlockInstance[]
+    const initialContent = modifyBlocks(
+      (data.content ?? []) as BlockInstance[],
+      allowedEmailBlocks,
+    ) as BlockInstance[]
     return initialContent
   })
-  const [templateType, setTemplateType] = useState<unknown>(
-    // eslint-disable-next-line i18next/no-literal-string
-    (data as { template_type?: unknown }).template_type ?? "generic",
+  const { control: emailDetailsControl, reset: resetEmailDetailsForm } =
+    useForm<EmailDetailsFormFields>({
+      defaultValues: {
+        templateType: data.template_type,
+        subject: data.subject ?? "",
+      },
+    })
+  const templateTypeString = useWatch({
+    control: emailDetailsControl,
+    name: TEMPLATE_TYPE_FIELD_NAME,
+  })
+  const subject = useWatch({ control: emailDetailsControl, name: SUBJECT_FIELD_NAME })
+  const [previewDraft, setPreviewDraft] = useState<EmailTemplatePreviewRequest | null>(null)
+
+  const detectedPlaceholders = useMemo(
+    () => extractPlaceholders(content, subject),
+    [content, subject],
   )
-  const [subject, setSubject] = useState(data.subject ?? "")
-
-  const templateTypeString = useMemo(() => {
-    if (typeof templateType === "string") {
-      return templateType
-    }
-    return templateType as unknown as string
-  }, [templateType])
-
-  const detectedPlaceholders = useMemo(() => extractPlaceholders(content), [content])
   const placeholderValidation = useMemo(() => {
     if (templateTypeString === "generic") {
       return {
@@ -86,23 +128,19 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     return validatePlaceholders(templateTypeString, detectedPlaceholders)
   }, [templateTypeString, detectedPlaceholders])
 
+  const imagesNeedingAltText = useMemo(() => findImagesNeedingAltText(content), [content])
+  const canSave = placeholderValidation.valid && imagesNeedingAltText.length === 0
+
   const dataContentString = useMemo(() => JSON.stringify(data.content), [data.content])
-  const dataTemplateType = useMemo(
-    // eslint-disable-next-line i18next/no-literal-string
-    () => (data as { template_type?: unknown }).template_type ?? "generic",
-    [data],
-  )
+  const dataTemplateType = data.template_type
 
   useEffect(() => {
-    const contentToUse = data.content ?? []
-    const normalizedBlocks = normalizeBlocks(contentToUse as unknown[])
     const modifiedContent = modifyBlocks(
-      normalizedBlocks,
-      allowedEmailCoreBlocks,
+      (data.content ?? []) as BlockInstance[],
+      allowedEmailBlocks,
     ) as BlockInstance[]
     setContent(modifiedContent)
-    setTemplateType(dataTemplateType)
-    setSubject(data.subject ?? "")
+    resetEmailDetailsForm({ templateType: dataTemplateType, subject: data.subject ?? "" })
     setNeedToRunMigrationsAndValidations(true)
   }, [
     dataContentString,
@@ -110,40 +148,39 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     data.subject,
     data.content,
     setNeedToRunMigrationsAndValidations,
-    normalizeBlocks,
+    resetEmailDetailsForm,
   ])
 
   useEffect(() => {
     if (saveMutation.isSuccess && saveMutation.data) {
       setContent((saveMutation.data.content ?? []) as BlockInstance[])
-
-      setTemplateType(
-        // eslint-disable-next-line i18next/no-literal-string
-        (saveMutation.data as { template_type?: unknown }).template_type ?? "generic",
-      )
-      setSubject(saveMutation.data.subject ?? "")
+      resetEmailDetailsForm({
+        templateType: saveMutation.data.template_type,
+        subject: saveMutation.data.subject ?? "",
+      })
     }
-  }, [saveMutation.isSuccess, saveMutation.data])
+  }, [saveMutation.isSuccess, saveMutation.data, resetEmailDetailsForm])
+
+  const normalizedContent = () =>
+    stripProtocolBeforePlaceholderLinks(removeUnsupportedBlockType(content))
 
   const handleOnSave = () => {
-    if (!placeholderValidation.valid) {
+    if (!canSave) {
       return
     }
 
     saveMutation.mutate(
       {
         subject,
-        template_type: templateType,
-        content: removeUnsupportedBlockType(content),
+        template_type: templateTypeString,
+        content: normalizedContent(),
         exercise_completions_threshold: null,
         points_threshold: null,
       } as unknown as EmailTemplateUpdate,
       {
         onSuccess: (res) => {
           setContent((res.content ?? []) as BlockInstance[])
-          // eslint-disable-next-line i18next/no-literal-string
-          setTemplateType((res as { template_type?: unknown }).template_type ?? "generic")
-          setSubject(res.subject ?? "")
+          resetEmailDetailsForm({ templateType: res.template_type, subject: res.subject ?? "" })
         },
       },
     )
@@ -153,23 +190,46 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     <div
       className={css`
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-3);
         background: #f5f6f7;
-        padding: 1rem;
+        padding: var(--space-4);
       `}
     >
       <Button
         variant="primary"
         size="medium"
-        className={css`
-          border: 1px black solid;
-          pointer-events: auto;
-        `}
         onClick={handleOnSave}
-        disabled={saveMutation.isPending || !placeholderValidation.valid}
+        disabled={!canSave}
+        isLoading={saveMutation.isPending}
       >
         {t("save")}
       </Button>
+      <Button
+        variant="secondary"
+        size="medium"
+        onClick={() => setPreviewDraft({ subject, content: normalizedContent() })}
+      >
+        {t("preview")}
+      </Button>
+      {imagesNeedingAltText.length > 0 && (
+        <Infobox tone={TONE.WARNING} heading={t("email-images-need-alt-text")}>
+          <ul
+            className={css`
+              margin: 0;
+              padding-left: 1.25rem;
+              overflow-wrap: anywhere;
+            `}
+          >
+            {imagesNeedingAltText.map((image) => (
+              <li key={image.clientId}>
+                {imageFileName(image.attributes?.url) ?? t("email-image-without-file")}
+              </li>
+            ))}
+          </ul>
+        </Infobox>
+      )}
     </div>
   )
 
@@ -178,32 +238,38 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       <div className="editor__component">
         <div
           className={css`
-            padding: 1rem;
+            padding: 1rem 0;
             max-width: 1200px;
             margin: 0 auto;
           `}
         >
-          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+          {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
 
           <UpdateEmailDetailsForm
-            templateType={templateType}
-            subject={subject}
-            setTemplateType={setTemplateType}
-            setSubject={setSubject}
+            control={emailDetailsControl}
+            templateType={templateTypeString}
             placeholderValidation={placeholderValidation}
           />
         </div>
       </div>
 
+      <div className="editor__top-button-wrapper">{saveButton}</div>
+
       <EmailGutenbergEditor
         content={content}
         onContentChange={setContent}
         allowedBlocks={allowedEmailCoreBlocks}
+        customBlocks={blockTypeMapForEmails}
+        blockStyles={emailBlockStyles}
+        allowedFormats={emailEditorAllowedFormats}
+        settingsOverrides={emailEditorSettings}
+        rootLayout={emailEditorRootLayout}
         mediaUpload={
           courseId
             ? mediaUploadBuilder({ courseId: courseId })
-            : async (props: MediaUploadProps) => {
-                // eslint-disable-next-line i18next/no-literal-string
+            : // oxlint-disable-next-line eslint/require-await -- async to match the mediaUpload prop's Promise type
+              async (props: MediaUploadProps) => {
+                // oxlint-disable-next-line i18next/no-literal-string
                 const errorMessage = "Media uploads are not available for global email templates"
                 console.warn(errorMessage)
                 props.onError(errorMessage)
@@ -212,6 +278,11 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
         inspectorButtons={saveButton}
         needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
         setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+      />
+      <EmailPreviewDialog
+        emailTemplateId={data.id}
+        draft={previewDraft}
+        onClose={() => setPreviewDraft(null)}
       />
     </>
   )

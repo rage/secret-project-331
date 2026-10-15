@@ -1,0 +1,110 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  peer_or_self_review_config_id,\n  order_number,\n  question,\n  question_type,\n  answer_required,\n  weight\nfrom peer_or_self_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "peer_or_self_review_config_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "peer_or_self_review_config_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "question",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "question"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "question_type",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_question_type",
+            "kind": {
+              "Enum": [
+                "essay",
+                "scale"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "question_type"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "answer_required",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "answer_required"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "weight",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "weight"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "0279baa367ba3ceda782cbb30f8ad35be98fc716d9e258e6cddc64dace37c6a6"
+}

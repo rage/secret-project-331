@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ccmto.id\nFROM chatbot_conversation_message_tool_outputs AS ccmto\n  JOIN chatbot_conversation_messages AS ccm ON ccm.id = ccmto.chatbot_conversation_message_id\nWHERE ccmto.tool_call_id = $1\n  AND ccm.conversation_id = $2\n  AND ccmto.deleted_at IS NULL\n  AND ccm.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_conversation_message_tool_outputs",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3d1fa76773d2fa1ad49152171e0c22f63a23971ef87b259c8ce791659baabb68"
+}

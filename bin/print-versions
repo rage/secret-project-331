@@ -83,9 +83,6 @@ print_is_installed "Cargo sqlx" cargo-sqlx
 print_version "Pkg-config" pkg-config --version
 
 echo -e "\n--------[ Node ]--------"
-if [ "$(echo "$PATH" | grep -c nvm)" -ne 1 ]; then
-  echo -e "${RED}Warning: cannot find nvm${RESET_EVERYTHING}"
-fi
 print_version "Node" node --version
 print_version "Pnpm" pnpm --version
 
@@ -105,6 +102,7 @@ print_version_two_numbers "jq" jq --version
 print_version "find" find --version
 print_version_two_numbers "getent" getent --version
 print_is_installed "sponge" sponge
+print_version "Git LFS" git-lfs version
 print_version "rsync" rsync --version
 print_version "actionlint" actionlint --version
 print_version "Oxipng" oxipng --version

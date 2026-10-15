@@ -1,7 +1,10 @@
-use crate::prelude::*;
+use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+use crate::library::credit_registration::account_linking::link_student_number_url;
+use crate::prelude::*;
+use utoipa::ToSchema;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "email_template_type", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum EmailTemplateType {
@@ -9,17 +12,77 @@ pub enum EmailTemplateType {
     DeleteUserEmail,
     ConfirmEmailCode,
     Generic,
+    CreditRegistrationAccountLinking,
+    VerifyEmailAddress,
+    CreditRegistrationActionNeeded,
+    CreditRegistrationRegistered,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+impl EmailTemplateType {
+    /// Whether substitutions come from `email_deliveries.placeholders` instead of the recipient's
+    /// account, which may not exist.
+    pub fn uses_placeholder_bag(self) -> bool {
+        matches!(
+            self,
+            Self::CreditRegistrationAccountLinking
+                | Self::CreditRegistrationActionNeeded
+                | Self::CreditRegistrationRegistered
+        )
+    }
+
+    /// Made-up values for every placeholder the sender fills in mails of this type, for previews
+    /// and test sends. Keys must match what the sender and the credit registration jobs put in.
+    pub fn sample_placeholders(self, base_url: &str) -> HashMap<String, String> {
+        let base_url = base_url.trim_end_matches('/');
+        let sample_id = Uuid::nil();
+        let values: Vec<(&str, String)> = match self {
+            Self::Generic => vec![],
+            Self::ResetPasswordEmail => vec![(
+                "RESET_LINK",
+                format!("{base_url}/reset-user-password/{sample_id}"),
+            )],
+            Self::DeleteUserEmail | Self::ConfirmEmailCode | Self::VerifyEmailAddress => {
+                vec![("CODE", "123456".to_string())]
+            }
+            Self::CreditRegistrationAccountLinking => vec![
+                (
+                    "LINK",
+                    link_student_number_url(base_url, &sample_id.to_string()),
+                ),
+                ("NAME", "Alex".to_string()),
+                ("STUDENT_NUMBER", "012345678".to_string()),
+                ("COURSE_NAME", "Introduction to Programming".to_string()),
+            ],
+            Self::CreditRegistrationActionNeeded | Self::CreditRegistrationRegistered => vec![
+                ("NAME", "Alex".to_string()),
+                ("COURSE_NAME", "Introduction to Programming".to_string()),
+                ("MODULE_NAME", "Part 2".to_string()),
+                ("CREDITS", "5".to_string()),
+                ("ENROLMENT_LINK", "https://example.com/enrol".to_string()),
+                (
+                    "STATUS_LINK",
+                    format!("{base_url}/completion-registration/{sample_id}"),
+                ),
+            ],
+        };
+        values
+            .into_iter()
+            .map(|(key, value)| (key.to_string(), value))
+            .collect()
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct EmailTemplate {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub content: Option<serde_json::Value>,
-    pub template_type: EmailTemplateType,
+    #[serde(rename = "template_type")]
+    #[schema(rename = "template_type")]
+    pub email_template_type: EmailTemplateType,
     pub subject: Option<String>,
     pub exercise_completions_threshold: Option<i32>,
     pub points_threshold: Option<i32>,
@@ -27,8 +90,8 @@ pub struct EmailTemplate {
     pub language: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct EmailTemplateNew {
     pub template_type: EmailTemplateType,
     pub language: Option<String>,
@@ -36,8 +99,8 @@ pub struct EmailTemplateNew {
     pub subject: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct EmailTemplateUpdate {
     pub template_type: EmailTemplateType,
     pub subject: String,
@@ -53,17 +116,7 @@ pub async fn get_email_templates(
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE course_id = $1
   AND deleted_at IS NULL
@@ -79,17 +132,7 @@ pub async fn get_all_email_templates(conn: &mut PgConnection) -> ModelResult<Vec
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE deleted_at IS NULL
         "#,
@@ -107,17 +150,7 @@ pub async fn get_generic_email_template_by_type_and_language(
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE email_template_type = $1
   AND course_id IS NULL
@@ -137,6 +170,31 @@ LIMIT 1
         "#,
         template_type as EmailTemplateType,
         language
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Whether a generic template of this type would actually be found: checks only the `"en"` and
+/// `NULL` language rows, the two the lookup above always falls back to regardless of the caller's
+/// UI language.
+pub async fn generic_email_template_exists(
+    conn: &mut PgConnection,
+    template_type: EmailTemplateType,
+) -> ModelResult<bool> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+  SELECT 1
+  FROM email_templates
+  WHERE email_template_type = $1
+    AND course_id IS NULL
+    AND deleted_at IS NULL
+    AND (language = 'en' OR language IS NULL)
+) AS "exists!"
+        "#,
+        template_type as EmailTemplateType,
     )
     .fetch_one(conn)
     .await?;
@@ -167,17 +225,7 @@ UPDATE
 SET subject = COALESCE(EXCLUDED.subject, email_templates.subject),
   content = COALESCE(EXCLUDED.content, email_templates.content),
   updated_at = NOW()
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+RETURNING *
         "#,
         email_template.template_type as EmailTemplateType,
         course_id,
@@ -190,6 +238,36 @@ RETURNING id,
     Ok(res)
 }
 
+/// Inserts a global template, or returns `None` if a live one of the same type and language exists.
+/// Unlike [`insert_email_template`], never overwrites the existing row.
+pub async fn insert_global_email_template_if_absent(
+    conn: &mut PgConnection,
+    email_template: EmailTemplateNew,
+) -> ModelResult<Option<EmailTemplate>> {
+    let res = sqlx::query_as!(
+        EmailTemplate,
+        r#"
+INSERT INTO email_templates (
+    email_template_type,
+    subject,
+    language,
+    content
+  )
+VALUES ($1, $2, $3, $4) ON CONFLICT (email_template_type, language, deleted_at)
+WHERE course_id IS NULL
+  AND deleted_at IS NULL DO NOTHING
+RETURNING *
+        "#,
+        email_template.template_type as EmailTemplateType,
+        email_template.subject,
+        email_template.language,
+        email_template.content,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
@@ -197,20 +275,30 @@ pub async fn get_email_template(
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE id = $1
   AND deleted_at IS NULL
+        "#,
+        email_template_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The language a template's mails are rendered in: its own, else its course's. `None` for a global
+/// template without one.
+pub async fn get_language(
+    conn: &mut PgConnection,
+    email_template_id: Uuid,
+) -> ModelResult<Option<String>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT email_template_language(et) AS language
+FROM email_templates et
+WHERE et.id = $1
+  AND et.deleted_at IS NULL
         "#,
         email_template_id
     )
@@ -235,17 +323,7 @@ SET email_template_type = $1,
   points_threshold = $5
 WHERE id = $6
   AND deleted_at IS NULL
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+RETURNING *
   "#,
         email_template_update.template_type as EmailTemplateType,
         email_template_update.subject,
@@ -270,21 +348,24 @@ UPDATE email_templates
 SET deleted_at = NOW()
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type: EmailTemplateType",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+RETURNING *
   "#,
         email_template_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
+    .await?;
+    // The sender claims only deliveries of live templates, so unsent ones would stay queued forever.
+    sqlx::query!(
+        "
+UPDATE email_deliveries
+SET deleted_at = NOW()
+WHERE email_template_id = $1
+  AND sent = FALSE
+  AND deleted_at IS NULL
+        ",
+        email_template_id
+    )
+    .execute(conn)
     .await?;
     Ok(deleted)
 }

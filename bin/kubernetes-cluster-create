@@ -1,0 +1,34 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+source "${SCRIPT_DIR}/.common"
+
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+CTLPTL_CONFIG="${REPO_ROOT}/config/kind-cluster.ctlptl.yaml"
+KUBECTX="${TILT_KIND_CONTEXT:-kind-kind}"
+INGRESS_NGINX_DEPLOY_URL="https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml"
+
+disallow_running_as_root
+ensure_program_in_path "ctlptl"
+ensure_program_in_path "docker"
+ensure_program_in_path "kubectl"
+
+run_command ctlptl apply -f "$CTLPTL_CONFIG"
+
+if ! kubectl --context="$KUBECTX" -n ingress-nginx get deployment ingress-nginx-controller &>/dev/null; then
+  echo -e "${BLUE}Installing ingress-nginx for Kind.${RESET_EVERYTHING}"
+  run_command kubectl --context="$KUBECTX" apply -f "$INGRESS_NGINX_DEPLOY_URL"
+fi
+
+run_command kubectl --context="$KUBECTX" patch configmap ingress-nginx-controller -n ingress-nginx --type merge \
+  -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'
+
+echo -e "${BLUE}Waiting for ingress-nginx to be ready.${RESET_EVERYTHING}"
+run_command kubectl --context="$KUBECTX" wait --namespace ingress-nginx \
+  --for=condition=available deployment/ingress-nginx-controller --timeout=120s
+
+run_command kubectl --context="$KUBECTX" delete validatingwebhookconfiguration ingress-nginx-admission --ignore-not-found
+
+echo ""
+echo -e "${GREEN}✅ Kind cluster with ingress-nginx is ready. You can now use ${CURSIVE}bin/dev-tilt${RESET_EVERYTHING}${GREEN}, ${CURSIVE}bin/dev-only-db-tilt${RESET_EVERYTHING}${GREEN}, or ${CURSIVE}bin/test-tilt${RESET_EVERYTHING}${GREEN}.${RESET_EVERYTHING}"

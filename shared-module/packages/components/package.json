@@ -1,50 +1,71 @@
 {
   "name": "components",
   "version": "0.0.0",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "private": true,
   "keywords": [],
   "license": "Apache-2.0",
-  "packageManager": "pnpm@10.26.2",
-  "private": true,
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "main": "src/index.ts",
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
-    "@internationalized/date": "^3.10.1",
-    "@react-stately/calendar": "^3.9.1",
-    "@react-stately/collections": "^3.12.8",
-    "@react-stately/combobox": "^3.12.1",
-    "@react-stately/datepicker": "^3.15.3",
-    "@react-stately/list": "^3.13.2",
-    "@react-stately/overlays": "^3.6.21",
-    "@react-stately/radio": "^3.11.3",
-    "@react-stately/select": "^3.9.0",
-    "@react-stately/toggle": "^3.9.3",
-    "@react-types/shared": "^3.32.1",
-    "react-aria": "^3.45.0"
-  },
-  "peerDependencies": {
-    "i18next": ">=23.0.0",
-    "next": "^16.1.5",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-i18next": "^15.0.0 || ^16.0.0"
+    "@internationalized/date": "^3.12.3",
+    "@react-stately/autocomplete": "3.0.0-beta.6",
+    "@react-stately/calendar": "^3.10.1",
+    "@react-stately/collections": "^3.13.1",
+    "@react-stately/combobox": "^3.14.1",
+    "@react-stately/datepicker": "^3.17.1",
+    "@react-stately/list": "^3.14.1",
+    "@react-stately/numberfield": "^3.12.1",
+    "@react-stately/overlays": "^3.7.1",
+    "@react-stately/radio": "^3.12.1",
+    "@react-stately/searchfield": "^3.6.1",
+    "@react-stately/select": "^3.10.1",
+    "@react-stately/slider": "^3.8.1",
+    "@react-stately/toggle": "^3.10.1",
+    "@react-types/shared": "^3.36.1",
+    "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
+    "react-aria": "^3.51.0",
+    "react-aria-components": "^1.20.0"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.9.1",
+    "@tanstack/react-query": "^5.102.3",
+    "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.6",
     "@types/jest": "^30.0.0",
-    "@types/react": "^19.2.9",
-    "@types/react-dom": "^19.2.3",
-    "jest": "^30.2.0",
-    "i18next": "^25.8.0",
-    "jest-environment-jsdom": "^30.2.0",
+    "@types/node": "^26.3.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "i18next": "^26.4.0",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "motion": "^13.1.1",
+    "next": "^16.3.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.86.0",
+    "react-i18next": "^17.0.12",
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "i18next": ">=23.0.0",
+    "motion": "^12.0.0 || ^13.0.0",
     "next": "^16.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-i18next": "^16.5.0",
-    "typescript": "^5.9.3"
-  }
+    "react-i18next": "^15.0.0 || ^16.0.0 || ^17.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.18.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.20.0"
 }

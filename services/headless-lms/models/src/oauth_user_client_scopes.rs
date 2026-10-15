@@ -1,6 +1,8 @@
+use crate::library::oauth::Digest;
 use crate::prelude::*;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -11,8 +13,7 @@ pub struct OAuthUserClientScopes {
     pub granted_at: DateTime<Utc>,
 }
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-#[derive(Debug, Clone, PartialEq, FromRow, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, FromRow, Serialize, Deserialize, ToSchema)]
 pub struct AuthorizedClientInfo {
     pub client_id: Uuid,     // oauth_clients.id
     pub client_name: String, // oauth_clients.client_id (display/name)
@@ -119,7 +120,7 @@ impl OAuthUserClientScopes {
               COALESCE(
                 array_agg(DISTINCT s.scope ORDER BY s.scope) FILTER (WHERE s.scope IS NOT NULL),
                 '{}'::text[]
-              ) AS "scopes!: Vec<String>"
+              ) AS "scopes!"
             FROM oauth_user_client_scopes ucs
             JOIN oauth_clients c ON c.id = ucs.client_id
             LEFT JOIN LATERAL unnest(ucs.scopes) AS s(scope) ON TRUE
@@ -137,11 +138,14 @@ impl OAuthUserClientScopes {
     }
 
     /// One-shot revoke: remove all scopes and tokens for a (user, client) pair atomically.
+    ///
+    /// Returns the digests of the deleted access tokens so the caller can evict their
+    /// cached user mappings; without that they keep authenticating until the cache TTL.
     pub async fn revoke_user_client_everything(
         conn: &mut PgConnection,
         user_id: Uuid,
         client_id: Uuid,
-    ) -> ModelResult<()> {
+    ) -> ModelResult<Vec<Digest>> {
         let mut tx = conn.begin().await?;
 
         sqlx::query!(
@@ -152,31 +156,13 @@ impl OAuthUserClientScopes {
         .execute(&mut *tx)
         .await?;
 
-        sqlx::query!(
-            r#"DELETE FROM oauth_access_tokens WHERE user_id = $1 AND client_id = $2"#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE user_id = $1 AND client_id = $2"#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
-
-        sqlx::query!(
-            r#"DELETE FROM oauth_auth_codes WHERE user_id = $1 AND client_id = $2"#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
+        let deleted_digests =
+            crate::oauth_refresh_tokens::OAuthRefreshTokens::revoke_grant_in_transaction(
+                &mut tx, user_id, client_id,
+            )
+            .await?;
 
         tx.commit().await?;
-        Ok(())
+        Ok(deleted_digests)
     }
 }

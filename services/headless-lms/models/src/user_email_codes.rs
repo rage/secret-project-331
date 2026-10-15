@@ -1,10 +1,25 @@
+use rand::RngExt;
+use secrecy::ExposeSecret;
+
 use crate::prelude::*;
+
+/// What a code authorises. Every read is scoped by it, so a code mailed for one action cannot be
+/// spent on another.
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Type)]
+#[sqlx(type_name = "user_email_code_purpose", rename_all = "snake_case")]
+pub enum UserEmailCodePurpose {
+    StaffLogin,
+    AccountDeletion,
+    EmailOwnershipVerification,
+}
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct UserEmailCode {
     pub id: Uuid,
     pub user_id: Uuid,
-    pub code: String,
+    pub code: DbSecret,
+    pub purpose: UserEmailCodePurpose,
+    pub attempt_count: i32,
     pub expires_at: DateTime<Utc>,
     pub used_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
@@ -12,68 +27,87 @@ pub struct UserEmailCode {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+/// A fresh code for mailing to a user.
+///
+/// Zero padded from a range that starts at zero: formatting `random_range(100_000..1_000_000)`
+/// instead would silently exclude the 100 000 codes with a leading zero.
+pub fn generate_code() -> DbSecret {
+    DbSecret::new(format!("{:06}", rand::rng().random_range(0..1_000_000u32)))
+}
+
+/// Retires the user's outstanding code for `purpose` and inserts a new one.
+///
+/// The unique index allows only one live code per user and purpose, so the retirement is what makes
+/// a resend possible at all.
 pub async fn insert_user_email_code(
     conn: &mut PgConnection,
     user_id: Uuid,
-    code: String,
-) -> ModelResult<String> {
+    purpose: UserEmailCodePurpose,
+    code: &DbSecret,
+) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
 
-    // Soft delete possible previous codes so that only one code is at use at a time
-    let _ = sqlx::query!(
+    sqlx::query!(
         r#"
-   UPDATE user_email_codes
+UPDATE user_email_codes
 SET deleted_at = NOW()
 WHERE user_id = $1
+  AND purpose = $2
   AND deleted_at IS NULL
     "#,
-        user_id
+        user_id,
+        purpose as UserEmailCodePurpose,
     )
     .execute(&mut *tx)
     .await?;
 
-    // Attempt to insert new code; the unique index ensures no more than one active code per user
-    let record = sqlx::query!(
+    sqlx::query!(
         r#"
-      INSERT INTO user_email_codes (code, user_id)
-VALUES ($1, $2)
-RETURNING code
+INSERT INTO user_email_codes (code, user_id, purpose)
+VALUES ($1, $2, $3)
         "#,
-        code,
-        user_id
+        code.expose_secret(),
+        user_id,
+        purpose as UserEmailCodePurpose,
     )
-    .fetch_one(&mut *tx)
+    .execute(&mut *tx)
     .await?;
 
     tx.commit().await?;
 
-    Ok(record.code)
+    Ok(())
 }
 
-pub async fn get_unused_user_email_code_with_user_id(
+/// The user's outstanding code for `purpose`, whether or not it has expired.
+///
+/// Use this to tell a timed out code apart from one that was never requested, spent or retired;
+/// [`get_unused_user_email_code_with_user_id`] returns nothing for all of those.
+pub async fn get_outstanding_user_email_code(
     conn: &mut PgConnection,
     user_id: Uuid,
+    purpose: UserEmailCodePurpose,
 ) -> ModelResult<Option<UserEmailCode>> {
-    let now = Utc::now();
     let record = sqlx::query_as!(
         UserEmailCode,
         r#"
 SELECT id,
-  code,
   user_id,
+  code,
+  purpose AS "purpose: UserEmailCodePurpose",
+  attempt_count,
+  expires_at,
+  used_at,
   created_at,
   updated_at,
-  used_at,
-  deleted_at,
-  expires_at
+  deleted_at
 FROM user_email_codes
 WHERE user_id = $1
+  AND purpose = $2
   AND deleted_at IS NULL
   AND used_at IS NULL
-  AND expires_at > $2
         "#,
         user_id,
-        now
+        purpose as UserEmailCodePurpose,
     )
     .fetch_optional(conn)
     .await?;
@@ -81,24 +115,37 @@ WHERE user_id = $1
     Ok(record)
 }
 
+/// The user's code for `purpose` if one is still usable right now.
+pub async fn get_unused_user_email_code_with_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<Option<UserEmailCode>> {
+    let code = get_outstanding_user_email_code(conn, user_id, purpose).await?;
+    Ok(code.filter(|code| code.expires_at > Utc::now()))
+}
+
 pub async fn is_reset_user_email_code_valid(
     conn: &mut PgConnection,
     user_id: Uuid,
-    code: &String,
+    purpose: UserEmailCodePurpose,
+    code: &DbSecret,
 ) -> ModelResult<bool> {
     let now = Utc::now();
     let record = sqlx::query!(
         r#"
-SELECT *
+SELECT id
 FROM user_email_codes
 WHERE user_id = $1
-  AND code = $2
+  AND purpose = $2
+  AND code = $3
   AND deleted_at IS NULL
   AND used_at IS NULL
-  AND expires_at > $3
+  AND expires_at > $4
        "#,
         user_id,
-        code,
+        purpose as UserEmailCodePurpose,
+        code.expose_secret(),
         now
     )
     .fetch_optional(conn)
@@ -110,7 +157,8 @@ WHERE user_id = $1
 pub async fn mark_user_email_code_used(
     conn: &mut PgConnection,
     user_id: Uuid,
-    code: &String,
+    purpose: UserEmailCodePurpose,
+    code: &DbSecret,
 ) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"
@@ -118,14 +166,53 @@ UPDATE user_email_codes
 SET used_at = NOW(),
   deleted_at = NOW()
 WHERE user_id = $1
-  AND code = $2
+  AND purpose = $2
+  AND code = $3
   AND deleted_at IS NULL
         "#,
         user_id,
-        code
+        purpose as UserEmailCodePurpose,
+        code.expose_secret(),
     )
     .execute(conn)
     .await?;
 
     Ok(result.rows_affected() > 0)
+}
+
+/// Counts a wrong guess against the user's live code and retires it once `max_attempts` is reached.
+///
+/// Keyed on the user and purpose rather than on what was typed: there is only ever one live code, so
+/// any refused guess is a guess against it.
+///
+/// Returns whether this guess retired the code, which is a caller's cue to send the user for a new
+/// one rather than another attempt. Also false when there was no live code to count against.
+pub async fn record_failed_attempt(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+    max_attempts: i32,
+) -> ModelResult<bool> {
+    let record = sqlx::query!(
+        r#"
+UPDATE user_email_codes
+SET attempt_count = attempt_count + 1,
+  deleted_at = CASE
+    WHEN attempt_count + 1 >= $3 THEN NOW()
+    ELSE deleted_at
+  END
+WHERE user_id = $1
+  AND purpose = $2
+  AND deleted_at IS NULL
+  AND used_at IS NULL
+RETURNING deleted_at IS NOT NULL AS "retired!"
+        "#,
+        user_id,
+        purpose as UserEmailCodePurpose,
+        max_attempts,
+    )
+    .fetch_optional(conn)
+    .await?;
+
+    Ok(record.is_some_and(|record| record.retired))
 }

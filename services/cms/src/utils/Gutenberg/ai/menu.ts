@@ -1,4 +1,4 @@
-import type { ParagraphSuggestionAction } from "@/shared-module/common/bindings"
+import type { ParagraphSuggestionAction } from "@/generated/api"
 
 export type AiActionGroupId = "improve" | "structure" | "learning-support" | "summaries"
 

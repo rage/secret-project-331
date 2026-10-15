@@ -1,26 +1,37 @@
-use std::collections::HashMap;
-
 use crate::{
-    azure_chatbot::{
-        ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, Schema, ThinkingParams,
+    azure_chatbot::azure::protocol::{
+        InputItem, LLMRequestParams, LLMRequestResponseFormatParam, NonThinkingParams,
+        ThinkingParams,
     },
+    chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
-        parse_text_completion,
+        APIInputMessage, MessageContent, estimate_tokens, model_is_thinking,
+        request_structured_json, string_list_response_format,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
-use headless_lms_models::application_task_default_language_models::TaskLMSpec;
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
-use headless_lms_models::cms_ai::ParagraphSuggestionAction;
-use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_models::{
+    application_task_default_language_models::TaskLMSpec,
+    chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
+};
 
 /// Structured LLM response for CMS paragraph suggestions.
 #[derive(serde::Deserialize)]
 struct CmsParagraphSuggestionResponse {
     suggestions: Vec<String>,
+}
+
+/// Names this feature's structured output to Azure. The test-mode mock Azure API picks its canned
+/// answer for this feature by this name.
+pub const RESPONSE_FORMAT_NAME: &str = "CmsParagraphSuggestionResponse";
+
+/// The structured output format the suggestion LLM is asked to answer in. Must stay in
+/// sync with [CmsParagraphSuggestionResponse].
+fn response_format() -> LLMRequestResponseFormatParam {
+    string_list_response_format(RESPONSE_FORMAT_NAME, "suggestions")
 }
 
 /// Returns a short human-readable instruction for the given action id. Used so the model
@@ -209,93 +220,83 @@ pub async fn generate_paragraph_suggestions(
         calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
 
     if used_tokens > token_budget {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Input paragraph is too long for the CMS AI suggestion context window.".to_string(),
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "Input paragraph is too long for the CMS AI suggestion context window.".to_string()
         ));
     }
 
-    let system_message = APIMessage {
-        role: MessageRole::System,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: system_instructions,
-        }),
+    let system_message = APIInputMessage {
+        message_type: InputItem::Message {
+            role: MessageRole::System,
+            content: MessageContent::Text(system_instructions),
+        },
     };
 
-    let user_message = APIMessage {
-        role: MessageRole::User,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: user_message_content,
-        }),
+    let user_message = APIInputMessage {
+        message_type: InputItem::Message {
+            role: MessageRole::User,
+            content: MessageContent::Text(user_message_content),
+        },
     };
 
-    let params = if task_lm.thinking {
-        LLMRequestParams::Thinking(ThinkingParams {
-            max_completion_tokens: Some(4000),
-            verbosity: None,
-            reasoning_effort: None,
-            tools: vec![],
-            tool_choice: None,
-        })
+    let (params, max_output_tokens) = if model_is_thinking(task_lm.model_type) {
+        (
+            LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
+            Some(4000),
+        )
     } else {
-        LLMRequestParams::NonThinking(NonThinkingParams {
-            max_tokens: Some(2000),
-            temperature: None,
-            top_p: None,
-            frequency_penalty: None,
-            presence_penalty: None,
-        })
+        (
+            LLMRequestParams::GPTNonThinking(NonThinkingParams {
+                temperature: None,
+                top_p: None,
+                frequency_penalty: None,
+                presence_penalty: None,
+            }),
+            Some(2000),
+        )
     };
 
-    let chat_request = LLMRequest {
-        messages: vec![system_message, user_message],
-        data_sources: vec![],
+    let response: CmsParagraphSuggestionResponse = request_structured_json(
+        vec![system_message, user_message],
+        task_lm.model.to_owned(),
         params,
-        response_format: Some(LLMRequestResponseFormatParam {
-            format_type: JSONType::JsonSchema,
-            json_schema: JSONSchema {
-                name: "CmsParagraphSuggestionResponse".to_string(),
-                strict: true,
-                schema: Schema {
-                    type_field: JSONType::Object,
-                    properties: HashMap::from([(
-                        "suggestions".to_string(),
-                        ArrayProperty {
-                            type_field: JSONType::Array,
-                            items: ArrayItem {
-                                type_field: JSONType::String,
-                            },
-                        },
-                    )]),
-                    required: vec!["suggestions".to_string()],
-                    additional_properties: false,
-                },
-            },
-        }),
-        stop: None,
-    };
-
-    let completion = make_blocking_llm_request(chat_request, app_config, &task_lm).await?;
-
-    let completion_content: &String = &parse_text_completion(completion)?;
-    let response: CmsParagraphSuggestionResponse = serde_json::from_str(completion_content)
-        .map_err(|_| {
-            ChatbotError::new(
-                ChatbotErrorType::ChatbotMessageSuggestError,
+        max_output_tokens,
+        response_format(),
+        app_config,
+        || {
+            chatbot_err!(
+                ChatbotMessageSuggestError,
                 "The CMS paragraph suggestion LLM returned an incorrectly formatted response."
-                    .to_string(),
-                None,
+                    .to_string()
             )
-        })?;
+        },
+    )
+    .await?;
 
     if response.suggestions.is_empty() {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "The CMS paragraph suggestion LLM returned an empty suggestions list.".to_string(),
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "The CMS paragraph suggestion LLM returned an empty suggestions list.".to_string()
         ));
     }
 
     Ok(response.suggestions)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The test-mode mock Azure API picks this feature's canned answer by the format name, so the
+    /// name is pinned even though the shape it wraps is shared.
+    #[test]
+    fn the_response_format_is_named_after_this_feature() {
+        let serialized =
+            serde_json::to_value(response_format()).expect("The response format serializes");
+        assert_eq!(
+            serialized["name"],
+            serde_json::json!("CmsParagraphSuggestionResponse")
+        );
+    }
 }

@@ -4,7 +4,7 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, guard, web};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256,
     oauth_access_token::{OAuthAccessToken, TokenType},
@@ -12,6 +12,12 @@ use models::{
     user_details,
 };
 use std::collections::HashSet;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(user_info_get_doc, user_info_post_doc))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthUserInfoApiDoc;
 
 /// Handles `/userinfo` for returning user claims according to granted scopes.
 ///
@@ -180,6 +186,7 @@ pub async fn user_info(
         first_name: None,
         last_name: None,
         email: None,
+        email_verified: None,
     };
 
     if scopes.contains("profile") {
@@ -188,6 +195,7 @@ pub async fn user_info(
     }
     if scopes.contains("email") {
         res.email = Some(user.email.clone());
+        res.email_verified = Some(user.email_verified_at.is_some());
     }
 
     // Best practice: prevent caching
@@ -197,6 +205,32 @@ pub async fn user_info(
             .json(res),
     )
 }
+
+#[utoipa::path(
+    get,
+    path = "/userinfo",
+    operation_id = "getOauthUserInfo",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "OAuth userinfo response", body = serde_json::Value),
+        (status = 401, description = "Invalid token")
+    )
+)]
+#[allow(dead_code)]
+pub(crate) fn user_info_get_doc() {}
+
+#[utoipa::path(
+    post,
+    path = "/userinfo",
+    operation_id = "postOauthUserInfo",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "OAuth userinfo response", body = serde_json::Value),
+        (status = 401, description = "Invalid token")
+    )
+)]
+#[allow(dead_code)]
+pub(crate) fn user_info_post_doc() {}
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(

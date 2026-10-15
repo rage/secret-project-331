@@ -1,0 +1,128 @@
+"use client"
+
+import { useTranslation } from "react-i18next"
+
+import type { MyCreditRegistration } from "@/generated/api/types.generated"
+import {
+  completionRegistrationRoute,
+  userSettingsStudentNumberRoute,
+} from "@/shared-module/common/utils/routes"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
+
+import { CREDIT_REGISTRATION_NS } from "./constants"
+import { registrationStatusState } from "./creditRegistrationCopy"
+import { useRequestEnrolmentRecheck } from "./enrolmentActions"
+import type { FailureAction } from "./registrationFailures"
+import { failureActionLabel, failureActions } from "./registrationFailures"
+import type { RegistrationCardAction } from "./RegistrationStatusCard"
+
+export interface StudentRegistrationActionsOptions {
+  registration: MyCreditRegistration
+  /** Set on a list. The registration's own status page has nowhere further to send the reader. */
+  linkToStatusPage: boolean
+}
+
+export interface StudentRegistrationActions {
+  /** Null when nothing this student does helps; the explanation then says who is on it. */
+  primaryAction: RegistrationCardAction | null
+  secondaryActions: RegistrationCardAction[]
+}
+
+/** The one lever the enrolment wait offers, which that band picks out of the plan by key. */
+export const RECHECK_ENROLMENT_ACTION_KEY = "recheck-enrolment"
+
+const ACTION_KEY = {
+  enrol: "enrol",
+  recheckEnrolment: RECHECK_ENROLMENT_ACTION_KEY,
+  checkStudentNumber: "check-student-number",
+  details: "details",
+}
+
+/**
+ * The levers one student may pull on one registration, in the order they should be offered.
+ *
+ * The one place that answers it, so the hub, the status page and the settings card cannot come to
+ * offer a state a button on one and a grey note on another. Pair it with
+ * `StudentRegistrationExplanation`, which says the matching sentence.
+ */
+export const useStudentRegistrationActions = ({
+  registration,
+  linkToStatusPage,
+}: StudentRegistrationActionsOptions): StudentRegistrationActions => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const recheckEnrolment = useRequestEnrolmentRecheck()
+
+  const status = registration.student_facing_status
+  const state = registrationStatusState(status)
+
+  const enrolmentLink = httpsUrlOrNull(registration.enrolment_link)
+  const enrolAction = (): RegistrationCardAction | null =>
+    enrolmentLink
+      ? { key: ACTION_KEY.enrol, label: t("credit-registration-action-enrol"), href: enrolmentLink }
+      : null
+
+  // Hidden, not disabled, while a check is too recent: a greyed-out button would need its own
+  // explanation, and the page already says we keep checking.
+  const recheckEnrolmentAction = (): RegistrationCardAction | null =>
+    registration.can_request_enrolment_recheck
+      ? {
+          key: ACTION_KEY.recheckEnrolment,
+          label: failureActionLabel(t, "recheck_enrolment"),
+          onAct: () => recheckEnrolment.mutate(registration),
+          isLoading: recheckEnrolment.isPending,
+        }
+      : null
+
+  const checkStudentNumberAction = (): RegistrationCardAction => ({
+    key: ACTION_KEY.checkStudentNumber,
+    label: failureActionLabel(t, "check_own_student_number"),
+    href: userSettingsStudentNumberRoute(),
+  })
+
+  const studentLever = (action: FailureAction): RegistrationCardAction | null => {
+    switch (action) {
+      case "enrol":
+        return enrolAction()
+      case "recheck_enrolment":
+        // The endpoint only accepts a row parked on a missing enrolment.
+        return status === "needs_enrolment" ? recheckEnrolmentAction() : null
+      case "check_own_student_number":
+        return checkStudentNumberAction()
+      // Every remaining action belongs to a teacher or an administrator; `contact_support` is not
+      // offered to students at all.
+      default:
+        return null
+    }
+  }
+
+  const levers: RegistrationCardAction[] = []
+  if (state === "failed") {
+    const plan = failureActions(registration.error_code, "student")
+    for (const action of [...(plan.primary ? [plan.primary] : []), ...plan.secondary]) {
+      const lever = studentLever(action)
+      if (lever) {
+        levers.push(lever)
+      }
+    }
+  } else if (status === "needs_enrolment") {
+    const enrol = enrolAction()
+    if (enrol) {
+      levers.push(enrol)
+    }
+    const recheck = recheckEnrolmentAction()
+    if (recheck) {
+      levers.push(recheck)
+    }
+  }
+
+  if (linkToStatusPage && (state === "failed" || state === "action-needed")) {
+    levers.push({
+      key: ACTION_KEY.details,
+      label: state === "failed" ? t("link-text-see-what-happened") : t("link-text-what-to-do"),
+      href: completionRegistrationRoute(registration.course_module_id),
+    })
+  }
+
+  const [primaryAction, ...secondaryActions] = levers
+  return { primaryAction: primaryAction ?? null, secondaryActions }
+}

@@ -16,9 +16,9 @@ const HideTextInSystemTests: React.FC<React.PropsWithChildren<HideTextInSystemTe
 }) => {
   const shouldHideStuff = useShouldHideStuffFromSystemTestScreenshots()
   if (shouldHideStuff) {
-    return <>{testPlaceholder}</>
+    return testPlaceholder
   }
-  return <>{text}</>
+  return text
 }
 
 export default HideTextInSystemTests

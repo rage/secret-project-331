@@ -1,25 +1,24 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "react-i18next"
+
+import type { NewResearchForm, ResearchForm } from "@/generated/api"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, useDialog } from "@/shared-module/components"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { blockTypeMapForResearchConsentForm } from "../../blocks"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import { mediaUploadBuilder } from "../../services/mediaUpload"
 import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
-
-import { NewResearchForm, ResearchForm } from "@/shared-module/common/bindings"
-import Button from "@/shared-module/common/components/Button"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ResearchFormEditorProps {
   data: ResearchForm
@@ -41,7 +40,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
@@ -50,7 +49,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
@@ -85,34 +84,26 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
+          gap: var(--space-3);
           background: #f5f6f7;
           padding: 1rem;
+          /* Gutenberg's own stylesheet loads last and can disable pointer events on the inspector. */
+          pointer-events: auto;
         `}
       >
-        <Button
-          variant="primary"
-          size="medium"
-          className={css`
-            margin-right: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
-          onClick={handleOnSave}
-          disabled={saving}
-        >
+        <Button variant="primary" size="medium" onClick={handleOnSave} disabled={saving}>
           {t("save")}
         </Button>
         <Button
           variant="secondary"
           size="medium"
-          className={css`
-            margin-left: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
           onClick={async () => {
-            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
+            const res = await confirm({
+              message: t("are-you-sure-you-want-to-discard-changes"),
+              isDestructive: true,
+            })
             if (res) {
               setContent(currentContent)
             }

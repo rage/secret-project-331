@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -13,7 +14,7 @@ pub struct NewExerciseSlide {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlide {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -23,8 +24,8 @@ pub struct ExerciseSlide {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct CourseMaterialExerciseSlide {
     pub id: Uuid,
     pub exercise_tasks: Vec<CourseMaterialExerciseTask>,
@@ -210,10 +211,18 @@ pub async fn get_course_material_exercise_slide_by_id(
     id: Uuid,
     user_id: Option<Uuid>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
-    let exercise_tasks =
-        exercise_tasks::get_course_material_exercise_tasks(conn, id, user_id, fetch_service_info)
-            .await?;
+    let exercise_tasks = exercise_tasks::get_course_material_exercise_tasks(
+        conn,
+        id,
+        user_id,
+        fetch_service_info,
+        file_store,
+        app_conf,
+    )
+    .await?;
     Ok(CourseMaterialExerciseSlide { id, exercise_tasks })
 }
 

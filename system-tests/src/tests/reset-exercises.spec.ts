@@ -1,4 +1,5 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import {
@@ -6,6 +7,7 @@ import {
   selectCourseInstanceIfPrompted,
 } from "@/utils/courseMaterialActions"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -51,40 +53,48 @@ test("Can manually reset exercises", async () => {
 
   await navigateToNextPageInMaterial(student1Page)
   await student1Page.getByText("Everything is a big topic.").waitFor({ state: "hidden" })
-  await student1Page
+  // The three exercises on this page share an iframe title and a Submit label, and they mount in
+  // whatever order their requests finish. A page-level nth match pairs one exercise's answer with
+  // another's button, so scope each answer and the buttons that follow it to a single card.
+  const exerciseCards = student1Page
+    .getByRole("region")
+    .filter({ has: student1Page.locator('iframe[title="Exercise 1\\, task 1 content"]') })
+  // Until every iframe has mounted, first() can resolve to a different card on each action.
+  await expect(exerciseCards).toHaveCount(3)
+  const firstExercise = exerciseCards.first()
+  const secondExercise = exerciseCards.nth(1)
+
+  await firstExercise
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
-    .first()
     .contentFrame()
     .getByRole("checkbox", { name: "c" })
     .click()
-  await student1Page.getByRole("button", { name: "Submit" }).first().click()
-  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
-  await student1Page.getByRole("button", { name: "Try again" }).click()
-  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
+  await firstExercise.getByRole("button", { name: "Submit" }).click()
+  await firstExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
+  await firstExercise.getByRole("button", { name: "Try again" }).click()
+  await firstExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
 
   await scrollLocatorsParentIframeToViewIfNeeded(
-    student1Page
+    secondExercise
       .locator('iframe[title="Exercise 1\\, task 1 content"]')
-      .nth(1)
       .contentFrame()
       .getByRole("checkbox", { name: "b" }),
   )
 
-  await student1Page
+  await secondExercise
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
-    .nth(1)
     .contentFrame()
     .getByRole("checkbox", { name: "b" })
     .click()
-  await student1Page.getByRole("button", { name: "Submit" }).first().click()
-  await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
+  await secondExercise.getByRole("button", { name: "Submit" }).click()
+  await secondExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
 
   await navigateToNextPageInMaterial(student1Page)
 
   await student1Page
     .locator('iframe[title="Exercise 2\\, task 1 content"]')
     .contentFrame()
-    .getByRole("textbox", { name: "Answer" })
+    .getByRole("textbox", { name: "write an essay" })
     .fill("a a a a a a a a a a a")
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor({ state: "visible" })
@@ -110,7 +120,7 @@ test("Can manually reset exercises", async () => {
     .getByRole("checkbox", { name: "Incorrect", exact: true })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
-
+  await waitForSpinnersToDisappear(student1Page)
   await navigateToNextPageInMaterial(student1Page)
   await student1Page
     .locator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -142,7 +152,7 @@ test("Can manually reset exercises", async () => {
 
   await adminPage.getByRole("button", { name: "Close" }).click()
 
-  await adminPage.getByText("Reset only if less than max").click()
+  await adminPage.getByRole("checkbox", { name: "Reset only if less than max" }).check()
   await adminPage.locator('input[type="checkbox"]').nth(3).check()
   await adminPage.locator('input[type="checkbox"]').nth(4).check()
   await adminPage.locator('input[type="checkbox"]').nth(5).check()
@@ -166,8 +176,8 @@ test("Can manually reset exercises", async () => {
   await adminPage.getByTestId("add-user-button-02364d40-2aac-4763-8a06-2381fd298d79").click()
 
   await adminPage.getByRole("button", { name: "Close" }).click()
-  await adminPage.getByRole("checkbox", { name: "Reset only if gotten less than" }).click()
-  await adminPage.getByRole("spinbutton", { name: "Reset only if gotten less than" }).fill("3")
+  await adminPage.getByRole("checkbox", { name: "Reset only if gotten less than" }).check()
+  await adminPage.getByRole("textbox", { name: "Reset only if gotten less than" }).fill("3")
   await adminPage.getByRole("row", { name: "Multiple task exercise Page" }).getByLabel("").check()
   await adminPage.getByRole("row", { name: "Multiple task quizzes" }).getByLabel("").check()
   await adminPage.getByRole("button", { name: "Submit and reset" }).click()

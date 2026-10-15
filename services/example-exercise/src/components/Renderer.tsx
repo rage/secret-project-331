@@ -1,18 +1,15 @@
-"use client"
-
-import React, { Dispatch, SetStateAction } from "react"
+import type { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseFeedback } from "../app/api/grade/route"
-import { State } from "../app/iframe/page"
+import withErrorBoundary from "@/lib/withErrorBoundary"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
+import type { State } from "./IframeView"
 import ViewSubmission from "./ViewSubmission"
-
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 interface RendererProps {
   state: State | null
@@ -34,20 +31,22 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
   if (state.view_type === "answer-exercise") {
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="answer-exercise">
-        <AnswerExercise port={port} state={state.public_spec} />
+        <AnswerExercise
+          port={port}
+          state={state.public_spec}
+          previousSubmission={state.previous_submission}
+        />
       </div>
     )
   } else if (state.view_type === "view-submission") {
-    const feedbackJson: unknown | null = state.grading?.feedback_json
-    const exerciseFeedback = feedbackJson ? (feedbackJson as ExerciseFeedback) : null
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="view-submission">
         <ViewSubmission
           port={port}
           publicSpec={state.public_spec}
           answer={state.answer}
-          gradingFeedback={exerciseFeedback}
-          modelSolutionSpec={state.model_solution_spec ? state.model_solution_spec : null}
+          gradingFeedback={state.feedback_json}
+          modelSolutionSpec={state.model_solution_spec}
         />
       </div>
     )
@@ -57,9 +56,8 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
         <ExerciseEditor state={state.private_spec} port={port} setState={setState} />
       </div>
     )
-  } else {
-    return <>{t("waiting-for-content")}</>
   }
+  return <>{t("waiting-for-content")}</>
 }
 
 export default withErrorBoundary(withNoSsr(Renderer))

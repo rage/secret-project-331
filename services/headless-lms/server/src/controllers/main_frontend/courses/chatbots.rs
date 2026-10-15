@@ -1,10 +1,26 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/{course_id}/chatbots`.
 use crate::prelude::*;
 
-use headless_lms_models::chatbot_configurations::NewChatbotConf;
 use models::chatbot_configurations::ChatbotConfiguration;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_chatbots, set_default_chatbot, set_non_default_chatbot))]
+pub(crate) struct MainFrontendCourseChatbotsApiDoc;
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/chatbots`
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getCourseChatbots",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course chatbots", body = Vec<ChatbotConfiguration>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chatbots(
     course_id: web::Path<Uuid>,
@@ -19,56 +35,20 @@ async fn get_chatbots(
     token.authorized_ok(web::Json(configurations))
 }
 
-/// POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
-#[instrument(skip(pool, payload))]
-async fn create_chatbot(
-    course_id: web::Path<Uuid>,
-    payload: web::Json<String>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<ChatbotConfiguration>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
-    let mut tx = conn.begin().await?;
-
-    let course = models::courses::get_course(&mut tx, *course_id).await?;
-
-    if !course.can_add_chatbot {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Course doesn't allow creating chatbots.".to_string(),
-            None,
-        ));
-    }
-
-    let model = models::chatbot_configurations_models::get_default(&mut tx)
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "No default chatbot model configured. Ask an admin to set one.".to_string(),
-                Some(e.into()),
-            )
-        })?;
-
-    let configuration = models::chatbot_configurations::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        NewChatbotConf {
-            chatbot_name: payload.into_inner(),
-            course_id: *course_id,
-            model_id: model.id,
-            thinking_model: model.thinking,
-            ..Default::default()
-        },
-    )
-    .await?;
-    tx.commit().await?;
-
-    token.authorized_ok(web::Json(configuration))
-}
-
 /// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/set-as-default",
+    operation_id = "setCourseChatbotAsDefault",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id"),
+        ("chatbot_configuration_id" = String, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Updated course chatbot", body = ChatbotConfiguration)
+    )
+)]
 #[instrument(skip(pool))]
 async fn set_default_chatbot(
     ids: web::Path<(Uuid, Uuid)>,
@@ -86,7 +66,15 @@ async fn set_default_chatbot(
     let chatbot =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
 
-    if course_id != chatbot.course_id {
+    if course_id
+        != chatbot.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Chatbot course id is missing.".to_string(),
+                None,
+            )
+        })?
+    {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "Chatbot course id doesn't match the course id provided.".to_string(),
@@ -105,6 +93,19 @@ async fn set_default_chatbot(
 }
 
 /// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default`
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/set-as-non-default",
+    operation_id = "setCourseChatbotAsNonDefault",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id"),
+        ("chatbot_configuration_id" = String, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Updated course chatbot", body = ChatbotConfiguration)
+    )
+)]
 #[instrument(skip(pool))]
 async fn set_non_default_chatbot(
     ids: web::Path<(Uuid, Uuid)>,
@@ -122,7 +123,15 @@ async fn set_non_default_chatbot(
     let configuration =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
 
-    if course_id != configuration.course_id {
+    if course_id
+        != configuration.course_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Chatbot course id is missing.".to_string(),
+                None,
+            )
+        })?
+    {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "Chatbot course id doesn't match the course id provided.".to_string(),
@@ -136,7 +145,6 @@ async fn set_non_default_chatbot(
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("", web::get().to(get_chatbots))
-        .route("", web::post().to(create_chatbot))
         .route(
             "/{chatbot_configuration_id}/set-as-default",
             web::post().to(set_default_chatbot),

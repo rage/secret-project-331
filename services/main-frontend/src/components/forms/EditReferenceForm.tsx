@@ -5,8 +5,12 @@ import styled from "@emotion/styled"
 // @ts-expect-error: No type definitions
 import Cite from "citation-js"
 import { useEffect, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { TextArea } from "@/shared-module/components"
 
 import {
   areCitationsValid,
@@ -14,16 +18,13 @@ import {
   safeParseReferences,
 } from "./NewReferenceForm"
 
-import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
-import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+// Shared with EditReferenceDialog.tsx, whose footer submit button targets this form by id.
+export const EDIT_REFERENCE_FORM_ID = "edit-reference-form"
 
 const REFERENCE = "Reference"
 
 interface EditReferenceFormProps {
   onEdit: (courseId: string, id: string, reference: NewMaterialReference) => void
-  onDelete: (courseId: string, id: string) => void
   onCancel: () => void
   reference: MaterialReference
   courseId: string
@@ -39,22 +40,21 @@ const ErrorText = styled.p`
 
 const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps>> = ({
   onEdit,
-  onDelete,
   onCancel: _onCancel,
   reference,
   courseId,
 }) => {
   const { t } = useTranslation()
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     setError,
     clearErrors,
-    watch,
   } = useForm<EditReferenceFields>({ defaultValues: { reference: reference.reference } })
 
-  const watchedReference = watch("reference")
+  // oxlint-disable-next-line i18next/no-literal-string
+  const watchedReference = useWatch({ control, name: "reference" })
 
   const detection = useMemo(() => {
     if (!watchedReference) {
@@ -97,17 +97,18 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
 
   return (
     <form
+      id={EDIT_REFERENCE_FORM_ID}
       onSubmit={onEditReferenceWrapper}
       className={css`
         width: 100%;
       `}
     >
-      <TextAreaField
+      <TextArea
+        name="reference"
+        control={control}
+        rules={{ required: true }}
         label={REFERENCE}
         id={"reference"}
-        error={errors["reference"]}
-        placeholder={REFERENCE}
-        {...register("reference", { required: true })}
         rows={5}
         className={css`
           width: 100%;
@@ -123,17 +124,6 @@ const EditReferenceForm: React.FC<React.PropsWithChildren<EditReferenceFormProps
             {t("reference-parsing-error-label-change", { original: c.original, safe: c.safe })}
           </ErrorText>
         ))}
-      <Button variant="primary" size="medium" type="submit">
-        {t("save")}
-      </Button>
-      <Button
-        variant="secondary"
-        size="medium"
-        type="button"
-        onClick={() => onDelete(courseId, reference.id)}
-      >
-        {t("delete")}
-      </Button>
     </form>
   )
 }

@@ -1,16 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { LINK_INHERIT } from "@/components/credit-registration/constants"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { LoadingRegion, ErrorNotice, Link } from "@/shared-module/components"
 
 interface Submission {
   id: string
@@ -52,8 +51,8 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
         {t("all-submissions-by-user")}
       </h2>
 
-      {isLoading && <Spinner variant="medium" />}
-      {isError && <ErrorBanner variant="readOnly" error={error} />}
+      {isLoading && <LoadingRegion />}
+      {isError && <ErrorNotice error={error} />}
       {submissions && (
         <div
           className={css`
@@ -63,13 +62,14 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
           `}
         >
           {submissions
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .toSorted((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .map((submission, index) => {
               const isCurrentSubmission = submission.id === currentSubmissionId
               const isLatestSubmission = index === 0
 
               return (
                 <Link
+                  appearance={LINK_INHERIT}
                   key={submission.id}
                   href={`/submissions/${submission.id}`}
                   className={css`
@@ -87,12 +87,16 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
                       padding: 1rem 1.5rem;
                       border-radius: 8px;
                       border: 2px solid
-                        ${isCurrentSubmission
-                          ? baseTheme.colors.green[500]
-                          : baseTheme.colors.gray[200]};
-                      background-color: ${isCurrentSubmission
-                        ? baseTheme.colors.green[100]
-                        : baseTheme.colors.clear[100]};
+                        ${
+                          isCurrentSubmission
+                            ? baseTheme.colors.green[500]
+                            : baseTheme.colors.gray[200]
+                        };
+                      background-color: ${
+                        isCurrentSubmission
+                          ? baseTheme.colors.green[100]
+                          : baseTheme.colors.clear[100]
+                      };
                       position: relative;
 
                       &:hover {

@@ -1,28 +1,109 @@
 "use client"
 
 import React from "react"
+import type { FieldValues, Path } from "react-hook-form"
 
-import {
-  SegmentedDateInputField,
-  type SegmentedTemporalFieldProps,
-} from "./primitives/SegmentedDateInputField"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { omitUndefined } from "../lib/utils/nullability"
+import type { FieldSize } from "./primitives/fieldStyles"
+import { SegmentedDateInputField } from "./primitives/SegmentedDateInputField"
 
-export type TimeFieldProps = Omit<SegmentedTemporalFieldProps, "layout">
-
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const floatingLayout = "floating" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const timeFieldKind = "time" as const
 
-export const TimeField = React.forwardRef<HTMLInputElement, TimeFieldProps>(
-  function TimeField(props, forwardedRef) {
-    return (
-      <SegmentedDateInputField
-        {...props}
-        ref={forwardedRef}
-        kind={timeFieldKind}
-        layout={floatingLayout}
-      />
-    )
-  },
-)
+/**
+ * Segmented time input with a time picker popover; value is a time string compatible with the
+ * segmented serializer.
+ * A pointer click anywhere on the field opens the picker; the keyboard edits the segments.
+ * Uses react-hook-form; pass `name` and `control`.
+ *
+ * @example
+ * <TimeField name="startTime" control={control} label="Time" />
+ */
+export type TimeFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
+  label: React.ReactNode
+  description?: React.ReactNode
+  errorMessage?: React.ReactNode
+  notice?: React.ReactNode
+  fieldSize?: FieldSize
+  iconStart?: React.ReactNode
+  iconEnd?: React.ReactNode
+  isDisabled?: boolean
+  isReadOnly?: boolean
+  isRequired?: boolean
+  id?: string
+  className?: string
+  min?: string
+  max?: string
+  step?: number | string
+  hourCycle?: 12 | 24
+  inputRef?: React.Ref<HTMLInputElement>
+  "data-testid"?: string | undefined
+}
+
+export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: TimeFieldProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    label,
+    description,
+    errorMessage,
+    notice,
+    fieldSize,
+    iconStart,
+    iconEnd,
+    isDisabled,
+    isReadOnly,
+    isRequired,
+    id,
+    className,
+    min,
+    max,
+    step,
+    hourCycle,
+    inputRef,
+    "data-testid": dataTestId,
+  } = props
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const value = (field.value as string | undefined) ?? ""
+
+  return (
+    <SegmentedDateInputField
+      ref={field.ref}
+      kind={timeFieldKind}
+      layout={floatingLayout}
+      label={label}
+      description={description}
+      errorMessage={resolvedError}
+      notice={notice}
+      {...omitUndefined({ fieldSize })}
+      iconStart={iconStart}
+      iconEnd={iconEnd}
+      {...omitUndefined({ isDisabled })}
+      {...omitUndefined({ isReadOnly })}
+      {...omitUndefined({ isRequired })}
+      isInvalid={isInvalid}
+      {...omitUndefined({ id })}
+      {...omitUndefined({ className })}
+      {...omitUndefined({ min })}
+      {...omitUndefined({ max })}
+      {...omitUndefined({ step })}
+      {...omitUndefined({ hourCycle })}
+      {...omitUndefined({ inputRef })}
+      data-testid={dataTestId}
+      value={value}
+      onChange={(e) => {
+        field.onChange(e.target.value)
+      }}
+      onBlur={field.onBlur}
+    />
+  )
+}

@@ -1,2 +1,7 @@
 #!/bin/sh
+
+. "$(dirname "$0")/ensure-dev-path.sh"
+
+command -v git-lfs >/dev/null 2>&1 && git lfs post-checkout "$@" || true
+
 pnpm exec tsx .husky/ensure-dependencies-up-to-date.ts

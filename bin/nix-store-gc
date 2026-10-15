@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# Reclaim disk space by deleting unreferenced machine-wide Nix store paths.
+# Paths still in use (GC roots, active profiles) are preserved. Anything a later
+# build or dev shell needs again is re-fetched or rebuilt on demand.
+
+ensure_program_in_path "nix"
+
+echo -e "${BLUE}Disk usage before:${RESET_EVERYTHING}"
+run_command df -h /nix/store
+
+run_command nix store gc "$@"
+
+echo -e "${GREEN}Disk usage after:${RESET_EVERYTHING}"
+run_command df -h /nix/store

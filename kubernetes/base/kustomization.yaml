@@ -10,6 +10,7 @@ resources:
   - tmc/deployment.yml
   - ingress.yml
   - ingress-other-domains.yml
+  - ingress-ai-suggestions.yml
   - headless-lms/ended-exams-processor.yml
   - headless-lms/calculate-page-visit-stats.yml
   - headless-lms/open-university-registration-link-fetcher.yml
@@ -20,3 +21,7 @@ resources:
   - headless-lms/chatbot-syncer.yml
   - headless-lms/mailchimp-syncer.yml
   - headless-lms/email-deliver.yml
+  - headless-lms/exercise-answer-upload-reaper.yml
+  - headless-lms/exercise-spec-upload-reaper.yml
+  - headless-lms/credit-registrar.yml
+  - headless-lms/suotar-syncer.yml

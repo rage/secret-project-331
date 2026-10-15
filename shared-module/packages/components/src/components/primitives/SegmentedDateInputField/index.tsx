@@ -3,25 +3,29 @@
 import React from "react"
 
 import { DateLikeSegmentedInputField } from "./DateLikeSegmentedInputField"
-import { TimeSegmentedInputField } from "./TimeSegmentedInputField"
 import type {
   DateLikeFieldProps,
   SegmentedDateInputFieldProps,
   TimeOnlyFieldProps,
 } from "./segmentTypes"
+import { TimeSegmentedInputField } from "./TimeSegmentedInputField"
 
-export type { SegmentedDateInputFieldProps, SegmentedTemporalFieldProps } from "./segmentTypes"
+export type {
+  SegmentedDateInputFieldProps,
+  SegmentedFieldCommonProps,
+  SegmentedTemporalFieldProps,
+} from "./segmentTypes"
 
-const ForwardedDateLikeSegmentedInputField = React.forwardRef<HTMLInputElement, DateLikeFieldProps>(
+const ForwardedDateLikeSegmentedInputField = React.forwardRef<HTMLDivElement, DateLikeFieldProps>(
   DateLikeSegmentedInputField,
 )
 
-const ForwardedTimeSegmentedInputField = React.forwardRef<HTMLInputElement, TimeOnlyFieldProps>(
+const ForwardedTimeSegmentedInputField = React.forwardRef<HTMLDivElement, TimeOnlyFieldProps>(
   TimeSegmentedInputField,
 )
 
 export const SegmentedDateInputField = React.forwardRef<
-  HTMLInputElement,
+  HTMLDivElement,
   SegmentedDateInputFieldProps
 >(function SegmentedDateInputField(props, forwardedRef) {
   if (props.kind === "time") {

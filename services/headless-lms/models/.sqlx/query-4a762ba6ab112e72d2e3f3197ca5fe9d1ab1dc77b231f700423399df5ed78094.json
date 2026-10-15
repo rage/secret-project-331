@@ -1,0 +1,140 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_configurations_models (id, model, model_type, default_model, context_size) VALUES ($1, $2, $3, $4, $5) RETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    model,\n    model_type as \"model_type: ModelType\",\n    default_model,\n    context_size\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "model",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "model"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "model_type: ModelType",
+        "type_info": {
+          "Custom": {
+            "name": "model_type",
+            "kind": {
+              "Enum": [
+                "gpt-thinking",
+                "gpt-non-thinking",
+                "gpt-hard-thinking",
+                "mistral"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "model_type"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "default_model",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "default_model"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "context_size",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations_models",
+            "name": "context_size"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "model_type",
+            "kind": {
+              "Enum": [
+                "gpt-thinking",
+                "gpt-non-thinking",
+                "gpt-hard-thinking",
+                "mistral"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4a762ba6ab112e72d2e3f3197ca5fe9d1ab1dc77b231f700423399df5ed78094"
+}

@@ -1,4 +1,4 @@
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 "use client"
 
 import { css, cx } from "@emotion/css"

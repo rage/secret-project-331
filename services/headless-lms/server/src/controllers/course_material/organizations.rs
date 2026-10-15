@@ -1,12 +1,29 @@
 //! Controllers for requests starting with `/api/v0/course-material/organizations`.
 
 use headless_lms_models::organizations::Organization;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_organization))]
+pub(crate) struct CourseMaterialOrganizationsApiDoc;
 
 /**
 GET /organizations/:organization_id - Get organization.
 */
+#[utoipa::path(
+    get,
+    path = "/{organization_id}",
+    operation_id = "getCourseMaterialOrganization",
+    tag = "course-material-organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization", body = Organization)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization(
     organization_id: web::Path<Uuid>,

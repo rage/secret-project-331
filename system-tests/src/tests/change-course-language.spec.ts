@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test"
 
+import { selectOrganization } from "@/utils/organizationUtils"
+
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import { openCourseSettingsFromQuickActions } from "../utils/flows/topbar.flow"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -16,7 +16,7 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page.getByRole("link", { name: "Navigate to course 'Change language course'" }).click()
+  await page.getByRole("link", { name: "Change language course", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
 
   await openCourseSettingsFromQuickActions(page)
@@ -31,11 +31,11 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 0,
     snapshotName: "course-lang-selection-eng-to-fi",
   })
-  const value = page.locator("#changeLanguage")
-  await value?.selectOption({ label: "Suomi" })
+  await page.getByTestId("change-course-language").click()
+  await page.getByRole("option", { name: "Suomi" }).click()
   await page.getByText("Valitse kieli").first().waitFor()
 
-  await page.getByText("Oletus").first().click()
+  await page.getByTestId("default-course-instance-radiobutton").check()
   await page.getByRole("button", { name: "Jatka" }).click()
   await page.getByRole("heading", { name: "Kurssin asetukset" }).waitFor({ state: "hidden" })
 
@@ -55,13 +55,13 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("Valitse kieli")],
   })
 
-  const value1 = page.locator("#changeLanguage")
-  await value1?.selectOption({ label: "English" })
+  await page.getByTestId("change-course-language").click()
+  await page.getByRole("option", { name: "English" }).click()
   await page.getByText("Choose your preferred language").first().waitFor()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  await page.getByText("Default").first().click()
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.getByTestId("default-course-instance-radiobutton").check()
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByTestId("select-course-instance-continue-button").click()
   try {

@@ -82,7 +82,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
 
     let course_or_exam_creator_user_id = users::insert(
         &mut conn,
-        PKeyPolicy::Fixed(Uuid::parse_str("c9f9f9f9-f9f9-f9f9-f9f9-f9f9f9f9f9f9")?),
+        PKeyPolicy::Fixed(Uuid::parse_str("f57afbcd-b97e-4dd2-8d14-bc03d8d1706d")?),
         "creator@example.com",
         Some("Creator"),
         Some("Example"),

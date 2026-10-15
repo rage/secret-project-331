@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import React from "react"
 
 import { baseTheme } from "../styles"
@@ -40,35 +40,43 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
       box-shadow: 0 3px 15px 0px ${COLORS.shadow};
       transition: filter 0.3s;
       width: max-content;
+      max-width: 50vw;
+      white-space: normal;
 
       &:active {
         transform: translateY(0);
       }
 
-      ${onClick &&
-      `
+      ${
+        onClick &&
+        `
         cursor: pointer;
 
         &:hover {
           filter: brightness(0.9);
         }
-      `}
+      `
+      }
 
-      ${placement == "bottom" && `margin-top: calc(${POINTER_SIZE} * 2.5);`}
-      ${placement == "top" && `margin-bottom: ${POINTER_SIZE};`}
+      ${placement === "bottom" && `margin-top: calc(${POINTER_SIZE} * 2.5);`}
+      ${placement === "top" && `margin-bottom: ${POINTER_SIZE};`}
       &:after {
-        ${placement == "bottom" &&
-        `
+        ${
+          placement === "bottom" &&
+          `
           top: -${POINTER_SIZE};
           border-bottom: ${POINTER_SIZE} solid ${COLORS.border};
           filter: drop-shadow(0px -10px 6px ${COLORS.shadowArrow});
-        `}
-        ${placement == "top" &&
         `
+        }
+        ${
+          placement === "top" &&
+          `
           bottom: -${POINTER_SIZE};
           border-top: ${POINTER_SIZE} solid ${COLORS.border};
           filter: drop-shadow(0 8px 6px ${COLORS.shadowArrow});
-        `}
+        `
+        }
         content: "";
         position: absolute;
         left: calc(50% - ${POINTER_SIZE});
@@ -79,16 +87,20 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
       }
 
       &:before {
-        ${placement == "bottom" &&
-        `
+        ${
+          placement === "bottom" &&
+          `
           top: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
           border-bottom: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
-        `}
-        ${placement == "top" &&
         `
+        }
+        ${
+          placement === "top" &&
+          `
           bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
           border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
-        `}
+        `
+        }
         content: "";
         position: absolute;
         left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});
@@ -107,7 +119,7 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         tabIndex={onClick ? 0 : undefined}
         onKeyDown={(e) => onClick && runCallbackIfEnterPressed(e, onClick)}
         onClick={onClick}
-        className={`${speechBalloonCss} ${className ?? ""}`}
+        className={cx(speechBalloonCss, className)}
       >
         {children}
       </div>

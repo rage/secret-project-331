@@ -1,11 +1,11 @@
-import { BrowserContext, expect, test } from "@playwright/test"
-
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
-
-import { answerExercise, fillPeerReview } from "./peer_review_utils"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-2"
 
@@ -72,11 +72,13 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
 
     // Now student 1 and student 3 should see their results.
     await student1Page.reload()
+    await student1Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student1Page.getByTestId("exercise-points")).toContainText("1/1")
     await student1Page
       .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
       .waitFor()
     await student3Page.reload()
+    await student3Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
     await student3Page
       .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
@@ -84,13 +86,14 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
 
     // Student 2's answer was not liked by the peers so it is waiting for the teacher to review it
     await student2Page.reload()
+    await student2Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
     await student2Page.getByText("Waiting for course staff to review your answer.").waitFor()
 
     // Teacher reviews answers
     await teacherPage.goto("http://project-331.local/organizations")
     await selectOrganization(teacherPage, "University of Helsinki, Department of Computer Science")
-    await teacherPage.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
+    await teacherPage.getByRole("link", { name: "Peer review Course", exact: true }).click()
     await teacherPage.goto("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
@@ -99,18 +102,20 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
       .click()
 
     // Make sure the iframe above is loaded so that it does not cause scrolling
-    await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()
+    await teacherPage.getByRole("button", { name: "Save grading decision" }).first().waitFor()
     const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
     await frame.getByText("a").waitFor()
 
-    await teacherPage.getByRole("button", { name: "Custom points" }).first().click()
-    await teacherPage.getByRole("spinbutton").fill("0.75")
+    const pointsField = teacherPage.getByRole("textbox", { name: "Points" }).first()
+    await pointsField.fill("0.75")
+    await pointsField.press("Tab")
     await waitForSuccessNotification(teacherPage, async () => {
-      await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+      await teacherPage.getByRole("button", { name: "Save grading decision" }).first().click()
     })
 
     // Now student 2 should see their results.
     await student2Page.reload()
+    await student2Page.getByText("AutomaticallyGradeOrManualReviewByAverage").waitFor()
     await expect(student2Page.getByTestId("exercise-points")).toContainText("0.75/1")
 
     await student2Page

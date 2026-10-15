@@ -6,25 +6,37 @@ pub mod students;
 
 use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
+use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
+    application_task_default_language_models::ApplicationTask,
+    course_audiences::CourseAudience,
+    course_prerequisites::CoursePrerequisite,
+    courses::CompleteCourseMetadata,
+    feedback::CategoryFeedbackCount,
     partner_block::PartnersBlock,
-    suspected_cheaters::{SuspectedCheaters, Threshold},
+    proposed_page_edits,
+    suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
 use std::sync::Arc;
+use utoipa::{OpenApi, ToSchema};
 
-use headless_lms_utils::strings::is_ietf_language_code_like;
+use headless_lms_utils::{services::sisu::SisuClient, strings::is_ietf_language_code_like};
 use models::{
     chapters::Chapter,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     course_module_completions::CourseModuleCompletion,
     course_modules::ModuleUpdates,
-    courses::{Course, CourseBreadcrumbInfo, CourseStructure, CourseUpdate, NewCourse},
+    courses::{
+        Course, CourseBreadcrumbInfo, CourseMetadata, CourseMetadataUpdate, CourseStructure,
+        CourseUpdate, NewCourse,
+    },
     exercise_slide_submissions::{
         self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
     },
     exercises::{Exercise, ExerciseStatusSummaryForUser},
-    feedback::{self, Feedback, FeedbackCount},
+    feedback::{self, Feedback},
+    feedback_categories::{self, FeedbackCategory},
     glossary::{Term, TermUpdate},
     library,
     material_references::{MaterialReference, NewMaterialReference},
@@ -53,9 +65,99 @@ use crate::domain::csv_export::general_export;
 use crate::domain::csv_export::submissions::CourseSubmissionExportOperation;
 use crate::domain::csv_export::users_export::UsersExportOperation;
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        get_course,
+        get_course_breadcrumb_info,
+        get_all_exercise_statuses_by_course_id,
+        get_all_course_module_completions_for_user_by_course_id,
+        get_user_progress_for_course,
+        get_user_course_settings,
+        post_reprocess_module_completions,
+        post_new_course,
+        update_course,
+        delete_course,
+        get_course_structure,
+        add_media_for_course,
+        get_all_exercises,
+        get_all_exercises_and_count_of_answers_requiring_attention,
+        get_all_course_language_versions,
+        create_course_copy,
+        get_daily_submission_counts,
+        get_daily_user_counts_with_submissions,
+        get_weekday_hour_submission_counts,
+        get_submission_counts_by_exercise,
+        get_course_instances,
+        get_feedback,
+        get_feedback_categories,
+        get_feedback_edit_proposals_count,
+        new_course_instance,
+        glossary,
+        new_glossary_term,
+        get_course_users_counts_by_exercise,
+        post_new_page_ordering,
+        post_new_chapter_ordering,
+        get_material_references_by_course_id,
+        insert_material_references,
+        update_material_reference,
+        delete_material_reference_by_id,
+        update_modules,
+        get_course_default_peer_review,
+        post_update_peer_review_queue_reviews_received,
+        submission_export,
+        user_details_export,
+        exercise_tasks_export,
+        course_instances_export,
+        course_consent_form_answers_export,
+        user_exercise_states_export,
+        get_page_visit_datum_summary,
+        get_page_visit_datum_summary_by_pages,
+        get_page_visit_datum_summary_by_device_types,
+        get_page_visit_datum_summary_by_countries,
+        teacher_reset_course_progress_for_themselves,
+        teacher_reset_course_progress_for_everyone,
+        get_all_suspected_cheaters,
+        get_flagged_suspected_cheaters_count,
+        get_all_thresholds,
+        teacher_dismiss_suspected_cheater,
+        teacher_confirm_suspected_cheater,
+        add_user_to_course_with_join_code,
+        set_join_code_for_course,
+        get_course_with_join_code,
+        post_partners_block,
+        get_partners_block,
+        delete_partners_block,
+        get_sisu_course_llm_descriptions,
+        update_metadata,
+        get_course_prerequisites,
+        get_course_audiences,
+        get_course_metadata,
+        get_all_courses
+    ),
+    nest(
+        (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
+        (path = "/{course_id}/stats", api = stats::MainFrontendCourseStatsApiDoc),
+        (path = "/{course_id}/students", api = students::MainFrontendCourseStudentsApiDoc)
+    )
+)]
+pub(crate) struct MainFrontendCoursesApiDoc;
+
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}",
+    operation_id = "getCourse",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course", body = Course)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -71,6 +173,18 @@ async fn get_course(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/breadcrumb-info",
+    operation_id = "getCourseBreadcrumbInfo",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course breadcrumb information", body = CourseBreadcrumbInfo)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_breadcrumb_info(
     course_id: web::Path<Uuid>,
@@ -87,6 +201,19 @@ async fn get_course_breadcrumb_info(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/status-for-all-exercises/:user_id` - Returns status for all exercises in the course for a given user.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/status-for-all-exercises/{user_id}",
+    operation_id = "getCourseExerciseStatusesForUser",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Exercise statuses for course user", body = [ExerciseStatusSummaryForUser])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_exercise_statuses_by_course_id(
     params: web::Path<(Uuid, Uuid)>,
@@ -112,6 +239,19 @@ async fn get_all_exercise_statuses_by_course_id(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/course-module-completions/:user_id` - Returns all course module completions for a given user for this course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-module-completions/{user_id}",
+    operation_id = "getCourseModuleCompletionsForUser",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Course module completions for course user", body = [CourseModuleCompletion])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_course_module_completions_for_user_by_course_id(
     params: web::Path<(Uuid, Uuid)>,
@@ -137,6 +277,19 @@ async fn get_all_course_module_completions_for_user_by_course_id(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/progress/:user_id` - Returns user progress for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/progress/{user_id}",
+    operation_id = "getCourseProgressForUser",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User progress for course", body = [UserCourseProgress])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course(
     path: web::Path<(Uuid, Uuid)>,
@@ -165,6 +318,19 @@ async fn get_user_progress_for_course(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/user-settings/:user_id` - Get current course settings for a specific user.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/user-settings/{user_id}",
+    operation_id = "getCourseUserSettingsForUser",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User course settings", body = Option<UserCourseSettings>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_course_settings(
     path: web::Path<(Uuid, Uuid)>,
@@ -188,7 +354,18 @@ POST `/api/v0/main-frontend/courses/{course_id}/reprocess-completions`
 
 Reprocesses all module completions for the given course instance. Only available to admins.
 */
-
+#[utoipa::path(
+    post,
+    path = "/{course_id}/reprocess-completions",
+    operation_id = "reprocessCourseCompletions",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course completions reprocessed", body = bool)
+    )
+)]
 #[instrument(skip(pool, user))]
 async fn post_reprocess_module_completions(
     pool: web::Data<PgPool>,
@@ -217,7 +394,16 @@ Content-Type: application/json
 }
 ```
 */
-
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createCourse",
+    tag = "courses",
+    request_body = NewCourse,
+    responses(
+        (status = 200, description = "Created course", body = Course)
+    )
+)]
 #[instrument(skip(pool, app_conf))]
 async fn post_new_course(
     request_id: RequestId,
@@ -247,6 +433,7 @@ async fn post_new_course(
     let mut tx = conn.begin().await?;
     let (course, ..) = library::content_management::create_new_course(
         &mut tx,
+        app_conf.as_ref(),
         PKeyPolicy::Generate,
         new_course,
         user.id,
@@ -285,9 +472,23 @@ Content-Type: application/json
 
 ```
 */
-#[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/{course_id}",
+    operation_id = "updateCourse",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CourseUpdate,
+    responses(
+        (status = 200, description = "Updated course", body = Course)
+    )
+)]
+#[instrument(skip(pool, app_conf))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -305,7 +506,9 @@ async fn update_course(
     let locking_just_enabled =
         !course_before_update.chapter_locking_enabled && course_update.chapter_locking_enabled;
 
-    let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
+    let course =
+        models::courses::update_course(&mut conn, app_conf.as_ref(), *course_id, course_update)
+            .await?;
 
     if locking_just_enabled {
         use models::{user_chapter_locking_statuses, user_course_settings};
@@ -329,6 +532,18 @@ async fn update_course(
 /**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 */
+#[utoipa::path(
+    delete,
+    path = "/{course_id}",
+    operation_id = "deleteCourse",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Deleted course", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_course(
     course_id: web::Path<Uuid>,
@@ -394,7 +609,18 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 }
 ```
 */
-
+#[utoipa::path(
+    get,
+    path = "/{course_id}/structure",
+    operation_id = "getCourseStructure",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course structure", body = CourseStructure)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_course_structure(
     course_id: web::Path<Uuid>,
@@ -436,7 +662,22 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-
+#[utoipa::path(
+    post,
+    path = "/{course_id}/upload",
+    operation_id = "uploadCourseMedia",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body(
+        content = String,
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Uploaded media result", body = UploadResult)
+    )
+)]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media_for_course(
     course_id: web::Path<Uuid>,
@@ -467,6 +708,18 @@ async fn add_media_for_course(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/exercises",
+    operation_id = "getCourseExercises",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exercises for course", body = [Exercise])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_exercises(
     pool: web::Data<PgPool>,
@@ -483,6 +736,22 @@ async fn get_all_exercises(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/exercises-and-count-of-answers-requiring-attention",
+    operation_id = "getCourseExercisesAndAnswersRequiringAttentionCounts",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Exercises and answer attention counts",
+            body = [ExerciseAnswersInCourseRequiringAttentionCount]
+        )
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_exercises_and_count_of_answers_requiring_attention(
     pool: web::Data<PgPool>,
@@ -507,6 +776,18 @@ GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-
 Content-Type: application/json
 ```
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/language-versions",
+    operation_id = "getCourseLanguageVersions",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course language versions", body = [Course])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -522,9 +803,8 @@ async fn get_all_course_language_versions(
     token.authorized_ok(web::Json(language_versions))
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::ToSchema)]
 #[serde(tag = "mode", rename_all = "snake_case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CopyCourseMode {
     /// Create a completely separate copy with a new course language group
     Duplicate,
@@ -536,8 +816,8 @@ pub enum CopyCourseMode {
     NewLanguageGroup,
 }
 
-#[derive(Deserialize, Debug)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Deserialize, Debug, utoipa::ToSchema)]
+
 pub struct CopyCourseRequest {
     #[serde(flatten)]
     pub new_course: NewCourse,
@@ -587,6 +867,19 @@ Content-Type: application/json
 }
 ```
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/create-copy",
+    operation_id = "createCourseCopy",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CopyCourseRequest,
+    responses(
+        (status = 200, description = "Created course copy", body = Course)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn create_course_copy(
     pool: web::Data<PgPool>,
@@ -603,9 +896,16 @@ pub async fn create_course_copy(
     )
     .await?;
 
-    let mut tx = conn.begin().await?;
-
     let new_course = payload.new_course.clone();
+    authorize(
+        &mut conn,
+        Act::CreateCoursesOrExams,
+        Some(user.id),
+        Res::Organization(new_course.organization_id),
+    )
+    .await?;
+
+    let mut tx = conn.begin().await?;
 
     let copied_course = match &payload.mode {
         CopyCourseMode::Duplicate => {
@@ -669,6 +969,18 @@ pub async fn create_course_copy(
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/daily-submission-counts",
+    operation_id = "getCourseDailySubmissionCounts",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course daily submission counts", body = [ExerciseSlideSubmissionCount])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
@@ -694,6 +1006,18 @@ async fn get_daily_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/daily-users-who-have-submitted-something",
+    operation_id = "getCourseDailyUsersWhoSubmittedSomething",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course daily user submission counts", body = [ExerciseSlideSubmissionCount])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_daily_user_counts_with_submissions(
     pool: web::Data<PgPool>,
@@ -720,6 +1044,18 @@ async fn get_daily_user_counts_with_submissions(
 /**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/weekday-hour-submission-counts",
+    operation_id = "getCourseWeekdayHourSubmissionCounts",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course weekday and hour submission counts", body = [ExerciseSlideSubmissionCountByWeekAndHour])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
@@ -746,6 +1082,18 @@ async fn get_weekday_hour_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/submission-counts-by-exercise",
+    operation_id = "getCourseSubmissionCountsByExercise",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course submission counts by exercise", body = [ExerciseSlideSubmissionCountByExercise])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
@@ -772,6 +1120,18 @@ async fn get_submission_counts_by_exercise(
 /**
 GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-instances",
+    operation_id = "getCourseInstances",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course instances", body = [CourseInstance])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
@@ -793,16 +1153,38 @@ async fn get_course_instances(
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]
     pagination: Pagination,
+    category_filter: Option<Uuid>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetFeedbackCategoriesQuery {
+    read: bool,
 }
 
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/feedback",
+    operation_id = "getCourseFeedback",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id"),
+        ("read" = bool, Query, description = "Whether to fetch read feedback"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size"),
+        ("category_filter" = Option<Uuid>, Query, description = "Selected category")
+    ),
+    responses(
+        (status = 200, description = "Feedback for the course", body = [Feedback])
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn get_feedback(
     course_id: web::Path<Uuid>,
@@ -818,22 +1200,50 @@ pub async fn get_feedback(
         Res::Course(*course_id),
     )
     .await?;
-    let feedback =
-        feedback::get_feedback_for_course(&mut conn, *course_id, read.read, read.pagination)
-            .await?;
+    let feedback = feedback::get_feedback_for_course(
+        &mut conn,
+        *course_id,
+        read.category_filter,
+        read.read,
+        read.pagination,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(feedback))
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct FeedbackEditProposalCounts {
+    pub read_feedback: u32,
+    pub unread_feedback: u32,
+    pub feedback_categories_counts: Vec<CategoryFeedbackCount>,
+    pub pending_edits: u32,
+    pub handled_edits: u32,
+    /// pending edits + unread feedback
+    pub total_waiting: u32,
 }
 
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/feedback-count",
+    operation_id = "getCourseFeedbackCount",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Feedback and edit proposal counts for the course", body = FeedbackEditProposalCounts)
+    )
+)]
 #[instrument(skip(pool))]
-pub async fn get_feedback_count(
+pub async fn get_feedback_edit_proposals_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<FeedbackCount>> {
+) -> ControllerResult<web::Json<FeedbackEditProposalCounts>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -844,13 +1254,73 @@ pub async fn get_feedback_count(
     .await?;
 
     let feedback_count = feedback::get_feedback_count_for_course(&mut conn, *course_id).await?;
+    let edit_proposal_count =
+        proposed_page_edits::get_proposal_count_for_course(&mut conn, *course_id).await?;
 
-    token.authorized_ok(web::Json(feedback_count))
+    let res = FeedbackEditProposalCounts {
+        read_feedback: feedback_count.read,
+        unread_feedback: feedback_count.unread,
+        pending_edits: edit_proposal_count.pending,
+        handled_edits: edit_proposal_count.handled,
+        total_waiting: feedback_count.unread + edit_proposal_count.pending,
+        feedback_categories_counts: feedback_count.categories,
+    };
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/feedback-categories",
+    operation_id = "getCourseFeedbackCategories",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("read" = bool, Query, description = "Categories for read/unread status feedback")
+    ),
+    responses(
+        (status = 200, description = "All feedback categories used in feedback for the course", body = Vec<FeedbackCategory>)
+    )
+)]
+#[instrument(skip(pool))]
+pub async fn get_feedback_categories(
+    course_id: web::Path<Uuid>,
+    read: web::Query<GetFeedbackCategoriesQuery>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<FeedbackCategory>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let res = feedback_categories::get_all_by_read_status(&mut conn, *course_id, read.read).await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/new-course-instance",
+    operation_id = "createCourseInstance",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CourseInstanceForm,
+    responses(
+        (status = 200, description = "Created course instance id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool))]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,
@@ -877,7 +1347,21 @@ async fn new_course_instance(
 }
 
 #[instrument(skip(pool))]
-async fn glossary(
+#[utoipa::path(
+    get,
+    path = "/{course_id}/glossary",
+    operation_id = "getCourseGlossary",
+    tag = "glossary",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Glossary terms for the course", body = [Term]),
+        (status = 401, description = "Authentication required"),
+        (status = 403, description = "User is not allowed to manage the course glossary")
+    )
+)]
+pub(crate) async fn glossary(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -905,7 +1389,22 @@ async fn _new_term(
 }
 
 #[instrument(skip(pool))]
-async fn new_glossary_term(
+#[utoipa::path(
+    post,
+    path = "/{course_id}/glossary",
+    operation_id = "createCourseGlossaryTerm",
+    tag = "glossary",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = TermUpdate,
+    responses(
+        (status = 200, description = "Created glossary term id", body = Uuid),
+        (status = 401, description = "Authentication required"),
+        (status = 403, description = "User is not allowed to manage the course glossary")
+    )
+)]
+pub(crate) async fn new_glossary_term(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     new_term: web::Json<TermUpdate>,
@@ -922,6 +1421,18 @@ async fn new_glossary_term(
 /**
 GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-users-counts-by-exercise",
+    operation_id = "getCourseUsersCountsByExercise",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course users counts by exercise", body = [ExerciseUserCounts])
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn get_course_users_counts_by_exercise(
     course_id: web::Path<Uuid>,
@@ -952,6 +1463,19 @@ Note that the page objects posted here might have the content omitted because it
 
 Creates redirects if url_path changes.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/new-page-ordering",
+    operation_id = "updateCoursePageOrdering",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = Vec<Page>,
+    responses(
+        (status = 200, description = "Course page ordering updated")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn post_new_page_ordering(
     course_id: web::Path<Uuid>,
@@ -973,6 +1497,19 @@ POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapter
 
 Creates redirects if url_path changes.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/new-chapter-ordering",
+    operation_id = "updateCourseChapterOrdering",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = Vec<Chapter>,
+    responses(
+        (status = 200, description = "Course chapter ordering updated")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn post_new_chapter_ordering(
     course_id: web::Path<Uuid>,
@@ -989,6 +1526,18 @@ pub async fn post_new_chapter_ordering(
     token.authorized_ok(web::Json(()))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{course_id}/references",
+    operation_id = "getCourseReferences",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course references", body = [MaterialReference])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_material_references_by_course_id(
     course_id: web::Path<Uuid>,
@@ -1003,6 +1552,19 @@ async fn get_material_references_by_course_id(
     token.authorized_ok(web::Json(res))
 }
 
+#[utoipa::path(
+    post,
+    path = "/{course_id}/references",
+    operation_id = "createCourseReferences",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = [NewMaterialReference],
+    responses(
+        (status = 200, description = "Course references created")
+    )
+)]
 #[instrument(skip(pool))]
 async fn insert_material_references(
     course_id: web::Path<Uuid>,
@@ -1018,6 +1580,20 @@ async fn insert_material_references(
     token.authorized_ok(web::Json(()))
 }
 
+#[utoipa::path(
+    post,
+    path = "/{course_id}/references/{reference_id}",
+    operation_id = "updateCourseReference",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("reference_id" = Uuid, Path, description = "Reference id")
+    ),
+    request_body = NewMaterialReference,
+    responses(
+        (status = 200, description = "Course reference updated")
+    )
+)]
 #[instrument(skip(pool))]
 async fn update_material_reference(
     path: web::Path<(Uuid, Uuid)>,
@@ -1029,15 +1605,29 @@ async fn update_material_reference(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    models::material_references::update_material_reference_by_id(
+    models::material_references::update_by_id_and_course_id(
         &mut conn,
         reference_id,
+        course_id,
         payload.0,
     )
     .await?;
     token.authorized_ok(web::Json(()))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/{course_id}/references/{reference_id}",
+    operation_id = "deleteCourseReference",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("reference_id" = Uuid, Path, description = "Reference id")
+    ),
+    responses(
+        (status = 200, description = "Course reference deleted")
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_material_reference_by_id(
     path: web::Path<(Uuid, Uuid)>,
@@ -1048,10 +1638,25 @@ async fn delete_material_reference_by_id(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    models::material_references::delete_reference(&mut conn, reference_id).await?;
+    models::material_references::delete_by_id_and_course_id(&mut conn, reference_id, course_id)
+        .await?;
     token.authorized_ok(web::Json(()))
 }
 
+#[utoipa::path(
+    post,
+    path = "/{course_id}/course-modules",
+    operation_id = "updateCourseModules",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = ModuleUpdates,
+    responses(
+        (status = 200, description = "Course modules updated"),
+        (status = 400, description = "A module or chapter is not in the course, or a completion registration link is not https")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn update_modules(
     course_id: web::Path<Uuid>,
@@ -1062,10 +1667,38 @@ pub async fn update_modules(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
+    let updates = payload.into_inner();
+    if models::course_modules::would_change_credit_registration_via_suotar(
+        &mut conn, *course_id, &updates,
+    )
+    .await?
+    {
+        // Editing a course is not enough to put a module on the live study registry path.
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?;
+    }
+
+    models::course_modules::update_modules(&mut conn, *course_id, updates).await?;
     token.authorized_ok(web::Json(()))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{course_id}/default-peer-review",
+    operation_id = "getCourseDefaultPeerReview",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Default peer review configuration", body = serde_json::Value)
+    )
+)]
 async fn get_course_default_peer_review(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1098,7 +1731,18 @@ POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-review
 
 Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
 */
-
+#[utoipa::path(
+    post,
+    path = "/{course_id}/update-peer-review-queue-reviews-received",
+    operation_id = "updateCoursePeerReviewQueueReviewsReceived",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Peer review queue updated", body = bool)
+    )
+)]
 #[instrument(skip(pool, user))]
 async fn post_update_peer_review_queue_reviews_received(
     pool: web::Data<PgPool>,
@@ -1119,11 +1763,25 @@ GET `/api/v0/main-frontend/courses/${courseId}/export-submissions`
 
 gets SCV of course exercise submissions
 */
-#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/export-submissions",
+    operation_id = "exportCourseSubmissionsCsv",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course submissions CSV", body = String, content_type = "text/csv")
+    )
+)]
+#[instrument(skip(pool, file_store, app_conf))]
 pub async fn submission_export(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
@@ -1146,6 +1804,8 @@ pub async fn submission_export(
         ),
         CourseSubmissionExportOperation {
             course_id: *course_id,
+            file_store,
+            app_conf,
         },
         token,
     )
@@ -1157,6 +1817,18 @@ GET `/api/v0/main-frontend/courses/${course.id}/export-user-details`
 
 gets SCV of user details for all users having submitted an exercise in the course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/export-user-details",
+    operation_id = "exportCourseUserDetailsCsv",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course user details CSV", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn user_details_export(
     course_id: web::Path<Uuid>,
@@ -1195,6 +1867,18 @@ GET `/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`
 
 gets SCV all exercise-tasks' private specs in course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/export-exercise-tasks",
+    operation_id = "exportCourseExerciseTasksCsv",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course exercise tasks CSV", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn exercise_tasks_export(
     course_id: web::Path<Uuid>,
@@ -1233,6 +1917,18 @@ GET `/api/v0/main-frontend/courses/${course.id}/export-course-instances`
 
 gets SCV course instances for course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/export-course-instances",
+    operation_id = "exportCourseInstancesCsv",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course instances CSV", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn course_instances_export(
     course_id: web::Path<Uuid>,
@@ -1271,6 +1967,18 @@ GET `/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`
 
 gets SCV course specific research form questions and user answers for course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/export-course-user-consents",
+    operation_id = "exportCourseUserConsentsCsv",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course user consents CSV", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn course_consent_form_answers_export(
     course_id: web::Path<Uuid>,
@@ -1309,6 +2017,18 @@ GET `/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`
 
 gets CSV for course specific user exercise states
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/export-user-exercise-states",
+    operation_id = "exportCourseUserExerciseStatesCsv",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course user exercise states CSV", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn user_exercise_states_export(
     course_id: web::Path<Uuid>,
@@ -1345,6 +2065,18 @@ pub async fn user_exercise_states_export(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/page-visit-datum-summary",
+    operation_id = "getCoursePageVisitDatumSummary",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course page visit summary", body = [PageVisitDatumSummaryByCourse])
+    )
+)]
 pub async fn get_page_visit_datum_summary(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1369,6 +2101,18 @@ pub async fn get_page_visit_datum_summary(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/page-visit-datum-summary-by-pages",
+    operation_id = "getCoursePageVisitDatumSummaryByPages",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course page visit summary by pages", body = [PageVisitDatumSummaryByPages])
+    )
+)]
 pub async fn get_page_visit_datum_summary_by_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1393,6 +2137,18 @@ pub async fn get_page_visit_datum_summary_by_pages(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/page-visit-datum-summary-by-device-types",
+    operation_id = "getCoursePageVisitDatumSummaryByDeviceTypes",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course page visit summary by device types", body = [PageVisitDatumSummaryByCourseDeviceTypes])
+    )
+)]
 pub async fn get_page_visit_datum_summary_by_device_types(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1419,6 +2175,18 @@ pub async fn get_page_visit_datum_summary_by_device_types(
 /**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/page-visit-datum-summary-by-countries",
+    operation_id = "getCoursePageVisitDatumSummaryByCountries",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course page visit summary by countries", body = [PageVisitDatumSummaryByCoursesCountries])
+    )
+)]
 pub async fn get_page_visit_datum_summary_by_countries(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1447,6 +2215,18 @@ DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress
 
 Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
 */
+#[utoipa::path(
+    delete,
+    path = "/{course_id}/teacher-reset-course-progress-for-themselves",
+    operation_id = "resetCourseProgressForTeacherThemselves",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Teacher course progress reset", body = bool)
+    )
+)]
 pub async fn teacher_reset_course_progress_for_themselves(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1477,6 +2257,18 @@ DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress
 
 Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
 */
+#[utoipa::path(
+    delete,
+    path = "/{course_id}/teacher-reset-course-progress-for-everyone",
+    operation_id = "resetCourseProgressForEveryone",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course progress reset for everyone", body = bool)
+    )
+)]
 pub async fn teacher_reset_course_progress_for_everyone(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -1541,14 +2333,27 @@ pub async fn teacher_reset_course_progress_for_everyone(
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GetSuspectedCheatersQuery {
-    archive: bool,
+    status: SuspectedCheaterStatus,
 }
 
 /**
- GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/suspected-cheaters",
+    operation_id = "getCourseSuspectedCheaters",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("status" = SuspectedCheaterStatus, Query, description = "Which review state of suspected cheaters to fetch")
+    ),
+    responses(
+        (status = 200, description = "Suspected cheaters for course", body = [SuspectedCheaters])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_suspected_cheaters(
     user: AuthUser,
@@ -1564,7 +2369,7 @@ async fn get_all_suspected_cheaters(
     let course_cheaters = models::suspected_cheaters::get_all_suspected_cheaters_in_course(
         &mut conn,
         course_id,
-        query.archive,
+        query.status,
     )
     .await?;
 
@@ -1572,30 +2377,91 @@ async fn get_all_suspected_cheaters(
 }
 
 /**
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/suspected-cheaters/flagged-count",
+    operation_id = "getCourseFlaggedSuspectedCheatersCount",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Number of suspected cheaters awaiting review", body = i64, content_type = "application/json")
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_flagged_suspected_cheaters_count(
+    user: AuthUser,
+    params: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<i64>> {
+    let course_id = params.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let count = models::suspected_cheaters::get_count_in_course_by_status(
+        &mut conn,
+        course_id,
+        SuspectedCheaterStatus::Flagged,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(count))
+}
+
+/**
  GET /api/v0/main-frontend/courses/${course.id}/thresholds - get all thresholds for all modules in a course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/thresholds",
+    operation_id = "getCourseThresholds",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course thresholds", body = Vec<CourseModuleThresholdInfo>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_thresholds(
     user: AuthUser,
     params: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<Threshold>>> {
+) -> ControllerResult<web::Json<Vec<CourseModuleThresholdInfo>>> {
     let mut conn = pool.acquire().await?;
     let course_id = params.into_inner();
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     let thresholds =
-        models::suspected_cheaters::get_all_thresholds_for_course(&mut conn, course_id).await?;
+        models::suspected_cheaters::get_threshold_info_for_course(&mut conn, course_id).await?;
 
     token.authorized_ok(web::Json(thresholds))
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/suspected-cheaters/dismiss/{user_id}",
+    operation_id = "dismissCourseSuspectedCheater",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "Suspected cheater's user id")
+    ),
+    responses(
+        (status = 200, description = "Suspicion dismissed")
+    )
+)]
 #[instrument(skip(pool))]
-async fn teacher_archive_suspected_cheater(
+async fn teacher_dismiss_suspected_cheater(
     user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -1605,16 +2471,30 @@ async fn teacher_archive_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::archive_suspected_cheater(&mut conn, user_id).await?;
+    models::suspected_cheaters::dismiss_by_user_id_and_course_id(&mut conn, user_id, course_id)
+        .await?;
 
     token.authorized_ok(web::Json(()))
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/suspected-cheaters/confirm/{user_id}",
+    operation_id = "confirmCourseSuspectedCheater",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "Suspected cheater's user id")
+    ),
+    responses(
+        (status = 200, description = "Cheating confirmed")
+    )
+)]
 #[instrument(skip(pool))]
-async fn teacher_approve_suspected_cheater(
+async fn teacher_confirm_suspected_cheater(
     user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -1624,30 +2504,48 @@ async fn teacher_approve_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::approve_suspected_cheater(&mut conn, user_id).await?;
-
-    // Fail student
-    //find by user_id and course_id
-    models::course_module_completions::update_passed_and_grade_status(
-        &mut conn, course_id, user_id, false, 0,
+    // Confirming sets the status and fails the student's completions (snapshotting the previous
+    // grade so a later dismiss can restore it); see confirm_cheater_by_user_id_and_course_id.
+    models::suspected_cheaters::confirm_cheater_by_user_id_and_course_id(
+        &mut conn, user_id, course_id,
     )
     .await?;
 
     token.authorized_ok(web::Json(()))
 }
 
+#[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
+pub struct JoinCourseWithJoinCodePayload {
+    join_code: String,
+}
+
 /**
 POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code_uses so the user gets access to the course
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/join-course-with-join-code",
+    operation_id = "joinCourseWithJoinCode",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = JoinCourseWithJoinCodePayload,
+    responses(
+        (status = 200, description = "Joined course id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool))]
 async fn add_user_to_course_with_join_code(
     course_id: web::Path<Uuid>,
+    payload: web::Json<JoinCourseWithJoinCodePayload>,
     user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
+    models::courses::get_by_id_and_join_code(&mut conn, *course_id, &payload.join_code).await?;
     let joined =
         models::join_code_uses::insert(&mut conn, PKeyPolicy::Generate, user.id, *course_id)
             .await?;
@@ -1657,6 +2555,18 @@ async fn add_user_to_course_with_join_code(
 /**
  POST /api/v0/main-frontend/courses/:course_id/generate-join-code - Generates a code that is used as a part of URL to join course
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/set-join-code",
+    operation_id = "setCourseJoinCode",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course join code set")
+    )
+)]
 #[instrument(skip(pool))]
 async fn set_join_code_for_course(
     id: web::Path<Uuid>,
@@ -1685,6 +2595,18 @@ async fn set_join_code_for_course(
 /**
 GET /courses/join/:join_code - Gets the course related to join code
 */
+#[utoipa::path(
+    get,
+    path = "/join/{join_code}",
+    operation_id = "getCourseByJoinCode",
+    tag = "courses",
+    params(
+        ("join_code" = String, Path, description = "Course join code")
+    ),
+    responses(
+        (status = 200, description = "Course for join code", body = Course)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_with_join_code(
     join_code: web::Path<String>,
@@ -1702,6 +2624,19 @@ async fn get_course_with_join_code(
 /**
  POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/partners-block",
+    operation_id = "upsertCoursePartnersBlock",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = Option<serde_json::Value>,
+    responses(
+        (status = 200, description = "Partners block", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(payload, pool))]
 async fn post_partners_block(
     path: web::Path<Uuid>,
@@ -1724,6 +2659,18 @@ async fn post_partners_block(
 /**
 GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/partners-block",
+    operation_id = "getCoursePartnersBlock",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Partners block", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_partners_block(
     path: web::Path<Uuid>,
@@ -1754,6 +2701,18 @@ async fn get_partners_block(
 /**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
 */
+#[utoipa::path(
+    delete,
+    path = "/{course_id}/partners-block",
+    operation_id = "deleteCoursePartnersBlock",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Deleted partners block", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_partners_block(
     path: web::Path<Uuid>,
@@ -1773,6 +2732,214 @@ async fn delete_partners_block(
         models::partner_block::delete_partner_block(&mut conn, course_id).await?;
 
     token.authorized_ok(web::Json(deleted_partners_block))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
+
+Returns LLM generated descriptions for a course based on information from Sisu API.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/sisu-course-llm-descriptions",
+    operation_id = "getSisuCourseLlmDescriptions",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Sisu course LLM descriptions", body = SisuDescriptionResponse)
+    )
+)]
+#[instrument(skip(pool, app_conf))]
+async fn get_sisu_course_llm_descriptions(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
+    sisu_client: web::Data<SisuClient>,
+) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
+    let (course_modules, course_lang, message_suggest_llm, token) = {
+        let mut conn = pool.acquire().await?;
+
+        let token =
+            authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+        let course_modules =
+            models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+        let course_lang = models::courses::get_course(&mut conn, *course_id)
+            .await?
+            .language_code;
+        let message_suggest_llm = models::application_task_default_language_models::get_for_task(
+            &mut conn,
+            ApplicationTask::SisuDescriptionSummary,
+        )
+        .await?;
+        (course_modules, course_lang, message_suggest_llm, token)
+    };
+
+    let uh_course_codes: Vec<String> = course_modules
+        .into_iter()
+        .filter_map(|course_module| course_module.uh_course_code)
+        .collect::<Vec<String>>();
+    let course_ids = SisuClient::get_course_ids(&sisu_client, uh_course_codes).await?;
+    let course_info = SisuClient::get_course_info(&sisu_client, course_ids).await?;
+
+    let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
+
+    let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
+        &app_conf,
+        message_suggest_llm,
+        parsed_course_info,
+    )
+    .await?;
+    token.authorized_ok(web::Json(llm_descriptions))
+}
+
+/**
+POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
+
+*/
+#[utoipa::path(
+    post,
+    path = "/{course_id}/update-metadata",
+    operation_id = "updateMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CourseMetadataUpdate,
+    responses(
+        (status = 200, description = "Updated metadata", body = CourseMetadata)
+    )
+)]
+#[instrument(skip(pool, app_conf))]
+async fn update_metadata(
+    payload: web::Json<CourseMetadataUpdate>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMetadata>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata_update = payload.0;
+    let course =
+        models::courses::set_metadata(&mut conn, app_conf.as_ref(), *course_id, metadata_update)
+            .await?;
+
+    token.authorized_ok(web::Json(course))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-prerequisites",
+    operation_id= "getCoursePrerequisites",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course prerequisites", body = Vec<CoursePrerequisite>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_prerequisites(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CoursePrerequisite>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let prerequisites =
+        models::course_prerequisites::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(prerequisites))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-audiences",
+    operation_id= "getCourseAudiences",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course audiences", body = Vec<CourseAudience>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_audiences(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseAudience>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let audiences = models::course_audiences::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(audiences))
+}
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-metadata",
+    operation_id= "getCourseMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course metadata", body = CompleteCourseMetadata)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_metadata(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CompleteCourseMetadata>> {
+    let mut conn: sqlx::pool::PoolConnection<Postgres> = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata = models::courses::get_metadata(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(metadata))
+}
+/**
+GET `/api/v0/main-frontend/courses` - Get all courses
+
+Returns all courses.
+*/
+#[utoipa::path(
+    get,
+    path = "/",
+    operation_id = "getAllCourses",
+    tag = "courses",
+    responses(
+        (status = 200, description = "All courses", body = Vec<Course>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_all_courses(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let all_courses = models::courses::all_courses(&mut conn).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::GlobalPermissions).await?;
+    token.authorized_ok(web::Json(all_courses))
 }
 
 /**
@@ -1839,7 +3006,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{course_id}/feedback", web::get().to(get_feedback))
         .route(
             "/{course_id}/feedback-count",
-            web::get().to(get_feedback_count),
+            web::get().to(get_feedback_edit_proposals_count),
+        )
+        .route(
+            "/{course_id}/feedback-categories",
+            web::get().to(get_feedback_categories),
         )
         .route(
             "/{course_id}/new-course-instance",
@@ -1949,12 +3120,16 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_all_suspected_cheaters),
         )
         .route(
-            "/{course_id}/suspected-cheaters/archive/{id}",
-            web::post().to(teacher_archive_suspected_cheater),
+            "/{course_id}/suspected-cheaters/flagged-count",
+            web::get().to(get_flagged_suspected_cheaters_count),
         )
         .route(
-            "/{course_id}/suspected-cheaters/approve/{id}",
-            web::post().to(teacher_approve_suspected_cheater),
+            "/{course_id}/suspected-cheaters/dismiss/{user_id}",
+            web::post().to(teacher_dismiss_suspected_cheater),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/confirm/{user_id}",
+            web::post().to(teacher_confirm_suspected_cheater),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",
@@ -1987,5 +3162,26 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/join/{join_code}",
             web::get().to(get_course_with_join_code),
-        );
+        )
+        .route(
+            "/{course_id}/sisu-course-llm-descriptions",
+            web::get().to(get_sisu_course_llm_descriptions),
+        )
+        .route(
+            "/{course_id}/update-metadata",
+            web::post().to(update_metadata),
+        )
+        .route(
+            "/{course_id}/get-course-prerequisites",
+            web::get().to(get_course_prerequisites),
+        )
+        .route(
+            "/{course_id}/get-course-audiences",
+            web::get().to(get_course_audiences),
+        )
+        .route(
+            "/{course_id}/get-course-metadata",
+            web::get().to(get_course_metadata),
+        )
+        .route("/", web::get().to(get_all_courses));
 }

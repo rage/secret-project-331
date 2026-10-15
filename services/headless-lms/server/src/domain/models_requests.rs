@@ -3,7 +3,7 @@
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{Duration, Utc};
 use futures::{
     FutureExt,
     future::{BoxFuture, Ready, ready},
@@ -11,19 +11,20 @@ use futures::{
 use headless_lms_models::{
     HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
-    exercise_task_gradings::{ExerciseTaskGradingRequest, ExerciseTaskGradingResult},
-    exercise_task_submissions::ExerciseTaskSubmission,
+    exercise_task_gradings::{
+        ExerciseTaskGradingRequest, ExerciseTaskGradingResult, GradingRequestFile,
+    },
+    exercise_task_submissions::{AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission},
     exercise_tasks::ExerciseTask,
 };
 
-use headless_lms_utils::error::backend_error::BackendError;
-use hmac::{Hmac, Mac};
-use jwt::{SignWithKey, VerifyWithKey};
+use headless_lms_base::error::backend_error::BackendError;
+pub use headless_lms_base::jwt::{DOWNLOAD_CLAIM_PARAM, DownloadClaim, JwtKey};
+use headless_lms_base::jwt::{claimed_file_url, sign_hs256_claim, validate_hs256_claim};
 use models::SpecFetcher;
-use sha2::Sha256;
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
-use std::{borrow::Cow, fmt::Debug};
 use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
@@ -31,79 +32,43 @@ use super::error::{ControllerError, ControllerErrorType};
 // keep in sync with the shared-module constants
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
+pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
 
 /// A type for caching the spec fetching (only for the seed)
 type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
 
-#[derive(Clone, Debug)]
-pub struct JwtKey(Hmac<Sha256>);
-
-impl JwtKey {
-    pub fn try_from_env() -> anyhow::Result<Self> {
-        let jwt_password = std::env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?;
-        let jwt_key = Self::new(&jwt_password)?;
-        Ok(jwt_key)
-    }
-
-    pub fn new(key: &str) -> Result<Self, sha2::digest::InvalidLength> {
-        let key: Hmac<Sha256> = Hmac::new_from_slice(key.as_bytes())?;
-        Ok(Self(key))
-    }
-
-    #[cfg(test)]
-    pub fn test_key() -> Self {
-        let test_jwt_key = "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
-        Self::new(test_jwt_key).unwrap()
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UploadClaim<'a> {
-    exercise_service_slug: Cow<'a, str>,
-    expiration_time: DateTime<Utc>,
+pub struct UploadClaim {
+    exercise_service_slug: String,
+    exp: usize,
+    iat: usize,
 }
 
-impl<'a> UploadClaim<'a> {
+impl UploadClaim {
     pub fn exercise_service_slug(&self) -> &str {
         self.exercise_service_slug.as_ref()
     }
 
-    pub fn expiration_time(&self) -> &DateTime<Utc> {
-        &self.expiration_time
-    }
-
-    pub fn expiring_in_1_day(exercise_service_slug: Cow<'a, str>) -> Self {
+    pub fn expiring_in_1_day(exercise_service_slug: impl Into<String>) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
         Self {
-            exercise_service_slug,
-            expiration_time: Utc::now() + Duration::days(1),
+            exercise_service_slug: exercise_service_slug.into(),
+            exp,
+            iat: now,
         }
     }
 
-    pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0)
-            .expect("JWT signing failed - this should never happen with a valid key")
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })?;
-        if claim.expiration_time < Utc::now() {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Upload claim has expired".to_string(),
-                None,
-            ));
-        }
-        Ok(claim)
+        validate_claim(token, key)
     }
 }
 
-impl FromRequest for UploadClaim<'_> {
+impl FromRequest for UploadClaim {
     type Error = ControllerError;
     type Future = Ready<Result<Self, Self::Error>>;
 
@@ -146,7 +111,8 @@ impl FromRequest for UploadClaim<'_> {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GradingUpdateClaim {
     submission_id: Uuid,
-    expiration_time: DateTime<Utc>,
+    exp: usize,
+    iat: usize,
 }
 
 impl GradingUpdateClaim {
@@ -154,38 +120,22 @@ impl GradingUpdateClaim {
         self.submission_id
     }
 
-    pub fn expiration_time(&self) -> &DateTime<Utc> {
-        &self.expiration_time
-    }
-
     pub fn expiring_in_1_day(submission_id: Uuid) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
         Self {
             submission_id,
-            expiration_time: Utc::now() + Duration::days(1),
+            exp,
+            iat: now,
         }
     }
 
-    pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0)
-            .expect("JWT signing failed - this should never happen with a valid key")
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
-                Some(err.into()),
-            )
-        })?;
-        if claim.expiration_time < Utc::now() {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Grading update claim has expired".to_string(),
-                None,
-            ));
-        }
-        Ok(claim)
+        validate_claim(token, key)
     }
 }
 
@@ -229,9 +179,78 @@ impl FromRequest for GradingUpdateClaim {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PlaygroundGradingCallbackClaim {
+    websocket_id: Uuid,
+    exp: usize,
+    iat: usize,
+}
+
+impl PlaygroundGradingCallbackClaim {
+    pub fn websocket_id(&self) -> Uuid {
+        self.websocket_id
+    }
+
+    pub fn expiring_in_1_day(websocket_id: Uuid) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
+        Self {
+            websocket_id,
+            exp,
+            iat: now,
+        }
+    }
+
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
+    }
+
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+        validate_hs256_claim::<Self>(token, key).map_err(|err| {
+            controller_err!(
+                BadRequest,
+                format!("Invalid playground grading callback claim: {}", err),
+                err
+            )
+        })
+    }
+}
+
+impl FromRequest for PlaygroundGradingCallbackClaim {
+    type Error = ControllerError;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        let try_from_request = move || {
+            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
+                controller_err!(
+                    InternalServerError,
+                    "Missing JwtKey in app data - server configuration error".to_string()
+                )
+            })?;
+            let query_claim = url::form_urlencoded::parse(req.query_string().as_bytes())
+                .find(|(key, _)| key == PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM)
+                .map(|(_, value)| value.into_owned());
+            let header_claim = req
+                .headers()
+                .get(PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM)
+                .and_then(|header| std::str::from_utf8(header.as_bytes()).ok())
+                .map(ToString::to_string);
+            let claim = header_claim.or(query_claim).ok_or_else(|| {
+                controller_err!(
+                    BadRequest,
+                    format!("Missing {PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM}")
+                )
+            })?;
+            PlaygroundGradingCallbackClaim::validate(&claim, jwt_key)
+        };
+        ready(try_from_request())
+    }
+}
+
 /// Accepted by the public-spec and model-solution endpoints of exercise services.
 #[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SpecRequest<'a> {
     request_id: Uuid,
     private_spec: Option<&'a serde_json::Value>,
@@ -273,14 +292,24 @@ pub fn make_spec_fetcher(
 ) -> impl SpecFetcher {
     move |url, exercise_service_slug, private_spec| {
         let client = reqwest::Client::new();
-        let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
+        let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug);
         let upload_url = Some(format!("{base_url}/api/v0/files/{exercise_service_slug}"));
+        let signed_upload_claim = match upload_claim.sign(&jwt_key) {
+            Ok(claim) => claim,
+            Err(err) => {
+                return async move {
+                    Err(ModelError::new(
+                        ModelErrorType::Generic,
+                        format!("Failed to sign upload claim: {err}"),
+                        Some(err.into()),
+                    ))
+                }
+                .boxed();
+            }
+        };
         let req = client
             .post(url.clone())
-            .header(
-                EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER,
-                upload_claim.sign(&jwt_key),
-            )
+            .header(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER, signed_upload_claim)
             .timeout(std::time::Duration::from_secs(120))
             .json(&SpecRequest {
                 request_id,
@@ -364,8 +393,47 @@ fn fetch_service_info_with_timeout(
     .boxed()
 }
 
+/// The grading request's file list for a submission's answer: its files in answer order, empty for
+/// an answer that has none.
+///
+/// Mints a single-file download claim per file, so the service fetches a URL the host chose rather
+/// than one a student supplied.
+fn grading_request_files(
+    files: Option<&[SubmittedAnswerFile]>,
+    base_url: &str,
+    jwt_key: &JwtKey,
+) -> Result<Vec<GradingRequestFile>, jsonwebtoken::errors::Error> {
+    let Some(files) = files else {
+        return Ok(Vec::new());
+    };
+    let mut ordered: Vec<&SubmittedAnswerFile> = files.iter().collect();
+    ordered.sort_by_key(|file| file.order_number);
+    ordered
+        .into_iter()
+        .map(|file| {
+            Ok(GradingRequestFile {
+                id: file.id,
+                name: file.name.clone(),
+                mime: file.mime.clone(),
+                size_bytes: file.size_bytes,
+                download_url: claimed_file_url(
+                    base_url,
+                    jwt_key,
+                    DownloadClaim::expiring_in_1_day(file.id),
+                )?,
+            })
+        })
+        .collect()
+}
+
+/// Sends a submission to an exercise service for grading, with the claims the service needs to
+/// report back and to read a file-typed answer's files.
+///
+/// `base_url` is the host's own public base url, so both the callback and the file urls point at a
+/// host the service can reach.
 pub fn make_grading_request_sender(
     jwt_key: Arc<JwtKey>,
+    base_url: String,
 ) -> impl Fn(
     Url,
     &ExerciseTask,
@@ -373,23 +441,50 @@ pub fn make_grading_request_sender(
 ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>> {
     move |grade_url, exercise_task, submission| {
         let client = reqwest::Client::new();
-        // TODO: use real url
         let grading_update_url = format!(
-            "http://project-331.local/api/v0/exercise-services/grading/grading-update/{}",
+            "{base_url}/api/v0/exercise-services/grading/grading-update/{}",
             submission.id
         );
+        let submission_files =
+            match grading_request_files(submission.data_files.as_deref(), &base_url, &jwt_key) {
+                Ok(files) => files,
+                Err(err) => {
+                    return async move {
+                        Err(ModelError::new(
+                            ModelErrorType::Generic,
+                            format!("Failed to sign download claim: {err}"),
+                            Some(err.into()),
+                        ))
+                    }
+                    .boxed();
+                }
+            };
         let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
+        let signed_grading_update_claim = match grading_update_claim.sign(&jwt_key) {
+            Ok(claim) => claim,
+            Err(err) => {
+                return async move {
+                    Err(ModelError::new(
+                        ModelErrorType::Generic,
+                        format!("Failed to sign grading update claim: {err}"),
+                        Some(err.into()),
+                    ))
+                }
+                .boxed();
+            }
+        };
         let req = client
             .post(grade_url)
             .header(
                 EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER,
-                grading_update_claim.sign(&jwt_key),
+                signed_grading_update_claim,
             )
             .timeout(std::time::Duration::from_secs(120))
             .json(&ExerciseTaskGradingRequest {
                 grading_update_url: &grading_update_url,
                 exercise_spec: &exercise_task.private_spec,
-                submission_data: &submission.data_json,
+                submission_data: submission.data_json.as_ref(),
+                submission_files: &submission_files,
             });
         async move {
             let res = req.send().await.map_err(ModelError::from)?;
@@ -466,7 +561,8 @@ pub async fn post_exercise_service_csv_export_request<T: Serialize>(
 pub struct GivePeerReviewClaim {
     pub exercise_slide_submission_id: Uuid,
     pub peer_or_self_review_config_id: Uuid,
-    expiration_time: DateTime<Utc>,
+    exp: usize,
+    iat: usize,
 }
 
 impl GivePeerReviewClaim {
@@ -474,35 +570,41 @@ impl GivePeerReviewClaim {
         exercise_slide_submission_id: Uuid,
         peer_or_self_review_config_id: Uuid,
     ) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
         Self {
             exercise_slide_submission_id,
             peer_or_self_review_config_id,
-            expiration_time: Utc::now() + Duration::days(1),
+            exp,
+            iat: now,
         }
     }
 
-    pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0)
-            .expect("JWT signing failed - this should never happen with a valid key")
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
+        validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid claim: {}", err),
                 Some(err.into()),
             )
-        })?;
-        if claim.expiration_time < Utc::now() {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "The review has expired.".to_string(),
-                None,
-            ));
-        }
-        Ok(claim)
+        })
     }
+}
+
+/// Decodes a claim, reporting a bad token as a request error rather than a JWT one.
+///
+/// [`validate_hs256_claim`] is the raw form that leaves the `jsonwebtoken` error unmapped, for the
+/// claims that report it differently.
+fn validate_claim<T: serde::de::DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+) -> Result<T, ControllerError> {
+    validate_hs256_claim(token, key)
+        .map_err(|err| controller_err!(BadRequest, format!("Invalid jwt key: {}", err), err))
 }
 
 /// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same
@@ -531,11 +633,17 @@ pub fn make_seed_spec_fetcher_with_cache(
 
         async move {
             // Try to get from cache first
-            if let Some(cached_spec) = cache
-                .lock()
-                .expect("Seed spec fetcher cache lock poisoned")
-                .get(&key)
-            {
+            let cached_spec = {
+                let cache_guard = cache.lock().map_err(|err| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        format!("Seed spec fetcher cache lock poisoned: {err}"),
+                        None::<anyhow::Error>,
+                    )
+                })?;
+                cache_guard.get(&key).cloned()
+            };
+            if let Some(cached_spec) = cached_spec {
                 return Ok(cached_spec.clone());
             }
 
@@ -543,10 +651,16 @@ pub fn make_seed_spec_fetcher_with_cache(
             let fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).await?;
 
             // Store in cache
-            cache
-                .lock()
-                .expect("Seed spec fetcher cache lock poisoned")
-                .insert(key, fetched_spec.clone());
+            {
+                let mut cache_guard = cache.lock().map_err(|err| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        format!("Seed spec fetcher cache lock poisoned: {err}"),
+                        None::<anyhow::Error>,
+                    )
+                })?;
+                cache_guard.insert(key, fetched_spec.clone());
+            }
 
             Ok(fetched_spec)
         }
@@ -574,4 +688,328 @@ where
             None,
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::ResponseError;
+    use actix_web::http::StatusCode;
+    use actix_web::http::header::{HeaderName, HeaderValue};
+    use actix_web::test::TestRequest;
+    use base64::Engine;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use secrecy::SecretString;
+    use serde_json::json;
+
+    fn other_key() -> JwtKey {
+        JwtKey::new(&SecretString::new(
+            "a-completely-different-jwt-secret-0123456789"
+                .to_string()
+                .into(),
+        ))
+        .expect("test key")
+    }
+
+    /// Signs an arbitrary JSON payload with the same HS256 helper the production claims use, so
+    /// tests can produce claims (expired, wrong shape, legacy) the public constructors can't.
+    fn sign_json(payload: serde_json::Value, key: &JwtKey) -> String {
+        sign_hs256_claim(&payload, key).expect("signing should succeed")
+    }
+
+    fn past_timestamp(seconds_ago: i64) -> i64 {
+        (Utc::now() - Duration::seconds(seconds_ago)).timestamp()
+    }
+
+    fn future_timestamp(seconds_ahead: i64) -> i64 {
+        (Utc::now() + Duration::seconds(seconds_ahead)).timestamp()
+    }
+
+    fn answer_file(
+        id: Uuid,
+        name: &str,
+        order_number: i32,
+        size_bytes: Option<i64>,
+    ) -> SubmittedAnswerFile {
+        SubmittedAnswerFile {
+            id,
+            name: name.to_string(),
+            mime: "application/octet-stream".to_string(),
+            size_bytes,
+            order_number,
+            url: format!("http://project-331.local/api/v0/files/tmc/{name}"),
+        }
+    }
+
+    /// A downstream grader grades by position, so the request must list the files in the order the
+    /// answer records, whatever order they were resolved in.
+    #[test]
+    fn grading_request_files_are_in_answer_order_with_a_claim_for_each_file() {
+        let key = JwtKey::test_key();
+        let first = Uuid::new_v4();
+        let second = Uuid::new_v4();
+        let answer_files = vec![
+            answer_file(second, "b.txt", 1, None),
+            answer_file(first, "a.tar.zst", 0, Some(12)),
+        ];
+
+        let files = grading_request_files(Some(&answer_files), "http://project-331.local", &key)
+            .expect("the files should be built");
+
+        assert_eq!(
+            files.iter().map(|file| file.id).collect::<Vec<_>>(),
+            vec![first, second]
+        );
+        assert_eq!(files[0].size_bytes, Some(12));
+        assert_eq!(
+            files[1].size_bytes, None,
+            "an unknown size must not become a zero"
+        );
+        for (file, id) in files.iter().zip([first, second]) {
+            let (path, query) = file
+                .download_url
+                .strip_prefix("http://project-331.local/api/v0/files/claimed/")
+                .expect("a claimed-file url")
+                .split_once('?')
+                .expect("a claim in the query string");
+            assert_eq!(path, id.to_string());
+            let token = query
+                .strip_prefix(&format!("{DOWNLOAD_CLAIM_PARAM}="))
+                .expect("the claim parameter");
+            let claim = DownloadClaim::validate(token, &key).expect("the claim should validate");
+            assert_eq!(claim.file_upload_id(), id);
+        }
+    }
+
+    /// A JSON answer names no files at all, which reaches the request builder as `None`.
+    #[test]
+    fn a_json_answer_has_no_grading_request_files() {
+        let key = JwtKey::test_key();
+
+        assert!(
+            grading_request_files(None, "http://project-331.local", &key)
+                .expect("the files should be built")
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn grading_update_claim_round_trips() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+        let token = GradingUpdateClaim::expiring_in_1_day(submission_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let claim = GradingUpdateClaim::validate(&token, &key).expect("the claim should validate");
+        assert_eq!(claim.submission_id(), submission_id);
+    }
+
+    /// An expired claim must not keep authorizing grading updates.
+    #[test]
+    fn expired_grading_update_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        // Well past the default 60s leeway jsonwebtoken allows for clock skew.
+        let token = sign_json(
+            json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": past_timestamp(3600),
+                "iat": past_timestamp(7200),
+            }),
+            &key,
+        );
+        let err = GradingUpdateClaim::validate(&token, &key)
+            .expect_err("an expired claim must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// A claim signed with some other secret must not validate: this is the only thing standing
+    /// between an unauthenticated caller and writing grading results.
+    #[test]
+    fn grading_update_claim_signed_with_another_key_is_rejected() {
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&other_key())
+            .expect("signing should succeed");
+        GradingUpdateClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("a claim signed with a foreign key must be rejected");
+    }
+
+    /// Rewriting the payload of a validly signed claim (e.g. to point at another submission)
+    /// must invalidate the signature.
+    #[test]
+    fn tampered_grading_update_claim_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&key)
+            .expect("signing should succeed");
+        let mut parts = token.split('.');
+        let header = parts.next().expect("header");
+        let _original_payload = parts.next().expect("payload");
+        let signature = parts.next().expect("signature");
+        // Swap in a payload naming a different submission, keeping the original signature.
+        let forged_payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": future_timestamp(3600),
+                "iat": Utc::now().timestamp(),
+            }))
+            .expect("json"),
+        );
+        let tampered = format!("{header}.{forged_payload}.{signature}");
+        GradingUpdateClaim::validate(&tampered, &key)
+            .expect_err("a tampered claim must be rejected");
+    }
+
+    /// The classic JWT bypass: an unsigned token declaring `alg: none` must not be accepted.
+    #[test]
+    fn unsigned_grading_update_claim_is_rejected() {
+        let header = URL_SAFE_NO_PAD.encode(br#"{"alg":"none","typ":"JWT"}"#);
+        let payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "submission_id": Uuid::new_v4(),
+                "exp": future_timestamp(3600),
+                "iat": Utc::now().timestamp(),
+            }))
+            .expect("json"),
+        );
+        let token = format!("{header}.{payload}.");
+        GradingUpdateClaim::validate(&token, &JwtKey::test_key())
+            .expect_err("an unsigned (alg=none) claim must be rejected");
+    }
+
+    /// The claim types share one signing key, so a token minted for one purpose must not be
+    /// usable for another. An upload claim carries no `submission_id`, so it must not deserialize
+    /// into a grading update claim (and vice versa).
+    #[test]
+    fn claims_do_not_cross_validate_between_types() {
+        let key = JwtKey::test_key();
+        let upload_token = UploadClaim::expiring_in_1_day("tmc")
+            .sign(&key)
+            .expect("signing should succeed");
+        GradingUpdateClaim::validate(&upload_token, &key)
+            .expect_err("an upload claim must not validate as a grading update claim");
+
+        let grading_token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&key)
+            .expect("signing should succeed");
+        UploadClaim::validate(&grading_token, &key)
+            .expect_err("a grading update claim must not validate as an upload claim");
+    }
+
+    /// A legacy-shaped claim, carrying `expiration_time` instead of `exp`, is rejected whether or
+    /// not that timestamp has passed. Pinned so that accepting the old shape again has to be
+    /// deliberate.
+    #[test]
+    fn legacy_grading_update_claim_shape_is_rejected() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+
+        let unexpired = sign_json(
+            json!({
+                "submission_id": submission_id,
+                "expiration_time": Utc::now() + Duration::hours(1),
+            }),
+            &key,
+        );
+        let err = GradingUpdateClaim::validate(&unexpired, &key)
+            .expect_err("a claim without `exp` must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let expired = sign_json(
+            json!({
+                "submission_id": submission_id,
+                "expiration_time": Utc::now() - Duration::hours(1),
+            }),
+            &key,
+        );
+        GradingUpdateClaim::validate(&expired, &key)
+            .expect_err("an expired legacy claim must be rejected");
+    }
+
+    /// A claim missing `exp` entirely must never be treated as non-expiring.
+    #[test]
+    fn grading_update_claim_without_an_expiry_is_rejected() {
+        let key = JwtKey::test_key();
+        let token = sign_json(
+            json!({ "submission_id": Uuid::new_v4(), "iat": Utc::now().timestamp() }),
+            &key,
+        );
+        GradingUpdateClaim::validate(&token, &key)
+            .expect_err("a claim without an expiry must be rejected");
+    }
+
+    fn extract_grading_update_claim(
+        req: actix_web::HttpRequest,
+        mut payload: Payload,
+    ) -> Result<GradingUpdateClaim, ControllerError> {
+        GradingUpdateClaim::from_request(&req, &mut payload)
+            .now_or_never()
+            .expect("the extractor resolves immediately")
+    }
+
+    #[test]
+    fn extractor_accepts_a_valid_claim_header() {
+        let key = JwtKey::test_key();
+        let submission_id = Uuid::new_v4();
+        let token = GradingUpdateClaim::expiring_in_1_day(submission_id)
+            .sign(&key)
+            .expect("signing should succeed");
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(key))
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, token.as_str()))
+            .to_http_parts();
+        let claim = extract_grading_update_claim(req, payload).expect("should extract");
+        assert_eq!(claim.submission_id(), submission_id);
+    }
+
+    #[test]
+    fn extractor_rejects_a_missing_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a request without the claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// A non-UTF-8 header value must be a client error, not a panic.
+    #[test]
+    fn extractor_rejects_an_invalid_utf8_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .insert_header((
+                HeaderName::from_static(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER),
+                HeaderValue::from_bytes(&[0xff, 0xfe, 0x80]).expect("header value"),
+            ))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a non-UTF-8 claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
+
+    /// Without the signing key in app data the server cannot verify anything; that is a server
+    /// misconfiguration (500), and must never be mistaken for a valid claim.
+    #[test]
+    fn extractor_reports_a_missing_jwt_key_as_a_server_error() {
+        let token = GradingUpdateClaim::expiring_in_1_day(Uuid::new_v4())
+            .sign(&JwtKey::test_key())
+            .expect("signing should succeed");
+        let (req, payload) = TestRequest::default()
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, token.as_str()))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a missing JwtKey must not yield a claim");
+        assert_eq!(err.status_code(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    /// A request carrying a garbage header value must be rejected before any DB work.
+    #[test]
+    fn extractor_rejects_a_non_jwt_claim_header() {
+        let (req, payload) = TestRequest::default()
+            .app_data(web::Data::new(JwtKey::test_key()))
+            .insert_header((EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER, "not-a-jwt"))
+            .to_http_parts();
+        let err = extract_grading_update_claim(req, payload)
+            .expect_err("a non-JWT claim header must be rejected");
+        assert_eq!(err.status_code(), StatusCode::UNPROCESSABLE_ENTITY);
+    }
 }

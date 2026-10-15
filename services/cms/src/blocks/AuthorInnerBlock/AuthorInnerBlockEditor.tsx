@@ -1,8 +1,10 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
+
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 
 import BlockWrapper from "../BlockWrapper"
 
@@ -44,12 +46,18 @@ const AUTHOR_BLOCK_TEMPLATE: Template[] = [
   ],
 ]
 
-const AuthorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  clientId,
-}) => {
+const AuthorEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = () => {
   return (
-    <BlockWrapper id={clientId}>
-      <div>
+    <BlockWrapper>
+      <div
+        className={css`
+          .wp-block-columns {
+            gap: var(--space-5);
+          }
+        `}
+      >
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={AUTHOR_BLOCK_TEMPLATE} />
       </div>
     </BlockWrapper>

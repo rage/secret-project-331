@@ -1,30 +1,67 @@
 import tar from "tar-stream"
 import { ZSTDDecoder } from "zstddec"
 
-import { ExerciseFile } from "./stateInterfaces"
+import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 
-import { RepositoryExercise } from "@/shared-module/common/bindings"
+import type { ExerciseFile } from "./stateInterfaces"
 
 export const buildArchiveName = (exercise: RepositoryExercise, identifier?: string): string => {
   if (identifier) {
     return exercise.part + "/" + exercise.name + "-" + identifier + ".tar.zst"
-  } else {
-    return exercise.part + "/" + exercise.name + ".tar.zst"
   }
+  return exercise.part + "/" + exercise.name + ".tar.zst"
 }
 
-export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<Array<ExerciseFile>> => {
-  // unpack zstd
+/**
+ * Destination sizes tried when decompressing, in bytes. zstddec cannot grow its destination and
+ * returns nothing instead of failing when the archive does not fit, so a too-small first guess has
+ * to be retried rather than mistaken for an empty archive.
+ *
+ * Each attempt grows the decoder's wasm heap to its size and the heap never shrinks again, so the
+ * rungs climb gradually and the last one is the permanent worst case. The top rung is also the only
+ * thing bounding how far a hostile archive can expand, so it must stay finite: 256 MiB is far above
+ * any real exercise project while keeping a decompression bomb from exhausting a browser tab.
+ *
+ * Never pass 0 instead: zstddec then takes the size from the frame header, and the archives
+ * tmc-langs writes carry no content size there, which yields a wrong-length buffer of heap garbage
+ * rather than an error.
+ */
+const DECOMPRESSED_SIZE_ATTEMPTS = [
+  1024 * 1024,
+  16 * 1024 * 1024,
+  64 * 1024 * 1024,
+  256 * 1024 * 1024,
+]
+
+/** A tar always carries its trailing zero blocks, so nothing decompressed means the decode failed. */
+const decompress = (decoder: ZSTDDecoder, tarZstdArchive: Buffer): Uint8Array => {
+  // A rung below the compressed length cannot hold the output, so trying it only grows the wasm
+  // heap for a guaranteed failure. The top rung is kept even then, so the ladder never empties.
+  const attempts = DECOMPRESSED_SIZE_ATTEMPTS.filter(
+    (size, index) =>
+      size >= tarZstdArchive.length || index === DECOMPRESSED_SIZE_ATTEMPTS.length - 1,
+  )
+  for (const destinationSize of attempts) {
+    const decompressed = decoder.decode(tarZstdArchive, destinationSize)
+    if (decompressed.length > 0) {
+      return decompressed
+    }
+  }
+  throw new Error(
+    `Failed to decompress a ${tarZstdArchive.length.toString()} byte archive: it is corrupt or larger than the supported maximum`,
+  )
+}
+
+export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFile[]> => {
   const zstdDecoder = new ZSTDDecoder()
   await zstdDecoder.init()
-  const tarArchive = zstdDecoder.decode(tarZstdArchive, 1024 * 1024)
+  const tarArchive = decompress(zstdDecoder, tarZstdArchive)
 
-  // unpack tar
-  const files: Array<ExerciseFile> = []
+  const files: ExerciseFile[] = []
   const extract = tar.extract({})
   extract.on("entry", function (header, stream, next) {
     // strip first component...
-    const filepath = header.name.substring(header.name.indexOf("/") + 1)
+    const filepath = header.name.slice(header.name.indexOf("/") + 1)
     const chunks: Uint8Array[] = []
     stream.on("data", (chunk) => {
       chunks.push(new Uint8Array(chunk))

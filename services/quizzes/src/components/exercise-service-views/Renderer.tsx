@@ -1,15 +1,14 @@
-"use client"
-
-import React, { Dispatch, SetStateAction } from "react"
+import type { Dispatch, SetStateAction } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { State } from "../../app/iframe/page"
-import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
-
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
+import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 import dynamicWithIframeReload from "@/utils/dynamicWithIframeReload"
+
+import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
+import type { State } from "../IframeView"
 
 // Dynamic imports for different view types to keep the bundle size down
 const ExerciseEditor = dynamicWithIframeReload(() => import("./ExerciseEditor"), {
@@ -71,9 +70,8 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, por
         <ExerciseEditor port={port} privateSpec={state.privateSpec} />
       </div>
     )
-  } else {
-    return <>{t("waiting-for-content")}</>
   }
+  return <>{t("waiting-for-content")}</>
 }
 
 export default withErrorBoundary(withNoSsr(Renderer))

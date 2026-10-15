@@ -6,37 +6,79 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "repository_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_repositories",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "part",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "part"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "name"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "repository_url",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_repositories",
+            "name": "url"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "checksum",
-        "type_info": "Bytea"
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "checksum"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "download_url",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "download_url"
+          }
+        }
       }
     ],
     "parameters": {

@@ -8,7 +8,7 @@ INSERT INTO ended_processed_exams(exam_id)
 VALUES ($1) ON CONFLICT (exam_id) DO
 UPDATE
 SET deleted_at = NULL
-RETURNING exam_id
+RETURNING *
         ",
         exam_id
     )

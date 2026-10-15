@@ -1,16 +1,14 @@
 "use client"
 
+import "@/init/registerCmsApiClients"
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import type { AppProps } from "next/app"
 import Script from "next/script"
 import React, { useEffect, useState } from "react"
 
-import Layout from "../components/Layout"
-import LocalStyles from "../styles/LocalStyles"
-
-import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
+import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage.pages"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
@@ -19,6 +17,11 @@ import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebV
 import initI18n from "@/shared-module/common/utils/initI18n"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { DialogProvider } from "@/shared-module/components"
+
+import DesignTokensRoot from "../components/DesignTokensRoot"
+import Layout from "../components/Layout"
+import LocalStyles from "../styles/LocalStyles"
 
 import "../styles/Gutenberg/style.scss"
 
@@ -28,29 +31,33 @@ const i18n = initI18n(SERVICE_NAME)
 
 const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pageProps }) => {
   const initialLanguage = useLanguage()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [language, setLanguage] = useState(initialLanguage ?? "en")
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
+
+  useEffect(() => {
+    installGlobalErrorReporting({ service: SERVICE_NAME })
+  }, [])
 
   useEffect(() => {
     // Remove the server-side injected CSS.
 
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles)
+      jssStyles.remove()
     }
   }, [])
 
   useEffect(() => {
-    i18n.on("languageChanged", (language) => {
-      console.info(`i18n language changed to: ${language}`)
+    i18n.on("languageChanged", (changedLanguage) => {
+      console.info(`i18n language changed to: ${changedLanguage}`)
       const htmlElement = document.querySelector("html")
       if (!htmlElement) {
         return
       }
-      htmlElement.setAttribute("lang", language)
-      htmlElement.setAttribute("dir", getDir(language))
-      setLanguage(language)
+      htmlElement.setAttribute("lang", changedLanguage)
+      htmlElement.setAttribute("dir", getDir(changedLanguage))
+      setLanguage(changedLanguage)
     })
     i18n.on("loaded", () => {
       // Updating the counter forces the  whole app to re-render
@@ -88,6 +95,7 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
           <DialogProvider>
             <GlobalStyles />
             <LocalStyles />
+            <DesignTokensRoot />
             <LoginStateContextProvider>
               <Layout
                 /* @ts-expect-error: hideBreadcrumbs is an addtional property on Component */

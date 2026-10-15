@@ -41,6 +41,7 @@ pub struct OAuthAccessToken {
     pub metadata: serde_json::Value,
     pub expires_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone)]
@@ -119,18 +120,7 @@ impl OAuthAccessToken {
         let token = sqlx::query_as!(
             OAuthAccessToken,
             r#"
-            SELECT
-              digest        as "digest: _",
-              user_id,
-              client_id,
-              scopes,
-              audience,
-              jti,
-              dpop_jkt,
-              token_type    as "token_type: TokenType",
-              metadata,
-              expires_at,
-              created_at
+            SELECT *
             FROM oauth_access_tokens
             WHERE digest = $1 AND expires_at > now()
             "#,
@@ -178,26 +168,6 @@ impl OAuthAccessToken {
                 Ok(t)
             }
         }
-    }
-
-    pub async fn delete_all_by_user_client(
-        conn: &mut PgConnection,
-        user_id: Uuid,
-        client_id: Uuid,
-    ) -> ModelResult<()> {
-        let mut tx = conn.begin().await?;
-        sqlx::query!(
-            r#"
-            DELETE FROM oauth_access_tokens
-            WHERE user_id = $1 AND client_id = $2
-            "#,
-            user_id,
-            client_id
-        )
-        .execute(&mut *tx)
-        .await?;
-        tx.commit().await?;
-        Ok(())
     }
 
     /// Revoke (delete) an access token by its digest.

@@ -1,18 +1,20 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
 
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
+
+import { Deprecated1 } from "./deprecated"
 import InfoBoxEditor from "./InfoBoxEditor"
 import InfoBoxSave from "./InfoBoxSave"
-import { Deprecated1 } from "./deprecated"
 
 export interface InfoBoxComponentProps {
-  backgroundColor: string
+  backgroundColor: string | undefined
   noPadding: boolean
 }
 
 const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
+  apiVersion: 3,
   title: "Infobox",
   description: "Infobox with body text and possible heading",
   category: "design",

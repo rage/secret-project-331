@@ -1,0 +1,438 @@
+"use client"
+
+import { css } from "@emotion/css"
+import type {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from "@tanstack/react-query"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import ModuleCompletionReprocessButton from "@/app/(layout)/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
+import {
+  deleteCourse as deleteCourseFromApi,
+  resetCourseProgressForEveryone,
+  resetCourseProgressForTeacherThemselves,
+  setCourseJoinCode,
+} from "@/generated/api/sdk.generated"
+import type { Course } from "@/generated/api/types.generated"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
+import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import { Button, Link, useDialog } from "@/shared-module/components"
+import {
+  courseExerciseTasksCsvHref,
+  courseInstancesCsvHref,
+  courseSubmissionsCsvHref,
+  courseUserConsentsCsvHref,
+  courseUserDetailsCsvHref,
+  courseUserExerciseStatesCsvHref,
+} from "@/utils/exportDownloadUrls"
+
+import CourseMetadata from "./CourseMetadata"
+import EditCourseForm from "./EditCourseForm"
+import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
+
+const actionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
+
+interface Props {
+  course: Course
+  refetch: (
+    options?: (RefetchOptions & RefetchQueryFilters) | undefined,
+  ) => Promise<QueryObserverResult<Course, Error>>
+}
+
+const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
+  const { confirm } = useDialog()
+
+  const { t } = useTranslation()
+  const [showForm, setShowForm] = useState(false)
+  const courseBreadcrumbInfoQuery = useCourseBreadcrumbInfoQuery(course.id)
+  const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
+  const deleteCourseMutation = useToastMutation(
+    async () => {
+      await deleteCourseFromApi({
+        path: {
+          course_id: course.id,
+        },
+      })
+      await refetch()
+    },
+    {
+      notify: true,
+
+      method: "DELETE",
+    },
+    {
+      onSuccess: async () => {
+        await refetch()
+      },
+    },
+  )
+
+  const teacherResetCourseProgressForThemselvesMutation = useToastMutation(
+    async () => {
+      await resetCourseProgressForTeacherThemselves({
+        path: {
+          course_id: course.id,
+        },
+      })
+    },
+    {
+      notify: true,
+
+      method: "DELETE",
+    },
+  )
+
+  const teacherResetCourseProgressForEveryoneMutation = useToastMutation(
+    async () => {
+      await resetCourseProgressForEveryone({
+        path: {
+          course_id: course.id,
+        },
+      })
+    },
+    {
+      notify: true,
+
+      method: "DELETE",
+    },
+  )
+
+  const handleOnUpdateCourse = async () => {
+    await refetch()
+  }
+
+  const setJoinCourseLinkMutation = useToastMutation(
+    async (courseId: string) => {
+      await setCourseJoinCode({
+        path: {
+          course_id: courseId,
+        },
+      })
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: async () => {
+        await refetch()
+      },
+    },
+  )
+
+  return (
+    <>
+      <div
+        className={css`
+          margin-bottom: 1rem;
+        `}
+      >
+        <p
+          className={css`
+            font-size: 1.2rem;
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${primaryFont};
+            font-weight: 450;
+            margin-top: 0.4rem;
+            margin-bottom: 0.6rem;
+            display: inline-block;
+          `}
+        >
+          {t("wiki-link-text")}{" "}
+          <Link href="https://github.com/rage/secret-project-331/wiki">{t("documentation")}</Link>
+        </p>
+        <h1
+          className={css`
+            font-size: ${typography.h4};
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${headingFont};
+            font-weight: bold;
+          `}
+        >
+          {course.name}
+          {course.is_draft && ` (${t("draft")})`}
+          {course.is_unlisted && ` (${t("unlisted")})`}
+          {course.deleted_at && ` (${t("deleted")})`}
+        </h1>
+        <p>
+          <b>{t("text-field-label-description")}</b>: {course.description}
+        </p>
+      </div>
+      <div className={actionsCss}>
+        <OnlyRenderIfPermissions
+          action={{
+            type: "usually_unacceptable_deletion",
+          }}
+          resource={{
+            type: "course",
+            id: course.id,
+          }}
+        >
+          <Button
+            variant="secondary"
+            size="medium"
+            onClick={async () => {
+              const confirmation = await confirm({
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: `${t("delete-course-confirmation")}\n\n${t(
+                  "delete-course-confirmation-explanation",
+                )}`,
+                isDestructive: true,
+              })
+              if (confirmation) {
+                deleteCourseMutation.mutate()
+              }
+            }}
+          >
+            {t("button-text-delete")}
+          </Button>
+        </OnlyRenderIfPermissions>
+        <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
+          {t("edit")}
+        </Button>
+      </div>
+      <EditCourseForm
+        course={course}
+        onSubmitForm={handleOnUpdateCourse}
+        open={showForm}
+        onClose={() => setShowForm(false)}
+      />
+      {organizationSlug && (
+        <div
+          className={css`
+            margin: 1rem 0;
+          `}
+        >
+          <Link
+            href={courseMaterialFrontPageHref(organizationSlug, course.slug)}
+            styledAsButton
+            variant="secondary"
+            size="medium"
+          >
+            {t("button-text-open-course-front-page")}
+          </Link>
+        </div>
+      )}
+      <div
+        className={css`
+          color: ${baseTheme.colors.gray[500]};
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
+          margin: 2rem 0;
+          text-align: center;
+          gap: 0.5rem;
+        `}
+      >
+        <div
+          className={css`
+            padding: 1rem;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          <p
+            className={css`
+              font-size: 1rem;
+            `}
+          >
+            {t("suggest-metadata-card-title")}
+          </p>
+          <CourseMetadata courseId={course.id} refetch={refetch}></CourseMetadata>
+        </div>
+      </div>
+
+      <OnlyRenderIfPermissions
+        action={{
+          type: "teach",
+        }}
+        resource={{
+          type: "course",
+          id: course.id,
+        }}
+      >
+        <>
+          <UpdatePeerReviewQueueReviewsReceivedButton courseId={course.id} />
+          <div
+            className={css`
+              margin: 1rem 0;
+            `}
+          >
+            <Button
+              variant="secondary"
+              size="medium"
+              onClick={async () => {
+                const sure = await confirm({
+                  message: t("are-you-sure-you-want-to-reset-your-own-progress-on-the-course"),
+                  isDestructive: true,
+                })
+                if (sure) {
+                  teacherResetCourseProgressForThemselvesMutation.mutate()
+                }
+              }}
+            >
+              {t("reset-my-own-progress-on-the-course")}
+            </Button>
+          </div>
+          {course.is_draft && (
+            <div
+              className={css`
+                margin: 1rem 0;
+              `}
+            >
+              <Button
+                variant="secondary"
+                size="medium"
+                onClick={async () => {
+                  const sure = await confirm({
+                    message: t("are-you-sure-you-want-to-reset-everyones-progress-on-the-course"),
+                    isDestructive: true,
+                  })
+                  if (sure) {
+                    teacherResetCourseProgressForEveryoneMutation.mutate()
+                  }
+                }}
+              >
+                {t("reset-progress-for-all-students-on-the-course-draft")}
+              </Button>
+            </div>
+          )}
+          <ul
+            className={css`
+              display: flex;
+              flex-wrap: wrap;
+              gap: var(--space-3);
+              margin: var(--space-4) 0;
+              list-style-type: none;
+              padding-left: 0;
+            `}
+          >
+            <li>
+              <Link
+                href={courseSubmissionsCsvHref(course.id)}
+                aria-label={t("link-export-submissions")}
+                download
+                styledAsButton
+                variant="secondary"
+                size="medium"
+              >
+                {t("link-export-submissions")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={courseUserDetailsCsvHref(course.id)}
+                aria-label={t("link-export-user-details")}
+                download
+                styledAsButton
+                variant="secondary"
+                size="medium"
+              >
+                {t("link-export-user-details")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={courseExerciseTasksCsvHref(course.id)}
+                aria-label={t("link-export-exercise-tasks")}
+                download
+                styledAsButton
+                variant="secondary"
+                size="medium"
+              >
+                {t("link-export-exercise-tasks")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={courseInstancesCsvHref(course.id)}
+                aria-label={t("link-export-course-instances")}
+                download
+                styledAsButton
+                variant="secondary"
+                size="medium"
+              >
+                {t("link-export-course-instances")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={courseUserConsentsCsvHref(course.id)}
+                aria-label={t("link-export-course-user-consents")}
+                download
+                styledAsButton
+                variant="secondary"
+                size="medium"
+              >
+                {t("link-export-course-user-consents")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={courseUserExerciseStatesCsvHref(course.id)}
+                aria-label={t("link-export-user-exercise-states")}
+                download
+                styledAsButton
+                variant="secondary"
+                size="medium"
+              >
+                {t("link-export-user-exercise-states")}
+              </Link>
+            </li>
+          </ul>
+        </>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <div
+          className={css`
+            margin-bottom: var(--space-4);
+          `}
+        >
+          <Link
+            href={`/cms/courses/${course.id}/research-form-edit`}
+            aria-label={t("button-text-create-or-edit-research-form")}
+            isCrossService
+            styledAsButton
+            variant="secondary"
+            size="medium"
+          >
+            {t("button-text-create-or-edit-research-form")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      {course.is_joinable_by_code_only && (
+        <div>
+          {/*oxlint-disable-next-line i18next/no-literal-string */}
+          <a href={`/join?code=${course.join_code}`}>{`/join?code=${course.join_code}`}</a>
+          <div>
+            <Button
+              variant={"secondary"}
+              size={"small"}
+              onClick={() => setJoinCourseLinkMutation.mutate(course.id)}
+            >
+              {t("button-text-generate-join-course-link")}
+            </Button>
+          </div>
+        </div>
+      )}
+      <div
+        className={css`
+          margin: var(--space-4) 0;
+        `}
+      >
+        <ModuleCompletionReprocessButton courseId={course.id} />
+      </div>
+    </>
+  )
+}
+
+export default ManageCourse

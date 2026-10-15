@@ -1,8 +1,9 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+/* oxlint-disable i18next/no-literal-string */
+import { formatLTR } from "@wordpress/icons"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import HighlightEditor from "./HighlightEditor"
 import HighlightSave from "./HighlightSave"
@@ -13,6 +14,7 @@ export interface HighlightAttributes {
 }
 
 const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
+  apiVersion: 3,
   title: "HighlightBox",
   description: "Useful block for a table of definitions",
   category: "text",
@@ -28,7 +30,7 @@ const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
       selector: "span",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: HighlightEditor,
   save: HighlightSave,
 }

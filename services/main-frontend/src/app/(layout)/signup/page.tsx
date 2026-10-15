@@ -1,0 +1,507 @@
+"use client"
+
+import { css } from "@emotion/css"
+import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
+import { Envelope } from "@vectopus/atlas-icons-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useContext, useEffect, useState } from "react"
+import { useForm, useFormState } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import { PasswordField } from "@/components/forms/PasswordField"
+import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
+import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import countries from "@/shared-module/common/locales/en/countries.json"
+import "@/shared-module/common/init/registerAuthApiClients"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import {
+  useCurrentPagePathForReturnTo,
+  validateReturnToRouteOrDefault,
+} from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { Button, Checkbox, ComboBox, TextField, ErrorNotice } from "@/shared-module/components"
+
+interface CreateUserErrorResponse {
+  message?: string
+}
+
+interface FormFields {
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  password_confirmation: string
+  country: string
+  email_communication_consent: boolean
+}
+
+const Wrapper = styled.div`
+  max-width: 1200px;
+  position: relative;
+  margin: 0 auto;
+  display: block;
+  padding: 2rem 2rem;
+  font-family: ${headingFont};
+  border-radius: 4px;
+
+  @media (max-width: 767.98px) {
+    padding: 2rem 0rem;
+  }
+
+  h1 {
+    font-size: clamp(30px, 3vw, 34px);
+    color: ${baseTheme.colors.gray[700]};
+    text-align: center;
+    font-family: ${headingFont};
+    font-weight: 600;
+  }
+
+  .description {
+    font-size: 20px;
+    display: inline-block;
+    text-align: center;
+    margin: 0.5rem 0 2rem 0;
+    a {
+      color: #065853;
+      font-weight: 600;
+      /* Underline links so they are distinguishable by more than colour alone (WCAG 1.4.1). */
+      text-decoration: underline;
+    }
+  }
+
+  fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .submit-button {
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .signin-link {
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+
+    a {
+      text-decoration: underline;
+      font-size: 20px;
+      color: ${baseTheme.colors.blue[600]};
+
+      &:hover {
+        color: ${baseTheme.colors.blue[700]};
+      }
+    }
+  }
+`
+
+const CreateAccountForm: React.FC = () => {
+  const {
+    formState,
+    watch,
+    reset,
+    handleSubmit,
+    trigger,
+    control,
+    setError,
+    setValue,
+    setFocus,
+    getValues,
+  } = useForm<FormFields>({
+    // oxlint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+      country: "",
+      email_communication_consent: false,
+    },
+  })
+
+  const preFillCountry = useQuery(getUsersIpCountryOptions())
+  const { dirtyFields } = useFormState({ control })
+
+  useEffect(() => {
+    // oxlint-disable-next-line i18next/no-literal-string
+    setFocus("first_name")
+  }, [setFocus])
+
+  useEffect(() => {
+    // Only prefill while the field is untouched and empty so a late-resolving
+    // geolocation query never overwrites a country the user has already chosen.
+    if (preFillCountry.data && !dirtyFields.country && !getValues("country")) {
+      setValue("country", preFillCountry.data)
+    }
+  }, [preFillCountry.data, dirtyFields.country, getValues, setValue])
+
+  const loginStateContext = useContext(LoginStateContext)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const uncheckedReturnTo = searchParams.get("return_to") ?? undefined
+  const currentAsPath = searchParams.toString()
+    ? `${pathname}?${searchParams.toString()}`
+    : pathname
+  const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(currentAsPath)
+  const { isSubmitting } = formState
+
+  const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
+  const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
+
+  const { t, i18n } = useTranslation()
+  usePageTitle(t("title-sign-up"))
+
+  const email = watch("email")
+  const password = watch("password")
+  const passwordConfirmation = watch("password_confirmation")
+
+  useEffect(() => {
+    setEmailAlreadyTakenError(null)
+    if (email) {
+      // oxlint-disable-next-line i18next/no-literal-string
+      void trigger("email")
+    }
+  }, [email, trigger])
+
+  const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
+    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<SignupResponse> contract
+    async (data) => {
+      const {
+        first_name,
+        last_name,
+        email: emailValue,
+        password: passwordValue,
+        password_confirmation,
+        country,
+        email_communication_consent,
+      } = data
+      return postAuthSignup({
+        body: {
+          email: emailValue,
+          first_name: first_name,
+          last_name: last_name,
+          language: i18n.language,
+          password: passwordValue,
+          password_confirmation: password_confirmation,
+          country: country,
+          email_communication_consent: Boolean(email_communication_consent),
+        },
+      })
+    },
+    { notify: true, method: "POST" },
+  )
+
+  useEffect(() => {
+    if (loginStateContext.signedIn && !confirmEmailPageVisible) {
+      router.push("/")
+    }
+  })
+
+  useEffect(() => {
+    // Make sure that password_confirmation is revalidated when the password changes.
+    if (password && password !== "" && passwordConfirmation && passwordConfirmation !== "") {
+      // oxlint-disable-next-line i18next/no-literal-string
+      trigger("password_confirmation")
+    }
+  }, [password, passwordConfirmation, trigger])
+
+  useEffect(() => {
+    if (createAccountMutation.isError && createAccountMutation.error) {
+      const err = createAccountMutation.error
+      const status =
+        typeof err === "object" && err !== null && "status" in err ? Number(err.status) : null
+      const errorMessage =
+        typeof err === "object" &&
+        err !== null &&
+        "body" in err &&
+        typeof err.body === "object" &&
+        err.body !== null &&
+        "message" in err.body
+          ? String((err.body as CreateUserErrorResponse).message ?? "")
+          : typeof err === "object" && err !== null && "userMessage" in err
+            ? String(err.userMessage ?? "")
+            : ""
+
+      if (
+        status === 400 &&
+        errorMessage.toLowerCase().includes("email") &&
+        (errorMessage.toLowerCase().includes("already been taken") ||
+          errorMessage.toLowerCase().includes("has already been taken"))
+      ) {
+        setEmailAlreadyTakenError(t("email-already-taken"))
+        setError("email", {
+          type: "manual",
+          message: t("email-already-taken-field-error"),
+        })
+      } else {
+        setEmailAlreadyTakenError(null)
+      }
+    } else {
+      setEmailAlreadyTakenError(null)
+    }
+  }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
+  const { t: tCountries } = useTranslation("countries")
+  const countriesNames = Object.entries(countries).map(([code]) => ({
+    value: code,
+    label: tCountries(code as keyof typeof countries),
+  }))
+
+  if (confirmEmailPageVisible) {
+    return (
+      <Wrapper>
+        <h1>{t("message-please-confirm-your-email-address")}</h1>
+        <div
+          className={css`
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: ${baseTheme.colors.green[100]};
+            line-height: 1.7;
+            display: flex;
+            align-items: center;
+          `}
+        >
+          <Envelope
+            size={32}
+            className={css`
+              font-size: 2rem;
+              margin-right: 1rem;
+            `}
+          />
+          <div>
+            <p>
+              {t("confirm-email-address-instructions-1")}{" "}
+              <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
+              {t("confirm-email-address-instructions-3")}
+            </p>
+            <p></p>
+          </div>
+        </div>
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => {
+            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+            router.push(returnTo)
+          }}
+        >
+          {t("button-text-done")}
+        </Button>
+        {<ResearchOnCoursesForm />}
+      </Wrapper>
+    )
+  }
+
+  return (
+    <Wrapper>
+      <h1 id="create-account-heading">{t("create-new-account")}</h1>
+      <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
+      <form
+        onSubmit={handleSubmit(async (data, event) => {
+          event?.preventDefault()
+          try {
+            const result = await createAccountMutation.mutateAsync(data)
+
+            if (result.type === "email_already_exists") {
+              setEmailAlreadyTakenError(t("email-already-taken"))
+              setError("email", {
+                type: "manual",
+                message: t("email-already-taken-field-error"),
+              })
+              return
+            }
+
+            setEmailAlreadyTakenError(null)
+            reset({
+              first_name: "",
+              last_name: "",
+              email: "",
+              password: "",
+              password_confirmation: "",
+              country: "",
+              email_communication_consent: false,
+            })
+            setConfirmEmailPageVisible(true)
+            await loginStateContext.refresh()
+          } catch {
+            setEmailAlreadyTakenError(null)
+          }
+        })}
+      >
+        <p
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          {t("all-fields-are-required")}
+        </p>
+        <fieldset disabled={isSubmitting} aria-labelledby="create-account-heading">
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              gap: 1rem;
+            `}
+          >
+            <TextField
+              name="first_name"
+              control={control}
+              label={t("first-name")}
+              autoComplete="given-name"
+              isRequired
+              rules={{
+                required: t("required-field"),
+              }}
+            />
+
+            <TextField
+              name="last_name"
+              control={control}
+              label={t("last-name")}
+              autoComplete="family-name"
+              isRequired
+              rules={{
+                required: t("required-field"),
+              }}
+            />
+
+            <ComboBox
+              name="country"
+              control={control}
+              label={t("enter-country-question")}
+              items={countriesNames}
+              getItemKey={(item) => item.value}
+              getItemTextValue={(item) => item.label}
+              isRequired
+              rules={{ required: t("required-field") }}
+            >
+              {(item) => item.label}
+            </ComboBox>
+
+            <TextField
+              name="email"
+              control={control}
+              label={t("email")}
+              type="email"
+              autoComplete="email"
+              isRequired
+              rules={{
+                required: t("required-field"),
+                validate: {
+                  isValidEmail: (value) =>
+                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                },
+              }}
+            />
+            <PasswordField
+              name="password"
+              control={control}
+              label={t("password")}
+              autoComplete="new-password"
+              isRequired
+              rules={{
+                required: t("required-field"),
+                minLength: {
+                  value: 8,
+                  message: t("password-must-have-at-least-8-characters"),
+                },
+              }}
+            />
+
+            <PasswordField
+              name="password_confirmation"
+              control={control}
+              label={t("confirm-password")}
+              autoComplete="new-password"
+              isRequired
+              rules={{
+                required: t("required-field"),
+                minLength: {
+                  value: 8,
+                  message: t("password-must-have-at-least-8-characters"),
+                },
+                validate: {
+                  passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
+                },
+              }}
+            />
+
+            <Checkbox
+              className={css`
+                margin-top: 1rem;
+              `}
+              name="email_communication_consent"
+              control={control}
+              label={t("email-communication-consent-checkbox-text")}
+            />
+          </div>
+        </fieldset>
+        <Button
+          className="submit-button"
+          variant="primary"
+          size="medium"
+          type="submit"
+          isLoading={createAccountMutation.isPending}
+        >
+          {t("create-an-account")}
+        </Button>
+      </form>
+      <span className="signin-link">
+        <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
+          {t("sign-in-if-you-have-an-account")}
+        </a>
+      </span>
+      {emailAlreadyTakenError && (
+        <div
+          className={css`
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: ${baseTheme.colors.red[100]};
+            border-left: 4px solid ${baseTheme.colors.red[500]};
+            border-radius: 4px;
+          `}
+        >
+          <p
+            className={css`
+              margin: 0;
+              color: ${baseTheme.colors.red[700]};
+              font-weight: 500;
+            `}
+          >
+            {emailAlreadyTakenError}
+          </p>
+          <a
+            href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}
+            className={css`
+              display: inline-block;
+              margin-top: 0.5rem;
+              color: ${baseTheme.colors.blue[600]};
+              text-decoration: underline;
+              font-weight: 500;
+            `}
+          >
+            {t("sign-in-if-you-have-an-account")}
+          </a>
+        </div>
+      )}
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
+      {createAccountMutation.isError &&
+        !emailAlreadyTakenError && (
+          // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+          <ErrorNotice error={createAccountMutation.error} announce="off" />
+        )}
+    </Wrapper>
+  )
+}
+
+export default withSuspenseBoundary(CreateAccountForm)

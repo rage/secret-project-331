@@ -1,9 +1,13 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import type { BrowserContext } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-
+import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
+import { Checkbox } from "@/utils/components/Checkbox"
+import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 test.describe("An exercise that has self review but no peer review works", () => {
   let context1: BrowserContext
@@ -34,9 +38,11 @@ test.describe("An exercise that has self review but no peer review works", () =>
         .getByRole("button")
         .first()
         .click()
-      await teacherPage.getByText("Peer and self review").click()
-      await teacherPage.getByText("Add self review").click()
-      await teacherPage.getByText("Use course default peer").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
+      await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
+      await Checkbox.labelled(teacherPage, "Use course default peer review config").setChecked(
+        false,
+      )
       await teacherPage.getByLabel("Add default block").click()
       await teacherPage
         .getByLabel("Empty block; start writing or")
@@ -44,10 +50,16 @@ test.describe("An exercise that has self review but no peer review works", () =>
       // Defocus the rich text editor
       await teacherPage.getByRole("heading", { name: "Configure review answers" }).click()
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
-      await teacherPage.getByLabel("Peer review questionInsert").fill("General feedback")
+      await teacherPage.getByLabel("Peer review question", { exact: true }).fill("General feedback")
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
-      await teacherPage.getByLabel("Peer review question type").nth(1).selectOption("Scale")
-      await teacherPage.getByLabel("Peer review questionInsert").fill("The answer was correct")
+      await new Select(
+        teacherPage,
+        teacherPage.getByRole("button", { name: /Peer review question type/ }).nth(1),
+      ).chooseOption("Likert Scale")
+      await teacherPage
+        .getByLabel("Peer review question", { exact: true })
+        .nth(1)
+        .fill("The answer was correct")
       await waitForSuccessNotification(teacherPage, async () => {
         await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
       })
@@ -70,7 +82,7 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await student1Page.getByRole("button", { name: "Start self review" }).click()
       await student1Page.getByText("In this review, you have to do x.").waitFor()
       await student1Page
-        .getByPlaceholder("Write a review")
+        .getByRole("textbox", { name: "General feedback" })
         .fill("This was such a good answer 100/100.")
       await student1Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await waitForSuccessNotification(student1Page, async () => {
@@ -85,10 +97,9 @@ test.describe("An exercise that has self review but no peer review works", () =>
       )
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
-      await teacherPage.getByRole("button", { name: "Custom points" }).click()
       await teacherPage.getByRole("slider").fill("0.7")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+        await teacherPage.getByRole("button", { name: "Save grading decision" }).click()
       })
     })
 

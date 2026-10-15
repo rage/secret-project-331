@@ -1,5 +1,7 @@
 import { css } from "@emotion/css"
 
+import { below } from "../../../styles/breakpoints"
+
 export const dialogCss = css`
   outline: none;
 `
@@ -11,12 +13,7 @@ export const pickerRootCss = css`
   --picker-accent-hover: var(--color-green-50);
   --picker-focus-ring: rgba(31, 105, 100, 0.4);
   --picker-focus-ring-strong: rgba(31, 105, 100, 0.55);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--font-sans);
 `
 
 export const pickerLayoutCss = css`
@@ -31,6 +28,12 @@ export const pickerLayoutWithTimeCss = css`
   grid-template-columns: minmax(0, 1fr) minmax(200px, 240px);
   align-items: stretch;
   column-gap: var(--space-3);
+
+  /* On narrow (mobile) viewports the calendar + time panel can't fit side by side, so stack them. */
+  ${below("xs")} {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-3);
+  }
 `
 
 export const calendarPanelCss = css`
@@ -161,6 +164,8 @@ export const calendarCellButtonCss = css`
   justify-content: center;
   width: 36px;
   height: 36px;
+  /* Let the seven fixed-width day cells shrink to fit a very narrow (mobile) calendar column. */
+  max-width: 100%;
   padding: 0;
   border: 0;
   border-radius: var(--control-radius);
@@ -349,7 +354,7 @@ export const chooserGridOptionCss = css`
   justify-content: center;
   min-height: 40px;
   padding: 0 var(--space-2);
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--control-radius);
   background: var(--picker-accent-hover);
   color: var(--field-fg);
@@ -365,7 +370,9 @@ export const chooserGridOptionCss = css`
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
+    box-shadow:
+      0 0 0 1px var(--color-green-300),
+      0 0 0 calc(var(--focus-ring-width) + 1px) var(--picker-focus-ring);
   }
 
   &:disabled {
@@ -376,6 +383,7 @@ export const chooserGridOptionCss = css`
 
   &:hover:not(:disabled) {
     background: var(--picker-accent-soft);
+    border-color: var(--color-green-300);
     color: var(--color-green-900);
   }
 `
@@ -383,7 +391,14 @@ export const chooserGridOptionCss = css`
 export const chooserGridOptionSelectedCss = css`
   background: var(--picker-accent-bg);
   color: var(--picker-accent-fg);
+  border-color: var(--color-green-700);
   font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--color-green-700);
+    border-color: var(--color-green-800);
+    color: var(--picker-accent-fg);
+  }
 `
 
 export const timePanelCss = css`
@@ -395,6 +410,19 @@ export const timePanelCss = css`
   padding: 0 0 0 var(--space-3);
   border-left: 1px solid rgba(31, 105, 100, 0.12);
   background: transparent;
+
+  /* When stacked below the calendar on mobile, the divider becomes a top border. */
+  ${below("xs")} {
+    padding: var(--space-3) 0 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(31, 105, 100, 0.12);
+  }
+`
+
+/** Drops the divider that separates the time panel from the calendar when it stands alone. */
+export const standaloneTimePanelCss = css`
+  padding: 0;
+  border: 0;
 `
 
 export const timePanelHeadingCss = css`

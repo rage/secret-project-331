@@ -1,0 +1,88 @@
+# tbls reads its config from the current working directory only and does not walk up, so anything
+# invoking tbls from a subdirectory must pass -c with this file's path.
+viewpoints:
+  - id: credit-registration
+    name: Credit registration
+    desc: >-
+      How a completed course module becomes a credit in the University of Helsinki study registry.
+      Enrolment on the course is itself the student's consent to register the credit; once a student
+      number is proven to be theirs, one ledger row per completion is pushed to Sisu through Suotar
+      and polled until the registry confirms the attainment.
+    tables:
+      - credit_registrations
+      - credit_registration_events
+      - course_module_completions
+      - verified_student_numbers
+      - student_number_verification_tokens
+      - user_email_codes
+      - credit_registration_account_linking_emails
+      - email_deliveries
+      - email_templates
+      - user_details
+      - course_modules
+      - course_module_suotar_configurations
+      - credit_registration_phase_state
+      - credit_registration_admin_actions
+      - suotar_api_calls
+      - credit_registration_daily_snapshots
+      - study_registry_registrars
+      - course_module_completion_registered_to_study_registries
+      # Shared hubs, deliberately in no group: a table may appear in only one group of a viewpoint,
+      # and each of these belongs to every one of them.
+      - users
+      - courses
+      - course_instances
+    groups:
+      - name: Ledger and audit trail
+        desc: >-
+          One row per attempt at registering one completion. Every state write appends an event in
+          the same transaction, so the ledger holds current state and the event table holds history.
+        tables:
+          - credit_registrations
+          - credit_registration_events
+          - course_module_completions
+      - name: Student number proof
+        desc: >-
+          Nothing is submitted until a student number has been proven to belong to the student's
+          account. This is global per account, not per module, and the token table is what turns an
+          emailed link into a proof.
+        tables:
+          - verified_student_numbers
+          - student_number_verification_tokens
+      - name: Email ownership and the mail proofs ride on
+        desc: >-
+          Account address ownership is proven by a code mailed to the account and typed back, so the
+          proof lives on user_details and the code table holds nothing but the pending code. The
+          student-number linking mails carry one-click links instead, and go to addresses Sisu holds
+          which frequently have no account here.
+        tables:
+          - user_email_codes
+          - credit_registration_account_linking_emails
+          - email_deliveries
+          - email_templates
+          - user_details
+      - name: Per-module configuration
+        desc: >-
+          The per-module opt-in, the configuration check's verdict and the last discovery run's
+          counters. The enrolment link is the module's completion registration link override.
+        tables:
+          - course_modules
+          - course_module_suotar_configurations
+      - name: Pipeline operation
+        desc: >-
+          What an operator reads and acts on: per-phase scheduling, heartbeats and pauses, the
+          manual-action audit whose targets are often not registrations at all, the per-call Suotar
+          log, and the daily queue depths the ledger cannot reconstruct after the fact.
+        tables:
+          - credit_registration_phase_state
+          - credit_registration_admin_actions
+          - suotar_api_calls
+          - credit_registration_daily_snapshots
+      - name: Legacy pull-flow mirror
+        desc: >-
+          The push path mirrors its registrations into the pre-existing pull-flow ledger with no
+          registrar named, which keeps the existing teacher views and the pull API working while
+          modules move over one at a time.
+        tables:
+          - study_registry_registrars
+          - course_module_completion_registered_to_study_registries

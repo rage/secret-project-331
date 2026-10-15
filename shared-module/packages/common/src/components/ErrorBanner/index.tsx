@@ -1,90 +1,56 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import React from "react"
 
-import Spinner from "../Spinner"
+import type { ErrorNoticeAnnouncement } from "@/shared-module/components/components/ErrorNotice"
+import {
+  COMFORTABLE_DENSITY,
+  COMPACT_DENSITY,
+  ErrorNotice,
+} from "@/shared-module/components/components/ErrorNotice"
 
-import SourceBlock from "./SourceBlock"
-import { ParsedError, parseError } from "./parseError"
-import { BannerWrapper, Content, DetailTag, Text } from "./styles"
+import { omitUndefined } from "../../utils/nullability"
+
+const FRONTEND_CRASH_VARIANT = "frontendCrash"
 
 export interface BannerExtraProps {
+  error: unknown
+  /** Legacy styling switch. Only `frontendCrash` still changes anything; it tightens the layout. */
   variant?: "text" | "link" | "readOnly" | "frontendCrash"
-  error: unknown | string
   contextMessage?: React.ReactNode
+  maxHeightVH?: number
+  listMaxHeightVH?: number
+  /** See `ErrorNotice`; defaults to an assertive announcement. */
+  announce?: ErrorNoticeAnnouncement
+  className?: string
 }
 
-export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
+export type BannerProps = BannerExtraProps
 
-const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
-  const { t } = useTranslation()
-  const { variant: __variant = "text", error: unknownError, contextMessage } = props
-  const compact = __variant === "frontendCrash"
-  const isFrontendCrash = __variant === "frontendCrash"
-
-  const [parsed, setParsed] = useState<ParsedError | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-    ;(async () => {
-      if (unknownError === undefined) {
-        throw new Error("Invalid input")
-      }
-      const result = await parseError(unknownError, t("error-title"))
-      if (isMounted) {
-        setParsed(result)
-      }
-    })()
-    return () => {
-      isMounted = false
-    }
-  }, [unknownError, t])
-
-  if (parsed === null) {
-    return <Spinner variant="medium" />
-  }
-
-  return (
-    <BannerWrapper compact={compact} isFrontendCrash={isFrontendCrash}>
-      <Content compact={compact}>
-        <Text compact={compact}>
-          <h2>
-            {parsed.status !== undefined ? (
-              <>
-                {t("error-title")} {parsed.status}: {parsed.title}
-              </>
-            ) : (
-              <>
-                {t("error-title")}: {parsed.title}
-              </>
-            )}
-          </h2>
-          {contextMessage && <p>{contextMessage}</p>}
-          {parsed.message && <p>{parsed.message}</p>}
-        </Text>
-        {parsed.sourceData !== undefined && (
-          <DetailTag>
-            <details>
-              <summary>{t("show-error-source")}</summary>
-              <ul>
-                <li>
-                  <SourceBlock text={parsed.sourceData} />
-                </li>
-              </ul>
-            </details>
-          </DetailTag>
-        )}
-        {parsed.linkBlockId && (
-          <Text>
-            <a href={`${window.location.href.replace(location.hash, "")}#${parsed.linkBlockId}`}>
-              {t("go-to-error")}
-            </a>
-          </Text>
-        )}
-      </Content>
-    </BannerWrapper>
-  )
-}
+/**
+ * `ErrorNotice` under the prop names its existing call sites already pass. New code should use
+ * `ErrorNotice` from the components package directly.
+ */
+const ErrorBanner: React.FC<BannerProps> = ({
+  error,
+  variant = "text",
+  contextMessage,
+  maxHeightVH,
+  listMaxHeightVH,
+  announce,
+  className,
+}) => (
+  <ErrorNotice
+    error={error}
+    density={variant === FRONTEND_CRASH_VARIANT ? COMPACT_DENSITY : COMFORTABLE_DENSITY}
+    {...omitUndefined({
+      context: contextMessage,
+      announce,
+      className,
+      maxHeight: maxHeightVH === undefined ? undefined : `${maxHeightVH}vh`,
+      detailsMaxHeight: listMaxHeightVH === undefined ? undefined : `${listMaxHeightVH}vh`,
+    })}
+  />
+)
 
 export default ErrorBanner

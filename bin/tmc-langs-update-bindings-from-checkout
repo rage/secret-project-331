@@ -1,0 +1,95 @@
+#!/bin/bash
+# Execute this file by running `bin/tmc-langs-update-bindings-from-checkout` from the root of the
+# repository to regenerate services/tmc/src/tmc/cli.{d,guard}.ts from a local tmc-langs-rust
+# checkout. Don't update those files any other way.
+#
+# `bin/tmc-langs-update <VERSION>` is the released-version path: it downloads both the tagged
+# bindings and the matching CLI binary. This script exists for the unreleased case, where the
+# bindings we need only exist in a sibling checkout.
+#
+# Cross-repo coupling, and the one thing that is deliberately NOT synced here: the `// VERSION=`
+# line of cli.d.ts is what bin/tmc-langs-setup reads to pick which released CLI binary to
+# download. A checkout can be ahead of every release, so this script regenerates the type surface
+# and leaves that line untouched — the types can describe a newer langs than the binary in use.
+# `bin/tmc-langs-update <VERSION>` is what brings the two back in step.
+#
+# `--check` regenerates into a scratch copy and fails if the committed files differ, without
+# leaving anything modified. It needs the sibling checkout, so it is a local check, not a CI gate.
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+ROOT_ABSOLUTE_PATH=$(realpath "$BASEDIR/..")
+LANGS_CHECKOUT=$(realpath "${TMC_LANGS_RUST_CHECKOUT:-$ROOT_ABSOLUTE_PATH/../tmc-langs-rust}")
+
+CHECK_ONLY=0
+if [ "${1:-}" = "--check" ]; then
+  CHECK_ONLY=1
+elif [ -n "${1:-}" ]; then
+  echo "Unknown argument '$1'. Pass --check or no arguments."
+  exit 1
+fi
+
+TMC_PATH="$ROOT_ABSOLUTE_PATH/services/tmc"
+BINDINGS_TARGET="$TMC_PATH/src/tmc/cli.d.ts"
+GUARD_TARGET="$TMC_PATH/src/tmc/cli.guard.ts"
+GENERATED_BINDINGS="$LANGS_CHECKOUT/crates/tmc-langs-cli/bindings.d.ts"
+
+if [ ! -f "$GENERATED_BINDINGS" ]; then
+  echo "No tmc-langs-rust checkout at $LANGS_CHECKOUT. Set TMC_LANGS_RUST_CHECKOUT to point at one."
+  exit 1
+fi
+
+VERSION_LINE=$(head -n1 "$BINDINGS_TARGET")
+if [[ "$VERSION_LINE" != "// VERSION="* ]]; then
+  echo "$BINDINGS_TARGET does not start with a '// VERSION=' line; refusing to lose it."
+  exit 1
+fi
+
+BACKUP_DIR=$(mktemp -d)
+cp "$BINDINGS_TARGET" "$BACKUP_DIR/cli.d.ts"
+cp "$GUARD_TARGET" "$BACKUP_DIR/cli.guard.ts"
+restore_committed_files() {
+  cp "$BACKUP_DIR/cli.d.ts" "$BINDINGS_TARGET"
+  cp "$BACKUP_DIR/cli.guard.ts" "$GUARD_TARGET"
+}
+cleanup() {
+  local status=$?
+  if [ "$status" -ne 0 ] || [ "$CHECK_ONLY" -eq 1 ]; then
+    restore_committed_files
+  fi
+  rm -rf "$BACKUP_DIR"
+}
+trap cleanup EXIT
+
+echo "Regenerating the langs bindings in $LANGS_CHECKOUT"
+run_command cd "$LANGS_CHECKOUT" || exit
+run_command cargo test --features ts-rs -p tmc-langs-cli generate_cli_bindings -- --ignored
+LANGS_REV=$(git -C "$LANGS_CHECKOUT" rev-parse --short HEAD)
+LANGS_VERSION=$(cargo metadata --format-version 1 --no-deps \
+  | node -e 'const m=JSON.parse(require("fs").readFileSync(0,"utf8"));process.stdout.write(m.packages.find(p=>p.name==="tmc-langs-cli").version)')
+
+run_command cd "$ROOT_ABSOLUTE_PATH" || exit
+printf "%s\n" "$VERSION_LINE" > "$BINDINGS_TARGET"
+printf "// Type surface regenerated from tmc-langs-rust %s (tmc-langs-cli %s) by bin/tmc-langs-update-bindings-from-checkout\n\n" \
+  "$LANGS_REV" "$LANGS_VERSION" >> "$BINDINGS_TARGET"
+cat "$GENERATED_BINDINGS" >> "$BINDINGS_TARGET"
+
+regenerate_tmc_langs_bindings_guard "$ROOT_ABSOLUTE_PATH" "$BINDINGS_TARGET" "$GUARD_TARGET"
+
+if [ "$CHECK_ONLY" -eq 1 ]; then
+  DRIFTED=0
+  diff -u "$BACKUP_DIR/cli.d.ts" "$BINDINGS_TARGET" || DRIFTED=1
+  diff -u "$BACKUP_DIR/cli.guard.ts" "$GUARD_TARGET" || DRIFTED=1
+  if [ "$DRIFTED" -ne 0 ]; then
+    echo ""
+    echo -e "${RED}❌ The vendored langs bindings differ from $LANGS_CHECKOUT.${RESET_EVERYTHING}"
+    exit 1
+  fi
+  echo ""
+  echo -e "${GREEN}✅ The vendored langs bindings match $LANGS_CHECKOUT.${RESET_EVERYTHING}"
+  exit 0
+fi
+
+echo ""
+echo -e "${GREEN}✅ Vendored the langs bindings from $LANGS_CHECKOUT ($LANGS_REV).${RESET_EVERYTHING}"

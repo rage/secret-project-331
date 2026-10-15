@@ -15,8 +15,8 @@ import { tryToScrollToSelector } from "@/utils/course-material/dom"
  */
 export default function useScrollToSelector(path: string): void {
   useEffect(() => {
-    if (typeof window != "undefined" && window.location.hash) {
-      const selector = window.location.hash.substring(1)
+    if (typeof window !== "undefined" && window.location.hash) {
+      const selector = window.location.hash.slice(1)
       let elementToScrollTo: Element | null = null
       let lastOffsetRelativeToDocument = 0
       const setScrollTimeout = (timeout: number) => {

@@ -5,6 +5,7 @@ use rsa::RsaPublicKey;
 use rsa::pkcs1::DecodeRsaPublicKey;
 use rsa::pkcs8::{DecodePublicKey, EncodePublicKey};
 use rsa::traits::PublicKeyParts;
+use secrecy::ExposeSecret;
 use sha2::{Digest as ShaDigest, Sha256};
 
 use crate::domain::error::{ControllerError, ControllerErrorType, OAuthErrorCode, OAuthErrorData};
@@ -74,21 +75,25 @@ pub fn generate_id_token(
     let mut header = Header::new(jsonwebtoken::Algorithm::RS256);
     header.kid = Some(kid);
 
-    let enc_key =
-        EncodingKey::from_rsa_pem(cfg.oauth_server_configuration.rsa_private_key.as_bytes())
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::ServerError.as_str().into(),
-                        error_description: "Failed to generate ID token".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "Failed to generate ID token (invalid private key)",
-                    Some(e.into()),
-                )
-            })?;
+    let enc_key = EncodingKey::from_rsa_pem(
+        cfg.oauth_server_configuration
+            .rsa_private_key
+            .expose_secret()
+            .as_bytes(),
+    )
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+                error: OAuthErrorCode::ServerError.as_str().into(),
+                error_description: "Failed to generate ID token".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            })),
+            "Failed to generate ID token (invalid private key)",
+            Some(e.into()),
+        )
+    })?;
 
     encode(&header, &claims, &enc_key).map_err(|e| {
         ControllerError::new(

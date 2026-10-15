@@ -1,20 +1,20 @@
 import { atom } from "jotai"
 
-import { viewParamsAtom } from "./params"
-import { examQueryAtom, materialQueryAtom } from "./queries"
-
-import { courseMaterialAtom } from "./index"
-
 import type {
-  Course,
   CourseInstance,
+  CourseMaterialCourse,
   ExamData,
   Organization,
   Page,
   UserCourseSettings,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
+
+import { courseMaterialAtom } from "./index"
+import { viewParamsAtom } from "./params"
+import { examQueryAtom, materialQueryAtom } from "./queries"
 
 /** Refetches the current view's data (material or exam). */
+// oxlint-disable-next-line require-await -- async for the Promise-returning atom write contract
 export const refetchViewAtom = atom(null, async (get, _set) => {
   const viewParams = get(viewParamsAtom)
   if (viewParams?.type === "material") {
@@ -23,10 +23,29 @@ export const refetchViewAtom = atom(null, async (get, _set) => {
   if (viewParams?.type === "exam") {
     return get(examQueryAtom).refetch()
   }
+  return undefined
 })
 
 /** Current loading status of the course material view. */
 export const viewStatusAtom = atom((get) => get(courseMaterialAtom).status)
+
+/**
+ * Whether the active view's query is currently fetching, including background refetches.
+ *
+ * Unlike `viewStatusAtom` (which stays `"ready"` while react-query refetches in the background and
+ * serves stale data), this turns `true` during those refetches. Used to know when the data behind
+ * the dialog decision is in flight.
+ */
+export const viewIsFetchingAtom = atom<boolean>((get) => {
+  const viewParams = get(viewParamsAtom)
+  if (viewParams?.type === "material") {
+    return get(materialQueryAtom).isFetching
+  }
+  if (viewParams?.type === "exam") {
+    return get(examQueryAtom).isFetching
+  }
+  return false
+})
 
 /** Current page data for the active course material page. */
 export const currentPageDataAtom = atom<Page | null>((get) => get(courseMaterialAtom).page)
@@ -70,7 +89,9 @@ export const materialInstanceAtom = atom<CourseInstance | null>(
 )
 
 /** Current course data. */
-export const materialCourseAtom = atom<Course | null>((get) => get(courseMaterialAtom).course)
+export const materialCourseAtom = atom<CourseMaterialCourse | null>(
+  (get) => get(courseMaterialAtom).course,
+)
 
 /** Current organization data. */
 export const materialOrganizationAtom = atom<Organization | null>(

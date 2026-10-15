@@ -1,0 +1,110 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id AS \"id!\",\n  answer_required AS \"answer_required!\",\n  order_number AS \"order_number!\",\n  peer_or_self_review_config_id AS \"peer_or_self_review_config_id!\",\n  question AS \"question!\",\n  question_type AS \"question_type!\",\n  weight AS \"weight!\"\nFROM peer_or_self_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at is null;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "answer_required!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "answer_required"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "order_number!",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "peer_or_self_review_config_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "peer_or_self_review_config_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "question!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "question"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "question_type!",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_question_type",
+            "kind": {
+              "Enum": [
+                "essay",
+                "scale"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "question_type"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "weight!",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_questions",
+            "name": "weight"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "211945163d0b8ef648ca9b70acd4125a990918cc8978390ec2b7808694e3b821"
+}

@@ -5,16 +5,23 @@ import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
-import { useTranslation } from "react-i18next"
+
+import { baseTheme } from "@/shared-module/common/styles"
+import { Checkbox } from "@/shared-module/components"
+import { useAttributeForm } from "@/utils/useAttributeForm"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BackgroundImageSection from "./BackgroundImageSection"
-
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import { baseTheme } from "@/shared-module/common/styles"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;
   margin-bottom: 1rem !important;
+`
+
+const checkboxGroupCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 `
 
 const DEFAULT_BACKGROUND_COLORS = [
@@ -66,6 +73,14 @@ interface RequiredAttributes {
   partiallyTransparent?: boolean | undefined
 }
 
+interface LayoutOptions {
+  backgroundRepeatX: boolean
+  alignCenter: boolean
+  alignBottom: boolean
+  isNotPartiallyTransparent: boolean
+  useDefaultTextForLabel: boolean
+}
+
 /**
  * Props for the BackgroundAndColorCustomizer component.
  */
@@ -85,11 +100,11 @@ const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
 > = ({ attributes, setAttributes, noAlign }) => {
   const { t } = useTranslation()
-  const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
+  const alignCenter = attributes.alignCenter === undefined || attributes.alignCenter
   const useDefaultTextForLabel =
-    attributes.useDefaultTextForLabel == undefined || attributes.useDefaultTextForLabel
+    attributes.useDefaultTextForLabel === undefined || attributes.useDefaultTextForLabel
   const partiallyTransparent =
-    attributes.partiallyTransparent == undefined || attributes.partiallyTransparent
+    attributes.partiallyTransparent === undefined || attributes.partiallyTransparent
 
   // Check if mobile background image is missing but other background images are set
   const hasOtherBackgroundImages =
@@ -98,11 +113,28 @@ const BackgroundAndColorCustomizer: React.FC<
     attributes.backgroundImageXLarge
   const isMissingMobileBackground = !attributes.backgroundImage && hasOtherBackgroundImages
 
+  const { control } = useAttributeForm<LayoutOptions>(
+    {
+      backgroundRepeatX: Boolean(attributes.backgroundRepeatX),
+      alignCenter,
+      alignBottom: Boolean(attributes.alignBottom),
+      // Shown checked while the background is not partially transparent.
+      isNotPartiallyTransparent: !partiallyTransparent,
+      useDefaultTextForLabel,
+    },
+    (values, changedName) => {
+      if (changedName === "isNotPartiallyTransparent") {
+        setAttributes({ partiallyTransparent: !values.isNotPartiallyTransparent })
+      } else {
+        setAttributes({ [changedName]: values[changedName] })
+      }
+    },
+  )
+
   return (
     <>
       {/* Warning for missing mobile background image */}
       {isMissingMobileBackground && (
-        // eslint-disable-next-line i18next/no-literal-string
         <Notice status="warning" isDismissible={false}>
           {t("warning-mobile-background-missing")}
         </Notice>
@@ -153,30 +185,24 @@ const BackgroundAndColorCustomizer: React.FC<
 
       {/* Background Layout Options */}
       <PanelBody title={t("background-layout")} initialOpen={false}>
-        <CheckBox
-          label={t("label-repeat-background-x")}
-          checked={attributes.backgroundRepeatX}
-          onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
-        />
-        {!noAlign && (
-          <>
-            <CheckBox
-              label={t("label-align-center")}
-              checked={alignCenter}
-              onChange={() => setAttributes({ alignCenter: !alignCenter })}
-            />
-            <CheckBox
-              label={t("label-align-bottom")}
-              checked={attributes.alignBottom}
-              onChange={() => setAttributes({ alignBottom: !attributes.alignBottom })}
-            />
-          </>
-        )}
-        <CheckBox
-          label={t("partially-transparent-background")}
-          checked={!partiallyTransparent}
-          onChange={() => setAttributes({ partiallyTransparent: !partiallyTransparent })}
-        />
+        <div className={checkboxGroupCss}>
+          <Checkbox
+            name="backgroundRepeatX"
+            control={control}
+            label={t("label-repeat-background-x")}
+          />
+          {!noAlign && (
+            <>
+              <Checkbox name="alignCenter" control={control} label={t("label-align-center")} />
+              <Checkbox name="alignBottom" control={control} label={t("label-align-bottom")} />
+            </>
+          )}
+          <Checkbox
+            name="isNotPartiallyTransparent"
+            control={control}
+            label={t("partially-transparent-background")}
+          />
+        </div>
       </PanelBody>
 
       {/* Colors Section */}
@@ -211,11 +237,13 @@ const BackgroundAndColorCustomizer: React.FC<
 
       {/* Text Options */}
       <PanelBody title={t("text-options")} initialOpen={false}>
-        <CheckBox
-          label={t("use-default-text-for-label")}
-          checked={useDefaultTextForLabel}
-          onChange={() => setAttributes({ useDefaultTextForLabel: !useDefaultTextForLabel })}
-        />
+        <div className={checkboxGroupCss}>
+          <Checkbox
+            name="useDefaultTextForLabel"
+            control={control}
+            label={t("use-default-text-for-label")}
+          />
+        </div>
       </PanelBody>
     </>
   )

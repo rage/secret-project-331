@@ -1,11 +1,13 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { createCourse } from "@/utils/flows/newCourse.flow"
+import { createCourseChapter, openCoursePageInEditor } from "@/utils/manageCoursePages"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../utils/expect"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -16,21 +18,13 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
 
-  await page
-    .getByRole("region", { name: "Courses" })
-    .getByRole("button", { name: "Create", exact: true })
-    .click()
-
-  await page.click('input[type="radio"]')
-  // Fill input[type="text"]
-  await page.fill("text=Name", "Latex course")
-
-  await page.fill("text=Teacher in charge name", "teacher")
-  await page.fill("text=Teacher in charge email", "teacher@example.com")
-
-  await page.fill('textarea:below(:text("Description"))', "Course description")
-
-  await page.click(`button:text("Create"):below(:text("Course language"))`)
+  await createCourse(page, {
+    name: "Latex course",
+    language: "English",
+    teacherInChargeName: "teacher",
+    teacherInChargeEmail: "teacher@example.com",
+    description: "Course description",
+  })
 
   await page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
@@ -38,14 +32,8 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Name")`, "first page")
-
-  await page.click(`button:text("Create")`)
-
-  await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
+  await createCourseChapter(page, "first page")
+  await openCoursePageInEditor(page, "first page")
   // - CHAPTER GRID
   await page.getByText("Pages in chapter placeholder").click()
   await page.waitForTimeout(100)
@@ -76,7 +64,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page
     .locator('[aria-label="Empty block\\; start writing or type forward slash to choose a block"]')
-    // eslint-disable-next-line playwright/no-force-option
+    // oxlint-disable-next-line playwright/no-force-option
     .click({ force: true })
 
   await page
@@ -96,7 +84,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
 
   await page.click(
     `[aria-label="Empty block; start writing or type forward slash to choose a block"]`,
-    // eslint-disable-next-line playwright/no-force-option
+    // oxlint-disable-next-line playwright/no-force-option
     { force: true },
   )
   await page.type(
@@ -112,7 +100,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
     "Wubba Lubba Dub Dub",
   )
 
-  await page.click('button:text-is("Save") >> visible=true')
+  await page.getByRole("button", { name: "Save", exact: true }).click()
   await page.waitForTimeout(200)
 
   await page.goto(`http://project-331.local/org/uh-mathstat`)

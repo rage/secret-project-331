@@ -4,17 +4,18 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ModuleCard from "./ModuleCard"
-
+import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
 import ConfettiBg from "@/img/course-material/confetti-bg.svg"
 import BackgroundImage from "@/img/course-material/congratulation-bg.svg"
-import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
+import { moduleOffersCreditOrCompletionRegistration } from "./CongratulationsLinks"
+import ModuleCard from "./ModuleCard"
+
 const Wrapper = styled.div`
   font-family: ${headingFont};
-  background: #6ba578;
+  background: #1f6964;
   width: 100%;
   border-radius: 4px;
   min-height: 100vh;
@@ -33,7 +34,7 @@ const Content = styled.div`
   z-index: 99;
 
   .heading {
-    color: #ffff;
+    color: #fff;
     font-weight: 800;
     font-size: clamp(30px, 5vw, 70px) !important;
   }
@@ -90,7 +91,7 @@ const ModuleWrapper = styled.div`
 `
 
 export interface CongratulationsProps {
-  modules: Array<UserModuleCompletionStatus>
+  modules: UserModuleCompletionStatus[]
 }
 
 const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> = ({ modules }) => {
@@ -99,9 +100,7 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
   const someModuleCompleted = modules.some((module) => module.completed)
   const anyCompletedModuleAllowsRegisteringCompletion = modules.some(
     (module) =>
-      module.enable_registering_completion_to_uh_open_university &&
-      someModuleCompleted &&
-      module.completed,
+      moduleOffersCreditOrCompletionRegistration(module) && someModuleCompleted && module.completed,
   )
   const anyCompletedModuleHasCertificatesEnabled = modules.some(
     (module) => module.certification_enabled && module.completed,
@@ -112,11 +111,10 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
       return anyCompletedModuleAllowsRegisteringCompletion
         ? t("you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links")
         : t("you-have-completed-the-course-to-receive-certificate-use-following-links")
-    } else {
-      return anyCompletedModuleAllowsRegisteringCompletion
-        ? t("you-have-completed-the-course-to-receive-credits-use-following-links")
-        : t("you-have-completed-the-course")
     }
+    return anyCompletedModuleAllowsRegisteringCompletion
+      ? t("you-have-completed-the-course-to-receive-credits-use-following-links")
+      : t("you-have-completed-the-course")
   }
 
   return (
@@ -124,12 +122,12 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
       <StyledBackground />
       <Content>
         <StyledSVG />
-        <h1 className="heading">{t("congratulations")}!</h1>
+        <h2 className="heading">{t("congratulations")}!</h2>
         <span className="subtitle">{getSubtitleText()}</span>
 
         <ModuleWrapper>
           {modules
-            .sort((a, b) => a.order_number - b.order_number)
+            .toSorted((a, b) => a.order_number - b.order_number)
             .map((module) => (
               <ModuleCard
                 key={module.module_id}

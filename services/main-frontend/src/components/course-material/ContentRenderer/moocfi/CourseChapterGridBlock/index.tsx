@@ -4,19 +4,19 @@ import { useAtomValue } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ChapterGrid from "./ChapterGrid"
-
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 
+import ChapterGrid from "./ChapterGrid"
+
 const CourseChapterGridBlock: React.FC = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   const courseMaterialState = useAtomValue(courseMaterialAtom)
 
   if (courseMaterialState.status !== "ready") {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (

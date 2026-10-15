@@ -1,5 +1,7 @@
 import styled from "@emotion/styled"
 
+import { monospaceFont } from "@/shared-module/exercise-react/styles"
+
 const colors = {
   primary: "#0275d8",
   accent: "#ff7518",
@@ -182,7 +184,7 @@ export const OutputPre = styled.pre`
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-family: ${monospaceFont};
   font-size: 0.875rem;
   color: ${colors.text};
 `
@@ -202,7 +204,7 @@ export const StdinLineRow = styled.div`
   align-items: baseline;
   flex-wrap: wrap;
   gap: 0;
-  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-family: ${monospaceFont};
   font-size: 0.875rem;
   color: ${colors.text};
   margin-bottom: 8px;
@@ -233,7 +235,7 @@ export const StdinHint = styled.div`
 `
 
 export const StdinInput = styled.input`
-  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-family: ${monospaceFont};
   font-size: 0.875rem;
   padding: 6px 8px;
   border: 1px solid #ccc;
@@ -261,7 +263,7 @@ export const TestResultMessage = styled.pre`
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  font-family: ui-monospace, monospace;
+  font-family: ${monospaceFont};
   font-size: 0.8125rem;
   color: ${colors.text};
 `

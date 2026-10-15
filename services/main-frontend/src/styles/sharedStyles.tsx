@@ -2,13 +2,14 @@
 
 import { css } from "@emotion/css"
 
+import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const buttonBase = css`
   padding: 4px 8px;
   border-radius: 2px;
   border: none;
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
 
   ${respondToOrLarger.lg} {
     padding: 8px 16px;
@@ -55,5 +56,18 @@ export const actionButtonStyle = css`
 
   &:hover {
     background: #f1f1f1;
+  }
+`
+
+export const settingsCardCss = css`
+  background: var(--color-clear-50);
+  border: 1px solid var(--color-gray-100);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+  ${respondToOrLarger.md} {
+    padding: 1.75rem;
   }
 `

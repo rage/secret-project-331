@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO email_deliveries (\n    id,\n    recipient_email,\n    email_template_id,\n    placeholders\n)\nVALUES ($1, $2, $3, $4)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Uuid",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fc3038c548112271896a31b941e817935abb1479a16144db21d2adb4e3a5cda9"
+}

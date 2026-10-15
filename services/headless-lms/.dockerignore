@@ -1,6 +1,7 @@
 target
 **/target
 .env
+.playwright-cli
 models/.env
 uploads
 requests.rest

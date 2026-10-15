@@ -1,0 +1,123 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n\tSELECT *\n\tFROM course_background_questions\n\tWHERE deleted_at IS NULL\n\t  AND (\n    (\n      course_instance_id IS NULL\n      AND course_id = $1\n    )\n    OR (\n      course_instance_id = $2\n      AND course_id = $1\n    )\n  )\n  ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "question_text",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "question_text"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "question_type",
+        "type_info": {
+          "Custom": {
+            "name": "course_background_question_type",
+            "kind": {
+              "Enum": [
+                "checkbox",
+                "text"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_background_questions",
+            "name": "question_type"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "720d130507006eb0dbacbc4f88096ece362b5da78dc4a0aec1f71fb2c66a23fd"
+}

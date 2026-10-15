@@ -1,0 +1,245 @@
+"use client"
+
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useMemo } from "react"
+import type { Control } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import {
+  getCourseChaptersOptions,
+  getCoursePagesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { DatabaseChapter, Exercise, Page } from "@/generated/api/types.generated"
+import { useExercises } from "@/hooks/useExercises"
+import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+import { Button, Checkbox, QueryResults, Table } from "@/shared-module/components"
+
+import type { ResetFormFields } from "./ResetExercises"
+
+interface Props {
+  courseId: string
+  control: Control<ResetFormFields>
+  selectedExerciseIds: string[]
+  setSelectedExerciseIds: (ids: string[]) => void
+}
+
+const ExerciseList: React.FC<Props> = ({
+  courseId,
+  control,
+  selectedExerciseIds,
+  setSelectedExerciseIds,
+}) => {
+  const { t } = useTranslation()
+
+  const exercisesQuery = useExercises(courseId)
+
+  const chaptersQuery = useQuery({
+    ...getCourseChaptersOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
+
+  const pagesQuery = useQuery({
+    ...getCoursePagesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
+
+  const exercises = exercisesQuery.data
+  const groupedExercises = useMemo(() => {
+    if (!exercises) {
+      return {}
+    }
+
+    return exercises.reduce<Record<string, Record<string, Exercise[]>>>((acc, exercise) => {
+      const chapterKey = exercise.chapter_id ?? t("label-no-chapter")
+      const pageKey = exercise.page_id ?? t("label-no-page")
+
+      acc[chapterKey] ||= {}
+      acc[chapterKey][pageKey] ||= []
+
+      acc[chapterKey][pageKey].push(exercise)
+
+      return acc
+    }, {})
+  }, [exercises, t])
+
+  const renderContent = (allExercises: Exercise[], chapters: DatabaseChapter[], pages: Page[]) => {
+    const selectAll = () => {
+      const allIds = allExercises.map((ex) => ex.id)
+      setSelectedExerciseIds(allIds)
+    }
+
+    const selectNone = () => {
+      setSelectedExerciseIds([])
+    }
+
+    const invertSelection = () => {
+      const allIds = allExercises.map((ex) => ex.id)
+      const inverted = allIds.filter((id) => !selectedExerciseIds.includes(id))
+      setSelectedExerciseIds(inverted)
+    }
+
+    const selectPeerReview = () => {
+      const peerIds = allExercises.filter((ex) => ex.needs_peer_review).map((ex) => ex.id)
+      setSelectedExerciseIds(peerIds)
+    }
+
+    const selectSelfReview = () => {
+      const selfIds = allExercises.filter((ex) => ex.needs_self_review).map((ex) => ex.id)
+      setSelectedExerciseIds(selfIds)
+    }
+
+    const chapterMap = new Map<string, DatabaseChapter>(chapters.map((ch) => [ch.id, ch]))
+    const pageMap = new Map<string, Page>(pages.map((pg) => [pg.id, pg]))
+
+    return (
+      <div>
+        <h6
+          className={css`
+            font-weight: ${fontWeights.medium};
+            font-family: ${secondaryFont};
+            padding-bottom: 20px;
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          {t("title-all-exercises")}
+        </h6>
+
+        <div
+          className={css`
+            display: flex;
+            gap: 8px;
+          `}
+        >
+          <Button onClick={selectAll} variant="secondary" size={"small"}>
+            {t("button-select-all")}
+          </Button>
+          <Button onClick={selectNone} variant="secondary" size={"small"}>
+            {t("button-select-none")}
+          </Button>
+          <Button onClick={invertSelection} variant="secondary" size={"small"}>
+            {t("button-invert-selection")}
+          </Button>
+          <Button onClick={selectPeerReview} variant="secondary" size={"small"}>
+            {t("button-exercises-with-peer-review")}
+          </Button>
+          <Button onClick={selectSelfReview} variant="secondary" size={"small"}>
+            {t("button-exercises-with-self-review")}
+          </Button>
+        </div>
+        <div>
+          {Object.entries(groupedExercises)
+            .toSorted(([aId], [bId]) => {
+              const chapterA = aId !== t("label-no-chapter") ? chapterMap.get(aId) : null
+              const chapterB = bId !== t("label-no-chapter") ? chapterMap.get(bId) : null
+
+              if (!chapterA) {
+                return 1
+              }
+              if (!chapterB) {
+                return -1
+              }
+              return chapterA.chapter_number - chapterB.chapter_number
+            })
+            .map(([chapterId, pagesExercises]) => {
+              const chapter = chapterId !== t("label-no-chapter") ? chapterMap.get(chapterId) : null
+              const chapterTitle = chapter
+                ? `${t("chapter")} ${chapter.chapter_number}: ${chapter.name}`
+                : t("label-no-chapter")
+              return (
+                <div key={chapterId}>
+                  <p
+                    className={css`
+                      font-family: ${secondaryFont};
+                      color: ${baseTheme.colors.gray[700]};
+                      font-weight: ${fontWeights.medium};
+                      font-size: ${baseTheme.fontSizes[0]}px;
+                      padding-bottom: 10px;
+                      padding-top: 20px;
+                    `}
+                  >
+                    {chapterTitle}
+                  </p>
+                  <div
+                    className={css`
+                      border: 1px solid #ced1d7;
+                      border-radius: 8px;
+                      border-width: 1px;
+                      color: ${baseTheme.colors.gray[700]};
+                    `}
+                  >
+                    <Table
+                      caption={chapterTitle}
+                      rows={Object.entries(pagesExercises)
+                        .toSorted(([pageAId], [pageBId]) => {
+                          const pageA = pageMap.get(pageAId)
+                          const pageB = pageMap.get(pageBId)
+                          const orderA = pageA ? pageA.order_number : Number.MAX_VALUE
+                          const orderB = pageB ? pageB.order_number : Number.MAX_VALUE
+                          return orderA - orderB
+                        })
+                        .flatMap(([pageId, exercisesForPage]) =>
+                          exercisesForPage
+                            .toSorted((a, b) => a.order_number - b.order_number)
+                            .map((exercise) => ({ exercise, pageId })),
+                        )}
+                      rowKey={({ exercise }) => exercise.id}
+                      columns={[
+                        {
+                          header: t("label-select"),
+                          cell: ({ exercise }) => (
+                            <Checkbox
+                              name={`selectedExercises.${exercise.id}`}
+                              control={control}
+                              label=""
+                              aria-label={t("label-select-exercise", {
+                                name: exercise.name,
+                              })}
+                            />
+                          ),
+                        },
+                        { header: t("exercise"), cell: ({ exercise }) => exercise.name },
+                        {
+                          header: t("title-page"),
+                          cell: ({ pageId }) =>
+                            `${t("title-page")} ${pageMap.get(pageId)?.order_number}`,
+                        },
+                        {
+                          header: t("title-peer-review"),
+                          cell: ({ exercise }) =>
+                            exercise.needs_peer_review ? t("label-true") : t("label-false"),
+                        },
+                        {
+                          header: t("title-self-review"),
+                          cell: ({ exercise }) =>
+                            exercise.needs_self_review ? t("label-true") : t("label-false"),
+                        },
+                      ]}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <QueryResults
+      queries={[exercisesQuery, chaptersQuery, pagesQuery] as const}
+      renderData={([exercisesData, chapters, pages]) =>
+        renderContent(exercisesData, chapters, pages)
+      }
+      treatEmptyAsData
+    />
+  )
+}
+
+export default ExerciseList

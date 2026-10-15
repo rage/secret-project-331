@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import type { OverlayTriggerState } from "@react-stately/overlays"
 import React from "react"
-import { DismissButton, Overlay, usePopover } from "react-aria"
+import { DismissButton, mergeProps, Overlay, usePopover } from "react-aria"
 import type { Placement } from "react-aria"
 
 import { popoverCss } from "./selectStyles"
@@ -11,7 +11,7 @@ import { popoverCss } from "./selectStyles"
 const popoverUnderlayCss = css`
   position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: var(--layer-overlay);
   pointer-events: none;
 `
 
@@ -24,6 +24,7 @@ export type PopoverProps = React.PropsWithChildren<{
   state: OverlayTriggerState
   triggerRef: React.RefObject<Element | null>
   popoverRef?: React.RefObject<HTMLDivElement | null>
+  surfaceProps?: React.HTMLAttributes<HTMLDivElement>
   placement?: Placement
   offset?: number
   isNonModal?: boolean
@@ -35,13 +36,18 @@ export function Popover({
   state,
   triggerRef,
   popoverRef,
+  surfaceProps,
   placement = "bottom start",
   offset = 8,
   isNonModal = false,
 }: PopoverProps) {
   const localPopoverRef = React.useRef<HTMLDivElement>(null)
   const resolvedPopoverRef = popoverRef ?? localPopoverRef
-  const { popoverProps, underlayProps } = usePopover(
+  const {
+    popoverProps: overlayProps,
+    underlayProps,
+    placement: resolvedPlacement,
+  } = usePopover(
     {
       popoverRef: resolvedPopoverRef,
       triggerRef,
@@ -52,10 +58,15 @@ export function Popover({
     state,
   )
 
+  // Until react-aria has measured the trigger, the surface sits at the viewport's top left
+  // corner. Listbox options select on pointer up even when the pointer went down elsewhere, so
+  // a click on the trigger would otherwise release over an option that is not really there yet.
+  const isPositioned = resolvedPlacement !== null
+
   const triggerWidth =
     triggerRef.current instanceof HTMLElement ? triggerRef.current.offsetWidth : undefined
   const triggerWidthCss =
-    triggerWidth == null
+    triggerWidth === undefined
       ? undefined
       : css`
           --popover-trigger-width: ${triggerWidth}px;
@@ -65,9 +76,23 @@ export function Popover({
     <Overlay disableFocusManagement={isNonModal}>
       <div {...underlayProps} className={popoverUnderlayCss}>
         <div
-          {...popoverProps}
+          {...mergeProps(overlayProps, surfaceProps)}
+          // react-aria computes the overlay's position per render; pointerEvents must be
+          // layered onto that, not a static class
+          // oxlint-disable-next-line react/forbid-dom-props
+          style={{
+            ...overlayProps.style,
+            ...surfaceProps?.style,
+            ...(isPositioned ? null : { pointerEvents: "none" }),
+          }}
           ref={resolvedPopoverRef}
-          className={cx(popoverCss, popoverSurfaceCss, triggerWidthCss, className)}
+          className={cx(
+            popoverCss,
+            popoverSurfaceCss,
+            triggerWidthCss,
+            className,
+            surfaceProps?.className,
+          )}
         >
           <DismissButton onDismiss={state.close} />
           {children}

@@ -1,6 +1,6 @@
 import "i18next"
-
-import sharedModule from "../src/locales/en/shared-module.json"
+import type errors from "../src/locales/en/errors.json"
+import type sharedModule from "../src/locales/en/shared-module.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {
@@ -8,6 +8,7 @@ declare module "i18next" {
     fallbackNS: "shared-module"
     resources: {
       "shared-module": typeof sharedModule
+      errors: typeof errors
     }
     allowObjectInHTMLChildren: true
   }

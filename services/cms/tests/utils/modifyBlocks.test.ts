@@ -1,4 +1,4 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 import {
   modifyBlocks,
@@ -22,8 +22,8 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    expect(result[0].attributes.content).toBe("Hello World More Text")
-    expect(blocks[0].attributes.content).toBe("Hello\u00A0World\u2003More\u3000Text")
+    expect(result[0]!.attributes.content).toBe("Hello World More Text")
+    expect(blocks[0]!.attributes.content).toBe("Hello\u00A0World\u2003More\u3000Text")
   })
 
   it("should replace non-breaking spaces in heading blocks", () => {
@@ -42,8 +42,8 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    expect(result[0].attributes.content).toBe("Header Text Here")
-    expect(blocks[0].attributes.content).toBe("Header\u00A0Text\u2003Here")
+    expect(result[0]!.attributes.content).toBe("Header Text Here")
+    expect(blocks[0]!.attributes.content).toBe("Header\u00A0Text\u2003Here")
   })
 
   it("should replace non-breaking spaces in hero-section blocks", () => {
@@ -62,10 +62,10 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    expect(result[0].attributes.title).toBe("Main Title Here")
-    expect(result[0].attributes.subtitle).toBe("Sub Title Text")
-    expect(blocks[0].attributes.title).toBe("Main\u00A0Title\u2003Here")
-    expect(blocks[0].attributes.subtitle).toBe("Sub\u00A0Title\u2003Text")
+    expect(result[0]!.attributes.title).toBe("Main Title Here")
+    expect(result[0]!.attributes.subtitle).toBe("Sub Title Text")
+    expect(blocks[0]!.attributes.title).toBe("Main\u00A0Title\u2003Here")
+    expect(blocks[0]!.attributes.subtitle).toBe("Sub\u00A0Title\u2003Text")
   })
 
   it("should handle nested blocks", () => {
@@ -91,8 +91,8 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    expect(result[0].innerBlocks[0].attributes.content).toBe("Nested Content")
-    expect(blocks[0].innerBlocks[0].attributes.content).toBe("Nested\u00A0Content")
+    expect(result[0]!.innerBlocks[0]!.attributes.content).toBe("Nested Content")
+    expect(blocks[0]!.innerBlocks[0]!.attributes.content).toBe("Nested\u00A0Content")
   })
 
   it("should ignore unsupported block types", () => {
@@ -110,8 +110,8 @@ describe("removeUncommonSpacesFromBlocks", () => {
 
     const result = removeUncommonSpacesFromBlocks(blocks)
 
-    expect(result[0].attributes.caption).toBe("Image\u00A0Caption")
-    expect(blocks[0].attributes.caption).toBe("Image\u00A0Caption")
+    expect(result[0]!.attributes.caption).toBe("Image\u00A0Caption")
+    expect(blocks[0]!.attributes.caption).toBe("Image\u00A0Caption")
   })
 
   it("should handle empty blocks array", () => {
@@ -143,8 +143,8 @@ describe("unsupported block helpers", () => {
 
     const modifiedBlocks = modifyBlocks(blocks, ["core/group"])
 
-    expect(modifiedBlocks[0].innerBlocks[0].name).toBe("moocfi/unsupported-block-type")
-    expect(modifiedBlocks[0].innerBlocks[0].attributes.originalBlockJson).toEqual(
+    expect(modifiedBlocks[0]!.innerBlocks[0]!.name).toBe("moocfi/unsupported-block-type")
+    expect(modifiedBlocks[0]!.innerBlocks[0]!.attributes.originalBlockJson).toEqual(
       unsupportedNestedBlock,
     )
     expect(removeUnsupportedBlockType(modifiedBlocks)).toEqual(blocks)
@@ -158,7 +158,7 @@ describe("unsupported block helpers", () => {
         clientId: "paragraph",
         isValid: true,
       },
-    ] as BlockInstance[]
+    ] as unknown as BlockInstance[]
 
     expect(modifyBlocks(blocks, ["core/paragraph"])).toEqual(blocks)
     expect(removeUnsupportedBlockType(blocks)).toEqual(blocks)
@@ -170,7 +170,7 @@ describe("unsupported block helpers", () => {
       attributes: { value: "nested" },
       clientId: "nested-unsupported",
       isValid: true,
-    } as BlockInstance
+    } as unknown as BlockInstance
     const blocks = [
       {
         name: "core/group",
@@ -183,7 +183,7 @@ describe("unsupported block helpers", () => {
 
     const modifiedBlocks = modifyBlocks(blocks, ["core/group"])
 
-    expect(modifiedBlocks[0].innerBlocks[0].name).toBe("moocfi/unsupported-block-type")
+    expect(modifiedBlocks[0]!.innerBlocks[0]!.name).toBe("moocfi/unsupported-block-type")
     expect(removeUnsupportedBlockType(modifiedBlocks)).toEqual(blocks)
   })
 })

@@ -3,14 +3,12 @@
 import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import TopLevelPages from "./TopLevelPage"
-
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { currentPageDataAtom, viewStatusAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from "../.."
+import TopLevelPages from "./TopLevelPage"
 
 const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
@@ -18,13 +16,13 @@ const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unk
   const pageData = useAtomValue(currentPageDataAtom)
 
   if (viewStatus !== "ready") {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   const courseId = pageData?.course_id
 
   if (!courseId) {
-    return <ErrorBanner variant={"readOnly"} error={t("error-page-does-not-belong-to-chapter")} />
+    return <ErrorNotice error={t("error-page-does-not-belong-to-chapter")} />
   }
   return (
     <div>

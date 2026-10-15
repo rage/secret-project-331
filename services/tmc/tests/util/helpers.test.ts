@@ -1,8 +1,10 @@
 import { deepStrictEqual } from "assert"
 import { readFile } from "fs/promises"
 
+import { test } from "vitest"
+
 import { extractTarZstd } from "@/util/helpers"
-import { ExerciseFile } from "@/util/stateInterfaces"
+import type { ExerciseFile } from "@/util/stateInterfaces"
 
 test("Supports long file names in archives", async () => {
   const testArchive = await readFile("./tests/util/test.tar.zst")

@@ -1,10 +1,12 @@
 import { test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
+import { createCoursePage, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
+import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -22,14 +24,9 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
-  await page.getByRole("button", { name: "New page" }).nth(1).click()
-  await page.getByLabel("Title  *").click()
-  await page.getByLabel("Title  *").fill("Iframe Page")
-  await page.getByRole("button", { name: "Create" }).click()
-  await page
-    .getByRole("row", { name: "Iframe Page /chapter-1/iframe-page Edit page Dropdown menu" })
-    .getByRole("button", { name: "Edit page" })
-    .click()
+  await waitForSpinnersToDisappear(page)
+  await createCoursePage(page, { chapterNumber: 1 }, "Iframe Page")
+  await openCoursePageInEditor(page, "Iframe Page", { chapterNumber: 1 })
   await page.getByRole("button", { name: "Add block" }).click()
   await page.getByPlaceholder("Search").fill("iframe")
   await page.getByRole("option", { name: "Iframe" }).click()

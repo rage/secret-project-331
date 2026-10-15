@@ -1,0 +1,223 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO error_variants (\n    id,\n    service,\n    exact_error_identifier,\n    error_grouping_identifier,\n    error_source,\n    example_message,\n    example_stack_trace,\n    normalized_message,\n    normalized_stack_trace\n)\nVALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8)\nON CONFLICT (service, exact_error_identifier, deleted_at) DO UPDATE SET\n    deleted_at = NULL,\n    resolved_at = NULL,\n    occurrence_count = error_variants.occurrence_count + 1,\n    last_seen_at = now(),\n    updated_at = now()\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "service",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "service"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "exact_error_identifier",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "exact_error_identifier"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "error_grouping_identifier",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "error_grouping_identifier"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "error_source",
+        "type_info": {
+          "Custom": {
+            "name": "error_source",
+            "kind": {
+              "Enum": [
+                "backend",
+                "frontend"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "error_source"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "example_message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "example_message"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "example_stack_trace",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "example_stack_trace"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "normalized_message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "normalized_message"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "normalized_stack_trace",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "normalized_stack_trace"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "occurrence_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "occurrence_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "last_seen_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "last_seen_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "resolved_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "resolved_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "error_variants",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "error_source",
+            "kind": {
+              "Enum": [
+                "backend",
+                "frontend"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "358cd49acbb99dfd81bb1de76b633d9149ea8912efb78d376eee34285689b137"
+}

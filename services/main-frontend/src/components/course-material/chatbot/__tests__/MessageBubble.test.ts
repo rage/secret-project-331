@@ -1,19 +1,18 @@
 import "@testing-library/jest-dom"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
+import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 
 import { renumberFilterCitations } from "../shared/MessageBubble"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
-import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
-
 describe("MessageBubble", () => {
   describe("renumberFilterCitations", () => {
-    const exampleChatbotMessage = `Certainly! The Chinese abacus [doc3], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc3]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc12] and five beads on the lower deck per rod [doc5], operating on a decimal system.`
+    const exampleChatbotMessage = `Certainly! The Chinese abacus 【11:3†source】, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE 【11:3†source】. It features a 【cfcjc】 bead-and-rod system, typically with two beads on the upper deck 【1:12†source】 and five beads on the lower deck per rod 【1:5†source】, operating on a decimal system.`
     const exampleCitedDocs = [3, 3, 12, 5]
 
-    const exampleChatbotMessage2 = `Certainly! The Chinese abacus [doc1], known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE [doc2]. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck [doc3] and five beads on the lower deck per rod [doc4], operating on a decimal system.`
+    const exampleChatbotMessage2 = `Certainly! The Chinese abacus 【11:1†source】, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE 【11:2†source】. It features a 【cfcjc】 bead-and-rod system, typically with two beads on the upper deck 【1:3†source】 and five beads on the lower deck per rod 【1:4†source】, operating on a decimal system.`
     const exampleCitedDocs2 = [1, 2, 3, 4]
 
-    const exampleChatbotMessageNoCitations = `Certainly! The Chinese abacus, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE. It features a [dsdsg] bead-and-rod system, typically with two beads on the upper deck and five beads on the lower deck per rod, operating on a decimal system.`
+    const exampleChatbotMessageNoCitations = `Certainly! The Chinese abacus, known as the "suanpan," dates back to the Han Dynasty, around the 2nd century BCE. It features a 【cfcjc】 bead-and-rod system, typically with two beads on the upper deck and five beads on the lower deck per rod, operating on a decimal system.`
 
     const exampleChatbotMessageCitations: ChatbotConversationMessageCitation[] = [
       // cit 1 and 4 have the same url

@@ -1,13 +1,17 @@
 /*!
 Syncs tmc users
 */
-use std::env;
-
+use crate::config::program_config::ProgramConfig;
+use crate::domain::email_ownership_verification::queue_verification_email_best_effort;
+use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_tokens;
 use crate::setup_tracing;
 use anyhow::Context;
+use headless_lms_base::config::OAuthServerConfiguration;
+use headless_lms_utils::cache::Cache;
+use secrecy::SecretString;
 
 use chrono::DateTime;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models as models;
 use models::users::{get_users_ids_in_db_from_upstream_ids, update_email_for_user};
 
@@ -32,22 +36,34 @@ pub struct Change {
 }
 
 pub async fn main() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let database_url = ProgramConfig::database_url_with_default();
+    // The same variable the server reads into
+    // `ApplicationConfiguration::enable_email_ownership_verification`.
+    let email_ownership_verification_enabled =
+        ProgramConfig::bool_flag("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
     let recent_changes = fetch_recently_changed_user_details().await?;
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
-    delete_users(&mut conn, &recent_changes).await?;
-    update_users(&mut conn, &recent_changes).await?;
+    // Required rather than best-effort: a job run without them would delete users while leaving
+    // their tokens authenticating the exercise-services client API from stale cache hits.
+    let cache = Cache::new(&ProgramConfig::required("REDIS_URL")?)?;
+    let token_hmac_key = OAuthServerConfiguration::try_from_env()?.oauth_token_hmac_key;
+    delete_users(&mut conn, &recent_changes, &cache, &token_hmac_key).await?;
+    update_users(
+        &mut conn,
+        email_ownership_verification_enabled,
+        &recent_changes,
+    )
+    .await?;
     Ok(())
 }
 
 pub async fn update_users(
     conn: &mut PgConnection,
+    email_ownership_verification_enabled: bool,
     recent_changes: &TMCRecentChanges,
 ) -> anyhow::Result<()> {
     let email_update_list = recent_changes
@@ -74,7 +90,7 @@ pub async fn update_users(
         }
     }
 
-    parsed_updates.sort_by(|a, b| a.0.cmp(&b.0));
+    parsed_updates.sort_by_key(|a| a.0);
 
     let email_update_list: Vec<&Change> = parsed_updates
         .into_iter()
@@ -83,14 +99,25 @@ pub async fn update_users(
 
     for change in email_update_list {
         if let Some(user_id) = change.user_id {
-            match update_email_for_user(
-                &mut *conn,
-                &user_id,
-                change.new_value.as_deref().unwrap_or("unknown").to_string(),
-            )
-            .await
-            {
-                Ok(email) => email,
+            // `user_details.email` is CHECKed to contain an '@', so a change carrying no new value
+            // cannot be applied at all.
+            let Some(new_email) = change.new_value.as_deref() else {
+                error!(
+                    "TMC email change {} for user {user_id} carries no new value",
+                    change.id
+                );
+                continue;
+            };
+            match update_email_for_user(&mut *conn, &user_id, new_email.to_string()).await {
+                Ok(changed_user_id) => {
+                    // The `clear_email_verification` trigger just dropped the old address's proof.
+                    queue_verification_email_best_effort(
+                        &mut *conn,
+                        email_ownership_verification_enabled,
+                        changed_user_id,
+                    )
+                    .await;
+                }
                 Err(e) => {
                     error!("Error updating user with id {}", user_id);
                     error!("Error: {}", e);
@@ -106,6 +133,8 @@ pub async fn update_users(
 pub async fn delete_users(
     conn: &mut PgConnection,
     recent_changes: &TMCRecentChanges,
+    cache: &Cache,
+    token_hmac_key: &SecretString,
 ) -> anyhow::Result<()> {
     let to_delete = recent_changes
         .changes
@@ -117,16 +146,15 @@ pub async fn delete_users(
     let user_ids_in_db = get_users_ids_in_db_from_upstream_ids(&mut *conn, &to_delete).await?;
     info!("{} users need to be deleted", to_delete.len());
     for id in user_ids_in_db {
-        models::users::delete_user(&mut *conn, id).await?;
+        delete_user_and_invalidate_cached_tokens(&mut *conn, cache, token_hmac_key, id).await?;
     }
     info!("Deletions done");
     Ok(())
 }
 
 pub async fn fetch_recently_changed_user_details() -> anyhow::Result<TMCRecentChanges> {
-    let access_token = env::var("TMC_ACCESS_TOKEN").expect("TMC_ACCESS_TOKEN must be defined");
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    let access_token = ProgramConfig::required("TMC_ACCESS_TOKEN")?;
+    let ratelimit_api_key = ProgramConfig::required("RATELIMIT_PROTECTION_SAFE_API_KEY")?;
     let client = reqwest::Client::new();
     let res = client
         .get(URL)

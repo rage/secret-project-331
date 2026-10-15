@@ -1,13 +1,14 @@
+/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
+import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
-import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -24,7 +25,10 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("The Basics").click()
 
-  await page.getByText("Page One").first().click()
+  await page
+    .getByTestId("pages-in-chapter-container")
+    .getByRole("link", { name: "Page One" })
+    .click()
   await page.locator(`text=Everything is a big topic`).waitFor()
 
   // page has a frame that pushes all the content down after loafing, so let's wait for it to load first
@@ -61,11 +65,14 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "feedback-input",
+    beforeScreenshot: async () => {
+      await page.locator("#feedback-dialog-content").evaluate((e) => (e.scrollTop = e.scrollHeight))
+    },
     waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 
-  await page.click(`button:text("Add comment")`)
-  await page.click(`button:text("Send")`)
+  await page.getByRole("button", { name: "Add comment", exact: true }).click()
+  await page.getByRole("button", { name: "Send", exact: true }).click()
   await page.getByText("Feedback submitted successfully").waitFor()
 
   await logout(page)
@@ -75,7 +82,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Introduction to feedback'\"] svg").click()
 
-  await Promise.all([page.getByRole("tab", { name: "Feedback 4" }).click()])
+  await page.getByRole("tab", { name: "Feedback 6" }).click()
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
   await page.getByText(`Page: Page One`).waitFor()
@@ -106,6 +113,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "feedback-empty",
     waitForTheseToBeVisibleAndStable: [page.locator(`text=No feedback`)],
+    // oxlint-disable-next-line require-await -- async for the beforeScreenshot Promise<void> contract
     beforeScreenshot: async () => {
       page.evaluate(() => {
         window.scrollTo({ top: 0, left: 0 })

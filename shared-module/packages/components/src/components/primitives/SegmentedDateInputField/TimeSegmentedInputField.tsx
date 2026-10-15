@@ -5,30 +5,39 @@ import React from "react"
 import type { TimeValue } from "react-aria"
 import { useTimeField } from "react-aria"
 
-import { NonPickerSegmentedField } from "./NonPickerSegmentedField"
-import type { TimeOnlyFieldProps } from "./segmentTypes"
+import { omitUndefined } from "../../../lib/utils/nullability"
 import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import {
   emitSyntheticChange,
   parseTimeOnlyValue,
+  resolveMinuteStep,
   serializeTimeValue,
   useSegmentedFieldBase,
 } from "./segmentedDateInputFieldUtils"
+import type { TimeOnlyFieldProps } from "./segmentTypes"
+import { TimePickerSegmentedField } from "./TimePickerSegmentedField"
 
-/** Segmented control for `time` inputs (no calendar). */
+/** Segmented control for `time` inputs with a time selector popover. */
 export function TimeSegmentedInputField(
   props: TimeOnlyFieldProps,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const base = useSegmentedFieldBase(props, forwardedRef)
   const granularity = minuteGranularity
-  const parsedValue = parseTimeOnlyValue(base.value)
-  const parsedDefaultValue = parseTimeOnlyValue(base.defaultValue)
-  const parsedMinValue = parseTimeOnlyValue(base.min)
-  const parsedMaxValue = parseTimeOnlyValue(base.max)
+  // react-aria's useTimeField enters an infinite render loop when the controlled `value` is a fresh
+  // object identity on every render (useDateField, used by the date/datetime paths, tolerates it).
+  // Memoize the parsed values so their identity stays stable while the underlying string is unchanged.
+  const parsedValue = React.useMemo(() => parseTimeOnlyValue(base.value), [base.value])
+  const parsedMinValue = React.useMemo(() => parseTimeOnlyValue(base.min), [base.min])
+  const parsedMaxValue = React.useMemo(() => parseTimeOnlyValue(base.max), [base.max])
+
+  const commitValue = (nextValue: TimeValue | null) => {
+    const serializedValue = serializeTimeValue(nextValue, granularity)
+    base.onValueChange?.(serializedValue)
+    emitSyntheticChange(base.hiddenInputRef.current, base.onChange, serializedValue)
+  }
 
   const fieldProps = {
-    ...base.rest,
     id: base.id,
     inputRef: base.hiddenInputRef,
     label: base.label,
@@ -36,39 +45,35 @@ export function TimeSegmentedInputField(
     errorMessage: base.errorMessage,
     locale: base.locale,
     granularity,
-    hourCycle: base.hourCycle,
-    value: base.isControlled ? (parsedValue ?? null) : undefined,
-    defaultValue: base.defaultValue !== undefined ? (parsedDefaultValue ?? null) : undefined,
-    minValue: parsedMinValue,
-    maxValue: parsedMaxValue,
+    value: parsedValue ?? null,
     isDisabled: base.resolvedState.isDisabled,
     isReadOnly: base.resolvedState.isReadOnly,
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
-    onBlur: base.onBlur as React.FocusEventHandler<Element> | undefined,
-    onChange: (nextValue: TimeValue | null) => {
-      emitSyntheticChange(
-        base.hiddenInputRef.current,
-        base.onChange,
-        serializeTimeValue(nextValue, granularity),
-      )
-    },
-    onFocus: base.onFocus as React.FocusEventHandler<Element> | undefined,
+    ...omitUndefined({
+      hourCycle: base.hourCycle,
+      minValue: parsedMinValue,
+      maxValue: parsedMaxValue,
+    }),
+    onChange: commitValue,
   }
 
   const state = useTimeFieldState(fieldProps)
   const aria = useTimeField(fieldProps, state, base.fieldRef)
 
   return (
-    <NonPickerSegmentedField
+    <TimePickerSegmentedField
       aria={aria}
       className={base.className}
+      dataTestId={base.dataTestId}
       description={base.description}
       errorMessage={base.errorMessage}
       fieldRef={base.fieldRef}
       fieldSize={base.fieldSize}
+      groupRef={base.groupRef}
       hiddenInputRef={base.hiddenInputRef}
       hiddenInputValue={serializeTimeValue(state.value as TimeValue | null, granularity)}
+      inputRef={base.inputRef}
       iconEnd={base.iconEnd}
       iconStart={base.iconStart}
       isFocused={base.isFocused}
@@ -76,9 +81,20 @@ export function TimeSegmentedInputField(
       layout={base.layout}
       notice={base.notice}
       noticeId={base.noticeId}
+      externalOnBlur={base.externalOnBlur}
+      externalOnFocus={base.externalOnFocus}
       resolvedState={base.resolvedState}
       setIsFocused={base.setIsFocused}
       state={state}
+      timeSelectorProps={{
+        granularity,
+        isDisabled: base.resolvedState.isDisabled,
+        isReadOnly: base.resolvedState.isReadOnly,
+        minuteStep: resolveMinuteStep(base.step),
+        value: parsedValue ?? null,
+        onChange: commitValue,
+        ...omitUndefined({ hourCycle: base.hourCycle }),
+      }}
     />
   )
 }

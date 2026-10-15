@@ -1,16 +1,14 @@
-"use client"
-
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 
-import { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
-import ParsedText from "../../../ParsedText"
-
-import { QuizItemSubmissionComponentProps } from "."
-
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemScale } from "../../../../../types/quizTypes/publicSpec"
+import ParsedText from "../../../ParsedText"
 
 const Scale: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>
@@ -22,6 +20,7 @@ const Scale: React.FC<
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role=group keeps emotion flex layout; fieldset adds UA styling
       role="group"
       aria-labelledby={radioLabelId}
       className={css`
@@ -43,7 +42,7 @@ const Scale: React.FC<
             flex: 5;
             margin: 0.5rem 0;
             color: #4c5868;
-            font-family: "Raleway", sans-serif;
+            font-family: ${primaryFont};
             font-size: 1.25rem;
             margin-bottom: 1rem;
             font-weight: 500;
@@ -117,6 +116,7 @@ const Scale: React.FC<
                   value={value}
                   checked={user_quiz_item_answer?.intData.toString() === value}
                   disabled
+                  readOnly
                 />
                 <span>{value}</span>
               </label>

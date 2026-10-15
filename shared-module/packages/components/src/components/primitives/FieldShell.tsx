@@ -16,21 +16,22 @@ import {
 } from "./fieldShellStyles"
 import { fieldControlCss, type FieldSize, resolveFieldLabelCss } from "./fieldStyles"
 
-type ControlProps = React.HTMLAttributes<HTMLDivElement> & {
-  [key: `data-${string}`]: string | undefined
-}
+type ControlProps = React.HTMLAttributes<HTMLDivElement> &
+  Record<`data-${string}`, string | undefined>
 
 type FieldShellProps = React.PropsWithChildren<{
   className?: string
   controlClassName?: string
   controlProps?: ControlProps
   label?: React.ReactNode
-  labelProps?: React.HTMLAttributes<HTMLElement>
+  labelProps?: React.HTMLAttributes<HTMLElement> | React.LabelHTMLAttributes<HTMLLabelElement>
   inputId?: string
   description?: React.ReactNode
   descriptionId?: string
+  descriptionProps?: React.HTMLAttributes<HTMLElement>
   errorMessage?: React.ReactNode
   errorMessageId?: string
+  errorMessageProps?: React.HTMLAttributes<HTMLElement>
   notice?: React.ReactNode
   noticeId?: string
   isDisabled?: boolean
@@ -54,8 +55,10 @@ export function FieldShell({
   inputId,
   description,
   descriptionId,
+  descriptionProps,
   errorMessage,
   errorMessageId,
+  errorMessageProps,
   notice,
   noticeId,
   isDisabled = false,
@@ -77,6 +80,15 @@ export function FieldShell({
   const renderStackedLabel = () => {
     if (!label) {
       return null
+    }
+
+    if (labelProps && "htmlFor" in labelProps && typeof labelProps.htmlFor === "string") {
+      return (
+        <label {...labelProps} className={cx(stackedLabelCss, labelProps.className)}>
+          {label}
+          {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+        </label>
+      )
     }
 
     if (labelProps) {
@@ -103,6 +115,15 @@ export function FieldShell({
 
     const labelClassName = cx(resolveFieldLabelCss(fieldSize), labelProps?.className)
 
+    if (labelProps && "htmlFor" in labelProps && typeof labelProps.htmlFor === "string") {
+      return (
+        <label {...labelProps} className={labelClassName}>
+          {label}
+          {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+        </label>
+      )
+    }
+
     if (labelProps) {
       return (
         <span {...labelProps} className={labelClassName}>
@@ -127,6 +148,7 @@ export function FieldShell({
       <div
         {...controlProps}
         className={controlSlotClassName}
+        data-field-control={layout === "floating" ? "true" : undefined}
         data-floated={layout === "floating" ? (isFloatingRaised ? "true" : "false") : undefined}
         data-focused={layout === "floating" ? (isFloatingFocused ? "true" : "false") : undefined}
         data-invalid={layout === "floating" ? (isInvalid ? "true" : "false") : undefined}
@@ -140,7 +162,11 @@ export function FieldShell({
       {description || notice || errorMessage ? (
         <div className={messagesCss}>
           {description ? (
-            <div className={descriptionCss} id={descriptionId}>
+            <div
+              {...descriptionProps}
+              className={cx(descriptionCss, descriptionProps?.className)}
+              id={descriptionId ?? descriptionProps?.id}
+            >
               {description}
             </div>
           ) : null}
@@ -150,7 +176,12 @@ export function FieldShell({
             </div>
           ) : null}
           {errorMessage ? (
-            <div className={errorCss} id={errorMessageId} role="alert">
+            <div
+              {...errorMessageProps}
+              className={cx(errorCss, errorMessageProps?.className)}
+              id={errorMessageId ?? errorMessageProps?.id}
+              role={errorMessageProps?.role ?? "alert"}
+            >
               {errorMessage}
             </div>
           ) : null}

@@ -1,0 +1,262 @@
+"use client"
+
+import { produce } from "immer"
+import { v4 } from "uuid"
+
+import {
+  zChatbotConversationMessageMessage,
+  zChatbotConversationMessageReasoning,
+  zChatbotConversationMessageToolCall,
+} from "@/generated/course-material-api/zod.generated"
+
+import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+
+export interface ChatbotState {
+  messages: ChatbotConversationMessageWithStatus[]
+  /** Data an executed action tool call sent back for this browser only, keyed by `tool_call_id`.
+   * In-memory only: never persisted, and lost on reload like the rest of a live stream's state. */
+  executionPayloadByToolCallId: Record<string, unknown>
+}
+
+// todo: accpt chat stream events?
+export type ChatbotAction =
+  | { type: "USER_SENDS_MESSAGE"; payload: string }
+  | {
+      type: "RECEIVED_TEXT_DELTA"
+      payload: {
+        message_id: string
+        text: string
+      }
+    }
+  | {
+      type: "TOOL_CALL_IN_PROGRESS"
+      payload: {
+        arguments?: string | null | undefined
+        finished: boolean
+        tool_call_id: string
+        tool_name?: string | null | undefined
+      }
+    }
+  | { type: "TOOL_CALL_FINISHED"; payload: { tool_call_id: string } }
+  | { type: "ACTION_EXECUTED"; payload: { tool_call_id: string; payload: unknown } }
+  | { type: "REASONING_IN_PROGRESS"; payload: { reasoning_id: string } }
+  | { type: "REASONING_FINISHED"; payload: { reasoning_id: string } }
+  | { type: "RESPONSE_COMPLETED" }
+  | { type: "TURN_ENDED" }
+
+const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotState => {
+  return produce(state, (draftState) => {
+    if (action.type === "USER_SENDS_MESSAGE") {
+      const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
+
+      draftState.messages.push({
+        message: {
+          id: v4(),
+          message: {
+            id: v4(),
+            text: action.payload,
+            // oxlint-disable-next-line i18next/no-literal-string
+            message_role: "user",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            message_is_complete: true,
+            response_id: null,
+            used_tokens: 0,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          conversation_id: "",
+          order_number: lastOrderNumber + 1,
+        },
+        finished: true,
+        optimistic: true,
+      })
+    }
+    if (action.type === "RECEIVED_TEXT_DELTA") {
+      const streamingMessageIdx = draftState.messages.findIndex((m) => {
+        return m.message.id === action.payload.message_id
+      })
+      const streamingMessageWithStatus = draftState.messages[streamingMessageIdx]
+      const textMessageParseResult = zChatbotConversationMessageMessage.safeParse(
+        streamingMessageWithStatus?.message?.message,
+      )
+      if (
+        textMessageParseResult.success &&
+        streamingMessageWithStatus &&
+        !streamingMessageWithStatus.finished &&
+        !streamingMessageWithStatus.optimistic
+      ) {
+        // if the currently streamed response already has a message in the state
+        textMessageParseResult.data.text += action.payload.text
+        streamingMessageWithStatus.message.message = {
+          ...textMessageParseResult.data,
+          deleted_at: textMessageParseResult.data.deleted_at ?? null,
+          response_id: textMessageParseResult.data.response_id ?? null,
+        }
+      } else {
+        // create a new message for the currently streamed response
+        const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
+
+        draftState.messages.push({
+          message: {
+            id: action.payload.message_id,
+            message: {
+              id: v4(),
+              text: action.payload.text,
+              // oxlint-disable-next-line i18next/no-literal-string
+              message_role: "assistant",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: null,
+              chatbot_conversation_message_id: v4(),
+              message_is_complete: false,
+              response_id: null,
+              used_tokens: 0,
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            conversation_id: "",
+            order_number: lastOrderNumber + 1,
+          },
+          finished: false,
+          optimistic: false,
+        })
+      }
+    }
+    if (action.type === "TOOL_CALL_IN_PROGRESS") {
+      const toolCallMessageIdx = draftState.messages.findIndex((m) => {
+        let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+        return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
+      })
+      const toolCallMessage = draftState.messages[toolCallMessageIdx]
+      if (toolCallMessage !== undefined) {
+        // tool call found
+        let toolCall = toolCallMessage.message.message
+        let res = zChatbotConversationMessageToolCall.safeParse(toolCall)
+        if (!res.success) {
+          return
+        }
+        // update arguments for the tool call
+        if (action.payload.arguments !== null && action.payload.arguments !== undefined) {
+          res.data.tool_arguments = action.payload.arguments
+        }
+        toolCallMessage.message.message = {
+          ...res.data,
+          deleted_at: res.data.deleted_at ?? null,
+        }
+      } else {
+        // create new message
+        const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
+
+        draftState.messages.push({
+          message: {
+            id: v4(),
+            message: {
+              id: v4(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: null,
+              chatbot_conversation_message_id: v4(),
+              response_id: "",
+              tool_arguments: action.payload.arguments ?? "",
+              tool_call_id: action.payload.tool_call_id,
+              // oxlint-disable-next-line i18next/no-literal-string
+              tool_kind: "function",
+              tool_name: action.payload.tool_name ?? "",
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            conversation_id: "",
+            order_number: lastOrderNumber + 1,
+          },
+          finished: false,
+          optimistic: false,
+        })
+      }
+    }
+    if (action.type === "TOOL_CALL_FINISHED") {
+      const toolCallMessageIdx = draftState.messages.findIndex((m) => {
+        let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+        return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
+      })
+      const toolCallMessage = draftState.messages[toolCallMessageIdx]
+      if (toolCallMessage !== undefined) {
+        // tool call found
+        // set the tool call as finished
+        toolCallMessage.finished = true
+      } else {
+        console.warn("Received a tool call finished event but in progress tool call was not found")
+        return
+      }
+    }
+    if (action.type === "ACTION_EXECUTED") {
+      draftState.executionPayloadByToolCallId[action.payload.tool_call_id] = action.payload.payload
+    }
+    if (action.type === "REASONING_IN_PROGRESS") {
+      const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
+
+      draftState.messages.push({
+        message: {
+          id: v4(),
+          message: {
+            id: v4(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            response_id: "",
+            reasoning_id: action.payload.reasoning_id,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          conversation_id: "",
+          order_number: lastOrderNumber + 1,
+        },
+        finished: false,
+        optimistic: false,
+      })
+    }
+    if (action.type === "REASONING_FINISHED") {
+      const reasoningMessageIdx = draftState.messages.findIndex((m) => {
+        let res = zChatbotConversationMessageReasoning.safeParse(m.message.message)
+        return res.success && res.data.reasoning_id === action.payload.reasoning_id && !m.finished
+      })
+      const reasoningMessage = draftState.messages[reasoningMessageIdx]
+      if (reasoningMessage !== undefined) {
+        // found
+        reasoningMessage.finished = true
+      } else {
+        console.warn(
+          "Received a reasoning finished event but in progress reasoning item was not found",
+        )
+        return
+      }
+    }
+    if (action.type === "RESPONSE_COMPLETED") {
+      draftState.messages = []
+    }
+    if (action.type === "TURN_ENDED") {
+      // An `Error` event or a stream that closes early never sends the matching
+      // TOOL_CALL_FINISHED/REASONING_FINISHED, so without this those items would stay
+      // finished: false after the turn that was writing them is over.
+      draftState.messages.forEach((m) => {
+        m.finished = true
+      })
+    }
+  })
+}
+
+/** Whether the chatbot has produced anything of its own yet in the running turn's messages, as
+ * opposed to only the learner's optimistic message — the signal for whether the thinking status
+ * row should still be shown instead of the chatbot's own streamed content. */
+export const hasStreamedAssistantContent = (
+  messages: ChatbotConversationMessageWithStatus[],
+): boolean => messages.some((m) => !m.optimistic)
+
+export default chatbotReducer

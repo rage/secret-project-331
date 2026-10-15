@@ -1,15 +1,15 @@
 "use client"
 
-import { BlockConfiguration } from "@wordpress/blocks"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
 import CongratulationsEditor from "./CongratulationsEditor"
 import CongratulationsSave from "./CongratulationsSave"
 
 const CONGRATULATIONS = "Congratulations"
 
 const CongratulationsConfiguration: BlockConfiguration = {
+  apiVersion: 3,
   title: CONGRATULATIONS,
   description: CONGRATULATIONS,
   category: MOOCFI_CATEGORY_SLUG,

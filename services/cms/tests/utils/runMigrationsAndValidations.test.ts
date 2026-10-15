@@ -1,5 +1,6 @@
 import { jest } from "@jest/globals"
-import type { BlockInstance } from "@wordpress/blocks"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const loadRunMigrationsAndValidations = async () => {
   await jest.unstable_mockModule("@wordpress/blocks", () => ({
@@ -7,8 +8,8 @@ const loadRunMigrationsAndValidations = async () => {
     getBlockType: jest.fn(() => undefined),
   }))
 
-  const module = await import("../../src/utils/Gutenberg/runMigrationsAndValidations")
-  return module.default
+  const imported = await import("../../src/utils/Gutenberg/runMigrationsAndValidations")
+  return imported.default
 }
 
 describe("runMigrationsAndValidations", () => {
@@ -25,7 +26,7 @@ describe("runMigrationsAndValidations", () => {
         clientId: "paragraph",
         isValid: true,
       },
-    ] as BlockInstance[]
+    ] as unknown as BlockInstance[]
     const runMigrationsAndValidations = await loadRunMigrationsAndValidations()
     const result = runMigrationsAndValidations(content)
 
@@ -40,7 +41,7 @@ describe("runMigrationsAndValidations", () => {
         clientId: "aside",
         isValid: true,
       },
-    ] as BlockInstance[]
+    ] as unknown as BlockInstance[]
     const runMigrationsAndValidations = await loadRunMigrationsAndValidations()
     const result = runMigrationsAndValidations(content)
 

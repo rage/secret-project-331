@@ -1,9 +1,9 @@
-"use client"
-
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { v4 } from "uuid"
 
-import {
+import { emptyMatrixGrid } from "@/util/matrix"
+
+import type {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -34,7 +34,7 @@ const findQuizItem = <T,>(
     return null
   }
 
-  const item = quiz.items.find((item) => item.id === quizItemId)
+  const item = quiz.items.find((quizItem) => quizItem.id === quizItemId)
   if (!item) {
     return null
   }
@@ -45,18 +45,6 @@ const findQuizItem = <T,>(
   return null
 }
 
-const createEmptyMatrix = () => {
-  const emptyMatrix: string[][] = []
-  for (let i = 0; i < 6; i++) {
-    const columnArray: string[] = []
-    for (let j = 0; j < 6; j++) {
-      columnArray.push("")
-    }
-    emptyMatrix.push(columnArray)
-  }
-  return emptyMatrix
-}
-
 const createEmptyQuizItem = (type: QuizItemType) => {
   switch (type) {
     case "checkbox":
@@ -64,56 +52,54 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         type,
         id: v4(),
         body: null,
-        failureMessage: null,
         order: 0,
-        successMessage: null,
         title: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemCheckbox
     case "choose-n":
       return {
         type,
         id: v4(),
-        failureMessage: null,
         order: 0,
-        successMessage: null,
         title: null,
         body: null,
         n: 2,
         options: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemChooseN
     case "closed-ended-question":
       return {
         type,
         id: v4(),
         body: null,
-        failureMessage: null,
         formatRegex: null,
+        gradingStrategy: null,
         order: 0,
-        successMessage: null,
         title: null,
-        validityRegex: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemClosedEndedQuestion
     case "essay":
       return {
         type,
         id: v4(),
         body: null,
-        failureMessage: null,
         maxWords: 150,
         minWords: 0,
         order: 0,
-        successMessage: null,
         title: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemEssay
     case "matrix":
       return {
         type,
         id: v4(),
-        optionCells: createEmptyMatrix(),
+        optionCells: emptyMatrixGrid(),
         order: 0,
-        successMessage: null,
-        failureMessage: null,
+        feedbackMessages: [],
+        gradingPolicy: "whole-matrix",
+        tolerance: 0,
+        partialCreditForWrongShape: false,
+        fogOfWar: false,
       } as PrivateSpecQuizItemMatrix
     case "multiple-choice":
       return {
@@ -122,16 +108,13 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         allowSelectingMultipleOptions: false,
         body: null,
         optionDisplayDirection: "vertical",
-        failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
         order: 0,
-        sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
-        successMessage: null,
         title: null,
         fogOfWar: false,
         options: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemMultiplechoice
     case "multiple-choice-dropdown":
       return {
@@ -140,40 +123,34 @@ const createEmptyQuizItem = (type: QuizItemType) => {
         allowSelectingMultipleOptions: false,
         body: null,
         direction: "row",
-        failureMessage: null,
         multipleChoiceMultipleOptionsGradingPolicy: "default",
         order: 0,
-        sharedOptionFeedbackMessage: null,
         shuffleOptions: false,
-        successMessage: null,
         title: null,
         options: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemMultiplechoiceDropdown
     case "scale":
       return {
         type,
         id: v4(),
-        failureMessage: null,
         maxLabel: null,
         maxValue: 5,
         minLabel: null,
         minValue: 0,
         order: 0,
-        successMessage: null,
         title: null,
         body: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemScale
     case "timeline":
       return {
         events: [],
         type,
         id: v4(),
-        failureMessage: null,
         order: 0,
-        successMessage: null,
         timelineItems: [],
-        messageOnModelSolution: null,
+        feedbackMessages: [],
       } as PrivateSpecQuizItemTimeline
   }
 }

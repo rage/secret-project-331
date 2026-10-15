@@ -1,62 +1,79 @@
 "use client"
 
-import { UseQueryResult } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import ChatbotDisclaimer from "../ChatbotDisclaimer"
-
-import { MessageAction } from "./useChatbotStateAndData"
-
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import type {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+} from "@/generated/course-material-api/types.generated"
 import { waitForNextTick } from "@/shared-module/common/utils/async"
-import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"
+import { useDialog } from "@/shared-module/components"
+import {
+  defaultChatbotCommunicationChannel,
+  defaultChatbotIsTurnInFlight,
+} from "@/stores/course-material/chatbotDialogStore"
+
+import ChatbotDisclaimer from "../ChatbotDisclaimer"
+import type { ChatbotAction } from "../chatbotReducer"
 
 /// Sets a communication channel so that components outside ChatbotDialog can send
 /// messages to the default chatbot of the course.
 const useSynchronizeDefaultChatbotCommunicationChannel = (
-  isCourseMaterialBlock: boolean,
+  isAlwaysOpen: boolean,
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
   mutateNewMessageAsync: (message: string) => Promise<unknown>,
   mutateNewConversationAsync: () => Promise<ChatbotConversation>,
-  dispatch: (a: MessageAction) => void,
+  dispatch: (a: ChatbotAction) => void,
+  isTurnInFlight: boolean,
 ): void => {
   const { t } = useTranslation()
   const setDefaultChatbotCommunicationChannel = useSetAtom(defaultChatbotCommunicationChannel)
+  const setDefaultChatbotIsTurnInFlight = useSetAtom(defaultChatbotIsTurnInFlight)
   const { confirm } = useDialog()
 
+  // Fields, not the result object: React Query returns a fresh one per render, which would rebuild
+  // the channel on every streamed token.
+  const currentConversation = currentConversationInfo.data?.current_conversation
+  const refetchConversationInfo = currentConversationInfo.refetch
+
   useEffect(() => {
-    if (!isCourseMaterialBlock) {
-      setDefaultChatbotCommunicationChannel({
-        sendNewMessage: async (message) => {
-          if (!currentConversationInfo.data?.current_conversation) {
-            const confirmed = await confirm(
-              <ChatbotDisclaimer hideHeader={true} />,
-              t("about-the-chatbot"),
-              {
-                yesButtonLabel: t("button-text-agree"),
-                noButtonLabel: t("button-text-cancel"),
-              },
-            )
+    if (isAlwaysOpen) {
+      return undefined
+    }
+    setDefaultChatbotCommunicationChannel({
+      sendNewMessage: async (message) => {
+        try {
+          if (!currentConversation) {
+            const confirmed = await confirm({
+              message: <ChatbotDisclaimer hideHeader={true} />,
+              title: t("about-the-chatbot"),
+              confirmLabel: t("button-text-agree"),
+              cancelLabel: t("button-text-cancel"),
+            })
             if (!confirmed) {
               return
             }
             await mutateNewConversationAsync()
-            dispatch({ type: "RESET_MESSAGES" })
-            await currentConversationInfo.refetch()
+            dispatch({ type: "RESPONSE_COMPLETED" })
+            await refetchConversationInfo()
           }
           // waiting for refetch
           await waitForNextTick()
           await mutateNewMessageAsync(message)
-        },
-      })
-      return () => setDefaultChatbotCommunicationChannel(null)
-    }
+        } catch {
+          // The mutation's own onError surfaces the failure, and a send started while a turn is
+          // already running is refused there too.
+        }
+      },
+    })
+    return () => setDefaultChatbotCommunicationChannel(null)
   }, [
-    isCourseMaterialBlock,
-    currentConversationInfo,
+    isAlwaysOpen,
+    currentConversation,
+    refetchConversationInfo,
     setDefaultChatbotCommunicationChannel,
     mutateNewMessageAsync,
     confirm,
@@ -64,6 +81,23 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
     dispatch,
     t,
   ])
+
+  // Own effect so unmounting resets the value once, instead of every value-setting run also
+  // tearing it down and letting the next run's set-up re-emit it: that turned every turn start
+  // into two announcements (false, then true) to every subscriber.
+  useEffect(() => {
+    if (isAlwaysOpen) {
+      return undefined
+    }
+    return () => setDefaultChatbotIsTurnInFlight(false)
+  }, [isAlwaysOpen, setDefaultChatbotIsTurnInFlight])
+
+  useEffect(() => {
+    if (isAlwaysOpen) {
+      return
+    }
+    setDefaultChatbotIsTurnInFlight(isTurnInFlight)
+  }, [isAlwaysOpen, isTurnInFlight, setDefaultChatbotIsTurnInFlight])
 }
 
 export default useSynchronizeDefaultChatbotCommunicationChannel

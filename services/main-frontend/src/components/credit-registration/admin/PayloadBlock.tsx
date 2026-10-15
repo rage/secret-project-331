@@ -1,0 +1,28 @@
+"use client"
+
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { CopyButton } from "@/shared-module/components"
+
+import { CREDIT_REGISTRATION_NS } from "../constants"
+import { emptyStateCss, payloadCss } from "../styles"
+
+const JSON_INDENT = 2
+
+/** One stored JSON body: pretty-printed and copyable, or the note that none was kept. */
+const PayloadBlock: React.FC<{ body: unknown }> = ({ body }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (body === null || body === undefined) {
+    return <p className={emptyStateCss}>{t("credit-registration-admin-no-body-stored")}</p>
+  }
+  const text = JSON.stringify(body, null, JSON_INDENT)
+  return (
+    <>
+      <pre className={payloadCss}>{text}</pre>
+      <CopyButton value={text} label={t("credit-registration-admin-copy-stored-body")} />
+    </>
+  )
+}
+
+export default PayloadBlock

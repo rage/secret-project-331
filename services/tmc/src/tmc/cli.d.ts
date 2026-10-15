@@ -1,5 +1,5 @@
 // VERSION=0.38.1
-// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.38.1/crates/tmc-langs-cli/bindings.d.ts
+// Type surface regenerated from tmc-langs-rust 3d8190f599c (tmc-langs-cli 0.40.0) by bin/tmc-langs-update-bindings-from-checkout
 
 export type Locale = string
 
@@ -18,16 +18,10 @@ export type DataKind =
       "output-data-kind": "exercise-packaging-configuration"
       "output-data": ExercisePackagingConfiguration
     }
-  | { "output-data-kind": "local-tmc-exercises"; "output-data": Array<LocalTmcExercise> }
-  | { "output-data-kind": "local-mooc-exercises"; "output-data": Array<LocalMoocExercise> }
   | { "output-data-kind": "refresh-result"; "output-data": RefreshData }
   | { "output-data-kind": "test-result"; "output-data": RunResult }
   | { "output-data-kind": "exercise-desc"; "output-data": ExerciseDesc }
   | { "output-data-kind": "updated-exercises"; "output-data": Array<UpdatedExercise> }
-  | {
-      "output-data-kind": "tmc-exercise-download"
-      "output-data": DownloadOrUpdateTmcCourseExercisesResult
-    }
   | {
       "output-data-kind": "mooc-exercise-download"
       "output-data": DownloadOrUpdateMoocCourseExercisesResult
@@ -51,13 +45,29 @@ export type DataKind =
     }
   | { "output-data-kind": "submission-finished"; "output-data": SubmissionFinished }
   | { "output-data-kind": "config-value"; "output-data": ConfigValue }
-  | { "output-data-kind": "tmc-config"; "output-data": TmcConfig }
   | { "output-data-kind": "compressed-project-hash"; "output-data": string }
   | { "output-data-kind": "submission-sandbox"; "output-data": string }
-  | { "output-data-kind": "mooc-course-instances"; "output-data": Array<CourseInstance> }
+  | { "output-data-kind": "local-tmc-exercises"; "output-data": Array<LocalTmcExercise> }
+  | {
+      "output-data-kind": "tmc-exercise-download"
+      "output-data": DownloadOrUpdateTmcCourseExercisesResult
+    }
+  | { "output-data-kind": "tmc-config"; "output-data": TmcConfig }
+  | { "output-data-kind": "mooc-updated-exercises"; "output-data": Array<string> }
+  | { "output-data-kind": "local-mooc-exercises"; "output-data": Array<LocalMoocExercise> }
+  | { "output-data-kind": "mooc-course"; "output-data": MoocCourse }
+  | { "output-data-kind": "mooc-courses"; "output-data": Array<MoocCourse> }
   | { "output-data-kind": "mooc-exercise-slides"; "output-data": Array<TmcExerciseSlide> }
   | { "output-data-kind": "mooc-exercise-slide"; "output-data": TmcExerciseSlide }
   | { "output-data-kind": "mooc-submission-finished"; "output-data": ExerciseTaskSubmissionResult }
+  | { "output-data-kind": "mooc-submission-status"; "output-data": ExerciseTaskSubmissionStatus }
+  | {
+      "output-data-kind": "mooc-submissions"
+      "output-data": Array<ExerciseSlideSubmissionListItem>
+    }
+  | { "output-data-kind": "mooc-paste"; "output-data": PasteResult }
+  | { "output-data-kind": "mooc-course-progress"; "output-data": CourseProgress }
+  | { "output-data-kind": "mooc-old-submission-restore"; "output-data": MoocOldSubmissionRestore }
 
 export type Kind =
   | "generic"
@@ -66,15 +76,11 @@ export type Kind =
   | "connection-error"
   | "obsolete-client"
   | "invalid-token"
-  | {
-      "failed-exercise-download": {
-        completed: Array<TmcExerciseDownload>
-        skipped: Array<TmcExerciseDownload>
-        failed: Array<[TmcExerciseDownload, Array<string>]>
-      }
-    }
+  | "not-enrolled"
+  | "upload-expired"
+  | "unknown-upload"
 
-export type OutputData = {
+export interface OutputData {
   status: Status
   message: string
   result: OutputResult
@@ -92,13 +98,41 @@ export type Status = "finished" | "crashed"
 
 export type StatusUpdateData =
   | ({ "update-data-kind": "client-update-data" } & StatusUpdate<ClientUpdateData>)
+  | ({ "update-data-kind": "mooc-client-update-data" } & StatusUpdate<MoocClientUpdateData>)
+  | ({ "update-data-kind": "mooc-device-login" } & StatusUpdate<MoocDeviceLogin>)
   | ({ "update-data-kind": "none" } & StatusUpdate<null>)
 
-export type Notification = { "notification-kind": NotificationKind; message: string }
+export interface MoocDeviceLogin {
+  /**
+   * URL the user opens to enter the `user_code`.
+   */
+  verification_uri: string
+  /**
+   * URL that already includes the `user_code`, if the server provided one.
+   */
+  verification_uri_complete: string | null
+  /**
+   * The code the user enters (or confirms) on the verification page.
+   */
+  user_code: string
+  /**
+   * Seconds until the device/user codes expire.
+   */
+  expires_in: number
+  /**
+   * Minimum seconds between token-endpoint polls.
+   */
+  interval: number
+}
+
+export interface Notification {
+  "notification-kind": NotificationKind
+  message: string
+}
 
 export type NotificationKind = "warning" | "info"
 
-export type StatusUpdate<T> = {
+export interface StatusUpdate<T> {
   finished: boolean
   message: string
   "percent-done": number
@@ -110,12 +144,12 @@ export type ClientUpdateData =
   | { "client-update-data-kind": "exercise-download"; id: number; path: string }
   | ({ "client-update-data-kind": "posted-submission" } & NewSubmission)
 
-export type StyleValidationResult = {
+export interface StyleValidationResult {
   strategy: StyleValidationStrategy
   validation_errors: Record<string, Array<StyleValidationError>> | null
 }
 
-export type StyleValidationError = {
+export interface StyleValidationError {
   column: number
   line: number
   message: string
@@ -124,7 +158,7 @@ export type StyleValidationError = {
 
 export type StyleValidationStrategy = "FAIL" | "WARN" | "DISABLED"
 
-export type ExercisePackagingConfiguration = {
+export interface ExercisePackagingConfiguration {
   /**
    * Student folders or files which are copied from submission.
    */
@@ -137,19 +171,31 @@ export type ExercisePackagingConfiguration = {
 
 export type LocalExercise = { tmc: LocalTmcExercise } | { mooc: LocalMoocExercise }
 
-export type LocalTmcExercise = { "exercise-slug": string; "exercise-path": string }
+export interface LocalTmcExercise {
+  "exercise-slug": string
+  "exercise-path": string
+}
 
-export type LocalMoocExercise = { "exercise-id": string; "exercise-path": string }
+export interface LocalMoocExercise {
+  /**
+   * The exercise's on-disk directory name, used as its slug when building a
+   * workspace entry (mirrors the TMC slug); stable since names are unique per
+   * course.
+   */
+  "exercise-slug": string
+  "exercise-id": string
+  "exercise-path": string
+}
 
 export type Compression = "tar" | "zip" | "zstd"
 
-export type RefreshData = {
+export interface RefreshData {
   "new-cache-path": string
   "course-options": object
   exercises: Array<RefreshExercise>
 }
 
-export type RefreshExercise = {
+export interface RefreshExercise {
   name: string
   checksum: string
   points: Array<string>
@@ -157,7 +203,7 @@ export type RefreshExercise = {
   "tmcproject-yml": TmcProjectYml | null
 }
 
-export type TmcProjectYml = {
+export interface TmcProjectYml {
   /**
    * A list of files or directories that will always be considered student files.
    */
@@ -187,12 +233,20 @@ export type TmcProjectYml = {
    * Overrides the default sandbox image. e.g. `eu.gcr.io/moocfi-public/tmc-sandbox-python:latest`
    */
   sandbox_image?: string
+  /**
+   * Overrides the default archive size limit (500 Mb).
+   */
+  submission_size_limit_mb?: number
 }
 
-export type PythonVer = { major: number; minor: number | null; patch: number | null }
+export interface PythonVer {
+  major: number
+  minor: number | null
+  patch: number | null
+}
 
 /** @see {isRunResult} ts-auto-guard:type-guard */
-export type RunResult = {
+export interface RunResult {
   /**
    * The overall status of a test run.
    */
@@ -215,7 +269,7 @@ export type RunStatus =
   | "TESTRUN_INTERRUPTED"
   | "GENERIC_ERROR"
 
-export type TestResult = {
+export interface TestResult {
   name: string
   successful: boolean
   /**
@@ -226,7 +280,7 @@ export type TestResult = {
   exception: Array<string>
 }
 
-export type ExerciseDesc = {
+export interface ExerciseDesc {
   /**
    * The name of the exercise to be shown to the user.
    * Does not necessarily match or even contain the directory name.
@@ -238,7 +292,7 @@ export type ExerciseDesc = {
   tests: Array<TestDesc>
 }
 
-export type TestDesc = {
+export interface TestDesc {
   /**
    * The full name of the test.
    *
@@ -254,36 +308,56 @@ export type TestDesc = {
   points: Array<string>
 }
 
-export type UpdatedExercise = { id: number }
+export interface UpdatedExercise {
+  id: number
+}
 
-export type DownloadOrUpdateTmcCourseExercisesResult = {
+export interface DownloadOrUpdateTmcCourseExercisesResult {
   downloaded: Array<TmcExerciseDownload>
   skipped: Array<TmcExerciseDownload>
   failed?: Array<[TmcExerciseDownload, Array<string>]>
 }
 
-export type DownloadOrUpdateMoocCourseExercisesResult = {
+export interface DownloadOrUpdateMoocCourseExercisesResult {
   downloaded: Array<MoocExerciseDownload>
   skipped: Array<MoocExerciseDownload>
   failed?: Array<[MoocExerciseDownload, Array<string>]>
+  /**
+   * Exercises never attempted because the batch stopped early on a permanent auth
+   * failure (see `stopped_for_auth`). Empty unless that happened.
+   */
+  not_attempted: Array<MoocExerciseDownload>
+  /**
+   * True if a mooc token refresh permanently failed partway through the batch,
+   * leaving `not_attempted` non-empty.
+   */
+  stopped_for_auth: boolean
 }
 
-export type TmcExerciseDownload = {
+export interface TmcExerciseDownload {
   id: number
   "course-slug": string
   "exercise-slug": string
   path: string
 }
 
-export type MoocExerciseDownload = { id: string; path: string }
+export interface MoocExerciseDownload {
+  /**
+   * The requested exercise's id; results are keyed by it so callers can
+   * correlate each download/skip/failure back to the exercise (not the internal
+   * editor task id).
+   */
+  "exercise-id": string
+  path: string
+}
 
-export type CombinedCourseData = {
+export interface CombinedCourseData {
   details: CourseDetails
   exercises: Array<CourseExercise>
   settings: CourseData
 }
 
-export type CourseDetails = {
+export interface CourseDetails {
   unlockables: Array<string>
   exercises: Array<Exercise>
   id: number
@@ -309,7 +383,7 @@ export type CourseDetails = {
   spyware_urls: Array<string>
 }
 
-export type Exercise = {
+export interface Exercise {
   id: number
   name: string
   locked: boolean
@@ -348,7 +422,7 @@ export type Exercise = {
   solution_zip_url: string | null
 }
 
-export type Course = {
+export interface Course {
   id: number
   name: string
   title: string
@@ -372,7 +446,7 @@ export type Course = {
   spyware_urls: Array<string>
 }
 
-export type CourseExercise = {
+export interface CourseExercise {
   id: number
   available_points: Array<ExercisePoint>
   awarded_points: Array<string>
@@ -385,14 +459,14 @@ export type CourseExercise = {
   unlocked: boolean
 }
 
-export type ExercisePoint = {
+export interface ExercisePoint {
   id: number
   exercise_id: number
   name: string
   requires_review: boolean
 }
 
-export type CourseData = {
+export interface CourseData {
   name: string
   hide_after: string | null
   hidden: boolean
@@ -422,7 +496,7 @@ export type CourseData = {
   organization_slug: string | null
 }
 
-export type ExerciseDetails = {
+export interface ExerciseDetails {
   course_name: string
   course_id: number
   code_review_requests_enabled: boolean
@@ -434,7 +508,7 @@ export type ExerciseDetails = {
   submissions: Array<ExerciseSubmission>
 }
 
-export type ExerciseSubmission = {
+export interface ExerciseSubmission {
   exercise_name: string
   id: number
   user_id: number
@@ -455,7 +529,7 @@ export type ExerciseSubmission = {
   requests_review: boolean
 }
 
-export type Submission = {
+export interface Submission {
   id: number
   user_id: number
   pretest_error: string | null
@@ -482,9 +556,12 @@ export type Submission = {
   paste_key: string | null
 }
 
-export type UpdateResult = { created: Array<Exercise>; updated: Array<Exercise> }
+export interface UpdateResult {
+  created: Array<Exercise>
+  updated: Array<Exercise>
+}
 
-export type Organization = {
+export interface Organization {
   name: string
   information: string
   slug: string
@@ -492,7 +569,7 @@ export type Organization = {
   pinned: boolean
 }
 
-export type Review = {
+export interface Review {
   submission_id: number
   exercise_name: string
   id: number
@@ -513,7 +590,7 @@ export type Review = {
   updated_at: string
 }
 
-export type NewSubmission = {
+export interface NewSubmission {
   /**
    * https://tmc.mooc.fi/api/v8/core/submissions/{submission_id}
    */
@@ -528,16 +605,19 @@ export type NewSubmission = {
   submission_url: string
 }
 
-export type SubmissionFeedbackResponse = { api_version: number; status: SubmissionStatus }
+export interface SubmissionFeedbackResponse {
+  api_version: number
+  status: SubmissionStatus
+}
 
 export type SubmissionStatus = "processing" | "fail" | "ok" | "error" | "hidden"
 
-export type TmcStyleValidationResult = {
+export interface TmcStyleValidationResult {
   strategy: TmcStyleValidationStrategy
   validationErrors: Record<string, Array<TmcStyleValidationError>> | null
 }
 
-export type TmcStyleValidationError = {
+export interface TmcStyleValidationError {
   column: number
   line: number
   message: string
@@ -546,7 +626,7 @@ export type TmcStyleValidationError = {
 
 export type TmcStyleValidationStrategy = "FAIL" | "WARN" | "DISABLED"
 
-export type SubmissionFinished = {
+export interface SubmissionFinished {
   api_version: number
   all_tests_passed: boolean | null
   user_id: number
@@ -584,7 +664,7 @@ export type SubmissionFinished = {
   validations: TmcStyleValidationResult | null
 }
 
-export type TestCase = {
+export interface TestCase {
   name: string
   successful: boolean
   message: string | null
@@ -592,7 +672,7 @@ export type TestCase = {
   detailed_message: string | null
 }
 
-export type SubmissionFeedbackQuestion = {
+export interface SubmissionFeedbackQuestion {
   id: number
   question: string
   kind: SubmissionFeedbackKind
@@ -602,43 +682,137 @@ export type SubmissionFeedbackKind = "Text" | { IntRange: { lower: number; upper
 
 export type ConfigValue = unknown | null | string
 
-export type TmcConfig = { projects_dir: string }
-
-export type CourseInstance = {
-  id: string
-  course_id: string
-  course_slug: string
-  course_name: string
-  course_description: string | null
-  instance_name: string | null
-  instance_description: string | null
+export interface TmcConfig {
+  projects_dir: string
 }
 
-export type TmcExerciseSlide = {
+export interface MoocCourse {
+  id: string
+  slug: string
+  name: string
+  description: string | null
+  organization_name: string
+}
+
+export interface TmcExerciseSlide {
   slide_id: string
   exercise_id: string
+  /**
+   * The course the exercise belongs to, so a client can locate it without a
+   * separate lookup or an enrolled-course scan.
+   */
+  course_id: string
   exercise_name: string
   exercise_order_number: number
   deadline: string | null
   tasks: Array<TmcExerciseTask>
 }
 
-export type TmcExerciseTask = {
+export interface TmcExerciseTask {
   task_id: string
   order_number: number
   assignment: unknown
   public_spec: PublicSpec | null
   model_solution_spec: ModelSolutionSpec | null
+  checksum: string | null
 }
 
-export type PublicSpec =
-  | { type: "Browser"; files: Array<ExerciseFile> }
-  | { type: "Editor"; archive_name: string; archive_download_url: string; checksum: string }
+export interface PublicSpec {
+  type: ExerciseType
+  archive_name: string
+  stub_download_url: string
+  student_file_paths: Array<string>
+  checksum: string
+  /**
+   * In-browser test config; omitted for editor exercises or when no script
+   * was built.
+   */
+  browser_test: BrowserTestSpec | null
+}
 
-export type ModelSolutionSpec =
-  | { type: "Browser"; solution_files: Array<ExerciseFile> }
-  | { type: "Editor"; download_url: string }
+export type ExerciseType = "browser" | "editor"
 
-export type ExerciseFile = { filepath: string; contents: string }
+export interface BrowserTestSpec {
+  runtime: BrowserTestRuntime
+  script: string
+  error: string | null
+}
 
-export type ExerciseTaskSubmissionResult = { submission_id: string }
+export type BrowserTestRuntime = "python"
+
+export interface ModelSolutionSpec {
+  type: ExerciseType
+  solution_download_url: string
+}
+
+export interface ExerciseTaskSubmissionResult {
+  /**
+   * Identifies the task submission; what grading is polled for.
+   */
+  task_submission_id: string
+  /**
+   * Identifies the slide submission; what downloading and sharing take.
+   */
+  slide_submission_id: string
+}
+
+export type ExerciseTaskSubmissionStatus =
+  | "NoGradingYet"
+  | {
+      Grading: {
+        grading_progress: GradingProgress
+        score_given: number | null
+        grading_started_at: string | null
+        grading_completed_at: string | null
+        feedback_json: unknown | null
+        feedback_text: string | null
+      }
+    }
+
+export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
+
+export interface ExerciseSlideSubmissionListItem {
+  id: string
+  exercise_id: string
+  created_at: string
+  score_given: number | null
+  grading_progress: GradingProgress | null
+}
+
+export interface PasteResult {
+  paste_url: string
+}
+
+export interface CourseProgress {
+  course_id: string
+  exercises: Array<ExerciseProgress>
+}
+
+export interface ExerciseProgress {
+  exercise_id: string
+  /**
+   * Points awarded to the user; `0.0` when the user has no state for the
+   * exercise. Can be fractional (partial credit).
+   */
+  score_given: number
+  /**
+   * The maximum points obtainable from the exercise; can be `0`.
+   */
+  score_maximum: number
+  /**
+   * `true` once the exercise reached the `Completed` activity stage.
+   */
+  completed: boolean
+  /**
+   * `true` once the user has started or submitted the exercise.
+   */
+  attempted: boolean
+}
+
+export interface MoocClientUpdateData {
+  "client-update-data-kind": "exercise-download"
+  id: string
+  path: string
+}
+
+export type MoocOldSubmissionRestore = "restored" | "nothing-to-download"

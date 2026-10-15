@@ -1,0 +1,181 @@
+"use client"
+
+import { css, cx } from "@emotion/css"
+import { usePathname } from "next/navigation"
+import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import {
+  useCreditRegistrationAttentionCount,
+  useCreditRegistrationFailingRosterCodeCount,
+  useCreditRegistrationMisconfiguredCourseCount,
+  useCreditRegistrationUnhealthyPhaseCount,
+  useHasBlockingProblem,
+} from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
+import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
+import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { cleanTimestampsOnCopy } from "@/components/credit-registration/ZonedTimestamp"
+import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
+import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
+import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import {
+  creditRegistrationAuditRoute,
+  creditRegistrationCoursesRoute,
+  creditRegistrationEnrolmentChecksRoute,
+  creditRegistrationErrorsRoute,
+  creditRegistrationLinkingRoute,
+  creditRegistrationOverviewRoute,
+  creditRegistrationRegistrationsRoute,
+  creditRegistrationSystemRoute,
+} from "@/shared-module/common/utils/routes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ErrorNotice, LoadingRegion } from "@/shared-module/components"
+
+const KEY_OVERVIEW = "overview"
+const KEY_REGISTRATIONS = "registrations"
+const KEY_ERRORS = "errors"
+const KEY_COURSES = "courses"
+const KEY_LINKING = "linking"
+const KEY_SYSTEM = "system"
+const KEY_ENROLMENT_CHECKS = "enrolment-checks"
+const KEY_AUDIT = "audit"
+
+// The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
+const flushTabListCss = css`
+  margin-bottom: 0;
+`
+
+/** Wider than the site's centred column: the tables here have more columns than it fits. */
+const wideCss = css`
+  box-sizing: border-box;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  /* Inherited: server text, names and ids can hold runs longer than any card here. */
+  overflow-wrap: break-word;
+`
+
+const ADMINISTRATE_CREDIT_REGISTRATIONS = [
+  {
+    action: { type: "administrate_credit_registrations" },
+    resource: { type: "global_permissions" },
+  },
+] as const
+
+/** Split out so the breadcrumb and the tab count queries never run for a reader the gate turns away. */
+const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const pathname = usePathname()
+
+  const crumbs = useMemo(
+    () => [
+      {
+        isLoading: false as const,
+        label: t("title-credit-registration"),
+        href: creditRegistrationOverviewRoute(),
+      },
+    ],
+    [t],
+  )
+  useRegisterBreadcrumbs({ key: "credit-registration", order: 30, crumbs })
+
+  const tabs = useMemo(
+    (): RouteTabDefinition[] => [
+      {
+        key: KEY_OVERVIEW,
+        title: t("credit-registration-tab-overview"),
+        href: creditRegistrationOverviewRoute(),
+      },
+      {
+        key: KEY_REGISTRATIONS,
+        title: t("credit-registration-tab-registrations"),
+        href: creditRegistrationRegistrationsRoute(),
+        pathPrefix: creditRegistrationRegistrationsRoute(),
+      },
+      {
+        key: KEY_ERRORS,
+        title: t("credit-registration-tab-errors"),
+        href: creditRegistrationErrorsRoute(),
+        countHook: useCreditRegistrationAttentionCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
+        dotHook: useHasBlockingProblem,
+        dotLabel: t("credit-registration-tab-errors-blocking-problem"),
+      },
+      {
+        key: KEY_COURSES,
+        title: t("credit-registration-tab-courses"),
+        href: creditRegistrationCoursesRoute(),
+        countHook: useCreditRegistrationMisconfiguredCourseCount,
+      },
+      {
+        key: KEY_LINKING,
+        title: t("credit-registration-tab-linking"),
+        href: creditRegistrationLinkingRoute(),
+      },
+      {
+        key: KEY_SYSTEM,
+        title: t("credit-registration-tab-system"),
+        href: creditRegistrationSystemRoute(),
+        countHook: useCreditRegistrationUnhealthyPhaseCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
+      },
+      {
+        key: KEY_ENROLMENT_CHECKS,
+        title: t("credit-registration-tab-enrolment-checks"),
+        href: creditRegistrationEnrolmentChecksRoute(),
+        countHook: useCreditRegistrationFailingRosterCodeCount,
+        // oxlint-disable-next-line i18next/no-literal-string -- tone key, not user-facing text
+        countTone: "danger",
+      },
+      {
+        key: KEY_AUDIT,
+        title: t("credit-registration-tab-audit"),
+        href: creditRegistrationAuditRoute(),
+      },
+    ],
+    [t],
+  )
+
+  // The breadcrumb already says "Credit registration"; the heading says which of its pages this is.
+  const activeTab = resolveActiveTab(tabs, pathname ?? "")
+  // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
+  // heading of its own (the student's name) — the tab title above it would only contradict it.
+  const isTabOwnPage = activeTab !== undefined && pathname === activeTab.href
+
+  return (
+    <BreakFromCentered sidebar={false}>
+      <div className={cx(sectionsCss, wideCss)} onCopy={cleanTimestampsOnCopy}>
+        <BreadcrumbRenderer inPage />
+        <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
+        <RouteTabList tabs={tabs} className={flushTabListCss} />
+        {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
+        {children}
+      </div>
+    </BreakFromCentered>
+  )
+}
+
+const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const permission = useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS])
+
+  // Everyone this section is for holds the permission, so a denied banner while the check is still
+  // in flight would give the wrong answer to its only readers.
+  if (permission.isPending) {
+    return <LoadingRegion />
+  }
+  if (permission.data?.[0] !== true) {
+    return <ErrorNotice error={t("error-unauthorized")} />
+  }
+  return <CreditRegistrationSection>{children}</CreditRegistrationSection>
+}
+
+export default withErrorBoundary(withSignedIn(CreditRegistrationLayout))

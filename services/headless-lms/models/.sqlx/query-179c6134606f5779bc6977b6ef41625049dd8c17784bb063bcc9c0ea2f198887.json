@@ -6,7 +6,8 @@
       {
         "ordinal": 0,
         "name": "student_duration_seconds",
-        "type_info": "Int8"
+        "type_info": "Int8",
+        "origin": "Expression"
       }
     ],
     "parameters": {

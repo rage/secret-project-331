@@ -8,8 +8,11 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment, useEffect, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
-import toast from "react-hot-toast"
-import { useTranslation } from "react-i18next"
+import { toast } from "react-hot-toast"
+
+import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion, type PromptControls, useDialog } from "@/shared-module/components"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"
@@ -17,7 +20,6 @@ import {
   collectParagraphHtmlTagNames,
   sanitizeParagraphHtml,
 } from "../Gutenberg/paragraphHtmlSanitizer"
-
 import { executeAbility } from "./ai/abilities"
 import {
   AI_GROUPS,
@@ -28,13 +30,6 @@ import {
   type AiActionLabelKey,
   type AiGroupLabelKey,
 } from "./ai/menu"
-
-import Spinner from "@/shared-module/common/components/Spinner"
-import {
-  useConfirmDialogControls,
-  useDialog,
-} from "@/shared-module/common/components/dialogs/DialogProvider"
-import { baseTheme } from "@/shared-module/common/styles"
 
 const PARAGRAPH_BLOCK_NAME = "core/paragraph"
 
@@ -61,7 +56,7 @@ interface ParagraphBlockProps {
 const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
   const ParagraphWithAiToolbar = (props: ParagraphBlockProps) => {
     const { t } = useTranslation()
-    const { confirm } = useDialog()
+    const { prompt } = useDialog()
     const [running, setRunning] = useState(false)
     const [submenu, setSubmenu] = useState<SubmenuState>(null)
     const pageContext = useContext(PageContext)
@@ -81,34 +76,32 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
         pageContext && "page" in pageContext
           ? {
               page_id: pageContext.page.id,
-              course_id: pageContext.page.course_id,
+              course_id: pageContext.page.course_id ?? null,
               locale: null,
             }
           : null
 
       setRunning(true)
       try {
-        let selectedSuggestion = ""
-        const dialogContent = (
-          <ParagraphAiSuggestionDialog
-            action={action}
-            requestContent={requestContent}
-            requestIsHtml={requestIsHtml}
-            paragraphContext={paragraphContext}
-            originalHtml={originalHtml}
-            allowedHtmlTagNames={allowedHtmlTagNames}
-            onSelectionChange={(text) => {
-              selectedSuggestion = text
-            }}
-          />
-        )
         close()
-        const confirmed = await confirm(dialogContent, t("ai-dialog-title-apply"), {
-          confirmDisabled: true,
+        const result = await prompt<string>({
+          title: t("ai-dialog-title-apply"),
+          message: t(action.labelKey as AiActionLabelKey),
+          body: (controls) => (
+            <ParagraphAiSuggestionDialog
+              action={action}
+              requestContent={requestContent}
+              requestIsHtml={requestIsHtml}
+              paragraphContext={paragraphContext}
+              originalHtml={originalHtml}
+              allowedHtmlTagNames={allowedHtmlTagNames}
+              controls={controls}
+            />
+          ),
         })
-        if (confirmed && selectedSuggestion) {
+        if (result.isSubmitted && result.value) {
           try {
-            const safeHtml = sanitizeParagraphHtml(selectedSuggestion, {
+            const safeHtml = sanitizeParagraphHtml(result.value, {
               allowedTagNames: allowedHtmlTagNames,
             })
             props.setAttributes({ content: safeHtml })
@@ -126,7 +119,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     return (
       <Fragment>
         <BlockEdit {...props} />
-        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
         <BlockControls group="block">
           <ToolbarGroup>
             <Dropdown
@@ -177,7 +170,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                               setSubmenu(group.id)
                             }}
                             icon={chevronRight}
-                            // eslint-disable-next-line i18next/no-literal-string
+                            // oxlint-disable-next-line i18next/no-literal-string
                             aria-haspopup="menu"
                             aria-expanded={submenu === group.id}
                           >
@@ -189,7 +182,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                         <MenuItem
                           onClick={() => setSubmenu(SUBMENU_TONE)}
                           icon={chevronRight}
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           aria-haspopup="menu"
                           aria-expanded={submenu === SUBMENU_TONE}
                         >
@@ -198,7 +191,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                         <MenuItem
                           onClick={() => setSubmenu(SUBMENU_TRANSLATE)}
                           icon={chevronRight}
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           aria-haspopup="menu"
                           aria-expanded={submenu === SUBMENU_TRANSLATE}
                         >
@@ -286,7 +279,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     paragraphContext: { page_id: string; course_id: string | null; locale: null } | null
     originalHtml: string
     allowedHtmlTagNames: Set<string>
-    onSelectionChange?: (text: string) => void
+    controls: PromptControls<string>
   }
 
   const ParagraphAiSuggestionDialog = ({
@@ -295,17 +288,12 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     requestIsHtml,
     paragraphContext,
     originalHtml,
-    onSelectionChange,
+    controls,
   }: ParagraphAiSuggestionDialogProps) => {
     const { t } = useTranslation()
-    const confirmDialogControls = useConfirmDialogControls()
     const [suggestions, setSuggestions] = useState<string[] | null>(null)
     const [error, setError] = useState(false)
     const [selectedIndex, setSelectedIndex] = useState(0)
-
-    useEffect(() => {
-      confirmDialogControls?.setConfirmDisabled(suggestions === null || error)
-    }, [confirmDialogControls, error, suggestions])
 
     useEffect(() => {
       let cancelled = false
@@ -331,15 +319,15 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
               : [result.text ?? requestContent]
           const list = rawSuggestions.filter((s) => s.trim().length > 0)
           if (list.length === 0) {
-            onSelectionChange?.("")
             setError(true)
             return
           }
           setSuggestions(list)
-          onSelectionChange?.(list[0] ?? "")
+          // Leaving `setValue` uncalled on error or while loading keeps the dialog's submit
+          // action disabled, since it stays disabled until the body has produced a value.
+          controls.setValue(list[0] ?? "")
         } catch {
           if (!cancelled) {
-            onSelectionChange?.("")
             setError(true)
           }
         }
@@ -347,35 +335,24 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
       return () => {
         cancelled = true
       }
-    }, [action, requestContent, requestIsHtml, paragraphContext, onSelectionChange])
+    }, [action, requestContent, requestIsHtml, paragraphContext, controls])
 
     const handleSelect = (index: number, text: string) => {
       setSelectedIndex(index)
-      onSelectionChange?.(text)
+      controls.setValue(text)
     }
 
     if (suggestions === null && !error) {
       return (
-        <div
+        <LoadingRegion
+          label={t("ai-loading")}
+          showLabel
+          minHeight={100}
+          size="sm"
           className={css`
             min-width: 220px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1.5rem;
           `}
-        >
-          <Spinner variant="small" disableMargin />
-          <span
-            className={css`
-              margin-top: 0.5rem;
-              font-size: 0.8rem;
-              color: ${TEXT_COLOR};
-            `}
-          >
-            {t("ai-loading")}
-          </span>
-        </div>
+        />
       )
     }
 
@@ -501,7 +478,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
   ParagraphWithAiToolbar.displayName = "ParagraphWithAiToolbar"
   return ParagraphWithAiToolbar
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withParagraphAiToolbarAction")
 
 export default withParagraphAiToolbarAction

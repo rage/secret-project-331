@@ -3,10 +3,10 @@
 import { useSetAtom } from "jotai"
 import { useEffect } from "react"
 
-import { TEXT_SELECTION_TOOLTIP_ID } from "./TextSelectionTooltip"
-
 import { selectedBlockIdAtom, selectionAtom } from "@/stores/course-material/materialFeedbackStore"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
+
+import { TEXT_SELECTION_TOOLTIP_ID } from "./TextSelectionTooltip"
 
 export const FEEDBACK_DIALOG_CONTENT_ID = "feedback-dialog-content"
 export const IGNORE_BLOCK_FEEDBACK_CLASS = "feedback-ignore-block"
@@ -17,6 +17,11 @@ const useSelectionTracking = (): void => {
 
   useEffect(() => {
     const abortController = new AbortController()
+
+    /** Whether the node has been removed from the document, e.g. by a re-render mid-event. */
+    function isDetached(node: Node | null): boolean {
+      return node !== null && !node.isConnected
+    }
 
     function isChildOfCourseMaterialBlock(node: Node | null | undefined): boolean {
       if (node === null || node === undefined) {
@@ -47,7 +52,7 @@ const useSelectionTracking = (): void => {
       const isWithinIgnoredBlock = parentHasCssSelector(element, `.${IGNORE_BLOCK_FEEDBACK_CLASS}`)
       const isWithinFeedback = parentHasCssSelector(
         element,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         `#${FEEDBACK_DIALOG_CONTENT_ID}, #${TEXT_SELECTION_TOOLTIP_ID}`,
       )
       return isWithinIgnoredBlock || isWithinFeedback
@@ -71,6 +76,11 @@ const useSelectionTracking = (): void => {
 
     function selectionHandler(this: Document) {
       const selection = this.getSelection()
+      // A detached endpoint says nothing about where the selection is, so keep what we have
+      // instead of reading it as "nothing selected".
+      if (selection && (isDetached(selection.anchorNode) || isDetached(selection.focusNode))) {
+        return
+      }
       if (selection && selectedCourseBlocks(selection)) {
         const newSelection = selection.toString()
         if (selection.rangeCount === 0) {
@@ -101,6 +111,13 @@ const useSelectionTracking = (): void => {
       }
 
       if (ev.target instanceof Element) {
+        // react-aria's onPress runs before this bubbles up, so the handler it fired may already
+        // have unmounted the target. A detached ancestor chain has no block to find, and clearing
+        // the id here would undo the selection that press just made.
+        if (isDetached(ev.target)) {
+          return
+        }
+
         // Skip if click is within feedback dialog
         if (isWithinIgnoredContainer(ev.target)) {
           return

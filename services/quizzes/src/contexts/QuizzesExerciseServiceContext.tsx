@@ -1,8 +1,6 @@
-"use client"
+import { createExerciseServiceContext } from "@/shared-module/exercise-react/react/contexts/ExerciseServiceContext"
 
-import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
-
-import { createExerciseServiceContext } from "@/shared-module/common/contexts/ExerciseServiceContext"
+import type { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 
 const QuizzesExerciseServiceContext = createExerciseServiceContext<PrivateSpecQuiz>(() => false)
 

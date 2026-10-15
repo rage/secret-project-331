@@ -4,11 +4,11 @@ import styled from "@emotion/styled"
 import { t } from "i18next"
 import React from "react"
 
-import { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
-
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from ".."
+import InnerBlocks from "../util/InnerBlocks"
 
 interface AuthorBlockAttributes {
   backgroundColor: string
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   padding: 1.25rem 1.4rem 0.4rem 1.4rem;
   margin-bottom: 1rem;
 
-  h3 {
+  h2 {
     color: ${baseTheme.colors.gray[700]};
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #edf0f2;
@@ -70,7 +70,7 @@ const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AuthorBlo
 ) => {
   return (
     <Wrapper>
-      <h3>{t("author")}</h3>
+      <h2>{t("author")}</h2>
       <div>
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </div>

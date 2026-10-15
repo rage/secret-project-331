@@ -2,16 +2,16 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
+
+import { primaryFont, typography } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
+import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
 import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
-
-import Button from "@/shared-module/common/components/Button"
-import { primaryFont, typography } from "@/shared-module/common/styles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [["moocfi/exercise-task", {}]]
@@ -32,35 +32,38 @@ const ExerciseSlideEditor: React.FC<
   const dispatch = useContext(EditorContentDispatch)
 
   const { t } = useTranslation()
+  const blockProps = useBlockProps()
 
   const handleAddNewTask = () => {
     dispatch({ type: "addExerciseTask", payload: { clientId } })
   }
 
   return (
-    <ExerciseSlideEditorCard id={attributes.id}>
-      <div
-        className={css`
-          font-family: ${primaryFont};
-          font-size: ${typography.h5};
-          margin-bottom: 1.5rem;
-        `}
-      >
-        {t("slide-title", { number: attributes.order_number + 1 })}
-      </div>
-      <div className={gutenbergControlsHidden}>
-        <InnerBlocks
-          allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          template={INNER_BLOCKS_TEMPLATE}
-          templateLock={false}
-        />
-      </div>
-      <div>
-        <Button variant="secondary" size="medium" onClick={handleAddNewTask}>
-          {t("add-task")}
-        </Button>
-      </div>
-    </ExerciseSlideEditorCard>
+    <div {...blockProps}>
+      <ExerciseSlideEditorCard id={attributes.id}>
+        <div
+          className={css`
+            font-family: ${primaryFont};
+            font-size: ${typography.h5};
+            margin-bottom: 1.5rem;
+          `}
+        >
+          {t("slide-title", { number: attributes.order_number + 1 })}
+        </div>
+        <div className={gutenbergControlsHidden}>
+          <InnerBlocks
+            allowedBlocks={ALLOWED_NESTED_BLOCKS}
+            template={INNER_BLOCKS_TEMPLATE}
+            templateLock={false}
+          />
+        </div>
+        <div>
+          <Button variant="secondary" size="medium" onClick={handleAddNewTask}>
+            {t("add-task")}
+          </Button>
+        </div>
+      </ExerciseSlideEditorCard>
+    </div>
   )
 }
 

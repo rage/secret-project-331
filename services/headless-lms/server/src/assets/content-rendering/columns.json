@@ -1,0 +1,520 @@
+[
+  {
+    "clientId": "20c3028d-c746-4ad5-8c4c-5265178d0488",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "cb974aac-c197-42e4-afcb-90c5278b3f61",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "center"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "a6432216-34f1-4e47-8fe5-f73e46c03d90",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "align": "center",
+              "content": "Columns 100 inside paragraph middle",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "863eec9d-708c-41b9-8a6a-fee30e5ad0da",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "bca57244-ee56-45f2-97b7-1458eaa9f4e5",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "d917f5e8-fe91-4dd2-819f-021a6610d34a",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Columns fiddy",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "867aabaf-b2bd-4dab-ac81-657d10138b5a",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "852d4421-8b6b-4f9e-a54b-08ec68c896ae",
+            "isValid": true,
+            "name": "core/columns",
+            "attributes": {
+              "isStackedOnMobile": true
+            },
+            "innerBlocks": [
+              {
+                "clientId": "e72423ea-833d-417c-9dc5-acf27d27fe97",
+                "isValid": true,
+                "name": "core/column",
+                "attributes": {},
+                "innerBlocks": [
+                  {
+                    "clientId": "c2b11a11-3b49-46f0-b2e5-ee979fc4727f",
+                    "isValid": true,
+                    "name": "core/paragraph",
+                    "attributes": {
+                      "content": "Columns fiddy",
+                      "dropCap": false
+                    },
+                    "innerBlocks": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "8be45ceb-511d-49d7-9026-f7d4917159b3",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "0882b752-4699-452a-a528-c79413a5510c",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "33.33%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "9d9e7766-b57c-4cc8-90fe-2d4dce5c560c",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "30",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "30844b09-736e-45ca-847c-4c0d04c96798",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "66.66%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "1a2818d7-725a-471a-b163-7189d381f1e2",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "70",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "7dbac6dc-4965-47bb-801a-95b6a5e3e4b0",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "2f1d9205-cc45-4c4f-a3e5-44fe4e5e51e8",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "25%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "97c7dae8-a284-4c2f-a110-a98ef99e4ad4",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "25",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "9ada706f-279d-4976-b2ee-f22d24364506",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "50%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "861becf2-ba38-464f-a724-83d9cd1528b9",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "50",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "9cde0d9c-f547-4c4f-a7f2-27081c40235d",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "25%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "0eba574d-6db1-43c8-a027-521b52e64cdb",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "25",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "abc97b5b-7a32-4fad-9f23-4a06ae3a200f",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "aa508beb-ebd5-4afc-b665-2fd6558ecd9f",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "center"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "8f25d578-b16a-47d9-b480-7b3d85fd782e",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Columns align middle",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "f2bd407d-908d-41d8-aee7-43c8ac96de79",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "bce7b471-eb3f-4df8-aed2-183871afc529",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "align": "center",
+              "content": "This is centered also<br>Column<br>Takes<br>Five<br>ROWS",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "b6de74d7-d909-47ab-9f7a-40af684347c0",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "259e6d4d-8bb4-4496-9ad1-588ac58d63c7",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "bottom"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "5cf5827d-7431-4ea0-ad57-073289286880",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Align bottom all",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "3222971f-bd13-4188-b902-d3e499361346",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "446998fd-09d4-4316-a786-b641aeb836b2",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Left side should<br>be<br>&lt;-- on this level",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "cd37fd2b-5b34-4ec6-ab07-3b83cd0491df",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": null
+    },
+    "innerBlocks": [
+      {
+        "clientId": "5983861b-7e35-4a36-b40b-7a4fd8dc10cb",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "top"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "78fb0403-bbc7-4c29-8365-939f11d9bf60",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "Align top all",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "b0d8afc5-26a8-4a34-9613-f899fe4b9469",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "caf835cc-f448-40c2-9eeb-78dccfb85a18",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "This<br>Should not<br>Change anything",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "82a058d1-da17-476e-86f1-3d5673f4697e",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true,
+      "verticalAlignment": "bottom"
+    },
+    "innerBlocks": [
+      {
+        "clientId": "e6299c36-6360-450d-aba0-6d6904772218",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "bottom",
+          "width": "33.33%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "012a02d4-1ee2-4b4c-97e1-00299d6565cd",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "<mark style=\"background-color:#CF2E2E;color:#0693E3\" class=\"has-inline-color\">Background &amp; text color in column should overwrite the parent COLUMNS green color align bottom</mark>",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "eb161a24-e42e-4a73-a9d4-9d6e4ca352a7",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "verticalAlignment": "bottom",
+          "width": "66.66%"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "2d3cca11-6051-43f5-bff5-e34c0033bbaa",
+            "isValid": true,
+            "name": "core/table",
+            "attributes": {
+              "body": [
+                {
+                  "cells": [
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">Table COLUMNS</mark>",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">fixed</mark>",
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">width COLOR</mark>",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">ok</mark>",
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">ok</mark>",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">align</mark>",
+                      "tag": "td"
+                    }
+                  ]
+                },
+                {
+                  "cells": [
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">left </mark>",
+                      "tag": "td"
+                    },
+                    {
+                      "content": "<mark style=\"background-color:#F78DA7;color:#0693E3\" class=\"has-inline-color\">align bottom</mark>",
+                      "tag": "td"
+                    }
+                  ]
+                }
+              ],
+              "caption": "Testing",
+              "className": "is-style-regular",
+              "foot": [],
+              "hasFixedLayout": true,
+              "head": []
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "237f7e6d-bcd7-491c-8302-6b1886606f27",
+    "isValid": true,
+    "name": "core/columns",
+    "attributes": {
+      "isStackedOnMobile": true
+    },
+    "innerBlocks": [
+      {
+        "clientId": "1c6b4e79-2828-415f-973d-5fac9ea8f378",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {
+          "width": "100px"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "71c71438-5495-48a2-9a2c-5f9e8d191f47",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "100px wide",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      },
+      {
+        "clientId": "809bcf2c-7e30-40e5-b484-3a74c87a5c1b",
+        "isValid": true,
+        "name": "core/column",
+        "attributes": {},
+        "innerBlocks": [
+          {
+            "clientId": "29cf7ce1-a42d-40de-b6a3-b066e283b567",
+            "isValid": true,
+            "name": "core/paragraph",
+            "attributes": {
+              "content": "the rest?",
+              "dropCap": false
+            },
+            "innerBlocks": []
+          }
+        ]
+      }
+    ]
+  }
+]

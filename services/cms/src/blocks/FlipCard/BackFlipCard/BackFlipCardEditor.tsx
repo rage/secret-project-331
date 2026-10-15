@@ -2,23 +2,20 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/heading", "core/list"]
 
-const BackFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+const BackFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = () => {
   const { t } = useTranslation()
 
   return (
-    <BlockPlaceholderWrapper
-      id={clientId}
-      title={t("back-card")}
-      explanation={t("back-card-explanation")}
-    >
+    <BlockPlaceholderWrapper title={t("back-card")} explanation={t("back-card-explanation")}>
       <div
         className={css`
           width: 100%;

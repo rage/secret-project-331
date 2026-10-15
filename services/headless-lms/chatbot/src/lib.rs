@@ -6,13 +6,20 @@ pub mod azure_datasources;
 pub mod azure_search_index;
 pub mod azure_search_indexer;
 pub mod azure_skillset;
+pub mod chart_spec_generation;
 pub mod chatbot_error;
 pub mod chatbot_tools;
+pub mod citations;
 pub mod cms_ai_suggestion;
 pub mod content_cleaner;
+pub mod conversation_context;
+pub mod course_description_summary;
+pub mod feedback_categorization;
 pub mod llm_utils;
 pub mod message_suggestion;
+pub mod prompt_creation;
 pub mod search_filter;
+pub mod user_context;
 
 pub mod prelude;
 

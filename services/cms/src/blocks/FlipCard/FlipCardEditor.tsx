@@ -2,15 +2,14 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
-
-import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import { FlipCardAttributes } from "."
 
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
+import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { FlipCardAttributes } from "."
+import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/front-card"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [
@@ -19,7 +18,6 @@ const INNER_BLOCKS_TEMPLATE: TemplateArray = [
 ]
 
 const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAttributes>>> = ({
-  clientId,
   attributes,
   setAttributes,
 }) => {
@@ -27,7 +25,6 @@ const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAt
 
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("flip-card-placeholder")}
       explanation={t("flip-card-placeholder-explanation")}
     >

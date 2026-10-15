@@ -28,7 +28,7 @@ export function getMaxFileSizeForType(file: File): number {
 
   // Extract the main type from MIME type (e.g., "image" from "image/png")
   const typeParts = file.type.split("/")
-  const fileType = typeParts.length > 0 ? typeParts[0].toLowerCase() : ""
+  const fileType = typeParts[0]?.toLowerCase() ?? ""
 
   switch (fileType) {
     case "image":
@@ -59,7 +59,7 @@ export function fileMatchesType(file: File, typesAndExtensions: string[] | undef
   }
 
   const extensionIndex = file.name.lastIndexOf(".")
-  const fileExtension = extensionIndex > 0 ? file.name.substring(extensionIndex) : undefined
+  const fileExtension = extensionIndex > 0 ? file.name.slice(extensionIndex) : undefined
   const fileType = file.type || undefined
 
   return typesAndExtensions.some((type) => {
@@ -82,13 +82,13 @@ export function fileMatchesType(file: File, typesAndExtensions: string[] | undef
   })
 }
 
-export function fileMatchAudio(file: File): { [key: string]: string | undefined } | undefined {
+export function fileMatchAudio(file: File): Record<string, string | undefined> | undefined {
   if (!file) {
     return
   }
 
   const extensionIndex = file.name.lastIndexOf(".")
-  const fileExtension = extensionIndex > 0 ? file.name.substring(extensionIndex) : undefined
+  const fileExtension = extensionIndex > 0 ? file.name.slice(extensionIndex) : undefined
   const fileType = file.type || undefined
 
   return { extension: fileExtension, type: fileType }

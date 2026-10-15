@@ -1,0 +1,107 @@
+"use client"
+
+import { css } from "@emotion/css"
+import React from "react"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+
+import { createCourseGlossaryTermMutation } from "@/generated/api/@tanstack/react-query.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Button, TextArea, TextField } from "@/shared-module/components"
+
+const formCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
+
+/** Grid items stretch by default, which would run the button the full width of the form. */
+const submitCss = css`
+  justify-self: start;
+`
+
+interface NewTermForm {
+  newTerm: string
+  newDefinition: string
+}
+
+interface CreateTermFormProps {
+  refetch: () => void
+  courseId: string
+}
+
+const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) => {
+  const { t } = useTranslation()
+  const {
+    control,
+    handleSubmit,
+    formState: { isValid },
+    reset,
+    // oxlint-disable-next-line i18next/no-literal-string
+  } = useForm<NewTermForm>({ mode: "onChange" })
+
+  const createMutation = useToastMutationOptions(
+    createCourseGlossaryTermMutation(),
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: () => {
+        reset()
+        refetch()
+      },
+    },
+  )
+
+  const onCreate = (data: NewTermForm) => {
+    createMutation.mutate({
+      body: {
+        definition: data.newDefinition,
+        term: data.newTerm,
+      },
+      path: {
+        course_id: courseId,
+      },
+    })
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onCreate)} className={formCss}>
+      <TextField
+        name="newTerm"
+        control={control}
+        label={t("new-term")}
+        rules={{
+          required: true,
+          pattern: {
+            value: /\S+/,
+            message: t("required"),
+          },
+        }}
+      />
+      <TextArea
+        name="newDefinition"
+        control={control}
+        label={t("new-definition")}
+        rules={{
+          required: true,
+          pattern: {
+            value: /\S+/,
+            message: t("required"),
+          },
+        }}
+      />
+      <Button
+        variant="primary"
+        size="medium"
+        type="submit"
+        disabled={!isValid}
+        className={submitCss}
+      >
+        {t("button-text-save")}
+      </Button>
+    </form>
+  )
+}
+
+export default CreateTermForm

@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType;
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewQuestionSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -34,7 +35,7 @@ INSERT INTO peer_or_self_review_question_submissions (
     number_data
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         peer_or_self_review_question_id,
@@ -126,8 +127,7 @@ WHERE peer_or_self_review_submission_id IN (
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum PeerOrSelfReviewAnswer {
     NoAnswer,
@@ -149,8 +149,8 @@ impl PeerOrSelfReviewAnswer {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewQuestionAndAnswer {
     pub peer_or_self_review_config_id: Uuid,
     pub peer_or_self_review_question_id: Uuid,
@@ -162,8 +162,8 @@ pub struct PeerOrSelfReviewQuestionAndAnswer {
     pub answer_required: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerReviewWithQuestionsAndAnswers {
     pub peer_or_self_review_submission_id: Uuid,
     pub peer_review_giver_user_id: Uuid,
@@ -183,7 +183,7 @@ SELECT answers.id AS peer_review_question_submission_id,
   questions.id AS peer_or_self_review_question_id,
   questions.order_number,
   questions.question,
-  questions.question_type AS "question_type: PeerOrSelfReviewQuestionType",
+  questions.question_type,
   questions.answer_required,
   submissions.id AS peer_or_self_review_submission_id
 FROM peer_or_self_review_question_submissions answers
@@ -243,7 +243,7 @@ SELECT answers.id AS peer_review_question_submission_id,
   questions.id AS peer_or_self_review_question_id,
   questions.order_number,
   questions.question,
-  questions.question_type AS "question_type: PeerOrSelfReviewQuestionType",
+  questions.question_type,
   questions.answer_required,
   submissions.id AS peer_or_self_review_submission_id
 FROM peer_or_self_review_question_submissions answers

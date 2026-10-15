@@ -1,0 +1,684 @@
+//! The alert rules the credit registration dashboard renders.
+//!
+//! An alert carries identifiers and numbers, never prose: the study registry's own error text is
+//! written for an integrator and is not translated, so the frontend renders one key per alert id
+//! with these values interpolated. The thresholds travel with the alerts, not hardcoded twice.
+
+use headless_lms_models::credit_registrations::{
+    CreditRegistrationState, StuckRegistrationCount, StuckThresholds,
+};
+use headless_lms_models::library::credit_registration::materialize::get_unmaterialised_eligible_completions;
+use headless_lms_models::{ModelResult, prelude::*};
+use headless_lms_models::{
+    course_module_suotar_configurations, credit_registration_account_linking_emails,
+    credit_registration_events, credit_registration_phase_state,
+    credit_registration_roster_schedules, credit_registrations,
+    study_registry_student_number_conflicts, suotar_api_calls,
+};
+use utoipa::ToSchema;
+
+use crate::domain::system_health::HealthStatus;
+use chrono::TimeDelta;
+use headless_lms_credit_registration::CreditRegistrationPhase;
+pub(crate) use headless_lms_credit_registration::attention::{
+    PHASE_HEARTBEAT_INTERVAL_MULTIPLIER, is_heartbeat_late,
+};
+use headless_lms_credit_registration::registry_health::max_study_registry_wait;
+use headless_lms_models::credit_registration_phase_state::CreditRegistrationPhaseState;
+
+/// Within this much of the past, one rejected credential is enough.
+const CREDENTIAL_REJECTION_WINDOW: TimeDelta = TimeDelta::hours(1);
+/// Long enough to hold three failed calls at the longest request timeout.
+const UNREACHABLE_WINDOW: TimeDelta = TimeDelta::hours(4);
+/// Below this the run is a bad minute rather than an outage.
+const UNREACHABLE_CONSECUTIVE_FAILURES: i64 = 3;
+const SERVICE_OUTAGE_WINDOW: TimeDelta = TimeDelta::hours(1);
+/// Below this many items the share below is one bad batch, not a signal.
+const SERVICE_OUTAGE_MIN_ITEMS: i64 = 10;
+const SERVICE_OUTAGE_FAILURE_SHARE_PERCENT: i64 = 30;
+/// Above this many stuck rows the backlog stops being something to look at tomorrow.
+const STUCK_CRITICAL_COUNT: i64 = 50;
+const LINKING_MAIL_WINDOW: TimeDelta = TimeDelta::days(7);
+/// Failures in a row before a phase counts as broken rather than unlucky.
+pub(crate) const PHASE_CONSECUTIVE_FAILURE_LIMIT: i32 = 5;
+/// A phase that owns a nonempty queue and has not succeeded within this many of its own intervals
+/// is running without getting anywhere, which no failure count catches. Never less than its
+/// slowest possible iteration plus [`PHASE_SUCCESS_CALL_MARGIN`], or one slow call would look
+/// like a wedge.
+const PHASE_SUCCESS_INTERVAL_MULTIPLIER: i32 = 10;
+const PHASE_SUCCESS_CALL_MARGIN: TimeDelta = TimeDelta::minutes(10);
+/// The window every "in the last day" rule shares.
+const TERMINAL_WINDOW: TimeDelta = TimeDelta::days(1);
+const PERMANENT_FAILURE_COUNT: i64 = 20;
+const PERMANENT_FAILURE_RATE_PERCENT: i64 = 10;
+/// A reversal is always worth saying; this many at once is an incident.
+const MISREGISTRATION_CRITICAL_COUNT: i64 = 5;
+/// Linking mails one hour may hand over before the volume itself is the problem.
+const LINKING_MAIL_HOURLY_CAP: i64 = 500;
+const LINKING_MAIL_RATE_WINDOW: TimeDelta = TimeDelta::hours(1);
+/// Queued work that makes a day without a single completion mean something.
+const IDLE_QUEUE_DEPTH: i64 = 20;
+/// How long a completion may sit outside the ledger before `materialize` is the suspect rather
+/// than the clock.
+const NEVER_ENTERED_MIN_AGE: TimeDelta = TimeDelta::hours(6);
+/// Bounds the anti-join behind that rule; a bigger backlog reports as this many.
+const NEVER_ENTERED_SAMPLE_LIMIT: i64 = 100;
+const LATENCY_WINDOW: TimeDelta = TimeDelta::days(7);
+/// Under this the registry is quick enough that a doubling says nothing.
+const LATENCY_REGRESSION_FLOOR: TimeDelta = TimeDelta::hours(6);
+const LATENCY_REGRESSION_FACTOR: i64 = 2;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CreditRegistrationAlertId {
+    CredentialsRejected,
+    StudyRegistryUnreachable,
+    ServiceUnavailable,
+    StuckRegistrations,
+    LinkingMailSendFailed,
+    LinkingMailRateCapExceeded,
+    PhaseHeartbeatStale,
+    PhaseFailing,
+    PermanentFailuresAccumulating,
+    MisregistrationsDetected,
+    CourseConfigurationBroken,
+    PipelineIdle,
+    CompletionsNeverEntered,
+    ConfirmationLatencyRegressed,
+    PipelinePausedGlobally,
+    StudyRegistryStudentNumberConflicts,
+    RosterCourseCodeFailing,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum CreditRegistrationAlertSeverity {
+    /// Worth knowing, not worth acting on. Never makes the overall status anything but healthy.
+    Info,
+    Warning,
+    Critical,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationAlert {
+    pub id: CreditRegistrationAlertId,
+    pub severity: CreditRegistrationAlertSeverity,
+    /// How many rows, calls or phases the rule found.
+    pub count: i64,
+    /// What `count` is out of, where the rule measured one. Not a threshold: thresholds are the
+    /// same for every evaluation and travel separately.
+    pub total: Option<i64>,
+    /// How far back the rule looked, where it looked back at all. `None` for a rule that reads the
+    /// live state or a threshold rather than a window; without it, two alerts counting the same
+    /// thing over different windows read as a contradiction.
+    pub window_secs: Option<i64>,
+    /// When it last happened, where the rule has an instant to point at.
+    pub at: Option<DateTime<Utc>>,
+    /// An identifier the operator can act on — a phase name, a ledger state, a mail domain. Never a
+    /// sentence, and never anything the study registry wrote.
+    pub subject: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationHealth {
+    pub status: HealthStatus,
+    /// Critical first, and a rejected credential first of all: nothing registers until it is fixed.
+    pub alerts: Vec<CreditRegistrationAlert>,
+    /// The only thresholds the frontend reads off the health poll: how long a row may sit in each
+    /// state before it counts as stuck. The other rule constants stay server-side.
+    pub thresholds: StuckThresholds,
+}
+
+pub fn stuck_thresholds() -> StuckThresholds {
+    StuckThresholds::CURRENT
+}
+
+/// Whether a phase counts as failing: too many failures in a row, or a nonempty queue with no
+/// success for too long, or an iteration hung past that same bound. Never while paused. The one
+/// definition behind both the `PhaseFailing` alert and the Workers tab's `failing` flag.
+///
+/// `depth_of` is the live count of a state; `due_enrolment_checks` as for
+/// [`CreditRegistrationPhase::queue_depth`].
+pub(crate) fn is_phase_failing(
+    phase: &CreditRegistrationPhaseState,
+    now: DateTime<Utc>,
+    depth_of: impl Fn(CreditRegistrationState) -> i64,
+    due_enrolment_checks: i64,
+) -> bool {
+    if phase.paused_at.is_some() {
+        return false;
+    }
+    let known_phase = CreditRegistrationPhase::from_phase_name(&phase.phase);
+    let owns_work =
+        known_phase.is_some_and(|known| known.queue_depth(&depth_of, due_enrolment_checks) > 0);
+    let slowest_iteration_secs = known_phase.map_or(0, |known| {
+        i64::try_from(max_study_registry_wait(known).as_secs()).unwrap_or(i64::MAX)
+            + PHASE_SUCCESS_CALL_MARGIN.num_seconds()
+    });
+    let unproductive_after_secs = (i64::from(phase.expected_interval_secs)
+        * i64::from(PHASE_SUCCESS_INTERVAL_MULTIPLIER))
+    .max(slowest_iteration_secs);
+    let unproductive = owns_work
+        && phase.last_success_at.is_some_and(|last_success_at| {
+            (now - last_success_at).num_seconds() > unproductive_after_secs
+        });
+    // The keep-alive refreshes the heartbeat for as long as an iteration runs, so a hung one
+    // shows only here.
+    let hung = phase.last_run_started_at.is_some_and(|started_at| {
+        phase
+            .last_run_finished_at
+            .is_none_or(|finished_at| finished_at < started_at)
+            && (now - started_at).num_seconds() > unproductive_after_secs
+    });
+    phase.consecutive_failures >= PHASE_CONSECUTIVE_FAILURE_LIMIT || unproductive || hung
+}
+
+/// Runs every rule and ranks what it found.
+///
+/// `stuck` and `depths` are passed in because the caller already reads both aggregates, the two
+/// most expensive reads in the request. `depths` is the live count per state, superseded rows
+/// excluded, as [`credit_registrations::count_by_state`] returns it.
+pub async fn evaluate(
+    conn: &mut PgConnection,
+    stuck: &[StuckRegistrationCount],
+    depths: &[(CreditRegistrationState, i64)],
+) -> ModelResult<CreditRegistrationHealth> {
+    let now = Utc::now();
+    let mut alerts = Vec::new();
+
+    let credentials = suotar_api_calls::count_credential_rejections_since(
+        conn,
+        now - CREDENTIAL_REJECTION_WINDOW,
+    )
+    .await?;
+    if credentials.count > 0 {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::CredentialsRejected,
+            window_secs: Some(CREDENTIAL_REJECTION_WINDOW.num_seconds()),
+            severity: CreditRegistrationAlertSeverity::Critical,
+            count: credentials.count,
+            total: None,
+            at: credentials.last_at,
+            subject: None,
+        });
+    }
+
+    let unreachable =
+        suotar_api_calls::count_unreachable_run_since(conn, now - UNREACHABLE_WINDOW).await?;
+    if unreachable.count >= UNREACHABLE_CONSECUTIVE_FAILURES {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::StudyRegistryUnreachable,
+            window_secs: Some(UNREACHABLE_WINDOW.num_seconds()),
+            severity: CreditRegistrationAlertSeverity::Critical,
+            count: unreachable.count,
+            total: None,
+            at: unreachable.last_at,
+            subject: None,
+        });
+    }
+
+    if let Some(alert) = service_outage_alert(conn, now).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = stuck_alert(stuck) {
+        alerts.push(alert);
+    }
+    if let Some(alert) = linking_mail_alert(conn, now).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = linking_mail_rate_alert(conn, now).await? {
+        alerts.push(alert);
+    }
+    alerts.extend(phase_alerts(conn, now, depths).await?);
+    alerts.extend(terminal_outcome_alerts(conn, now, depths).await?);
+    if let Some(alert) = course_configuration_alert(conn).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = never_entered_alert(conn).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = latency_regression_alert(conn, now).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = study_registry_conflict_alert(conn).await? {
+        alerts.push(alert);
+    }
+    if let Some(alert) = roster_course_code_alert(conn).await? {
+        alerts.push(alert);
+    }
+
+    alerts.sort_by_key(|alert| {
+        (
+            std::cmp::Reverse(alert.severity),
+            alert.id != CreditRegistrationAlertId::CredentialsRejected,
+        )
+    });
+    let status = match alerts.iter().map(|alert| alert.severity).max() {
+        Some(CreditRegistrationAlertSeverity::Critical) => HealthStatus::Error,
+        Some(CreditRegistrationAlertSeverity::Warning) => HealthStatus::Warning,
+        Some(CreditRegistrationAlertSeverity::Info) | None => HealthStatus::Healthy,
+    };
+
+    Ok(CreditRegistrationHealth {
+        status,
+        alerts,
+        thresholds: stuck_thresholds(),
+    })
+}
+
+/// The share of recent items that failed on Suotar or Sisu being unavailable. Our only proxy for
+/// Sisu's uptime, which is why it is a rule of its own rather than part of the request-level one
+/// above.
+async fn service_outage_alert(
+    conn: &mut PgConnection,
+    now: DateTime<Utc>,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let totals =
+        credit_registration_events::count_item_outcomes_since(conn, now - SERVICE_OUTAGE_WINDOW)
+            .await?;
+    if totals.item_count < SERVICE_OUTAGE_MIN_ITEMS
+        || totals.service_unavailable_count * 100
+            < totals.item_count * SERVICE_OUTAGE_FAILURE_SHARE_PERCENT
+    {
+        return Ok(None);
+    }
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::ServiceUnavailable,
+        window_secs: Some(SERVICE_OUTAGE_WINDOW.num_seconds()),
+        severity: CreditRegistrationAlertSeverity::Critical,
+        count: totals.service_unavailable_count,
+        total: Some(totals.item_count),
+        at: totals.last_service_unavailable_at,
+        subject: None,
+    }))
+}
+
+/// Rows the pipeline should have moved on by now. Terminal states are outside this by construction
+/// rather than by a filter that could be forgotten.
+fn stuck_alert(stuck: &[StuckRegistrationCount]) -> Option<CreditRegistrationAlert> {
+    let total: i64 = stuck.iter().map(|row| row.count).sum();
+    if total == 0 {
+        return None;
+    }
+    let severe: i64 = stuck.iter().map(|row| row.severely_stuck_count).sum();
+    let worst = stuck.iter().max_by_key(|row| row.count);
+    let severity = if total > STUCK_CRITICAL_COUNT || severe > 0 {
+        CreditRegistrationAlertSeverity::Critical
+    } else {
+        CreditRegistrationAlertSeverity::Warning
+    };
+    Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::StuckRegistrations,
+        window_secs: None,
+        severity,
+        count: total,
+        total: None,
+        at: worst.and_then(|row| row.oldest_state_changed_at),
+        subject: worst.map(|row| state_name(row.state)),
+    })
+}
+
+/// Linking mails we could not hand over at all. The recipient domain rides along because an
+/// undeliverable host is the usual cause.
+async fn linking_mail_alert(
+    conn: &mut PgConnection,
+    now: DateTime<Utc>,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let since = now - LINKING_MAIL_WINDOW;
+    let totals =
+        credit_registration_account_linking_emails::get_send_status_totals_since(conn, since, now)
+            .await?;
+    if totals.send_failed == 0 {
+        return Ok(None);
+    }
+    let top_domain = credit_registration_account_linking_emails::get_send_failure_domains_since(
+        conn, since, now,
+    )
+    .await?
+    .into_iter()
+    .next()
+    .map(|row| row.domain);
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::LinkingMailSendFailed,
+        window_secs: Some(LINKING_MAIL_WINDOW.num_seconds()),
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count: totals.send_failed,
+        total: Some(totals.mails_in_window),
+        at: totals.last_send_failed_at,
+        subject: top_domain,
+    }))
+}
+
+/// The volume guard: how many people we mailed in the last hour against what an hour should hold.
+/// Counts addresses, which is what the per-person caps govern.
+async fn linking_mail_rate_alert(
+    conn: &mut PgConnection,
+    now: DateTime<Utc>,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let sent = credit_registration_account_linking_emails::count_sent_since(
+        conn,
+        now - LINKING_MAIL_RATE_WINDOW,
+    )
+    .await?;
+    if sent <= LINKING_MAIL_HOURLY_CAP {
+        return Ok(None);
+    }
+    let severity = if sent > LINKING_MAIL_HOURLY_CAP * 2 {
+        CreditRegistrationAlertSeverity::Critical
+    } else {
+        CreditRegistrationAlertSeverity::Warning
+    };
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::LinkingMailRateCapExceeded,
+        window_secs: Some(LINKING_MAIL_RATE_WINDOW.num_seconds()),
+        severity,
+        count: sent,
+        total: Some(LINKING_MAIL_HOURLY_CAP),
+        at: Some(now),
+        subject: None,
+    }))
+}
+
+/// What the phase table says about itself: phases that stopped reporting, and phases that report
+/// but get nowhere.
+///
+/// A phase that has never heartbeated is deliberately outside both: a freshly migrated database has
+/// no heartbeats at all, and that would keep the banner permanently red.
+async fn phase_alerts(
+    conn: &mut PgConnection,
+    now: DateTime<Utc>,
+    depths: &[(CreditRegistrationState, i64)],
+) -> ModelResult<Vec<CreditRegistrationAlert>> {
+    let phases = credit_registration_phase_state::get_all(conn).await?;
+    let due_enrolment_checks = credit_registrations::count_due_enrolment_checks(conn).await?;
+    let mut stale: Vec<&str> = Vec::new();
+    let mut failing: Vec<&str> = Vec::new();
+    let mut paused = 0;
+    let mut last_paused_at = None;
+    for phase in &phases {
+        if let Some(paused_at) = phase.paused_at {
+            paused += 1;
+            last_paused_at = last_paused_at.max(Some(paused_at));
+            continue;
+        }
+        if is_heartbeat_late(
+            phase.last_heartbeat_at,
+            phase.expected_interval_secs,
+            None,
+            now,
+        ) {
+            stale.push(&phase.phase);
+        }
+        if is_phase_failing(
+            phase,
+            now,
+            |state| depth_of(depths, state),
+            due_enrolment_checks,
+        ) {
+            failing.push(&phase.phase);
+        }
+    }
+
+    let mut alerts = Vec::new();
+    if !stale.is_empty() {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::PhaseHeartbeatStale,
+            window_secs: None,
+            severity: CreditRegistrationAlertSeverity::Critical,
+            count: stale.len() as i64,
+            total: Some(phases.len() as i64),
+            at: None,
+            subject: stale.first().map(|phase| (*phase).to_string()),
+        });
+    }
+    if !failing.is_empty() {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::PhaseFailing,
+            window_secs: None,
+            severity: CreditRegistrationAlertSeverity::Critical,
+            count: failing.len() as i64,
+            total: Some(phases.len() as i64),
+            at: None,
+            subject: failing.first().map(|phase| (*phase).to_string()),
+        });
+    }
+    if paused > 0 && paused == phases.len() {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::PipelinePausedGlobally,
+            window_secs: None,
+            severity: CreditRegistrationAlertSeverity::Info,
+            count: paused as i64,
+            total: Some(phases.len() as i64),
+            at: last_paused_at,
+            subject: None,
+        });
+    }
+    Ok(alerts)
+}
+
+/// The three rules read off the last day's terminal outcomes: failures piling up, reversals, and a
+/// pipeline that finished nothing while holding work.
+async fn terminal_outcome_alerts(
+    conn: &mut PgConnection,
+    now: DateTime<Utc>,
+    depths: &[(CreditRegistrationState, i64)],
+) -> ModelResult<Vec<CreditRegistrationAlert>> {
+    let since = now - TERMINAL_WINDOW;
+    let totals = credit_registrations::count_terminal_outcomes_since(conn, since).await?;
+    let mut alerts = Vec::new();
+
+    let rate_broken = totals.total_count >= PERMANENT_FAILURE_COUNT
+        && totals.failed_permanent_count * 100
+            > totals.total_count * PERMANENT_FAILURE_RATE_PERCENT;
+    if totals.failed_permanent_count >= PERMANENT_FAILURE_COUNT || rate_broken {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::PermanentFailuresAccumulating,
+            window_secs: Some(TERMINAL_WINDOW.num_seconds()),
+            severity: CreditRegistrationAlertSeverity::Warning,
+            count: totals.failed_permanent_count,
+            total: Some(totals.total_count),
+            at: Some(now),
+            subject: None,
+        });
+    }
+
+    let misregistered = credit_registrations::count_entered_state_since(
+        conn,
+        CreditRegistrationState::Misregistered,
+        since,
+    )
+    .await?;
+    if misregistered > 0 {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::MisregistrationsDetected,
+            window_secs: Some(TERMINAL_WINDOW.num_seconds()),
+            severity: if misregistered >= MISREGISTRATION_CRITICAL_COUNT {
+                CreditRegistrationAlertSeverity::Critical
+            } else {
+                CreditRegistrationAlertSeverity::Warning
+            },
+            count: misregistered,
+            total: None,
+            at: Some(now),
+            subject: None,
+        });
+    }
+
+    let queued = depth_of(depths, CreditRegistrationState::ReadyToSubmit)
+        + depth_of(depths, CreditRegistrationState::AwaitingVerification)
+        + depth_of(depths, CreditRegistrationState::PartiallyRegistered);
+    if totals.total_count == 0 && queued > IDLE_QUEUE_DEPTH {
+        alerts.push(CreditRegistrationAlert {
+            id: CreditRegistrationAlertId::PipelineIdle,
+            window_secs: Some(TERMINAL_WINDOW.num_seconds()),
+            severity: CreditRegistrationAlertSeverity::Warning,
+            count: queued,
+            total: None,
+            at: Some(now),
+            subject: None,
+        });
+    }
+    Ok(alerts)
+}
+
+/// Modules the last configuration check found broken. Never checked is not counted: the Courses tab
+/// renders unknown and broken differently, and so must this.
+async fn course_configuration_alert(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let count =
+        course_module_suotar_configurations::count_modules_failing_config_check(conn).await?;
+    Ok((count > 0).then_some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::CourseConfigurationBroken,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count,
+        total: None,
+        at: None,
+        subject: None,
+    }))
+}
+
+/// Completions old enough that `materialize` has had every chance and still has no ledger row for
+/// them. Sampled rather than counted, so the anti-join stops early on a large backlog.
+async fn never_entered_alert(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let found = get_unmaterialised_eligible_completions(
+        conn,
+        NEVER_ENTERED_MIN_AGE.num_seconds(),
+        NEVER_ENTERED_SAMPLE_LIMIT,
+    )
+    .await?;
+    if found.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::CompletionsNeverEntered,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count: found.len() as i64,
+        total: Some(NEVER_ENTERED_SAMPLE_LIMIT),
+        at: found.first().map(|row| row.created_at),
+        subject: None,
+    }))
+}
+
+/// How long the study registry is taking to confirm, this week against last. `count` is this
+/// week's p95 in seconds and `total` last week's, so the banner can name both.
+async fn latency_regression_alert(
+    conn: &mut PgConnection,
+    now: DateTime<Utc>,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let window = LATENCY_WINDOW;
+    let current =
+        credit_registrations::get_registration_latency_between(conn, now - window, now).await?;
+    let (Some(current_p95), true) = (current.p95_confirmation_secs, current.registered_count > 0)
+    else {
+        return Ok(None);
+    };
+    if current_p95 < LATENCY_REGRESSION_FLOOR.num_seconds() {
+        return Ok(None);
+    }
+    let previous = credit_registrations::get_registration_latency_between(
+        conn,
+        now - window * 2,
+        now - window,
+    )
+    .await?;
+    let Some(previous_p95) = previous
+        .p95_confirmation_secs
+        .filter(|_| previous.registered_count > 0)
+    else {
+        return Ok(None);
+    };
+    if current_p95 <= previous_p95 * LATENCY_REGRESSION_FACTOR {
+        return Ok(None);
+    }
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::ConfirmationLatencyRegressed,
+        window_secs: Some(LATENCY_WINDOW.num_seconds()),
+        severity: CreditRegistrationAlertSeverity::Info,
+        count: current_p95,
+        total: Some(previous_p95),
+        at: Some(now),
+        subject: None,
+    }))
+}
+
+/// Accounts the study registry reported a number for that another live link kept us from linking.
+async fn study_registry_conflict_alert(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let count = study_registry_student_number_conflicts::count_unresolved(conn).await?;
+    Ok((count > 0).then_some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::StudyRegistryStudentNumberConflicts,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count,
+        total: None,
+        at: None,
+        subject: None,
+    }))
+}
+
+/// Course codes whose roster fails even when listed on their own, so enrolment discovery is backing
+/// them off. The worst one rides along, since the usual cause is that one code's configuration.
+async fn roster_course_code_alert(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<CreditRegistrationAlert>> {
+    let failing = credit_registration_roster_schedules::get_failing_codes(conn).await?;
+    let Some(worst) = failing.first() else {
+        return Ok(None);
+    };
+    Ok(Some(CreditRegistrationAlert {
+        id: CreditRegistrationAlertId::RosterCourseCodeFailing,
+        window_secs: None,
+        severity: CreditRegistrationAlertSeverity::Warning,
+        count: i64::try_from(failing.len()).unwrap_or(i64::MAX),
+        total: None,
+        at: worst.last_attempted_at,
+        subject: Some(worst.course_code.clone()),
+    }))
+}
+
+fn depth_of(depths: &[(CreditRegistrationState, i64)], state: CreditRegistrationState) -> i64 {
+    depths
+        .iter()
+        .find(|(row_state, _)| *row_state == state)
+        .map_or(0, |(_, count)| *count)
+}
+
+/// The state's own wire name, taken from its serialisation so the two cannot drift.
+fn state_name(state: CreditRegistrationState) -> String {
+    serde_json::to_value(state)
+        .ok()
+        .and_then(|value| value.as_str().map(str::to_string))
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The alert's `subject` has to be the same spelling the ledger and the filters use.
+    #[test]
+    fn a_state_names_itself_the_way_the_wire_does() {
+        assert_eq!(
+            state_name(CreditRegistrationState::AwaitingVerification),
+            "awaiting_verification"
+        );
+        for state in CreditRegistrationState::ALL {
+            assert!(!state_name(state).is_empty());
+        }
+    }
+
+    /// Info exists to be shown without turning the page red.
+    #[test]
+    fn severity_ranks_the_way_the_banner_reads_it() {
+        assert!(
+            CreditRegistrationAlertSeverity::Critical > CreditRegistrationAlertSeverity::Warning
+        );
+        assert!(CreditRegistrationAlertSeverity::Warning > CreditRegistrationAlertSeverity::Info);
+    }
+}

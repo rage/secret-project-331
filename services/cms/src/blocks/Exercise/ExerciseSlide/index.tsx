@@ -1,16 +1,19 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
-import React, { ComponentType, useEffect } from "react"
+/* oxlint-disable i18next/no-literal-string */
+import type { ComponentType } from "react"
+import React, { useEffect } from "react"
 import { v4 } from "uuid"
 
-import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
-import ExerciseSlideEditor, { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
+import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import type { ExerciseSlideAttributes } from "./ExerciseSlideEditor"
+import ExerciseSlideEditor from "./ExerciseSlideEditor"
 import ExerciseSlideSave from "./ExerciseSlideSave"
 
 const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = {
+  apiVersion: 3,
   title: "ExerciseSlide",
   description: "An exercise slide",
   category: MOOCFI_CATEGORY_SLUG,
@@ -40,6 +43,7 @@ function enforceExerciseSlideIdDefined(
 ): ComponentType<React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>> {
   // Name to display in React Dev tools
   const displayName = WrappedComponent.displayName || WrappedComponent.name || DEFAULT_DISPLAY_NAME
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- InnerComponent captures WrappedComponent from enclosing scope
   const InnerComponent = (props: BlockEditProps<ExerciseSlideAttributes>) => {
     const { attributes, setAttributes } = props
 

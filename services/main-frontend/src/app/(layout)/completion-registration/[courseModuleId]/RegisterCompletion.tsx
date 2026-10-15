@@ -1,0 +1,236 @@
+"use client"
+
+import React from "react"
+import { useForm } from "react-hook-form"
+import { Trans, useTranslation } from "react-i18next"
+
+import {
+  SEGMENTED,
+  SISU_URL,
+  TONE,
+  openUniversityEnrolmentInfoUrl,
+} from "@/components/credit-registration/constants"
+import { OpenUniversityDetour } from "@/components/credit-registration/OpenUniversityDetour"
+import {
+  bandCss,
+  bandedCardCss,
+  cardTitleBandCss,
+  headingCss,
+  narrowPageCss,
+  noteCss,
+  pageTitleCss,
+  subheadingCss,
+} from "@/components/credit-registration/styles"
+import { Disclosure, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+
+const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
+
+const STUDY_RIGHT_AT_UH = "study-right-at-uh"
+const OPEN_UNIVERSITY_OR_NEITHER = "open-university-or-neither"
+const STUDENT_TYPE_FIELD = "studentType"
+
+const myStudyInfoLink = <TransLink href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
+
+export interface RegisterCompletionProps {
+  courseModuleId: string
+  /** The address the completion was made under; registration matches on it and nothing else. */
+  email: string
+  courseName: string
+  ectsCredits: number | null | undefined
+  registrationFormUrl: string
+  /**
+   * The certificate the student could generate instead of registering credits. Set only when they
+   * can generate one right now, and that is what puts the detour between them and the Open
+   * University instructions.
+   */
+  certificateConfigurationId: string | null | undefined
+  /** What the student already answered on the detour's last question, if they got that far. */
+  creditJustification: string | null | undefined
+}
+
+interface StudentTypeForm {
+  [STUDENT_TYPE_FIELD]: string
+}
+
+const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
+  courseModuleId,
+  email,
+  courseName,
+  ectsCredits,
+  registrationFormUrl,
+  certificateConfigurationId,
+  creditJustification,
+}) => {
+  const { t } = useTranslation()
+  const { control, watch } = useForm<StudentTypeForm>({
+    defaultValues: { [STUDENT_TYPE_FIELD]: "" },
+  })
+  const studentType = watch(STUDENT_TYPE_FIELD)
+
+  const openUniversityDestination = (
+    <>
+      <OpenUniversityInstructions email={email} registrationFormUrl={registrationFormUrl} />
+      <div className={bandCss}>
+        <ChangedEmailNote email={email} />
+      </div>
+    </>
+  )
+
+  return (
+    <div className={narrowPageCss}>
+      {/*
+       * `aria-live` here, not on a wrapper around just the revealed content: the article is already
+       * mounted from first paint, before there is anything to reveal, and a screen reader only picks
+       * up a live region's *later* mutations — content arriving inside a region that appears at the
+       * same time is easy to miss. A wrapper div would need one, but it would also stand between
+       * every revealed section and `bandedCardCss`'s `> *` banding, which needs them as direct
+       * children to draw the divider between one question and the next.
+       */}
+      <article className={bandedCardCss} aria-live="polite">
+        <header className={cardTitleBandCss}>
+          <h1 className={pageTitleCss}>{t("register-completion")}</h1>
+          <p className={subheadingCss}>
+            {t("course")}: {courseName}
+          </p>
+          {typeof ectsCredits === "number" ? (
+            <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+          ) : null}
+        </header>
+
+        <section className={bandCss}>
+          <RadioGroup
+            name={STUDENT_TYPE_FIELD}
+            control={control}
+            variant={SEGMENTED}
+            label={t("are-you-a-student-or-exchange-student-at-uh")}
+            description={t("open-university-students-and-everyone-else-select-no")}
+          >
+            <Radio value={STUDY_RIGHT_AT_UH} label={t("yes")} />
+            <Radio value={OPEN_UNIVERSITY_OR_NEITHER} label={t("no")} />
+          </RadioGroup>
+        </section>
+
+        {studentType === STUDY_RIGHT_AT_UH ? (
+          <>
+            <section className={bandCss}>
+              <h2 className={headingCss}>{t("heading-enroll-in-sisu")}</h2>
+              <p>{t("enroll-through-sisu-to-register-credits")}</p>
+              <Infobox tone={TONE.INFO}>
+                <Trans t={t} i18nKey="sisu-email-matching-explanation" values={{ email }} />
+              </Infobox>
+              {/* A grid child otherwise stretches the button's own box to the section's full width. */}
+              <div>
+                <Link
+                  href={SISU_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  styledAsButton
+                  variant="primary"
+                  size="medium"
+                >
+                  {t("go-to-sisu")}
+                </Link>
+              </div>
+            </section>
+            <div className={bandCss}>
+              <ChangedEmailNote email={email} />
+              <AlreadyEnrolledNote email={email} />
+            </div>
+          </>
+        ) : null}
+
+        {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
+          certificateConfigurationId ? (
+            <OpenUniversityDetour
+              courseModuleId={courseModuleId}
+              certificateConfigurationId={certificateConfigurationId}
+              creditJustification={creditJustification}
+              openUniversityContent={openUniversityDestination}
+            />
+          ) : (
+            openUniversityDestination
+          )
+        ) : null}
+      </article>
+    </div>
+  )
+}
+
+/**
+ * Where every route through this page that ends in credits arrives: the form, the address it has
+ * to be filled in with, and when the credits turn up afterwards.
+ */
+const OpenUniversityInstructions: React.FC<{ email: string; registrationFormUrl: string }> = ({
+  email,
+  registrationFormUrl,
+}) => {
+  const { t, i18n } = useTranslation()
+  const openUniversityInfoLink = (
+    <TransLink
+      href={openUniversityEnrolmentInfoUrl(i18n.language)}
+      target="_blank"
+      rel="noopener noreferrer"
+    />
+  )
+
+  return (
+    <section className={bandCss}>
+      <h2 className={headingCss}>{t("heading-enroll-through-open-university")}</h2>
+      <Infobox tone={TONE.INFO}>
+        <Trans
+          t={t}
+          i18nKey="use-this-email-on-enrollment-form-or-credits-wont-register"
+          values={{ email }}
+        />
+      </Infobox>
+      <p>
+        <Trans
+          t={t}
+          i18nKey="open-university-credits-registered-through-ou-explanation"
+          values={{ email }}
+          components={{ openUniversityInfoLink }}
+        />
+      </p>
+      <div>
+        <Link href={registrationFormUrl} styledAsButton variant="primary" size="medium">
+          {t("to-the-registration-form")}
+        </Link>
+      </div>
+      <p>
+        <Trans
+          t={t}
+          i18nKey="credits-registered-within-few-days-and-my-studyinfo-pointer"
+          components={{ myStudyInfoLink }}
+        />
+      </p>
+    </section>
+  )
+}
+
+const ChangedEmailNote: React.FC<{ email: string }> = ({ email }) => {
+  const { t } = useTranslation()
+  return (
+    <Disclosure title={t("changed-email-since-completing-course-disclosure-title")}>
+      <p>
+        <Trans
+          t={t}
+          i18nKey="changed-email-since-completing-course-disclosure-body"
+          values={{ email }}
+        />
+      </p>
+    </Disclosure>
+  )
+}
+
+const AlreadyEnrolledNote: React.FC<{ email: string }> = ({ email }) => {
+  const { t } = useTranslation()
+  return (
+    <Disclosure title={t("already-enrolled-in-sisu-disclosure-title")}>
+      <p>
+        <Trans t={t} i18nKey="already-enrolled-in-sisu-disclosure-body" values={{ email }} />
+      </p>
+    </Disclosure>
+  )
+}
+
+export default RegisterCompletion

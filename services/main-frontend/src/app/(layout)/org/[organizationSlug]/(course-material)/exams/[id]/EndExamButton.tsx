@@ -1,0 +1,55 @@
+"use client"
+
+import { useTranslation } from "react-i18next"
+
+import { endExamTime } from "@/generated/course-material-api/sdk.generated"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { Button, useDialog } from "@/shared-module/components"
+
+export interface EndExamButtonProps {
+  examId: string
+  disabled: boolean
+  onEnded: () => Promise<void>
+}
+
+/** End-exam button with confirm dialog and endExamTime mutation. */
+export default function EndExamButton({ examId, disabled, onEnded }: EndExamButtonProps) {
+  const { t } = useTranslation()
+  const { confirm } = useDialog()
+
+  const endExamMutation = useToastMutation(
+    () =>
+      endExamTime({
+        path: {
+          id: examId,
+        },
+      }),
+    { notify: true, method: "POST" },
+    { onSuccess: onEnded },
+  )
+
+  const handleEndExam = () => {
+    endExamMutation.mutate()
+  }
+
+  if (disabled) {
+    return null
+  }
+
+  return (
+    <Button
+      variant={"primary"}
+      onClick={async () => {
+        const confirmation = await confirm({
+          message: t("message-do-you-want-to-end-the-exam"),
+          isDestructive: true,
+        })
+        if (confirmation) {
+          handleEndExam()
+        }
+      }}
+    >
+      {t("button-end-exam")}
+    </Button>
+  )
+}

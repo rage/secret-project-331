@@ -1,7 +1,7 @@
 resources:
   - ../base
-  - postgres-dev.yml
-  - redis-dev.yml
+  - ../base-data
+  - ../mailpit
   - headless-lms/env.yml
   - headless-lms/persistent-file-storage.yml
   - access-ingress-internally.yml
@@ -22,6 +22,16 @@ patches:
       version: v1
       kind: Deployment
       name: "headless-lms"
+  - path: "headless-lms/patch-file-storage-reaper.yml"
+    target:
+      version: v1
+      kind: CronJob
+      name: "exercise-answer-upload-reaper"
+  - path: "headless-lms/patch-file-storage-reaper.yml"
+    target:
+      version: v1
+      kind: CronJob
+      name: "exercise-spec-upload-reaper"
   - path: patch-tmc-service-account.yml
     target:
       version: v1

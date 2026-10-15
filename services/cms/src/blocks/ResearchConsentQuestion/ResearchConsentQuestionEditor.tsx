@@ -2,25 +2,23 @@
 
 import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
+import { ErrorNotice } from "@/shared-module/components"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { ResearchConsentQuestionAttributes } from "."
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-import { ResearchConsentQuestionAttributes } from "."
-
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 
 const ResearchConsentCheckBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>
-> = ({ clientId, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { content } = attributes
   const { t } = useTranslation()
 
   return (
     <BlockPlaceholderWrapper
-      id={clientId}
       title={t("title-research-form-question")}
       explanation={t("research-form-checkbox-description")}
     >
@@ -38,13 +36,15 @@ const ResearchConsentCheckBoxEditor: React.FC<
             margin-left: 0.25rem;
           `}
           tagName="span"
-          label={t("title-research-form-question")}
+          // RichText spreads unknown props onto the editable element, so `label` would land as a
+          // bare attribute and leave the field without an accessible name.
+          aria-label={t("title-research-form-question")}
           value={content}
           onChange={(value: string) => setAttributes({ content: value })}
         />
       </div>
       {(attributes.content ?? "").split(/\s+/).length < 3 && (
-        <ErrorBanner error={t("error-question-too-short")} variant="readOnly" />
+        <ErrorNotice error={t("error-question-too-short")} />
       )}
     </BlockPlaceholderWrapper>
   )

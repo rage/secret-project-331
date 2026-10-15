@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE student_number_verification_tokens\nSET deleted_at = now()\nWHERE id = ANY($1::uuid [])\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bd323dbbf20a73472f9004dfffbc77a76d02e56b4d8ff7354d4fad6dc40ace1c"
+}

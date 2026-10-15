@@ -1,6 +1,6 @@
-/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
+/*! The doc file generator is used to write example JSON docs for return values of API endpoints.
 
-This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
+This is done by writing .json files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
 
 To make this process more convenient, two macros are provided:
 - example! (proc macro defined in the doc_macros crate)
@@ -36,14 +36,14 @@ As can be seen in the code above, you can leave out the value of any field to us
 The Example trait is used for the doc! macro as explained below.
 
 ## doc!
-Writes the JSON and TypeScript files used for API endpoint docs.
+Writes the JSON files used for API endpoint docs.
 
 This macro can be used in two primary ways:
 - With a struct/enum literal
 - With a type and expression
 
 With a struct/enum literal, the doc! macro generates an Example implementation for the type using the example! macro
-and then uses it to write the JSON docs. (The TypeScript definition is generated with the `ts_rs::TS` trait)
+and then uses it to write the JSON docs.
 ```no_run
 # use headless_lms_server::doc;
 # use headless_lms_server::programs::doc_file_generator::example::Example;
@@ -54,8 +54,7 @@ doc!(SomeStruct {
     second_field: 1234,
 });
 ```
-In addition to the `impl Example for SomeStruct`, it will serialize `<SomeStruct as Example>::example()` to JSON and write it to generated-docs/SomeStruct.json,
-as well as `<SomeStruct as TS>::inline()` to generated-docs/SomeStruct.ts.
+In addition to the `impl Example for SomeStruct`, it will serialize `<SomeStruct as Example>::example()` to JSON and write it to generated-docs/SomeStruct.json.
 
 Note that because it uses the example! macro, you can leave out values for fields the same way.
 
@@ -148,8 +147,7 @@ use headless_lms_models::{
 use serde::Serialize;
 use serde_json::{Serializer, Value, json, ser::PrettyFormatter};
 use std::{collections::HashMap, fs};
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
 use uuid::Uuid;
 
 use crate::controllers::course_material::exercises::CourseMaterialPeerOrSelfReviewDataWithToken;
@@ -242,16 +240,6 @@ macro_rules! doc {
             ".json"
         );
         $crate::programs::doc_file_generator::write_json(&json_path, expr);
-
-        #[cfg(feature = "ts_rs")]
-        {
-            let ts_path = $crate::doc_path!(
-                stringify!($t),
-                ".ts"
-            );
-
-            $crate::programs::doc_file_generator::write_ts::<$t>(&ts_path, stringify!($t));
-        }
     }};
     // shortcut for doc!(T, ...)
     ($($t:tt)*) => {
@@ -304,12 +292,6 @@ pub fn write_json<T: Serialize>(path: &str, value: T) {
         .expect("Failed to serialize value to JSON");
 }
 
-#[cfg(feature = "ts_rs")]
-pub fn write_ts<T: TS>(path: &str, type_name: &str) {
-    let contents = format!("type {} = {}", type_name, T::inline());
-    std::fs::write(path, contents).expect("Failed to write TypeScript type definition file");
-}
-
 #[allow(non_local_definitions)]
 fn controllers() {
     doc!(
@@ -329,8 +311,5 @@ fn controllers() {
     );
 }
 
-// external types, there should only be a couple in here so no macros or other fancy stuff
-fn external() {
-    std::fs::write(doc_path!("Bytes", ".ts"), "type Bytes = Blob")
-        .expect("Failed to write Bytes type definition file");
-}
+// External types can be added here if they need JSON example docs.
+fn external() {}

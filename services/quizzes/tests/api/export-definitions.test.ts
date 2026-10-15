@@ -1,9 +1,8 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import request from "supertest"
 
-import { POST } from "../../src/app/api/export-definitions/route"
+import { handleExportDefinitions } from "@/server/exportDefinitions"
 
 import testClient from "./utils/appRouterTestClient"
 import {
@@ -14,8 +13,8 @@ import {
 
 describe("export-definitions", () => {
   it("exports multiple-choice definitions with only multiple-choice columns", async () => {
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-definitions").send({
+    const client = testClient(handleExportDefinitions)
+    const response = await client.post("/api/export-definitions").send({
       items: [
         {
           private_spec: generatePrivateSpecWithOneMultipleChoiceQuizItem(),
@@ -53,8 +52,8 @@ describe("export-definitions", () => {
 
   it("exports timeline definitions with type-specific data", async () => {
     const privateSpec = generatePrivateSpecWithOneTimelineQuizItem()
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-definitions").send({
+    const client = testClient(handleExportDefinitions)
+    const response = await client.post("/api/export-definitions").send({
       items: [{ private_spec: privateSpec }],
     })
 
@@ -84,8 +83,8 @@ describe("export-definitions", () => {
 
   it("exports matrix definitions as dedicated cells instead of JSON", async () => {
     const privateSpec = generatePrivateSpecWithOneMatrixQuizItem()
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-definitions").send({
+    const client = testClient(handleExportDefinitions)
+    const response = await client.post("/api/export-definitions").send({
       items: [{ private_spec: privateSpec }],
     })
 
@@ -116,7 +115,7 @@ describe("export-definitions", () => {
   })
 
   it("fails with invalid payload", async () => {
-    const client = testClient(POST)
+    const client = testClient(handleExportDefinitions)
     await client.post("/api/export-definitions").send({ items: "invalid" }).expect(400)
   })
 })

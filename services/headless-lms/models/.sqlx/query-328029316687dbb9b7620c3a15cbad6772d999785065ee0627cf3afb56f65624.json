@@ -1,0 +1,129 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_submissions (\n    id,\n    user_id,\n    exercise_id,\n    course_id,\n    peer_or_self_review_config_id,\n    exercise_slide_submission_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "peer_or_self_review_config_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "peer_or_self_review_config_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "exercise_slide_submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "328029316687dbb9b7620c3a15cbad6772d999785065ee0627cf3afb56f65624"
+}

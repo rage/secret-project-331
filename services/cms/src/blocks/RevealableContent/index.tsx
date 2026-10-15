@@ -1,18 +1,18 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
-import { BlockConfiguration } from "@wordpress/blocks"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
 import RevealableContentEditor from "./RevealableContentEditor"
 import RevealableContentSave from "./RevealableContentSave"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/no-empty-object-type
 export interface ConditionAttributes {}
 
 const RevealableContentConfiguration: BlockConfiguration<ConditionAttributes> = {
+  apiVersion: 3,
   title: "Revealable Content",
   description: "Add text and then hidden content that can be revealed with button",
   category: MOOCFI_CATEGORY_SLUG,

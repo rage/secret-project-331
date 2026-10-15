@@ -1,16 +1,14 @@
-"use client"
-
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
-import { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
-
-import { QuizItemSubmissionComponentProps } from "."
-
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { QuizItemSubmissionComponentProps } from "."
+import type { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
 
 const EssayFeedback: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
@@ -31,12 +29,15 @@ const EssayFeedback: React.FC<
       >
         <pre
           className={css`
-            display: flex;
-            font-family: Raleway, sans-serif;
+            display: block;
+            font-family: ${primaryFont};
             color: #676e7b;
             font-size: 1.125rem;
             font-weight: 500;
             white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            min-width: 0;
+            max-width: 100%;
           `}
         >
           {text?.trim()}
@@ -46,7 +47,7 @@ const EssayFeedback: React.FC<
         className={css`
           display: flex;
           white-space: pre-wrap;
-          font-family: Raleway, sans-serif;
+          font-family: ${primaryFont};
           font-weight: 600;
           font-size: 1.125rem;
           color: #4c5868;

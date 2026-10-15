@@ -3,12 +3,11 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import CustomViewIframe from "./CustomViewIframe"
-
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ErrorNotice } from "@/shared-module/components"
+
+import type { BlockRendererProps } from "../.."
+import CustomViewIframe from "./CustomViewIframe"
 
 interface ExerciseCustomViewBlockAttributes {
   exercise_type: string | undefined
@@ -20,9 +19,7 @@ const ExerciseCustomViewBlock: React.FC<
 > = (props) => {
   const { t } = useTranslation()
   if (props.data.attributes.exercise_type === undefined) {
-    return (
-      <ErrorBanner variant="readOnly" error={t("error-no-exercise-type-selected")}></ErrorBanner>
-    )
+    return <ErrorNotice error={t("error-no-exercise-type-selected")}></ErrorNotice>
   }
   return (
     <CustomViewIframe

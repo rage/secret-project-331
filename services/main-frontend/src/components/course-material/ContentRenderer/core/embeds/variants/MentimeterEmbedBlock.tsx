@@ -4,11 +4,11 @@ import { css } from "@emotion/css"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
-import { fetchMentimeterEmbed } from "@/services/course-material/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
+import { getCourseMaterialMentimeterOembed } from "@/generated/course-material-api/sdk.generated"
+import type { CourseMaterialOEmbedResponse } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
@@ -18,7 +18,11 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
   useEffect(() => {
     const fetchEmbed = async () => {
       if (props.url) {
-        const response = await fetchMentimeterEmbed(props.url)
+        const response: CourseMaterialOEmbedResponse = await getCourseMaterialMentimeterOembed({
+          query: {
+            url: props.url,
+          },
+        })
         if (response.html) {
           setEmbedHtml(response.html)
         }
@@ -30,7 +34,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
 
   return (
     <>
-      {fetching && <Spinner variant="medium" />}
+      {fetching && <LoadingRegion />}
       {embedHtml && !fetching && (
         <figure
           className={css`
@@ -47,6 +51,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
               border-top: 2px solid white;
             `}
           >
+            {/* oxlint-disable-next-line i18next/no-literal-string */}
             &nbsp;
           </span>
           <div
@@ -77,8 +82,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
         </figure>
       )}
       {!embedHtml && !fetching && (
-        <ErrorBanner
-          variant="readOnly"
+        <ErrorNotice
           error={t("could-not-fetch-embed", {
             provider: props.providerNameSlug,
             url: props.url ?? "undefined",

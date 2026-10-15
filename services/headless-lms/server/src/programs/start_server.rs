@@ -1,5 +1,5 @@
 use crate::{
-    config::{self, ServerConfigBuilder},
+    config::{self, ServerConfigBuilder, ServerRuntimeConfig, set_server_runtime_config},
     setup_tracing,
 };
 use actix_session::{
@@ -10,36 +10,35 @@ use actix_session::{
 use actix_web::{
     App, HttpServer,
     cookie::{Key, SameSite},
+    dev::ServiceRequest,
     middleware::Logger,
 };
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use listenfd::ListenFd;
-use rustls::crypto::ring;
-use std::env;
+use secrecy::ExposeSecret;
+use std::time::Duration;
 
 /// The entrypoint to the server.
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
 
-    // Required by rustls 0.23 so kube-client can build TLS configs.
-    ring::default_provider()
-        .install_default()
-        .expect("failed to install rustls ring crypto provider");
-
-    // read environment variables
-    let private_cookie_key =
-        env::var("PRIVATE_COOKIE_KEY").expect("PRIVATE_COOKIE_KEY must be defined");
-    let test_mode = env::var("TEST_MODE").is_ok();
-    let allow_no_https_for_development = env::var("ALLOW_NO_HTTPS_FOR_DEVELOPMENT").is_ok();
+    let runtime_config = ServerRuntimeConfig::try_from_env()?;
+    let private_cookie_key = runtime_config.private_cookie_key.clone();
+    let test_mode = runtime_config.test_mode;
+    let allow_no_https_for_development = runtime_config.allow_no_https_for_development;
+    let host = runtime_config.host.clone();
+    let port = runtime_config.port.clone();
+    set_server_runtime_config(runtime_config.clone())?;
 
     if test_mode {
         info!("***********************************");
         info!("*  Starting backend in test mode  *");
         info!("***********************************");
     }
-    let server_config = ServerConfigBuilder::try_from_env()
-        .expect("Failed to create server config builder")
+    let server_config = ServerConfigBuilder::from_runtime_config(&runtime_config)
+        .await
+        .expect("Failed to create server config builder from runtime config")
         .build()
         .await
         .expect("Failed to create server config");
@@ -50,7 +49,7 @@ pub async fn main() -> anyhow::Result<()> {
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
-                    Key::from(private_cookie_key.as_bytes()),
+                    Key::from(private_cookie_key.expose_secret().as_bytes()),
                 )
                 .cookie_name("session".to_string())
                 .cookie_secure(!allow_no_https_for_development)
@@ -65,18 +64,22 @@ pub async fn main() -> anyhow::Result<()> {
                 ))
                 .build(),
             )
-            .wrap(Logger::new(
-                "Completed %r %s %b bytes - %D ms, request_id=%{request-id}o",
-            ))
-    });
+            .wrap(
+                Logger::new(
+                    "Completed %{request_line}xi %s %b bytes - %D ms, request_id=%{request-id}o",
+                )
+                .custom_request_replace("request_line", redacted_request_line),
+            )
+    })
+    // Must outlive ingress-nginx's 60 s upstream keepalive, or nginx reuses a connection we are
+    // closing and answers the (unretried) POST with a 502.
+    .keep_alive(Duration::from_secs(75));
 
     // this will enable us to keep application running during recompile: systemfd --no-pid -s http::5000 -- cargo watch -x run
     let mut listenfd = ListenFd::from_env();
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,
         None => {
-            let host = env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string());
-            let port = env::var("PORT").unwrap_or_else(|_| "3001".to_string());
             let bind_address = format!("{}:{}", host, port);
             info!("Binding to address: {}", bind_address);
             server.bind(bind_address)?
@@ -87,4 +90,31 @@ pub async fn main() -> anyhow::Result<()> {
     server.run().await?;
 
     Ok(())
+}
+
+/// The request line for the access log with query values dropped (names kept) and the
+/// student-number linking token masked: student numbers travel in search query parameters and the
+/// token claims one.
+fn redacted_request_line(req: &ServiceRequest) -> String {
+    let mut path = String::with_capacity(req.path().len());
+    let mut is_token_segment = false;
+    for (i, segment) in req.path().split('/').enumerate() {
+        if i > 0 {
+            path.push('/');
+        }
+        path.push_str(if is_token_segment { "{token}" } else { segment });
+        // The route segment the credit registration controller mounts the token routes under.
+        is_token_segment = segment == "student-number-verifications";
+    }
+    let query = req.query_string();
+    if !query.is_empty() {
+        path.push('?');
+        for (i, pair) in query.split('&').enumerate() {
+            if i > 0 {
+                path.push('&');
+            }
+            path.push_str(pair.split('=').next().unwrap_or_default());
+        }
+    }
+    format!("{} {} {:?}", req.method(), path, req.version())
 }

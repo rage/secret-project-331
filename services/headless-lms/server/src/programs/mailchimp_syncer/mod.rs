@@ -1,16 +1,15 @@
+use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
 use crate::setup_tracing;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_models::marketing_consents::UserEmailSubscription;
 use headless_lms_models::marketing_consents::UserMarketingConsentWithDetails;
 use headless_lms_utils::http::REQWEST_CLIENT;
+use secrecy::ExposeSecret;
 use serde_json::json;
 use sqlx::{PgConnection, PgPool};
-use std::{
-    env,
-    time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 mod batch_client;
@@ -93,6 +92,9 @@ const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 
 const BATCH_POLL_INTERVAL_SECS: u64 = 10;
 const BATCH_POLL_TIMEOUT_SECS: u64 = 300;
+/// Bulk archive of every operation's result, so it can be far larger and slower than the JSON
+/// calls the shared client's default timeout is sized for.
+const BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS: u64 = 600;
 
 #[derive(Debug)]
 struct SyncUser {
@@ -198,9 +200,8 @@ pub async fn main() -> anyhow::Result<()> {
 
 /// Initializes environment variables, logging, and tracing setup.
 fn initialize_environment() -> anyhow::Result<()> {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
+    ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
     Ok(())
 }
@@ -212,8 +213,7 @@ struct SyncerConfig {
 
 /// Initializes and returns configuration settings (database URL).
 async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let database_url = ProgramConfig::database_url_with_default();
 
     Ok(SyncerConfig { database_url })
 }
@@ -233,7 +233,7 @@ async fn initialize_database_pool(database_url: &str) -> anyhow::Result<PgPool> 
 async fn ensure_mailchimp_schema(
     list_id: &str,
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
 ) -> anyhow::Result<()> {
     let existing_fields =
         fetch_current_mailchimp_fields(list_id, server_prefix, access_token).await?;
@@ -301,7 +301,7 @@ async fn ensure_mailchimp_schema(
 async fn fetch_current_mailchimp_fields(
     list_id: &str,
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
 ) -> Result<Vec<MailchimpField>, anyhow::Error> {
     let url = format!(
         "https://{}.api.mailchimp.com/3.0/lists/{}/merge-fields",
@@ -310,7 +310,10 @@ async fn fetch_current_mailchimp_fields(
 
     let response = REQWEST_CLIENT
         .get(&url)
-        .header("Authorization", format!("apikey {}", access_token))
+        .header(
+            "Authorization",
+            format!("apikey {}", access_token.expose_secret()),
+        )
         .send()
         .await?;
 
@@ -349,7 +352,7 @@ async fn add_field_to_mailchimp(
     list_id: &str,
     field_schema: &FieldSchema,
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
 ) -> anyhow::Result<()> {
     let url = format!(
         "https://{}.api.mailchimp.com/3.0/lists/{}/merge-fields",
@@ -365,7 +368,10 @@ async fn add_field_to_mailchimp(
 
     let response = REQWEST_CLIENT
         .post(&url)
-        .header("Authorization", format!("apikey {}", access_token))
+        .header(
+            "Authorization",
+            format!("apikey {}", access_token.expose_secret()),
+        )
         .json(&body)
         .send()
         .await?;
@@ -391,7 +397,7 @@ async fn remove_field_from_mailchimp(
     list_id: &str,
     field_id: &str,
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
 ) -> anyhow::Result<()> {
     let url = format!(
         "https://{}.api.mailchimp.com/3.0/lists/{}/merge-fields/{}",
@@ -400,7 +406,10 @@ async fn remove_field_from_mailchimp(
 
     let response = REQWEST_CLIENT
         .delete(&url)
-        .header("Authorization", format!("apikey {}", access_token))
+        .header(
+            "Authorization",
+            format!("apikey {}", access_token.expose_secret()),
+        )
         .send()
         .await?;
 
@@ -424,7 +433,7 @@ async fn remove_field_from_mailchimp(
 pub async fn sync_tags_from_mailchimp(
     conn: &mut PgConnection,
     list_id: &str,
-    access_token: &str,
+    access_token: &DbSecret,
     server_prefix: &str,
     marketing_mailing_list_access_token_id: Uuid,
     course_language_group_id: Uuid,
@@ -436,7 +445,10 @@ pub async fn sync_tags_from_mailchimp(
 
     let response = REQWEST_CLIENT
         .get(&url)
-        .header("Authorization", format!("apikey {}", access_token))
+        .header(
+            "Authorization",
+            format!("apikey {}", access_token.expose_secret()),
+        )
         .send()
         .await?;
 
@@ -821,7 +833,10 @@ pub async fn send_users_to_mailchimp(
         let response = REQWEST_CLIENT
             .post(&url)
             .header("Content-Type", "application/json")
-            .header("Authorization", format!("apikey {}", token.access_token))
+            .header(
+                "Authorization",
+                format!("apikey {}", token.access_token.expose_secret()),
+            )
             .json(&batch_request)
             .send()
             .await?;
@@ -1096,7 +1111,7 @@ async fn update_emails_in_mailchimp(
     users: Vec<UserEmailSubscription>,
     list_id: &str,
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
 ) -> anyhow::Result<Vec<EmailSyncResult>> {
     let mut successfully_synced_users = Vec::new();
     let mut failed_user_ids = Vec::new();
@@ -1123,7 +1138,10 @@ async fn update_emails_in_mailchimp(
             // Update the email
             let update_response = REQWEST_CLIENT
                 .put(&url)
-                .header("Authorization", format!("apikey {}", access_token))
+                .header(
+                    "Authorization",
+                    format!("apikey {}", access_token.expose_secret()),
+                )
                 .json(&body)
                 .send()
                 .await?;
@@ -1155,7 +1173,7 @@ async fn update_emails_in_mailchimp(
 async fn fetch_unsubscribed_users_from_mailchimp_in_chunks(
     list_id: &str,
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
     chunk_size: usize,
 ) -> anyhow::Result<Vec<(String, String, String, String)>> {
     let mut all_data = Vec::new();
@@ -1169,7 +1187,10 @@ async fn fetch_unsubscribed_users_from_mailchimp_in_chunks(
 
         let response = REQWEST_CLIENT
             .get(&url)
-            .header("Authorization", format!("apikey {}", access_token))
+            .header(
+                "Authorization",
+                format!("apikey {}", access_token.expose_secret()),
+            )
             .send()
             .await?
             .json::<serde_json::Value>()

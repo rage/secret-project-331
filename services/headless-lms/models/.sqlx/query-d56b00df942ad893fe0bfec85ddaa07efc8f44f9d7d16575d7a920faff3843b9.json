@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  text_html\nFROM course_custom_privacy_policy_checkbox_texts\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "text_html",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "text_html"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "d56b00df942ad893fe0bfec85ddaa07efc8f44f9d7d16575d7a920faff3843b9"
+}

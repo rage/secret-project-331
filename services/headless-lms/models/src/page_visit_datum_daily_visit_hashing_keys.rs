@@ -13,14 +13,12 @@ pub async fn generate_anonymous_identifier(
     input: GenerateAnonymousIdentifierInput,
 ) -> ModelResult<String> {
     let key_for_the_day = get_key_for_the_day(conn).await?;
-    let hash = hash_anonymous_identifier(
+    Ok(hash_anonymous_identifier(
         input.course_id,
-        key_for_the_day,
-        input.user_agent,
-        input.ip_address,
-    )
-    .map_err(|e| ModelError::new(ModelErrorType::Generic, e.to_string(), Some(e)))?;
-    Ok(hash)
+        &key_for_the_day,
+        &input.user_agent,
+        &input.ip_address,
+    ))
 }
 
 pub async fn get_key_for_the_day(conn: &mut PgConnection) -> ModelResult<Vec<u8>> {

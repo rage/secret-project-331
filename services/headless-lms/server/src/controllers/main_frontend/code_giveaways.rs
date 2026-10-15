@@ -5,12 +5,37 @@ use headless_lms_models::{
     code_giveaway_codes::CodeGiveawayCode,
     code_giveaways::{CodeGiveaway, NewCodeGiveaway},
 };
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_code_giveaways_by_course,
+    create_code_giveaway,
+    get_code_giveaway_by_id,
+    add_codes_to_code_giveaway,
+    get_codes_by_code_giveaway_id,
+    delete_code_giveaway_code,
+    get_codes_by_code_giveaway_id_csv
+))]
+pub(crate) struct MainFrontendCodeGiveawaysApiDoc;
 
 /**
 GET `/api/v0/main-frontend/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
+#[utoipa::path(
+    get,
+    path = "/by-course/{course_id}",
+    operation_id = "getCodeGiveawaysByCourse",
+    tag = "code_giveaways",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Code giveaways for course", body = Vec<CodeGiveaway>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_code_giveaways_by_course(
     pool: web::Data<PgPool>,
@@ -29,6 +54,16 @@ async fn get_code_giveaways_by_course(
 /**
  * POST `/api/v0/main-frontend/code-giveaways - Creates a new code giveaway.
  */
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createCodeGiveaway",
+    tag = "code_giveaways",
+    request_body = NewCodeGiveaway,
+    responses(
+        (status = 200, description = "Created code giveaway", body = CodeGiveaway)
+    )
+)]
 #[instrument(skip(pool))]
 async fn create_code_giveaway(
     pool: web::Data<PgPool>,
@@ -53,6 +88,18 @@ async fn create_code_giveaway(
 /**
  * GET `/api/v0/main-frontend/code-giveaways/:id - Gets a code giveaway by ID.
  */
+#[utoipa::path(
+    get,
+    path = "/{id}",
+    operation_id = "getCodeGiveawayById",
+    tag = "code_giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id")
+    ),
+    responses(
+        (status = 200, description = "Code giveaway", body = CodeGiveaway)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_code_giveaway_by_id(
     pool: web::Data<PgPool>,
@@ -77,6 +124,19 @@ async fn get_code_giveaway_by_id(
 /**
  * POST `/api/v0/main-frontend/code-giveaways/:id/codes - Adds new codes to a code giveaway.
  */
+#[utoipa::path(
+    post,
+    path = "/{id}/codes",
+    operation_id = "addCodeGiveawayCodes",
+    tag = "code_giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id")
+    ),
+    request_body = Vec<String>,
+    responses(
+        (status = 200, description = "Added giveaway codes", body = Vec<CodeGiveawayCode>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn add_codes_to_code_giveaway(
     pool: web::Data<PgPool>,
@@ -104,6 +164,18 @@ async fn add_codes_to_code_giveaway(
 /**
  * GET `/api/v0/main-frontend/code-giveaways/:id/codes - Gets codes for a code giveaway by ID.
  */
+#[utoipa::path(
+    get,
+    path = "/{id}/codes",
+    operation_id = "getCodeGiveawayCodes",
+    tag = "code_giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id")
+    ),
+    responses(
+        (status = 200, description = "Giveaway codes", body = Vec<CodeGiveawayCode>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_codes_by_code_giveaway_id(
     pool: web::Data<PgPool>,
@@ -130,6 +202,19 @@ async fn get_codes_by_code_giveaway_id(
 /**
  * DELETE `/api/v0/main-frontend/code-giveaways/:id/codes/:code_id - Deletes a code giveaway code.
  */
+#[utoipa::path(
+    delete,
+    path = "/{id}/codes/{code_id}",
+    operation_id = "deleteCodeGiveawayCode",
+    tag = "code_giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id"),
+        ("code_id" = Uuid, Path, description = "Giveaway code id")
+    ),
+    responses(
+        (status = 200, description = "Deleted giveaway code")
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_code_giveaway_code(
     pool: web::Data<PgPool>,
@@ -166,6 +251,18 @@ async fn delete_code_giveaway_code(
 /**
  * GET `/api/v0/main-frontend/code-giveaways/:id/codes/csv - Gets codes for a code giveaway by ID as CSV.
  */
+#[utoipa::path(
+    get,
+    path = "/{id}/codes/csv",
+    operation_id = "downloadCodeGiveawayCodesCsv",
+    tag = "code_giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id")
+    ),
+    responses(
+        (status = 200, description = "Giveaway codes CSV", content_type = "text/csv", body = String)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_codes_by_code_giveaway_id_csv(
     pool: web::Data<PgPool>,

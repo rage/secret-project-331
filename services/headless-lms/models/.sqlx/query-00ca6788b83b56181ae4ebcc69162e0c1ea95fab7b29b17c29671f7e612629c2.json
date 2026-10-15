@@ -6,52 +6,112 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "exercise_service_slug",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "exercise_service_slug"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "user_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "user_id"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "exam_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "exam_id"
+          }
+        }
       },
       {
         "ordinal": 7,
         "name": "variable_key",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "variable_key"
+          }
+        }
       },
       {
         "ordinal": 8,
         "name": "variable_value",
-        "type_info": "Jsonb"
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "variable_value"
+          }
+        }
       },
       {
         "ordinal": 9,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_course_exercise_service_variables",
+            "name": "course_id"
+          }
+        }
       }
     ],
     "parameters": {

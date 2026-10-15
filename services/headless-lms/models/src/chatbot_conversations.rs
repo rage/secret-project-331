@@ -1,4 +1,5 @@
 use futures::future::OptionFuture;
+use utoipa::ToSchema;
 
 use crate::{
     chatbot_conversation_messages::ChatbotConversationMessage,
@@ -6,28 +7,34 @@ use crate::{
     chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage, prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChatbotConversation {
     pub id: Uuid,
+    pub anonymous_token: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
-    pub user_id: Uuid,
+    pub course_id: Option<Uuid>,
+    pub user_id: Option<Uuid>,
     pub chatbot_configuration_id: Uuid,
+    pub conversation_title: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-/** Should contain all information required to display the chatbot to the user. */
+#[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
+/// Everything needed to display the chatbot to the user.
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
     pub current_conversation_message_citations: Option<Vec<ChatbotConversationMessageCitation>>,
     pub chatbot_name: String,
-    pub course_name: String,
+    pub course_name: Option<String>,
     pub hide_citations: bool,
+    /// What to offer the learner as their next message. Absent when nothing should be offered: the
+    /// configuration has suggestions off, or the conversation is at a point where a suggestion does
+    /// not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+    /// are wanted but none have been generated yet, which is what makes the endpoint generate them.
     pub suggested_messages: Option<Vec<ChatbotConversationSuggestedMessage>>,
 }
 
@@ -38,13 +45,98 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConversation,
         r#"
-INSERT INTO chatbot_conversations (course_id, user_id, chatbot_configuration_id)
-VALUES ($1, $2, $3)
+INSERT INTO chatbot_conversations (
+    course_id,
+    user_id,
+    anonymous_token,
+    chatbot_configuration_id,
+    conversation_title
+  )
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
         "#,
         input.course_id,
         input.user_id,
-        input.chatbot_configuration_id
+        input.anonymous_token,
+        input.chatbot_configuration_id,
+        input.conversation_title
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Soft deletes a conversation, after which it accepts no further messages.
+///
+/// Deleting one that is already deleted is not an error, so a caller does not have to check first.
+/// See [crate::chatbot_configurations::delete] for removing the configuration a conversation
+/// belongs to.
+///
+/// Nothing in production deletes a conversation; this exists for tests.
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_conversations
+SET deleted_at = now()
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn create_for_user_and_configuration(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+INSERT INTO chatbot_conversations (
+    id,
+    course_id,
+    user_id,
+    anonymous_token,
+    chatbot_configuration_id,
+    conversation_title
+  )
+SELECT $1,
+  chatbot_configurations.course_id,
+  $2,
+  $3,
+  chatbot_configurations.id,
+  NULL
+FROM chatbot_configurations
+WHERE chatbot_configurations.id = $4
+  AND chatbot_configurations.deleted_at IS NULL
+RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+        user_id,
+        anonymous_token,
+        chatbot_configuration_id,
     )
     .fetch_one(conn)
     .await?;
@@ -53,21 +145,32 @@ RETURNING *
 
 pub async fn get_latest_conversation_for_user(
     conn: &mut PgConnection,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConversation> {
+    if let (Some(_user_id), Some(_anonymous_token)) = (&user_id, &anonymous_token) {
+        return Err(model_err!(
+            InvalidRequest,
+            "User ID and anonymous token cannot both be present".to_string()
+        ));
+    }
     let res = sqlx::query_as!(
         ChatbotConversation,
         r#"
 SELECT *
 FROM chatbot_conversations
-WHERE user_id = $1
-  AND chatbot_configuration_id = $2
+WHERE (
+    user_id = $1
+    OR anonymous_token = $2
+  )
+  AND chatbot_configuration_id = $3
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
         "#,
         user_id,
+        anonymous_token,
         chatbot_configuration_id
     )
     .fetch_one(conn)
@@ -75,37 +178,128 @@ LIMIT 1
     Ok(res)
 }
 
-/// Gets the current conversation for the user, if any. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
-pub async fn get_current_conversation_info(
-    tx: &mut PgConnection,
-    user_id: Uuid,
+pub async fn get_conversation_for_user(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
     chatbot_configuration_id: Uuid,
+    conversation_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE (
+    user_id = $1
+    OR anonymous_token = $2
+  )
+  AND chatbot_configuration_id = $3
+  AND id = $4
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        anonymous_token,
+        chatbot_configuration_id,
+        conversation_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_conversations_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<ChatbotConversation>> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE user_id = $1
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+        "#,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_conversation_title(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    conversation_title: String,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_conversations
+SET conversation_title = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        "#,
+        conversation_title,
+        conversation_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Gets specific conversation or latest conversation for the user, if any. If conversation_id is not provided then latest conversation is given. Also inlcudes information about the chatbot so that the chatbot ui can be rendered using the information.
+pub async fn get_conversation_info(
+    tx: &mut PgConnection,
+    user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
+    chatbot_configuration_id: Uuid,
+    conversation_id: Option<Uuid>,
 ) -> ModelResult<ChatbotConversationInfo> {
     let chatbot_configuration =
         crate::chatbot_configurations::get_by_id(tx, chatbot_configuration_id).await?;
-    let course = crate::courses::get_course(tx, chatbot_configuration.course_id).await?;
-    let current_conversation =
-        get_latest_conversation_for_user(tx, user_id, chatbot_configuration_id)
+    let course = if let Some(course_id) = chatbot_configuration.course_id {
+        Some(crate::courses::get_course(tx, course_id).await?)
+    } else {
+        None
+    };
+
+    let current_conversation = if let Some(conversation_id) = conversation_id {
+        get_conversation_for_user(
+            tx,
+            user_id,
+            anonymous_token,
+            chatbot_configuration_id,
+            conversation_id,
+        )
+        .await
+        .optional()?
+    } else {
+        get_latest_conversation_for_user(tx, user_id, anonymous_token, chatbot_configuration_id)
             .await
-            .optional()?;
-    // the messages are sorted by response_order_number
-    let current_conversation_messages = OptionFuture::from(
-        current_conversation
-            .clone()
-            .map(|c| crate::chatbot_conversation_messages::get_by_conversation_id(tx, c.id)),
-    )
+            .optional()?
+    };
+
+    let conversation_id = current_conversation.as_ref().map(|c| c.id);
+
+    let current_conversation_messages = OptionFuture::from(conversation_id.map(|id| {
+        crate::chatbot_conversation_messages::get_by_conversation_id_for_display(tx, id)
+    }))
     .await
     .transpose()?;
 
     let current_conversation_message_citations =
-        OptionFuture::from(current_conversation.clone().map(|c| {
-            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, c.id)
+        OptionFuture::from(conversation_id.map(|id| {
+            crate::chatbot_conversation_messages_citations::get_by_conversation_id(tx, id)
         }))
         .await
         .transpose()?;
 
     let suggested_messages = if chatbot_configuration.suggest_next_messages
         && let Some(ccm) = &current_conversation_messages
+        // A suspended turn is waiting for the learner to answer the chatbot's own question, which
+        // is not a moment to suggest asking something else.
+        && !crate::chatbot_conversation_messages::turn_is_suspended(ccm)
         && let Some(last_ccm) = ccm.last()
     {
         let sm = crate::chatbot_conversation_suggested_messages::get_by_conversation_message_id(
@@ -126,7 +320,7 @@ pub async fn get_current_conversation_info(
         suggested_messages,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
-        course_name: course.name,
+        course_name: course.map(|course| course.name),
         hide_citations: chatbot_configuration.hide_citations,
     })
 }

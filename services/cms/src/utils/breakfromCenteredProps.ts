@@ -1,4 +1,4 @@
-import { WithSidebar } from "@/shared-module/common/components/Centering/BreakFromCentered"
+import type { WithSidebar } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,

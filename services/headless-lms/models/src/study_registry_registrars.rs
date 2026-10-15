@@ -20,7 +20,7 @@ pub async fn insert(
         "
 INSERT INTO study_registry_registrars (id, name, secret_key)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
     ",
         pkey_policy.into_uuid(),
         name,
@@ -43,6 +43,25 @@ WHERE id = $1
         id,
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<StudyRegistryRegistrar>> {
+    let res = sqlx::query_as!(
+        StudyRegistryRegistrar,
+        "
+SELECT *
+FROM study_registry_registrars
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -81,13 +100,16 @@ AND deleted_at IS NULL
     Ok(())
 }
 
+/// Registrar for the seeds' legacy pull-flow completion registrations, created on first use.
+///
+/// Matched by name, so a reseed reuses the same row instead of piling up registrars.
 pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelResult<Uuid> {
-    // Try to find an existing registrar
     let existing = sqlx::query!(
         r#"
         SELECT id
         FROM study_registry_registrars
-        WHERE deleted_at IS NULL
+        WHERE name = 'Default Registrar'
+          AND deleted_at IS NULL
         ORDER BY created_at
         LIMIT 1
         "#,
@@ -99,7 +121,6 @@ pub async fn get_or_create_default_registrar(conn: &mut PgConnection) -> ModelRe
         return Ok(row.id);
     }
 
-    // Insert a new registrar
     let inserted = sqlx::query!(
         r#"
         INSERT INTO study_registry_registrars (

@@ -1,8 +1,8 @@
 import { test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
-
 import { selectOrganization } from "@/utils/organizationUtils"
+
+import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -19,7 +19,7 @@ test("Exercise list works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "exercise-list-view",
-
+    scrollToYCoordinate: 0,
     waitForTheseToBeVisibleAndStable: [page.getByText("Exercises in this course")],
   })
 })

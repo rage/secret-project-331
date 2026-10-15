@@ -5,10 +5,10 @@ import React, { useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { MobileMenuButtonProps } from "./types"
-
 import Hamburger from "@/shared-module/common/components/Navigation/NavBar/Menu/Hamburger/Hamburger"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+
+import type { MobileMenuButtonProps } from "./types"
 
 export const MobileMenuButton: React.FC<MobileMenuButtonProps> = ({ state }) => {
   const { t } = useTranslation()

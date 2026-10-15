@@ -1,23 +1,23 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
-import { BlockInstance } from "@wordpress/blocks"
-import { v4, v5 } from "uuid"
+import { v5 } from "uuid"
 
-import { ExerciseAttributes } from "../blocks/Exercise"
-import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-
-import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
-
-import {
+import type {
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
   CmsPeerOrSelfReviewConfig,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import { includeIf } from "@/shared-module/common/utils/nullability"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+
+import type { ExerciseAttributes } from "../blocks/Exercise"
+import type { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import type { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+import { isGutenbergBlockArray } from "./Gutenberg/gutenbergBlocks"
 
 /**
  * Only id is allowed in normalized exercises. This is because:
@@ -34,6 +34,7 @@ export interface UnnormalizedDocument {
   title: string
   urlPath: string
   chapterId: string | null
+  hidden: boolean
 }
 
 /**
@@ -127,6 +128,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
           exercise_type: block3.attributes.exercise_type,
           private_spec: JSON.parse(block3.attributes.private_spec),
           order_number: exerciseTaskCount,
+          private_spec_files: block3.attributes.private_spec_files ?? [],
         })
         exerciseTaskCount = exerciseTaskCount + 1
       })
@@ -168,6 +170,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     exercise_tasks: exerciseTasks,
     title: args.title,
     url_path: args.urlPath,
+    hidden: args.hidden,
   }
 }
 
@@ -175,6 +178,10 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
  * Converts backend-normalized page data to nested Gutenberg blocks.
  *
  * The function `normalizeDocument` reverses this. e.g `normalizeDocument(denormalizeDocument(doc)) === doc`
+ *
+ * Must stay a pure function of `input`, client ids included: callers run it inside a react-query
+ * `select`, which re-runs on every render, and the editor decides whether a page has unsaved changes
+ * by deep-comparing its live blocks against the result.
  */
 export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument {
   const contentBlocks = (input.content as BlockInstance[]).map((block) => {
@@ -193,8 +200,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     const slidesInnerBlocks = slides.map((slide) => {
       const tasks = input.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
       const denormalizedSlide: BlockInstance<ExerciseSlideAttributes> = {
-        // Using slide id in tests ensures that this operation is reversible
-        clientId: process.env.NODE_ENV === "test" ? slide.id : v4(),
+        clientId: slide.id,
         name: "moocfi/exercise-slide",
         attributes: {
           id: slide.id,
@@ -202,16 +208,19 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         },
         isValid: true,
         innerBlocks: tasks
-          .sort((a, b) => a.order_number - b.order_number)
+          .toSorted((a, b) => a.order_number - b.order_number)
           .map((task) => {
             const denormalizedTask: BlockInstance<ExerciseTaskAttributes> = {
-              // Using task id in tests ensures that this operation is reversible
-              clientId: process.env.NODE_ENV === "test" ? task.id : v4(),
+              clientId: task.id,
               name: "moocfi/exercise-task",
               attributes: {
                 id: task.id,
                 exercise_type: task.exercise_type,
                 private_spec: JSON.stringify(task.private_spec),
+                // Round-tripped, not derived: dropping these on load would make the next save
+                // release every file the spec references. Sorted like the editor's own list, since
+                // these arrive in no particular order and the unsaved-changes check deep-compares.
+                private_spec_files: (task.private_spec_files ?? []).toSorted(),
                 show_editor: false,
                 order_number: task.order_number,
               },
@@ -251,7 +260,10 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         id: normalizedBlock.attributes.id,
         name: exercise.name,
         score_maximum: exercise.score_maximum,
-        max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
+        ...includeIf(
+          exercise.max_tries_per_slide !== null && exercise.max_tries_per_slide !== undefined,
+          { max_tries_per_slide: exercise.max_tries_per_slide },
+        ),
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
         needs_self_review: exercise.needs_self_review,
@@ -277,7 +289,8 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     content: contentBlocks,
     title: input.title,
     urlPath: input.url_path,
-    chapterId: input.chapter_id,
+    chapterId: input.chapter_id ?? null,
+    hidden: input.hidden,
   }
 
   return res

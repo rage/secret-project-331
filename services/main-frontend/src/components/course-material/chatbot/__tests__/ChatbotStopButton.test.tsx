@@ -1,0 +1,76 @@
+"use client"
+
+import "@testing-library/jest-dom"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+
+import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils/mockIntersectionObserver"
+
+import { makeChatBodyProps } from "../__fixtures__/chatBodyProps"
+import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotContext from "../shared/ChatbotContext"
+
+// t is mocked in tests/setup-jest.js to return the translation key verbatim.
+
+// jsdom lacks IntersectionObserver, needed by TextArea's auto-resize inside ChatbotChatBody.
+beforeAll(setupIntersectionObserverMock)
+
+describe("Stopping a running turn", () => {
+  it("offers stopping instead of sending while a turn is in flight", () => {
+    render(
+      <ChatbotContext value={makeChatBodyProps({ isTurnInFlight: true }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
+
+    expect(screen.getByRole("button", { name: "stop-generating" })).toBeEnabled()
+    expect(screen.queryByRole("button", { name: "send" })).toBeNull()
+  })
+
+  it("stops the turn when the button is pressed", () => {
+    const { props, stopTurn, sendMessage } = makeChatBodyProps({
+      isTurnInFlight: true,
+      newMessage: "Tell me more",
+    })
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: "stop-generating" }))
+
+    expect(stopTurn).toHaveBeenCalledTimes(1)
+    expect(sendMessage).not.toHaveBeenCalled()
+  })
+
+  it("goes back to sending once the turn has ended", async () => {
+    const { rerender } = render(
+      <ChatbotContext value={makeChatBodyProps({ isTurnInFlight: true }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
+    const { props, stopTurn, sendMessage } = makeChatBodyProps({ newMessage: "Tell me more" })
+
+    rerender(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
+    fireEvent.click(screen.getByRole("button", { name: "send" }))
+
+    expect(screen.queryByRole("button", { name: "stop-generating" })).toBeNull()
+    // react-hook-form's handleSubmit resolves asynchronously, even with nothing to validate.
+    await waitFor(() => expect(sendMessage).toHaveBeenCalledWith("Tell me more"))
+    expect(stopTurn).not.toHaveBeenCalled()
+  })
+
+  it("keeps the send button disabled while there is nothing to send", () => {
+    render(
+      <ChatbotContext value={makeChatBodyProps().props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
+
+    expect(screen.getByRole("button", { name: "send" })).toBeDisabled()
+  })
+})

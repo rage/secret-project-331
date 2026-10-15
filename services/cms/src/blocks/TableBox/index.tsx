@@ -1,10 +1,10 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
 import TableEditor from "./TableEditor"
 import TableSave from "./TableSave"
 
@@ -13,6 +13,7 @@ export interface TableBoxAttributes {
 }
 
 const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
+  apiVersion: 3,
   title: "TableBox",
   description: "Block for adding custom TableBox",
   category: MOOCFI_CATEGORY_SLUG,

@@ -1,1 +1,0 @@
-type Uuid = string

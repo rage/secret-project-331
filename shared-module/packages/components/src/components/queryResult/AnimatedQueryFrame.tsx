@@ -1,0 +1,306 @@
+"use client"
+
+import { cx } from "@emotion/css"
+import { motion, useReducedMotion } from "motion/react"
+import React, { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import { useLoadingAffordance } from "../../lib/utils/loading"
+import { Button } from "../Button"
+import {
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+} from "../loadingTestIds"
+import { spinnerGlyphCss } from "../primitives/spinnerStyles"
+import type { RetryFn } from "./queryResultState"
+import { getErrorMessage } from "./queryResultState"
+import {
+  animatedContentCss,
+  animatedContentNonInteractiveCss,
+  animatedContentRefreshingCss,
+  bannerCss,
+  blockingErrorCss,
+  errorStackCss,
+  errorTextCss,
+  initialLoadingCenterCss,
+  initialLoadingSurfaceCss,
+  initialLoadingSurfaceDarkCss,
+  initialLoadingSurfaceLightCss,
+  loadingSurfaceMinHeightCss,
+  type RefreshIndicator,
+  skeletonBlockBaseCss,
+  skeletonBlockDarkCss,
+  skeletonBlockDimsCss,
+  skeletonBlockLightCss,
+  skeletonBlocksCss,
+  staleStatusCss,
+  type ThemeMode,
+  topProgressCss,
+  topProgressTrackDarkCss,
+  topProgressTrackLightCss,
+  wrapperCss,
+  wrapperIsolationCss,
+} from "./queryResultStyles"
+
+export interface FallbackArgs<E> {
+  error: E
+  retry: RetryFn
+}
+
+const skeletonPresets = [
+  { width: "55%", height: 14 },
+  { width: "100%", height: 22 },
+  { width: "72%", height: 14 },
+] as const
+
+const contentEntranceEase = [0.2, 0, 0, 1] as const
+
+/** Tall enough for the three skeleton blocks and their padding, and no taller. */
+const DEFAULT_MIN_HEIGHT = 120
+
+/**
+ * Clears the settling state when `transitionend` never fires (jsdom, or a refetch so fast the
+ * transition never starts). Well above `--query-content-transition` (180ms).
+ */
+const BLUR_SETTLE_FALLBACK_MS = 600
+
+/**
+ * True while the blur is transitioning back to sharp after a refetch. `refreshing` flips false
+ * before the blur-out finishes, so clicks in that window would hit still-blurred content. Cleared
+ * when `onContentTransitionEnd` sees the frame's own `filter` transition finish.
+ */
+function useBlurSettling(refreshing: boolean) {
+  const [settling, setSettling] = useState(false)
+  const wasRefreshingRef = useRef(false)
+
+  useEffect(() => {
+    if (refreshing) {
+      wasRefreshingRef.current = true
+      setSettling(false)
+      return
+    }
+    if (!wasRefreshingRef.current) {
+      return
+    }
+    wasRefreshingRef.current = false
+    setSettling(true)
+    const fallback = setTimeout(() => setSettling(false), BLUR_SETTLE_FALLBACK_MS)
+    return () => clearTimeout(fallback)
+  }, [refreshing])
+
+  const onContentTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    // Ignore transitions bubbling from children and other properties.
+    if (event.target === event.currentTarget && event.propertyName === "filter") {
+      setSettling(false)
+    }
+  }
+
+  return { settling, onContentTransitionEnd }
+}
+
+export interface AnimatedQueryFrameProps<E> {
+  themeMode: ThemeMode
+  /** Floor for the loading skeleton, in pixels. Raise it where the content it stands in for is tall. */
+  minHeight?: number
+  loadingDelayMs?: number
+  /** Refetch indicator style. Defaults to "blur", which dims/blurs the content and blocks clicks. */
+  refreshIndicator?: RefreshIndicator
+  initialLoading: boolean
+  refreshing: boolean
+  blockingError: boolean
+  staleError: boolean
+  error?: E
+  retry: RetryFn
+  children: React.ReactNode
+  /**
+   * Class for the div that holds `children`. The frame is not layout-transparent, so a caller
+   * whose children are meant to be siblings in the parent's grid or flex layout has to make this
+   * div that layout itself.
+   */
+  contentClassName?: string
+  renderBlockingError?: (args: FallbackArgs<E>) => React.ReactNode
+  renderStaleError?: (args: FallbackArgs<E>) => React.ReactNode
+}
+
+/** Default blocking-error UI with retry. */
+export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
+  const { t } = useTranslation("shared-module")
+  return (
+    <div className={blockingErrorCss} role="alert">
+      <div className={errorStackCss}>
+        <p className={errorTextCss}>{getErrorMessage(error)}</p>
+        <Button type="button" variant="secondary" size="small" onPress={retry}>
+          {t("queryResult.retry")}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/** Inline stale-error notice with retry (content still renders below). */
+export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
+  const { t } = useTranslation("shared-module")
+  return (
+    <div className={errorStackCss}>
+      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling */}
+      <div className={staleStatusCss} role="status">
+        {getErrorMessage(error)}
+      </div>
+      <Button type="button" variant="tertiary" size="small" onPress={retry}>
+        {t("queryResult.retry")}
+      </Button>
+    </div>
+  )
+}
+
+/** The React nodes that render nothing, which a render prop returns when it has nothing to show. */
+function rendersNothing(node: React.ReactNode): boolean {
+  return node === null || node === undefined || node === false
+}
+
+/**
+ * Layout shell for async query UX: skeleton, refetch progress, stale banners, and motion.
+ *
+ * It wraps `children` in elements of its own, so the parent's `gap` reaches the frame and stops
+ * there. Pass `contentClassName` where the children were meant to be laid out by the parent.
+ * Renders nothing at all once there is neither content nor a state to report.
+ */
+export function AnimatedQueryFrame<E>({
+  themeMode,
+  minHeight = DEFAULT_MIN_HEIGHT,
+  loadingDelayMs = 200,
+  refreshIndicator = "blur",
+  initialLoading,
+  refreshing,
+  blockingError,
+  staleError,
+  error,
+  retry,
+  children,
+  contentClassName,
+  renderBlockingError,
+  renderStaleError,
+}: AnimatedQueryFrameProps<E>) {
+  const { t } = useTranslation("shared-module")
+  const shouldReduceMotion = !!useReducedMotion()
+  const showDelayedSpinner = useLoadingAffordance(initialLoading, {
+    delayMs: loadingDelayMs,
+  })
+  const blurring = refreshIndicator !== "quiet" && refreshing
+  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(blurring)
+  const surfaceThemeCss =
+    themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
+  const skeletonToneCss = themeMode === "dark" ? skeletonBlockDarkCss : skeletonBlockLightCss
+  const progressTrackCss = themeMode === "dark" ? topProgressTrackDarkCss : topProgressTrackLightCss
+
+  if (blockingError && error !== undefined) {
+    const args = { error, retry }
+    return renderBlockingError ? renderBlockingError(args) : <DefaultBlockingError {...args} />
+  }
+
+  // Once the delayed spinner has appeared, hold the whole section for its minVisibleMs even
+  // after initialLoading flips false — otherwise a resolve landing right after the spinner
+  // shows just flashes it instead of the flicker it exists to prevent.
+  if (initialLoading || showDelayedSpinner) {
+    const loadingLabel = t("queryResult.loading")
+    return (
+      <section
+        className={cx(wrapperCss, wrapperIsolationCss)}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status on <section>; <output> changes semantics/styling
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        aria-label={loadingLabel}
+        data-testid={QUERY_INITIAL_LOADING_TEST_ID}
+      >
+        <div
+          className={cx(
+            initialLoadingSurfaceCss,
+            surfaceThemeCss,
+            loadingSurfaceMinHeightCss(minHeight),
+          )}
+        >
+          <div className={skeletonBlocksCss} data-testid="query-skeleton-blocks">
+            {skeletonPresets.map((preset, index) => (
+              <div
+                key={index}
+                className={cx(
+                  skeletonBlockBaseCss,
+                  skeletonToneCss,
+                  skeletonBlockDimsCss(preset.width, preset.height),
+                )}
+              />
+            ))}
+          </div>
+          {showDelayedSpinner ? (
+            <motion.div
+              className={initialLoadingCenterCss}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div
+                className={spinnerGlyphCss("lg", "accent")}
+                data-testid={QUERY_LOADING_SPINNER_TEST_ID}
+                aria-hidden
+              />
+            </motion.div>
+          ) : null}
+        </div>
+      </section>
+    )
+  }
+
+  const staleArgs = staleError && error !== undefined ? { error, retry } : undefined
+
+  // An empty frame is still an item in the parent's grid or flex row, costing a gap for nothing.
+  if (staleArgs === undefined && !refreshing && !blurSettling && rendersNothing(children)) {
+    return null
+  }
+
+  return (
+    <section
+      className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
+      aria-busy={refreshing || blurSettling ? "true" : undefined}
+      {...((refreshing || blurSettling) && { "data-testid": QUERY_REFRESHING_TEST_ID })}
+    >
+      {refreshing ? (
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling
+          role="status"
+          aria-live="polite"
+          aria-label={t("queryResult.refreshing")}
+          data-testid="query-refreshing-status"
+        />
+      ) : null}
+      {refreshing ? <div className={cx(topProgressCss, progressTrackCss)} aria-hidden /> : null}
+      <motion.div
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: contentEntranceEase }}
+      >
+        {staleArgs ? (
+          <motion.div
+            className={bannerCss}
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {renderStaleError ? renderStaleError(staleArgs) : <DefaultStaleError {...staleArgs} />}
+          </motion.div>
+        ) : null}
+        <div
+          className={cx(
+            animatedContentCss,
+            blurring ? animatedContentRefreshingCss : undefined,
+            blurring || blurSettling ? animatedContentNonInteractiveCss : undefined,
+            contentClassName,
+          )}
+          onTransitionEnd={onContentTransitionEnd}
+        >
+          {children}
+        </div>
+      </motion.div>
+    </section>
+  )
+}

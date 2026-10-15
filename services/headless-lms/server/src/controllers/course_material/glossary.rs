@@ -1,7 +1,25 @@
 use models::glossary::TermUpdate;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
 
+#[derive(OpenApi)]
+#[openapi(paths(update, delete))]
+pub(crate) struct CourseMaterialGlossaryApiDoc;
+
+#[utoipa::path(
+    put,
+    path = "/{id}/update",
+    operation_id = "updateCourseMaterialGlossaryTerm",
+    tag = "course-material-glossary",
+    params(
+        ("id" = Uuid, Path, description = "Glossary term id")
+    ),
+    request_body = TermUpdate,
+    responses(
+        (status = 200, description = "Glossary term updated")
+    )
+)]
 #[instrument(skip(pool))]
 async fn update(
     pool: web::Data<PgPool>,
@@ -10,11 +28,37 @@ async fn update(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::glossary::update(&mut conn, *acronym_id, &update.term, &update.definition).await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let term = models::glossary::get_term_by_id(&mut conn, *acronym_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(term.course_id),
+    )
+    .await?;
+    models::glossary::update_term_by_id_and_course_id(
+        &mut conn,
+        *acronym_id,
+        term.course_id,
+        &update.term,
+        &update.definition,
+    )
+    .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
+#[utoipa::path(
+    delete,
+    path = "/{id}/delete",
+    operation_id = "deleteCourseMaterialGlossaryTerm",
+    tag = "course-material-glossary",
+    params(
+        ("id" = Uuid, Path, description = "Glossary term id")
+    ),
+    responses(
+        (status = 200, description = "Glossary term deleted")
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete(
     pool: web::Data<PgPool>,
@@ -22,8 +66,16 @@ async fn delete(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::glossary::delete(&mut conn, *acronym_id).await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let term = models::glossary::get_term_by_id(&mut conn, *acronym_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(term.course_id),
+    )
+    .await?;
+    models::glossary::delete_term_by_id_and_course_id(&mut conn, *acronym_id, term.course_id)
+        .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

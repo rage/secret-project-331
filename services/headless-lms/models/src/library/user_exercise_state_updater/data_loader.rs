@@ -310,7 +310,7 @@ fn normalize_weights(
     mut questions: Vec<PeerOrSelfReviewQuestion>,
 ) -> Vec<PeerOrSelfReviewQuestion> {
     info!("Normalizing peer review question weights to sum to 1");
-    questions.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    questions.sort_by_key(|a| a.order_number);
     info!(
         "Weights before normalization: {:?}",
         questions.iter().map(|q| q.weight).collect::<Vec<_>>()
@@ -337,7 +337,7 @@ fn normalize_weights(
     }
     let mut new_vec = not_allowed_to_have_weight;
     new_vec.append(&mut allowed_to_have_weight);
-    new_vec.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    new_vec.sort_by_key(|a| a.order_number);
     questions = new_vec;
     info!(
         "Weights after normalization: {:?}",

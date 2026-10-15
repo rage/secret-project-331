@@ -1,0 +1,23 @@
+#!/usr/bin/env fish
+
+echo ""
+echo "Devcontainer ready."
+echo ""
+echo "Recommended commands:"
+echo ""
+echo "  bin/devcontainer-doctor"
+echo "  bin/devcontainer-up"
+echo "  bin/seed"
+echo ""
+echo "Useful commands:"
+echo ""
+echo "  nix develop"
+echo "  bin/dev-tilt"
+echo "  bin/test-tilt"
+echo "  bin/test"
+echo "  bin/system-tests-run-tests"
+echo "  bin/psql"
+echo "  bin/redis-cli"
+echo ""
+echo "Deferred in this devcontainer foundation: Codespaces URL polish, project-331.local browser behavior, OAuth redirect URLs, Docker-in-Docker fallback, and Minikube/Skaffold polish."
+

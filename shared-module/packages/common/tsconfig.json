@@ -2,25 +2,30 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "paths": {
+      "@/shared-module/exercise-protocol/*": ["../exercise-protocol/src/*"],
+      "@/shared-module/components/*": ["../components/src/*"]
+    },
     "typeRoots": ["./src/types", "types", "../node_modules/@types", "node_modules/@types"],
     "jsx": "preserve",
-    "lib": ["dom", "es2017"],
-    "moduleResolution": "node",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
     "strict": true,
-    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "sourceMap": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": false,
-    "jsxImportSource": "@emotion/react"
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true
   },
   "exclude": ["node_modules", "src/shared-module"],
   "include": ["env.d.ts", "**/*.ts", "**/*.tsx"]

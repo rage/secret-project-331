@@ -1,0 +1,128 @@
+#!/bin/bash
+set -euo pipefail
+
+required_features=(nix-command flakes)
+
+function usage() {
+  echo "Usage: bin/fix-nix-configuration"
+  echo ""
+  echo "Enables the Nix experimental features needed by this repository's flake"
+  echo "development shell by updating the current user's nix.conf."
+}
+
+function fail() {
+  echo "ERROR: $1" >&2
+  exit 1
+}
+
+function disallow_running_as_root() {
+  if [ "$(id -u)" = "0" ]; then
+    fail "Please run this as your normal user, not as root. This script updates the user-level Nix config."
+  fi
+}
+
+function resolve_config_file() {
+  local config_file
+
+  if [ -n "${NIX_USER_CONF_FILES:-}" ]; then
+    config_file="${NIX_USER_CONF_FILES%%:*}"
+    if [ -z "$config_file" ]; then
+      fail "NIX_USER_CONF_FILES is set but does not contain a usable file path."
+    fi
+  else
+    config_file="${XDG_CONFIG_HOME:-$HOME/.config}/nix/nix.conf"
+  fi
+
+  case "$config_file" in
+    "~/"*) config_file="$HOME/${config_file#"~/"}" ;;
+  esac
+
+  echo "$config_file"
+}
+
+function nix_flake_metadata_works() {
+  nix flake metadata --no-write-lock-file "$repo_root" > /dev/null 2>&1
+}
+
+function config_file_has_feature() {
+  local config_file="$1"
+  local required_feature="$2"
+  local line
+  local value
+  local feature
+
+  if [ ! -f "$config_file" ]; then
+    return 1
+  fi
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%%#*}"
+    if [[ "$line" =~ ^[[:space:]]*(extra-)?experimental-features[[:space:]]*=[[:space:]]*(.*)$ ]]; then
+      value="${BASH_REMATCH[2]}"
+      for feature in $value; do
+        if [ "$feature" = "$required_feature" ]; then
+          return 0
+        fi
+      done
+    fi
+  done < "$config_file"
+
+  return 1
+}
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+  usage
+  exit 0
+fi
+
+if [ "$#" -gt 0 ]; then
+  usage >&2
+  exit 1
+fi
+
+disallow_running_as_root
+
+if ! command -v nix > /dev/null 2>&1; then
+  fail "nix is not installed or is not in PATH."
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+config_file="$(resolve_config_file)"
+
+if nix_flake_metadata_works; then
+  echo "Nix is already configured for flakes and nix-command."
+  echo "You can enter this repository's development shell with: nix develop"
+  exit 0
+fi
+
+mkdir -p "$(dirname "$config_file")"
+touch "$config_file"
+
+missing_features=()
+for feature in "${required_features[@]}"; do
+  if ! config_file_has_feature "$config_file" "$feature"; then
+    missing_features+=("$feature")
+  fi
+done
+
+if [ "${#missing_features[@]}" -gt 0 ]; then
+  {
+    echo ""
+    echo "# Added by secret-project-331/bin/fix-nix-configuration for project flake dev shells."
+    echo "extra-experimental-features = ${missing_features[*]}"
+  } >> "$config_file"
+  echo "Updated $config_file"
+else
+  echo "$config_file already mentions the required experimental features."
+fi
+
+if nix_flake_metadata_works; then
+  echo "Nix configuration fixed."
+  echo "You can enter this repository's development shell with: nix develop"
+else
+  echo "Nix still cannot read this repository's flake without command-line feature flags." >&2
+  echo "Updated config file: $config_file" >&2
+  echo "Try opening a new shell, then run: nix develop" >&2
+  exit 1
+fi

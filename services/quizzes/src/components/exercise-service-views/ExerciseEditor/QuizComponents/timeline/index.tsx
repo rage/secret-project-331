@@ -1,16 +1,16 @@
-"use client"
-
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
+
+import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
-
 import TimelineContent from "./TimelineContent"
-
-import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
 
 interface TimelineEditorProps {
   quizItemId: string
@@ -18,10 +18,11 @@ interface TimelineEditorProps {
 
 const TimelineEditor: React.FC<TimelineEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemTimeline>(quiz, quizItemId, "timeline")
     })
 
@@ -55,6 +56,18 @@ const TimelineEditor: React.FC<TimelineEditorProps> = ({ quizItemId }) => {
         />
       )}
       <TimelineContent quizItemId={quizItemId} />
+      <FeedbackMessagesEditor
+        value={selected.feedbackMessages}
+        visibilityOptions={itemFeedbackVisibilityOptions}
+        onChange={(feedbackMessages) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.feedbackMessages = feedbackMessages
+          })
+        }}
+      />
     </EditorCard>
   )
 }

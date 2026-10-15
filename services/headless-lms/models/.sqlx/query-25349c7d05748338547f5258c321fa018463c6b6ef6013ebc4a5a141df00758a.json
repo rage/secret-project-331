@@ -6,12 +6,19 @@
       {
         "ordinal": 0,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_instance_enrollments",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "first_enrolled_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": "Expression"
       }
     ],
     "parameters": {

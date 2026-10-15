@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_module_completion_id,\n  course_module_id,\n  study_registry_registrar_id,\n  created_at\nFROM course_module_completion_registered_to_study_registries\nWHERE course_module_completion_id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "study_registry_registrar_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "study_registry_registrar_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "created_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "cbd7bb1ff17846e4900d8b70cf2c4ef3dbca33bd421fa6496a9a68425f903fac"
+}

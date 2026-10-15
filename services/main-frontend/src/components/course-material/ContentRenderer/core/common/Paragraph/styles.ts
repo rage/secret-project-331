@@ -62,9 +62,11 @@ export const getParagraphStyles = (
   ${backgroundColor && `padding: 1.25em 2.375em !important;`}
 
   ${respondToOrLarger.md} {
-    ${fitText
-      ? `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "1.5rem"});`
-      : `font-size: ${fontSizeMapper(fontSize)};`}
+    ${
+      fitText
+        ? `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "1.5rem"});`
+        : `font-size: ${fontSizeMapper(fontSize)};`
+    }
   }
 
   ${dropCap ? hasDropCap : null}
@@ -87,8 +89,9 @@ export const getEditingStyles = (
 export const getEditableHoverStyles = (isEditing: boolean) => css`
   ${isEditing && `cursor: text;`}
 
-  ${!isEditing &&
-  `
+  ${
+    !isEditing &&
+    `
     cursor: pointer;
     transition: background-color 0.2s ease;
 
@@ -97,5 +100,6 @@ export const getEditableHoverStyles = (isEditing: boolean) => css`
       box-shadow: 0 0 0 2px rgba(93, 163, 36, 0.2);
       border-radius: 3px;
     }
-  `}
+  `
+  }
 `

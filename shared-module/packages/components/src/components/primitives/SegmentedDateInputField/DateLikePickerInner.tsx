@@ -1,5 +1,6 @@
 "use client"
 
+import type { CalendarDate, CalendarDateTime, ZonedDateTime } from "@internationalized/date"
 import {
   createCalendar,
   getLocalTimeZone,
@@ -7,15 +8,22 @@ import {
   now,
   toCalendar,
   toCalendarDate,
+  toCalendarDateTime,
   toTime,
 } from "@internationalized/date"
-import { useDateFieldState, useDatePickerState } from "@react-stately/datepicker"
-import type React from "react"
+import {
+  useDateFieldState,
+  useDatePickerState,
+  type DateFieldStateOptions,
+} from "@react-stately/datepicker"
 import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
+import { omitUndefined } from "../../../lib/utils/nullability"
+import { formatUtcOffset } from "../../../lib/utils/relativeTimeFormat"
 import { PickerSegmentedField } from "./PickerSegmentedField"
-import { dayGranularity, minuteGranularity } from "./segmentedDateInputFieldConstants"
+import type { dayGranularity } from "./segmentedDateInputFieldConstants"
+import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import { datePickerPopoverCss, dateTimePickerPopoverCss } from "./segmentedDateInputFieldStyles"
 import {
   parseDateLikeValue,
@@ -44,29 +52,28 @@ export function DateLikePickerInner({
   const parsedMaxValue = parseDateLikeValue(kind, base.max)
 
   const pickerProps = {
-    ...base.rest,
     id: base.id,
     label: base.label,
     description: base.description,
     errorMessage: base.errorMessage,
     granularity,
-    hourCycle: base.hourCycle,
     value: currentValue,
-    minValue: parsedMinValue,
-    maxValue: parsedMaxValue,
     isDisabled: base.resolvedState.isDisabled,
     isReadOnly: base.resolvedState.isReadOnly,
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
     shouldCloseOnSelect: kind === "date",
-    onBlur: base.onBlur as React.FocusEventHandler<Element> | undefined,
     onChange: onCommitValue,
-    onFocus: base.onFocus as React.FocusEventHandler<Element> | undefined,
+    ...omitUndefined({
+      hourCycle: base.hourCycle,
+      minValue: parsedMinValue,
+      maxValue: parsedMaxValue,
+    }),
   }
 
   const pickerState = useDatePickerState(pickerProps)
   const pickerAria = useDatePicker(pickerProps, pickerState, base.groupRef)
-  const dateFieldProps = {
+  const dateFieldProps: DateFieldStateOptions<CalendarDate | CalendarDateTime | ZonedDateTime> = {
     ...pickerAria.fieldProps,
     createCalendar,
     locale: base.locale,
@@ -74,12 +81,21 @@ export function DateLikePickerInner({
   const state = useDateFieldState(dateFieldProps)
   const dateFieldAria = useDateField(dateFieldProps, state, base.fieldRef)
   const canClear =
-    currentValue != null || pickerState.dateValue != null || pickerState.timeValue != null
+    currentValue !== null || pickerState.dateValue !== null || pickerState.timeValue !== null
+
+  const hiddenInputValue = serializeDateLikeInputValue(kind, state.value, minuteGranularity)
+  const valueDate = new Date(hiddenInputValue)
+  const zoneLabel =
+    kind === "datetime"
+      ? formatUtcOffset(Number.isNaN(valueDate.getTime()) ? new Date() : valueDate)
+      : undefined
 
   return (
     <PickerSegmentedField
+      zoneLabel={zoneLabel}
       canClear={canClear}
       className={base.className}
+      dataTestId={base.dataTestId}
       dateFieldAria={dateFieldAria}
       description={base.description}
       errorMessage={base.errorMessage}
@@ -87,7 +103,8 @@ export function DateLikePickerInner({
       fieldSize={base.fieldSize}
       groupRef={base.groupRef}
       hiddenInputRef={base.hiddenInputRef}
-      hiddenInputValue={serializeDateLikeInputValue(kind, state.value, minuteGranularity)}
+      hiddenInputValue={hiddenInputValue}
+      inputRef={base.inputRef}
       iconEnd={base.iconEnd}
       iconStart={base.iconStart}
       isFocused={base.isFocused}
@@ -95,6 +112,8 @@ export function DateLikePickerInner({
       layout={base.layout}
       notice={base.notice}
       noticeId={base.noticeId}
+      externalOnBlur={base.externalOnBlur}
+      externalOnFocus={base.externalOnFocus}
       onClear={() => {
         pickerState.setOpen(false)
         onClear()
@@ -115,8 +134,10 @@ export function DateLikePickerInner({
               const calendar = currentValue?.calendar ?? new GregorianCalendar()
               const date = toCalendar(toCalendarDate(zdt), calendar)
               const time = toTime(zdt)
-              pickerState.setDateValue(date)
-              pickerState.setTimeValue(time)
+              // setDateValue/setTimeValue each close over the *other* field's pre-click
+              // value, so calling both in one tick races and the second call wins with
+              // a stale date or time. Commit the merged value once via setValue instead.
+              pickerState.setValue(toCalendarDateTime(date, time))
             }
           : undefined
       }
@@ -148,7 +169,6 @@ export function DateLikePickerInner({
         kind === "datetime"
           ? {
               granularity: minuteGranularity,
-              hourCycle: base.hourCycle,
               isDisabled: base.resolvedState.isDisabled,
               isReadOnly: base.resolvedState.isReadOnly,
               minuteStep: resolveMinuteStep(base.step),
@@ -156,6 +176,7 @@ export function DateLikePickerInner({
               onChange: (nextValue) => {
                 pickerState.setTimeValue(nextValue)
               },
+              ...omitUndefined({ hourCycle: base.hourCycle }),
             }
           : undefined
       }

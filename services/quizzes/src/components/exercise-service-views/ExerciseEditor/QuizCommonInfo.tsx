@@ -1,17 +1,16 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
-
-import ParsedTextField from "./QuizComponents/common/ParsedTextField"
-
 import Accordion from "@/shared-module/common/components/Accordion"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../hooks/useQuizzesExerciseServiceOutputState"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "./QuizComponents/common/FeedbackMessagesEditor"
 
 const AdvancedOptionsContainer = styled.div`
   padding: 8px;
@@ -54,12 +53,14 @@ const HORIZONTAL = "horizontal"
 const QuizCommonInfo: React.FC = () => {
   const { t } = useTranslation()
 
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
+
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>(
     (quiz) => quiz,
   )
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -68,15 +69,15 @@ const QuizCommonInfo: React.FC = () => {
         <details>
           <summary>{t("advanced-options")}</summary>
           <AdvancedOptionsContainer>
-            <ParsedTextField
-              label={t("submit-message")}
-              value={selected.submitMessage ?? ""}
-              onChange={(value) => {
+            <FeedbackMessagesEditor
+              value={selected.feedbackMessages}
+              visibilityOptions={itemFeedbackVisibilityOptions}
+              onChange={(feedbackMessages) => {
                 updateState((draft) => {
                   if (!draft) {
                     return
                   }
-                  draft.submitMessage = value
+                  draft.feedbackMessages = feedbackMessages
                 })
               }}
             />

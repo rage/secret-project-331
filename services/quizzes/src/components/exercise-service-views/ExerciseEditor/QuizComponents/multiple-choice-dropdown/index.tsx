@@ -1,25 +1,26 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
-import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import findQuizItem from "../../utils/general"
-import EditorCard from "../common/EditorCard"
-import MultipleChoiceOption from "../common/MultipleChoiceOption"
-import ParsedTextField from "../common/ParsedTextField"
-import ToggleCard from "../common/ToggleCard"
-
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { primaryFont } from "@/shared-module/common/styles"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
+import type { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import findQuizItem from "../../utils/general"
+import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
+import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import ParsedTextField from "../common/ParsedTextField"
+import ToggleCard from "../common/ToggleCard"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -98,6 +99,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const [optionTitle, setOptionTitle] = useState("")
   const [correct, setCorrect] = useState(false)
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const MULTIPLE_CHOICE_OPTIONS = [
     {
@@ -119,13 +121,13 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
       return findQuizItem<PrivateSpecQuizItemMultiplechoice>(
         quiz,
         quizItemId,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "multiple-choice-dropdown",
       )
     })
 
   if (selected === null) {
-    return <></>
+    return null
   }
 
   return (
@@ -155,24 +157,16 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(
-              title,
-              messageAfterSubmissionWhenThisOptionSelected,
-              messageOnModelSolutionWhenThisOptionSelected,
-              correct,
-            ) => {
+            onUpdateValues={(title, feedbackMessages, isCorrect) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
                 draft.options = draft.options.map((opt) => {
-                  if (opt.id == option.id) {
+                  if (opt.id === option.id) {
                     opt.title = title
-                    opt.correct = correct
-                    opt.messageAfterSubmissionWhenSelected =
-                      messageAfterSubmissionWhenThisOptionSelected
-                    opt.additionalCorrectnessExplanationOnModelSolution =
-                      messageOnModelSolutionWhenThisOptionSelected
+                    opt.correct = isCorrect
+                    opt.feedbackMessages = feedbackMessages
                   }
                   return opt
                 })
@@ -218,11 +212,10 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ...draft.options,
                 {
                   order: draft.options.length + 1,
-                  additionalCorrectnessExplanationOnModelSolution: null,
                   body: null,
                   correct: correct,
                   id: v4(),
-                  messageAfterSubmissionWhenSelected: null,
+                  feedbackMessages: [],
                   title: optionTitle,
                 },
               ]
@@ -252,11 +245,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "vertical"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "vertical"}
+                checked={selected.optionDisplayDirection === "vertical"}
                 label={t("vertical")}
               />
               <RadioButton
@@ -265,11 +258,11 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "horizontal"
                   })
                 }}
-                checked={selected.optionDisplayDirection == "horizontal"}
+                checked={selected.optionDisplayDirection === "horizontal"}
                 label={t("horizontal")}
               />
             </MultipleChoiceLayoutChoiceContainer>
@@ -314,17 +307,17 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   }
                   switch (value) {
                     case "default":
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       draft.multipleChoiceMultipleOptionsGradingPolicy = "default"
                       break
                     case "points-off-incorrect-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-incorrect-options"
                       break
                     case "points-off-unselected-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-unselected-options"
                       break
                   }
@@ -344,51 +337,26 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
               `}
             >
-              {selected.multipleChoiceMultipleOptionsGradingPolicy == "default" &&
+              {selected.multipleChoiceMultipleOptionsGradingPolicy === "default" &&
                 t("multiple-choice-grading-default-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-incorrect-options" &&
                 t("multiple-choice-grading-points-off-incorrect-options-description")}
-              {selected.multipleChoiceMultipleOptionsGradingPolicy ==
+              {selected.multipleChoiceMultipleOptionsGradingPolicy ===
                 "points-off-unselected-options" &&
                 t("multiple-choice-grading-points-off-unselected-options-description")}
             </span>
-            <OptionTitle> {t("feedback-message")} </OptionTitle>
-            <ParsedTextField
-              value={selected.successMessage ?? ""}
-              onChange={(successMessage) => {
+            <FeedbackMessagesEditor
+              value={selected.feedbackMessages}
+              visibilityOptions={itemFeedbackVisibilityOptions}
+              onChange={(feedbackMessages) => {
                 updateState((draft) => {
                   if (!draft) {
                     return
                   }
-                  draft.successMessage = successMessage ?? ""
+                  draft.feedbackMessages = feedbackMessages
                 })
               }}
-              label={t("success-message")}
-            />
-            <ParsedTextField
-              value={selected.failureMessage ?? ""}
-              onChange={(failureMessage) => {
-                updateState((draft) => {
-                  if (!draft) {
-                    return
-                  }
-                  draft.failureMessage = failureMessage ?? ""
-                })
-              }}
-              label={t("failure-message")}
-            />
-            <ParsedTextField
-              value={selected.messageOnModelSolution ?? ""}
-              onChange={(newValue) => {
-                updateState((draft) => {
-                  if (!draft) {
-                    return
-                  }
-                  draft.messageOnModelSolution = newValue
-                })
-              }}
-              label={t("label-message-on-model-solution")}
             />
           </AdvancedOptionsContainer>
         </details>

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { Term } from "@/shared-module/common/bindings"
+import type { Term } from "@/generated/course-material-api/types.generated"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface TooltipProps {

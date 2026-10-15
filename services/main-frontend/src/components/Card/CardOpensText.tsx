@@ -31,6 +31,13 @@ const CardOpensText: React.FC<React.PropsWithChildren<CardOpensTextProps>> = ({
         <div>{t("on-date-at-time", { date, time })}</div>
       </>
     )
+  } else if (date) {
+    return (
+      <>
+        <div className={cx(styledspan)}>{t("available")}</div>
+        <div>{date}</div>
+      </>
+    )
   } else if (time) {
     return (
       <>
@@ -40,9 +47,8 @@ const CardOpensText: React.FC<React.PropsWithChildren<CardOpensTextProps>> = ({
     )
   } else if (open) {
     return <span className={cx(styledspan)}>{t("opens-now")}</span>
-  } else {
-    return <span>{t("closed")}</span>
   }
+  return <span>{t("closed")}</span>
 }
 
 export default CardOpensText

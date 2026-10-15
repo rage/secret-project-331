@@ -1,3 +1,6 @@
+use crate::config::server_runtime_config;
+use crate::domain::authentication::{constant_time_eq_str, session_user_id};
+use actix_session::SessionExt;
 use actix_web::{
     Error, HttpResponse,
     body::{EitherBody, MessageBody},
@@ -10,6 +13,9 @@ use governor::{
     clock::{Clock, DefaultClock},
     state::keyed::DefaultKeyedStateStore,
 };
+use secrecy::ExposeSecret;
+#[cfg(test)]
+use secrecy::SecretString;
 use std::{
     num::NonZeroU32,
     sync::{
@@ -27,6 +33,29 @@ pub struct RateLimitConfig {
     pub per_hour: Option<u64>,
     pub per_day: Option<u64>,
     pub per_month: Option<u64>,
+}
+
+/// Whose requests share one quota.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum RateLimitKey {
+    #[default]
+    ClientIp,
+    /// The signed-in user, falling back to the client IP for anonymous requests. For endpoints
+    /// that act on the caller's own data, where users behind one NAT address must not share a quota.
+    User,
+}
+
+/// Request header whose value, when equal to `RATELIMIT_PROTECTION_SAFE_API_KEY`, skips a
+/// [`RateLimit::bypassable`] limiter. tmc-server sends it, and we send it to tmc-server.
+pub const RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER: &str = "RATELIMIT-PROTECTION-SAFE-API-KEY";
+
+/// Which key, if any, lets a request skip the limiter.
+#[derive(Clone)]
+enum Bypass {
+    Off,
+    RuntimeConfigKey,
+    #[cfg(test)]
+    Key(SecretString),
 }
 
 type Key = String;
@@ -95,13 +124,15 @@ fn build_custom_period_limiter(n: u64, period: Duration) -> Option<Arc<Limiter>>
 #[derive(Clone)]
 pub struct RateLimit {
     limiters: Arc<EndpointLimiters>,
+    key: RateLimitKey,
+    bypass: Bypass,
     calls: Arc<AtomicU64>,
 }
 
 impl RateLimit {
     /// Global `/api/v0` limits aligned with nginx ingress `limit-rps` and `limit-rpm`; relaxed when `TEST_MODE` is set.
-    pub fn global_api_rate_limit_config() -> RateLimitConfig {
-        if std::env::var("TEST_MODE").is_ok() {
+    pub fn global_api_rate_limit_config(test_mode: bool) -> RateLimitConfig {
+        if test_mode {
             RateLimitConfig {
                 per_second: Some(10000),
                 per_minute: Some(200000),
@@ -120,7 +151,32 @@ impl RateLimit {
     pub fn new(cfg: RateLimitConfig) -> Self {
         Self {
             limiters: Arc::new(EndpointLimiters::from_config(&cfg)),
+            key: RateLimitKey::default(),
+            bypass: Bypass::Off,
             calls: Arc::new(AtomicU64::new(0)),
+        }
+    }
+
+    /// Shares each quota by `key` instead of by client IP.
+    pub fn keyed_by(self, key: RateLimitKey) -> Self {
+        Self { key, ..self }
+    }
+
+    /// Lets requests carrying the configured `RATELIMIT_PROTECTION_SAFE_API_KEY` in
+    /// [`RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER`] skip this limiter, for trusted servers that
+    /// call on behalf of many users from one IP. Never use it on brute-force limiters.
+    pub fn bypassable(self) -> Self {
+        Self {
+            bypass: Bypass::RuntimeConfigKey,
+            ..self
+        }
+    }
+
+    #[cfg(test)]
+    fn bypassable_with(self, safe_api_key: SecretString) -> Self {
+        Self {
+            bypass: Bypass::Key(safe_api_key),
+            ..self
         }
     }
 }
@@ -140,6 +196,8 @@ where
         ready(Ok(RateLimitInner {
             service,
             limiters: self.limiters.clone(),
+            key: self.key,
+            bypass: self.bypass.clone(),
             calls: self.calls.clone(),
         }))
     }
@@ -148,7 +206,30 @@ where
 pub struct RateLimitInner<S> {
     service: S,
     limiters: Arc<EndpointLimiters>,
+    key: RateLimitKey,
+    bypass: Bypass,
     calls: Arc<AtomicU64>,
+}
+
+impl<S> RateLimitInner<S> {
+    fn carries_bypass_key(&self, req: &ServiceRequest) -> bool {
+        let Some(provided) = req
+            .headers()
+            .get(RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER)
+            .and_then(|value| value.to_str().ok())
+        else {
+            return false;
+        };
+        let expected = match &self.bypass {
+            Bypass::Off => return false,
+            Bypass::RuntimeConfigKey => server_runtime_config()
+                .ratelimit_protection_safe_api_key
+                .expose_secret(),
+            #[cfg(test)]
+            Bypass::Key(key) => key.expose_secret(),
+        };
+        !expected.is_empty() && constant_time_eq_str(provided, expected)
+    }
 }
 
 impl<S, B> Service<ServiceRequest> for RateLimitInner<S>
@@ -165,7 +246,7 @@ where
     }
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        if self.limiters.is_empty() {
+        if self.limiters.is_empty() || self.carries_bypass_key(&req) {
             let fut = self.service.call(req);
             return Box::pin(async move { fut.await.map(|r| r.map_into_left_body()) });
         }
@@ -186,7 +267,12 @@ where
         }
 
         let clock = DefaultClock::default();
-        let key = extract_client_ip_key(&req);
+        let key = match self.key {
+            RateLimitKey::User => session_user_id(&req.get_session())
+                .map(|id| format!("user:{id}"))
+                .unwrap_or_else(|| extract_client_ip_key(&req)),
+            RateLimitKey::ClientIp => extract_client_ip_key(&req),
+        };
 
         let mut retry_after: Option<Duration> = None;
         for limiter in self.limiters.iter() {
@@ -201,9 +287,7 @@ where
             let resp = HttpResponse::build(StatusCode::TOO_MANY_REQUESTS)
                 .insert_header((header::RETRY_AFTER, secs.to_string()))
                 .content_type("application/json")
-                .body(format!(
-                    r#"{{"error":"too_many_requests","retry_after_seconds":{secs}}}"#
-                ));
+                .body(r#"{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}"#.to_string());
             return Box::pin(async move { Ok(req.into_response(resp).map_into_right_body()) });
         }
 
@@ -253,6 +337,19 @@ mod tests {
             per_month,
             ..Default::default()
         })
+    }
+
+    #[actix_web::test]
+    async fn global_api_rate_limit_config_uses_test_mode_argument() {
+        let test_cfg = RateLimit::global_api_rate_limit_config(true);
+        assert_eq!(test_cfg.per_second, Some(10000));
+        assert_eq!(test_cfg.per_minute, Some(200000));
+        assert_eq!(test_cfg.per_hour, None);
+
+        let production_cfg = RateLimit::global_api_rate_limit_config(false);
+        assert_eq!(production_cfg.per_second, Some(20));
+        assert_eq!(production_cfg.per_minute, Some(1000));
+        assert_eq!(production_cfg.per_hour, Some(10000));
     }
 
     async fn call_get<S>(
@@ -402,13 +499,11 @@ mod tests {
 
         let bytes = test::read_body(blocked).await;
         let body = std::str::from_utf8(&bytes).unwrap();
-        assert!(
-            body.contains(r#""error":"too_many_requests""#),
-            "body={body}"
-        );
+        assert!(body.contains(r#""type":"rate_limit""#), "body={body}");
         let v: serde_json::Value = serde_json::from_str(body).unwrap();
-        assert_eq!(v["error"], "too_many_requests");
-        assert!(v["retry_after_seconds"].as_u64().is_some());
+        assert_eq!(v["type"], "rate_limit");
+        assert_eq!(v["message_key"], "rate_limited");
+        assert!(v.get("retry_after").is_none());
     }
 
     #[actix_web::test]
@@ -515,5 +610,63 @@ mod tests {
 
         assert_eq!(a2.status(), StatusCode::TOO_MANY_REQUESTS);
         assert_eq!(b2.status(), StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    async fn call_get_with_safe_api_key<S>(
+        app: &S,
+        safe_api_key: &str,
+    ) -> ServiceResponse<EitherBody<BoxBody>>
+    where
+        S: Service<Request, Response = ServiceResponse<EitherBody<BoxBody>>, Error = Error>,
+    {
+        let req = test::TestRequest::get()
+            .uri("/")
+            .insert_header(("x-forwarded-for", "1.2.3.4"))
+            .insert_header((RATELIMIT_PROTECTION_SAFE_API_KEY_HEADER, safe_api_key))
+            .to_request();
+        test::call_service(app, req).await
+    }
+
+    #[actix_web::test]
+    async fn bypassable_limiter_skips_requests_with_safe_api_key() {
+        let app = app(mw(Some(1), None, None, None).bypassable_with("safe-key".into())).await;
+
+        for _ in 0..3 {
+            let resp = call_get_with_safe_api_key(&app, "safe-key").await;
+            assert_eq!(resp.status(), StatusCode::OK);
+        }
+    }
+
+    #[actix_web::test]
+    async fn bypassable_limiter_limits_wrong_safe_api_key() {
+        let app = app(mw(Some(1), None, None, None).bypassable_with("safe-key".into())).await;
+
+        let r1 = call_get_with_safe_api_key(&app, "wrong-key").await;
+        let r2 = call_get_with_safe_api_key(&app, "wrong-key").await;
+
+        assert_eq!(r1.status(), StatusCode::OK);
+        assert_eq!(r2.status(), StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    #[actix_web::test]
+    async fn non_bypassable_limiter_limits_safe_api_key() {
+        let app = app(mw(Some(1), None, None, None)).await;
+
+        let r1 = call_get_with_safe_api_key(&app, "safe-key").await;
+        let r2 = call_get_with_safe_api_key(&app, "safe-key").await;
+
+        assert_eq!(r1.status(), StatusCode::OK);
+        assert_eq!(r2.status(), StatusCode::TOO_MANY_REQUESTS);
+    }
+
+    #[actix_web::test]
+    async fn empty_configured_safe_api_key_never_bypasses() {
+        let app = app(mw(Some(1), None, None, None).bypassable_with("".into())).await;
+
+        let r1 = call_get_with_safe_api_key(&app, "").await;
+        let r2 = call_get_with_safe_api_key(&app, "").await;
+
+        assert_eq!(r1.status(), StatusCode::OK);
+        assert_eq!(r2.status(), StatusCode::TOO_MANY_REQUESTS);
     }
 }

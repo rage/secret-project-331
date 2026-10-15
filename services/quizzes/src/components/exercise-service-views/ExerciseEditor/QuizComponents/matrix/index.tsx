@@ -1,16 +1,17 @@
-"use client"
-
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
+import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
+
+import type { PrivateSpecQuizItemMatrix } from "../../../../../../types/quizTypes/privateSpec"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import FeedbackMessagesEditor, {
+  useItemFeedbackVisibilityOptions,
+} from "../common/FeedbackMessagesEditor"
 import ParsedTextField from "../common/ParsedTextField"
-
+import MatrixGradingSettings from "./MatrixGradingSettings"
 import TableContent from "./TableContent"
-
-import useQuizzesExerciseServiceOutputState from "@/hooks/useQuizzesExerciseServiceOutputState"
 
 interface MatrixEditorProps {
   quizItemId: string
@@ -18,10 +19,11 @@ interface MatrixEditorProps {
 
 const MatrixEditor: React.FC<MatrixEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMatrix>(quiz, quizItemId, "matrix")
     },
   )
@@ -56,6 +58,19 @@ const MatrixEditor: React.FC<MatrixEditorProps> = ({ quizItemId }) => {
         />
       )}
       <TableContent quizItemId={quizItemId} />
+      <MatrixGradingSettings quizItemId={quizItemId} />
+      <FeedbackMessagesEditor
+        value={selected.feedbackMessages}
+        visibilityOptions={itemFeedbackVisibilityOptions}
+        onChange={(feedbackMessages) => {
+          updateState((draft) => {
+            if (!draft) {
+              return
+            }
+            draft.feedbackMessages = feedbackMessages
+          })
+        }}
+      />
     </EditorCard>
   )
 }

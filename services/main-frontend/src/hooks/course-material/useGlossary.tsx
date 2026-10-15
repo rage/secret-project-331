@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchGlossary } from "@/services/course-material/backend"
+import { getCourseMaterialGlossaryOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseGlossaryOptions {
   enabled?: boolean
@@ -15,11 +16,19 @@ const useGlossary = (
   options: UseGlossaryOptions = {},
 ) => {
   const { enabled = true } = options
-  const query = useQuery({
-    queryKey: [`glossary-${courseId}`, exam, isMaterialPage],
-    queryFn: () => (courseId && exam === null && isMaterialPage ? fetchGlossary(courseId) : []),
-    enabled: enabled,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: exam === null && isMaterialPage && enabled,
+      isReady: (id): id is string => Boolean(id),
+      build: (id) =>
+        getCourseMaterialGlossaryOptions({
+          path: {
+            course_id: id,
+          },
+        }),
+    }),
+  )
   return query
 }
 

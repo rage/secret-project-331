@@ -1,0 +1,305 @@
+/**
+ * Client for the mock Suotar's world and fault control (`/api/v0/mock-suotar/control/command`).
+ * Hand-written because the mock's DTOs are deliberately not part of the OpenAPI spec, the same way
+ * `mock_sisu`'s are not. `suotarControl.ts` is the tick client.
+ *
+ * Only the commands a spec has a reason to send are wrapped; `MockSuotarCommand` in `commands.rs`
+ * lists the rest.
+ * A command is parallel-safe only for arguments naming data the calling spec owns.
+ */
+
+import type { APIRequestContext } from "@playwright/test"
+
+import { CONTROL_BASE_URL } from "./suotarControl"
+
+export type MockSuotarEndpoint =
+  | "resolve_persons"
+  | "resolve_enrolments"
+  | "import_attainments"
+  | "verify_attainments"
+  | "list_by_course"
+  | "validate_course_codes"
+
+/** Required on every fault. A post-commit stage means something different from a pre-write one. */
+export type MockSuotarStage =
+  | "auth"
+  | "requestGate"
+  | "parse"
+  | "resolve"
+  | "afterWrite"
+  | "respond"
+
+export type MockSuotarEnrolmentState = "ENROLLED" | "PROCESSING" | "REJECTED" | "ABORTED"
+
+export type MockSuotarRealisationKind = "degree" | "openUniversity"
+
+export interface MockSuotarOwnerRef {
+  user?: string
+  course?: string
+}
+
+export interface MockSuotarDatePeriod {
+  startDate: string
+  endDate: string
+}
+
+const YEAR_MS = 365 * 24 * 60 * 60 * 1000
+
+/** A study-right period comfortably spanning "now", for specs that just need enrolment to be active. */
+export const activeStudyRightPeriod = (): MockSuotarDatePeriod => ({
+  startDate: new Date(Date.now() - YEAR_MS).toISOString().slice(0, "2026-01-01".length),
+  endDate: new Date(Date.now() + YEAR_MS).toISOString().slice(0, "2026-01-01".length),
+})
+
+export interface MockSuotarEnrolmentUpsert {
+  id?: string
+  studentNumber: string
+  courseCode: string
+  realisationId?: string
+  kind?: MockSuotarRealisationKind
+  state: MockSuotarEnrolmentState
+  /** Omitted derives one from `kind`; `null` is an enrolment with no study right at all. */
+  studyRightId?: string | null
+  /** Omitted is a study right the registry did not return. */
+  studyRightValidityPeriod?: MockSuotarDatePeriod
+  studyRightGrantDate?: string
+  /** Omitted is now; `null` is an enrolment the registry hands over no time for. */
+  enrolmentDateTime?: string | null
+}
+
+export type MockSuotarPredicate =
+  | { endpoint: MockSuotarEndpoint }
+  | { stage: MockSuotarStage }
+  | { studentNumber: string }
+  | { courseCode: string }
+  | { owner: MockSuotarOwnerRef }
+
+export type MockSuotarEffect =
+  | { kind: "itemLevel"; code: string; message?: string }
+  | { kind: "requestLevel"; status: number; code: string; message?: string }
+  | { kind: "rawBody"; status: number; body: string; contentType?: string }
+  | { kind: "connectionReset" }
+  /** Only at `respond`: the item is left out of the response whatever became of it. */
+  | { kind: "dropItem" }
+
+/** Omitted means until disarmed. */
+export interface MockSuotarLifetime {
+  matchingCalls?: number
+  matchingItems?: number
+}
+
+export interface MockSuotarFaultSpec {
+  /** Caller-supplied, so re-arming replaces rather than duplicates. */
+  id: string
+  when: MockSuotarPredicate[]
+  then: MockSuotarEffect
+  lifetime?: MockSuotarLifetime
+  /**
+   * Required to arm a retryable code on `import` after the write has committed, which only a spec
+   * proving the double submission has a reason to do.
+   */
+  provesDoubleSubmission?: boolean
+}
+
+export interface MockSuotarCallFilter {
+  endpoint?: MockSuotarEndpoint
+  studentNumber?: string
+  courseCode?: string
+  requestItemId?: string
+  faultId?: string
+  correlationId?: string
+  limit?: number
+}
+
+export type MockSuotarSubmissionTarget =
+  | "registered"
+  | "partiallyRegistered"
+  | "misregistered"
+  | "notRegistered"
+  | "timedOutButLanded"
+  | "timedOutNothingLanded"
+
+export type MockSuotarCommandResult =
+  | { status: "ok"; command: string; result: Record<string, unknown> }
+  | { status: "error"; command: string | null; code: string; message: string }
+  | { status: "notImplemented"; command: string }
+
+const sendCommand = async (
+  request: APIRequestContext,
+  command: Record<string, unknown>,
+): Promise<Record<string, unknown>> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/command`, { data: command })
+  // A 404 means the mock is not enabled and the whole spec is invalid.
+  if (![200, 400, 500, 501].includes(response.status())) {
+    throw new Error(
+      `Unexpected status ${response.status()} from the mock Suotar control command ${JSON.stringify(
+        command.command,
+      )}. Is USE_MOCK_SUOTAR_ENDPOINT on? Body: ${await response.text()}`,
+    )
+  }
+  const body = (await response.json()) as MockSuotarCommandResult
+  if (body.status !== "ok") {
+    throw new Error(
+      `Mock Suotar refused ${JSON.stringify(command.command)}: ${JSON.stringify(body)}`,
+    )
+  }
+  return body.result
+}
+
+const get = async (request: APIRequestContext, path: string): Promise<Record<string, unknown>> => {
+  const response = await request.get(`${CONTROL_BASE_URL}/${path}`)
+  if (!response.ok()) {
+    throw new Error(
+      `Unexpected status ${response.status()} from mock Suotar ${path}. Is USE_MOCK_SUOTAR_ENDPOINT on? Body: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as Record<string, unknown>
+}
+
+export interface MockSuotarPersonUpsert {
+  studentNumber: string
+  /** Omitted derives one from the student number. */
+  personId?: string
+  firstNames?: string
+  lastName?: string
+  primaryEmail?: string
+  secondaryEmail?: string
+}
+
+/** A registry person with no account of ours, such as someone only a roster lists. */
+export const upsertMockSuotarPersons = (
+  request: APIRequestContext,
+  persons: MockSuotarPersonUpsert[],
+) => sendCommand(request, { command: "upsertPersons", persons })
+
+export const upsertMockSuotarEnrolments = (
+  request: APIRequestContext,
+  enrolments: MockSuotarEnrolmentUpsert[],
+) => sendCommand(request, { command: "upsertEnrolments", enrolments })
+
+/** A course unit in the registry's world, by its course code. */
+export interface MockSuotarCourseUnitUpsert {
+  courseCode: string
+  name?: { fi: string; sv: string; en: string }
+  /** `max: null` is an open range, which Suotar refuses to import against. */
+  credits?: { min: number; max: number | null }
+  gradeScaleId?: string
+  realisations: { kind: MockSuotarRealisationKind; activityPeriod: MockSuotarDatePeriod }[]
+  /** Omitted is a code Suotar does not carry, which it refuses every import on. */
+  suotarCourse?: { name: string }
+  /** The course slug a fault's `owner.course` resolves to this code. */
+  ownerCourseSlug?: string
+}
+
+/** A course unit the registry knows, for a spec that brings a course code of its own. */
+export const upsertMockSuotarCourseUnits = (
+  request: APIRequestContext,
+  courseUnits: MockSuotarCourseUnitUpsert[],
+) => sendCommand(request, { command: "upsertCourseUnits", courseUnits })
+
+export interface MockSuotarAttainmentUpsert {
+  id?: string
+  studentNumber: string
+  courseCode: string
+  kind?: MockSuotarRealisationKind
+  /** Ties into the ordering the registry answers in: the oldest attainment is listed first. */
+  attainmentDate: string
+  gradeScaleId: string
+  gradeId: string
+  passed?: boolean
+  /** Omitted counts as equal to whatever is imported against it. */
+  credits?: number
+}
+
+/** An attainment the registry holds without our having submitted it. */
+export const upsertMockSuotarAttainments = (
+  request: APIRequestContext,
+  attainments: MockSuotarAttainmentUpsert[],
+) => sendCommand(request, { command: "upsertAttainments", attainments })
+
+/** A spec owns a student number, not the mock-side `hy-kur-…` id the client holds in the database. */
+export const transitionMockSuotarSubmissionsFor = (
+  request: APIRequestContext,
+  studentNumber: string,
+  to: MockSuotarSubmissionTarget,
+  courseCode?: string,
+) =>
+  sendCommand(request, {
+    command: "transitionSubmissionsFor",
+    studentNumber,
+    courseCode,
+    to,
+  })
+
+/** One submission only, where a student's other submissions on the course must stay as they are. */
+export const transitionMockSuotarSubmission = (
+  request: APIRequestContext,
+  submittedAttainmentId: string,
+  to: MockSuotarSubmissionTarget,
+) =>
+  sendCommand(request, {
+    command: "transitionSubmission",
+    submittedAttainmentId,
+    to,
+  })
+
+/**
+ * See the isolation rules in `creditRegistration.ts`'s file doc comment before arming a
+ * `requestLevel` fault with an owner: the unscoped background worker can batch a foreign student
+ * into the same request and silently suppress it.
+ */
+export const armMockSuotarFault = (request: APIRequestContext, fault: MockSuotarFaultSpec) =>
+  sendCommand(request, { command: "armFault", ...fault })
+
+export const disarmMockSuotarFault = (request: APIRequestContext, id: string) =>
+  sendCommand(request, { command: "disarmFault", id })
+
+export const applyMockSuotarScenario = (
+  request: APIRequestContext,
+  name: string,
+  args: {
+    studentNumber?: string
+    courseCode?: string
+    realisationKind?: MockSuotarRealisationKind
+    owner?: MockSuotarOwnerRef
+    primaryEmail?: string
+    secondaryEmail?: string
+    firstNames?: string
+    lastName?: string
+  } = {},
+) => sendCommand(request, { command: "applyScenario", name, args })
+
+/** Bounded: a list has no index, so a filter is always a scan of the newest `limit` entries. */
+export const listMockSuotarCalls = (
+  request: APIRequestContext,
+  filter: MockSuotarCallFilter = {},
+) => sendCommand(request, { command: "listCalls", ...filter })
+
+export const getMockSuotarWorld = (request: APIRequestContext) => get(request, "world")
+
+/** The subset of a mock submission (one row Suotar wrote for an import) these specs assert on. */
+export interface MockSuotarSubmission {
+  submittedAttainmentId: string
+  studentNumber: string
+  courseCode: string
+  attainmentDate: string
+  gradeScaleId: string
+  gradeId: string
+}
+
+/** Every submission the mock holds for one student on one course code, oldest first. */
+export const mockSuotarSubmissionsFor = async (
+  request: APIRequestContext,
+  studentNumber: string,
+  courseCode: string,
+): Promise<MockSuotarSubmission[]> => {
+  const world = (await getMockSuotarWorld(request)) as {
+    submissions?: Record<string, MockSuotarSubmission & { createdAt: string }>
+  }
+  return Object.values(world.submissions ?? {})
+    .filter(
+      (submission) =>
+        submission.studentNumber === studentNumber && submission.courseCode === courseCode,
+    )
+    .toSorted((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))
+}

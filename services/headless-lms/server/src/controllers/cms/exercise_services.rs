@@ -1,13 +1,27 @@
 //! Controllers for requests starting with `/api/v0/cms/exercise-services`.
 
 use models::exercise_services::ExerciseServiceIframeRenderingInfo;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_all_exercise_services))]
+pub(crate) struct CmsExerciseServicesApiDoc;
 
 /**
 GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getCmsExerciseServices",
+    tag = "cms_exercise_services",
+    responses(
+        (status = 200, description = "Exercise services", body = Vec<ExerciseServiceIframeRenderingInfo>)
+    )
+)]
 async fn get_all_exercise_services(
     pool: web::Data<PgPool>,
     user: AuthUser,

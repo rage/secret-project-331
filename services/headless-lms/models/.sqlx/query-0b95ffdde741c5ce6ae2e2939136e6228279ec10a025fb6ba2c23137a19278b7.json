@@ -6,7 +6,8 @@
       {
         "ordinal": 0,
         "name": "latest_submission_time",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": "Expression"
       }
     ],
     "parameters": {

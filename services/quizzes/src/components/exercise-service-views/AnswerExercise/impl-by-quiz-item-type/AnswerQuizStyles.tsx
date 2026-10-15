@@ -1,4 +1,4 @@
-"use client"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   position: relative;
@@ -38,7 +38,8 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
     outline-offset: 2px;
   }
 
-  &[aria-pressed="true"] {
+  &[aria-pressed="true"],
+  &[aria-current="true"] {
     font-weight: 600;
   }
 
@@ -55,7 +56,7 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
 export const QUIZ_TITLE_STYLE = `
   font-weight: 500;
   color: #4c5868;
-  font-family: "Raleway", sans-serif;
+  font-family: ${primaryFont};
   font-size: 1.25rem;
   margin-bottom: 1rem;
 `

@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT file_upload_id\nFROM exercise_task_spec_files\nWHERE exercise_task_id = $1\n  AND spec_kind = $2\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "file_upload_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_spec_files",
+            "name": "file_upload_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "exercise_spec_kind",
+            "kind": {
+              "Enum": [
+                "private",
+                "public",
+                "model_solution"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7fdbc1363323a6a842db736070f776d2aa4a3542f3ca1cd089a0fe4518eb16fd"
+}

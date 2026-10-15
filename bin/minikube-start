@@ -10,11 +10,17 @@ disallow_running_as_root
 ensure_program_in_path "minikube"
 check_minikube_version
 ensure_common_programs_in_path
+ensure_git_lfs_installed
 
 COMMAND="minikube"
 CORES=$(nproc)
 # This is rounded to the nearest integer e.g. 32.8 gb will show up as 33. This is fine for the calculations we're going to do.
-TOTAL_MEM_GB=$(free --giga | grep Mem | sed 's/  */ /g' | cut -d ' ' -f 2)
+# macOS has no free(1); read total RAM from sysctl there.
+if [[ "$OSTYPE" == darwin* ]]; then
+  TOTAL_MEM_GB=$(( ($(sysctl -n hw.memsize) + 500000000) / 1000000000 ))
+else
+  TOTAL_MEM_GB=$(free --giga | grep Mem | sed 's/  */ /g' | cut -d ' ' -f 2)
+fi
 # By default, use 1/2 of the hosts memory for minikube
 AMOUNT_OF_MEMORY_TO_USE_GB=$((TOTAL_MEM_GB/2))
 if [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -lt "9" ]; then
@@ -34,6 +40,74 @@ else
   MEMORY_TO_USE="${AMOUNT_OF_MEMORY_TO_USE_GB}g"
 fi
 
+# On macOS the docker driver runs in Docker Desktop's VM, which caps memory below
+# host RAM; if our target exceeds that cap, fail early with guidance. Skipped for
+# "max" or a caller-set --memory.
+user_set_memory=0
+for arg in "$@"; do
+  case "$arg" in
+    --memory | --memory=*) user_set_memory=1 ;;
+  esac
+done
+if [[ "$OSTYPE" == "darwin"* ]] && [ "$MEMORY_TO_USE" != "max" ] && [ "$user_set_memory" -eq 0 ]; then
+  DOCKER_VM_MEM_BYTES=$(docker info --format '{{.MemTotal}}' 2>/dev/null || echo 0)
+  DOCKER_VM_MEM_GB=$((DOCKER_VM_MEM_BYTES / 1000000000))
+  if [ "$DOCKER_VM_MEM_GB" -gt 0 ] && [ "$AMOUNT_OF_MEMORY_TO_USE_GB" -gt "$DOCKER_VM_MEM_GB" ]; then
+    trap - ERR
+    echo -e "${RED}"
+    echo "Error: minikube needs ${AMOUNT_OF_MEMORY_TO_USE_GB}GB (half of your ${TOTAL_MEM_GB}GB host RAM), but"
+    echo "Docker Desktop's VM is capped at ${DOCKER_VM_MEM_GB}GB. On macOS the docker driver runs"
+    echo "inside Docker Desktop's VM, so minikube cannot use more memory than that cap."
+    echo ""
+    echo "Raise Docker Desktop's memory limit, then re-run this script:"
+    echo "  1. Open Docker Desktop"
+    echo "  2. Go to Settings (gear icon) -> Resources -> Advanced"
+    echo "  3. Set the Memory limit to at least ${AMOUNT_OF_MEMORY_TO_USE_GB}GB (a few GB more is safer)"
+    echo "  4. Click 'Apply & restart' and wait for Docker to finish restarting"
+    echo "  5. Re-run: bin/minikube-start"
+    echo ""
+    echo "Alternatively, use less memory (not recommended for this project):"
+    echo "  bin/minikube-start --memory <N>g   # N must be <= ${DOCKER_VM_MEM_GB}"
+    echo -e "${RESET_EVERYTHING}"
+    exit 1
+  fi
+fi
+
+PROFILE="minikube"
+FORWARDED_ARGUMENTS=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --profile)
+      if [ "$#" -gt 1 ]; then
+        PROFILE="$2"
+        shift 2
+      else
+        FORWARDED_ARGUMENTS+=("$1")
+        shift
+      fi
+      ;;
+    --profile=*)
+      PROFILE="${1#--profile=}"
+      shift
+      ;;
+    --addons)
+      if [ "$#" -gt 1 ] && [ "$2" = "ingress" ]; then
+        shift 2
+      else
+        FORWARDED_ARGUMENTS+=("$1")
+        shift
+      fi
+      ;;
+    --addons=ingress)
+      shift
+      ;;
+    *)
+      FORWARDED_ARGUMENTS+=("$1")
+      shift
+      ;;
+  esac
+done
+
 echo -e "${BLUE}Hint: you can append options to the command by giving this script extra arguments."
 echo -e "Example:${BOLD} bin/minikube-start --disk-size 30g ${RESET_EVERYTHING}${BLUE}"
 echo "Appending new options overrides preceding ones."
@@ -41,16 +115,24 @@ echo -e "$RESET_EVERYTHING"
 
 if [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
   echo "🪟  Detected Windows with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --vm-driver=virtualbox --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --profile "$PROFILE" --vm-driver=virtualbox --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "${FORWARDED_ARGUMENTS[@]}")
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   echo "🍎 Detected macOS with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --profile "$PROFILE" --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "${FORWARDED_ARGUMENTS[@]}")
 else
   echo "🐧 Detected Linux with $CORES available cores and ${TOTAL_MEM_GB}GB of total memory."
-  ARGUMENTS=(start --addons ingress --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "$@")
+  ARGUMENTS=(start --profile "$PROFILE" --cpus "$CORES" --disk-size 100g --memory "$MEMORY_TO_USE" "${FORWARDED_ARGUMENTS[@]}")
 fi
 
 run_command "$COMMAND" "${ARGUMENTS[@]}"
+
+# Some minikube/kubeadm version combinations fail to apply the
+# minikube.k8s.io/primary=true node label that the ingress addon's pods
+# require via nodeSelector, leaving them permanently Pending.
+run_command kubectl label node "$PROFILE" minikube.k8s.io/primary=true --overwrite
+
+run_command minikube --profile "$PROFILE" addons enable ingress
+
 # Have to update the config for the ingress to that the ingress controller does not reject our ingresses
 run_command kubectl patch configmap ingress-nginx-controller -n ingress-nginx --type merge -p '{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}'
 

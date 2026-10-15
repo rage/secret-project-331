@@ -7,6 +7,7 @@ use crate::programs::seed::seed_courses::CommonCourseData;
 use crate::programs::seed::seed_helpers::paragraph;
 use anyhow::Result;
 use chrono::Utc;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::roles::UserRole;
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 use tracing::info;
@@ -15,6 +16,7 @@ use uuid::Uuid;
 use super::super::seed_users::SeedUsersResult;
 
 pub async fn seed_glossary_course(
+    app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
@@ -99,7 +101,8 @@ pub async fn seed_glossary_course(
         )
         .glossary_entry("KB", "Keyboard.");
 
-    let (course, _default_instance, _last_module) = course.seed(&mut conn, &cx).await?;
+    let (course, _default_instance, _last_module) =
+        course.seed(&mut conn, &app_config, &cx).await?;
 
     Ok(course.id)
 }

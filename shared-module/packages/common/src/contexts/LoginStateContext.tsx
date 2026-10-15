@@ -2,16 +2,19 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React, { ComponentType, useContext, useEffect, useState } from "react"
+import type { ComponentType } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
 import Spinner from "../components/Spinner"
-import { loggedIn } from "../services/backend/auth"
+import { clearPendingErrorReports } from "../errors/reportErrorOccurrence"
+import { getAuthLoggedInOptions } from "../generated/auth-api/@tanstack/react-query.generated"
+import "../init/registerAuthApiClients"
 
 export interface LoginState {
   isLoading: boolean
-  refresh(): Promise<unknown>
+  refresh: () => Promise<unknown>
   signedIn: boolean | null | undefined
 }
 
@@ -29,7 +32,15 @@ export default LoginStateContext
 
 export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
-  const isLoggedIn = useQuery({ queryKey: [`logged-in`], queryFn: loggedIn })
+  const isLoggedIn = useQuery(getAuthLoggedInOptions())
+  const prevSignedIn = useRef<boolean | null | undefined>(undefined)
+
+  useEffect(() => {
+    if (prevSignedIn.current === true && isLoggedIn.data === false) {
+      clearPendingErrorReports()
+    }
+    prevSignedIn.current = isLoggedIn.data
+  }, [isLoggedIn.data])
 
   useEffect(() => {
     setLoginState((prev) => ({
@@ -62,7 +73,7 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
         const returnTo = encodeURIComponent(
           window.location.pathname + window.location.search + window.location.hash,
         )
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.replace(`/login?return_to=${returnTo}`)
       }
     }, [loginStateContext.isLoading, loginStateContext.signedIn, router])
@@ -75,7 +86,7 @@ export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
       return <div>{t("please-sign-in-to-view-this-page")}</div>
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line typescript/ban-ts-comment
     // @ts-ignore: Shared module might have a diffrerent react version
     return <Component {...props} />
   }

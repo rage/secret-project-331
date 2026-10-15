@@ -12,12 +12,11 @@ shared-secret authorization header:
   first.
 */
 
-use crate::domain::authorization::{
-    authorize_access_from_tmc_server_to_course_mooc_fi,
-    get_or_create_user_from_tmc_mooc_fi_response,
+use crate::domain::authentication::{
+    authenticate_tmc_server, get_or_create_user_from_tmc_mooc_fi_response,
 };
 use crate::prelude::*;
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TmcClient;
 use models::users::User;
 use secrecy::SecretString;
 
@@ -58,7 +57,7 @@ pub async fn create_user(
     payload: web::Json<CreateUserRequest>,
     tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<CreateUserResponse>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
 
     let CreateUserRequest {
         upstream_id,
@@ -102,86 +101,9 @@ pub async fn create_user(
 
     tx.commit().await?;
 
-    // Notify TMC that password is now managed by courses.mooc.fi.
-    // Try a few times inline to handle common transient failures without blocking too long.
-    // If all inline attempts fail, hand off to a background task so the HTTP response
-    // is returned promptly while longer retries proceed.
-    const MAX_ATTEMPTS_INLINE: u32 = 3;
-    const MAX_DELAY_MS_INLINE: u64 = 2_000;
-    let mut inline_succeeded = false;
-    for attempt in 1..=MAX_ATTEMPTS_INLINE {
-        match tmc_client
-            .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-            .await
-        {
-            Ok(_) => {
-                inline_succeeded = true;
-                break;
-            }
-            Err(e) if attempt < MAX_ATTEMPTS_INLINE => {
-                let delay = std::time::Duration::from_millis(
-                    200u64
-                        .saturating_mul(2u64.pow(attempt - 1))
-                        .min(MAX_DELAY_MS_INLINE),
-                );
-                warn!(
-                    "Failed to notify TMC that user's password is saved in courses.mooc.fi (inline attempt {}/{}), retrying in {:?}: upstream_id={}, user_id={}, error={}",
-                    attempt, MAX_ATTEMPTS_INLINE, delay, upstream_id, user.id, e
-                );
-                tokio::time::sleep(delay).await;
-            }
-            Err(e) => {
-                warn!(
-                    "Inline TMC notification attempts exhausted, handing off to background task: upstream_id={}, user_id={}, error={}",
-                    upstream_id, user.id, e
-                );
-            }
-        }
-    }
-    if !inline_succeeded {
-        let tmc_client = tmc_client.clone();
-        let user_id = user.id;
-        tokio::spawn(async move {
-            const MAX_ATTEMPTS_BG: u32 = 10;
-            const MAX_DELAY_MS_BG: u64 = 30_000;
-            for attempt in 1..=MAX_ATTEMPTS_BG {
-                match tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user_id)
-                    .await
-                {
-                    Ok(_) => {
-                        info!(
-                            "Background TMC notification succeeded on attempt {}: upstream_id={}, user_id={}",
-                            attempt, upstream_id, user_id
-                        );
-                        break;
-                    }
-                    Err(e) if attempt < MAX_ATTEMPTS_BG => {
-                        let delay = std::time::Duration::from_millis(
-                            200u64
-                                .saturating_mul(2u64.pow(attempt - 1))
-                                .min(MAX_DELAY_MS_BG),
-                        );
-                        warn!(
-                            "Background TMC notification failed (attempt {}/{}), retrying in {:?}: upstream_id={}, user_id={}, error={}",
-                            attempt, MAX_ATTEMPTS_BG, delay, upstream_id, user_id, e
-                        );
-                        tokio::time::sleep(delay).await;
-                    }
-                    Err(e) => {
-                        error!(
-                            "Background TMC notification exhausted all {} retries at {}: upstream_id={}, user_id={}, error={}",
-                            MAX_ATTEMPTS_BG,
-                            chrono::Utc::now(),
-                            upstream_id,
-                            user_id,
-                            e
-                        );
-                    }
-                }
-            }
-        });
-    }
+    // Notify TMC that the password is now managed by courses.mooc.fi (best-effort, retried in the
+    // background; the user has already been created and the password stored).
+    super::notify_password_managed_with_retry(&tmc_client, upstream_id.to_string(), user.id).await;
 
     info!("Password set: {}", password_set);
 
@@ -203,7 +125,7 @@ pub async fn courses_moocfi_password_login(
     pool: web::Data<PgPool>,
     payload: web::Json<LoginRequest>,
 ) -> ControllerResult<web::Json<bool>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
 
     let mut conn = pool.acquire().await?;
 
@@ -211,7 +133,11 @@ pub async fn courses_moocfi_password_login(
 
     let is_valid = models::user_passwords::verify_user_password(&mut conn, user_id, &password)
         .await
-        .unwrap_or(false);
+        .unwrap_or_else(|e| {
+            // A DB/crypto error must not look identical to a wrong password without a trace.
+            warn!("Password verification errored for user {user_id}: {e}");
+            false
+        });
 
     token.authorized_ok(web::Json(is_valid))
 }
@@ -236,7 +162,7 @@ pub async fn courses_moocfi_password_change(
     pool: web::Data<PgPool>,
     payload: web::Json<PasswordChangeRequest>,
 ) -> ControllerResult<web::Json<bool>> {
-    let token = authorize_access_from_tmc_server_to_course_mooc_fi(&request).await?;
+    let token = authenticate_tmc_server(&request).await?;
 
     let mut conn = pool.acquire().await?;
 
@@ -250,7 +176,10 @@ pub async fn courses_moocfi_password_change(
     if let Some(old) = old_password {
         let is_user_valid = models::user_passwords::verify_user_password(&mut conn, user_id, &old)
             .await
-            .unwrap_or(false);
+            .unwrap_or_else(|e| {
+                warn!("Old-password verification errored for user {user_id}: {e}");
+                false
+            });
         if !is_user_valid {
             return token.authorized_ok(web::Json(false));
         }
@@ -258,13 +187,19 @@ pub async fn courses_moocfi_password_change(
 
     let new_password_hash = match models::user_passwords::hash_password(&new_password) {
         Ok(hash) => hash,
-        Err(_) => return token.authorized_ok(web::Json(false)),
+        Err(e) => {
+            warn!("Failed to hash new password for user {user_id}: {e}");
+            return token.authorized_ok(web::Json(false));
+        }
     };
 
     let update_ok =
         models::user_passwords::upsert_user_password(&mut conn, user_id, &new_password_hash)
             .await
-            .unwrap_or(false);
+            .unwrap_or_else(|e| {
+                warn!("Failed to store new password for user {user_id}: {e}");
+                false
+            });
 
     token.authorized_ok(web::Json(update_ok))
 }

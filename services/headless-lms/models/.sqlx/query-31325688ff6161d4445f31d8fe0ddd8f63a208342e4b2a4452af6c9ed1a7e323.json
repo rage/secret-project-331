@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE certificate_configuration_to_requirements\nSET deleted_at = now()\nWHERE certificate_configuration_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "31325688ff6161d4445f31d8fe0ddd8f63a208342e4b2a4452af6c9ed1a7e323"
+}

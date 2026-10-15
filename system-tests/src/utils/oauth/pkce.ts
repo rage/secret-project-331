@@ -8,7 +8,11 @@ export function generateCodeVerifier(): string {
   // Generate 32 random bytes (256 bits) and base64url encode
   // This gives us 43 characters, which is the minimum length
   const randomBytes = crypto.randomBytes(32)
-  return randomBytes.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
+  return randomBytes
+    .toString("base64")
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "")
 }
 
 /**
@@ -17,5 +21,5 @@ export function generateCodeVerifier(): string {
  */
 export function generateCodeChallenge(verifier: string): string {
   const hash = crypto.createHash("sha256").update(verifier, "utf8").digest()
-  return hash.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "")
+  return hash.toString("base64").replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "")
 }

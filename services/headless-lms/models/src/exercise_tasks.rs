@@ -4,6 +4,7 @@ use futures::{Stream, TryStreamExt, future::BoxFuture};
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
@@ -18,8 +19,8 @@ use crate::{
 };
 
 /// Information necessary for the frontend to render an exercise task
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
     pub exercise_service_slug: String,
@@ -66,7 +67,7 @@ pub struct ExerciseTaskSpec {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -177,6 +178,8 @@ pub async fn get_course_material_exercise_tasks(
     exercise_slide_id: Uuid,
     user_id: Option<Uuid>,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<Vec<CourseMaterialExerciseTask>> {
     let exercise_tasks: Vec<ExerciseTask> =
         get_exercise_tasks_by_exercise_slide_id(conn, &exercise_slide_id).await?;
@@ -185,6 +188,8 @@ pub async fn get_course_material_exercise_tasks(
             conn,
             exercise_slide_id,
             user_id,
+            file_store,
+            app_conf,
         )
         .await?
         .unwrap_or_default()
@@ -323,6 +328,8 @@ pub async fn get_existing_users_exercise_slide_for_course(
     exercise_id: Uuid,
     course_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<Option<CourseMaterialExerciseSlide>> {
     let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
         conn,
@@ -338,6 +345,8 @@ pub async fn get_existing_users_exercise_slide_for_course(
                 selected_exercise_slide_id,
                 Some(user_id),
                 fetch_service_info,
+                file_store,
+                app_conf,
             )
             .await?;
             Some(CourseMaterialExerciseSlide {
@@ -360,6 +369,8 @@ pub async fn get_or_select_user_exercise_slide_for_course_or_exam(
     exercise_id: Uuid,
     course_or_exam_id: CourseOrExamId,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
     let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
@@ -398,6 +409,8 @@ pub async fn get_or_select_user_exercise_slide_for_course_or_exam(
         selected_exercise_slide_id,
         Some(user_id),
         fetch_service_info,
+        file_store,
+        app_conf,
     )
     .await?;
     info!("got tasks");
@@ -493,7 +506,7 @@ exercise_id,
 exercise_task_id,
 grading_priority,
 score_given,
-grading_progress as "grading_progress: _",
+grading_progress,
 unscaled_score_given,
 unscaled_score_maximum,
 grading_started_at,

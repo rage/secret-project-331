@@ -5,7 +5,7 @@ import { assign } from "lodash"
 /**
  * Ensure that type core/image has some attributes set to a value, so that the CMS/image block doesn't crash when uploading image.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export function modifyImageBlockAttributes(settings: any, name: string): any {
   if (name === "core/image") {
     if (settings.attributes.linkDestination) {
@@ -24,7 +24,7 @@ export function modifyImageBlockAttributes(settings: any, name: string): any {
 /**
  * These are needed for Mentimeter embed InspectorControl.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export function modifyEmbedBlockAttributes(settings: any, name: string): any {
   if (name === "core/embed") {
     settings.attributes = assign(settings.attributes, {
@@ -32,6 +32,22 @@ export function modifyEmbedBlockAttributes(settings: any, name: string): any {
         type: "number",
       },
       title: {
+        type: "string",
+      },
+    })
+  }
+  return settings
+}
+
+/**
+ * Adds a `language` attribute to core/code so the author can pick the syntax-highlighting language
+ * instead of relying on highlight.js auto-detection. An empty/missing value means auto-detect.
+ */
+// oxlint-disable-next-line typescript/no-explicit-any
+export function modifyCodeBlockAttributes(settings: any, name: string): any {
+  if (name === "core/code") {
+    settings.attributes = assign(settings.attributes, {
+      language: {
         type: "string",
       },
     })

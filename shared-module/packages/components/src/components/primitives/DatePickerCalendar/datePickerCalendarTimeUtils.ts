@@ -70,7 +70,6 @@ export function getDisplayHour(hour: number, hourCycle: SupportedHourCycle) {
       return hour % 12 === 0 ? 12 : hour % 12
     case "h24":
       return hour === 0 ? 24 : hour
-    case "h23":
     default:
       return hour
   }
@@ -122,14 +121,20 @@ function normalizeDigits(raw: string, locale: string) {
 
 function normalizeTimeInput(raw: string, locale: string) {
   return normalizeDigits(raw.normalize("NFKC"), locale)
-    .replace(/[\u200e\u200f\u061c]/g, "")
+    .replaceAll(/[\u200E\u200F\u061C]/g, "")
     .trim()
 }
 
 function normalizeDayPeriodToken(raw: string, locale: string) {
-  return normalizeTimeInput(raw, locale)
-    .toLocaleLowerCase(locale)
-    .replace(/[^\p{L}\p{N}]+/gu, "")
+  const normalizedInput = normalizeTimeInput(raw, locale).toLocaleLowerCase(locale)
+
+  return Array.from(normalizedInput)
+    .filter((character) => {
+      const upper = character.toLocaleUpperCase(locale)
+      const lower = character.toLocaleLowerCase(locale)
+      return /\d/.test(character) || upper !== lower
+    })
+    .join("")
 }
 
 function hasDayPeriodToken(raw: string, locale: string, tokens: string[]) {
@@ -164,7 +169,7 @@ export function parseTimeInputFromUser(
       ? normalizedInput.slice(1)
       : normalizedInput
 
-  let isoTime: Time | null = null
+  let isoTime: Time | null
   try {
     isoTime = parseTime(isoCandidate)
   } catch {
@@ -180,7 +185,12 @@ export function parseTimeInputFromUser(
   }
 
   const [hourPart, minutePart, secondPart] = segments
-  if (minutePart.length !== 2 || (secondPart && secondPart.length !== 2)) {
+  if (
+    !hourPart ||
+    !minutePart ||
+    minutePart.length !== 2 ||
+    (secondPart && secondPart.length !== 2)
+  ) {
     return null
   }
 

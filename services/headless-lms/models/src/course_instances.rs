@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use crate::{
     chapters,
@@ -9,8 +10,8 @@ use crate::{
     users::{self, User},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseInstance {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -32,8 +33,8 @@ impl CourseInstance {
     }
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct CourseInstanceForm {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -74,18 +75,7 @@ INSERT INTO course_instances (
     support_email
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+RETURNING *
 "#,
         pkey_policy.into_uuid(),
         new_course_instance.course_id,
@@ -107,18 +97,7 @@ pub async fn get_course_instance(
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -138,17 +117,17 @@ pub async fn get_course_instance_with_info(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT
-    c.id AS course_id,
-    c.slug AS course_slug,
-    c.name AS course_name,
+    c.id AS "course_id",
+    c.slug AS "course_slug",
+    c.name AS "course_name",
     c.description AS course_description,
-    ci.id AS course_instance_id,
+    ci.id AS "course_instance_id!",
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS organization_name
+    o.name AS "organization_name"
 FROM course_instances AS ci
-  LEFT JOIN courses AS c ON ci.course_id = c.id
-  LEFT JOIN organizations AS o ON o.id = c.organization_id
+  JOIN courses AS c ON ci.course_id = c.id
+  JOIN organizations AS o ON o.id = c.organization_id
 WHERE ci.id = $1
   AND ci.deleted_at IS NULL
   AND c.deleted_at IS NULL
@@ -276,18 +255,7 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Ve
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE deleted_at IS NULL
 "#
@@ -304,18 +272,7 @@ pub async fn get_course_instances_for_course(
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -346,8 +303,8 @@ WHERE course_id = $1
     Ok(res)
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ChapterScore {
     #[serde(flatten)]
     pub chapter: DatabaseChapter,
@@ -355,12 +312,12 @@ pub struct ChapterScore {
     pub score_total: i32,
 }
 
-#[derive(Debug, Default, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Default, Serialize, ToSchema)]
+
 pub struct PointMap(pub HashMap<Uuid, f32>);
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct Points {
     pub chapter_points: Vec<ChapterScore>,
     pub users: Vec<UserDetail>,
@@ -580,14 +537,14 @@ pub async fn get_enrolled_course_instances_for_user(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT
-    c.id AS course_id,
-    c.slug AS course_slug,
-    c.name AS course_name,
+    c.id AS "course_id!",
+    c.slug AS "course_slug!",
+    c.name AS "course_name!",
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS organization_name
+    o.name AS "organization_name!"
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
@@ -605,23 +562,25 @@ WHERE cie.user_id = $1
     Ok(course_instances)
 }
 
-pub async fn get_enrolled_course_instances_for_user_with_exercise_type(
+/// Course instances the user is enrolled on that contain at least one task of any of the
+/// given exercise types. An empty `exercise_types` matches nothing.
+pub async fn get_enrolled_course_instances_for_user_with_exercise_types(
     conn: &mut PgConnection,
     user_id: Uuid,
-    exercise_type: &str,
+    exercise_types: &[String],
 ) -> ModelResult<Vec<CourseInstanceWithCourseInfo>> {
     let course_instances = sqlx::query_as!(
         CourseInstanceWithCourseInfo,
         r#"
 SELECT DISTINCT ON (ci.id)
-    c.id AS course_id,
-    c.slug AS course_slug,
-    c.name AS course_name,
+    c.id AS "course_id!",
+    c.slug AS "course_slug!",
+    c.name AS "course_name!",
     c.description AS course_description,
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,
-    o.name AS organization_name
+    o.name AS "organization_name!"
 FROM course_instances AS ci
   JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
   LEFT JOIN courses AS c ON ci.course_id = c.id
@@ -630,16 +589,17 @@ FROM course_instances AS ci
   LEFT JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
   LEFT JOIN organizations AS o ON o.id = c.organization_id
 WHERE cie.user_id = $1
-  AND et.exercise_type = $2
+  AND et.exercise_type = ANY($2)
   AND ci.deleted_at IS NULL
   AND cie.deleted_at IS NULL
   AND c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
   AND e.deleted_at IS NULL
   AND es.deleted_at IS NULL
   AND et.deleted_at IS NULL
 "#,
         user_id,
-        exercise_type,
+        exercise_types,
     )
     .fetch_all(conn)
     .await?;
@@ -969,7 +929,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn gets_enrolled_course_instances_for_user_with_exercise_type() {
+    async fn gets_enrolled_course_instances_for_user_with_exercise_types() {
         insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:chapter_id, page:page_id, :exercise, slide:exercise_slide_id);
 
         // enroll user on course
@@ -983,8 +943,9 @@ mod test {
         )
         .await
         .unwrap();
+        let tmc = ["tmc".to_string()];
         let course_instances =
-            get_enrolled_course_instances_for_user_with_exercise_type(tx.as_mut(), user_id, "tmc")
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap();
         assert!(
@@ -1009,13 +970,113 @@ mod test {
         .await
         .unwrap();
         let course_instances =
-            get_enrolled_course_instances_for_user_with_exercise_type(tx.as_mut(), user_id, "tmc")
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap();
         assert_eq!(
             course_instances.len(),
             1,
             "user should be enrolled on one course with tmc exercises"
+        );
+
+        // A type list the course has no task for must not match, and neither must an empty list.
+        let others = ["quizzes".to_string(), "example-exercise".to_string()];
+        assert!(
+            get_enrolled_course_instances_for_user_with_exercise_types(
+                tx.as_mut(),
+                user_id,
+                &others
+            )
+            .await
+            .unwrap()
+            .is_empty()
+        );
+        assert!(
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &[])
+                .await
+                .unwrap()
+                .is_empty()
+        );
+
+        // Any list containing a type the course does have matches.
+        let mixed = ["quizzes".to_string(), "tmc".to_string()];
+        assert_eq!(
+            get_enrolled_course_instances_for_user_with_exercise_types(
+                tx.as_mut(),
+                user_id,
+                &mixed
+            )
+            .await
+            .unwrap()
+            .len(),
+            1
+        );
+        tx.rollback().await;
+    }
+
+    /// A soft-deleted organization takes its courses out of every listing, or the client API keeps
+    /// offering courses of an organization the main frontend has already stopped showing.
+    #[tokio::test]
+    async fn skips_courses_of_a_deleted_organization() {
+        insert_data!(:tx, user:user_id, org:org_id, course:course_id, :instance, course_module:_course_module_id, chapter:_chapter, page:_page, :exercise, slide:exercise_slide_id);
+        crate::exercise_tasks::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            NewExerciseTask {
+                assignment: Vec::new(),
+                exercise_slide_id,
+                exercise_type: "tmc".to_string(),
+                model_solution_spec: None,
+                private_spec: None,
+                public_spec: None,
+                order_number: 1,
+            },
+        )
+        .await
+        .unwrap();
+        crate::course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                user_id,
+                course_instance_id: instance.id,
+            },
+        )
+        .await
+        .unwrap();
+
+        let tmc = ["tmc".to_string()];
+        assert_eq!(
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(
+            get_enrolled_course_instances_for_user(tx.as_mut(), user_id)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+
+        crate::organizations::soft_delete(tx.as_mut(), org_id)
+            .await
+            .unwrap();
+
+        assert!(
+            get_enrolled_course_instances_for_user_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap()
+                .is_empty(),
+            "a deleted organization's courses must not be listed"
+        );
+        assert!(
+            get_enrolled_course_instances_for_user(tx.as_mut(), user_id)
+                .await
+                .unwrap()
+                .is_empty()
         );
         tx.rollback().await;
     }

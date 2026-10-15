@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct TeacherGradingDecision {
     pub id: Uuid,
     pub user_exercise_state_id: Uuid,
+    pub user_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -16,8 +18,7 @@ pub struct TeacherGradingDecision {
     pub hidden: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
 pub enum TeacherDecisionType {
     FullPoints,
@@ -25,10 +26,13 @@ pub enum TeacherDecisionType {
     CustomPoints,
     SuspectedPlagiarism,
     RejectAndReset,
+    UnauthorizedAiUse,
+    BadAnswer,
+    Other,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewTeacherGradingDecision {
     pub user_exercise_state_id: Uuid,
     pub exercise_id: Uuid,
@@ -36,6 +40,10 @@ pub struct NewTeacherGradingDecision {
     pub manual_points: Option<f32>,
     pub justification: Option<String>,
     pub hidden: bool,
+    /// Resets the student's progress on the exercise so they can answer it again. Independent of
+    /// `action`, so a decision can record why the answer was rejected and still reopen it.
+    /// Requires the exercise to belong to a course.
+    pub reset_exercise: bool,
 }
 
 pub async fn add_teacher_grading_decision(
@@ -59,17 +67,60 @@ INSERT INTO teacher_grading_decisions (
     hidden
   )
 VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
+      "#,
+        user_exercise_state_id,
+        action as TeacherDecisionType,
+        score_given,
+        decision_maker_user_id,
+        justification,
+        hidden
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn upsert_by_state_id_and_exercise_id(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    exercise_id: Uuid,
+    action: TeacherDecisionType,
+    score_given: f32,
+    decision_maker_user_id: Option<Uuid>,
+    justification: Option<String>,
+    hidden: bool,
+) -> ModelResult<TeacherGradingDecision> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+INSERT INTO teacher_grading_decisions (
+    user_exercise_state_id,
+    teacher_decision,
+    score_given,
+    user_id,
+    justification,
+    hidden
+)
+SELECT ues.id, $3, $4, $5, $6, $7
+FROM user_exercise_states ues
+WHERE ues.id = $1
+  AND ues.exercise_id = $2
+  AND ues.deleted_at IS NULL
 RETURNING id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden;
       "#,
         user_exercise_state_id,
+        exercise_id,
         action as TeacherDecisionType,
         score_given,
         decision_maker_user_id,
@@ -88,15 +139,7 @@ pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id(
     let res = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-SELECT id,
-  user_exercise_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  teacher_decision AS "teacher_decision: _",
-  justification,
-  hidden
+SELECT *
 FROM teacher_grading_decisions
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
@@ -104,6 +147,63 @@ ORDER BY created_at DESC
 LIMIT 1
       "#,
         user_exercise_state_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The student's latest grading decision that still describes where they stand.
+///
+/// Unlike [`try_to_get_latest_grading_decision_by_user_exercise_state_id`], this looks the decision
+/// up by student and exercise, so it survives a reset replacing the user_exercise_state it was made
+/// against. A decision stops applying once the student answers again, or once anyone resets the
+/// exercise after it -- a later reset means the decision no longer describes the student's
+/// situation, while a reset made just before it is the one the decision itself ordered.
+pub async fn try_to_get_latest_grading_decision_still_addressed_to_student(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<TeacherGradingDecision>> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+SELECT tgd.id,
+  tgd.user_exercise_state_id,
+  tgd.user_id,
+  tgd.created_at,
+  tgd.updated_at,
+  tgd.deleted_at,
+  tgd.score_given,
+  tgd.teacher_decision AS "teacher_decision: _",
+  tgd.justification,
+  tgd.hidden
+FROM teacher_grading_decisions tgd
+  JOIN user_exercise_states ues ON ues.id = tgd.user_exercise_state_id
+WHERE ues.user_id = $1
+  AND ues.exercise_id = $2
+  AND tgd.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_slide_submissions ess
+    WHERE ess.user_id = $1
+      AND ess.exercise_id = $2
+      AND ess.deleted_at IS NULL
+      AND ess.created_at > tgd.created_at
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_reset_logs erl
+    WHERE erl.reset_for = $1
+      AND erl.exercise_id = $2
+      AND erl.deleted_at IS NULL
+      AND erl.reset_at > tgd.created_at
+  )
+ORDER BY tgd.created_at DESC
+LIMIT 1
+      "#,
+        user_id,
+        exercise_id,
     )
     .fetch_optional(conn)
     .await?;
@@ -119,11 +219,12 @@ pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id_for_us
         r#"
 SELECT DISTINCT ON (user_exercise_state_id) id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -156,11 +257,12 @@ pub async fn get_all_latest_grading_decisions_by_user_id_and_course_id(
 SELECT DISTINCT ON (user_exercise_state_id)
   id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -193,11 +295,12 @@ pub async fn get_all_latest_grading_decisions_by_user_id_and_exam_id(
 SELECT DISTINCT ON (user_exercise_state_id)
   id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -230,15 +333,7 @@ pub async fn update_teacher_grading_decision_hidden_field(
         UPDATE teacher_grading_decisions
         SET hidden = $1
         WHERE id = $2
-        RETURNING id,
-          user_exercise_state_id,
-          created_at,
-          updated_at,
-          deleted_at,
-          score_given,
-          teacher_decision AS "teacher_decision: _",
-          justification,
-          hidden;
+        RETURNING *;
               "#,
         hidden,
         teacher_grading_decision_id
@@ -255,15 +350,7 @@ pub async fn get_by_ids(
     let res = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-SELECT id,
-  user_exercise_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  teacher_decision AS "teacher_decision: _",
-  justification,
-  hidden
+SELECT *
 FROM teacher_grading_decisions
 WHERE id = ANY($1)
   AND deleted_at IS NULL

@@ -1,15 +1,31 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct Term {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub term: String,
     pub definition: String,
+    pub course_id: Uuid,
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct GlossaryTerm {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub term: String,
+    pub definition: String,
+    pub course_id: Uuid,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct TermUpdate {
     pub term: String,
     pub definition: String,
@@ -25,7 +41,7 @@ pub async fn insert(
         "
 INSERT INTO glossary (term, definition, course_id)
 SELECT $1, $2, $3
-RETURNING id
+RETURNING *
 ",
         term,
         definition,
@@ -58,6 +74,50 @@ WHERE id = $3
     Ok(())
 }
 
+pub async fn get_term_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<GlossaryTerm> {
+    let res = sqlx::query_as!(
+        GlossaryTerm,
+        "
+SELECT *
+FROM glossary
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_term_by_id_and_course_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    course_id: Uuid,
+    term: &str,
+    definition: &str,
+) -> ModelResult<GlossaryTerm> {
+    let res = sqlx::query_as!(
+        GlossaryTerm,
+        "
+UPDATE glossary
+SET term = $1,
+  definition = $2
+WHERE id = $3
+  AND course_id = $4
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        term,
+        definition,
+        id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -73,13 +133,34 @@ AND deleted_at IS NULL
     Ok(())
 }
 
+pub async fn delete_term_by_id_and_course_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<GlossaryTerm> {
+    let res = sqlx::query_as!(
+        GlossaryTerm,
+        "
+UPDATE glossary
+SET deleted_at = now()
+WHERE id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn fetch_for_course(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<Vec<Term>> {
     let res = sqlx::query_as!(
         Term,
         "
-SELECT glossary.id,
-  glossary.term,
-  glossary.definition
+SELECT *
 FROM glossary
 WHERE glossary.course_id = $1
 AND deleted_at IS NULL

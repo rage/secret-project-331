@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_embeddings (\n    course_id,\n    title_embedding,\n    description_embedding\n)\nVALUES ($1, $2, $3)\nON CONFLICT (course_id) WHERE deleted_at IS NULL\nDO UPDATE SET\n    title_embedding = COALESCE(\n        $2,\n        course_embeddings.title_embedding\n    ),\n    description_embedding = COALESCE(\n        $3,\n        course_embeddings.description_embedding\n    )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        },
+        {
+          "Custom": {
+            "name": "vector",
+            "kind": "Simple"
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "72505e3866ec9b0b0d8cdfdf8027fe4d204a01c54234da41fc2ad1fd27723c1d"
+}

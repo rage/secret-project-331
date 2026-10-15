@@ -1,5 +1,6 @@
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy, SpecFetcher, course_exams,
     exams::{self, NewExam},
@@ -7,6 +8,7 @@ use headless_lms_models::{
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
     exercise_task_submissions,
     exercises::{self, GradingProgress},
+    library::grading::SubmittedAnswer,
     page_history::HistoryChangeReason,
     pages::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
@@ -19,6 +21,7 @@ use headless_lms_models::{
 use headless_lms_utils::{
     attributes,
     document_schema_processor::{GutenbergBlock, validate_unique_client_ids},
+    file_store::FileStore,
 };
 use once_cell::sync::OnceCell;
 use serde_json::Value;
@@ -74,6 +77,7 @@ pub async fn create_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: page_data.hidden,
     };
     let page = pages::insert_page(
         conn,
@@ -96,6 +100,7 @@ pub async fn create_page(
                 url_path: page_data.url_path,
                 title: page_data.title,
                 chapter_id,
+                hidden: page_data.hidden,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -130,6 +135,35 @@ pub fn chatbot_block(block: Uuid, chatbot_conf_id: Uuid, course_id: Uuid) -> Gut
             "chatbotConfigurationId": chatbot_conf_id,
             "courseId": course_id,
         },
+        inner_blocks: vec![],
+    }
+}
+
+/// A `moocfi/chart`. `spec` is the Vega-Lite JSON specification as a string; data is
+/// referenced by URL from within the spec (see the chart block editor).
+/// `data_file_url` is the uploaded file the spec reads from, or `None` for a chart without one.
+pub fn chart_block(
+    block: Uuid,
+    spec: &str,
+    caption: &str,
+    height: i32,
+    height_is_auto: bool,
+    data_file_url: Option<&str>,
+) -> GutenbergBlock {
+    let mut attributes = attributes! {
+        "spec": spec,
+        "caption": caption,
+        "height": height,
+        "heightIsAuto": height_is_auto,
+    };
+    if let Some(url) = data_file_url {
+        attributes.insert("dataFileUrl".into(), serde_json::json!(url));
+    }
+    GutenbergBlock {
+        client_id: block,
+        name: "moocfi/chart".to_string(),
+        is_valid: true,
+        attributes,
         inner_blocks: vec![],
     }
 }
@@ -316,6 +350,7 @@ pub fn example_exercise_flexible(
                     exercise_type,
                     private_spec: Some(spec),
                     order_number,
+                    private_spec_files: vec![],
                 }
             },
         )
@@ -396,6 +431,7 @@ pub fn quizzes_exercise(
         exercise_type: "quizzes".to_string(),
         private_spec: Some(serde_json::json!(private_spec)),
         order_number: 0,
+        private_spec_files: vec![],
     };
     (block, exercise, exercise_slide, exercise_task)
 }
@@ -455,6 +491,7 @@ pub fn tmc_exercise(
         exercise_type: "tmc".to_string(),
         private_spec: Some(serde_json::json!(private_spec)),
         order_number: 0,
+        private_spec_files: vec![],
     };
     (block, exercise, exercise_slide, exercise_task)
 }
@@ -471,6 +508,8 @@ pub async fn submit_and_grade(
     course_instance_id: Uuid,
     spec: String,
     out_of_100: f32,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<()> {
     // combine the id with the user id to ensure it's unique
     let id: Vec<u8> = [id, &user_id.as_bytes()[..]].concat();
@@ -522,12 +561,16 @@ pub async fn submit_and_grade(
             exercise_slide_id,
             user_id,
             course_instance_id,
-            data_json: Value::String(spec),
+            answer: SubmittedAnswer::Json {
+                data: Value::String(spec),
+            },
         },
     )
     .await?;
 
-    let task_submission = exercise_task_submissions::get_by_id(conn, task_submission_id).await?;
+    let task_submission =
+        exercise_task_submissions::get_by_id(conn, task_submission_id, file_store, app_conf)
+            .await?;
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let grading = exercise_task_gradings::new_grading(conn, &exercise, &task_submission).await?;
     let grading_result = ExerciseTaskGradingResult {
@@ -642,6 +685,7 @@ pub async fn create_exam(
             chapter_id: None,
             front_page_of_chapter_id: None,
             content_search_language: None,
+            hidden: false,
         },
         teacher,
         get_seed_spec_fetcher(),

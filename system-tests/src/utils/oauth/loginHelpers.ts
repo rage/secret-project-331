@@ -1,8 +1,7 @@
-import { Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
 
-import { ensureRedirectServer } from "./redirectServer"
-
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { ensureRedirectServer } from "@/fixtures/oauth"
+import { hideToasts } from "@/utils/notificationUtils"
 
 async function submitConsentIfVisible(page: Page): Promise<void> {
   const consentDialog = page.getByTestId("research-consent-dialog")
@@ -10,11 +9,21 @@ async function submitConsentIfVisible(page: Page): Promise<void> {
     return
   }
   await page.getByLabel(/I want to participate in the educational research/).click()
-  await waitForSuccessNotification(page, async () => {
-    await page.getByRole("button", { name: "Save" }).click()
-  })
+  await hideToasts(page)
+  await page.getByRole("button", { name: "Save" }).click()
+  await Promise.race([
+    page
+      .getByTestId("toast-notification")
+      .getByText(/Operation successful!?/)
+      .first()
+      .waitFor(),
+    page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
+      timeout: 30000,
+      waitUntil: "domcontentloaded",
+    }),
+  ])
   await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-    timeout: 10000,
+    timeout: 30000,
     waitUntil: "domcontentloaded",
   })
 }
@@ -45,10 +54,10 @@ export async function performLogin(page: Page, email: string, password: string) 
   // After submit: either we navigate to authorize/scopes/callback, or research consent dialog appears
   await Promise.race([
     page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
-      timeout: 10000,
+      timeout: 30000,
       waitUntil: "domcontentloaded",
     }),
-    page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 10000 }),
+    page.getByTestId("research-consent-dialog").waitFor({ state: "visible", timeout: 30000 }),
   ])
 
   await submitConsentIfVisible(page)

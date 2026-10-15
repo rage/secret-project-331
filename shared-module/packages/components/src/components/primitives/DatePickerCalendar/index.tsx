@@ -6,46 +6,25 @@ import { useCalendarState } from "@react-stately/calendar"
 import React from "react"
 import { useCalendar, useDateFormatter, useDialog, useLocale } from "react-aria"
 
+import { includeIf, omitUndefined } from "../../../lib/utils/nullability"
+import { YearMonthPicker } from "../YearMonthPicker"
 import { CalendarGrid } from "./CalendarGrid"
 import { CalendarNavButton } from "./CalendarNavButton"
-import { ChevronIcon } from "./ChevronIcon"
-import { ChooserGridSection } from "./ChooserGridSection"
-import { HybridTimeSelector } from "./HybridTimeSelector"
 import {
-  backToCalendarLabel,
-  chooseMonthYearLabel,
-  clearLabel,
   leftDirection,
   longDateTimePart,
-  monthIdPrefix,
-  nextMonthLabel,
-  nextWeekLabel,
-  nextYearsLabel,
-  nowLabel,
   numericDateTimePart,
   pickerViewCalendar,
   pickerViewMonth,
   pickerViewYear,
-  pickMonthTitle,
-  pickYearTitle,
-  previousMonthLabel,
-  previousYearsLabel,
   rightDirection,
-  todayLabel,
-  tomorrowLabel,
-  yearColumnLabel,
-  yearIdPrefix,
 } from "./datePickerCalendarConstants"
+import { useDatePickerCalendarLabels } from "./datePickerCalendarLabels"
 import {
   calendarHeaderCenterCss,
   calendarHeaderCss,
-  calendarNavButtonCss,
   calendarPanelCss,
-  chooserPagerCss,
-  chooserPanelCss,
-  chooserTitleCss,
   dialogCss,
-  inlinePickerHeaderCss,
   monthYearLinkCss,
   monthYearSeparatorCss,
   pickerLayoutCss,
@@ -54,8 +33,8 @@ import {
   quickActionChipCss,
   quickActionsCss,
 } from "./datePickerCalendarStyles"
-import { getYearPageStart } from "./datePickerCalendarTimeUtils"
 import type { CalendarPickerView, DatePickerCalendarProps } from "./datePickerCalendarTypes"
+import { HybridTimeSelector } from "./HybridTimeSelector"
 
 export type { DatePickerCalendarProps } from "./datePickerCalendarTypes"
 
@@ -74,16 +53,13 @@ export function DatePickerCalendar({
   const ref = React.useRef<HTMLDivElement>(null)
   const { dialogProps: resolvedDialogProps } = useDialog(dialogProps, ref)
   const { locale } = useLocale()
+  const labels = useDatePickerCalendarLabels()
   const [pickerView, setPickerView] = React.useState<CalendarPickerView>(pickerViewCalendar)
   const state = useCalendarState({
     ...calendarProps,
     createCalendar,
     locale,
   })
-  const [draftYear, setDraftYear] = React.useState(state.visibleRange.start.year)
-  const [yearPageStart, setYearPageStart] = React.useState(
-    getYearPageStart(state.visibleRange.start.year),
-  )
   const { calendarProps: calendarAriaProps } = useCalendar(calendarProps, state)
   const monthFormatter = useDateFormatter({
     calendar: state.visibleRange.start.calendar.identifier,
@@ -95,58 +71,10 @@ export function DatePickerCalendar({
     timeZone: state.timeZone,
     year: numericDateTimePart,
   })
-  const monthOptions = Array.from(
-    { length: state.visibleRange.start.calendar.getMonthsInYear(state.visibleRange.start) },
-    (_, index) => {
-      const value = index + 1
-      const date = state.visibleRange.start.set({ day: 1, month: value, year: draftYear })
-
-      return {
-        label: monthFormatter.format(date.toDate(state.timeZone)),
-        value,
-      }
-    },
-  )
   const isInteractive = !(calendarProps.isDisabled || calendarProps.isReadOnly)
   const visibleMonthLabel = monthFormatter.format(state.visibleRange.start.toDate(state.timeZone))
   const visibleYearLabel = yearFormatter.format(state.visibleRange.start.toDate(state.timeZone))
-  const chooserYears = Array.from({ length: 12 }, (_, index) => yearPageStart + index)
-  const yearGridOptions = chooserYears.map((year) => ({
-    id: `${yearIdPrefix}${year}`,
-    isSelected: year === state.visibleRange.start.year,
-    label: String(year),
-    onSelect: () => {
-      const nextDate = state.focusedDate.set({ year })
-      state.setFocusedDate(nextDate)
-      setDraftYear(year)
-      setYearPageStart(getYearPageStart(year))
-      setPickerView(pickerViewCalendar)
-    },
-  }))
-  const monthGridOptions = monthOptions.map((option) => ({
-    id: `${monthIdPrefix}${option.value}`,
-    isSelected: option.value === state.visibleRange.start.month,
-    label: option.label,
-    onSelect: () => {
-      const nextDate = state.focusedDate.set({
-        day: 1,
-        month: option.value,
-        year: draftYear,
-      })
-      state.setFocusedDate(nextDate)
-      setPickerView(pickerViewCalendar)
-    },
-  }))
-
-  const openMonthPicker = () => {
-    setDraftYear(state.visibleRange.start.year)
-    setPickerView(pickerViewMonth)
-  }
-
   const openYearPicker = () => {
-    const year = state.visibleRange.start.year
-    setDraftYear(year)
-    setYearPageStart(getYearPageStart(year))
     setPickerView(pickerViewYear)
   }
 
@@ -168,16 +96,16 @@ export function DatePickerCalendar({
                 <CalendarNavButton
                   direction={leftDirection}
                   isDisabled={state.isPreviousVisibleRangeInvalid()}
-                  label={previousMonthLabel}
+                  label={labels.previousMonth}
                   onPress={() => state.focusPreviousPage()}
                 />
                 <div className={calendarHeaderCenterCss}>
                   <button
-                    aria-label={`${chooseMonthYearLabel}: ${visibleMonthLabel}`}
+                    aria-label={labels.chooseMonthAndYear(visibleMonthLabel)}
                     className={monthYearLinkCss}
                     disabled={!isInteractive}
                     type="button"
-                    onClick={openMonthPicker}
+                    onClick={() => setPickerView(pickerViewMonth)}
                   >
                     {visibleMonthLabel}
                   </button>
@@ -185,7 +113,7 @@ export function DatePickerCalendar({
                     {" "}
                   </span>
                   <button
-                    aria-label={`${chooseMonthYearLabel}: ${visibleYearLabel}`}
+                    aria-label={labels.chooseMonthAndYear(visibleYearLabel)}
                     className={monthYearLinkCss}
                     disabled={!isInteractive}
                     type="button"
@@ -197,7 +125,7 @@ export function DatePickerCalendar({
                 <CalendarNavButton
                   direction={rightDirection}
                   isDisabled={state.isNextVisibleRangeInvalid()}
-                  label={nextMonthLabel}
+                  label={labels.nextMonth}
                   onPress={() => state.focusNextPage()}
                 />
               </div>
@@ -211,7 +139,7 @@ export function DatePickerCalendar({
                   type="button"
                   onClick={onClear}
                 >
-                  {clearLabel}
+                  {labels.clear}
                 </button>
                 {timeSelectorProps ? (
                   <button
@@ -220,7 +148,7 @@ export function DatePickerCalendar({
                     type="button"
                     onClick={() => onSelectNow?.()}
                   >
-                    {nowLabel}
+                    {labels.now}
                   </button>
                 ) : (
                   <button
@@ -236,7 +164,7 @@ export function DatePickerCalendar({
                       onSelectToday(todayDate)
                     }}
                   >
-                    {todayLabel}
+                    {labels.today}
                   </button>
                 )}
                 {onSelectTomorrow ? (
@@ -254,7 +182,7 @@ export function DatePickerCalendar({
                       onSelectTomorrow(next)
                     }}
                   >
-                    {tomorrowLabel}
+                    {labels.tomorrow}
                   </button>
                 ) : null}
                 {onSelectNextWeek ? (
@@ -272,7 +200,7 @@ export function DatePickerCalendar({
                       onSelectNextWeek(next)
                     }}
                   >
-                    {nextWeekLabel}
+                    {labels.nextWeek}
                   </button>
                 ) : null}
               </div>
@@ -284,59 +212,30 @@ export function DatePickerCalendar({
           </>
         ) : null}
 
-        {pickerView === pickerViewMonth ? (
-          <div className={chooserPanelCss}>
-            <div className={inlinePickerHeaderCss}>
-              <button
-                aria-label={backToCalendarLabel}
-                className={calendarNavButtonCss}
-                disabled={!isInteractive}
-                type="button"
-                onClick={() => setPickerView(pickerViewCalendar)}
-              >
-                <ChevronIcon direction={leftDirection} />
-              </button>
-              <div className={chooserTitleCss}>{pickMonthTitle}</div>
-              <span aria-hidden="true" />
-            </div>
-            <ChooserGridSection isDisabled={!isInteractive} options={monthGridOptions} />
-          </div>
-        ) : null}
-
-        {pickerView === pickerViewYear ? (
-          <div className={chooserPanelCss}>
-            <div className={inlinePickerHeaderCss}>
-              <button
-                aria-label={backToCalendarLabel}
-                className={calendarNavButtonCss}
-                disabled={!isInteractive}
-                type="button"
-                onClick={() => setPickerView(pickerViewCalendar)}
-              >
-                <ChevronIcon direction={leftDirection} />
-              </button>
-              <div className={chooserTitleCss}>{pickYearTitle}</div>
-              <div className={chooserPagerCss}>
-                <CalendarNavButton
-                  direction={leftDirection}
-                  isDisabled={!isInteractive}
-                  label={previousYearsLabel}
-                  onPress={() => setYearPageStart((current) => Math.max(1, current - 12))}
-                />
-                <CalendarNavButton
-                  direction={rightDirection}
-                  isDisabled={!isInteractive}
-                  label={nextYearsLabel}
-                  onPress={() => setYearPageStart((current) => current + 12)}
-                />
-              </div>
-            </div>
-            <ChooserGridSection
-              isDisabled={!isInteractive}
-              label={yearColumnLabel}
-              options={yearGridOptions}
-            />
-          </div>
+        {pickerView !== pickerViewCalendar ? (
+          <YearMonthPicker
+            // oxlint-disable-next-line i18next/no-literal-string
+            initialView={pickerView === pickerViewYear ? "year" : "month"}
+            selectedYear={state.visibleRange.start.year}
+            selectedMonth={state.visibleRange.start.month}
+            {...includeIf(calendarProps.minValue, {
+              minYear: calendarProps.minValue?.year,
+              minMonth: calendarProps.minValue?.month,
+            })}
+            {...includeIf(calendarProps.maxValue, {
+              maxYear: calendarProps.maxValue?.year,
+              maxMonth: calendarProps.maxValue?.month,
+            })}
+            {...omitUndefined({ isDisabled: calendarProps.isDisabled })}
+            {...omitUndefined({ isReadOnly: calendarProps.isReadOnly })}
+            locale={locale}
+            onSelect={(year, month) => {
+              const nextDate = state.focusedDate.set({ year, month, day: 1 })
+              state.setFocusedDate(nextDate)
+              setPickerView(pickerViewCalendar)
+            }}
+            onCancel={() => setPickerView(pickerViewCalendar)}
+          />
         ) : null}
       </div>
     </div>

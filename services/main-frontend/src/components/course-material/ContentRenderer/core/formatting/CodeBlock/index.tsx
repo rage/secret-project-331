@@ -5,17 +5,17 @@ import { useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../../.."
+import type { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+import type { BlockRendererProps } from "../../.."
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
+import { getPreStyles } from "./styles"
 import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
-
-import { CodeAttributes } from "@/../types/GutenbergBlockAttributes"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { monospaceFont } from "@/shared-module/common/styles"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
 
@@ -23,21 +23,6 @@ const containerStyles = css`
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
-`
-
-const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
-  margin-top: 0;
-  font-size: ${fontSizePx}px;
-  font-family: ${monospaceFont} !important;
-  line-height: 1.75rem;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  padding: 16px;
-  ${allowFullWidth &&
-  `
-    margin-top: -1.5rem;
-    margin-bottom: -1.5rem;
-  `}
 `
 
 /**
@@ -52,7 +37,8 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   dontAllowBlockToBeWiderThanContainerWidth,
 }) => {
   const { t } = useTranslation()
-  const { content } = data.attributes
+  // `language` is added to core/code by a CMS block filter and isn't part of the generated CodeAttributes type.
+  const { content, language } = data.attributes as CodeAttributes & { language?: string }
 
   const processedContent = useMemo(() => replaceBrTagsWithNewlines(content ?? undefined), [content])
 
@@ -87,7 +73,11 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
         <pre
           className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
         >
-          <SyntaxHighlightedContainer content={cleanCode} highlightedLines={highlightedLines} />
+          <SyntaxHighlightedContainer
+            content={cleanCode}
+            highlightedLines={highlightedLines}
+            {...omitUndefined({ language })}
+          />
         </pre>
       </div>
     </BreakFromCentered>

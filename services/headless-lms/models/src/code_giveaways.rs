@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CodeGiveaway {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,8 +15,8 @@ pub struct CodeGiveaway {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewCodeGiveaway {
     pub course_id: Uuid,
     pub name: String,
@@ -23,14 +24,18 @@ pub struct NewCodeGiveaway {
     pub require_course_specific_consent_form_question_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 #[serde(tag = "tag")]
 pub enum CodeGiveawayStatus {
     Disabled,
     NotEligible,
-    Eligible { codes_left: bool },
-    AlreadyGottenCode { given_code: String },
+    Eligible {
+        codes_left: bool,
+    },
+    AlreadyGottenCode {
+        #[schema(value_type = String)]
+        given_code: OutboundSecret,
+    },
 }
 
 pub async fn insert(conn: &mut PgConnection, input: &NewCodeGiveaway) -> ModelResult<CodeGiveaway> {

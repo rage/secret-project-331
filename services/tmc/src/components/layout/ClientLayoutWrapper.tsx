@@ -1,14 +1,12 @@
-"use client"
-
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import React, { useEffect } from "react"
 
-import useLanguage from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
-import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import initI18n from "@/shared-module/common/utils/initI18n"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import GlobalStyles from "@/shared-module/exercise-react/react/components/GlobalStyles"
+import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
+import useLanguage from "@/shared-module/exercise-react/react/hooks/useLanguage"
 
 const SERVICE_NAME = "tmc"
 
@@ -25,7 +23,7 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector("#jss-server-side")
     if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles)
+      jssStyles.remove()
     }
   }, [])
 

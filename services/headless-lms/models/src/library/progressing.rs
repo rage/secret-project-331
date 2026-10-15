@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use utoipa::ToSchema;
 
 use crate::{
     course_exams,
@@ -11,10 +12,11 @@ use crate::{
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
-    courses, exams, open_university_registration_links,
+    courses, exams,
+    library::credit_registration::StudentFacingCreditRegistrationStatus,
+    open_university_registration_links,
     prelude::*,
-    suspected_cheaters::{self, Threshold},
-    user_course_settings,
+    suspected_cheaters, user_course_settings,
     user_details::UserDetail,
     user_exercise_states,
     users::{self, User},
@@ -45,18 +47,29 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         )
         .await?;
 
-        if let Some(thresholds) =
-            suspected_cheaters::get_thresholds_by_module_id(&mut tx, completion.course_module_id)
-                .await?
-        {
-            check_and_insert_suspected_cheaters(
+        if course.cheater_detection_enabled {
+            // Detection is on by default. When the course has no explicit threshold configured,
+            // fall back to the default (3 hours).
+            let threshold_seconds = suspected_cheaters::get_thresholds_by_module_id(
                 &mut tx,
-                user_id,
-                course.id,
-                &thresholds,
-                completion,
+                completion.course_module_id,
             )
-            .await?;
+            .await?
+            .map(|t| t.duration_seconds)
+            .unwrap_or(suspected_cheaters::DEFAULT_CHEATER_THRESHOLD_SECONDS);
+            // A threshold of 0 (or less) is the documented per-module off-switch for the duration
+            // check. Only an explicitly configured 0 disables it -- the default fallback above is
+            // always positive.
+            if threshold_seconds > 0 {
+                check_and_insert_suspected_cheaters(
+                    &mut tx,
+                    user_id,
+                    course.id,
+                    threshold_seconds,
+                    completion,
+                )
+                .await?;
+            }
         }
     }
     tx.commit().await?;
@@ -67,9 +80,17 @@ pub async fn check_and_insert_suspected_cheaters(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
-    thresholds: &Threshold,
+    threshold_seconds: i32,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
+    // A teacher-granted (manual) completion means the teacher has vouched for the student, so they
+    // are not subject to automatic cheating suspicion for this course.
+    if course_module_completions::user_has_manual_completion_in_course(conn, user_id, course_id)
+        .await?
+    {
+        return Ok(());
+    }
+
     let total_points = user_exercise_states::get_user_total_course_points(conn, user_id, course_id)
         .await?
         .unwrap_or(0.0);
@@ -104,17 +125,21 @@ pub async fn check_and_insert_suspected_cheaters(
         }
     };
 
-    if (student_duration_seconds as i32) < thresholds.duration_seconds {
-        suspected_cheaters::insert(
+    if (student_duration_seconds as i32) < threshold_seconds {
+        let suspicion_is_active = suspected_cheaters::insert(
             conn,
             completion.user_id,
             course_id,
+            completion.course_module_id,
             Some(student_duration_seconds as i32),
             total_points as i32,
         )
         .await?;
 
-        course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true).await?;
+        if suspicion_is_active {
+            course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true)
+                .await?;
+        }
     }
 
     Ok(())
@@ -195,6 +220,21 @@ async fn user_is_eligible_for_automatic_completion(
             )
             .await?;
             if eligible {
+                // Do not grant an automatic completion while the user still has answers in this
+                // module waiting for manual grading; a teacher must review them first.
+                if user_exercise_states::has_pending_manual_reviews_in_module(
+                    conn,
+                    user_id,
+                    course_module.course_id,
+                    requirements.course_module_id,
+                )
+                .await?
+                {
+                    info!(
+                        "The user has answers pending manual review in this module; not granting an automatic completion yet."
+                    );
+                    return Ok(false);
+                }
                 if requirements.requires_exam {
                     info!("To complete this module automatically, the user must pass an exam.");
                     user_has_passed_exam_for_the_course_based_on_points(
@@ -263,7 +303,7 @@ pub async fn user_can_take_exam(
 
 /// Returns true if there is at least one exam associated with the course, that has ended and the
 /// user has received enough points from it.
-async fn user_has_passed_exam_for_the_course_based_on_points(
+pub async fn user_has_passed_exam_for_the_course_based_on_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -405,15 +445,15 @@ pub async fn process_all_course_completions(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseInstanceCompletionSummary {
     pub course_modules: Vec<CourseModule>,
     pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserWithModuleCompletions {
     pub completed_modules: Vec<CourseModuleCompletionWithRegistrationInfo>,
     pub email: String,
@@ -423,7 +463,7 @@ pub struct UserWithModuleCompletions {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserCourseModuleCompletion {
     pub course_module_id: Uuid,
     pub grade: Option<i32>,
@@ -499,16 +539,16 @@ pub async fn get_course_instance_completion_summary(
     })
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct TeacherManualCompletionRequest {
     pub course_module_id: Uuid,
     pub new_completions: Vec<TeacherManualCompletion>,
     pub skip_duplicate_completions: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct TeacherManualCompletion {
     pub user_id: Uuid,
     pub grade: Option<i32>,
@@ -608,21 +648,40 @@ pub async fn add_manual_completions(
             )
             .await?;
         }
+
+        // Adding a manual completion vouches for the student, so any cheating suspicion for this
+        // course (flagged or confirmed) is cleared and any grade a confirmation had failed is
+        // restored. This runs regardless of `skip_duplicate_completions` (a teacher vouching for an
+        // already-completed student should still clear the flag) and regardless of the completion's
+        // grade (recording any manual completion defers the decision to the teacher). The existence
+        // check is needed because `dismiss_...` errors when no suspicion row exists.
+        if suspected_cheaters::get_by_user_id_and_course_id(&mut tx, completion.user_id, course.id)
+            .await
+            .optional()?
+            .is_some()
+        {
+            suspected_cheaters::dismiss_by_user_id_and_course_id(
+                &mut tx,
+                completion.user_id,
+                course.id,
+            )
+            .await?;
+        }
     }
     tx.commit().await?;
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ManualCompletionPreview {
     pub already_completed_users: Vec<ManualCompletionPreviewUser>,
     pub first_time_completing_users: Vec<ManualCompletionPreviewUser>,
     pub non_enrolled_users: Vec<ManualCompletionPreviewUser>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ManualCompletionPreviewUser {
     pub user_id: Uuid,
     pub first_name: Option<String>,
@@ -690,15 +749,58 @@ pub async fn get_manual_completion_result_preview(
     })
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
+
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
+    /// The course's own name, never the module's; the module is named by `course_module_name`.
     pub course_name: String,
-    pub uh_course_code: String,
+    /// The module's own name, `None` on a course's default module.
+    pub course_module_name: Option<String>,
+    /// `None` only on a module registering through credit registration.
+    pub uh_course_code: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub enable_credit_registration_via_suotar: bool,
+    /// Whether this completion in particular goes through the push path. Decides which flow the
+    /// page shows: the module flag above only says the module takes part.
+    pub register_credits_via_suotar: bool,
+    /// What the student is told while the completion has no credit registration: `sending` when
+    /// the push path will create one, `not_registering` when it never will.
+    pub status_before_registration: StudentFacingCreditRegistrationStatus,
+    /// `Some` only when the student can generate a certificate for this module right now, which is
+    /// also the id `/generate-certificate` wants.
+    ///
+    /// Read off the same completion as the rest of this object, the one
+    /// [`course_module_completions::select_registration_completion`] picks. The course page's
+    /// congratulations card reads off the best one instead, so a student whose registration
+    /// completion is not their best can see a certificate there and none here.
+    pub certificate_configuration_id: Option<Uuid>,
+    /// Why the student said they need the credits rather than a certificate, if they have been
+    /// asked and answered. Advisory; it seeds the field when they come back to the page.
+    pub credit_justification: Option<String>,
+}
+
+/// The default certificate configuration a completion of this module alone earns.
+///
+/// `configurations` must come from
+/// [`crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course`],
+/// which has already dropped the configurations that require more than one module; a configuration
+/// merely naming this module among several is not one this module satisfies.
+fn default_certificate_configuration_id_for_module(
+    configurations: &[crate::certificate_configurations::CertificateConfigurationAndRequirements],
+    course_module_id: Uuid,
+) -> Option<Uuid> {
+    configurations
+        .iter()
+        .find(|configuration| {
+            configuration
+                .requirements
+                .course_module_ids
+                .contains(&course_module_id)
+        })
+        .map(|configuration| configuration.certificate_configuration.id)
 }
 
 pub async fn get_user_completion_information(
@@ -708,36 +810,88 @@ pub async fn get_user_completion_information(
 ) -> ModelResult<UserCompletionInformation> {
     let user = users::get_by_id(conn, user_id).await?;
     let course = courses::get_course(conn, course_module.course_id).await?;
-    let course_module_completion = course_module_completions::get_latest_by_course_and_user_ids(
-        conn,
-        course_module.id,
-        user.id,
-    )
-    .await?;
-    // Course code is required only so that fetching the link later works.
-    let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
-        ModelError::new(
+    let course_module_completion =
+        course_module_completions::get_registration_completion_by_user_and_course_module_id(
+            conn,
+            user.id,
+            course_module.id,
+        )
+        .await?;
+    let credit_registration_config =
+        course_modules::get_credit_registration_config(conn, course_module.id).await?;
+    // The push path explains a missing course code on its own status page, so failing here would
+    // hide the error instead of showing it.
+    if course_module.uh_course_code.is_none()
+        && !course_module_completion.register_credits_via_suotar
+    {
+        return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
             "Course module is missing uh_course_code.".to_string(),
             None,
+        ));
+    }
+    // A completion still awaiting review is treated as if it were not there, so a flagged student
+    // cannot read their own flag off the certificate the page would otherwise offer them.
+    let certificate_configuration_id = if course_module.certification_enabled
+        && course_module_completion.passed
+        && !course_module_completion.needs_to_be_reviewed
+    {
+        let configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(
+            conn,
+            course_module.course_id,
         )
-    })?;
+        .await?;
+        let configuration_id =
+            default_certificate_configuration_id_for_module(&configurations, course_module.id);
+        if configuration_id.is_none() {
+            debug!(
+                course_module_id = ?course_module.id,
+                "Certification is enabled for the module but no default certificate configuration names it, so the student is offered no certificate."
+            );
+        }
+        configuration_id
+    } else {
+        None
+    };
+    let credit_justification =
+        crate::completion_registration_credit_justifications::get_by_completion_id(
+            conn,
+            course_module_completion.id,
+        )
+        .await?
+        .map(|row| row.justification);
+    let status_before_registration =
+        if course_module_completions::get_credit_registration_expected_ids(
+            conn,
+            &[course_module_completion.id],
+        )
+        .await?
+        .is_empty()
+        {
+            StudentFacingCreditRegistrationStatus::NotRegistering
+        } else {
+            StudentFacingCreditRegistrationStatus::Sending
+        };
     Ok(UserCompletionInformation {
         course_module_completion_id: course_module_completion.id,
-        course_name: course_module
-            .name
-            .clone()
-            .unwrap_or_else(|| course.name.clone()),
-        uh_course_code,
+        course_name: course.name.clone(),
+        course_module_name: course_module.name.clone(),
+        uh_course_code: course_module.uh_course_code.clone(),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
         enable_registering_completion_to_uh_open_university: course_module
             .enable_registering_completion_to_uh_open_university,
+        enable_credit_registration_via_suotar: credit_registration_config
+            .enable_credit_registration_via_suotar,
+        register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
+        status_before_registration,
+        certificate_configuration_id,
+        credit_justification,
     })
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+
 pub struct UserModuleCompletionStatus {
     pub completed: bool,
     pub default: bool,
@@ -748,9 +902,13 @@ pub struct UserModuleCompletionStatus {
     pub grade: Option<i32>,
     pub passed: Option<bool>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub enable_credit_registration_via_suotar: bool,
+    /// Whether the module's registration flow is the push path, decided by
+    /// [`course_module_completions::select_registration_completion`] rather than by the shown
+    /// completion. False when no completion is shown.
+    pub register_credits_via_suotar: bool,
     pub certification_enabled: bool,
     pub certificate_configuration_id: Option<Uuid>,
-    pub needs_to_be_reviewed: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -766,40 +924,53 @@ pub async fn get_user_module_completion_statuses_for_course(
         course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
             .await?;
 
-    let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
+    let completions_by_module: HashMap<Uuid, Vec<CourseModuleCompletion>> =
         course_module_completions_raw
             .into_iter()
-            .sorted_by_key(|c| c.course_module_id)
-            .chunk_by(|c| c.course_module_id)
-            .into_iter()
-            .filter_map(|(module_id, group)| {
-                crate::course_module_completions::select_best_completion(group.collect())
-                    .map(|best| (module_id, best))
-            })
-            .collect();
+            .into_group_map_by(|c| c.course_module_id);
+    // A completion that still needs review (e.g. because the student was auto-flagged as a
+    // suspected cheater) is hidden from the student, as if it did not exist yet, so a flagged
+    // student cannot infer from the API that they are under suspicion.
+    let best_visible_completions: HashMap<Uuid, CourseModuleCompletion> = completions_by_module
+        .iter()
+        .filter_map(|(module_id, completions)| {
+            course_module_completions::select_best_completion(
+                completions.iter().filter(|c| !c.needs_to_be_reviewed),
+            )
+            .map(|best| (*module_id, best.clone()))
+        })
+        .collect();
+    let registers_via_suotar_module_ids: HashSet<Uuid> = completions_by_module
+        .into_iter()
+        .filter_map(|(module_id, completions)| {
+            course_module_completions::select_registration_completion(completions)
+                .filter(|c| c.register_credits_via_suotar)
+                .map(|_| module_id)
+        })
+        .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
+
+    let credit_registration_enabled_module_ids: HashSet<Uuid> =
+        course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
+            .await?
+            .into_iter()
+            .collect();
 
     let course_module_completion_statuses = course_modules
         .into_iter()
         .map(|module| {
-            let mut certificate_configuration_id = None;
-
-            let completion = course_module_completions.get(&module.id);
+            let completion = best_visible_completions.get(&module.id);
             let passed = completion.map(|x| x.passed);
-            if module.certification_enabled && passed == Some(true) {
-                // If passed, show the user the default certificate configuration id so that they can generate their certificate.
-                let default_certificate_configuration = all_default_certificate_configurations
-                    .iter()
-                    .find(|x| x.requirements.course_module_ids.contains(&module.id));
-                if let Some(default_certificate_configuration) = default_certificate_configuration {
-                    certificate_configuration_id = Some(
-                        default_certificate_configuration
-                            .certificate_configuration
-                            .id,
-                    );
-                }
-            }
+            let certificate_configuration_id =
+                if module.certification_enabled && passed == Some(true) {
+                    default_certificate_configuration_id_for_module(
+                        &all_default_certificate_configurations,
+                        module.id,
+                    )
+                } else {
+                    None
+                };
             UserModuleCompletionStatus {
                 completed: completion.is_some(),
                 default: module.is_default_module(),
@@ -812,17 +983,20 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .is_some_and(|x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
+                enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
+                    .contains(&module.id),
+                register_credits_via_suotar: completion.is_some()
+                    && registers_via_suotar_module_ids.contains(&module.id),
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
-                needs_to_be_reviewed: completion.is_some_and(|x| x.needs_to_be_reviewed),
             }
         })
         .collect();
     Ok(course_module_completion_statuses)
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
+
 pub struct CompletionRegistrationLink {
     pub url: String,
 }
@@ -841,22 +1015,35 @@ pub async fn get_completion_registration_link_and_save_attempt(
     }
     let user = users::get_by_id(conn, user_id).await?;
 
-    let course_module_completion = course_module_completions::get_latest_by_course_and_user_ids(
-        conn,
-        course_module.id,
-        user.id,
-    )
-    .await?;
+    let course_module_completion =
+        course_module_completions::get_registration_completion_by_user_and_course_module_id(
+            conn,
+            user.id,
+            course_module.id,
+        )
+        .await?;
+    // Same condition as the registration page's choice of flow.
+    if course_module.enable_credit_registration_via_suotar
+        && course_module_completion.register_credits_via_suotar
+    {
+        return Err(model_err!(
+            InvalidRequest,
+            "This completion is registered through the study registry.".to_string()
+        ));
+    }
     course_module_completions::update_completion_registration_attempt_date(
         conn,
         course_module_completion.id,
         Utc::now(),
     )
     .await?;
-    let registration_link = if let Some(link_override) =
-        course_module.completion_registration_link_override.as_ref()
+    let registration_link = if let Some(link_override) = course_module
+        .completion_registration_link_override
+        .as_deref()
+        .map(str::trim)
+        .filter(|link| !link.is_empty())
     {
-        link_override.clone()
+        link_override.to_owned()
     } else {
         let uh_course_code = course_module.uh_course_code.clone().ok_or_else(|| {
             ModelError::new(
@@ -883,8 +1070,242 @@ mod tests {
 
     use crate::{
         exercises::{ActivityProgress, GradingProgress},
+        suspected_cheaters::SuspectedCheaterStatus,
         test_helper::*,
     };
+
+    mod user_completion_information {
+        use super::*;
+        use crate::{
+            certificate_configuration_to_requirements,
+            certificate_configurations::{self, DatabaseCertificateConfiguration},
+            file_uploads,
+        };
+
+        const UH_COURSE_CODE: &str = "TKT00000";
+
+        /// A module the old registration page can actually be opened for: it needs a course code,
+        /// and the certificate the detour offers needs certification switched on.
+        async fn registrable_module(
+            conn: &mut PgConnection,
+            course_module_id: Uuid,
+            certification_enabled: bool,
+        ) -> CourseModule {
+            course_modules::update_certification_enabled(
+                conn,
+                course_module_id,
+                certification_enabled,
+            )
+            .await
+            .unwrap();
+            course_modules::update_uh_course_code(
+                conn,
+                course_module_id,
+                Some(UH_COURSE_CODE.to_string()),
+            )
+            .await
+            .unwrap()
+        }
+
+        async fn complete(
+            conn: &mut PgConnection,
+            course_id: Uuid,
+            course_module_id: Uuid,
+            user_id: Uuid,
+            passed: bool,
+        ) -> CourseModuleCompletion {
+            course_module_completions::insert(
+                conn,
+                PKeyPolicy::Generate,
+                &NewCourseModuleCompletion {
+                    course_id,
+                    course_module_id,
+                    user_id,
+                    completion_date: Utc::now(),
+                    completion_registration_attempt_date: None,
+                    completion_language: "en-US".to_string(),
+                    eligible_for_ects: true,
+                    email: "student@example.com".to_string(),
+                    grade: None,
+                    passed,
+                },
+                CourseModuleCompletionGranter::Automatic,
+            )
+            .await
+            .unwrap()
+        }
+
+        /// A certificate configuration requiring exactly the given modules. One module makes it a
+        /// default configuration; more than one makes it the kind no single module earns.
+        async fn certificate_configuration_requiring(
+            conn: &mut PgConnection,
+            course_module_ids: &[Uuid],
+        ) -> Uuid {
+            let background_svg_file_upload_id = file_uploads::insert(
+                conn,
+                "background.svg",
+                "certificates/background.svg",
+                "image/svg+xml",
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+            let configuration = certificate_configurations::insert(
+                conn,
+                &DatabaseCertificateConfiguration {
+                    id: Uuid::new_v4(),
+                    certificate_owner_name_y_pos: None,
+                    certificate_owner_name_x_pos: None,
+                    certificate_owner_name_font_size: None,
+                    certificate_owner_name_text_color: None,
+                    certificate_owner_name_text_anchor: None,
+                    certificate_validate_url_y_pos: None,
+                    certificate_validate_url_x_pos: None,
+                    certificate_validate_url_font_size: None,
+                    certificate_validate_url_text_color: None,
+                    certificate_validate_url_text_anchor: None,
+                    certificate_date_y_pos: None,
+                    certificate_date_x_pos: None,
+                    certificate_date_font_size: None,
+                    certificate_date_text_color: None,
+                    certificate_date_text_anchor: None,
+                    certificate_locale: None,
+                    paper_size: None,
+                    background_svg_path: "certificates/background.svg".to_string(),
+                    background_svg_file_upload_id,
+                    overlay_svg_path: None,
+                    overlay_svg_file_upload_id: None,
+                    render_certificate_grade: false,
+                    certificate_grade_y_pos: None,
+                    certificate_grade_x_pos: None,
+                    certificate_grade_font_size: None,
+                    certificate_grade_text_color: None,
+                    certificate_grade_text_anchor: None,
+                },
+            )
+            .await
+            .unwrap();
+            for course_module_id in course_module_ids {
+                certificate_configuration_to_requirements::insert(
+                    conn,
+                    configuration.id,
+                    Some(*course_module_id),
+                )
+                .await
+                .unwrap();
+            }
+            configuration.id
+        }
+
+        #[tokio::test]
+        async fn offers_the_certificate_a_passed_completion_has_earned() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            complete(tx.as_mut(), course, module.id, user, true).await;
+            let configuration_id =
+                certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
+
+            let information = get_user_completion_information(tx.as_mut(), user, &module)
+                .await
+                .unwrap();
+
+            assert_eq!(
+                information.certificate_configuration_id,
+                Some(configuration_id)
+            );
+        }
+
+        #[tokio::test]
+        async fn offers_no_certificate_when_the_module_has_certification_off() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let module = registrable_module(tx.as_mut(), course_module.id, false).await;
+            complete(tx.as_mut(), course, module.id, user, true).await;
+            certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
+
+            let information = get_user_completion_information(tx.as_mut(), user, &module)
+                .await
+                .unwrap();
+
+            assert_eq!(information.certificate_configuration_id, None);
+        }
+
+        #[tokio::test]
+        async fn offers_no_certificate_for_a_failed_completion() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            complete(tx.as_mut(), course, module.id, user, false).await;
+            certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
+
+            let information = get_user_completion_information(tx.as_mut(), user, &module)
+                .await
+                .unwrap();
+
+            assert_eq!(information.certificate_configuration_id, None);
+        }
+
+        #[tokio::test]
+        async fn offers_no_certificate_while_the_completion_is_under_review() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let completion = complete(tx.as_mut(), course, module.id, user, true).await;
+            certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
+            course_module_completions::update_needs_to_be_reviewed(
+                tx.as_mut(),
+                completion.id,
+                true,
+            )
+            .await
+            .unwrap();
+
+            let information = get_user_completion_information(tx.as_mut(), user, &module)
+                .await
+                .unwrap();
+
+            assert_eq!(information.certificate_configuration_id, None);
+        }
+
+        #[tokio::test]
+        async fn offers_no_certificate_this_module_alone_does_not_earn() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let other_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
+                .await
+                .unwrap();
+            complete(tx.as_mut(), course, module.id, user, true).await;
+            certificate_configuration_requiring(tx.as_mut(), &[module.id, other_module.id]).await;
+
+            let information = get_user_completion_information(tx.as_mut(), user, &module)
+                .await
+                .unwrap();
+
+            assert_eq!(information.certificate_configuration_id, None);
+        }
+
+        #[tokio::test]
+        async fn carries_back_the_answer_the_student_already_gave() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let completion = complete(tx.as_mut(), course, module.id, user, true).await;
+            crate::completion_registration_credit_justifications::upsert(
+                tx.as_mut(),
+                completion.id,
+                user,
+                "My employer needs them in the registry.",
+            )
+            .await
+            .unwrap();
+
+            let information = get_user_completion_information(tx.as_mut(), user, &module)
+                .await
+                .unwrap();
+
+            assert_eq!(
+                information.credit_justification.as_deref(),
+                Some("My employer needs them in the registry.")
+            );
+        }
+    }
 
     mod grant_automatic_completion_if_eligible {
         use super::*;
@@ -995,6 +1416,12 @@ mod tests {
             CourseModule,
         ) {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
+            // These tests complete modules instantly, which would trip suspected-cheater detection
+            // (on by default) and hide the completion. Detection is exercised by its own tests, so
+            // disable it here to test automatic-completion granting in isolation.
+            courses::set_cheater_detection_enabled(tx.as_mut(), course, false)
+                .await
+                .unwrap();
             let automatic_completion_policy =
                 CompletionPolicy::Automatic(AutomaticCompletionRequirements {
                     course_module_id: course_module.id,
@@ -1176,16 +1603,501 @@ mod tests {
         )
         .await
         .unwrap();
-        check_and_insert_suspected_cheaters(tx.as_mut(), user, course, &thresholds, completion)
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        assert_eq!(cheaters.len(), 1);
+        assert_eq!(cheaters[0].user_id, user);
+    }
+
+    #[tokio::test]
+    async fn tagging_suspected_cheater_is_idempotent() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: None,
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion.clone(),
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        assert_eq!(cheaters.len(), 1);
+        let completion_needing_review =
+            course_module_completions::get_latest_by_course_and_user_ids(
+                tx.as_mut(),
+                course_module.id,
+                user,
+            )
+            .await
+            .unwrap();
+        assert!(completion_needing_review.needs_to_be_reviewed);
+
+        suspected_cheaters::dismiss_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let archived_completion = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!archived_completion.needs_to_be_reviewed);
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            archived_completion,
+        )
+        .await
+        .unwrap();
+
+        let visible_cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        let archived_cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
+        assert!(visible_cheaters.is_empty());
+        assert_eq!(archived_cheaters.len(), 1);
+        let rechecked_completion = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!rechecked_completion.needs_to_be_reviewed);
+    }
+
+    #[tokio::test]
+    async fn confirming_then_dismissing_restores_grade() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        // A graded, passing completion so we can prove the exact grade is restored, not just pass/fail.
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(4),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+
+        // Confirm: the student is failed and the previous grade is snapshotted.
+        suspected_cheaters::confirm_cheater_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let failed = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!failed.passed);
+        assert_eq!(failed.grade, Some(0));
+        let confirmed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::ConfirmedCheating,
+        )
+        .await
+        .unwrap();
+        assert_eq!(confirmed.len(), 1);
+
+        // Dismiss: the confirmation is undone and the exact previous grade is restored.
+        suspected_cheaters::dismiss_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let restored = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(restored.passed);
+        assert_eq!(restored.grade, Some(4));
+        assert!(!restored.needs_to_be_reviewed);
+        let dismissed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
+        assert_eq!(dismissed.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn manual_completion_prevents_flagging() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
             .await
             .unwrap();
 
-        let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
-                .await
-                .unwrap();
-        assert_eq!(cheaters.len(), 1);
-        assert_eq!(cheaters[0].user_id, user);
+        // A teacher has manually granted a completion for this student.
+        let teacher = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "teacher-vouching@example.com",
+            Some("Teacher"),
+            Some("McVouch"),
+        )
+        .await
+        .unwrap();
+        course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(5),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(teacher),
+        )
+        .await
+        .unwrap();
+
+        // An automatic completion well inside the threshold would normally flag the student.
+        let automatic_completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: None,
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            automatic_completion,
+        )
+        .await
+        .unwrap();
+
+        // The teacher's manual completion exempts the student, so no suspicion is created.
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        assert!(cheaters.is_empty());
+    }
+
+    #[tokio::test]
+    async fn adding_manual_completion_dismisses_confirmed_suspicion_and_restores_grade() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        // Flag the student via a fast automatic completion, then confirm cheating (fails the grade).
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(4),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+        suspected_cheaters::confirm_cheater_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+
+        // A teacher manually adds a completion for the same student. `skip_duplicate_completions` is
+        // false so the completion is inserted even though the module is already completed.
+        let teacher = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "teacher-vouching@example.com",
+            Some("Teacher"),
+            Some("McVouch"),
+        )
+        .await
+        .unwrap();
+        add_manual_completions(
+            tx.as_mut(),
+            teacher,
+            &instance,
+            &TeacherManualCompletionRequest {
+                course_module_id: course_module.id,
+                new_completions: vec![TeacherManualCompletion {
+                    user_id: user,
+                    grade: Some(5),
+                    passed: true,
+                    completion_date: None,
+                }],
+                skip_duplicate_completions: false,
+            },
+        )
+        .await
+        .unwrap();
+
+        // The suspicion is dismissed and the confirmed-cheating grade failure is undone.
+        let flagged = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        let confirmed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::ConfirmedCheating,
+        )
+        .await
+        .unwrap();
+        let dismissed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
+        assert!(flagged.is_empty());
+        assert!(confirmed.is_empty());
+        assert_eq!(dismissed.len(), 1);
+
+        // The automatic completion's failed grade is restored and its review flag is cleared.
+        let restored =
+            course_module_completions::get_automatic_completion_by_course_module_course_and_user_ids(
+                tx.as_mut(),
+                course_module.id,
+                course,
+                user,
+            )
+            .await
+            .unwrap();
+        assert!(restored.passed);
+        assert_eq!(restored.grade, Some(4));
+        assert!(!restored.needs_to_be_reviewed);
     }
 
     #[tokio::test]
@@ -1243,10 +2155,13 @@ mod tests {
             .await
             .unwrap();
 
-        let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
-                .await
-                .unwrap();
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
         assert!(cheaters.is_empty());
     }
 

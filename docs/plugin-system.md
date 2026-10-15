@@ -13,6 +13,36 @@ External examples:
 - https://github.com/rage/language-exercise-service
 - https://github.com/rage/factor-analysis-exercise-service
 
+## Creating a new exercise service
+
+The fastest way to start a new plugin is the scaffolding CLI. Outside this repo, run:
+
+```bash
+pnpm create @moocfi/exercise-service
+```
+
+This generates a standalone TanStack Start (rsbuild bundler) service that depends on the published `@moocfi/exercise-*` packages from npm.
+
+From a checkout of this repo, run the in-tree variant instead:
+
+```bash
+bin/create-exercise-service
+```
+
+Run inside the monorepo it vendors the shared exercise code into `src/shared-module/` (so you can scaffold against local, unpublished shared-module changes); run from the published package it wires the project to the `@moocfi/exercise-*` npm packages. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
+
+### Shared packages on npm
+
+The exercise-service helper packages are published to npm under the `@moocfi` scope, so a plugin developed outside this repo can depend on them directly instead of copying source:
+
+- `@moocfi/exercise-protocol` - protocol types, guards, and constants (zero dependencies)
+- `@moocfi/exercise-client` - framework-agnostic iframe runtime engines
+- `@moocfi/exercise-react` - React hooks, contexts, components, and styles
+- `@moocfi/exercise-iframe-host` - host-side `MessageChannelIFrame` (for embedders)
+- `@moocfi/exercise-service-test-utils` - host emulator and Playwright helpers for tests
+
+They ship ESM and expose the same deep import paths the in-repo code uses (for example `@moocfi/exercise-react/react/hooks/useFileUpload`). See `shared-module/Readme.md` for how these are built and released.
+
 ## Overview
 
 Plugins add new exercise types to the system. Each plugin is an independent web application hosted on a separate server and must implement the following:
@@ -61,14 +91,49 @@ Communication between the parent page and the IFrame is restricted to specific m
 
 #### Message Summary
 
-| Message                 | From   | To     | Description                                                                                                               |
-| ----------------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| `set-state`             | Parent | IFrame | Sets the view and state of the IFrame. The IFrame discards its own state and switches to the specified view.              |
-| `current-state`         | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data and validity status.                                |
-| `height-changed`        | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.                        |
-| `set-language`          | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                                      |
-| `open-link`             | Iframe | Parent | The IFrame requests a link to be opened in the browser's main browsing context.                                           |
-| `request-iframe-reload` | Iframe | Parent | The IFrame encountered a serious client-side problem (for example, a failed chunk load) and asks the parent to reload it. |
+| Message                        | From   | To     | Description                                                                                                                                                                        |
+| ------------------------------ | ------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `set-state`                    | Parent | IFrame | Sets the view and state of the IFrame. The IFrame discards its own state and switches to the specified view.                                                                       |
+| `current-state`                | IFrame | Parent | Informs the parent that the IFrame's state has changed. Includes data, an optional `files` list of host file ids, and validity status. See below.                                  |
+| `height-changed`               | IFrame | Parent | Notifies the parent that the content height has changed, allowing the parent to resize the IFrame.                                                                                 |
+| `set-language`                 | Parent | IFrame | Informs the IFrame of the user's preferred language using IETF BCP 47 language tags.                                                                                               |
+| `open-link`                    | Iframe | Parent | The IFrame asks the parent to open a link in a new browser tab. The parent confirms with the user first. See below.                                                                |
+| `download-file`                | Iframe | Parent | The IFrame asks the parent to download a file for the user. Carries the `url` and an optional suggested `filename`. The parent confirms with the user first. See below.            |
+| `request-iframe-reload`        | Iframe | Parent | The IFrame encountered a serious client-side problem (for example, a failed chunk load) and asks the parent to reload it.                                                          |
+| `file-upload`                  | Iframe | Parent | The IFrame asks the parent to upload files on its behalf (plugins never store data themselves). Carries a `requestId` and an ordered `File[]`; it never sends file ids. See below. |
+| `upload-result`                | Parent | IFrame | The parent's reply to `file-upload`, echoing the `requestId`; on success carries ordered `{ id, url }[]` entries whose `id` is the host's own file id, on failure an error.        |
+| `open-dialog`                  | Iframe | Parent | The IFrame asks the parent to show a confirm/warning dialog and awaits the choice. Carries a `requestId` echoed back in `dialog-response`.                                         |
+| `dialog-response`              | Parent | IFrame | The parent's reply to `open-dialog` (whether the user confirmed), correlated by `requestId`.                                                                                       |
+| `request-repository-exercises` | Iframe | Parent | Programming-exercise (TMC) extension: the IFrame requests the list of repository exercises.                                                                                        |
+| `repository-exercises`         | Parent | Iframe | Programming-exercise (TMC) extension: the parent's reply, carrying the list of repository exercises.                                                                               |
+| `test-results`                 | Parent | IFrame | Programming-exercise (TMC) extension: delivers test-run results to the IFrame.                                                                                                     |
+
+> **File uploads.** Plugins do not store files themselves, the host does. To let a student attach
+> files, the IFrame sends a `file-upload` message and the parent replies with an `upload-result`
+> carrying the host's own file ids and stored URLs in the same order as the requested files. An
+> answer made of those files names their ids in `current-state`'s `files`, in the order they should
+> be graded and displayed; the ids belong there rather than inside `answer`, which the host does not
+> read. The host verifies that every named id was uploaded by this student for this exercise, and
+> rejects a `files` list that is empty, repeats an id, or names anything else. The editor's
+> `private_spec_files` is a separate list with its own rules — an empty list is meaningful there,
+> order is not, and the host checks only that it has an upload for each id. Both
+> messages carry a `requestId` solely so several uploads can be in flight at once. Don't hand-roll this: use the
+> `useFileUpload(port)` hook (`exercise-react`) or the `ParentUploadClient` engine
+> (`exercise-client`), which mirror the `useParentDialog` / `ParentDialogClient` request/response
+> helpers. Note this is unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used
+> by the spec-generator endpoints.
+
+> **Links and downloads.** An exercise iframe is sandboxed without `allow-popups`, so a
+> `target="_blank"` link does nothing, a same-tab navigation would replace the exercise, and browsers
+> ignore the `download` attribute for cross-origin responses. Anything that should leave the iframe
+> therefore goes through the parent: send `open-link` to open a URL in a new tab, or `download-file`
+> to save one. The parent accepts only absolute `http:`/`https:` URLs and asks the user to confirm —
+> in its own wording, showing the URL — before acting, so a plugin cannot open or download anything
+> behind the user's back. A suggested `filename` is a hint: the parent strips directory components,
+> and the browser may name the file from the response instead. Both messages are fire-and-forget: the
+> parent never reports back what the user chose, so a plugin must not put any UI into a pending state
+> waiting for the outcome. Use `requestOpenLink` / `requestFileDownload` (`exercise-client`) or the
+> `useParentLinks(port)` hook (`exercise-react`) rather than posting the messages by hand.
 
 ### Views
 
@@ -78,7 +143,8 @@ Plugins must implement the following views, each serving a specific purpose. Rem
 
 - **Purpose**: Allows teachers to create and configure exercises.
 - **Inputs**: `private_spec` (via `set-state` message).
-- **Outputs**: `private_spec` (via `current-state` message).
+- **Outputs**: `private_spec` (via `current-state` message), plus `private_spec_files` from a
+  plugin whose service info declares `declares_spec_files`.
 
 #### 2. Answer Exercise View
 
@@ -99,16 +165,14 @@ Plugins must define the following data types for their internal operations:
 1. **`private_spec`**: Full configuration for an exercise, including structure, grading, and model solution.
 2. **`public_spec`**: Information needed to render the exercise for students without revealing the correct answers.
 3. **`model_solution_spec`**: Information needed to display the model solution to students.
-4. **`answer`**: Represents what a student has answered in an exercise.
-5. **`grading_feedback`**: Data used to display feedback about the graded answer.
+4. **`answer`**: Represents what a student has answered in an exercise. For an answer that consists
+   of uploaded files, the files themselves are the answer and are named by id in `current-state`'s
+   `files`; `answer` then carries only the plugin's own metadata about them, and may be omitted.
+5. **`grading_feedback`**: Data used to display feedback about the graded answer. On the wire this is the `feedback_json` field of the Grade endpoint's `GradingResult` (see below), which the host passes back to the View Submission view.
 
 ## REST API Endpoints (Consumed by the Backend)
 
-### Overview
-
-The host system backend communicates with the plugin via REST API endpoints to perform operations like grading and generating exercise specifications. Plugins must implement the following endpoints.
-
-### Endpoint Summary
+The backend communicates with the plugin via REST to grade answers and generate exercise specifications. Plugins must implement:
 
 1. **Service Info Endpoint**: Provides metadata about the plugin.
 2. **User Interface IFrame Endpoint**: Serves the HTML content for the plugin's IFrames.
@@ -122,6 +186,36 @@ The host system backend communicates with the plugin via REST API endpoints to p
 
 - **Method**: GET
 - **Purpose**: Defines the plugin and lists paths to all other endpoints.
+- **Outputs**: the plugin's name, the path to each of the endpoints below and to the IFrame, and
+  optional flags declaring what the plugin does: `has_custom_view`, `supports_native_client`,
+  `produces_file_answers`, `declares_spec_files`. Every flag defaults to off, so a plugin that
+  omits them all is a valid plugin.
+
+> **Declaring the files a spec references.** A plugin that stores files in a spec should declare
+> them, because the host cannot read a spec: it stores all three as opaque blobs, so a file whose
+> only reference lives inside one looks exactly like an upload somebody abandoned. Declare by
+> setting `declares_spec_files` in service info, which commits the plugin to two things:
+>
+> - the exercise editor lists every file the private spec references in `current-state`'s
+>   `private_spec_files`, on **every** `current-state` — an empty list releases them all, while
+>   omitting the list leaves the previous declaration standing;
+> - the public-spec and model-solution endpoints answer with `{ "spec": ..., "files": [...] }`
+>   instead of the bare spec, listing the files _that_ spec references. Both keys are required, and
+>   `spec` is `null` for a spec the plugin has none of. This is the only way the host can learn
+>   about a file uploaded during a derivation through `SpecRequest.upload_url`, which no private
+>   spec ever names.
+>
+> Declaring is opt-in and lossless to skip: without it the host keeps every file the plugin ever
+> uploaded, forever. With it, a file no live spec and no page-history version references is deleted
+> a week after it was uploaded. Because page history counts, what actually gets reclaimed is uploads
+> that never reached a save — a file replaced before saving, or an editing session that was closed —
+> not files dropped from a spec that was once saved.
+>
+> Set the flag from a plugin's first deployment if it will ever need it. The host reads service info
+> from a cache it refreshes about once a minute, so for a short window after the flag changes — and
+> for the length of a rolling deploy — the host and the plugin can disagree about which response
+> shape the spec endpoints use. The host rejects a bare spec from a plugin it believes declares, so
+> that direction fails the save loudly; the other direction stores the envelope as the spec.
 
 #### 2. User Interface IFrame Endpoint
 
@@ -142,52 +236,60 @@ The host system backend communicates with the plugin via REST API endpoints to p
 - **Method**: POST
 - **Purpose**: Grades a student's answer.
 
+> **Grading a file answer.** The grading request carries `submission_files` alongside
+> `submission_data`: the answer's files in the order the plugin named them in `current-state`'s
+> `files`, and an empty list for an answer that has none. Each entry has the host `id` the plugin
+> saw at upload time, the `name` and `mime` the student's browser reported, `size_bytes` (`null`
+> only for a file stored before the host recorded sizes, so an unknown size is distinguishable from
+> an empty file), and a `download_url` the plugin fetches the contents from. The URL is minted per
+> request and expires — fetch it while grading, never store it. `submission_data` still carries
+> whatever metadata the plugin put in the answer, and may be absent when the files are the whole
+> answer.
+
 ## Input and Output Types Summary
 
 ### Views
 
-| View Type           | Inputs                                                                               | Outputs        |
-| ------------------- | ------------------------------------------------------------------------------------ | -------------- |
-| **Exercise Editor** | `private_spec`                                                                       | `private_spec` |
-| **Answer Exercise** | `public_spec`, optional `answer`                                                     | `answer`       |
-| **View Submission** | `public_spec`, `answer`, optional `grading_feedback`, optional `model_solution_spec` | None           |
+| View Type           | Inputs                                                                               | Outputs                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| **Exercise Editor** | `private_spec`                                                                       | `private_spec`, and `private_spec_files` from a plugin that declares them |
+| **Answer Exercise** | `public_spec`, optional `answer`                                                     | `answer`                                                                  |
+| **View Submission** | `public_spec`, `answer`, optional `grading_feedback`, optional `model_solution_spec` | None                                                                      |
 
 ### REST API Endpoints
 
-| Endpoint Name                     | Inputs                   | Outputs               |
-| --------------------------------- | ------------------------ | --------------------- |
-| **Service Info**                  | None                     | Metadata              |
-| **Public Spec Generator**         | `private_spec`           | `public_spec`         |
-| **Model Solution Spec Generator** | `private_spec`           | `model_solution_spec` |
-| **Grade Endpoint**                | `private_spec`, `answer` | `grading_feedback`    |
+| Endpoint Name                     | Inputs                                       | Outputs                                                                              |
+| --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Service Info**                  | None                                         | Metadata                                                                             |
+| **Public Spec Generator**         | `private_spec`                               | `public_spec`, wrapped as `{ spec, files }` by a plugin that declares its spec files |
+| **Model Solution Spec Generator** | `private_spec`                               | `model_solution_spec`, wrapped the same way                                          |
+| **Grade Endpoint**                | `private_spec`, `answer`, the answer's files | `GradingResult`                                                                      |
+
+The Grade endpoint returns a `GradingResult`: `grading_progress` (`FullyGraded` \| `Pending` \| `PendingManual` \| `Failed`), `score_given`/`score_maximum`, `feedback_text`, and `feedback_json` (the plugin-defined `grading_feedback`).
 
 ## Example Scenarios
 
 ### Scenario 1: Editing and Saving an Exercise
 
-1. **Teacher Opens CMS**: The teacher opens the Content Management System (CMS) to edit a page containing an exercise.
-2. **IFrame Initialization**: The CMS loads the plugin's IFrame and establishes communication.
-3. **Set State**: The CMS sends a `set-state` message with the current `private_spec` to the IFrame.
-4. **Editing**: The teacher edits the exercise within the IFrame. The plugin sends `current-state` messages with the updated `private_spec`.
-5. **Saving**: Upon saving, the CMS sends the latest `private_spec` to the backend.
-6. **Spec Generation**:
-   - The backend calls the plugin's Public Spec Generator Endpoint to generate the `public_spec`.
-   - The backend calls the Model Solution Spec Generator Endpoint to generate the `model_solution_spec`.
-7. **Storage**: The backend stores the `private_spec`, `public_spec`, and `model_solution_spec` in the database.
+1. Teacher opens the CMS to edit a page containing an exercise.
+2. CMS loads the plugin IFrame and establishes communication.
+3. CMS sends `set-state` with the current `private_spec` to the IFrame.
+4. Teacher edits the exercise. Plugin sends `current-state` with the updated `private_spec`.
+5. On save, CMS sends the latest `private_spec` to the backend.
+6. Backend calls the Public Spec Generator and Model Solution Spec Generator endpoints.
+7. Backend stores `private_spec`, `public_spec`, and `model_solution_spec`.
 
 ### Scenario 2: Answering and Grading an Exercise
 
-1. **Student Loads Exercise**: The student opens the course material containing the exercise.
-2. **IFrame Initialization**: The course material loads the plugin's IFrame and establishes communication.
-3. **Set State**: The course material sends a `set-state` message with the `public_spec` to the IFrame.
-4. **Answering**: The student interacts with the exercise within the IFrame. The plugin sends `current-state` messages with the updated `answer`.
-5. **Submitting**: The student submits the exercise. The course material sends the `answer` to the backend.
-6. **Grading**:
-   - The backend retrieves the `private_spec` from storage.
-   - The backend calls the plugin's Grade Endpoint with the `private_spec` and `answer`.
-7. **Feedback**: The plugin returns `correctness_coefficient` and `grading_feedback`. The backend stores this data.
-8. **Displaying Results**: The course material sends a `set-state` message to the IFrame to switch to the View Submission View, including necessary data (`public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`).
+1. Student opens course material containing the exercise.
+2. Course material loads the plugin IFrame and establishes communication.
+3. Course material sends `set-state` with the `public_spec` to the IFrame.
+4. Student interacts with the exercise. Plugin sends `current-state` with the updated `answer`.
+5. Student submits. Course material sends the `answer` to the backend.
+6. Backend retrieves `private_spec` and calls the Grade endpoint with `private_spec`, `answer`, and — for a file answer — a `submission_files` list of download URLs for the files the answer named.
+7. Plugin returns a `GradingResult` (`grading_progress`, `score_given`/`score_maximum`, `feedback_text`, `feedback_json`). Backend stores this.
+8. Course material sends `set-state` to switch the IFrame to the View Submission view with `public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`.
 
 ## Developer Tool: Playground
 
-To assist in developing and testing plugins, we provide a tool called the [Playground](https://courses.mooc.fi/playground-tabs). This tool simulates the host environment, allowing you to preview your plugin's views, test communication, and inspect data types.
+The [Playground](https://courses.mooc.fi/playground-tabs) simulates the host environment. Use it to preview your plugin's views, test the communication protocol, and inspect data types.

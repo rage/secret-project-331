@@ -1,12 +1,29 @@
 //! Controllers for requests starting with `/api/v0/cms/code-giveaways`.
 use headless_lms_models::code_giveaways::CodeGiveaway;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_code_giveaways_by_course))]
+pub(crate) struct CmsCodeGiveawaysApiDoc;
 
 /**
 GET `/api/v0/cms/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/by-course/{course_id}",
+    operation_id = "getCmsCodeGiveawaysByCourse",
+    tag = "cms_code_giveaways",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Code giveaways for course", body = Vec<CodeGiveaway>)
+    )
+)]
 async fn get_code_giveaways_by_course(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,

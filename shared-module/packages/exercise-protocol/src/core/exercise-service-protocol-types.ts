@@ -1,0 +1,342 @@
+import type { GradingRequest, GradingResult } from "./exercise-service-protocol-types-2"
+import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
+import type {
+  ExerciseTaskGradingResult,
+  RepositoryExercise,
+  UserInfo,
+} from "./exerciseServiceTypes"
+
+/**
+ * from: IFrame
+ *
+ * to: parent
+ */
+export type MessageFromIframe =
+  | CurrentStateMessage
+  | HeightChangedMessage
+  | OpenLinkMessage
+  | DownloadFileMessage
+  | FileUploadMessage
+  | RequestRepositoryExercisesMessage
+  | RequestIframeReloadMessage
+  | OpenDialogMessage
+
+export interface CurrentStateMessage {
+  message: "current-state"
+  /**
+   * The plugin's own answer JSON, or `{ private_spec }` from the exercise editor. When `files` is
+   * present in an answer this is metadata *about* those files, and may be omitted entirely by a
+   * plugin whose answer is nothing but the files.
+   */
+  data: unknown
+  /**
+   * From `answer-exercise`: host file ids from `upload-result` for the files the answer consists
+   * of, in the order the plugin wants them graded and displayed. Present makes the answer
+   * file-typed; absent leaves it JSON-typed. The host verifies every id was uploaded by this user
+   * for this exercise, and rejects a list that is empty or repeats an id.
+   *
+   * Ignored from the other views — the editor declares its files as `private_spec_files`.
+   */
+  files?: string[]
+  /**
+   * From `exercise-editor`: host file ids from `upload-result` for every file the private spec
+   * references, in any order. The host cannot read the spec, so this list is the only thing that
+   * keeps those files from being reclaimed as abandoned uploads. Send the complete list on every
+   * `current-state`, and `[]` to release every file; omitting it leaves the previous declaration
+   * standing, so a plugin that forgets the field cannot silently lose files. Only meaningful for a
+   * service whose service-info declares `declares_spec_files`.
+   *
+   * Ignored from the other views. Unlike `files`, the host does not verify these ids belong to the
+   * editing user, but it does reject ids it has no upload for.
+   */
+  private_spec_files?: string[]
+  valid: boolean
+  /**
+   * Optional, already-localized reasons the current answer is not yet submittable
+   * (e.g. "Each option can be chosen only once."). The exercise service localizes them; the parent
+   * renders them verbatim next to the disabled submit button. Absent/empty when the answer is valid
+   * or the service supplies no reasons.
+   */
+  validityMessages?: string[]
+}
+
+export interface HeightChangedMessage {
+  message: "height-changed"
+  data: number
+}
+
+/**
+ * Asks the parent to open a link in a new browser tab. The exercise cannot do this itself: its
+ * iframe is sandboxed without `allow-popups`, so `target="_blank"` is blocked, and a same-tab
+ * navigation would replace the exercise with the linked page.
+ *
+ * The parent decides whether to honor the request: it accepts only absolute `http:`/`https:` URLs
+ * and asks the user to confirm — showing the URL — before opening anything. Fire-and-forget: the
+ * iframe is never told what the user chose, so nothing in the exercise may wait on the outcome.
+ * Prefer `requestOpenLink` (`exercise-client`) or the `useParentLinks` hook (`exercise-react`) over
+ * hand-rolling the message.
+ */
+export interface OpenLinkMessage {
+  message: "open-link"
+  /** Absolute http(s) URL to open. */
+  data: string
+}
+
+/**
+ * Asks the parent to download a file for the user. Same reason as {@link OpenLinkMessage}: a
+ * sandboxed iframe cannot open the new tab a download link needs, and browsers ignore the `download`
+ * attribute for cross-origin responses, so the download has to start from the top-level page.
+ *
+ * Confirmed by the user and restricted to absolute `http:`/`https:` URLs exactly like
+ * {@link OpenLinkMessage}, and likewise fire-and-forget. Prefer `requestFileDownload`
+ * (`exercise-client`) or the `useParentLinks` hook (`exercise-react`).
+ */
+export interface DownloadFileMessage {
+  message: "download-file"
+  /** Absolute http(s) URL of the file, e.g. a URL the host returned from a `file-upload`. */
+  url: string
+  /**
+   * Suggested name for the saved file. The parent strips directory components from it, and browsers
+   * ignore it for cross-origin responses, so treat it as a hint rather than a guarantee.
+   */
+  filename?: string | null
+}
+
+/**
+ * Asks the parent to upload files on the exercise's behalf (plugins never store data themselves —
+ * the host owns storage). The parent answers with an `UploadResultMessage` carrying the same
+ * `requestId`; the exercise then names the returned ids in `CurrentStateMessage.files`. This mirrors
+ * the `OpenDialogMessage`/`DialogResponseMessage` request/response pattern, so several uploads can
+ * be in flight at once. Prefer the `ParentUploadClient` engine (`exercise-client`) or the `useFileUpload`
+ * hook (`exercise-react`) over hand-rolling it.
+ *
+ * Note: unrelated to `SpecRequest.upload_url`, which is a server-side upload URL used by the
+ * spec-generator endpoints, not this client-side message flow.
+ */
+export interface FileUploadMessage {
+  message: "file-upload"
+  /** Correlation id the parent echoes back in the matching `UploadResultMessage`; never a file id. */
+  requestId: string
+  /** Files to upload. The host assigns opaque file ids after receiving this message. */
+  files: File[]
+}
+
+/** A file stored by the host. Results retain the order of `FileUploadMessage.files`. */
+export interface FileUploadResultEntry {
+  /** Opaque UUID assigned by the host, not the iframe. */
+  id: string
+  url: string
+}
+
+export interface RequestRepositoryExercisesMessage {
+  message: "request-repository-exercises"
+}
+
+export interface RequestIframeReloadMessage {
+  message: "request-iframe-reload"
+}
+
+/**
+ * Asks the parent to open a modal dialog and report back what the user chose. This is the
+ * protocol's request/response message: the parent answers with a `DialogResponseMessage`
+ * carrying the same `requestId`. The exercise supplies already-localized strings (it owns its
+ * own i18n and knows the active language), so the parent dialog is a generic renderer.
+ */
+export interface OpenDialogMessage {
+  message: "open-dialog"
+  /** Correlation id the parent echoes back in the matching `DialogResponseMessage`. */
+  requestId: string
+  /**
+   * "confirm" shows confirm + cancel buttons and resolves to the user's choice.
+   * "warning" shows a single acknowledge button and resolves to `true` once dismissed.
+   */
+  dialogType: "confirm" | "warning"
+  title: string
+  /** Body paragraphs; each entry is rendered as its own paragraph. */
+  body: string[]
+  /** Already-localized confirm/acknowledge button label; parent uses a generic default if omitted. */
+  confirmButtonLabel?: string | null
+  /** Already-localized cancel button label (only used for "confirm" dialogs). */
+  cancelButtonLabel?: string | null
+}
+
+/**
+ * from: Parent
+ *
+ * to: IFrame
+ */
+export type MessageToIframe =
+  | SetLanguageMessage
+  | SetStateMessage
+  | UploadResultMessage
+  | RepositoryExercisesMessage
+  | TestResultsMessage
+  | DialogResponseMessage
+
+export interface SetLanguageMessage {
+  message: "set-language"
+  // e.g. "en" or "fi"
+  data: string
+}
+
+export type SetStateMessage = {
+  message: "set-state"
+} & ExtendedIframeState
+
+/**
+ * The parent's reply to a `FileUploadMessage`, correlated by `requestId`. On success carries the
+ * stored files in the request order; on failure an error string.
+ */
+export type UploadResultMessage = {
+  message: "upload-result"
+  /** Matches the `requestId` of the `FileUploadMessage` this responds to. */
+  requestId: string
+} & (
+  | {
+      success: true
+      files: FileUploadResultEntry[]
+    }
+  | {
+      success: false
+      error: string
+    }
+)
+
+export interface RepositoryExercisesMessage {
+  message: "repository-exercises"
+  repository_exercises: RepositoryExercise[]
+}
+
+export interface TestResultsMessage {
+  message: "test-results"
+  test_result: unknown
+}
+
+/** The parent's response to an `OpenDialogMessage`, correlated by `requestId`. */
+export interface DialogResponseMessage {
+  message: "dialog-response"
+  /** Matches the `requestId` of the `OpenDialogMessage` this responds to. */
+  requestId: string
+  /** For "confirm": whether the user confirmed. For "warning": always `true` (acknowledged). */
+  confirmed: boolean
+}
+
+/**
+ * Checks if the message is a set state messages but doesn't require all the fields in the object to match
+ * the type. Won't fail if the set state message gets extended but still checks whether the message is
+ * intended to be the right kind of message.
+ */
+export function forgivingIsSetStateMessage(obj: unknown): obj is SetStateMessage {
+  if (isSetStateMessage(obj)) {
+    // Passes the stricter check, all is good.
+    return true
+  }
+
+  const typedObj = obj as SetStateMessage
+  const forgivingCheck =
+    typedObj !== null && typeof typedObj === "object" && typedObj["message"] === "set-state"
+  if (forgivingCheck === true) {
+    console.warn(
+      `Message did not pass the strict set-state message check, but it did have the message field "set-state", so treating the object as a set-state message. However, we don't gurantee all fields in the object will match the type. If this has happened because the set-state message has been extended with more fields, everything is ok.`,
+    )
+  }
+  return forgivingCheck
+}
+
+export interface UserInformation {
+  pseudonymous_id: string
+  signed_in: boolean
+}
+
+export type UserVariablesMap = Record<string, unknown>
+
+/** A host-stored file that an answer consists of, as handed back to a plugin for display. */
+export interface AnswerFileRef {
+  /** `file_uploads.id`; the same value the plugin put in `CurrentStateMessage.files`. */
+  id: string
+  /**
+   * Host download URL. Needs no authentication, but expires within the hour and is minted anew on
+   * every read, so the plugin must not persist it.
+   */
+  url: string
+  /** Name the file was uploaded under. A plugin that anonymizes ignores this. */
+  name: string
+  mime: string
+  /** Absent for files uploaded before this column existed; the host cannot back-fill it. */
+  size_bytes?: number
+}
+
+export interface AnswerExerciseIframeState {
+  view_type: "answer-exercise"
+  exercise_task_id: string
+  user_information: UserInformation
+  /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
+  user_variables?: UserVariablesMap | null
+  data: {
+    public_spec: unknown
+    previous_submission: unknown | null
+    previous_submission_files?: AnswerFileRef[]
+  }
+}
+
+export interface ViewSubmissionIframeState {
+  view_type: "view-submission"
+  exercise_task_id: string
+  user_information: UserInformation
+  /** Variables set from this exercise service's grade endpoint, visible only to this user on this course instance. */
+  user_variables?: UserVariablesMap | null
+  data: {
+    grading: ExerciseTaskGradingResult | null
+    user_answer: unknown
+    user_answer_files?: AnswerFileRef[]
+    public_spec: unknown
+    model_solution_spec: unknown
+  }
+}
+
+export interface ExerciseEditorIframeState {
+  view_type: "exercise-editor"
+  exercise_task_id: string
+  user_information: UserInformation
+  repository_exercises?: RepositoryExercise[]
+  data: { private_spec: unknown }
+}
+
+export interface CustomViewIframeState {
+  view_type: "custom-view"
+  user_information: UserInfo
+  user_variables?: UserVariablesMap | null
+  course_name: string
+  module_completion_date: string | null
+  data: {
+    submissions_by_exercise: {
+      exercise_id: string
+      exercise_name: string
+      exercise_tasks: {
+        task_id: string
+        public_spec: unknown
+        /**
+         * The submission row, not the bare answer: read the answer from its `data_json` and any
+         * files from its `data_files`. Unlike the other views, which carry the two separately.
+         */
+        user_answer: unknown
+        grading: unknown
+      }[]
+    }[]
+  }
+}
+
+/** Defines the allowed data formats for the set-state-message */
+export type ExerciseIframeState =
+  | AnswerExerciseIframeState
+  | ViewSubmissionIframeState
+  | ExerciseEditorIframeState
+
+export type ExtendedIframeState = ExerciseIframeState | CustomViewIframeState
+
+export type IframeViewType = ExerciseIframeState["view_type"]
+
+// To workaround a bug in ts-auto-guard
+export type NonGenericGradingRequest = GradingRequest<unknown, unknown>
+
+export type NonGenericGradingResult = GradingResult<unknown>

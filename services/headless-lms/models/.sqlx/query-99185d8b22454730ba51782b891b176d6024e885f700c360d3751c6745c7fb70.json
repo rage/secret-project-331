@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET enrolment_check_anchor_at = enrolment_check_anchor_at + $2::interval,\n  enrolment_check_due_at = enrolment_check_due_at + $2::interval,\n  next_attempt_at = CASE\n    WHEN state <> 'no_usable_enrolment'\n    OR enrolment_check_source <> 'schedule' THEN next_attempt_at\n    WHEN is_enrolment_check_batched THEN to_timestamp(\n      CEIL(\n        EXTRACT(\n          EPOCH\n          FROM next_attempt_at + $2::interval\n        ) / $3::bigint\n      ) * $3::bigint\n    )\n    ELSE next_attempt_at + $2::interval\n  END\nWHERE course_module_id = $1\n  AND enrolment_check_anchor_at IS NOT NULL\n  AND enrolment_checks_stopped_at IS NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "99185d8b22454730ba51782b891b176d6024e885f700c360d3751c6745c7fb70"
+}

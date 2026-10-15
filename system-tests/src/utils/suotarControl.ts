@@ -1,0 +1,411 @@
+/**
+ * Client for the mock Suotar control surface (`/api/v0/mock-suotar/control/*`).
+ *
+ * Hand-written because the mock's DTOs are deliberately not part of the OpenAPI spec, the
+ * same way `mock_sisu`'s are not.
+ *
+ * The tick endpoints exist because the real loops are long-running intervals in their own
+ * Deployments, which a spec cannot wait out inside the 100 s per-test timeout. A tick runs one
+ * iteration of one phase synchronously.
+ *
+ * - **A tick sweeps everything it is not scoped away from.** Pass a scope, or the iteration advances
+ *   every eligible row in the database. Aggregates stay global either way, so assert on your own
+ *   student and course.
+ * - `runTick` refuses anything but a clean run: a paused phase, an open circuit breaker, a refused
+ *   scope and an unimplemented phase all move no rows, and would otherwise surface as a poll timing
+ *   out against the innocent state machine.
+ */
+
+import type { APIRequestContext } from "@playwright/test"
+
+export const CONTROL_BASE_URL = "http://project-331.local/api/v0/mock-suotar/control"
+
+/** Must match `CreditRegistrationPhase` in the backend. */
+export const CREDIT_REGISTRATION_PHASES = [
+  "materialize",
+  "preconditions",
+  "resolve-enrolments",
+  "import",
+  "verify",
+  "legacy-mirror",
+  "student-notifications",
+  "enrolment-discovery",
+  "link-emails",
+  "config-validation",
+  "retention-sweep",
+  "ledger-snapshot",
+] as const
+
+export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number]
+
+/**
+ * Which rows a tick may touch. A scenario hands back the same object, which also serves as a fault's
+ * `owner`.
+ */
+export interface TickScope {
+  courseId?: string
+  courseSlug?: string
+  userId?: string
+  userEmail?: string
+  creditRegistrationIds?: string[]
+}
+
+/** One iteration that happened. `error` is the phase's own failure, not a row landing on an error code. */
+export interface RanPhaseTick {
+  status: "ran"
+  phase: CreditRegistrationPhase
+  itemsProcessed: number
+  itemsFailed: number
+  error: string | null
+}
+
+export type PhaseTickResult =
+  | RanPhaseTick
+  /** The phase is paused, its circuit breaker is open, account linking is off, or Sisu is still on
+   * the previous day. Nothing ran. */
+  | {
+      status: "skipped"
+      phase: CreditRegistrationPhase
+      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled" | "sisuDayGap"
+    }
+  /** The scope named something this phase's claim query cannot narrow on. */
+  | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
+  | { status: "unknownPhase"; phase: string | null; knownPhases: string[] }
+  | { status: "unresolvedScope"; half: string; value: string }
+
+/** How the tick runs, apart from which rows it may touch. */
+export interface TickOptions {
+  /** Overrides the deployment's account-linking switch for this one tick. */
+  accountLinkingEnabled?: boolean
+}
+
+const optionsQuery = (options?: TickOptions): string =>
+  options?.accountLinkingEnabled === undefined
+    ? ""
+    : `&accountLinkingEnabled=${options.accountLinkingEnabled}`
+
+const scopeQuery = (scope?: TickScope): string => {
+  if (!scope) {
+    return ""
+  }
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(scope)) {
+    if (value === undefined) {
+      continue
+    }
+    params.append(key, Array.isArray(value) ? value.join(",") : value)
+  }
+  const query = params.toString()
+  return query === "" ? "" : `&${query}`
+}
+
+/**
+ * Hands back whatever the endpoint answered, refusals included, for the specs asserting that a paused
+ * phase skips or that a phase fails. Everything else wants `runTick`.
+ */
+export const runTickUnchecked = async (
+  request: APIRequestContext,
+  phase: CreditRegistrationPhase,
+  scope?: TickScope,
+  options?: TickOptions,
+): Promise<PhaseTickResult> => {
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/run-tick?phase=${phase}${scopeQuery(scope)}${optionsQuery(options)}`,
+  )
+  // 501 is the "no implementation registered yet" answer and 400 covers the unknown phase and the two
+  // scope refusals; anything else (notably 404) means the mock is not enabled and the spec is invalid.
+  if (![200, 400, 501].includes(response.status())) {
+    throw new Error(
+      `Unexpected status ${response.status()} from run-tick?phase=${phase}. Is USE_MOCK_SUOTAR_ENDPOINT on? Body: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as PhaseTickResult
+}
+
+/**
+ * Ticks one phase and fails unless the iteration ran and the phase reported no error of its own.
+ * `itemsFailed` is deliberately not part of that: a row landing on an error code is the outcome half
+ * these specs exist to assert.
+ */
+export const runTick = async (
+  request: APIRequestContext,
+  phase: CreditRegistrationPhase,
+  scope?: TickScope,
+  options?: TickOptions,
+): Promise<RanPhaseTick> => {
+  const result = await runTickUnchecked(request, phase, scope, options)
+  if (result.status !== "ran" || result.error !== null) {
+    const scoped = scope ? ` scoped to ${JSON.stringify(scope)}` : " unscoped"
+    throw new Error(`Ticking ${phase}${scoped} did not run cleanly: ${JSON.stringify(result)}`)
+  }
+  return result
+}
+
+export const runMaterializeTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "materialize", scope)
+
+export const runPreconditionsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "preconditions", scope)
+
+export const runResolveEnrolmentsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "resolve-enrolments", scope)
+
+export const runImportSubmissionTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "import", scope)
+
+export const runVerifyPollTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "verify", scope)
+
+/**
+ * Separate from the registrar tick sequence because the whole point of these specs is that one
+ * explicit iteration queues each mail once and a second queues nothing.
+ */
+export const runStudentNotificationsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "student-notifications", scope)
+
+export const runEnrolmentDiscoveryTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+  options?: TickOptions,
+): Promise<RanPhaseTick> => runTick(request, "enrolment-discovery", scope, options)
+
+export const runLinkEmailsTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "link-emails", scope)
+
+export const runConfigValidationTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "config-validation", scope)
+
+export const runRetentionSweepTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
+  runTick(request, "retention-sweep")
+
+export const runLedgerSnapshotTick = (request: APIRequestContext): Promise<RanPhaseTick> =>
+  runTick(request, "ledger-snapshot")
+
+/**
+ * Backdates a row's last enrolment check and last check request past the half hour the recheck
+ * buttons wait out, and the row past the hour a student waits after completing, so a spec can press
+ * one right after the pipeline looked, the student asked or the row was created.
+ * `clearRestarts` also forgets the day's schedule restarts, for a spec that needs a press to restart
+ * the schedule again.
+ */
+export const expireEnrolmentRecheckAllowance = async (
+  request: APIRequestContext,
+  creditRegistrationId: string,
+  options: { clearRestarts?: boolean } = {},
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/expire-enrolment-recheck-allowance`, {
+    data: { creditRegistrationId, clearRestarts: options.clearRestarts ?? false },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `expire-enrolment-recheck-allowance failed with ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
+ * Brings the next enrolment check of every row in `scope` that waits for one forward to now, and
+ * returns how many it moved. The next resolve-enrolments tick checks them. Refuses an empty scope.
+ */
+export const makeEnrolmentChecksDue = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<number> => {
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/make-enrolment-checks-due?${scopeQuery(scope).slice(1)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `make-enrolment-checks-due scoped to ${JSON.stringify(scope)} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return ((await response.json()) as { madeDueCount: number }).madeDueCount
+}
+
+/**
+ * Makes the roster listings of the course `scope` names due now and refills its listing rate, so a
+ * spec can list its codes again without waiting for their next fetch, a failure backoff or the
+ * limiter. Returns how many codes it moved. Refuses a scope without a course.
+ */
+export const makeRosterListingsDue = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<number> => {
+  const response = await request.post(
+    `${CONTROL_BASE_URL}/make-roster-listings-due?${scopeQuery(scope).slice(1)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `make-roster-listings-due scoped to ${JSON.stringify(scope)} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return ((await response.json()) as { madeDueCount: number }).madeDueCount
+}
+
+/** Which ladder a row's enrolment checks follow. Rows only ever move to a later group. */
+export type EnrolmentCheckGroup = "completed" | "visited" | "check_requested"
+
+/** What made the row's next enrolment check run when it does. */
+export type EnrolmentCheckSource =
+  | "schedule"
+  | "student_request"
+  | "teacher_request"
+  | "admin_request"
+  | "roster_listing"
+  | "account_link"
+
+/** A row's enrolment check schedule. Timestamps are ISO strings. */
+export interface EnrolmentCheckSchedule {
+  state: string
+  group: EnrolmentCheckGroup
+  /** What the ladder's rungs are offsets from: the completion, a visit or a check request. */
+  anchorAt: string | null
+  /** The rung the next check is on; `null` once the ladder has run out. */
+  step: number | null
+  dueAt: string | null
+  /** When the pipeline next claims the row, which a batched rung rounds later than `dueAt`. */
+  nextAttemptAt: string
+  isBatched: boolean
+  source: EnrolmentCheckSource
+  stoppedAt: string | null
+  requestedAt: string | null
+  /** Restarts by check requests in the current 24-hour window. */
+  restartCount: number
+  checkedAt: string | null
+  firstFailedAt: string | null
+  submitRetryCount: number
+  errorCode: string | null
+  /** `null` until the row's first answered check or roster listing. */
+  seenEnrolmentIds: string[] | null
+  /** Set while a check of the parked row is out; the row stays `no_usable_enrolment` for it. */
+  claimedUntil: string | null
+}
+
+/** One row's enrolment check schedule, which no product surface shows whole. */
+export const getEnrolmentCheckSchedule = async (
+  request: APIRequestContext,
+  creditRegistrationId: string,
+): Promise<EnrolmentCheckSchedule> => {
+  const response = await request.get(
+    `${CONTROL_BASE_URL}/enrolment-check-schedule?creditRegistrationId=${creditRegistrationId}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `Reading the enrolment check schedule of ${creditRegistrationId} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as EnrolmentCheckSchedule
+}
+
+/** One mail sitting in our send queue for an account. */
+export interface QueuedEmail {
+  templateType: string
+  placeholders: Record<string, string>
+}
+
+/**
+ * The mails queued to one account, newest first. No mail capture exists in this repo, so a spec
+ * asserting a message was composed reads the send queue rather than an inbox.
+ */
+export const queuedEmailsFor = async (
+  request: APIRequestContext,
+  userEmail: string,
+): Promise<QueuedEmail[]> => {
+  const response = await request.get(
+    `${CONTROL_BASE_URL}/queued-emails?userEmail=${encodeURIComponent(userEmail)}`,
+  )
+  if (!response.ok()) {
+    throw new Error(
+      `Reading the queued emails of ${userEmail} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+  return (await response.json()) as QueuedEmail[]
+}
+
+/**
+ * Rewrites the grade of the completion behind one ledger row.
+ *
+ * A test hook rather than a product path: a teacher regrade writes a *new* completion row, and the
+ * grade-improvement statement is about a completion edited in place. `grade: null` puts it on the
+ * pass/fail scale, which is how a spec makes two grades incomparable.
+ */
+export const regradeCompletion = async (
+  request: APIRequestContext,
+  params: { creditRegistrationId: string; grade: number | null; passed?: boolean },
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/regrade-completion`, { data: params })
+  if (!response.ok()) {
+    throw new Error(
+      `Regrading the completion of ${params.creditRegistrationId} answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
+ * Excuses every one of a user's rows (or, with `courseId`, just that course's) from the live
+ * background worker's unscoped sweeps for `holdSecs`: a scoped tick (this spec's own) ignores the
+ * hold regardless, only an unscoped one skips the rows. Keyed on identity rather than a row id, so
+ * call this **before** `runMaterializeTick` — the worker ticks `preconditions`/`resolve-enrolments`
+ * every 10s regardless of any one test, so a hold set only after the row exists still races the
+ * worker's own next tick. Use this before driving a row through an owner-narrowed `requestLevel`
+ * fault (see `armMockSuotarFault`'s doc comment) — otherwise the worker can batch the row with an
+ * unrelated one and silently suppress the fault.
+ */
+export const setTestExclusiveHold = async (
+  request: APIRequestContext,
+  userEmail: string,
+  holdSecs: number,
+  courseId?: string,
+): Promise<void> => {
+  const response = await request.post(`${CONTROL_BASE_URL}/test-exclusive-hold`, {
+    data: { userEmail, courseId, holdSecs },
+  })
+  if (!response.ok()) {
+    throw new Error(
+      `Holding ${userEmail} for ${holdSecs}s answered ${response.status()}: ${await response.text()}`,
+    )
+  }
+}
+
+/**
+ * Checks the enrolments of the rows in `scope` now instead of on their schedule: a fresh row waits a
+ * day for its first check. Runs the check for rows already due too.
+ */
+export const runEnrolmentCheckNow = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<void> => {
+  await runPreconditionsTick(request, scope)
+  await makeEnrolmentChecksDue(request, scope)
+  await runResolveEnrolmentsTick(request, scope)
+}
+
+/**
+ * Drives a completion as far as a submission, one phase per tick, with its enrolment check brought
+ * forward. Each phase claims what the one before it left, so ticking them out of order waits for a
+ * state that cannot arrive.
+ */
+export const runPhasesUpToSubmission = async (
+  request: APIRequestContext,
+  scope: TickScope,
+): Promise<void> => {
+  await runMaterializeTick(request, scope)
+  await runEnrolmentCheckNow(request, scope)
+  await runImportSubmissionTick(request, scope)
+}

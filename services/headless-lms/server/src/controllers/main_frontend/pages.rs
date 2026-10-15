@@ -3,9 +3,11 @@
 use std::sync::Arc;
 
 use models::{
+    CourseOrExamId,
     page_history::PageHistory,
     pages::{HistoryRestoreData, NewPage, Page, PageDetailsUpdate, PageInfo},
 };
+use utoipa::OpenApi;
 
 use crate::{
     domain::{
@@ -14,6 +16,19 @@ use crate::{
     },
     prelude::*,
 };
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    post_new_page,
+    delete_page,
+    get_page_info,
+    update_page_details,
+    history,
+    history_count,
+    restore,
+    get_all_pages_by_course_id
+))]
+pub(crate) struct MainFrontendPagesApiDoc;
 
 /**
 POST `/api/v0/main-frontend/pages` - Create a new page.
@@ -45,6 +60,16 @@ Content-Type: application/json
 */
 
 #[instrument(skip(pool, app_conf))]
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createPage",
+    tag = "pages",
+    request_body = NewPage,
+    responses(
+        (status = 200, description = "Created page", body = Page)
+    )
+)]
 async fn post_new_page(
     request_id: RequestId,
     payload: web::Json<NewPage>,
@@ -64,8 +89,9 @@ async fn post_new_page(
     })?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    let page = models::pages::insert_new_content_page(
+    let page = models::pages::create_for_course_id(
         &mut conn,
+        course_id,
         new_page,
         user.id,
         models_requests::make_spec_fetcher(
@@ -88,6 +114,18 @@ DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises
 Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/{page_id}",
+    operation_id = "deletePage",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Deleted page", body = Page)
+    )
+)]
 async fn delete_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -105,6 +143,20 @@ async fn delete_page(
 GET /api/v0/main-frontend/pages/:page_id/history
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{page_id}/history",
+    operation_id = "getPageHistory",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Page history entries", body = Vec<PageHistory>)
+    )
+)]
 async fn history(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -123,6 +175,18 @@ async fn history(
 GET /api/v0/main-frontend/pages/:page_id/history_count
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{page_id}/history_count",
+    operation_id = "getPageHistoryCount",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Page history count", body = i64)
+    )
+)]
 async fn history_count(
     pool: web::Data<PgPool>,
     page_id: web::Path<Uuid>,
@@ -140,6 +204,19 @@ POST /api/v0/main-frontend/pages/:page_id/restore
 */
 
 #[instrument(skip(pool, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/{page_id}/restore",
+    operation_id = "restorePageHistory",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    request_body = HistoryRestoreData,
+    responses(
+        (status = 200, description = "Restored history id", body = Uuid)
+    )
+)]
 async fn restore(
     request_id: RequestId,
     pool: web::Data<PgPool>,
@@ -151,10 +228,19 @@ async fn restore(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let res = models::pages::restore(
+    let page = models::pages::get_page(&mut conn, *page_id).await?;
+    let (expected_course_id, expected_exam_id) =
+        match CourseOrExamId::from_course_and_exam_ids(page.course_id, page.exam_id)? {
+            CourseOrExamId::Course(course_id) => (Some(course_id), None),
+            CourseOrExamId::Exam(exam_id) => (None, Some(exam_id)),
+        };
+    let res = models::pages::restore_from_history_for_page_id(
         &mut conn,
         *page_id,
         restore_data.history_id,
+        None,
+        expected_course_id,
+        expected_exam_id,
         user.id,
         models_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
@@ -173,6 +259,18 @@ GET `/api/v0/main-fronted/pages/:page_id/info` - Get a pages's course id, course
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
+#[utoipa::path(
+    get,
+    path = "/{page_id}/info",
+    operation_id = "getPageInfo",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Page info", body = PageInfo)
+    )
+)]
 async fn get_page_info(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -190,6 +288,19 @@ async fn get_page_info(
 POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/{page_id}/page-details",
+    operation_id = "updatePageDetails",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    request_body = PageDetailsUpdate,
+    responses(
+        (status = 200, description = "Updated page details", body = bool)
+    )
+)]
 async fn update_page_details(
     page_id: web::Path<Uuid>,
     payload: web::Json<PageDetailsUpdate>,
@@ -207,6 +318,18 @@ async fn update_page_details(
 /**
 GET `/api/v0/main-frontend/pages/:course_id/all-course-pages-for-course` - Get all pages of a course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/all-course-pages-for-course",
+    operation_id = "getCoursePages",
+    tag = "pages",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course pages", body = Vec<Page>)
+    )
+)]
 async fn get_all_pages_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -217,7 +340,7 @@ async fn get_all_pages_by_course_id(
 
     let mut pages = models::pages::get_pages_by_course_id(&mut conn, *course_id).await?;
 
-    pages.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    pages.sort_by_key(|a| a.order_number);
 
     token.authorized_ok(web::Json(pages))
 }
@@ -239,7 +362,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{page_id}/history", web::get().to(history))
         .route("/{page_id}/history_count", web::get().to(history_count))
-        .route("/{history_id}/restore", web::post().to(restore))
+        .route("/{page_id}/restore", web::post().to(restore))
         .route(
             "/{course_id}/all-course-pages-for-course",
             web::get().to(get_all_pages_by_course_id),

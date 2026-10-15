@@ -1,5 +1,6 @@
-/* eslint-disable playwright/no-conditional-in-test */
-import { expect, Page, test } from "@playwright/test"
+/* oxlint-disable playwright/no-conditional-in-test */
+import type { Locator, Page } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import {
   ALERT_DIALOG_OK_BUTTON_TEST_ID,
@@ -9,7 +10,7 @@ import {
   PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
   PROMPT_DIALOG_INPUT_TEST_ID,
   PROMPT_DIALOG_OK_BUTTON_TEST_ID,
-} from "@/shared-module/common/components/dialogs/dialogTestIds"
+} from "@/shared-module/components/components/dialogProvider/testIds"
 
 /**
  * Dismiss an alert dialog by clicking OK
@@ -23,7 +24,9 @@ export async function dismissAlertDialog(
   expectedTitle?: string,
 ): Promise<void> {
   await test.step("Dismiss alert dialog", async () => {
-    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
+    // `.last()`: during a handoff, an outgoing dialog can still be mid-exit-animation and share
+    // this testid with the new one taking over; the newest is always the last in DOM order.
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -55,7 +58,7 @@ export async function respondToConfirmDialog(
   const action = confirm ? "Confirm" : "Cancel"
 
   await test.step(`Respond to confirm dialog - ${action}`, async () => {
-    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -69,6 +72,24 @@ export async function respondToConfirmDialog(
       ? CONFIRM_DIALOG_YES_BUTTON_TEST_ID
       : CONFIRM_DIALOG_NO_BUTTON_TEST_ID
     await dialog.getByTestId(buttonTestId).click()
+
+    await dialog.waitFor({ state: "hidden" })
+  })
+}
+
+/**
+ * Accepts a prompt dialog whose value its own body supplies instead of the built-in input.
+ *
+ * `fillPromptDialog` is the one to use when the dialog carries that input; this one only presses
+ * OK, which stays disabled until the body has armed it.
+ * @param page - Playwright page object
+ */
+export async function acceptPromptDialog(page: Page): Promise<void> {
+  await test.step("Accept prompt dialog", async () => {
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
+    await dialog.waitFor()
+
+    await dialog.getByTestId(PROMPT_DIALOG_OK_BUTTON_TEST_ID).click()
 
     await dialog.waitFor({ state: "hidden" })
   })
@@ -92,7 +113,7 @@ export async function fillPromptDialog(
   const action = submit ? "Submit" : "Cancel"
 
   await test.step(`Fill prompt dialog - ${action}`, async () => {
-    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID)
+    const dialog = page.getByTestId(DIALOG_PROVIDER_DIALOG_TEST_ID).last()
     await dialog.waitFor()
 
     if (expectedMessage) {
@@ -112,5 +133,19 @@ export async function fillPromptDialog(
     }
 
     await dialog.waitFor({ state: "hidden" })
+  })
+}
+
+/**
+ * Presses a footer button of a dialog and waits for the dialog to close.
+ *
+ * Get the dialog by its title: `page.getByRole("dialog", { name: title })`. For a dialog opened
+ * through `DialogProvider` (alert, confirm, prompt) use the matching helper above instead.
+ * @param actionLabel - Exact accessible name of the footer button, such as "Create" or "Save"
+ */
+export async function submitDialog(dialog: Locator, actionLabel: string): Promise<void> {
+  await test.step(`Press "${actionLabel}" in dialog`, async () => {
+    await dialog.getByRole("button", { name: actionLabel, exact: true }).click()
+    await expect(dialog).toBeHidden()
   })
 }

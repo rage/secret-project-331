@@ -5,11 +5,11 @@ import { useQueryClient } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { exerciseButtonStyles, makeExerciseButtonMutedStyles } from ".."
-
+import type { CourseMaterialExercise } from "@/generated/course-material-api/types.generated"
 import { courseMaterialExerciseQueryKey } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
-import { CourseMaterialExercise } from "@/shared-module/common/bindings"
 import { baseTheme } from "@/shared-module/common/styles"
+
+import { exerciseButtonStyles, makeExerciseButtonMutedStyles } from ".."
 
 const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: string }>> = ({
   exerciseId,
@@ -46,7 +46,15 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: stri
           // Resets the reviewing stage back to peer review so that the reviewing ui shows up
           const queryKey = courseMaterialExerciseQueryKey(exerciseId)
           const oldData: CourseMaterialExercise | undefined = queryClient.getQueryData(queryKey)
-          if (oldData === undefined || oldData.exercise_status === null) {
+          if (
+            oldData === undefined ||
+            oldData.exercise_status === null ||
+            oldData.exercise_status === undefined ||
+            oldData.exercise_status.activity_progress === null ||
+            oldData.exercise_status.activity_progress === undefined ||
+            oldData.exercise_status.grading_progress === null ||
+            oldData.exercise_status.grading_progress === undefined
+          ) {
             throw new Error(
               `Cannot find required data to start giving extra peer review. ${JSON.stringify(
                 { queryKey, oldData },
@@ -57,7 +65,10 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: stri
           }
           const newData: CourseMaterialExercise = {
             ...oldData,
-            exercise_status: { ...oldData.exercise_status, reviewing_stage: "PeerReview" },
+            exercise_status: {
+              ...oldData.exercise_status,
+              reviewing_stage: "PeerReview",
+            },
           }
           queryClient.setQueryData(queryKey, newData)
         }}

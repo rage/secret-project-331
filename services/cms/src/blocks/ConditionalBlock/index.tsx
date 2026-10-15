@@ -1,10 +1,10 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+/* oxlint-disable i18next/no-literal-string */
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
-
 import ConditionalBlockEditor from "./ConditionalBlockEditor"
 import ConditionalBlockSave from "./ConditionalBlockSave"
 
@@ -14,6 +14,7 @@ export interface ConditionAttributes {
 }
 
 const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
+  apiVersion: 3,
   title: "ConditionalBlock",
   description: "Conditionally shown block",
   category: MOOCFI_CATEGORY_SLUG,

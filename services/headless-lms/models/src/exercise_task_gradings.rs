@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use futures::future::BoxFuture;
 use headless_lms_utils::numbers::f32_to_three_decimals;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId, exams,
@@ -16,8 +17,8 @@ use crate::{
     user_exercise_states::UserExerciseState,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseTaskGrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -43,11 +44,27 @@ pub struct ExerciseTaskGrading {
 pub struct ExerciseTaskGradingRequest<'a> {
     pub grading_update_url: &'a str,
     pub exercise_spec: &'a Option<serde_json::Value>,
-    pub submission_data: &'a Option<serde_json::Value>,
+    /// The whole answer for a JSON-typed submission; the plugin's metadata for a file-typed one.
+    pub submission_data: Option<&'a serde_json::Value>,
+    /// The answer's files, in answer order. Empty for a JSON-typed submission.
+    pub submission_files: &'a [GradingRequestFile],
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+/// One file of a file-typed answer, as an exercise service is handed it for grading.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct GradingRequestFile {
+    pub id: Uuid,
+    pub name: String,
+    pub mime: String,
+    /// `null` for a file stored before the size was recorded; never a substitute zero, so a service
+    /// enforcing a size limit can tell an unknown size from an empty file.
+    pub size_bytes: Option<i64>,
+    /// Host-minted and short-lived; do not persist it.
+    pub download_url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseTaskGradingResult {
     pub grading_progress: GradingProgress,
     pub score_given: f32,
@@ -58,8 +75,7 @@ pub struct ExerciseTaskGradingResult {
     pub set_user_variables: Option<HashMap<String, serde_json::Value>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {
     CanAddPointsButCannotRemovePoints,
@@ -84,7 +100,7 @@ INSERT INTO exercise_task_gradings (
     exercise_task_id
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         submission_id,
@@ -101,24 +117,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercis
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_maximum,
-  unscaled_score_given,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+SELECT *
 FROM exercise_task_gradings
 WHERE id = $1
 "#,
@@ -136,24 +135,7 @@ pub async fn get_by_exercise_task_submission_id(
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_maximum,
-  unscaled_score_given,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+SELECT *
 FROM exercise_task_gradings
 WHERE exercise_task_submission_id = $1
   AND deleted_at IS NULL
@@ -186,7 +168,7 @@ SELECT etg.id,
   etg.exercise_task_id,
   etg.grading_priority,
   etg.score_given,
-  etg.grading_progress as "grading_progress: _",
+  etg.grading_progress,
   etg.unscaled_score_given,
   etg.unscaled_score_maximum,
   etg.grading_started_at,
@@ -238,7 +220,7 @@ pub async fn get_point_update_strategy_from_gradings(
 ) -> ModelResult<GradingProgress> {
     let res = sqlx::query!(
         r#"
-SELECT etg.grading_progress as "grading_progress: GradingProgress"
+SELECT etg.grading_progress
 FROM exercise_task_gradings etg
   JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
 WHERE ets.exercise_slide_submission_id = $1
@@ -256,7 +238,7 @@ LIMIT 1
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
     let course_id = sqlx::query!(
         "
-SELECT course_id
+SELECT *
 from exercise_task_gradings
 where id = $1
         ",
@@ -274,8 +256,7 @@ pub async fn get_course_or_exam_id(
 ) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
-SELECT course_id,
-  exam_id
+SELECT *
 from exercise_task_gradings
 where id = $1
 ",
@@ -303,24 +284,7 @@ INSERT INTO exercise_task_gradings(
     grading_started_at
   )
 VALUES($1, $2, $3, $4, $5, now())
-RETURNING id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+RETURNING *
 "#,
         submission.id,
         exercise.course_id,
@@ -407,13 +371,9 @@ pub async fn update_grading(
         exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, &[exercise_slide_id])
             .await?
             .len() as f32;
-    let correctness_coefficient =
-        grading_result.score_given / (grading_result.score_maximum as f32);
-    // ensure the score doesn't go over the maximum
-    let score_given_with_all_decimals = f32::min(
-        (exercise.score_maximum as f32) * correctness_coefficient / exercise_task_count,
-        exercise.score_maximum as f32 / exercise_task_count,
-    );
+    let score_given_with_all_decimals = (exercise.score_maximum as f32)
+        * correctness_coefficient(grading_result.score_given, grading_result.score_maximum)
+        / exercise_task_count;
     // Scores are rounded to two decimals
     let score_given_rounded = f32_to_three_decimals(score_given_with_all_decimals);
     let grading = sqlx::query_as!(
@@ -428,24 +388,7 @@ SET grading_progress = $2,
   grading_completed_at = $7,
   score_given = $8
 WHERE id = $1
-RETURNING id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress as "grading_progress: _",
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+RETURNING *
 "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,
@@ -460,6 +403,17 @@ RETURNING id,
     .await?;
 
     Ok(grading)
+}
+
+/// The share of a task's points a grading result earns, in `0.0..=1.0`.
+///
+/// A result with no positive maximum earns nothing, since the tmc service reports a failed grading
+/// as 0 of 0 points.
+fn correctness_coefficient(score_given: f32, score_maximum: i32) -> f32 {
+    if score_maximum <= 0 || !score_given.is_finite() {
+        return 0.0;
+    }
+    (score_given / score_maximum as f32).clamp(0.0, 1.0)
 }
 
 /// Fetches the grading for the student, but hides the result in some circumstances.
@@ -512,7 +466,7 @@ exercise_id,
 exercise_task_id,
 grading_priority,
 score_given,
-grading_progress as "grading_progress: _",
+grading_progress,
 unscaled_score_given,
 unscaled_score_maximum,
 grading_started_at,
@@ -552,7 +506,7 @@ SELECT id,
   exercise_task_id,
   grading_priority,
   score_given,
-  grading_progress as "grading_progress: _",
+  grading_progress,
   unscaled_score_given,
   unscaled_score_maximum,
   grading_started_at,
@@ -627,4 +581,26 @@ WHERE etg.deleted_at IS NULL
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_zero_maximum_earns_nothing() {
+        assert_eq!(correctness_coefficient(0.0, 0), 0.0);
+        assert_eq!(correctness_coefficient(3.0, 0), 0.0);
+    }
+
+    #[test]
+    fn a_partial_score_earns_its_share() {
+        assert_eq!(correctness_coefficient(1.0, 4), 0.25);
+    }
+
+    #[test]
+    fn the_share_stays_between_nothing_and_everything() {
+        assert_eq!(correctness_coefficient(5.0, 4), 1.0);
+        assert_eq!(correctness_coefficient(-1.0, 4), 0.0);
+    }
 }

@@ -1,11 +1,13 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { useBlockProps } from "@wordpress/block-editor"
-import { BlockDeprecation, createBlock } from "@wordpress/blocks"
+import { createBlock } from "@wordpress/blocks"
 import { omit } from "lodash"
 
-import { InfoBoxComponentProps } from "."
+import type { BlockDeprecation } from "@/utils/Gutenberg/types"
+
+import type { InfoBoxComponentProps } from "."
 
 interface Deprecated1InfoBoxComponentProps {
   title: string

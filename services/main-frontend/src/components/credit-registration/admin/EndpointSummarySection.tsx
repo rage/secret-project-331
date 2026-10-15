@@ -1,0 +1,111 @@
+"use client"
+
+import React from "react"
+import { useTranslation } from "react-i18next"
+
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
+import { QueryResult, Table } from "@/shared-module/components"
+
+import {
+  ALIGN_END,
+  CREDIT_REGISTRATION_NS,
+  DENSITY_COMPACT,
+  QUIET_REFRESH,
+  TABLE_STACK,
+} from "../constants"
+import {
+  controlCss,
+  codeValueCss,
+  headingCss,
+  noteCss,
+  sectionCardCss,
+  sectionCardHeaderCss,
+  stackedCellCss,
+} from "../styles"
+import { suotarEndpointLabel } from "./adminCreditRegistrationCopy"
+import { useSuotarHealth } from "./adminCreditRegistrationHooks"
+import { DAY_SECS, useWindowSecsParam, WindowSecsSelect } from "./WindowSecsSelect"
+
+/** One row per study registry endpoint over the chosen window: how much we called it, and how it went. */
+const EndpointSummarySection: React.FC = () => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const healthQuery = useSuotarHealth()
+  const { control, windowSecs } = useWindowSecsParam(DAY_SECS)
+
+  return (
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-endpoints")}</h2>
+        <div className={controlCss}>
+          <WindowSecsSelect control={control} />
+        </div>
+      </div>
+      <QueryResult query={healthQuery} refreshIndicator={QUIET_REFRESH}>
+        {(health) => (
+          <Table
+            caption={t("credit-registration-heading-endpoints")}
+            density={DENSITY_COMPACT}
+            responsive={TABLE_STACK}
+            rowKey={(row) => row.endpoint}
+            rows={
+              health.windows.find((window) => window.window_secs === windowSecs)?.endpoints ?? []
+            }
+            emptyState={t("credit-registration-admin-no-calls-in-window")}
+            columns={[
+              {
+                header: t("label-endpoint"),
+                minWidth: "12rem",
+                cell: (row) => suotarEndpointLabel(t, row.endpoint),
+              },
+              {
+                header: t("credit-registration-admin-column-calls"),
+                align: ALIGN_END,
+                minWidth: "5rem",
+                nowrap: true,
+                cell: (row) => row.call_count,
+              },
+              {
+                header: t("credit-registration-admin-column-failed-calls"),
+                align: ALIGN_END,
+                minWidth: "7rem",
+                cell: (row) => row.failed_call_count,
+              },
+              {
+                header: t("credit-registration-admin-column-error-items"),
+                align: ALIGN_END,
+                minWidth: "6rem",
+                cell: (row) => row.error_item_count,
+              },
+              {
+                header: t("label-credit-registration-p95-ms"),
+                align: ALIGN_END,
+                minWidth: "5rem",
+                nowrap: true,
+                cell: (row) => row.p95_duration_ms ?? <AbsentValue />,
+              },
+              {
+                header: t("label-credit-registration-last-failure"),
+                grow: true,
+                minWidth: "9rem",
+                cell: (row) => (
+                  <span className={stackedCellCss}>
+                    <ZonedTimestamp at={row.last_failure_at} />
+                    {row.last_request_level_error_code && (
+                      <span className={noteCss}>
+                        {t("credit-registration-admin-request-error-code-label")}{" "}
+                        <code className={codeValueCss}>{row.last_request_level_error_code}</code>
+                      </span>
+                    )}
+                  </span>
+                ),
+              },
+            ]}
+          />
+        )}
+      </QueryResult>
+    </section>
+  )
+}
+
+export default EndpointSummarySection

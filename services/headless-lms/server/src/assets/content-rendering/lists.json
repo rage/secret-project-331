@@ -1,0 +1,457 @@
+[
+  {
+    "clientId": "f1fc319d-bf26-46e7-8faf-b9efbdf15243",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": false,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "ca902bf0-748d-4eb4-951f-a94607e5a5b9",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Unordered List"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "cd873796-a570-4974-8813-39170f6d54dc",
+            "isValid": true,
+            "name": "core/list",
+            "attributes": {
+              "ordered": false,
+              "values": ""
+            },
+            "innerBlocks": [
+              {
+                "clientId": "b7736933-b046-4348-b6b0-590e328cfa26",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "Item"
+                },
+                "innerBlocks": [
+                  {
+                    "clientId": "c28e0b29-e60d-4c37-a891-595f1b4bc3f9",
+                    "isValid": true,
+                    "name": "core/list",
+                    "attributes": {
+                      "ordered": false,
+                      "values": ""
+                    },
+                    "innerBlocks": [
+                      {
+                        "clientId": "67d27d78-6ae3-446f-932c-3f3350b8899f",
+                        "isValid": true,
+                        "name": "core/list-item",
+                        "attributes": {
+                          "content": "Inline&nbsp;<code>code&nbsp;</code><kbd>keyboard&nbsp;</kbd><s>strikethrough</s>&nbsp;<sub>subscript&nbsp;</sub><sup>superscript&nbsp;</sup><span class=\"has-inline-color has-vivid-green-cyan-color\">text-inline-color</span>"
+                        },
+                        "innerBlocks": []
+                      },
+                      {
+                        "clientId": "d87d0f13-50fd-46c5-a3f4-7d003c76fcd9",
+                        "isValid": true,
+                        "name": "core/list-item",
+                        "attributes": {
+                          "content": "One"
+                        },
+                        "innerBlocks": [
+                          {
+                            "clientId": "da503b28-1c73-421d-8c8e-53e01815660f",
+                            "isValid": true,
+                            "name": "core/list",
+                            "attributes": {
+                              "ordered": false,
+                              "values": ""
+                            },
+                            "innerBlocks": [
+                              {
+                                "clientId": "c15817e3-7079-4acc-8107-ae2b2ab004ac",
+                                "isValid": true,
+                                "name": "core/list-item",
+                                "attributes": {
+                                  "content": "Two"
+                                },
+                                "innerBlocks": [
+                                  {
+                                    "clientId": "e48ffb44-8e18-41e0-bf21-41a69675e1ba",
+                                    "isValid": true,
+                                    "name": "core/list",
+                                    "attributes": {
+                                      "ordered": false,
+                                      "values": ""
+                                    },
+                                    "innerBlocks": [
+                                      {
+                                        "clientId": "f1d336d4-7e9d-474d-8c7b-191d1b495f58",
+                                        "isValid": true,
+                                        "name": "core/list-item",
+                                        "attributes": {
+                                          "content": "Three"
+                                        },
+                                        "innerBlocks": [
+                                          {
+                                            "clientId": "e1fc5a4a-7c58-48f7-8f2b-8b6311c09c7a",
+                                            "isValid": true,
+                                            "name": "core/list",
+                                            "attributes": {
+                                              "ordered": false,
+                                              "values": ""
+                                            },
+                                            "innerBlocks": [
+                                              {
+                                                "clientId": "aae98e0e-6b7a-4b1d-af0d-05dfc60c12c5",
+                                                "isValid": true,
+                                                "name": "core/list-item",
+                                                "attributes": {
+                                                  "content": "Four"
+                                                },
+                                                "innerBlocks": [
+                                                  {
+                                                    "clientId": "8b33a453-46fa-456c-8c99-4f6c667f2a37",
+                                                    "isValid": true,
+                                                    "name": "core/list",
+                                                    "attributes": {
+                                                      "ordered": true,
+                                                      "values": ""
+                                                    },
+                                                    "innerBlocks": [
+                                                      {
+                                                        "clientId": "b663860a-c75b-4633-8d9e-a2082ebc0c5a",
+                                                        "isValid": true,
+                                                        "name": "core/list-item",
+                                                        "attributes": {
+                                                          "content": "Five"
+                                                        },
+                                                        "innerBlocks": []
+                                                      },
+                                                      {
+                                                        "clientId": "2d4d972f-91cc-41e3-846c-cf9700ce52e9",
+                                                        "isValid": true,
+                                                        "name": "core/list-item",
+                                                        "attributes": {
+                                                          "content": "Six"
+                                                        },
+                                                        "innerBlocks": []
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "29dc31e9-b0df-4f8d-befc-590bd7b6b1d8",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": true,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "cb58cce3-e1a7-4ffd-a3c2-fe78a8723a1a",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Ordered"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "a6d31017-bea2-430d-9767-f2bf80d9f49d",
+            "isValid": true,
+            "name": "core/list",
+            "attributes": {
+              "ordered": true,
+              "values": ""
+            },
+            "innerBlocks": [
+              {
+                "clientId": "371f80e3-6e13-4c1a-8cad-993fc008328b",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "Item"
+                },
+                "innerBlocks": []
+              },
+              {
+                "clientId": "3e7acbf2-99bf-491b-a9b0-e4b4303085fc",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "Two <a href=\"http://project-331.local/\">link</a><a rel=\"noreferrer noopener\" href=\"http://project-331.local/\" target=\"_blank\">link_new_tab</a><strong>bold</strong><em>italic</em><strong><em>bolditalic</em></strong>"
+                },
+                "innerBlocks": [
+                  {
+                    "clientId": "4619d013-1104-4f9f-b3fc-946beb90c339",
+                    "isValid": true,
+                    "name": "core/list",
+                    "attributes": {
+                      "ordered": true,
+                      "values": ""
+                    },
+                    "innerBlocks": [
+                      {
+                        "clientId": "fa09481a-c45b-4b3a-adce-6b0a7039f6ee",
+                        "isValid": true,
+                        "name": "core/list-item",
+                        "attributes": {
+                          "content": "Three"
+                        },
+                        "innerBlocks": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "29ae88a2-34fc-4566-8f9d-193d91355936",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": false,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "2f2f7271-b4af-4c89-bb94-a39de8b8e957",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "<mark style=\"background-color:#000000;color:#FFFFFF\" class=\"has-inline-color\">List with background</mark>"
+        },
+        "innerBlocks": [
+          {
+            "clientId": "ffa32e19-e3e7-4aa9-b9a0-ca87939d06e9",
+            "isValid": true,
+            "name": "core/list",
+            "attributes": {
+              "ordered": false,
+              "values": ""
+            },
+            "innerBlocks": [
+              {
+                "clientId": "b923334d-754a-4b19-9e95-ef2bdd630e5a",
+                "isValid": true,
+                "name": "core/list-item",
+                "attributes": {
+                  "content": "<mark style=\"background-color:#000000;color:#A5D8FF\" class=\"has-inline-color\">and text color</mark>"
+                },
+                "innerBlocks": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "clientId": "0e2a4be6-ae6e-4f9f-baf8-4d41d23b950d",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "fontSize": "small",
+      "ordered": false,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "bba90bb6-579a-4ad2-a52e-0dce8c6fe52b",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Font Size Small"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "bb2714fe-e7f5-421f-ab22-07897fe37b81",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "fontSize": "large",
+      "ordered": true,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "c10c4edc-b4d2-4cd8-bfb6-280c86a6cf14",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Font Size Large"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "f3a91c47-2b8e-4d6a-9c01-7e5b2a4d8f10",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": false,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "b7c2e91a-4f3d-4a8b-8e21-3c9d5f1a2b64",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Item Font Size Small",
+          "fontSize": "small"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "c8d3fa2b-5e4c-4b9c-9f32-4dae6f2b3c75",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Item Font Size Normal"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "d9e4ab3c-6f5d-4cad-a043-5ebf7a3c4d86",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "List Item Font Size Large",
+          "fontSize": "large"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "e0f5bc4d-7a6e-4dbe-b154-6fc08b4d5e97",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "except on mobile"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "307ff4b0-4eac-426d-9c29-838cb57d0585",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": true,
+      "reversed": true,
+      "start": 5,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "76fa057b-5da9-42cb-959f-5522e001648b",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Ordered"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "59bef14c-8246-4908-837f-e7cc04d3a1c7",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Reversed"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "a45e4328-e239-4016-a827-3221a629d2da",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Start Value 5"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "eb05c0e3-4319-46dd-8e30-d04471ab8afe",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Two"
+        },
+        "innerBlocks": []
+      }
+    ]
+  },
+  {
+    "clientId": "e36001f8-f226-4f4a-a7c7-5a7fc7715ee2",
+    "isValid": true,
+    "name": "core/list",
+    "attributes": {
+      "ordered": true,
+      "reversed": true,
+      "values": ""
+    },
+    "innerBlocks": [
+      {
+        "clientId": "5f268d9b-318e-4a45-9b32-93e1ea16cde4",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Ordered"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "c78c02d0-1f99-4712-9474-a1af67473bcc",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "Reversed"
+        },
+        "innerBlocks": []
+      },
+      {
+        "clientId": "eb751a29-cdf1-483f-b42f-9d4e5df7e06a",
+        "isValid": true,
+        "name": "core/list-item",
+        "attributes": {
+          "content": "No start value"
+        },
+        "innerBlocks": []
+      }
+    ]
+  }
+]

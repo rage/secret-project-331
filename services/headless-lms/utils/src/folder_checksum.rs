@@ -93,7 +93,7 @@ fn determine_permissions_mode_for_hashing(permissions: &Permissions) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use tempdir::TempDir;
+    use tempfile::TempDir;
     use tokio::{
         fs::{self, create_dir, remove_dir, symlink},
         io::AsyncWriteExt,
@@ -102,7 +102,7 @@ mod tests {
     use super::*;
 
     async fn do_the_test() {
-        let dir = TempDir::new("test-folder-checksum").expect("Failed to create a temp dir");
+        let dir = TempDir::new().expect("Failed to create a temp dir");
         File::open(dir.path())
             .await
             .unwrap()

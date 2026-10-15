@@ -2,7 +2,7 @@ import type React from "react"
 
 import { joinAriaDescribedBy } from "./aria"
 
-type ResolveFieldStateInput = {
+interface ResolveFieldStateInput {
   disabled?: boolean
   readOnly?: boolean
   required?: boolean
@@ -14,7 +14,7 @@ type ResolveFieldStateInput = {
   errorMessage?: React.ReactNode
 }
 
-type ResolveDescribedByInput = {
+interface ResolveDescribedByInput {
   ariaDescribedBy?: string
   descriptionId?: string
   noticeId?: string
@@ -36,7 +36,7 @@ export function resolveFieldState({
   errorMessage,
 }: ResolveFieldStateInput) {
   const resolvedInvalidFromAria =
-    ariaInvalid == null
+    ariaInvalid === undefined
       ? undefined
       : ariaInvalid === true ||
         ariaInvalid === "true" ||
@@ -69,7 +69,7 @@ export function resolveFieldDescribedBy({
 }
 
 export function hasFieldValue(value: unknown) {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return false
   }
 
@@ -85,7 +85,7 @@ export function hasFieldValue(value: unknown) {
 }
 
 export function toInputValue(value: unknown) {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return ""
   }
 

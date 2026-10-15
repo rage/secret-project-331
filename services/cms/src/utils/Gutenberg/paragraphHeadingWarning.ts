@@ -95,7 +95,7 @@ export const shouldWarnAboutParagraphLookingLikeHeading = (html: string): boolea
     return false
   }
 
-  const normalizedText = (body.textContent ?? "").replace(/\s+/g, " ").trim()
+  const normalizedText = (body.textContent ?? "").replaceAll(/\s+/g, " ").trim()
   if (!normalizedText) {
     return false
   }

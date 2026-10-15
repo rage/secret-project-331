@@ -1,45 +1,48 @@
 "use client"
 
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 
-import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
-import CourseContext from "../../../contexts/CourseContext"
-
 import PageContext from "@/contexts/PageContext"
-import { getRepositoryExercises } from "@/services/backend/repository-exercises"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import {
-  ExerciseIframeState,
-  MessageToIframe,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
+import type {
+  ExerciseIframeState,
+  MessageToIframe,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import { uploadFilesFromExerciseServiceEditor } from "@/utils/uploadFilesFromExerciseIframe"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
+import CourseContext from "../../../contexts/CourseContext"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
 const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
+  exerciseServiceSlug: string
   exerciseTaskId: string
-  onPrivateSpecChange(newSpec: string): void
+  onPrivateSpecChange: (newSpec: string, specFiles: string[] | undefined) => void
   privateSpec: string | null
   url: string | null | undefined
 }
 
 const ExerciseTaskIFrameEditor: React.FC<
   React.PropsWithChildren<ExerciseTaskIFrameEditorProps>
-> = ({ exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
+> = ({ exerciseServiceSlug, exerciseTaskId, onPrivateSpecChange, privateSpec, url }) => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   const loginStateContext = useContext(LoginStateContext)
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id || getGuestPseudonymousUserId()
@@ -64,42 +67,82 @@ const ExerciseTaskIFrameEditor: React.FC<
   }, [privateSpec])
 
   if (!url || url.trim() === "") {
-    return (
-      <ErrorBanner variant="readOnly" error={t("error-cannot-render-exercise-task-missing-url")} />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
   }
 
   if (!userInfo.data) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (
     <MessageChannelIFrame
+      dialog={dialog}
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (messageContainer, responsePort) => {
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
+            // The declared files travel beside the spec rather than inside it, because the host
+            // stores the spec as an opaque blob and cannot look for ids in it.
+            onPrivateSpecChange(
+              // oxlint-disable-next-line typescript/no-explicit-any
+              JSON.stringify((messageContainer.data as any).private_spec),
+              // Sorted because the unsaved-changes check deep-compares block attributes: declaring
+              // the same files in another order than they load in would leave the page dirty
+              // forever. Undefined stays undefined — it means "leave the declaration alone", and
+              // flattening it to [] would release the files the spec still references.
+              messageContainer.private_spec_files?.toSorted(),
+            )
+          }
+          if (messageContainer.message === "file-upload") {
+            let response: MessageToIframe
+            try {
+              const files = await uploadFilesFromExerciseServiceEditor(
+                exerciseServiceSlug,
+                messageContainer.files,
+              )
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: messageContainer.requestId,
+                success: true,
+                files,
+              }
+            } catch (e) {
+              response = {
+                // oxlint-disable-next-line i18next/no-literal-string
+                message: "upload-result",
+                requestId: messageContainer.requestId,
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }
+            }
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
+            responsePort.postMessage(response)
           }
           if (messageContainer.message === "request-repository-exercises") {
             if (courseId) {
-              const repositoryExercises = await getRepositoryExercises(courseId)
+              const repositoryExercises = await getCmsRepositoryExercisesForCourse({
+                path: {
+                  course_id: courseId,
+                },
+              })
               const message: MessageToIframe = {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",
                 repository_exercises: repositoryExercises,
               }
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(message)
             } else {
               console.warn("Missing page context")
               // todo: handle missing page context properly?
               const message: MessageToIframe = {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",
                 repository_exercises: [],
               }
+              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
               responsePort.postMessage(message)
             }
           }
@@ -107,17 +150,15 @@ const ExerciseTaskIFrameEditor: React.FC<
           console.error(UNEXPECTED_MESSAGE_ERROR)
         }
       }}
-      breakFromCenteredProps={
-        largeScreen
-          ? {
-              sidebar: true,
-              // eslint-disable-next-line i18next/no-literal-string
-              sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
-              // eslint-disable-next-line i18next/no-literal-string
-              sidebarPosition: "right",
-            }
-          : undefined
-      }
+      {...includeIf(largeScreen, {
+        breakFromCenteredProps: {
+          sidebar: true,
+          // oxlint-disable-next-line i18next/no-literal-string
+          sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
+          // oxlint-disable-next-line i18next/no-literal-string
+          sidebarPosition: "right",
+        },
+      })}
       title={IFRAME_EDITOR}
     />
   )

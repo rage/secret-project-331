@@ -5,13 +5,13 @@ import * as React from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import Essay from "./Essay"
-import Likert from "./Likert"
-
-import {
+import type {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
+
+import Essay from "./Essay"
+import Likert from "./Likert"
 interface ReviewProps {
   orderNumber: number
   reviews: PeerOrSelfReviewQuestionSubmission[]
@@ -42,7 +42,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
 
   const sortedReviews = useMemo(
     () =>
-      reviews.sort((o1, o2) => {
+      reviews.toSorted((o1, o2) => {
         const o1Question = questions.find((q) => q.id === o1.peer_or_self_review_question_id)
         const o2Question = questions.find((q) => q.id === o2.peer_or_self_review_question_id)
         if (!o1Question) {
@@ -67,14 +67,19 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
           if (questionIndex === -1) {
             return null
           }
-          const question = questions[questionIndex].question
+          // questionIndex was found via findIndex and checked !== -1, so this is always defined.
+          const foundQuestion = questions[questionIndex]
+          if (foundQuestion === undefined) {
+            return null
+          }
+          const question = foundQuestion.question
           return (
             <>
               {text_data && (
                 <Essay key={id} question={question} content={text_data} index={index} />
               )}
               {number_data !== null && (
-                <Likert key={id} question={question} content={number_data} index={index} />
+                <Likert key={id} question={question} content={number_data ?? null} index={index} />
               )}
             </>
           )

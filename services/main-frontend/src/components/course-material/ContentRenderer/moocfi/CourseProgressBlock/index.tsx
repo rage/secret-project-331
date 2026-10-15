@@ -5,18 +5,16 @@ import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import CourseProgress from "./CourseProgress"
-
-import { fetchUserCourseProgress } from "@/services/course-material/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { getCourseMaterialUserCourseProgress } from "@/generated/course-material-api/sdk.generated"
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Infobox, LoadingRegion, QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+
+import type { BlockRendererProps } from "../.."
+import CourseProgress from "./CourseProgress"
 
 const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
@@ -25,30 +23,42 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const loginStateContext = useContext(LoginStateContext)
   const getUserCourseProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-progress`],
-    queryFn: () => fetchUserCourseProgress(assertNotNullOrUndefined(courseInstanceId)),
+    queryFn: (): Promise<UserCourseProgress[]> =>
+      getCourseMaterialUserCourseProgress({
+        path: {
+          course_instance_id: assertNotNullOrUndefined(courseInstanceId),
+        },
+      }),
     enabled: !!courseInstanceId && loginStateContext.signedIn === true,
   })
 
   if (courseMaterialState.status !== "ready" || loginStateContext.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
   if (!loginStateContext.signedIn) {
-    return <GenericInfobox>{t("please-log-in-to-see-your-progress")}</GenericInfobox>
+    return <Infobox>{t("please-log-in-to-see-your-progress")}</Infobox>
   }
   if (!courseMaterialState.instance) {
     return <div>{t("select-course-version-to-see-your-progress")}</div>
   }
+  const organizationSlug = courseMaterialState.organization?.slug
+  const courseSlug = courseMaterialState.course?.slug
+  const courseInstanceLocation =
+    organizationSlug && courseSlug
+      ? { courseInstanceId: courseMaterialState.instance.id, organizationSlug, courseSlug }
+      : null
 
   return (
-    <>
-      {getUserCourseProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
+    <QueryResult
+      query={getUserCourseProgress}
+      emptyFallback={
+        <CourseProgress userCourseProgress={[]} courseInstanceLocation={courseInstanceLocation} />
+      }
+    >
+      {(data) => (
+        <CourseProgress userCourseProgress={data} courseInstanceLocation={courseInstanceLocation} />
       )}
-      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
-      {getUserCourseProgress.isSuccess && (
-        <CourseProgress userCourseProgress={getUserCourseProgress.data} />
-      )}
-    </>
+    </QueryResult>
   )
 }
 

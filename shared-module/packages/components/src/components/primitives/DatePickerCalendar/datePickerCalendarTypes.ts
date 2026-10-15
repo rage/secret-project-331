@@ -7,7 +7,7 @@ export type DayPeriod = "am" | "pm"
 
 export type CalendarPickerView = "calendar" | "month" | "year"
 
-export type DatePickerTimeSelectorProps = {
+export interface DatePickerTimeSelectorProps {
   granularity: "hour" | "minute"
   hourCycle?: 12 | 24
   isDisabled?: boolean
@@ -17,14 +17,15 @@ export type DatePickerTimeSelectorProps = {
   onChange: (value: TimeValue) => void
 }
 
-export type ChooserGridOption = {
+export interface ChooserGridOption {
   id: string
   isSelected: boolean
   label: string
+  isDisabled?: boolean
   onSelect: () => void
 }
 
-export type DatePickerCalendarProps = {
+export interface DatePickerCalendarProps {
   calendarProps: CalendarProps<DateValue>
   canClear: boolean
   dialogProps: AriaDialogProps

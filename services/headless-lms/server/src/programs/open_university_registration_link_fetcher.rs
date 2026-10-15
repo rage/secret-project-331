@@ -1,9 +1,12 @@
 use std::env;
 
+use crate::config::open_university_config::{
+    OPEN_UNIVERSITY_COURSE_URL, OPEN_UNIVERSITY_TOKEN, OpenUniversityConfig,
+};
 use crate::setup_tracing;
 use anyhow::Context;
 use chrono::{NaiveDateTime, Utc};
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models as models;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -11,24 +14,18 @@ use sqlx::{PgConnection, PgPool};
 
 const OPEN_UNIVERSITY_REGISTRATION_BASE_URL: &str =
     "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=";
-const OPEN_UNIVERSITY_COURSE_URL: &str = "OPEN_UNIVERSITY_COURSE_URL";
-const OPEN_UNIVERSITY_TOKEN: &str = "OPEN_UNIVERSITY_TOKEN";
-
 pub async fn main() -> anyhow::Result<()> {
+    dotenv().ok();
+    let config = OpenUniversityConfig::try_from_env();
     // TODO: Audit that the environment access only happens in single-threaded code.
-    if env::var("RUST_LOG").is_err() {
+    if config.rust_log.is_none() {
         unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     }
-    dotenv().ok();
     setup_tracing()?;
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
-    let open_university_course_url = env::var(OPEN_UNIVERSITY_COURSE_URL);
-    let open_university_token = env::var(OPEN_UNIVERSITY_TOKEN);
-    match (open_university_course_url, open_university_token) {
-        (Ok(url), Ok(token)) => {
+    match (config.course_url, config.token) {
+        (Some(url), Some(token)) => {
             tracing::info!("Fetching and updating Open University completion links.");
-            let db_pool = PgPool::connect(&database_url).await?;
+            let db_pool = PgPool::connect(&config.database_url).await?;
             let mut conn = db_pool.acquire().await?;
             let res = fetch_and_update_completion_links(&mut conn, &url, &token).await;
             match res {

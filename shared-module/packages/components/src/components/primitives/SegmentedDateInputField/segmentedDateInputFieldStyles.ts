@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
 
-import { fieldControlCss } from "../fieldStyles"
-
+/** Holds the zone label too, so it shares the floating-label padding and the segments' baseline. */
 export const segmentedFieldShellCss = css`
+  display: flex;
+  align-items: baseline;
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
@@ -10,16 +11,28 @@ export const segmentedFieldShellCss = css`
   outline: none;
 `
 
-/** Single tight row of date/time segments (no wrap, no flex-grow between parts). */
+/**
+ * Single tight row of date/time segments (no wrap, no flex-grow between parts). The segments
+ * themselves don't shrink (flex: 0 0 auto in segmentCss), so on a narrow viewport where the full
+ * date+time text is wider than the field, this scrolls horizontally within its own box instead of
+ * spilling past it and overlapping the parent card.
+ */
 export const segmentedSegmentsRowCss = css`
   display: inline-flex;
   max-width: 100%;
   min-width: 0;
   flex-wrap: nowrap;
-  align-items: baseline;
+  /* Centred, not baseline-aligned: baseline alignment sizes the row from the tallest item's line
+     box, which made the field a pixel or two taller than an input showing the same text. */
+  align-items: center;
   justify-content: flex-start;
-  gap: 2px;
   white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `
 
 export const segmentedFieldDisabledCss = css`
@@ -38,6 +51,14 @@ export const segmentedPickerGroupCss = css`
   gap: var(--space-2);
 `
 
+export const segmentedZoneLabelCss = css`
+  flex: 0 0 auto;
+  margin-inline-start: var(--space-2);
+  color: var(--field-chrome);
+  font-size: 0.85em;
+  white-space: nowrap;
+`
+
 export const segmentedPickerFieldCss = css`
   flex: 0 1 auto;
   min-width: 0;
@@ -46,14 +67,18 @@ export const segmentedPickerFieldCss = css`
 export const segmentCss = css`
   position: relative;
   flex: 0 0 auto;
-  min-width: 1ch;
-  padding: 2px 0;
-  border-radius: 4px;
   color: inherit;
   outline: none;
+`
+
+/** The negative margin cancels the padding, so the focus tint gets room without spacing the text. */
+export const segmentEditableCss = css`
+  padding-inline: 1px;
+  margin-inline: -1px;
+  border-radius: 4px;
   font-variant-numeric: tabular-nums;
 
-  &:focus-visible {
+  &[data-focus-visible="true"] {
     background: var(--color-blue-50);
   }
 `
@@ -62,8 +87,10 @@ export const segmentPlaceholderCss = css`
   color: var(--field-placeholder);
 `
 
+/** Keeps the locale's own spacing (", ", " ") that line-end whitespace collapsing would drop. */
 export const segmentLiteralCss = css`
   color: var(--field-chrome);
+  white-space: pre;
   user-select: none;
 `
 
@@ -112,33 +139,42 @@ export const segmentedPickerTriggerCss = css`
   margin-inline-start: auto;
 `
 
-/** When the label is at rest (unfloated) with no value: no vertical padding on the shell so height matches TextField. */
-export const segmentedFieldShellRestEmptyCss = css`
-  .${fieldControlCss}[data-floated="false"] & {
-    padding-top: 0;
-    padding-bottom: 0;
-    min-height: 0;
-  }
-`
-
-/** Hides placeholder segment glyphs while the label is at rest; keeps row in layout flow at zero height for focus. */
+/**
+ * Hides the placeholder glyphs while the resting label sits over them.
+ *
+ * Fades rather than `visibility: hidden`: react-aria's `isFocusable` rejects hidden elements, so
+ * hiding strands an empty field — `useDateField` puts `focusManager.focusFirst()` on the label's
+ * click, and it would find no segment to focus. The row keeps its box; collapsing it is what made
+ * the field jump when the label floated and the glyphs returned. `pointer-events: none` keeps the
+ * row, still painted and hit-testable, from swallowing clicks meant for the field.
+ */
 export const segmentedSegmentsRowRestHiddenCss = css`
-  visibility: hidden;
-  height: 0;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  line-height: 0;
+  opacity: 0;
   pointer-events: none;
 `
 
+// The shared popover shell (selectStyles.ts) also sets `min-width: var(--popover-trigger-width)`,
+// sized for combobox/select popovers that should match their trigger's width. That's wrong for a
+// calendar, and which `min-width` rule wins is otherwise a coin flip based on module load order
+// (both classes have equal specificity). The `&&` doubles this class's specificity so our
+// viewport-based floor always wins instead of the field's (possibly wider) rendered width.
 export const datePickerPopoverCss = css`
-  width: min(360px, calc(100vw - 32px));
-  min-width: min(320px, calc(100vw - 32px));
+  && {
+    width: min(360px, calc(100vw - 32px));
+    min-width: min(320px, calc(100vw - 32px));
+  }
 `
 
 export const dateTimePickerPopoverCss = css`
-  width: min(720px, calc(100vw - 32px));
-  min-width: min(320px, calc(100vw - 32px));
+  && {
+    width: min(720px, calc(100vw - 32px));
+    min-width: min(320px, calc(100vw - 32px));
+  }
+`
+
+export const timePickerPopoverCss = css`
+  && {
+    width: min(280px, calc(100vw - 32px));
+    min-width: min(240px, calc(100vw - 32px));
+  }
 `

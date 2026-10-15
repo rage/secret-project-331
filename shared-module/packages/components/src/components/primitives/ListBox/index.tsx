@@ -8,7 +8,6 @@ import type { AriaListBoxOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { listBoxCss, listBoxEmptyStateCss } from "../selectStyles"
-
 import { Option } from "./Option"
 import { Section } from "./Section"
 
@@ -26,7 +25,7 @@ export function ListBox<T extends object>({
   emptyState,
   ...props
 }: ListBoxProps<T>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   const fallbackRef = React.useRef<HTMLUListElement>(null)
   const resolvedRef = listBoxRef ?? fallbackRef
   const { listBoxProps } = useListBox(props, state, resolvedRef)
@@ -35,7 +34,8 @@ export function ListBox<T extends object>({
 
   if (collection.length === 0) {
     return (
-      <div className={listBoxEmptyStateCss} role="presentation">
+      // Carries the listbox id so the trigger's aria-controls still resolves with no options.
+      <div className={listBoxEmptyStateCss} id={listBoxProps.id} role="presentation">
         {emptyState ?? t("listBox.noResults")}
       </div>
     )

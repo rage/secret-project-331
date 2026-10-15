@@ -2,12 +2,15 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { BlockEditProps } from "@wordpress/blocks"
-import KaTex from "katex"
+import { useBlockProps } from "@wordpress/block-editor"
+import { renderToString } from "katex"
 import React from "react"
 
 import "katex/dist/katex.min.css"
-import { TextAttributes } from "."
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+import type { TextAttributes } from "."
 
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 
@@ -24,6 +27,8 @@ const Component = styled.div`
 
 const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttributes>>> = (props) => {
   const { attributes, setAttributes } = props
+  const { t } = useTranslation()
+  const blockProps = useBlockProps()
 
   const update = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setAttributes({
@@ -32,7 +37,7 @@ const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttribute
   }
 
   const convert_to_latex = () => {
-    const output = KaTex.renderToString(attributes.text, {
+    const output = renderToString(attributes.text, {
       throwOnError: false,
       displayMode: true,
       output: KATEX_OUTPUT_FORMAT,
@@ -41,7 +46,7 @@ const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttribute
   }
 
   return (
-    <Container>
+    <Container {...blockProps}>
       <Component>
         <textarea
           className={css`
@@ -50,6 +55,8 @@ const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttribute
             margin: 4px;
             resize: none;
           `}
+          aria-label={t("latex-source")}
+          placeholder={t("latex-source")}
           value={attributes.text}
           onChange={update}
         />

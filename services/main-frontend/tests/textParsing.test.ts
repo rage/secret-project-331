@@ -3,7 +3,7 @@ import {
   parseText,
   replaceTextNodeWithGlossarySpans,
 } from "@/components/course-material/ContentRenderer/util/textParsing"
-import { Term } from "@/shared-module/common/bindings"
+import type { Term } from "@/generated/api/types.generated"
 
 describe("findTermMatches", () => {
   test("single match in middle of string", () => {
@@ -51,7 +51,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("An algorithm here")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 3, length: 9 }], "term-1")
     expect(p.innerHTML).toBe('An <span data-glossary-id="term-1"></span> here')
   })
@@ -60,7 +60,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("algorithm and algorithm")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(
       doc,
       textNode,
@@ -79,7 +79,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("algorithm here")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 0, length: 9 }], "x")
     expect(p.innerHTML).toBe('<span data-glossary-id="x"></span> here')
   })
@@ -88,7 +88,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("the algorithm")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 4, length: 9 }], "y")
     expect(p.innerHTML).toBe('the <span data-glossary-id="y"></span>')
   })
@@ -97,16 +97,16 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("word")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 0, length: 4 }], "custom-id-123")
-    expect(p.querySelector("span")?.getAttribute("data-glossary-id")).toBe("custom-id-123")
+    expect(p.querySelector("span")?.dataset.glossaryId).toBe("custom-id-123")
   })
 
   test("original text node is removed from the parent", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("an algorithm")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 3, length: 9 }], "id")
     expect(p.contains(textNode)).toBe(false)
   })
@@ -115,7 +115,7 @@ describe("replaceTextNodeWithGlossarySpans", () => {
     const doc = new DOMParser().parseFromString("<p></p>", "text/html")
     const p = doc.body.firstElementChild!
     const textNode = doc.createTextNode("Use x<y and a&b")
-    p.appendChild(textNode)
+    p.append(textNode)
     replaceTextNodeWithGlossarySpans(doc, textNode, [{ index: 4, length: 1 }], "id")
     expect(p.querySelectorAll("span")).toHaveLength(1)
     expect(p.childNodes.length).toBe(3)
@@ -419,17 +419,26 @@ describe("parseText", () => {
         expect(parsedText).not.toContain("data-citation-prenote")
       })
 
-      test("escapes quotes and tildes in citation id", () => {
+      test("escapes quotes but preserves tildes in citation id", () => {
+        // The citation id must round-trip: reading node.dataset.citationId back has to equal the raw
+        // key so it matches the keys extracted from the block tree. Quotes are escaped for
+        // attribute safety, but the tilde -> &nbsp; display transform must NOT be applied here.
         const { parsedText } = parseText('Text\\cite{key"~1} with special id.', [], {
           glossary: false,
         })
-        expect(parsedText).toContain('data-citation-id="key&quot;&nbsp;1"')
+        expect(parsedText).toContain('data-citation-id="key&quot;~1"')
       })
     })
   })
 
   describe("glossary parsing", () => {
+    const TERM_DEFAULTS = {
+      course_id: "course-1",
+      created_at: "2024-01-01T00:00:00.000Z",
+      updated_at: "2024-01-01T00:00:00.000Z",
+    }
     const term: Term = {
+      ...TERM_DEFAULTS,
       id: "term-1",
       term: "algorithm",
       definition: "A step-by-step procedure.",
@@ -444,8 +453,8 @@ describe("parseText", () => {
       const { parsedText, glossaryEntries } = parseText("Text with algorithm inside.", [term])
       expect(parsedText).toBe('Text with <span data-glossary-id="term-1"></span> inside.')
       expect(glossaryEntries).toHaveLength(1)
-      expect(glossaryEntries[0].id).toBe("term-1")
-      expect(glossaryEntries[0].term).toBe("algorithm")
+      expect(glossaryEntries[0]?.id).toBe("term-1")
+      expect(glossaryEntries[0]?.term).toBe("algorithm")
     })
 
     test("does not match partial word", () => {
@@ -469,20 +478,20 @@ describe("parseText", () => {
         'An <span data-glossary-id="term-1"></span> here and an <span data-glossary-id="term-1"></span> there.',
       )
       expect(glossaryEntries).toHaveLength(1)
-      expect(glossaryEntries[0].id).toBe("term-1")
+      expect(glossaryEntries[0]?.id).toBe("term-1")
     })
 
     test("replaces two different terms in one string", () => {
       const terms: Term[] = [
-        { id: "id-a", term: "algorithm", definition: "Step-by-step procedure." },
-        { id: "id-b", term: "variable", definition: "Named storage." },
+        { ...TERM_DEFAULTS, id: "id-a", term: "algorithm", definition: "Step-by-step procedure." },
+        { ...TERM_DEFAULTS, id: "id-b", term: "variable", definition: "Named storage." },
       ]
       const { parsedText, glossaryEntries } = parseText("An algorithm uses a variable.", terms)
       expect(parsedText).toBe(
         'An <span data-glossary-id="id-a"></span> uses a <span data-glossary-id="id-b"></span>.',
       )
       expect(glossaryEntries).toHaveLength(2)
-      expect(glossaryEntries.map((t) => t.id).sort()).toEqual(["id-a", "id-b"])
+      expect(glossaryEntries.map((t) => t.id).toSorted()).toEqual(["id-a", "id-b"])
     })
 
     test("term at start and term at end of string", () => {
@@ -510,8 +519,8 @@ describe("parseText", () => {
 
     test("first matching term wins when one term is substring of another", () => {
       const terms: Term[] = [
-        { id: "loop", term: "loop", definition: "Repetition." },
-        { id: "for-loop", term: "for loop", definition: "Loop construct." },
+        { ...TERM_DEFAULTS, id: "loop", term: "loop", definition: "Repetition." },
+        { ...TERM_DEFAULTS, id: "for-loop", term: "for loop", definition: "Loop construct." },
       ]
       const { parsedText } = parseText("Use a for loop here.", terms)
       expect(parsedText).toBe('Use a for <span data-glossary-id="loop"></span> here.')
@@ -541,6 +550,13 @@ describe("parseText", () => {
       expect(parsedText).toContain('title="See algorithm definition"')
     })
 
+    test("does not replace glossary term inside link visible text", () => {
+      const input = 'See <a href="https://example.com/cite">algorithm</a> for details.'
+      const { parsedText } = parseText(input, [term])
+      expect(parsedText).not.toContain("data-glossary-id")
+      expect(parsedText).toContain(">algorithm</a>")
+    })
+
     test("does not replace glossary term inside abbr title attribute", () => {
       const input = 'An <abbr title="algorithm">algo</abbr> is a procedure.'
       const { parsedText } = parseText(input, [term])
@@ -549,6 +565,7 @@ describe("parseText", () => {
 
     test("handles glossary term with regex-special characters literally", () => {
       const specialTerm: Term = {
+        ...TERM_DEFAULTS,
         id: "term-special",
         term: "C++17",
         definition: "A C++ standard version.",

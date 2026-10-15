@@ -4,12 +4,11 @@ import { css } from "@emotion/css"
 import { MinusCircle, PlusCircle } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 
-import { BlockRendererProps } from "../.."
-
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+import type { BlockRendererProps } from "../.."
 
 interface ExpandableContentInnerBlockProps {
   name: string
@@ -21,6 +20,11 @@ const ExpandableContentInnerBlock: React.FC<
   const heading = props.data.attributes.name
 
   const [open, setOpen] = useState(false)
+  const reactId = React.useId()
+  // eslint-disable-next-line i18next/no-literal-string
+  const headingId = `expandable-heading-${reactId}`
+  // eslint-disable-next-line i18next/no-literal-string
+  const panelId = `expandable-panel-${reactId}`
   return (
     <div
       className={css`
@@ -30,37 +34,50 @@ const ExpandableContentInnerBlock: React.FC<
         border-radius: 4px;
         background: #dfdfe480;
       `}
-      role="presentation"
-      onKeyDown={() => (open ? setOpen(false) : setOpen(true))}
-      onClick={() => (open ? setOpen(false) : setOpen(true))}
     >
-      <div
+      <h4
+        id={headingId}
         className={css`
-          display: flex;
-          flex-direction: row;
-          font-family: ${headingFont};
-          color: #4c5868;
-          ${open ? "padding-bottom: 1rem;" : ""}
+          margin: 0;
+          font-weight: ${fontWeights.semibold};
         `}
       >
-        <Button variant={"icon"} size={"small"}>
+        <button
+          type="button"
+          className={css`
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            font-family: ${headingFont};
+            font-weight: inherit;
+            font-size: inherit;
+            color: #4c5868;
+            cursor: pointer;
+            border: 0;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            ${open ? "padding-bottom: 1rem;" : ""}
+          `}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((prev) => !prev)}
+        >
           {open ? (
             <MinusCircle size={18} color="#4C5868" />
           ) : (
             <PlusCircle size={18} color="#4C5868" />
           )}
-        </Button>
-        <h4
-          className={css`
-            font-weight: ${fontWeights.semibold};
-          `}
-        >
           {heading}
-        </h4>
-      </div>
+        </button>
+      </h4>
 
       {open && (
         <div
+          id={panelId}
+          role="region"
+          aria-labelledby={headingId}
           className={css`
             background: ${baseTheme.colors.primary[100]};
             border-radius: 2px;

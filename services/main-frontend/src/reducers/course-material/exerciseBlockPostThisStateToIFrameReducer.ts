@@ -1,14 +1,18 @@
-import {
+import type {
   CourseMaterialExercise,
   StudentExerciseSlideSubmissionResult,
   UserCourseExerciseServiceVariable,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
+import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
+  storedAnswerToAnswerExerciseFields,
+  storedAnswerToViewSubmissionFields,
+  exerciseTaskGradingToExerciseTaskGradingResult,
+} from "@/shared-module/common/utils/typeMappter"
+import type {
   ExerciseIframeState,
   UserVariablesMap,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export interface ExerciseDownloadedAction {
   type: "exerciseDownloaded"
@@ -42,14 +46,14 @@ function userVariableListToMap(list: UserCourseExerciseServiceVariable[]): UserV
 }
 
 export default function exerciseBlockPostThisStateToIFrameReducer(
-  prev: Array<ExerciseIframeState> | null,
+  prev: ExerciseIframeState[] | null,
   action: PostThisStateToIFrameAction,
-): Array<ExerciseIframeState> | null {
+): ExerciseIframeState[] | null {
   switch (action.type) {
     case "exerciseDownloaded": {
       const exerciseTasks = action.payload.current_exercise_slide.exercise_tasks
       return exerciseTasks
-        .sort((a, b) => a.order_number - b.order_number)
+        .toSorted((a, b) => a.order_number - b.order_number)
         .map<ExerciseIframeState>((exerciseTask) => {
           const prevExerciseTask = prev?.find((x) => x.exercise_task_id === exerciseTask.id)
           const userVariables = userVariableListToMap(
@@ -74,7 +78,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
                 grading: exerciseTaskGradingToExerciseTaskGradingResult(
                   exerciseTask.previous_submission_grading,
                 ),
-                user_answer: exerciseTask.previous_submission.data_json,
+                ...storedAnswerToViewSubmissionFields(exerciseTask.previous_submission),
               },
             }
           } else if (exerciseTask.previous_submission) {
@@ -92,7 +96,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
                 grading: exerciseTaskGradingToExerciseTaskGradingResult(
                   exerciseTask.previous_submission_grading,
                 ),
-                user_answer: exerciseTask.previous_submission.data_json,
+                ...storedAnswerToViewSubmissionFields(exerciseTask.previous_submission),
               },
             }
           }
@@ -139,7 +143,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
             grading: exerciseTaskGradingToExerciseTaskGradingResult(submissionResult.grading),
             model_solution_spec: submissionResult.model_solution_spec,
             public_spec,
-            user_answer: submissionResult.submission.data_json,
+            ...storedAnswerToViewSubmissionFields(submissionResult.submission),
           },
         }
       })
@@ -163,7 +167,7 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
           user_variables: userVariables,
           data: {
             public_spec: exerciseTask.public_spec,
-            previous_submission: exerciseTask.previous_submission?.data_json ?? null,
+            ...storedAnswerToAnswerExerciseFields(exerciseTask.previous_submission),
           },
         }
       })

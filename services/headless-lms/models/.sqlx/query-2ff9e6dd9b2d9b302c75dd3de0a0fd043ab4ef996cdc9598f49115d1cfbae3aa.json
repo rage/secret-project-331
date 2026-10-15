@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registrations\nSET state_entered_at = now()\nWHERE id = ANY($1)\n  AND state = 'resolving_enrolment'\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2ff9e6dd9b2d9b302c75dd3de0a0fd043ab4ef996cdc9598f49115d1cfbae3aa"
+}

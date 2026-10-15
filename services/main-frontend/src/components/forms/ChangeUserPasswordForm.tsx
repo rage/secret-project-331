@@ -5,12 +5,13 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postPasswordChange } from "@/services/backend/users"
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { changeUserPassword } from "@/generated/api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { Button, TextField } from "@/shared-module/components"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
-type ChangePasswordFormFields = {
+interface ChangePasswordFormFields {
   current_password: string
   new_password: string
   password_confirmation: string
@@ -20,14 +21,8 @@ const ChangeUserPasswordForm: React.FC = () => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const {
-    handleSubmit,
-    register,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<ChangePasswordFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+  const { handleSubmit, control, reset, watch } = useForm<ChangePasswordFormFields>({
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       current_password: "",
@@ -39,8 +34,15 @@ const ChangeUserPasswordForm: React.FC = () => {
 
   const changePasswordMutation = useToastMutation<boolean, unknown, ChangePasswordFormFields>(
     async (data) => {
-      const response = await postPasswordChange(data.current_password, data.new_password)
-      return response
+      return validateGeneratedData(
+        await changeUserPassword({
+          body: {
+            old_password: data.current_password,
+            new_password: data.new_password,
+          },
+        }),
+        isBoolean,
+      )
     },
     {
       method: "POST",
@@ -84,39 +86,40 @@ const ChangeUserPasswordForm: React.FC = () => {
       className={css`
         display: flex;
         flex-direction: column;
+        gap: var(--space-4);
       `}
     >
       <TextField
+        name="current_password"
+        control={control}
         label={t("old-password")}
         type="password"
-        placeholder={t("enter-your-current-password")}
-        {...register("current_password", { required: t("required-field") })}
-        error={errors.current_password?.message}
-        required
+        rules={{ required: t("required-field") }}
+        isRequired
       />
 
       <TextField
+        name="new_password"
+        control={control}
         label={t("new-password")}
         type="password"
-        placeholder={t("enter-your-new-password")}
-        {...register("new_password", {
+        rules={{
           required: t("required-field"),
           minLength: { value: 8, message: t("password-must-have-at-least-8-characters") },
-        })}
-        error={errors.new_password?.message}
-        required
+        }}
+        isRequired
       />
 
       <TextField
+        name="password_confirmation"
+        control={control}
         label={t("confirm-new-password")}
         type="password"
-        placeholder={t("confirm-your-new-password")}
-        {...register("password_confirmation", {
+        rules={{
           required: t("required-field"),
           validate: (value) => value === newPassword || t("passwords-dont-match"),
-        })}
-        error={errors.password_confirmation?.message}
-        required
+        }}
+        isRequired
       />
 
       <div
@@ -125,15 +128,10 @@ const ChangeUserPasswordForm: React.FC = () => {
           gap: 10px;
         `}
       >
-        <Button
-          type="submit"
-          disabled={changePasswordMutation.isPending}
-          variant={"primary"}
-          size={"small"}
-        >
+        <Button type="submit" disabled={changePasswordMutation.isPending} variant={"primary"}>
           {t("button-text-save")}
         </Button>
-        <Button type="button" variant="secondary" onClick={handleCancel} size={"small"}>
+        <Button type="button" variant="secondary" onClick={handleCancel}>
           {t("button-text-cancel")}
         </Button>
       </div>

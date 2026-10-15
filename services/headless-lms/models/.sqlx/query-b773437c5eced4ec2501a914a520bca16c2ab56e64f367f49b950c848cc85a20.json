@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_answer_uploads\nSET deleted_at = now()\nWHERE file_upload_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b773437c5eced4ec2501a914a520bca16c2ab56e64f367f49b950c848cc85a20"
+}

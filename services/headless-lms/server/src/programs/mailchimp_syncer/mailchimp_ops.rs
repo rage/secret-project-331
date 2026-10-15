@@ -1,10 +1,12 @@
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_utils::http::REQWEST_CLIENT;
 use reqwest::Method;
+use secrecy::ExposeSecret;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::time::Duration;
 
+use super::BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS;
 use super::batch_client::{
     BatchOperation, parse_batch_results_from_tar_gz, parse_operation_response_value,
     poll_batch_until_finished_with_response_url, submit_batch,
@@ -77,9 +79,10 @@ async fn execute_direct(
             "https://{}.api.mailchimp.com/3.0{}",
             token.server_prefix, op.path
         );
-        let mut request = REQWEST_CLIENT
-            .request(op.method.clone(), &url)
-            .header("Authorization", format!("apikey {}", token.access_token));
+        let mut request = REQWEST_CLIENT.request(op.method.clone(), &url).header(
+            "Authorization",
+            format!("apikey {}", token.access_token.expose_secret()),
+        );
         if let Some(body) = op.body.clone() {
             request = request.json(&body);
         }
@@ -175,7 +178,11 @@ async fn execute_batch(
                 ));
             }
         };
-        let response = REQWEST_CLIENT.get(&response_url).send().await?;
+        let response = REQWEST_CLIENT
+            .get(&response_url)
+            .timeout(Duration::from_secs(BATCH_RESULT_DOWNLOAD_TIMEOUT_SECS))
+            .send()
+            .await?;
         if !response.status().is_success() {
             let error_text = response.text().await.unwrap_or_default();
             return Err(anyhow::anyhow!(

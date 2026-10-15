@@ -10,29 +10,50 @@ use headless_lms_models::exercises::Exercise;
 use models::{
     exercise_service_info::ExerciseServiceInfoApi, exercise_services::ExerciseService,
     exercise_slide_submissions::ExerciseSlideSubmission,
-    exercise_task_gradings::ExerciseTaskGrading, exercise_tasks::ExerciseTask,
-    library::grading::AnswersRequiringAttention,
+    exercise_task_gradings::ExerciseTaskGrading, exercise_task_submissions::AnswerData,
+    exercise_tasks::ExerciseTask, library::grading::AnswersRequiringAttention,
 };
+use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain::models_requests, prelude::*};
+use crate::{
+    domain::{answer_files_archive, models_requests},
+    prelude::*,
+};
 
 const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_exercise,
+    get_exercise_submissions,
+    get_exercise_submissions_for_user,
+    get_exercise_csv_export_task_options,
+    export_exercise_task_definitions_csv,
+    export_exercise_task_answers_csv,
+    download_exercise_answer_files,
+    exercise_has_answer_files,
+    get_exercise_answers_requiring_attention,
+    get_exercises_by_course_id,
+    reset_exercises_for_selected_users
+))]
+pub(crate) struct MainFrontendExercisesApiDoc;
+
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExerciseCsvExportTaskOption {
     pub exercise_task_id: Uuid,
     pub exercise_type: String,
     pub order_number: i32,
     pub supports_csv_export_definitions: bool,
     pub supports_csv_export_answers: bool,
+    pub produces_file_answers: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -65,7 +86,7 @@ struct ExerciseDefinitionsCsvExportRequestItem<'a> {
 #[derive(Debug, Serialize)]
 struct ExerciseAnswersCsvExportRequestItem<'a> {
     private_spec: &'a Option<Value>,
-    answer: &'a Option<Value>,
+    answer: Option<&'a Value>,
     grading: Option<&'a ExerciseTaskGrading>,
     model_solution_spec: &'a Option<Value>,
 }
@@ -326,6 +347,18 @@ fn csv_writer_into_bytes(writer: csv::Writer<Vec<u8>>) -> Result<Vec<u8>, Contro
 GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}",
+    operation_id = "getExercise",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "Exercise", body = Exercise)
+    )
+)]
 async fn get_exercise(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -354,6 +387,20 @@ async fn get_exercise(
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/submissions",
+    operation_id = "getExerciseSubmissions",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Exercise submissions", body = ExerciseSubmissions)
+    )
+)]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -395,6 +442,19 @@ async fn get_exercise_submissions(
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
  */
 #[instrument(skip(pool, user))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/submissions/user/{user_id}",
+    operation_id = "getExerciseSubmissionsForUser",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Exercise submissions for user", body = [ExerciseSlideSubmission])
+    )
+)]
 async fn get_exercise_submissions_for_user(
     pool: web::Data<PgPool>,
     ids: web::Path<(Uuid, Uuid)>,
@@ -428,9 +488,21 @@ async fn get_exercise_submissions_for_user(
 }
 
 /**
-GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
+GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/csv-export-task-options",
+    operation_id = "getExerciseCsvExportTaskOptions",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "Exercise CSV export task options", body = [ExerciseCsvExportTaskOption])
+    )
+)]
 async fn get_exercise_csv_export_task_options(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -461,14 +533,15 @@ async fn get_exercise_csv_export_task_options(
             Ok((_service, service_info)) => (
                 csv_endpoint_is_supported(&service_info.csv_export_definitions_endpoint_path),
                 csv_endpoint_is_supported(&service_info.csv_export_answers_endpoint_path),
+                service_info.produces_file_answers,
             ),
             Err(error) => {
                 warn!(
                     exercise_type = ?exercise_type,
                     ?error,
-                    "Could not fetch exercise service info for CSV export support detection."
+                    "Could not fetch exercise service info for exercise task capability detection."
                 );
-                (false, false)
+                (false, false, false)
             }
         };
         exercise_type_support.insert(exercise_type, support);
@@ -477,17 +550,21 @@ async fn get_exercise_csv_export_task_options(
     let options = tasks
         .into_iter()
         .map(|task| {
-            let (supports_csv_export_definitions, supports_csv_export_answers) =
-                exercise_type_support
-                    .get(&task.exercise_type)
-                    .copied()
-                    .unwrap_or((false, false));
+            let (
+                supports_csv_export_definitions,
+                supports_csv_export_answers,
+                produces_file_answers,
+            ) = exercise_type_support
+                .get(&task.exercise_type)
+                .copied()
+                .unwrap_or((false, false, false));
             ExerciseCsvExportTaskOption {
                 exercise_task_id: task.id,
                 exercise_type: task.exercise_type,
                 order_number: task.order_number,
                 supports_csv_export_definitions,
                 supports_csv_export_answers,
+                produces_file_answers,
             }
         })
         .collect::<Vec<_>>();
@@ -499,6 +576,20 @@ async fn get_exercise_csv_export_task_options(
 GET `/api/v0/main-frontend/exercises/:exercise_id/export-definitions-csv` - Exports one exercise task definition as CSV using the task's exercise service.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/export-definitions-csv",
+    operation_id = "exportExerciseDefinitionsCsv",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("exercise_task_id" = Uuid, Query, description = "Exercise task id"),
+        ("only_latest_per_user" = Option<bool>, Query, description = "Only include latest submission per user")
+    ),
+    responses(
+        (status = 200, description = "Exercise definitions CSV", body = String, content_type = "text/csv")
+    )
+)]
 async fn export_exercise_task_definitions_csv(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -592,12 +683,28 @@ async fn export_exercise_task_definitions_csv(
 /**
 GET `/api/v0/main-frontend/exercises/:exercise_id/export-answers-csv` - Exports all answers for one exercise task as CSV using the task's exercise service.
  */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/export-answers-csv",
+    operation_id = "exportExerciseAnswersCsv",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("exercise_task_id" = Uuid, Query, description = "Exercise task id"),
+        ("only_latest_per_user" = Option<bool>, Query, description = "Only include latest submission per user")
+    ),
+    responses(
+        (status = 200, description = "Exercise answers CSV", body = String, content_type = "text/csv")
+    )
+)]
 async fn export_exercise_task_answers_csv(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     query: web::Query<ExerciseCsvExportQuery>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
@@ -624,6 +731,8 @@ async fn export_exercise_task_answers_csv(
             &mut conn,
             *exercise_id,
             selected_task.id,
+            file_store.as_ref(),
+            app_conf.as_ref(),
         )
         .await?
     } else {
@@ -631,6 +740,8 @@ async fn export_exercise_task_answers_csv(
             &mut conn,
             *exercise_id,
             selected_task.id,
+            file_store.as_ref(),
+            app_conf.as_ref(),
         )
         .await?
     };
@@ -671,7 +782,7 @@ async fn export_exercise_task_answers_csv(
             let grading = gradings_by_submission_id.get(&submission.exercise_task_submission_id);
             request_items.push(ExerciseAnswersCsvExportRequestItem {
                 private_spec: &selected_task.private_spec,
-                answer: &submission.answer,
+                answer: submission.answer.as_ref().and_then(AnswerData::plugin_json),
                 grading,
                 model_solution_spec: &selected_task.model_solution_spec,
             });
@@ -803,14 +914,117 @@ async fn export_exercise_task_answers_csv(
 }
 
 /**
-GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
+GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
+ */
+#[instrument(skip(pool, file_store))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/download-answer-files",
+    operation_id = "downloadExerciseAnswerFiles",
+    tag = "exercises",
+    params(("exercise_id" = Uuid, Path, description = "Exercise id")),
+    responses(
+        (status = 200, description = "Zip archive of the exercise's answer files", body = String, content_type = "application/zip")
+    )
+)]
+async fn download_exercise_answer_files(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let course_or_exam_id =
+        models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await?;
+    let token = match course_or_exam_id {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let container_name = match course_or_exam_id {
+        CourseOrExamId::Course(id) => models::courses::get_course(&mut conn, id).await?.slug,
+        CourseOrExamId::Exam(id) => models::exams::get(&mut conn, id).await?.name,
+    };
+    let content_disposition =
+        answer_files_archive::content_disposition(&container_name, &exercise.name);
+    drop(conn);
+
+    answer_files_archive::stream_exercise_answer_files(
+        pool,
+        file_store,
+        *exercise_id,
+        content_disposition,
+        token,
+    )
+    .await
+}
+
+/**
+GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/has-answer-files",
+    operation_id = "exerciseHasAnswerFiles",
+    tag = "exercises",
+    params(("exercise_id" = Uuid, Path, description = "Exercise id")),
+    responses(
+        (status = 200, description = "Whether the exercise has answer files", body = bool)
+    )
+)]
+async fn exercise_has_answer_files(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
+        CourseOrExamId::Course(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(id)).await?
+        }
+        CourseOrExamId::Exam(id) => {
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(id)).await?
+        }
+    };
+
+    let has_answer_files =
+        models::exercise_task_submission_files::exercise_has_answer_files(&mut conn, *exercise_id)
+            .await?;
+
+    token.authorized_ok(web::Json(has_answer_files))
+}
+
+/**
+GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
+ */
+#[instrument(skip(pool, file_store, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/answers-requiring-attention",
+    operation_id = "getExerciseAnswersRequiringAttention",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Answers requiring attention", body = AnswersRequiringAttention)
+    )
+)]
 async fn get_exercise_answers_requiring_attention(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     user: AuthUser,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<AnswersRequiringAttention>> {
     let mut conn = pool.acquire().await?;
     let token = match models::exercises::get_course_or_exam_id(&mut conn, *exercise_id).await? {
@@ -827,6 +1041,8 @@ async fn get_exercise_answers_requiring_attention(
         *pagination,
         user.id,
         models_requests::fetch_service_info,
+        file_store.as_ref(),
+        app_conf.as_ref(),
     )
     .await?;
     token.authorized_ok(web::Json(res))
@@ -835,6 +1051,18 @@ async fn get_exercise_answers_requiring_attention(
 /**
 GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Returns all exercises for a course with course_id
  */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/exercises-by-course-id",
+    operation_id = "getExercisesByCourseId",
+    tag = "exercises",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exercises by course id", body = [Exercise])
+    )
+)]
 pub async fn get_exercises_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -858,7 +1086,7 @@ pub async fn get_exercises_by_course_id(
     token.authorized_ok(web::Json(exercises))
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct ResetExercisesPayload {
     pub user_ids: Vec<Uuid>,
     pub exercise_ids: Vec<Uuid>,
@@ -870,6 +1098,19 @@ pub struct ResetExercisesPayload {
 /**
 POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-users` - Resets all selected exercises for selected users and then logs the resets to exercise_reset_logs table
  */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/reset-exercises-for-selected-users",
+    operation_id = "resetExercisesForSelectedUsers",
+    tag = "exercises",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = ResetExercisesPayload,
+    responses(
+        (status = 200, description = "Number of successful resets", body = i32)
+    )
+)]
 pub async fn reset_exercises_for_selected_users(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -886,7 +1127,21 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    // Gets all valid users and their related exercises using the given filters
+    let requested_exercises =
+        models::exercises::get_non_deleted_by_ids(&mut conn, &payload.exercise_ids).await?;
+    if requested_exercises.len() != payload.exercise_ids.len()
+        || requested_exercises
+            .iter()
+            .any(|exercise| exercise.course_id != Some(*course_id))
+    {
+        return Err(controller_err!(
+            Forbidden,
+            "All exercises must belong to the requested course".to_string()
+        ));
+    }
+
+    // Gets all valid users and their related exercises using the given filters.
+    // This selects reset candidates, but course ownership is enforced above and in the scoped reset.
     let users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(
         &mut conn,
         &payload.user_ids,
@@ -897,7 +1152,7 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    // Resets exercises for selected users and add the resets to a log
+    // Resets grouped user-exercise pairs to avoid cross-user cross-product resets.
     let reset_results = models::exercises::reset_exercises_for_selected_users(
         &mut conn,
         &users_and_exercises,
@@ -937,6 +1192,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(export_exercise_task_answers_csv),
     )
     .route(
+        "/{exercise_id}/download-answer-files",
+        web::get().to(download_exercise_answer_files),
+    )
+    .route(
+        "/{exercise_id}/has-answer-files",
+        web::get().to(exercise_has_answer_files),
+    )
+    .route(
         "/{exercise_id}/answers-requiring-attention",
         web::get().to(get_exercise_answers_requiring_attention),
     )
@@ -953,4 +1216,330 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/{exercise_id}/submissions/user/{user_id}",
         web::get().to(get_exercise_submissions_for_user),
     );
+}
+
+#[cfg(test)]
+mod answer_file_download_tests {
+    use super::*;
+    use crate::test_helper::*;
+    use actix_session::{SessionMiddleware, storage::CookieSessionStore};
+    use actix_web::cookie::{Key, SameSite};
+    use actix_web::http::StatusCode;
+    use actix_web::{App, test};
+    use async_zip::base::read::mem::ZipFileReader;
+    use models::library::grading::SubmittedAnswer;
+    use models::roles::{RoleDomain, UserRole};
+    use std::sync::Arc;
+
+    const SESSION_KEY_BYTES: &[u8] =
+        b"answer-file-download-tests-cookie-signing-key-long-enough-abcdef";
+
+    /// Puts a user into the session without going through a login flow, so `AuthUser` resolves.
+    async fn test_login(user_id: web::Path<Uuid>, session: actix_session::Session) -> HttpResponse {
+        let now = Utc::now();
+        crate::domain::authentication::remember(
+            &session,
+            models::users::User {
+                id: *user_id,
+                created_at: now,
+                updated_at: now,
+                deleted_at: None,
+                upstream_id: None,
+                email_domain: None,
+            },
+        )
+        .expect("remember the user");
+        HttpResponse::Ok().finish()
+    }
+
+    macro_rules! exercises_app {
+        ($file_store:expr) => {{
+            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let file_store: Arc<dyn FileStore> = $file_store;
+            test::init_service(
+                App::new()
+                    .app_data(web::Data::new(pool))
+                    .app_data(web::Data::from(file_store))
+                    .app_data(web::Data::new(init_app_conf().expect("app conf")))
+                    .service(
+                        web::resource("/test-login/{user_id}").route(web::post().to(test_login)),
+                    )
+                    .service(web::scope("/api/v0/main-frontend/exercises").configure(_add_routes))
+                    .wrap(
+                        SessionMiddleware::builder(
+                            CookieSessionStore::default(),
+                            Key::from(SESSION_KEY_BYTES),
+                        )
+                        .cookie_secure(false)
+                        .cookie_same_site(SameSite::Lax)
+                        .cookie_path("/".to_string())
+                        .build(),
+                    ),
+            )
+            .await
+        }};
+    }
+
+    macro_rules! login {
+        ($app:expr, $user:expr) => {{
+            let request = test::TestRequest::post()
+                .uri(&format!("/test-login/{}", $user))
+                .to_request();
+            let response = test::call_service(&$app, request).await;
+            assert_eq!(response.status(), StatusCode::OK);
+            response
+                .response()
+                .cookies()
+                .next()
+                .expect("session cookie")
+                .into_owned()
+        }};
+    }
+
+    fn download_uri(exercise_id: Uuid) -> String {
+        format!("/api/v0/main-frontend/exercises/{exercise_id}/download-answer-files")
+    }
+
+    /// Stores the bytes in the file store under a fresh path and records the `file_uploads` row
+    /// that names them. The stored name is deliberately identifying, so a test can prove the
+    /// archive does not use it.
+    async fn upload_answer_file(
+        conn: &mut PgConnection,
+        file_store: &TempFileStore,
+        contents: &str,
+    ) -> Uuid {
+        let path = format!("answer-uploads/{}", Uuid::new_v4());
+        FileStore::upload(
+            file_store,
+            std::path::Path::new(&path),
+            contents.as_bytes().to_vec(),
+            "text/plain",
+        )
+        .await
+        .expect("upload");
+        models::file_uploads::insert(
+            conn,
+            "student-real-name.txt",
+            &path,
+            "text/plain",
+            None,
+            Some(contents.len() as i64),
+        )
+        .await
+        .expect("file upload row")
+    }
+
+    async fn submit_file_answer(
+        conn: &mut PgConnection,
+        course_id: Uuid,
+        user_id: Uuid,
+        exercise_id: Uuid,
+        exercise_slide_id: Uuid,
+        exercise_task_id: Uuid,
+        file_upload_ids: Vec<Uuid>,
+    ) -> Uuid {
+        let slide_submission = models::exercise_slide_submissions::insert_exercise_slide_submission(
+            conn,
+            models::exercise_slide_submissions::NewExerciseSlideSubmission {
+                exercise_slide_id,
+                course_id: Some(course_id),
+                exam_id: None,
+                user_id,
+                exercise_id,
+                user_points_update_strategy:
+                    models::exercise_task_gradings::UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+            },
+        )
+        .await
+        .expect("slide submission");
+        models::exercise_task_submissions::insert(
+            conn,
+            PKeyPolicy::Generate,
+            slide_submission.id,
+            exercise_slide_id,
+            exercise_task_id,
+            &SubmittedAnswer::File {
+                file_upload_ids,
+                metadata: None,
+            },
+        )
+        .await
+        .expect("task submission")
+    }
+
+    async fn archive_entries(body: Vec<u8>) -> Vec<(String, String)> {
+        use futures::io::AsyncReadExt;
+        let reader = ZipFileReader::new(body).await.expect("a readable zip");
+        let mut entries = Vec::new();
+        for index in 0..reader.file().entries().len() {
+            let name = reader.file().entries()[index]
+                .filename()
+                .as_str()
+                .expect("a utf-8 entry name")
+                .to_string();
+            let mut contents = String::new();
+            reader
+                .reader_with_entry(index)
+                .await
+                .expect("entry reader")
+                .read_to_string(&mut contents)
+                .await
+                .expect("entry contents");
+            entries.push((name, contents));
+        }
+        entries
+    }
+
+    #[actix_web::test]
+    async fn streams_every_users_answer_files_with_positional_names() {
+        insert_data!(:tx, user: first_student, :org, course: course, instance: _instance, :course_module, :chapter, :page, exercise: exercise, slide: slide, task: task);
+        let second_student = models::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &format!("second-student-{}@example.org", Uuid::new_v4()),
+            None,
+            None,
+        )
+        .await
+        .expect("second student");
+        let teacher = models::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &format!("teacher-{}@example.org", Uuid::new_v4()),
+            None,
+            None,
+        )
+        .await
+        .expect("teacher");
+        models::roles::insert(
+            tx.as_mut(),
+            teacher,
+            UserRole::Teacher,
+            RoleDomain::Course(course),
+        )
+        .await
+        .expect("teacher role");
+
+        let file_store = temp_file_store();
+        let first_first = upload_answer_file(tx.as_mut(), &file_store, "first user file one").await;
+        let first_second =
+            upload_answer_file(tx.as_mut(), &file_store, "first user file two").await;
+        let earlier = upload_answer_file(tx.as_mut(), &file_store, "first user earlier").await;
+        let second_users_file = upload_answer_file(tx.as_mut(), &file_store, "second user").await;
+
+        let earlier_submission = submit_file_answer(
+            tx.as_mut(),
+            course,
+            first_student,
+            exercise,
+            slide,
+            task,
+            vec![earlier],
+        )
+        .await;
+        let later_submission = submit_file_answer(
+            tx.as_mut(),
+            course,
+            first_student,
+            exercise,
+            slide,
+            task,
+            vec![first_first, first_second],
+        )
+        .await;
+        let second_students_submission = submit_file_answer(
+            tx.as_mut(),
+            course,
+            second_student,
+            exercise,
+            slide,
+            task,
+            vec![second_users_file],
+        )
+        .await;
+        tx.commit().await;
+
+        let app = exercises_app!(Arc::new(file_store));
+        let cookie = login!(app, teacher);
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&download_uri(exercise))
+                .cookie(cookie)
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let disposition = response
+            .headers()
+            .get("Content-Disposition")
+            .expect("a content disposition")
+            .to_str()
+            .expect("an ascii content disposition")
+            .to_string();
+        assert!(disposition.starts_with("attachment; "));
+        assert!(disposition.ends_with("-answers.zip\""));
+
+        let entries = archive_entries(test::read_body(response).await.to_vec()).await;
+        let mut expected = vec![
+            (
+                format!("{first_student}/{earlier_submission}/0.txt"),
+                "first user earlier".to_string(),
+            ),
+            (
+                format!("{first_student}/{later_submission}/0.txt"),
+                "first user file one".to_string(),
+            ),
+            (
+                format!("{first_student}/{later_submission}/1.txt"),
+                "first user file two".to_string(),
+            ),
+            (
+                format!("{second_student}/{second_students_submission}/0.txt"),
+                "second user".to_string(),
+            ),
+        ];
+        let mut actual = entries.clone();
+        expected.sort();
+        actual.sort();
+        assert_eq!(actual, expected);
+        assert!(
+            !entries
+                .iter()
+                .any(|(name, _)| name.contains("student-real-name")),
+            "the stored filename must not reach the archive"
+        );
+    }
+
+    #[actix_web::test]
+    async fn a_non_teacher_is_forbidden() {
+        insert_data!(:tx, user: student, :org, course: course, instance: _instance, :course_module, :chapter, :page, exercise: exercise, slide: slide, task: task);
+        let file_store = temp_file_store();
+        let file = upload_answer_file(tx.as_mut(), &file_store, "answer").await;
+        submit_file_answer(
+            tx.as_mut(),
+            course,
+            student,
+            exercise,
+            slide,
+            task,
+            vec![file],
+        )
+        .await;
+        tx.commit().await;
+
+        let app = exercises_app!(Arc::new(file_store));
+        let cookie = login!(app, student);
+        let response = test::call_service(
+            &app,
+            test::TestRequest::get()
+                .uri(&download_uri(exercise))
+                .cookie(cookie)
+                .to_request(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    }
 }

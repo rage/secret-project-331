@@ -1,30 +1,25 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
-import Head from "next/head"
 import { usePathname } from "next/navigation"
-import React, { ReactNode } from "react"
+import type { ReactNode } from "react"
+import React from "react"
 
-import Topbar from "./Topbar"
-
-import { fetchPrivacyLink } from "@/services/course-material/backend"
+import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
-import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
 
-type LayoutProps = {
+import Topbar from "./Topbar"
+
+interface LayoutProps {
   children: ReactNode
   noVisibleLayout?: boolean
 }
-
-const DynamicToaster = dynamicImport<Record<string, never>>(
-  () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
-)
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
@@ -33,12 +28,17 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   const pathname = usePathname()
   const courseId = useAtomValue(currentCourseIdAtom)
   const organizationSlug = useAtomValue(organizationSlugAtom)
-  // eslint-disable-next-line i18next/no-literal-string
-  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
-    queryFn: () => fetchPrivacyLink(courseId as NonNullable<string>),
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialPrivacyLink({
+            path: {
+              course_id: courseId,
+            },
+          })
+      : skipToken,
     enabled: !!courseId,
   })
 
@@ -51,7 +51,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
       : []
 
   const visibleLayout = noVisibleLayout ? (
-    <>{children}</>
+    children
   ) : (
     <>
       <div
@@ -67,7 +67,12 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           currentPagePath={pathname}
         />
 
-        <main id="maincontent">
+        <main
+          id="maincontent"
+          className={css`
+            padding-top: var(--space-4);
+          `}
+        >
           <Centered variant="default">{children}</Centered>
         </main>
       </div>
@@ -75,17 +80,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
     </>
   )
 
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      </Head>
-      {visibleLayout}
-      <DynamicToaster />
-    </>
-  )
+  return visibleLayout
 }
 
 export default withNoSsr(Layout)

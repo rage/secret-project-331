@@ -5,14 +5,12 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BlockRendererProps } from "../.."
-
-import PagesInChapter from "./PagesInChapter"
-
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { currentPageDataAtom, viewStatusAtom } from "@/state/course-material/selectors"
+
+import type { BlockRendererProps } from "../.."
+import PagesInChapter from "./PagesInChapter"
 
 const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
   const { t } = useTranslation()
@@ -23,16 +21,16 @@ const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const organizationSlug = params?.organizationSlug
 
   if (viewStatus !== "ready") {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
   const chapterId = pageData?.chapter_id
 
   if (!chapterId) {
-    return <ErrorBanner variant={"readOnly"} error={t("error-page-does-not-belong-to-chapter")} />
+    return <ErrorNotice error={t("error-page-does-not-belong-to-chapter")} />
   }
 
   if (!courseSlug || !organizationSlug) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   return (

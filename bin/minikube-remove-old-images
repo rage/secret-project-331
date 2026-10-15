@@ -15,16 +15,14 @@ fi
 
 SKAFFOLD_FILE=$1
 
-eval "$(minikube docker-env --shell bash 2> /dev/null)"
+MINIKUBE_DOCKER_ENV=$(minikube docker-env --shell bash)
+eval "$MINIKUBE_DOCKER_ENV"
 
 # Containers refer to images by id, so Docker would untag a tag a workload still names and its next pod
 # could not start. Finished pods are left out, as they never start again.
-IMAGES_IN_USE=$(
-  {
-    kubectl --context minikube get pods -A --field-selector=status.phase!=Succeeded,status.phase!=Failed -o jsonpath='{..image}'
-    kubectl --context minikube get deployments,statefulsets,daemonsets,cronjobs -A -o jsonpath='{..image}'
-  } | tr ' ' '\n' | sort -u
-)
+POD_IMAGES=$(kubectl --context minikube get pods -A --field-selector=status.phase!=Succeeded,status.phase!=Failed -o jsonpath='{..image}')
+WORKLOAD_IMAGES=$(kubectl --context minikube get deployments,statefulsets,daemonsets,cronjobs -A -o jsonpath='{..image}')
+IMAGES_IN_USE=$(printf '%s %s' "$POD_IMAGES" "$WORKLOAD_IMAGES" | tr ' ' '\n' | sort -u)
 
 REMOVED=0
 for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do

@@ -44,6 +44,7 @@ import {
 import { actionSentence } from "@/components/credit-registration/creditRegistrationRetry"
 import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import {
+  breakAnywhereCss,
   controlCss,
   controlsCss,
   headingCss,
@@ -62,7 +63,6 @@ import type {
   CreditRegistrationAdminActionTarget,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
@@ -74,6 +74,7 @@ import {
   EmptyState,
   Infobox,
   Link,
+  Pagination,
   QueryResult,
   Select,
   Table,
@@ -116,6 +117,10 @@ const isBeyondActorsRole = (row: CreditRegistrationAdminActionRow): boolean =>
 const filterRowsCss = css`
   display: grid;
   gap: var(--space-4);
+
+  > * {
+    min-width: 0;
+  }
 `
 
 /** Lets the Selects share one row instead of stranding the last of them on a line of its own. */
@@ -126,15 +131,18 @@ const auditControlCss = cx(
   `,
 )
 
-/** From and To read as one control, so they sit on one line and are announced as one group. */
+/** From and To read as one control: side by side wherever both fit, and announced as one group. */
 const dateRangeCss = css`
   display: flex;
   flex: 1 1 20rem;
+  flex-wrap: wrap;
   gap: var(--space-3);
   align-items: end;
+  min-width: 0;
 
+  /* A date field needs this much for its calendar button, so a phone stacks the two. */
   > * {
-    flex: 1 1 9rem;
+    flex: 1 1 11rem;
   }
 `
 
@@ -205,7 +213,7 @@ const ActorCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row })
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
-      <span>{actorName(row)}</span>
+      <span className={breakAnywhereCss}>{actorName(row)}</span>
       <span className={noteCss}>{actorRoleLabel(t, row.actor_role)}</span>
       {row.actor_email && (
         <span className={noteCss}>
@@ -229,7 +237,7 @@ const TargetCell: React.FC<{ row: CreditRegistrationAdminActionRow }> = ({ row }
     row.course_name ??
     (row.target_id ? row.target_id.slice(0, ID_PREFIX_LENGTH) : null)
   const body = (
-    <span className={stackedCellCss}>
+    <span className={cx(stackedCellCss, breakAnywhereCss)}>
       <span>{name ?? <AbsentValue />}</span>
       <span className={noteCss}>{adminActionTargetLabel(t, row.target_kind)}</span>
       {student && row.course_name && <span className={noteCss}>{row.course_name}</span>}
@@ -515,8 +523,8 @@ const AuditPage: React.FC = () => {
               )}
               <div className={rowCss}>
                 {/* `Pagination` renders nothing below 2 pages, and repeats this total at 2 or
-                    more: show it only where `Pagination` won't. */}
-                {page.total_pages < 2 && (
+                    more: show it only where `Pagination` won't. An empty table says so itself. */}
+                {page.total_pages < 2 && page.total_count > 0 && (
                   <p className={noteCss}>
                     {t("credit-registration-admin-action-count", { count: page.total_count })}
                   </p>
@@ -607,7 +615,12 @@ const AuditPage: React.FC = () => {
                     grow: 2,
                     minWidth: "16rem",
                     nowrap: false,
-                    cell: (row) => row.reason ?? <AbsentValue />,
+                    cell: (row) =>
+                      row.reason ? (
+                        <span className={breakAnywhereCss}>{row.reason}</span>
+                      ) : (
+                        <AbsentValue />
+                      ),
                   },
                   {
                     header: t("credit-registration-admin-column-on"),
@@ -618,7 +631,10 @@ const AuditPage: React.FC = () => {
                 ]}
               />
               <Pagination
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
                 totalPages={page.total_pages}
                 totalItems={page.total_count}
                 itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}

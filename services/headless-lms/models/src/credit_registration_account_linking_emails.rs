@@ -123,6 +123,20 @@ RETURNING id
     Ok(res.map(|r| r.id))
 }
 
+/// Moves a mail's `sent_at` `age` into the past, for seeding mails sent before today.
+///
+/// Shifts the row rather than the clock because the caps compare against Postgres `now()`.
+pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: chrono::Duration) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE credit_registration_account_linking_emails SET sent_at = now() - $2::interval WHERE id = $1",
+        id,
+        age as chrono::Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// As much of one existing mail as the dedup guard and the rate caps need to decide on a person.
 #[derive(Debug, Clone)]
 pub struct ExistingLinkingMailFact {
@@ -166,6 +180,42 @@ WHERE e.sisu_person_id = ANY($1::text [])
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// How many linking mails one course or mooc.fi target has sent each of these people, replaced ones
+/// included.
+pub async fn count_mails_per_person_for_source(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+    source_id: Uuid,
+) -> ModelResult<HashMap<String, i64>> {
+    let res = sqlx::query!(
+        r#"
+SELECT sisu_person_id AS "sisu_person_id!",
+  COUNT(*) AS "mail_count!"
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND (
+    course_id = $2
+    OR external_credit_target_id = $2
+  )
+  AND deleted_at IS NULL
+GROUP BY sisu_person_id
+        "#,
+        sisu_person_ids,
+        source_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res
+        .into_iter()
+        .map(|row| {
+            (
+                row.sisu_person_id.expose_secret().to_owned(),
+                row.mail_count,
+            )
+        })
+        .collect())
 }
 
 /// Marks the rows these new slots would collide with in the dedup key as replaced, where their link

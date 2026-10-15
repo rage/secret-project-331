@@ -1,7 +1,7 @@
 /**
  * Client for the mock Suotar control surface (`/api/v0/mock-suotar/control/*`).
  *
- * Hand-written because the mock's DTOs are deliberately not exported to `bindings.ts`, the
+ * Hand-written because the mock's DTOs are deliberately not part of the OpenAPI spec, the
  * same way `mock_sisu`'s are not.
  *
  * The tick endpoints exist because the real loops are long-running intervals in their own

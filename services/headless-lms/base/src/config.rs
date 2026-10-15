@@ -52,7 +52,6 @@ pub struct ApplicationConfiguration {
     pub test_moocfi: bool,
     pub disable_embedding_vector_creation_when_seeding: bool,
     pub development_uuid_login: bool,
-    pub enable_admin_email_verification: bool,
     pub enable_email_ownership_verification: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub suotar_configuration: SuotarConfiguration,
@@ -73,8 +72,6 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = bool_env_false_by_default("TEST_MODE");
         let development_uuid_login = bool_env_false_by_default("DEVELOPMENT_UUID_LOGIN");
-        let enable_admin_email_verification =
-            bool_env_false_by_default("ENABLE_ADMIN_EMAIL_VERIFICATION");
         let enable_email_ownership_verification =
             bool_env_false_by_default("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
         let test_chatbot = test_mode
@@ -141,7 +138,6 @@ impl ApplicationConfiguration {
             test_moocfi,
             disable_embedding_vector_creation_when_seeding,
             development_uuid_login,
-            enable_admin_email_verification,
             enable_email_ownership_verification,
             azure_configuration,
             suotar_configuration,
@@ -157,7 +153,6 @@ impl ApplicationConfiguration {
         let test_mode = true;
         let base_url = "http://project-331.local/".to_string();
         let development_uuid_login = false;
-        let enable_admin_email_verification = false;
         let enable_email_ownership_verification = false;
         let azure_configuration = AzureConfiguration::mock_conf()?;
         let test_chatbot = true;
@@ -189,7 +184,6 @@ impl ApplicationConfiguration {
             test_moocfi,
             disable_embedding_vector_creation_when_seeding,
             development_uuid_login,
-            enable_admin_email_verification,
             enable_email_ownership_verification,
             azure_configuration,
             suotar_configuration,

@@ -98,11 +98,12 @@ impl StudentCreditRegistration {
         )
     }
 
-    /// Whether the row is parked with a check someone asked for still unanswered. The row stays in
-    /// `no_usable_enrolment` for its checks, so this is what tells the asker one is under way.
-    pub fn is_requested_check_unanswered(&self) -> bool {
+    /// Whether the row is parked with a prompted check still unanswered. The row stays in
+    /// `no_usable_enrolment` for its checks, so this is what keeps a student whose enrolment the
+    /// roster just listed from being told to enrol.
+    pub fn is_prompted_check_unanswered(&self) -> bool {
         self.state == CreditRegistrationState::NoUsableEnrolment
-            && self.enrolment_check_source.is_request()
+            && self.enrolment_check_source.is_prompted()
     }
 }
 

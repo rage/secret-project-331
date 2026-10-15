@@ -685,7 +685,12 @@ export const zNewCourseBackgroundQuestionAnswer = z.object({
   course_background_question_id: z.uuid(),
 })
 
+export const zNewFeedbackCategory = z.object({
+  name: z.string(),
+})
+
 export const zNewFeedback = z.object({
+  category: zNewFeedbackCategory.nullish(),
   feedback_given: z.string(),
   page_id: z.uuid(),
   related_blocks: z.array(zFeedbackBlock),
@@ -1456,7 +1461,6 @@ export const zUserDetail = z.object({
   email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
-  search_helper: z.string().nullish(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })

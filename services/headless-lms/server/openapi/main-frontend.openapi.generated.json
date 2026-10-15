@@ -3761,6 +3761,16 @@
               "type": "integer",
               "format": "int64"
             }
+          },
+          {
+            "name": "category_filter",
+            "in": "query",
+            "description": "Selected category",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -3772,6 +3782,49 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Feedback"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/feedback-categories": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.",
+        "operationId": "getCourseFeedbackCategories",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "read",
+            "in": "query",
+            "description": "Categories for read/unread status feedback",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All feedback categories used in feedback for the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeedbackCategory"
                   }
                 }
               }
@@ -3799,11 +3852,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Feedback counts for the course",
+            "description": "Feedback and edit proposal counts for the course",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FeedbackCount"
+                  "$ref": "#/components/schemas/FeedbackEditProposalCounts"
                 }
               }
             }
@@ -7160,6 +7213,62 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support\ncan send a linking email for by hand.",
+        "operationId": "getAccountLinkingCourses",
+        "responses": {
+          "200": {
+            "description": "By course name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminLinkingCourse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`\n- Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a\nlinking email by hand.\n\nLists the rosters live. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getAccountLinkingUnlinkedEnrolees",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The unlinked people",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUnlinkedEnrolees"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Account linking is off, or the course takes no part in credit registration"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list": {
       "post": {
         "tags": ["credit-registration-admin"],
@@ -7251,7 +7360,7 @@
             }
           },
           "422": {
-            "description": "An override without a reason, or too soon after the last resend"
+            "description": "An override without a reason"
           }
         }
       }
@@ -10971,6 +11080,115 @@
         }
       }
     },
+    "/api/v0/main-frontend/external-courses/all": {
+      "get": {
+        "tags": ["externalCourses"],
+        "summary": "\nGET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.",
+        "operationId": "getExternalCourses",
+        "responses": {
+          "200": {
+            "description": "All external courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExternalCourseOutput"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/external-courses/delete": {
+      "post": {
+        "tags": ["externalCourses"],
+        "summary": "\nPOST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.",
+        "operationId": "deleteExternalCourse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalCourseOutput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted external course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalCourseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/external-courses/new": {
+      "post": {
+        "tags": ["externalCourses"],
+        "summary": "\nPOST `/api/v0/main-frontend/external-courses/new` - Creates new external course.",
+        "operationId": "createExternalCourse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewExternalCourse"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created external course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalCourseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/external-courses/update": {
+      "post": {
+        "tags": ["externalCourses"],
+        "summary": "\nPOST `/api/v0/main-frontend/external-courses/update` - Updates external course.",
+        "operationId": "updateExternalCourse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExternalCourseOutput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated external course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalCourseOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/feedback/{feedback_id}": {
       "post": {
         "tags": ["feedback"],
@@ -13071,37 +13289,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/proposed-edits/course/{course_id}/count": {
-      "get": {
-        "tags": ["proposed_edits"],
-        "summary": "\nGET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.",
-        "operationId": "getEditProposalCount",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Edit proposal counts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProposalCount"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/proposed-edits/process-edit-proposal": {
       "post": {
         "tags": ["proposed_edits"],
@@ -13901,11 +14088,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-email": {
+    "/api/v0/main-frontend/user-details/search-exact": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email",
-        "operationId": "searchUserDetailsByEmail",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query",
+        "operationId": "searchUserDetailsExact",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13918,7 +14105,7 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose id or email equals the query",
             "content": {
               "application/json": {
                 "schema": {
@@ -13933,11 +14120,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-other-details": {
+    "/api/v0/main-frontend/user-details/search-fuzzy": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.",
-        "operationId": "searchUserDetailsByOtherDetails",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email",
+        "operationId": "searchUserDetailsFuzzy",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13950,46 +14137,11 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose name or email resembles the query",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/user-details/search-fuzzy-match": {
-      "post": {
-        "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query",
-        "operationId": "searchUserDetailsFuzzyMatch",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "User details fuzzy search results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
+                  "$ref": "#/components/schemas/FuzzyUserSearchResults"
                 }
               }
             }
@@ -15050,11 +15202,6 @@
           "uh_course_code": {
             "type": ["string", "null"]
           },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be\none of them."
-          },
           "user_id": {
             "type": "string",
             "format": "uuid"
@@ -15647,6 +15794,7 @@
           "suotar_api_calls",
           "actions",
           "linking_emails",
+          "manual_linking_email_sends",
           "notification_emails"
         ],
         "properties": {
@@ -15706,6 +15854,13 @@
                 "description": "Of the newest attempt, as `journey` is, and only while it waits for a student number after an\n\"I have enrolled\" press."
               }
             ]
+          },
+          "manual_linking_email_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Linking emails sent by hand as a guess for this row's student, newest first."
           },
           "moocfi_completion": {
             "oneOf": [
@@ -16340,8 +16495,8 @@
       },
       "AdminLinkingCandidate": {
         "type": "object",
-        "description": "A person on the code's enrolment list whom no linking email reached because they enrolled before\naccount linking began, and who may be the waiting student.",
-        "required": ["student_number", "linking_emails_for_course", "similarities"],
+        "description": "A person on a course's enrolment list whom no account is linked to, whom support can send a\nlinking email.",
+        "required": ["student_number", "linking_emails_for_course", "manual_sends", "similarities"],
         "properties": {
           "email": {
             "type": ["string", "null"],
@@ -16361,14 +16516,21 @@
           "linking_emails_for_course": {
             "type": "integer",
             "format": "int64",
-            "description": "Linking emails they have had for the registration's course, replaced ones included."
+            "description": "Linking emails for the course that count toward its cap: replaced ones included, those a\nrate cap override retired not."
+          },
+          "manual_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Every linking email someone sent by hand for the course, newest first. Unlike\n`linking_emails_for_course`, keeps those a rate cap override has since retired."
           },
           "similarities": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/LinkingCandidateSimilarity"
             },
-            "description": "What they share with the student's account; the list is ordered by these."
+            "description": "What they share with the waiting student's account, by which the linking candidates are\nordered. Always empty in [`AdminUnlinkedEnrolees`]."
           },
           "student_number": {
             "type": "string",
@@ -16413,6 +16575,27 @@
           "study_registry_unavailable": {
             "type": "boolean",
             "description": "The study registry gave no usable answer, so an empty `candidates` says nothing."
+          }
+        }
+      },
+      "AdminLinkingCourse": {
+        "type": "object",
+        "description": "A course support can send a linking email for by hand: one taking part in credit registration\nwith a University of Helsinki course code.",
+        "required": ["course_id", "course_name", "course_codes"],
+        "properties": {
+          "course_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Usually one; a course whose modules have different codes has each of them."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
           }
         }
       },
@@ -16512,11 +16695,6 @@
           "next_fetch_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`]."
           }
         }
       },
@@ -16531,6 +16709,34 @@
           "study_registry_unavailable",
           "unexpected_study_registry_answer"
         ]
+      },
+      "AdminManualLinkingEmailSend": {
+        "type": "object",
+        "description": "A linking email someone sent by hand, so others do not send the same one again.",
+        "required": ["sent_at", "sent_by_user_id"],
+        "properties": {
+          "emailed_to": {
+            "type": ["string", "null"],
+            "description": "In full."
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sent_by_email": {
+            "type": ["string", "null"]
+          },
+          "sent_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "sent_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "sent_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "AdminManuallyLinkStudentNumberPayload": {
         "type": "object",
@@ -16850,6 +17056,17 @@
             "type": "integer",
             "format": "int64"
           },
+          "manual_send": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AdminManualLinkingEmailSend",
+                "description": "The send this attempt made, as the dialogs list it. `None` unless `outcome` is `queued`."
+              }
+            ]
+          },
           "max_mails_per_person_and_course": {
             "type": "integer",
             "format": "int64"
@@ -17035,6 +17252,24 @@
             "type": "integer",
             "format": "int64",
             "description": "Registrations that went back to waiting for a number."
+          }
+        }
+      },
+      "AdminUnlinkedEnrolees": {
+        "type": "object",
+        "description": "Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.",
+        "required": ["study_registry_unavailable", "people"],
+        "properties": {
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminLinkingCandidate"
+            },
+            "description": "By last name, then first names, ignoring case; people with no last name last."
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer for some code, so `people` says nothing."
           }
         }
       },
@@ -17548,6 +17783,26 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        }
+      },
+      "CategoryFeedbackCount": {
+        "type": "object",
+        "required": ["category_id", "read_feedback", "unread_feedback"],
+        "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "unread_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -21355,7 +21610,8 @@
           "standing",
           "is_enrolment_list_empty",
           "needs_admin_attention",
-          "hand_actions"
+          "hand_actions",
+          "manual_linking_email_sends"
         ],
         "properties": {
           "attempt_count": {
@@ -21450,6 +21706,13 @@
           "last_name": {
             "type": ["string", "null"]
           },
+          "manual_linking_email_sends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminManualLinkingEmailSend"
+            },
+            "description": "Linking emails sent by hand as a guess for this row's student, newest first."
+          },
           "needs_admin_attention": {
             "type": "boolean",
             "description": "The pipeline's own flag; a fact about the row, separate from any dismissal."
@@ -21496,11 +21759,6 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
-          },
-          "unlinked_enrolled_before_count": {
-            "type": ["integer", "null"],
-            "format": "int32",
-            "description": "From the code's last enrolment list that fed account linking: people who enrolled before\naccount linking began and are linked to no account, so no linking email went to them."
           },
           "user_id": {
             "type": "string",
@@ -24633,6 +24891,28 @@
           }
         }
       },
+      "ExternalCourseOutput": {
+        "type": "object",
+        "required": ["id", "name", "url", "on_old_platform"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "on_old_platform": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "ExternalCreditTarget": {
         "type": "object",
         "required": [
@@ -24799,6 +25079,13 @@
             "type": "string",
             "format": "date-time"
           },
+          "feedback_category_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "feedback_category_name": {
+            "type": ["string", "null"]
+          },
           "feedback_given": {
             "type": "string"
           },
@@ -24845,16 +25132,70 @@
           }
         }
       },
-      "FeedbackCount": {
+      "FeedbackCategory": {
         "type": "object",
-        "required": ["read", "unread"],
+        "required": ["id", "created_at", "updated_at", "name"],
         "properties": {
-          "read": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FeedbackEditProposalCounts": {
+        "type": "object",
+        "required": [
+          "read_feedback",
+          "unread_feedback",
+          "feedback_categories_counts",
+          "pending_edits",
+          "handled_edits",
+          "total_waiting"
+        ],
+        "properties": {
+          "feedback_categories_counts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryFeedbackCount"
+            }
+          },
+          "handled_edits": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
           },
-          "unread": {
+          "pending_edits": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total_waiting": {
+            "type": "integer",
+            "format": "int32",
+            "description": "pending edits + unread feedback",
+            "minimum": 0
+          },
+          "unread_feedback": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
@@ -24906,6 +25247,23 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "FuzzyUserSearchResults": {
+        "type": "object",
+        "description": "Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.",
+        "required": ["users", "has_more"],
+        "properties": {
+          "has_more": {
+            "type": "boolean",
+            "description": "More users matched than `users` holds."
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            }
           }
         }
       },
@@ -26493,6 +26851,24 @@
           },
           "public_key": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "NewExternalCourse": {
+        "type": "object",
+        "required": ["name", "url", "on_old_platform"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "on_old_platform": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string"
           }
         }
       },
@@ -28470,22 +28846,6 @@
           }
         }
       },
-      "ProposalCount": {
-        "type": "object",
-        "required": ["pending", "handled"],
-        "properties": {
-          "handled": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "pending": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        }
-      },
       "ProposalStatus": {
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
@@ -28786,6 +29146,7 @@
           "queued",
           "already_mailed_to_every_known_address",
           "refused_by_rate_cap",
+          "just_sent",
           "no_address_in_study_registry",
           "not_on_the_course_roster",
           "already_linked",
@@ -30610,9 +30971,6 @@
             "type": ["string", "null"]
           },
           "last_name": {
-            "type": ["string", "null"]
-          },
-          "search_helper": {
             "type": ["string", "null"]
           },
           "updated_at": {

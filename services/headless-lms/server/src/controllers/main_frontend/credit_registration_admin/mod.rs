@@ -20,10 +20,13 @@ mod phases;
 mod reconciliation;
 mod student_numbers;
 
+use std::collections::HashMap;
+
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, CreditRegistrationAccountLinkingEmail,
 };
+use headless_lms_models::credit_registration_admin_actions::{self, ManualLinkingEmailSend};
 use headless_lms_models::credit_registrations::AttentionRules;
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::student_number_verification_tokens;
@@ -71,6 +74,8 @@ use secrecy::ExposeSecret;
     account_linking::admin_request_enrolment_list_fetch,
     account_linking::admin_dismiss_study_registry_conflict,
     account_linking::get_credit_registration_linking_candidates,
+    account_linking::get_account_linking_courses,
+    account_linking::get_account_linking_unlinked_enrolees,
     student_numbers::list_verified_student_numbers_for_admin,
     student_numbers::admin_unlink_student_number,
     materialize::admin_materialize_credit_registrations
@@ -133,6 +138,51 @@ pub struct AdminLinkingEmail {
     pub token_claimed_by_user_id: Option<Uuid>,
     pub token_used_at: Option<DateTime<Utc>>,
     pub token_expires_at: Option<DateTime<Utc>>,
+}
+
+/// A linking email someone sent by hand, so others do not send the same one again.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminManualLinkingEmailSend {
+    pub sent_at: DateTime<Utc>,
+    pub sent_by_user_id: Uuid,
+    pub sent_by_first_name: Option<String>,
+    pub sent_by_last_name: Option<String>,
+    pub sent_by_email: Option<String>,
+    /// In full.
+    pub emailed_to: Option<String>,
+}
+
+impl From<ManualLinkingEmailSend> for AdminManualLinkingEmailSend {
+    fn from(send: ManualLinkingEmailSend) -> Self {
+        Self {
+            sent_at: send.sent_at,
+            sent_by_user_id: send.sent_by_user_id,
+            sent_by_first_name: send.sent_by_first_name,
+            sent_by_last_name: send.sent_by_last_name,
+            sent_by_email: send.sent_by_email,
+            emailed_to: send.emailed_to,
+        }
+    }
+}
+
+/// The linking emails sent by hand on these courses as a guess for a registration's student, newest
+/// first, by registration id.
+async fn manual_linking_email_sends_by_registration(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> Result<HashMap<Uuid, Vec<AdminManualLinkingEmailSend>>, ControllerError> {
+    let mut by_registration: HashMap<Uuid, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
+    if course_ids.is_empty() {
+        return Ok(by_registration);
+    }
+    let sends =
+        credit_registration_admin_actions::get_manual_linking_email_sends(conn, course_ids).await?;
+    for send in sends {
+        if let Some(id) = send.credit_registration_id {
+            by_registration.entry(id).or_default().push(send.into());
+        }
+    }
+    Ok(by_registration)
 }
 
 /// Shared by the ledger detail view and the account-linking admin views: both show a person's linking

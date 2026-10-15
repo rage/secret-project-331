@@ -9,6 +9,7 @@ import { useDeferredValue, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseAuditingData } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -250,7 +251,7 @@ const CourseAuditing = () => {
         gap: 1rem;
       `}
     >
-      <h1>{t("title-course-auditing")}</h1>
+      <h1 className={pageTitleCss}>{t("title-course-auditing")}</h1>
       <FieldSet>
         <Legend>{t("course-auditing-filter-courses-title")}</Legend>
         <div className={contentRowStyles}>

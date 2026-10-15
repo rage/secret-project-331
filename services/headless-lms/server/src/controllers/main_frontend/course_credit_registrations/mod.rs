@@ -54,7 +54,7 @@ use crate::domain::credit_registration::linking_mail_resend::{
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::account_linking::{
-    ManualActionContext, resend_linking_mail_for_target,
+    ManualActionContext, ResendAttempt, resend_linking_mail_for_target,
 };
 use headless_lms_utils::services::suotar::SuotarClient;
 
@@ -686,16 +686,7 @@ pub async fn resend_course_credit_registration_linking_email(
 
     let student_number = resolve_resend_target(&mut conn, *course_id, &payload).await?;
     let Some(student_number) = student_number else {
-        return finish_resend(
-            &mut conn,
-            &user,
-            *course_id,
-            &payload,
-            None,
-            ResendOutcome::NoStudentNumberKnown,
-            token,
-        )
-        .await;
+        return finish_resend(&mut conn, &user, *course_id, &payload, None, token).await;
     };
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, RESEND_CALLER);
@@ -711,16 +702,14 @@ pub async fn resend_course_credit_registration_linking_email(
     )
     .await?;
     let mut conn = pool.acquire().await?;
-    let outcome = ResendOutcome::from(attempt.outcome);
-    info!(?outcome, "Teacher linking mail resend finished");
+    info!(outcome = ?attempt.outcome, "Teacher linking mail resend finished");
 
     finish_resend(
         &mut conn,
         &user,
         *course_id,
         &payload,
-        Some(&student_number),
-        outcome,
+        Some((&student_number, &attempt)),
         token,
     )
     .await
@@ -762,26 +751,34 @@ async fn resolve_resend_target(
 }
 
 /// Audits the attempt whatever it did, and reports where the person's linking mail now stands.
+/// `attempted` is `None` when no student number was known to try.
 async fn finish_resend(
     conn: &mut PgConnection,
     user: &AuthUser,
     course_id: Uuid,
     payload: &ResendLinkingEmailPayload,
-    student_number: Option<&SecretString>,
-    outcome: ResendOutcome,
+    attempted: Option<(&SecretString, &ResendAttempt)>,
     token: crate::domain::authorization::AuthorizationToken,
 ) -> ControllerResult<web::Json<ResendLinkingEmailResult>> {
+    let student_number = attempted.map(|(number, _)| number.expose_secret());
+    let outcome = attempted.map_or(ResendOutcome::NoStudentNumberKnown, |(_, attempt)| {
+        ResendOutcome::from(attempt.outcome)
+    });
+    let emailed_to = attempted
+        .and_then(|(_, attempt)| attempt.emailed_to.as_ref())
+        .map(ExposeSecret::expose_secret);
     let (mails, mails_sent_for_this_course) = record_resend_and_fetch_mails(
         conn,
         LinkingMailSource::Course(course_id),
-        student_number.map(ExposeSecret::expose_secret),
+        student_number,
         user.id,
         COURSE_TEACHER_ROLE,
         Some(course_id),
         payload.reason.clone(),
         serde_json::json!({
             "outcome": outcome,
-            "student_number": student_number.map(ExposeSecret::expose_secret),
+            "student_number": student_number,
+            "emailed_to": emailed_to,
         }),
     )
     .await?;

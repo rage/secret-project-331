@@ -10,7 +10,6 @@ import {
   previewCmsEmailTemplateMutation,
   sendCmsEmailTemplateTestMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import Spinner from "@/shared-module/common/components/Spinner"
 import {
   Dialog,
   getErrorMessage,
@@ -18,6 +17,7 @@ import {
   Radio,
   RadioGroup,
   TONE,
+  LoadingRegion,
 } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -97,9 +97,12 @@ const EmailPreviewDialog: React.FC<EmailPreviewDialogProps> = ({
           display: flex;
           flex-direction: column;
           gap: 1rem;
+          /* Leaves room for the dialog header and footer so the body does not scroll. */
+          height: calc(90vh - 15rem);
+          min-height: 20rem;
         `}
       >
-        {previewMutation.isPending && <Spinner variant="medium" />}
+        {previewMutation.isPending && <LoadingRegion />}
         {previewMutation.isError && (
           <Infobox tone={TONE.DANGER} heading={t("email-preview-failed")}>
             {getErrorMessage(previewMutation.error)}
@@ -163,7 +166,8 @@ const EmailPreviewDialog: React.FC<EmailPreviewDialogProps> = ({
                   display: block;
                   width: ${width === WIDTH_MOBILE ? `${MOBILE_WIDTH_PX}px` : "100%"};
                   max-width: 100%;
-                  height: 60vh;
+                  flex: 1 1 auto;
+                  min-height: 10rem;
                   margin: 0 auto;
                   border: 1px solid var(--color-gray-300);
                   border-radius: 4px;
@@ -174,7 +178,8 @@ const EmailPreviewDialog: React.FC<EmailPreviewDialogProps> = ({
                 className={css`
                   margin: 0;
                   padding: 1rem;
-                  max-height: 60vh;
+                  flex: 1 1 auto;
+                  min-height: 10rem;
                   overflow: auto;
                   white-space: pre-wrap;
                   overflow-wrap: anywhere;

@@ -47,6 +47,8 @@ ORDER BY cm.order_number,
 pub struct ModuleDiscoveryReport {
     /// The module's or target's id.
     pub credit_unit_id: Uuid,
+    /// `None` for a mooc.fi target.
+    pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     /// `None` for a mooc.fi target.
@@ -66,6 +68,7 @@ pub async fn get_active_discovery_reports(
         ModuleDiscoveryReport,
         r#"
 SELECT r.credit_unit_id AS "credit_unit_id!",
+  r.course_id AS "course_id?",
   r.course_name AS "course_name!",
   r.course_module_name AS "course_module_name?",
   r.uh_course_code AS "uh_course_code?",
@@ -75,6 +78,7 @@ SELECT r.credit_unit_id AS "credit_unit_id!",
   r.consecutive_listing_failures AS "consecutive_listing_failures!"
 FROM (
     SELECT conf.course_module_id AS credit_unit_id,
+      cm.course_id,
       c.name AS course_name,
       cm.name AS course_module_name,
       cm.uh_course_code,
@@ -91,6 +95,7 @@ FROM (
     WHERE conf.deleted_at IS NULL
     UNION ALL
     SELECT target.id,
+      NULL::uuid,
       'mooc.fi: ' || target.name,
       NULL,
       target.uh_course_code,

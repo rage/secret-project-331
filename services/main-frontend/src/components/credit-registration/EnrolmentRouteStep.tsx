@@ -10,7 +10,7 @@ import type {
   MyEnrolmentRoute,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { humanReadableDate } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
@@ -154,7 +154,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
             {enrolmentConfirmedSentence(
               t,
               enrolmentRoute.route,
-              humanReadableDate(enrolmentRoute.enrolment_confirmed_at, i18n.language) ?? "",
+              dateToString(enrolmentRoute.enrolment_confirmed_at),
             )}
           </p>
           <div>

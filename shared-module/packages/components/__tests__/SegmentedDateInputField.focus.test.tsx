@@ -9,7 +9,7 @@ import { TimeField } from "../src/components/TimeField"
 import "../tests/test-i18n"
 
 // DateTimeLocalField/DateField render through PickerSegmentedField and TimeField through
-// NonPickerSegmentedField; both get the same focus-within fix, so both are exercised here.
+// TimePickerSegmentedField; both get the same focus-within fix, so both are exercised here.
 
 // Reads the react-hook-form touched flag into the DOM so tests can assert whether blur committed
 // (the field's onBlur is what marks it touched / would trigger validate-on-blur).

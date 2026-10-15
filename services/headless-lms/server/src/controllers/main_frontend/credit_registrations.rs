@@ -777,7 +777,7 @@ async fn build_my_credit_registrations(
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
         let state = row.state;
-        let status = if row.is_requested_check_unanswered() {
+        let status = if row.is_prompted_check_unanswered() {
             StudentFacingCreditRegistrationStatus::LookingForEnrolment
         } else {
             StudentFacingCreditRegistrationStatus::of(

@@ -5,6 +5,7 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 
+import { Link } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { useIsBlockPreviewMode } from "./blockPreviewMode"
@@ -53,9 +54,9 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
                 <p>{t(warningKey)}</p>
                 <p>
                   {t("warning-image-alt-placeholder-guidance")}{" "}
-                  <a href={W3C_ALT_DECISION_TREE_URL} target="_blank" rel="noopener noreferrer">
+                  <Link href={W3C_ALT_DECISION_TREE_URL} target="_blank" rel="noopener noreferrer">
                     {t("link-image-alt-decision-tree")}
-                  </a>
+                  </Link>
                 </p>
               </Notice>
             ))}

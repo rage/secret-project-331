@@ -218,7 +218,9 @@ const ExternalCreditTargetDialog: React.FC<Props> = ({
             isRequired
             rules={{
               ...required,
-              validate: (value) => validateUUID(value.trim()) || t("invalid-uuid-format"),
+              validate: (value) =>
+                validateUUID(value.trim()) ||
+                t("credit-registration-admin-moocfi-course-id-invalid"),
             }}
           />
           <TextField

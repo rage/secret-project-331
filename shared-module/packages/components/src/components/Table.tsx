@@ -17,6 +17,7 @@ import { ChevronIcon } from "./primitives/ChevronIcon"
 import {
   alignCss,
   bodyCellCss,
+  breakAnywhereCss,
   captionCss,
   cellCompactCss,
   cellCss,
@@ -99,6 +100,11 @@ export interface TableColumn<Row> {
    */
   nowrap?: boolean
   /**
+   * Lets the cell break an unbreakable token (an id, an email) anywhere, so the column can shrink
+   * below it. Leave unset for words and dates, which should only wrap between words.
+   */
+  breakAnywhere?: boolean
+  /**
    * Turns the header into a button and shows a sort indicator. Called with the direction the
    * press asks for, which is the opposite of `sortDirection` once this column is the sorted one.
    * Sorting itself belongs to the caller.
@@ -143,7 +149,10 @@ export type TableProps<Row> = TableName & TableOptions<Row>
 export interface TableOptions<Row> {
   columns: TableColumn<Row>[]
   rows: Row[]
-  /** Stable identity per row; keeps React from reusing the wrong row on reorder. */
+  /**
+   * Stable identity per row; keeps React from reusing the wrong row on reorder. Also emitted as
+   * the row's `data-row-key`, so a test can scope to one row.
+   */
   rowKey: (row: Row, index: number) => React.Key
   /**
    * Puts a heading row before each run of consecutive rows in the same group. Sort the rows by
@@ -170,6 +179,7 @@ export interface TableOptions<Row> {
   /** Adds a leading checkbox column. Controlled: hand it the picked keys and handle the change. */
   selection?: TableSelection<Row>
   className?: string
+  "data-testid"?: string | undefined
 }
 
 function cssLength(value: string | number): string {
@@ -312,6 +322,7 @@ export function Table<Row>({
   expandableRow,
   selection,
   className,
+  "data-testid": dataTestId,
 }: TableProps<Row>) {
   const { t } = useTranslation("shared-module")
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -399,6 +410,7 @@ export function Table<Row>({
     cell: cx(
       isFixedLayout || column.minWidth === undefined ? undefined : minWidthCss(column.minWidth),
       wrapFor(column),
+      column.breakAnywhere ? breakAnywhereCss : undefined,
       alignFor(column),
     ),
   }))
@@ -477,7 +489,7 @@ export function Table<Row>({
     )
 
   return (
-    <div className={cx(frameCss, stackClass, className)}>
+    <div className={cx(frameCss, stackClass, className)} data-testid={dataTestId}>
       <div className={scrollCss} ref={scrollRef}>
         <table
           className={cx(
@@ -595,7 +607,7 @@ export function Table<Row>({
                         </th>
                       </tr>
                     ) : null}
-                    <tr role={isStacking ? "row" : undefined}>
+                    <tr data-row-key={String(key)} role={isStacking ? "row" : undefined}>
                       {hasSelection ? (
                         <td
                           className={cx(

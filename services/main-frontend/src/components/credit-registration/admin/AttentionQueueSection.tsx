@@ -25,6 +25,7 @@ import {
   TABLE_STACK,
 } from "../constants"
 import {
+  breakAnywhereCss,
   headingCss,
   noteCss,
   proseCss,
@@ -47,6 +48,8 @@ import {
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
 import AttentionRowActions from "./AttentionRowActions"
+import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
+import { moduleSubtitleParts } from "./moduleSubtitle"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
@@ -69,17 +72,12 @@ const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total
 }
 
 /**
- * What is wrong first, then what to do, whom it waits on and any hint. An unclear answer's next
- * step is advice, so its step name is what says what is wrong.
+ * What is wrong first, then what to do and whom it waits on. An unclear answer's next step is
+ * advice, so its step name is what says what is wrong.
  */
 const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const status = registrationStatusLines(
-    t,
-    attentionItemStatusSubject(item),
-    null,
-    item.unlinked_enrolled_before_count,
-  )
+  const status = registrationStatusLines(t, attentionItemStatusSubject(item), null)
   const diagnosis =
     item.timeline_step === ANSWER_UNCLEAR ? timelineStepLabel(t, item.timeline_step) : null
   const [lead, ...notes] = [diagnosis, status.next, status.waitsOn].filter(Boolean)
@@ -91,15 +89,17 @@ const StatusCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item 
           {line}
         </span>
       ))}
-      {status.hint && <span className={noteCss}>{status.hint}</span>}
     </span>
   )
 }
 
 const CourseCell: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => (
   <span className={stackedCellCss}>
-    <span>{item.course_name}</span>
-    <InlineParts className={noteCss} parts={[item.course_module_name, item.uh_course_code]} />
+    <span className={breakAnywhereCss}>{item.course_name}</span>
+    <InlineParts
+      className={noteCss}
+      parts={moduleSubtitleParts(item.course_module_name, item.uh_course_code)}
+    />
   </span>
 )
 
@@ -123,7 +123,16 @@ const AttentionItemsTable: React.FC<{
           grow: 1,
           minWidth: STUDENT_COLUMN_MIN_WIDTH,
           cell: (row) => (
-            <StudentCell row={row} href={creditRegistrationItemRoute(row.credit_registration_id)} />
+            <span className={stackedCellCss}>
+              <StudentCell
+                row={row}
+                href={creditRegistrationItemRoute(row.credit_registration_id)}
+              />
+              <ManualLinkingEmailSendLines
+                sends={row.manual_linking_email_sends}
+                variant="registration"
+              />
+            </span>
           ),
         },
         {
@@ -363,7 +372,7 @@ const DismissedRecentlySection: React.FC<{
                     row={row}
                     href={creditRegistrationItemRoute(row.credit_registration_id)}
                   />
-                  <span className={noteCss}>{row.course_name}</span>
+                  <span className={cx(noteCss, breakAnywhereCss)}>{row.course_name}</span>
                 </span>
               ),
             },

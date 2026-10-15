@@ -54,7 +54,10 @@ test.describe("Model solutions", () => {
     await page.getByText("The Basics").click()
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1")
 
-    await page.getByText("Page One").first().click()
+    await page
+      .getByTestId("pages-in-chapter-container")
+      .getByRole("link", { name: "Page One" })
+      .click()
     await expectUrlPathWithRandomUuid(page, "/org/uh-cs/courses/model-solutions/chapter-1/page-1")
     // Wait for the frame to be visible
     // oxlint-disable-next-line playwright/no-networkidle

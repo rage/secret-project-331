@@ -113,6 +113,27 @@ RETURNING partially_registered_at AS "partially_registered_at!"
     Ok(partially_registered_at)
 }
 
+/// Sets when a registration was submitted to Sisu.
+pub async fn set_submitted_at(
+    conn: &mut PgConnection,
+    id: Uuid,
+    submitted_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE credit_registrations
+SET submitted_at = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id,
+        submitted_at,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Restamps `submitted_at` on rows still `submitting`, for an import that sends them again after
 /// splitting a refused batch: the precondition sweep times a lost submission from this stamp, and
 /// must not condemn a row still waiting its turn in the same iteration.

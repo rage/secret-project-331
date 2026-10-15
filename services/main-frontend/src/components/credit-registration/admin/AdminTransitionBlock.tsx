@@ -27,7 +27,7 @@ import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
 import {
-  BUTTON_DESTRUCTIVE,
+  BUTTON_DANGER,
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
@@ -518,7 +518,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             label={t("credit-registration-admin-target-cancel")}
             explanation={cancelExplanation}
             appliedMessage={t("credit-registration-admin-cancel-applied")}
-            triggerVariant={isCompact ? BUTTON_DESTRUCTIVE : BUTTON_TERTIARY}
+            triggerVariant={isCompact ? BUTTON_DANGER : BUTTON_TERTIARY}
             isDestructive
             onResult={setLastResult}
           />

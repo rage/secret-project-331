@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import BreadcrumbRenderer from "@/components/breadcrumbs/BreadcrumbRenderer"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
   useCreditRegistrationAttentionCount,
@@ -15,13 +16,12 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
 import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { cleanTimestampsOnCopy } from "@/components/credit-registration/ZonedTimestamp"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
@@ -35,6 +35,7 @@ import {
   creditRegistrationSystemRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ErrorNotice, LoadingRegion } from "@/shared-module/components"
 
 const KEY_OVERVIEW = "overview"
 const KEY_REGISTRATIONS = "registrations"
@@ -53,9 +54,11 @@ const flushTabListCss = css`
 /** Wider than the site's centred column: the tables here have more columns than it fits. */
 const wideCss = css`
   box-sizing: border-box;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 var(--space-4);
+  /* Inherited: server text, names and ids can hold runs longer than any card here. */
+  overflow-wrap: break-word;
 `
 
 const ADMINISTRATE_CREDIT_REGISTRATIONS = [
@@ -149,9 +152,10 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
 
   return (
     <BreakFromCentered sidebar={false}>
-      <div className={cx(sectionsCss, wideCss)}>
+      <div className={cx(sectionsCss, wideCss)} onCopy={cleanTimestampsOnCopy}>
+        <BreadcrumbRenderer inPage />
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
-        <RouteTabList tabs={tabs} fullWidth className={flushTabListCss} />
+        <RouteTabList tabs={tabs} className={flushTabListCss} />
         {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
         {children}
       </div>
@@ -166,10 +170,10 @@ const CreditRegistrationLayout: React.FC<{ children: React.ReactNode }> = ({ chi
   // Everyone this section is for holds the permission, so a denied banner while the check is still
   // in flight would give the wrong answer to its only readers.
   if (permission.isPending) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
   if (permission.data?.[0] !== true) {
-    return <ErrorBanner variant="readOnly" error={t("error-unauthorized")} />
+    return <ErrorNotice error={t("error-unauthorized")} />
   }
   return <CreditRegistrationSection>{children}</CreditRegistrationSection>
 }

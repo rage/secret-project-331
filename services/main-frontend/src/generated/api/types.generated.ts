@@ -181,11 +181,6 @@ export type AccountLinkingPresser = {
   next_fetch_at?: string | null
   pressed_at: string
   uh_course_code?: string | null
-  /**
-   * The code's [`AccountLinkingCourseCode::unlinked_enrolled_before_count`]; the student may be
-   * one of them.
-   */
-  unlinked_enrolled_before_count?: number | null
   user_id: string
 }
 
@@ -471,6 +466,10 @@ export type AdminCreditRegistrationDetails = {
    */
   linking_emails: Array<AdminLinkingEmail>
   linking_schedule?: null | AdminLinkingSchedule
+  /**
+   * Linking emails sent by hand as a guess for this row's student, newest first.
+   */
+  manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
   moocfi_completion?: null | AdminMoocfiCompletion
   not_improved_attainment?: null | NotImprovedAttainment
   /**
@@ -720,8 +719,8 @@ export type AdminExternalCreditTargetPayload = {
 }
 
 /**
- * A person on the code's enrolment list whom no linking email reached because they enrolled before
- * account linking began, and who may be the waiting student.
+ * A person on a course's enrolment list whom no account is linked to, whom support can send a
+ * linking email.
  */
 export type AdminLinkingCandidate = {
   /**
@@ -735,11 +734,18 @@ export type AdminLinkingCandidate = {
   first_names?: string | null
   last_name?: string | null
   /**
-   * Linking emails they have had for the registration's course, replaced ones included.
+   * Linking emails for the course that count toward its cap: replaced ones included, those a
+   * rate cap override retired not.
    */
   linking_emails_for_course: number
   /**
-   * What they share with the student's account; the list is ordered by these.
+   * Every linking email someone sent by hand for the course, newest first. Unlike
+   * `linking_emails_for_course`, keeps those a rate cap override has since retired.
+   */
+  manual_sends: Array<AdminManualLinkingEmailSend>
+  /**
+   * What they share with the waiting student's account, by which the linking candidates are
+   * ordered. Always empty in [`AdminUnlinkedEnrolees`].
    */
   similarities: Array<LinkingCandidateSimilarity>
   /**
@@ -767,6 +773,19 @@ export type AdminLinkingCandidates = {
    * The study registry gave no usable answer, so an empty `candidates` says nothing.
    */
   study_registry_unavailable: boolean
+}
+
+/**
+ * A course support can send a linking email for by hand: one taking part in credit registration
+ * with a University of Helsinki course code.
+ */
+export type AdminLinkingCourse = {
+  /**
+   * Usually one; a course whose modules have different codes has each of them.
+   */
+  course_codes: Array<string>
+  course_id: string
+  course_name: string
 }
 
 export type AdminLinkingEmail = {
@@ -808,10 +827,6 @@ export type AdminLinkingSchedule = {
    */
   linking_emails_since_press: number
   next_fetch_at: string
-  /**
-   * See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`].
-   */
-  unlinked_enrolled_before_count?: number | null
 }
 
 export type AdminManualLinkOutcome =
@@ -822,6 +837,21 @@ export type AdminManualLinkOutcome =
   | "already_linked_to_this_account"
   | "study_registry_unavailable"
   | "unexpected_study_registry_answer"
+
+/**
+ * A linking email someone sent by hand, so others do not send the same one again.
+ */
+export type AdminManualLinkingEmailSend = {
+  /**
+   * In full.
+   */
+  emailed_to?: string | null
+  sent_at: string
+  sent_by_email?: string | null
+  sent_by_first_name?: string | null
+  sent_by_last_name?: string | null
+  sent_by_user_id: string
+}
 
 export type AdminManuallyLinkStudentNumberPayload = {
   reason: string
@@ -982,6 +1012,7 @@ export type AdminResendAccountLinkingEmailPayload = {
 export type AdminResendAccountLinkingEmailResult = {
   linking_emails: Array<AdminLinkingEmail>
   mails_sent_for_this_course: number
+  manual_send?: null | AdminManualLinkingEmailSend
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
   quiet_period_secs: number
@@ -1062,6 +1093,20 @@ export type AdminUnlinkStudentNumberResult = {
    * Registrations that went back to waiting for a number.
    */
   affected_registration_count: number
+}
+
+/**
+ * Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.
+ */
+export type AdminUnlinkedEnrolees = {
+  /**
+   * By last name, then first names, ignoring case; people with no last name last.
+   */
+  people: Array<AdminLinkingCandidate>
+  /**
+   * The study registry gave no usable answer for some code, so `people` says nothing.
+   */
+  study_registry_unavailable: boolean
 }
 
 export type AdminVerifiedStudentNumberRow = {
@@ -1277,6 +1322,12 @@ export type BreakerTarget = "study_registry" | "sisu_submissions"
 export type BulkUserDetailsRequest = {
   course_id: string
   user_ids: Array<string>
+}
+
+export type CategoryFeedbackCount = {
+  category_id: string
+  read_feedback: number
+  unread_feedback: number
 }
 
 export type CertificateAllRequirements = {
@@ -2659,6 +2710,10 @@ export type CreditRegistrationAttentionItem = {
   last_mailing_fetch_started_at?: string | null
   last_name?: string | null
   /**
+   * Linking emails sent by hand as a guess for this row's student, newest first.
+   */
+  manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
+  /**
    * The pipeline's own flag; a fact about the row, separate from any dismissal.
    */
   needs_admin_attention: boolean
@@ -2682,11 +2737,6 @@ export type CreditRegistrationAttentionItem = {
   student_number?: string | null
   timeline_step: TimelineStep
   uh_course_code?: string | null
-  /**
-   * From the code's last enrolment list that fed account linking: people who enrolled before
-   * account linking began and are linked to no account, so no linking email went to them.
-   */
-  unlinked_enrolled_before_count?: number | null
   user_id: string
   waits_on: WaitsOn
 }
@@ -4030,6 +4080,14 @@ export type ExtendStageRequest = {
   months: number
 }
 
+export type ExternalCourseOutput = {
+  description?: string | null
+  id: string
+  name: string
+  on_old_platform: boolean
+  url: string
+}
+
 export type ExternalCreditTarget = {
   /**
    * The course code `course_code_allowed` is a verdict on.
@@ -4084,6 +4142,8 @@ export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
   created_at: string
+  feedback_category_id?: string | null
+  feedback_category_name?: string | null
   feedback_given: string
   id: string
   marked_as_read: boolean
@@ -4100,9 +4160,24 @@ export type FeedbackBlock = {
   text?: string | null
 }
 
-export type FeedbackCount = {
-  read: number
-  unread: number
+export type FeedbackCategory = {
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  name: string
+  updated_at: string
+}
+
+export type FeedbackEditProposalCounts = {
+  feedback_categories_counts: Array<CategoryFeedbackCount>
+  handled_edits: number
+  pending_edits: number
+  read_feedback: number
+  /**
+   * pending edits + unread feedback
+   */
+  total_waiting: number
+  unread_feedback: number
 }
 
 export type FlaggedAnswer = {
@@ -4115,6 +4190,17 @@ export type FlaggedAnswer = {
   reason: ReportReason
   submission_id: string
   updated_at: string
+}
+
+/**
+ * Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
+ */
+export type FuzzyUserSearchResults = {
+  /**
+   * More users matched than `users` holds.
+   */
+  has_more: boolean
+  users: Array<UserDetail>
 }
 
 export type GeneratedCertificate = {
@@ -4803,6 +4889,13 @@ export type NewExerciseRepository = {
   public_key?: string | null
 }
 
+export type NewExternalCourse = {
+  description?: string | null
+  name: string
+  on_old_platform: boolean
+  url: string
+}
+
 export type NewMaterialReference = {
   citation_key: string
   reference: string
@@ -5463,11 +5556,6 @@ export type Points = {
   users: Array<UserDetail>
 }
 
-export type ProposalCount = {
-  handled: number
-  pending: number
-}
-
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
@@ -5582,6 +5670,7 @@ export type ResendOutcome =
   | "queued"
   | "already_mailed_to_every_known_address"
   | "refused_by_rate_cap"
+  | "just_sent"
   | "no_address_in_study_registry"
   | "not_on_the_course_roster"
   | "already_linked"
@@ -6400,7 +6489,6 @@ export type UserDetail = {
   email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
-  search_helper?: string | null
   updated_at: string
   user_id: string
 }
@@ -8868,6 +8956,10 @@ export type GetCourseFeedbackData = {
      * Page size
      */
     limit?: number
+    /**
+     * Selected category
+     */
+    category_filter?: string
   }
   url: "/api/v0/main-frontend/courses/{course_id}/feedback"
 }
@@ -8880,6 +8972,33 @@ export type GetCourseFeedbackResponses = {
 }
 
 export type GetCourseFeedbackResponse = GetCourseFeedbackResponses[keyof GetCourseFeedbackResponses]
+
+export type GetCourseFeedbackCategoriesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query: {
+    /**
+     * Categories for read/unread status feedback
+     */
+    read: boolean
+  }
+  url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories"
+}
+
+export type GetCourseFeedbackCategoriesResponses = {
+  /**
+   * All feedback categories used in feedback for the course
+   */
+  200: Array<FeedbackCategory>
+}
+
+export type GetCourseFeedbackCategoriesResponse =
+  GetCourseFeedbackCategoriesResponses[keyof GetCourseFeedbackCategoriesResponses]
 
 export type GetCourseFeedbackCountData = {
   body?: never
@@ -8895,9 +9014,9 @@ export type GetCourseFeedbackCountData = {
 
 export type GetCourseFeedbackCountResponses = {
   /**
-   * Feedback counts for the course
+   * Feedback and edit proposal counts for the course
    */
-  200: FeedbackCount
+  200: FeedbackEditProposalCounts
 }
 
 export type GetCourseFeedbackCountResponse =
@@ -10890,6 +11009,52 @@ export type GetAccountLinkingStatsResponses = {
 export type GetAccountLinkingStatsResponse =
   GetAccountLinkingStatsResponses[keyof GetAccountLinkingStatsResponses]
 
+export type GetAccountLinkingCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses"
+}
+
+export type GetAccountLinkingCoursesResponses = {
+  /**
+   * By course name
+   */
+  200: Array<AdminLinkingCourse>
+}
+
+export type GetAccountLinkingCoursesResponse =
+  GetAccountLinkingCoursesResponses[keyof GetAccountLinkingCoursesResponses]
+
+export type GetAccountLinkingUnlinkedEnroleesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees"
+}
+
+export type GetAccountLinkingUnlinkedEnroleesErrors = {
+  /**
+   * Account linking is off, or the course takes no part in credit registration
+   */
+  400: unknown
+}
+
+export type GetAccountLinkingUnlinkedEnroleesResponses = {
+  /**
+   * The unlinked people
+   */
+  200: AdminUnlinkedEnrolees
+}
+
+export type GetAccountLinkingUnlinkedEnroleesResponse =
+  GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
+
 export type AdminRequestEnrolmentListFetchData = {
   body: AdminRequestEnrolmentListFetchPayload
   path?: never
@@ -10947,7 +11112,7 @@ export type AdminResendAccountLinkingEmailData = {
 
 export type AdminResendAccountLinkingEmailErrors = {
   /**
-   * An override without a reason, or too soon after the last resend
+   * An override without a reason
    */
   422: unknown
 }
@@ -13402,6 +13567,74 @@ export type GetExerciseSubmissionsForUserResponses = {
 export type GetExerciseSubmissionsForUserResponse =
   GetExerciseSubmissionsForUserResponses[keyof GetExerciseSubmissionsForUserResponses]
 
+export type GetExternalCoursesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/all"
+}
+
+export type GetExternalCoursesResponses = {
+  /**
+   * All external courses
+   */
+  200: Array<ExternalCourseOutput>
+}
+
+export type GetExternalCoursesResponse =
+  GetExternalCoursesResponses[keyof GetExternalCoursesResponses]
+
+export type DeleteExternalCourseData = {
+  body: ExternalCourseOutput
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/delete"
+}
+
+export type DeleteExternalCourseResponses = {
+  /**
+   * Deleted external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type DeleteExternalCourseResponse =
+  DeleteExternalCourseResponses[keyof DeleteExternalCourseResponses]
+
+export type CreateExternalCourseData = {
+  body: NewExternalCourse
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/new"
+}
+
+export type CreateExternalCourseResponses = {
+  /**
+   * Created external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type CreateExternalCourseResponse =
+  CreateExternalCourseResponses[keyof CreateExternalCourseResponses]
+
+export type UpdateExternalCourseData = {
+  body: ExternalCourseOutput
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/external-courses/update"
+}
+
+export type UpdateExternalCourseResponses = {
+  /**
+   * Updated external course
+   */
+  200: ExternalCourseOutput
+}
+
+export type UpdateExternalCourseResponse =
+  UpdateExternalCourseResponses[keyof UpdateExternalCourseResponses]
+
 export type MarkFeedbackAsReadData = {
   body: MarkAsRead
   path: {
@@ -14776,28 +15009,6 @@ export type GetEditProposalsResponses = {
 
 export type GetEditProposalsResponse = GetEditProposalsResponses[keyof GetEditProposalsResponses]
 
-export type GetEditProposalCountData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count"
-}
-
-export type GetEditProposalCountResponses = {
-  /**
-   * Edit proposal counts
-   */
-  200: ProposalCount
-}
-
-export type GetEditProposalCountResponse =
-  GetEditProposalCountResponses[keyof GetEditProposalCountResponses]
-
 export type ProcessEditProposalData = {
   body: EditProposalInfo
   path?: never
@@ -15320,56 +15531,39 @@ export type GetBulkUserDetailsResponses = {
 export type GetBulkUserDetailsResponse =
   GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses]
 
-export type SearchUserDetailsByEmailData = {
+export type SearchUserDetailsExactData = {
   body: SearchRequest
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-email"
+  url: "/api/v0/main-frontend/user-details/search-exact"
 }
 
-export type SearchUserDetailsByEmailResponses = {
+export type SearchUserDetailsExactResponses = {
   /**
-   * User details search results
+   * Users whose id or email equals the query
    */
   200: Array<UserDetail>
 }
 
-export type SearchUserDetailsByEmailResponse =
-  SearchUserDetailsByEmailResponses[keyof SearchUserDetailsByEmailResponses]
+export type SearchUserDetailsExactResponse =
+  SearchUserDetailsExactResponses[keyof SearchUserDetailsExactResponses]
 
-export type SearchUserDetailsByOtherDetailsData = {
+export type SearchUserDetailsFuzzyData = {
   body: SearchRequest
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-other-details"
+  url: "/api/v0/main-frontend/user-details/search-fuzzy"
 }
 
-export type SearchUserDetailsByOtherDetailsResponses = {
+export type SearchUserDetailsFuzzyResponses = {
   /**
-   * User details search results
+   * Users whose name or email resembles the query
    */
-  200: Array<UserDetail>
+  200: FuzzyUserSearchResults
 }
 
-export type SearchUserDetailsByOtherDetailsResponse =
-  SearchUserDetailsByOtherDetailsResponses[keyof SearchUserDetailsByOtherDetailsResponses]
-
-export type SearchUserDetailsFuzzyMatchData = {
-  body: SearchRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/search-fuzzy-match"
-}
-
-export type SearchUserDetailsFuzzyMatchResponses = {
-  /**
-   * User details fuzzy search results
-   */
-  200: Array<UserDetail>
-}
-
-export type SearchUserDetailsFuzzyMatchResponse =
-  SearchUserDetailsFuzzyMatchResponses[keyof SearchUserDetailsFuzzyMatchResponses]
+export type SearchUserDetailsFuzzyResponse =
+  SearchUserDetailsFuzzyResponses[keyof SearchUserDetailsFuzzyResponses]
 
 export type UpdateUserInfoData = {
   body: UserInfoPayload

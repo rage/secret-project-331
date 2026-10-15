@@ -85,6 +85,7 @@ pub mod external_completions;
 pub mod external_courses;
 pub mod external_credit_targets;
 pub mod feedback;
+pub mod feedback_categories;
 pub mod file_uploads;
 pub mod flagged_answers;
 pub mod generated_certificates;

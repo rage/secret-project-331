@@ -41,8 +41,9 @@ use headless_lms_utils::secret_string::expose_option;
 use secrecy::{ExposeSecret, SecretString};
 
 use super::{
-    AdminLinkingEmail, attention_rules, authorize_credit_registration_admin, build_linking_emails,
-    required_reason,
+    AdminLinkingEmail, AdminManualLinkingEmailSend, attention_rules,
+    authorize_credit_registration_admin, build_linking_emails,
+    manual_linking_email_sends_by_registration, required_reason,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -236,8 +237,6 @@ pub struct AdminLinkingSchedule {
     pub next_fetch_at: DateTime<Utc>,
     pub is_fetch_failing: bool,
     pub is_enrolment_list_empty: bool,
-    /// See [`super::errors::CreditRegistrationAttentionItem::unlinked_enrolled_before_count`].
-    pub unlinked_enrolled_before_count: Option<i32>,
     /// On any course sharing the code. Not attributable to this student until a link is used.
     pub linking_emails_since_press: i64,
     pub last_linking_email_at: Option<DateTime<Utc>>,
@@ -279,6 +278,8 @@ pub struct AdminCreditRegistrationDetails {
     pub actions: Vec<CreditRegistrationAdminActionRecord>,
     /// Every mail addressed to this person, on any course.
     pub linking_emails: Vec<AdminLinkingEmail>,
+    /// Linking emails sent by hand as a guess for this row's student, newest first.
+    pub manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
     /// The student mails queued for every attempt ("Please register" is `action_needed`), with the
     /// same send status the student and the teacher are shown.
     pub notification_emails: Vec<AdminNotificationEmail>,
@@ -704,6 +705,12 @@ pub async fn get_credit_registration_for_admin(
         None => Vec::new(),
     };
 
+    let manual_linking_email_sends =
+        manual_linking_email_sends_by_registration(&mut conn, registration.course_id.as_slice())
+            .await?
+            .remove(&id)
+            .unwrap_or_default();
+
     let notification_emails = student_notifications::get_for_registrations(&mut conn, &attempt_ids)
         .await?
         .into_iter()
@@ -792,6 +799,7 @@ pub async fn get_credit_registration_for_admin(
         suotar_api_calls,
         actions,
         linking_emails,
+        manual_linking_email_sends,
         notification_emails,
         not_improved_attainment,
         moocfi_completion,
@@ -1319,7 +1327,6 @@ async fn linking_schedule_for(
         last_mailing_fetch_started_at: schedule.last_mailing_fetch_started_at,
         is_fetch_failing: schedule.consecutive_failures > 0,
         is_enrolment_list_empty: schedule.last_listed_person_count == Some(0),
-        unlinked_enrolled_before_count: schedule.unlinked_enrolled_before_count,
         linking_emails_since_press: presser.linking_emails_on_code_since_press,
         last_linking_email_at: presser.last_linking_email_on_code_at,
         course_code,

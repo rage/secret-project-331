@@ -13,6 +13,7 @@ export interface DescriptionListProps {
   /** Lay the term and detail out side by side (default) or stacked. */
   layout?: "inline" | "stacked"
   className?: string
+  "data-testid"?: string | undefined
 }
 
 /** Below this the label column eats the value column, so the inline layout stacks instead. */
@@ -24,6 +25,8 @@ const rootInlineCss = css`
      unbroken value (a masked address, an id) overflows the value column. */
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
   gap: var(--space-2) var(--space-4);
+  /* The label is smaller than its value; top-aligned, it would sit above the value's line. */
+  align-items: baseline;
   margin: 0;
 
   @media (max-width: ${STACK_BELOW}) {
@@ -66,8 +69,12 @@ export const DescriptionList: React.FC<DescriptionListProps> = ({
   items,
   layout = "inline",
   className,
+  "data-testid": dataTestId,
 }) => (
-  <dl className={cx(layout === "inline" ? rootInlineCss : rootStackedCss, className)}>
+  <dl
+    className={cx(layout === "inline" ? rootInlineCss : rootStackedCss, className)}
+    data-testid={dataTestId}
+  >
     {items.map((item, i) => (
       <div key={i} className={layout === "inline" ? inlineItemCss : undefined}>
         <dt className={dtCss}>{item.label}</dt>

@@ -13,8 +13,8 @@ import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import {
   adminManuallyLinkStudentNumber,
   adminResolveStudentNumberForLinking,
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
 } from "@/generated/api/sdk.generated"
 import type {
   AdminManuallyLinkStudentNumberResult,
@@ -47,6 +47,7 @@ import {
   controlsCss,
   dialogFormCss,
   dividedListCss,
+  fieldActionCss,
   noteCss,
   spacedRowCss,
   subheadingCss,
@@ -55,6 +56,7 @@ import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { candidateFullName } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import StudentCell from "./StudentCell"
 
@@ -93,6 +95,8 @@ const identityMatchCss = css`
 const identityCss = css`
   display: grid;
   gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
 `
 
 const accountResultsCss = css`
@@ -100,13 +104,9 @@ const accountResultsCss = css`
   overflow-y: auto;
 `
 
-const searchAccounts = async (query: string): Promise<UserDetail[]> => {
-  const [byEmail, byOtherDetails] = await Promise.all([
-    searchUserDetailsByEmail({ body: { query } }),
-    searchUserDetailsByOtherDetails({ body: { query } }),
-  ])
+const mergeAccounts = (exact: UserDetail[], similar: UserDetail[]): UserDetail[] => {
   const byUserId = new Map<string, UserDetail>()
-  for (const user of [...byEmail, ...byOtherDetails]) {
+  for (const user of [...exact, ...similar]) {
     byUserId.set(user.user_id, user)
   }
   return Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES)
@@ -125,11 +125,21 @@ const AccountPicker: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, handleSubmit } = useForm<SearchFields>({ defaultValues: { term: "" } })
   const [query, setQuery] = useState("")
-  const accountsQuery = useQuery({
-    queryKey: ["manualLinkAccountSearch", query],
-    queryFn: () => searchAccounts(query),
+  // Separate queries so an exact match shows without waiting for the slower similar-user search.
+  const exactQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchExact", query],
+    queryFn: () => searchUserDetailsExact({ body: { query } }),
     enabled: query !== "",
   })
+  const fuzzyQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchFuzzy", query],
+    queryFn: () => searchUserDetailsFuzzy({ body: { query } }),
+    enabled: query !== "",
+  })
+  const accounts = exactQuery.data
+    ? mergeAccounts(exactQuery.data, fuzzyQuery.data?.users ?? [])
+    : null
+  const hasNoAccounts = accounts?.length === 0 && fuzzyQuery.isSuccess
 
   return (
     <div className={dialogFormCss}>
@@ -144,19 +154,20 @@ const AccountPicker: React.FC<{
           type="submit"
           variant={isCurrentStep ? BUTTON_PRIMARY : BUTTON_SECONDARY}
           size="medium"
-          disabled={accountsQuery.isFetching}
+          className={fieldActionCss}
+          disabled={exactQuery.isFetching}
         >
           {t("button-text-search")}
         </Button>
       </form>
-      {accountsQuery.data && accountsQuery.data.length === 0 && (
+      {hasNoAccounts && (
         <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
       )}
-      {accountsQuery.data &&
-        accountsQuery.data.length > 0 && (
+      {accounts &&
+        accounts.length > 0 && (
           // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
           <ul className={cx(dividedListCss, accountResultsCss)} role="list">
-            {accountsQuery.data.map((user) => (
+            {accounts.map((user) => (
               <li key={user.user_id} className={spacedRowCss}>
                 <StudentCell row={user} />
                 <Button
@@ -259,6 +270,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
             // A wizard reads top to bottom: this is the first thing to do until it is done.
             variant={preview?.found === true ? BUTTON_SECONDARY : BUTTON_PRIMARY}
             size="medium"
+            className={fieldActionCss}
             disabled={previewMutation.isPending}
             onClick={async () => {
               // A mistyped number is caught here rather than looked up in Sisu.
@@ -285,18 +297,20 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
                     <span className={noteCss}>
                       {t("credit-registration-admin-manual-link-sisu-holds")}
                     </span>
-                    <span>
-                      {[preview.first_names, preview.last_name].filter(Boolean).join(" ") || (
-                        <AbsentValue />
-                      )}
-                    </span>
+                    <span>{candidateFullName(preview) || <AbsentValue />}</span>
                   </span>
                   <span className={identityCss}>
                     <span className={noteCss}>
                       {t("credit-registration-admin-manual-link-account-holds")}
                     </span>
                     <span>{chosenAccount?.name ?? <AbsentValue />}</span>
-                    <span className={noteCss}>{chosenAccount?.email ?? <AbsentValue />}</span>
+                    <span className={noteCss}>
+                      {chosenAccount?.email ? (
+                        <EmailAddress address={chosenAccount.email} />
+                      ) : (
+                        <AbsentValue />
+                      )}
+                    </span>
                   </span>
                 </div>
                 <DescriptionList
@@ -312,9 +326,11 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
                     },
                     {
                       label: t("label-credit-registration-already-linked-to"),
-                      value:
-                        preview.already_linked_to_user_email ??
-                        t("credit-registration-admin-not-linked"),
+                      value: preview.already_linked_to_user_email ? (
+                        <EmailAddress address={preview.already_linked_to_user_email} />
+                      ) : (
+                        t("credit-registration-admin-not-linked")
+                      ),
                     },
                     {
                       label: t("credit-registration-admin-send-status-header"),
@@ -356,7 +372,13 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
             <span className={spacedRowCss}>
               <span className={identityCss}>
                 <span>{chosenAccount.name}</span>
-                <span className={noteCss}>{chosenAccount.email ?? <AbsentValue />}</span>
+                <span className={noteCss}>
+                  {chosenAccount.email ? (
+                    <EmailAddress address={chosenAccount.email} />
+                  ) : (
+                    <AbsentValue />
+                  )}
+                </span>
               </span>
               <Button
                 variant={BUTTON_TERTIARY}

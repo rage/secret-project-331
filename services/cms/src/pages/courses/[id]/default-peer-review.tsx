@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
@@ -10,10 +11,10 @@ import type {
 } from "@/generated/api"
 import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { Button } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -25,6 +26,15 @@ import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
+
+const pageCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-4);
+`
 
 interface PeerReviewManagerProps {
   // courseId
@@ -143,7 +153,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       <CmsPageTitle title={t("edit-default-peer-review")} />
       <QueryResult query={peerOrSelfReviewConfigurationQuery}>
         {(data) => (
-          <>
+          <div className={pageCss}>
             <PeerReviewEditor
               attributes={attributes}
               setAttributes={setAttributes}
@@ -158,13 +168,16 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
               }
             />
             <Button
+              className={css`
+                align-self: flex-start;
+              `}
               variant="primary"
               size="medium"
               onClick={() => mutateCourseDefaultPeerReview.mutate()}
             >
               {t("save")}
             </Button>
-          </>
+          </div>
         )}
       </QueryResult>
     </>

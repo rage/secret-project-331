@@ -1,7 +1,9 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
+  getAccountLinkingCoursesOptions,
   getAccountLinkingStatsOptions,
+  getAccountLinkingUnlinkedEnroleesOptions,
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationAttentionItemsOptions,
   getCreditRegistrationAttentionItemsQueryKey,
@@ -121,6 +123,23 @@ export const useLinkingCandidates = (creditRegistrationId: string, isEnabled: bo
       path: { credit_registration_id: creditRegistrationId },
     }),
     enabled: isEnabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  })
+
+/** The courses a linking email can be sent for by hand, loaded once the dialog opens. */
+export const useAccountLinkingCourses = (isEnabled: boolean) =>
+  useQuery({ ...getAccountLinkingCoursesOptions(), enabled: isEnabled })
+
+/**
+ * Fetches the course's enrolment lists live from Sisu once a course is picked; nothing is cached
+ * past the dialog.
+ */
+export const useUnlinkedEnrolees = (courseId: string | null, isEnabled: boolean) =>
+  useQuery({
+    ...getAccountLinkingUnlinkedEnroleesOptions({ path: { course_id: courseId ?? "" } }),
+    enabled: isEnabled && courseId !== null,
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: false,

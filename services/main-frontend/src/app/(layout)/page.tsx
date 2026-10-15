@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -20,14 +19,9 @@ import {
   searchUsersRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Link } from "@/shared-module/components"
 
 import MyCourses from "./MyCourses"
-
-const navLinkCss = css`
-  cursor: pointer;
-  color: blue;
-  text-decoration: underline;
-`
 
 const FrontPage = () => {
   const { t } = useTranslation()
@@ -47,28 +41,22 @@ const FrontPage = () => {
 
       <h2>{t("heading-navigation")}</h2>
       <div>
-        <a href="https://www.mooc.fi">{t("link-text-find-more-courses")}</a>
+        <Link href="https://www.mooc.fi">{t("link-text-find-more-courses")}</Link>
       </div>
       <OnlyRenderIfPermissions
         action={{ type: "create_courses_or_exams" }}
         resource={{ type: "any_course" }}
       >
         <div>
-          <Link href="/manage/course-plans" className={navLinkCss}>
-            {t("link-text-course-plans")}
-          </Link>
+          <Link href="/manage/course-plans">{t("link-text-course-plans")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <div>
-        <Link href={allOrganizationsRoute()} className={navLinkCss}>
-          {t("link-text-all-organizations")}
-        </Link>
+        <Link href={allOrganizationsRoute()}>{t("link-text-all-organizations")}</Link>
       </div>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
-          <Link href={manageExerciseServicesRoute()} className={navLinkCss}>
-            {t("link-manage-exercise-services")}
-          </Link>
+          <Link href={manageExerciseServicesRoute()}>{t("link-manage-exercise-services")}</Link>
         </div>
       </OnlyRenderIfPermissions>
 
@@ -77,9 +65,7 @@ const FrontPage = () => {
         resource={{ type: "global_permissions" }}
       >
         <div>
-          <Link href={searchUsersRoute()} className={navLinkCss}>
-            {t("title-user-search")}
-          </Link>
+          <Link href={searchUsersRoute()}>{t("title-user-search")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions
@@ -87,9 +73,7 @@ const FrontPage = () => {
         resource={{ type: "global_permissions" }}
       >
         <div>
-          <Link href={globalPermissionsRoute()} className={navLinkCss}>
-            {t("global-permissions")}
-          </Link>
+          <Link href={globalPermissionsRoute()}>{t("global-permissions")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions
@@ -97,28 +81,20 @@ const FrontPage = () => {
         resource={{ type: "global_permissions" }}
       >
         <div>
-          <Link href={globalStatsRoute()} className={navLinkCss}>
-            {t("link-text-global-stats")}
-          </Link>
+          <Link href={globalStatsRoute()}>{t("link-text-global-stats")}</Link>
         </div>
         <div>
-          <Link href={domainStatsRoute()} className={navLinkCss}>
-            {t("domain-stats-link")}
-          </Link>
+          <Link href={domainStatsRoute()}>{t("domain-stats-link")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
-          <Link href={regradingsRoute()} className={navLinkCss}>
-            {t("title-regradings")}
-          </Link>
+          <Link href={regradingsRoute()}>{t("title-regradings")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "view" }} resource={{ type: "global_permissions" }}>
         <div>
-          <Link href={chatbotCommandCenterRoute()} className={navLinkCss}>
-            {t("link-text-chatbot-command-center")}
-          </Link>
+          <Link href={chatbotCommandCenterRoute()}>{t("link-text-chatbot-command-center")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions
@@ -126,9 +102,7 @@ const FrontPage = () => {
         resource={{ type: "global_permissions" }}
       >
         <div>
-          <Link href={creditRegistrationOverviewRoute()} className={navLinkCss}>
-            {t("title-credit-registration")}
-          </Link>
+          <Link href={creditRegistrationOverviewRoute()}>{t("title-credit-registration")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions
@@ -136,16 +110,17 @@ const FrontPage = () => {
         resource={{ type: "global_permissions" }}
       >
         <div>
-          <Link href="/manage/email-templates" className={navLinkCss}>
-            {t("email-templates-title")}
-          </Link>
+          <Link href="/manage/email-templates">{t("email-templates-title")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
-          <Link href={courseAuditingRoute()} className={navLinkCss}>
-            {t("link-course-auditing")}
-          </Link>
+          <Link href={courseAuditingRoute()}>{t("link-course-auditing")}</Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link href="/external-courses">{t("external-courses")}</Link>
         </div>
       </OnlyRenderIfPermissions>
     </div>

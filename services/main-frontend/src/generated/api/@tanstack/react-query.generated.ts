@@ -66,6 +66,7 @@ import {
   createEmailTemplate,
   createExerciseRepository,
   createExerciseService,
+  createExternalCourse,
   createOrganization,
   createOrganizationExam,
   createPage,
@@ -88,6 +89,7 @@ import {
   deleteEmailTemplate,
   deleteExerciseRepository,
   deleteExerciseService,
+  deleteExternalCourse,
   deleteGlossaryTerm,
   deleteOauthAuthorizedClient,
   deleteOrganizationImage,
@@ -122,7 +124,9 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourses,
   getAccountLinkingStats,
+  getAccountLinkingUnlinkedEnrolees,
   getAllChatbots,
   getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
@@ -162,6 +166,7 @@ import {
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
   getCourseFeedback,
+  getCourseFeedbackCategories,
   getCourseFeedbackCount,
   getCourseFlaggedSuspectedCheatersCount,
   getCourseGlossary,
@@ -219,7 +224,6 @@ import {
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
   getCurrentTime,
-  getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
   getEmailVerificationCodeForTestMode,
@@ -239,6 +243,7 @@ import {
   getExerciseSlideSubmissionInfo,
   getExerciseSubmissions,
   getExerciseSubmissionsForUser,
+  getExternalCourses,
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
@@ -371,9 +376,8 @@ import {
   revokeSubmissionShare,
   revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
-  searchUserDetailsFuzzyMatch,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
   sendResetPasswordEmail,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
@@ -404,6 +408,7 @@ import {
   updateCourseReference,
   updateExerciseRepository,
   updateExerciseService,
+  updateExternalCourse,
   updateGeneratedCertificate,
   updateGlossaryTerm,
   updateMetadata,
@@ -513,6 +518,8 @@ import type {
   CreateExerciseRepositoryResponse,
   CreateExerciseServiceData,
   CreateExerciseServiceResponse,
+  CreateExternalCourseData,
+  CreateExternalCourseResponse,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreatePageAudioFileData,
@@ -547,6 +554,8 @@ import type {
   DeleteExerciseRepositoryResponse,
   DeleteExerciseServiceData,
   DeleteExerciseServiceResponse,
+  DeleteExternalCourseData,
+  DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
   DeleteOauthAuthorizedClientData,
   DeleteOauthAuthorizedClientResponse,
@@ -607,8 +616,12 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCoursesData,
+  GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponse,
+  GetAccountLinkingUnlinkedEnroleesData,
+  GetAccountLinkingUnlinkedEnroleesResponse,
   GetAllChatbotsData,
   GetAllChatbotsResponse,
   GetAllCoursesData,
@@ -682,6 +695,8 @@ import type {
   GetCourseExercisesResponse,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponse,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponse,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponse,
   GetCourseFeedbackData,
@@ -795,8 +810,6 @@ import type {
   GetCreditRegistrationThresholdsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
-  GetEditProposalCountData,
-  GetEditProposalCountResponse,
   GetEditProposalsData,
   GetEditProposalsResponse,
   GetEmailTemplatesData,
@@ -835,6 +848,8 @@ import type {
   GetExerciseSubmissionsForUserData,
   GetExerciseSubmissionsForUserResponse,
   GetExerciseSubmissionsResponse,
+  GetExternalCoursesData,
+  GetExternalCoursesResponse,
   GetFirstExerciseSubmissionsByModuleData,
   GetFirstExerciseSubmissionsByModuleResponse,
   GetFirstExerciseSubmissionsHistoryByInstanceData,
@@ -1082,12 +1097,10 @@ import type {
   RevokeSubmissionSharesOfSubmissionResponse,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
-  SearchUserDetailsByEmailData,
-  SearchUserDetailsByEmailResponse,
-  SearchUserDetailsByOtherDetailsData,
-  SearchUserDetailsByOtherDetailsResponse,
-  SearchUserDetailsFuzzyMatchData,
-  SearchUserDetailsFuzzyMatchResponse,
+  SearchUserDetailsExactData,
+  SearchUserDetailsExactResponse,
+  SearchUserDetailsFuzzyData,
+  SearchUserDetailsFuzzyResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
   SetCourseChatbotAsDefaultData,
@@ -1139,6 +1152,8 @@ import type {
   UpdateExerciseRepositoryResponse,
   UpdateExerciseServiceData,
   UpdateExerciseServiceResponse,
+  UpdateExternalCourseData,
+  UpdateExternalCourseResponse,
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponse,
   UpdateGlossaryTermData,
@@ -4106,6 +4121,33 @@ export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedb
   return opts as Omit<typeof opts, "initialData">
 }
 
+export const getCourseFeedbackCategoriesQueryKey = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) => createQueryKey("getCourseFeedbackCategories", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategoriesOptions = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) =>
+  queryOptions<
+    GetCourseFeedbackCategoriesResponse,
+    DefaultError,
+    GetCourseFeedbackCategoriesResponse,
+    ReturnType<typeof getCourseFeedbackCategoriesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseFeedbackCategories({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseFeedbackCategoriesQueryKey(options),
+  })
+
 export const getCourseFeedbackCountQueryKey = (options: Options<GetCourseFeedbackCountData>) =>
   createQueryKey("getCourseFeedbackCount", options)
 
@@ -6251,6 +6293,62 @@ export const getAccountLinkingStatsOptions = (options?: Options<GetAccountLinkin
         throwOnError: true,
       }),
     queryKey: getAccountLinkingStatsQueryKey(options),
+  })
+
+export const getAccountLinkingCoursesQueryKey = (options?: Options<GetAccountLinkingCoursesData>) =>
+  createQueryKey("getAccountLinkingCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
+ * can send a linking email for by hand.
+ */
+export const getAccountLinkingCoursesOptions = (options?: Options<GetAccountLinkingCoursesData>) =>
+  queryOptions<
+    GetAccountLinkingCoursesResponse,
+    DefaultError,
+    GetAccountLinkingCoursesResponse,
+    ReturnType<typeof getAccountLinkingCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCoursesQueryKey(options),
+  })
+
+export const getAccountLinkingUnlinkedEnroleesQueryKey = (
+  options: Options<GetAccountLinkingUnlinkedEnroleesData>,
+) => createQueryKey("getAccountLinkingUnlinkedEnrolees", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
+ * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
+ * linking email by hand.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingUnlinkedEnroleesOptions = (
+  options: Options<GetAccountLinkingUnlinkedEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingUnlinkedEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingUnlinkedEnroleesResponse,
+    ReturnType<typeof getAccountLinkingUnlinkedEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingUnlinkedEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
 /**
@@ -9409,6 +9507,108 @@ export const getExerciseSubmissionsForUserOptions = (
     queryKey: getExerciseSubmissionsForUserQueryKey(options),
   })
 
+export const getExternalCoursesQueryKey = (options?: Options<GetExternalCoursesData>) =>
+  createQueryKey("getExternalCourses", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
+ */
+export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesData>) =>
+  queryOptions<
+    GetExternalCoursesResponse,
+    DefaultError,
+    GetExternalCoursesResponse,
+    ReturnType<typeof getExternalCoursesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getExternalCourses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getExternalCoursesQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
+ */
+export const deleteExternalCourseMutation = (
+  options?: Partial<Options<DeleteExternalCourseData>>,
+): UseMutationOptions<
+  DeleteExternalCourseResponse,
+  DefaultError,
+  Options<DeleteExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteExternalCourseResponse,
+    DefaultError,
+    Options<DeleteExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
+ */
+export const createExternalCourseMutation = (
+  options?: Partial<Options<CreateExternalCourseData>>,
+): UseMutationOptions<
+  CreateExternalCourseResponse,
+  DefaultError,
+  Options<CreateExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateExternalCourseResponse,
+    DefaultError,
+    Options<CreateExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
+ */
+export const updateExternalCourseMutation = (
+  options?: Partial<Options<UpdateExternalCourseData>>,
+): UseMutationOptions<
+  UpdateExternalCourseResponse,
+  DefaultError,
+  Options<UpdateExternalCourseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateExternalCourseResponse,
+    DefaultError,
+    Options<UpdateExternalCourseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateExternalCourse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 /**
  *
  * POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
@@ -11510,30 +11710,6 @@ export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposal
   return opts as Omit<typeof opts, "initialData">
 }
 
-export const getEditProposalCountQueryKey = (options: Options<GetEditProposalCountData>) =>
-  createQueryKey("getEditProposalCount", options)
-
-/**
- *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCountOptions = (options: Options<GetEditProposalCountData>) =>
-  queryOptions<
-    GetEditProposalCountResponse,
-    DefaultError,
-    GetEditProposalCountResponse,
-    ReturnType<typeof getEditProposalCountQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getEditProposalCount({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getEditProposalCountQueryKey(options),
-  })
-
 /**
  *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
@@ -12266,22 +12442,22 @@ export const getBulkUserDetailsMutation = (
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
-export const searchUserDetailsByEmailMutation = (
-  options?: Partial<Options<SearchUserDetailsByEmailData>>,
+export const searchUserDetailsExactMutation = (
+  options?: Partial<Options<SearchUserDetailsExactData>>,
 ): UseMutationOptions<
-  SearchUserDetailsByEmailResponse,
+  SearchUserDetailsExactResponse,
   DefaultError,
-  Options<SearchUserDetailsByEmailData>
+  Options<SearchUserDetailsExactData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SearchUserDetailsByEmailResponse,
+    SearchUserDetailsExactResponse,
     DefaultError,
-    Options<SearchUserDetailsByEmailData>
+    Options<SearchUserDetailsExactData>
   > = {
     mutationFn: async (fnOptions) =>
-      await searchUserDetailsByEmail({
+      await searchUserDetailsExact({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -12292,48 +12468,22 @@ export const searchUserDetailsByEmailMutation = (
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
+ * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
-export const searchUserDetailsByOtherDetailsMutation = (
-  options?: Partial<Options<SearchUserDetailsByOtherDetailsData>>,
+export const searchUserDetailsFuzzyMutation = (
+  options?: Partial<Options<SearchUserDetailsFuzzyData>>,
 ): UseMutationOptions<
-  SearchUserDetailsByOtherDetailsResponse,
+  SearchUserDetailsFuzzyResponse,
   DefaultError,
-  Options<SearchUserDetailsByOtherDetailsData>
+  Options<SearchUserDetailsFuzzyData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SearchUserDetailsByOtherDetailsResponse,
+    SearchUserDetailsFuzzyResponse,
     DefaultError,
-    Options<SearchUserDetailsByOtherDetailsData>
+    Options<SearchUserDetailsFuzzyData>
   > = {
     mutationFn: async (fnOptions) =>
-      await searchUserDetailsByOtherDetails({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
- */
-export const searchUserDetailsFuzzyMatchMutation = (
-  options?: Partial<Options<SearchUserDetailsFuzzyMatchData>>,
-): UseMutationOptions<
-  SearchUserDetailsFuzzyMatchResponse,
-  DefaultError,
-  Options<SearchUserDetailsFuzzyMatchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SearchUserDetailsFuzzyMatchResponse,
-    DefaultError,
-    Options<SearchUserDetailsFuzzyMatchData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await searchUserDetailsFuzzyMatch({
+      await searchUserDetailsFuzzy({
         ...options,
         ...fnOptions,
         throwOnError: true,

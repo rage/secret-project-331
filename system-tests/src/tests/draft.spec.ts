@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { createCourse } from "@/utils/flows/newCourse.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -132,9 +133,9 @@ test.describe("Teacher", () => {
     await page.getByText("Course created successfully").waitFor()
     await page.getByRole("link", { name: "Manage course 'Best draft course'" }).click()
     await page.getByRole("tab", { name: "Permissions" }).click()
-    await page.getByPlaceholder("Enter email").click()
-    await page.getByPlaceholder("Enter email").fill("user@example.com")
-    await page.getByRole("combobox", { name: "Role" }).selectOption("MaterialViewer")
+    await page.getByLabel("Email", { exact: true }).fill("user@example.com")
+    const roleToAdd = new Select(page, page.locator("#add-user-role"), { name: "Role to add" })
+    await roleToAdd.chooseOption("Material viewer")
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Add user" }).click()
     })

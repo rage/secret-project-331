@@ -1,13 +1,17 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import { Select } from "@/shared-module/components"
 
 interface YearFilterProps {
   selectedYear: number | undefined
   onYearChange: (year: number | undefined) => void
 }
+
+const ALL_YEARS = "all"
 
 const YearFilter: React.FC<YearFilterProps> = ({ selectedYear, onYearChange }) => {
   const { t } = useTranslation()
@@ -17,39 +21,33 @@ const YearFilter: React.FC<YearFilterProps> = ({ selectedYear, onYearChange }) =
     () => Array.from({ length: currentYear - 2021 }, (_, i) => currentYear - i),
     [currentYear],
   )
+  const { control, watch, setValue } = useForm<{ year: string }>({
+    defaultValues: { year: selectedYear ? String(selectedYear) : ALL_YEARS },
+  })
+  const year = watch("year")
+
+  useEffect(() => {
+    const nextYear = year === ALL_YEARS ? undefined : Number(year)
+    if (nextYear !== selectedYear) {
+      onYearChange(nextYear)
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [year])
+
+  useEffect(() => {
+    setValue("year", selectedYear ? String(selectedYear) : ALL_YEARS)
+  }, [selectedYear, setValue])
 
   return (
-    <div
-      className={css`
-        display: flex;
-        align-items: center;
-      `}
-    >
-      <label
-        htmlFor="year-filter"
-        className={css`
-          margin-right: 0.5rem;
-        `}
-      >
-        {t("filter-by-year")}
-      </label>
-      <select
-        id="year-filter"
-        value={selectedYear || ""}
-        onChange={(e) => onYearChange(e.target.value ? Number(e.target.value) : undefined)}
-        className={css`
-          padding: 0.5rem;
-          border-radius: 4px;
-        `}
-      >
-        <option value="">{t("all-years")}</option>
-        {years.map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-    </div>
+    <Select
+      name="year"
+      control={control}
+      label={t("filter-by-year")}
+      options={[
+        { value: ALL_YEARS, label: t("all-years") },
+        ...years.map((y) => ({ value: String(y), label: String(y) })),
+      ]}
+    />
   )
 }
 

@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
@@ -11,7 +10,7 @@ import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { signUpRoute } from "@/shared-module/common/utils/routes"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, TextField, Link } from "@/shared-module/components"
 
 interface CredentialsFormProps {
   onSubmit: (email: string, password: string) => Promise<void>

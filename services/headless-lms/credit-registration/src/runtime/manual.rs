@@ -7,6 +7,7 @@ use headless_lms_utils::prelude::{DateTime, Utc};
 use headless_lms_utils::services::suotar::SuotarClient;
 use secrecy::SecretString;
 use sqlx::PgPool;
+use uuid::Uuid;
 
 use super::suotar::InteractiveSuotar;
 use crate::error::CreditRegistrationResult;
@@ -63,6 +64,18 @@ pub async fn look_up_person(
     InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string())
         .look_up_person(&StudentNumber::new(student_number.clone()))
         .await
+}
+
+/// Lists the rosters of every course code on the course now and keeps the people linked to no
+/// account, whenever they enrolled, each once. Stores nothing.
+///
+/// `Ok(None)` means the registry gave no usable answer for some code.
+pub async fn list_unlinked_on_course_rosters(
+    ctx: &ManualActionContext<'_>,
+    course_id: Uuid,
+) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
+    let registry = InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string());
+    account_linking::unlinked_on_course_rosters(ctx.pool, &registry, course_id).await
 }
 
 /// Lists one course code's roster now and keeps the people linking mails skip: enrolled before

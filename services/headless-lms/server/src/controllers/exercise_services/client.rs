@@ -1845,7 +1845,6 @@ mod upload_tests {
             moocfi_configuration: MoocfiConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock mooc.fi configuration"),
             development_uuid_login: false,
-            enable_admin_email_verification: false,
             enable_email_ownership_verification: false,
             azure_configuration: None,
             tmc_account_creation_origin: None,

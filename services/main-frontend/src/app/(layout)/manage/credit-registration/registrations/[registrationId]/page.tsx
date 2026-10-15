@@ -1,7 +1,6 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -21,6 +20,7 @@ import { auditForStudentHref } from "@/components/credit-registration/admin/admi
 import AdminTransitionBlock from "@/components/credit-registration/admin/AdminTransitionBlock"
 import { buildJourney } from "@/components/credit-registration/admin/journeyPhases"
 import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
+import ManualLinkingEmailSendLines from "@/components/credit-registration/admin/ManualLinkingEmailSendLines"
 import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
 import RegistrationProblemActions from "@/components/credit-registration/admin/RegistrationProblemActions"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
@@ -47,7 +47,9 @@ import {
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import { registrationGradeLabel } from "@/components/credit-registration/creditRegistrationCopy"
+import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import {
+  breakAnywhereCss,
   codeValueCss,
   headingCss,
   noteCss,
@@ -61,8 +63,8 @@ import {
   subsectionCss,
 } from "@/components/credit-registration/styles"
 import {
-  formatZonedTimeRange,
   formatZonedTimestamp,
+  ZonedTimeRange,
   ZonedTimestamp,
 } from "@/components/credit-registration/ZonedTimestamp"
 import type {
@@ -89,6 +91,7 @@ import {
   CopyButton,
   DescriptionList,
   Disclosure,
+  Link,
   QueryResult,
   Table,
 } from "@/shared-module/components"
@@ -186,14 +189,18 @@ const HeaderSection: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={sectionHeaderCss}>
-      <h1 className={pageTitleCss}>{formatUserName(row)}</h1>
+      <h1 className={pageTitleCss}>{formatUserName(row) || t("missing-name")}</h1>
       <span className={rowCss}>
         {row.course_id ? (
-          <Link href={manageCourseRoute(row.course_id)}>{row.course_name}</Link>
+          <Link href={manageCourseRoute(row.course_id)} className={breakAnywhereCss}>
+            {row.course_name}
+          </Link>
         ) : (
-          <span>{row.course_name}</span>
+          <span className={breakAnywhereCss}>{row.course_name}</span>
         )}
-        {row.course_module_name ? <span>{row.course_module_name}</span> : null}
+        {row.course_module_name ? (
+          <span className={breakAnywhereCss}>{row.course_module_name}</span>
+        ) : null}
         {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
       </span>
       <span className={idRowCss}>
@@ -297,7 +304,10 @@ const FactsSection: React.FC<{
 
   const identityItems: DescriptionListItem[] = [
     // The page heading is the student's name, so only the address is news here.
-    { label: t("label-email"), value: row.email ?? <AbsentValue /> },
+    {
+      label: t("label-email"),
+      value: row.email ? <EmailAddress address={row.email} /> : <AbsentValue />,
+    },
     {
       label: t("label-student-number"),
       value: studentNumber ? (
@@ -638,7 +648,7 @@ const ApiCallSection: React.FC<{
                     {t("credit-registration-admin-calls-repeated", { count: group.calls.length })}
                   </span>
                   <span className={noteCss}>
-                    {formatZonedTimeRange(new Date(oldest.started_at), new Date(newest.started_at))}
+                    <ZonedTimeRange from={oldest.started_at} to={newest.started_at} />
                   </span>
                 </span>
               )
@@ -747,7 +757,7 @@ const LinkingSection: React.FC<{ mails: AdminLinkingEmail[] }> = ({ mails }) => 
         header: t("label-email"),
         grow: true,
         minWidth: "12rem",
-        cell: (mail) => mail.emailed_to,
+        cell: (mail) => <EmailAddress address={mail.emailed_to} />,
       }}
       extraColumns={[
         {
@@ -830,7 +840,8 @@ const RegistrationDetailPage: React.FC = () => {
     [t, details, context],
   )
 
-  usePageTitle(row ? formatUserName(row) : null)
+  const studentName = row ? formatUserName(row) || t("missing-name") : null
+  usePageTitle(studentName)
   const crumbs = useMemo(
     () => [
       {
@@ -838,14 +849,14 @@ const RegistrationDetailPage: React.FC = () => {
         label: t("credit-registration-tab-registrations"),
         href: creditRegistrationRegistrationsRoute(),
       },
-      row
+      studentName !== null
         ? {
             isLoading: false as const,
-            label: formatUserName(row),
+            label: studentName,
           }
         : { isLoading: true as const },
     ],
-    [t, row],
+    [t, studentName],
   )
   useRegisterBreadcrumbs({ key: "credit-registration-item", order: 40, crumbs })
 
@@ -872,13 +883,14 @@ const RegistrationDetailPage: React.FC = () => {
                 problem && !loaded.registration.superseded ? (
                   <>
                     <DismissalNote attention={loaded.attention} />
+                    <ManualLinkingEmailSendLines
+                      sends={loaded.manual_linking_email_sends}
+                      variant="registration"
+                    />
                     <RegistrationProblemActions
                       registration={loaded.registration}
                       isStudentNumberStuck={problem.isStudentNumberStuck}
                       isDismissed={loaded.attention?.standing === "dismissed"}
-                      unmailedEarlyEnroleeCount={
-                        loaded.linking_schedule?.unlinked_enrolled_before_count ?? null
-                      }
                     />
                   </>
                 ) : null

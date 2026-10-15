@@ -338,6 +338,16 @@ export const zAdminDismissStudyRegistryConflictPayload = z.object({
 })
 
 /**
+ * A course support can send a linking email for by hand: one taking part in credit registration
+ * with a University of Helsinki course code.
+ */
+export const zAdminLinkingCourse = z.object({
+  course_codes: z.array(z.string()),
+  course_id: z.uuid(),
+  course_name: z.string(),
+})
+
+/**
  * For a student who pressed "I have enrolled" and has no linked student number: their course
  * code's enrolment list schedule, and what went out on the code since the press.
  */
@@ -357,11 +367,6 @@ export const zAdminLinkingSchedule = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   next_fetch_at: z.iso.datetime(),
-  unlinked_enrolled_before_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
 })
 
 export const zAdminManualLinkOutcome = z.enum([
@@ -373,6 +378,18 @@ export const zAdminManualLinkOutcome = z.enum([
   "study_registry_unavailable",
   "unexpected_study_registry_answer",
 ])
+
+/**
+ * A linking email someone sent by hand, so others do not send the same one again.
+ */
+export const zAdminManualLinkingEmailSend = z.object({
+  emailed_to: z.string().nullish(),
+  sent_at: z.iso.datetime(),
+  sent_by_email: z.string().nullish(),
+  sent_by_first_name: z.string().nullish(),
+  sent_by_last_name: z.string().nullish(),
+  sent_by_user_id: z.uuid(),
+})
 
 export const zAdminManuallyLinkStudentNumberPayload = z.object({
   reason: z.string(),
@@ -671,6 +688,18 @@ export const zBreakerTarget = z.enum(["study_registry", "sisu_submissions"])
 export const zBulkUserDetailsRequest = z.object({
   course_id: z.uuid(),
   user_ids: z.array(z.uuid()),
+})
+
+export const zCategoryFeedbackCount = z.object({
+  category_id: z.uuid(),
+  read_feedback: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  unread_feedback: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zCertificateAllRequirements = z.object({
@@ -1759,11 +1788,6 @@ export const zAccountLinkingPresser = z.object({
   next_fetch_at: z.iso.datetime().nullish(),
   pressed_at: z.iso.datetime(),
   uh_course_code: z.string().nullish(),
-  unlinked_enrolled_before_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
   user_id: z.uuid(),
 })
 
@@ -3211,6 +3235,14 @@ export const zExtendStageRequest = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zExternalCourseOutput = z.object({
+  description: z.string().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  on_old_platform: z.boolean(),
+  url: z.string(),
+})
+
 /**
  * How a mooc.fi completion with no grade reads on a target.
  */
@@ -3230,6 +3262,8 @@ export const zFeedback = z.object({
   blocks: z.array(zFeedbackBlock),
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
+  feedback_category_id: z.uuid().nullish(),
+  feedback_category_name: z.string().nullish(),
   feedback_given: z.string(),
   id: z.uuid(),
   marked_as_read: z.boolean(),
@@ -3240,12 +3274,33 @@ export const zFeedback = z.object({
   user_id: z.uuid().nullish(),
 })
 
-export const zFeedbackCount = z.object({
-  read: z
+export const zFeedbackCategory = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zFeedbackEditProposalCounts = z.object({
+  feedback_categories_counts: z.array(zCategoryFeedbackCount),
+  handled_edits: z
     .int()
     .gte(0)
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  unread: z
+  pending_edits: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  read_feedback: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  total_waiting: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  unread_feedback: z
     .int()
     .gte(0)
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -3459,8 +3514,8 @@ export const zLinkingCandidateSimilarity = z.enum([
 ])
 
 /**
- * A person on the code's enrolment list whom no linking email reached because they enrolled before
- * account linking began, and who may be the waiting student.
+ * A person on a course's enrolment list whom no account is linked to, whom support can send a
+ * linking email.
  */
 export const zAdminLinkingCandidate = z.object({
   email: z.string().nullish(),
@@ -3475,6 +3530,7 @@ export const zAdminLinkingCandidate = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+  manual_sends: z.array(zAdminManualLinkingEmailSend),
   similarities: z.array(zLinkingCandidateSimilarity),
   student_number: z.string(),
 })
@@ -3485,6 +3541,14 @@ export const zAdminLinkingCandidates = z.object({
   course_code: z.string(),
   course_name: z.string(),
   course_or_target_id: z.uuid(),
+  study_registry_unavailable: z.boolean(),
+})
+
+/**
+ * Everyone on a course's enrolment lists whom no account is linked to, whenever they enrolled.
+ */
+export const zAdminUnlinkedEnrolees = z.object({
+  people: z.array(zAdminLinkingCandidate),
   study_registry_unavailable: z.boolean(),
 })
 
@@ -3832,6 +3896,13 @@ export const zNewExerciseRepository = z.object({
   exam_id: z.uuid().nullish(),
   git_url: z.string(),
   public_key: z.string().nullish(),
+})
+
+export const zNewExternalCourse = z.object({
+  description: z.string().nullish(),
+  name: z.string(),
+  on_old_platform: z.boolean(),
+  url: z.string(),
 })
 
 export const zNewMaterialReference = z.object({
@@ -4463,17 +4534,6 @@ export const zPodInfo = z.object({
 
 export const zPointMap = z.record(z.string(), z.number())
 
-export const zProposalCount = z.object({
-  handled: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  pending: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-})
-
 export const zProposalStatus = z.enum(["Pending", "Accepted", "Rejected"])
 
 export const zEditedBlockNoLongerExistsData = z.object({
@@ -4701,6 +4761,7 @@ export const zResendOutcome = z.enum([
   "queued",
   "already_mailed_to_every_known_address",
   "refused_by_rate_cap",
+  "just_sent",
   "no_address_in_study_registry",
   "not_on_the_course_roster",
   "already_linked",
@@ -4718,6 +4779,7 @@ export const zAdminResendAccountLinkingEmailResult = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+  manual_send: zAdminManualLinkingEmailSend.nullish(),
   max_mails_per_person_and_course: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -6485,9 +6547,16 @@ export const zUserDetail = z.object({
   email_verified_method: zEmailVerificationMethod.nullish(),
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
-  search_helper: z.string().nullish(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
+})
+
+/**
+ * Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.
+ */
+export const zFuzzyUserSearchResults = z.object({
+  has_more: z.boolean(),
+  users: z.array(zUserDetail),
 })
 
 export const zPoints = z.object({
@@ -6969,6 +7038,7 @@ export const zAdminCreditRegistrationDetails = z.object({
   journey: zAdminCreditRegistrationJourney,
   linking_emails: z.array(zAdminLinkingEmail),
   linking_schedule: zAdminLinkingSchedule.nullish(),
+  manual_linking_email_sends: z.array(zAdminManualLinkingEmailSend),
   moocfi_completion: zAdminMoocfiCompletion.nullish(),
   not_improved_attainment: zNotImprovedAttainment.nullish(),
   notification_emails: z.array(zAdminNotificationEmail),
@@ -6997,6 +7067,7 @@ export const zCreditRegistrationAttentionItem = z.object({
   is_enrolment_list_empty: z.boolean(),
   last_mailing_fetch_started_at: z.iso.datetime().nullish(),
   last_name: z.string().nullish(),
+  manual_linking_email_sends: z.array(zAdminManualLinkingEmailSend),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
   phase: zTimelinePhase,
@@ -7009,11 +7080,6 @@ export const zCreditRegistrationAttentionItem = z.object({
   student_number: z.string().nullish(),
   timeline_step: zTimelineStep,
   uh_course_code: z.string().nullish(),
-  unlinked_enrolled_before_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
   user_id: z.uuid(),
   waits_on: zWaitsOn,
 })
@@ -8161,6 +8227,7 @@ export const zGetCourseFeedbackQuery = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     })
     .optional(),
+  category_filter: z.uuid().optional(),
 })
 
 /**
@@ -8168,14 +8235,27 @@ export const zGetCourseFeedbackQuery = z.object({
  */
 export const zGetCourseFeedbackResponse = z.array(zFeedback)
 
+export const zGetCourseFeedbackCategoriesPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zGetCourseFeedbackCategoriesQuery = z.object({
+  read: z.boolean(),
+})
+
+/**
+ * All feedback categories used in feedback for the course
+ */
+export const zGetCourseFeedbackCategoriesResponse = z.array(zFeedbackCategory)
+
 export const zGetCourseFeedbackCountPath = z.object({
   course_id: z.uuid(),
 })
 
 /**
- * Feedback counts for the course
+ * Feedback and edit proposal counts for the course
  */
-export const zGetCourseFeedbackCountResponse = zFeedbackCount
+export const zGetCourseFeedbackCountResponse = zFeedbackEditProposalCounts
 
 export const zGetCourseAudiencesPath = z.object({
   course_id: z.uuid(),
@@ -9014,6 +9094,20 @@ export const zGetAccountLinkingStatsQuery = z.object({
  * Where account linking stands
  */
 export const zGetAccountLinkingStatsResponse = zAccountLinkingStats
+
+/**
+ * By course name
+ */
+export const zGetAccountLinkingCoursesResponse = z.array(zAdminLinkingCourse)
+
+export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The unlinked people
+ */
+export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
 
 export const zAdminRequestEnrolmentListFetchBody = zAdminRequestEnrolmentListFetchPayload
 
@@ -10021,6 +10115,32 @@ export const zGetExerciseSubmissionsForUserPath = z.object({
  */
 export const zGetExerciseSubmissionsForUserResponse = z.array(zExerciseSlideSubmission)
 
+/**
+ * All external courses
+ */
+export const zGetExternalCoursesResponse = z.array(zExternalCourseOutput)
+
+export const zDeleteExternalCourseBody = zExternalCourseOutput
+
+/**
+ * Deleted external course
+ */
+export const zDeleteExternalCourseResponse = zExternalCourseOutput
+
+export const zCreateExternalCourseBody = zNewExternalCourse
+
+/**
+ * Created external course
+ */
+export const zCreateExternalCourseResponse = zExternalCourseOutput
+
+export const zUpdateExternalCourseBody = zExternalCourseOutput
+
+/**
+ * Updated external course
+ */
+export const zUpdateExternalCourseResponse = zExternalCourseOutput
+
 export const zMarkFeedbackAsReadBody = zMarkAsRead
 
 export const zMarkFeedbackAsReadPath = z.object({
@@ -10571,15 +10691,6 @@ export const zGetEditProposalsQuery = z.object({
  */
 export const zGetEditProposalsResponse = z.array(zPageProposal)
 
-export const zGetEditProposalCountPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Edit proposal counts
- */
-export const zGetEditProposalCountResponse = zProposalCount
-
 export const zProcessEditProposalBody = zEditProposalInfo
 
 export const zGetRegradingsQuery = z.object({
@@ -10794,26 +10905,19 @@ export const zGetBulkUserDetailsBody = zBulkUserDetailsRequest
  */
 export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
 
-export const zSearchUserDetailsByEmailBody = zSearchRequest
+export const zSearchUserDetailsExactBody = zSearchRequest
 
 /**
- * User details search results
+ * Users whose id or email equals the query
  */
-export const zSearchUserDetailsByEmailResponse = z.array(zUserDetail)
+export const zSearchUserDetailsExactResponse = z.array(zUserDetail)
 
-export const zSearchUserDetailsByOtherDetailsBody = zSearchRequest
+export const zSearchUserDetailsFuzzyBody = zSearchRequest
 
 /**
- * User details search results
+ * Users whose name or email resembles the query
  */
-export const zSearchUserDetailsByOtherDetailsResponse = z.array(zUserDetail)
-
-export const zSearchUserDetailsFuzzyMatchBody = zSearchRequest
-
-/**
- * User details fuzzy search results
- */
-export const zSearchUserDetailsFuzzyMatchResponse = z.array(zUserDetail)
+export const zSearchUserDetailsFuzzyResponse = zFuzzyUserSearchResults
 
 export const zUpdateUserInfoBody = zUserInfoPayload
 

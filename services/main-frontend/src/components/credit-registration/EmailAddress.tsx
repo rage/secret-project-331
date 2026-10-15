@@ -8,11 +8,22 @@ import type { CreditRegistrationTFunction } from "./constants"
 
 const EMAIL_ADDRESS_PATTERN = /([^\s@]+@[^\s@]+\.[^\s@.,;:)]+)/
 
+/** Longer than this, a half could not fit a narrow column or a phone, so it may break inside. */
+const LONGEST_UNBROKEN_HALF = 32
+
 const nowrapCss = css`
   white-space: nowrap;
 `
 
-/** An email address that wraps only before its `@`. */
+const breakableCss = css`
+  overflow-wrap: anywhere;
+`
+
+const Half: React.FC<{ text: string }> = ({ text }) => (
+  <span className={text.length > LONGEST_UNBROKEN_HALF ? breakableCss : nowrapCss}>{text}</span>
+)
+
+/** An email address that wraps before its `@`, and inside a half only when that half is too long to fit. */
 export const EmailAddress: React.FC<{ address: string }> = ({ address }) => {
   const at = address.indexOf("@")
   if (at <= 0) {
@@ -20,23 +31,32 @@ export const EmailAddress: React.FC<{ address: string }> = ({ address }) => {
   }
   return (
     <>
-      <span className={nowrapCss}>{address.slice(0, at)}</span>
+      <Half text={address.slice(0, at)} />
       <wbr />
-      <span className={nowrapCss}>{address.slice(at)}</span>
+      <Half text={address.slice(at)} />
     </>
   )
 }
 
 /** The translations with an `<email/>` tag. */
-type EmailAddressSentenceKey = "credit-registration-admin-journey-emailed-to"
+type EmailAddressSentenceKey =
+  | "credit-registration-admin-journey-emailed-to"
+  | "credit-registration-admin-linking-candidate-sent-by-hand"
+  | "credit-registration-admin-linking-email-sent-by-hand"
 
 /** The `i18nKey` sentence with its `<email/>` tag rendered as `address`. */
 export const sentenceWithEmailAddress = (
   t: CreditRegistrationTFunction,
   i18nKey: EmailAddressSentenceKey,
   address: string,
+  values?: Record<string, string>,
 ): React.ReactElement => (
-  <Trans t={t} i18nKey={i18nKey} components={{ email: <EmailAddress address={address} /> }} />
+  <Trans
+    t={t}
+    i18nKey={i18nKey}
+    values={values}
+    components={{ email: <EmailAddress address={address} /> }}
+  />
 )
 
 /** Free text from the server, such as an event's message, with any email address in it kept whole. */

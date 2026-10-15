@@ -12,14 +12,15 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
 import type { DialogAction } from "@/shared-module/components"
-import { Checkbox, Dialog, Infobox } from "@/shared-module/components"
+import { Checkbox, Dialog } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
+import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS } from "../constants"
 import { RESEND_QUEUED } from "../resendOutcome"
 import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
-import { resendOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { ResendOutcomeNotice } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props extends DialogOpenState {
@@ -33,6 +34,8 @@ interface Fields {
   override_rate_caps: boolean
   reason: string
 }
+
+const DEFAULT_FIELDS: Fields = { override_rate_caps: false, reason: "" }
 
 /**
  * Sends the account-linking mail for one person and course again.
@@ -49,22 +52,27 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
-  const { control, handleSubmit, watch } = useReasonRequiredForm<Fields>({
-    override_rate_caps: false,
-    reason: "",
-  })
+  const { control, handleSubmit, watch, reset } = useReasonRequiredForm<Fields>(DEFAULT_FIELDS)
   const override = watch("override_rate_caps")
 
-  const { result, setResult, mutation } = useActionResult((fields: Fields) =>
-    adminResendAccountLinkingEmail({
-      body: {
-        student_number: studentNumber,
-        course_or_target_id: courseOrTargetId,
-        override_rate_caps: fields.override_rate_caps,
-        reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
-      },
-    }),
+  const { result, setResult, mutation } = useActionResult(
+    (fields: Fields) =>
+      adminResendAccountLinkingEmail({
+        body: {
+          student_number: studentNumber,
+          course_or_target_id: courseOrTargetId,
+          override_rate_caps: fields.override_rate_caps,
+          reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
+        },
+      }),
+    (sent) => {
+      if (sent.outcome === RESEND_QUEUED) {
+        reset(DEFAULT_FIELDS)
+      }
+    },
   )
+  // Pressing again would only run into, or override, the mail just claimed.
+  const isJustQueued = result?.outcome === RESEND_QUEUED
 
   const closeDialog = () => {
     onClose()
@@ -86,6 +94,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       label: t("button-text-resend-linking-email"),
       variant: BUTTON_PRIMARY,
       isLoading: mutation.isPending,
+      disabled: isJustQueued,
       onPress: () => void submit(),
     },
   ]
@@ -99,21 +108,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
     >
       <div className={dialogFormCss}>
         {result && (
-          <Infobox tone={result.outcome === RESEND_QUEUED ? TONE.INFO : TONE.WARNING}>
-            <div>{resendOutcomeLabel(t, result.outcome)}</div>
-            <div>
-              {t("credit-registration-resend-mails-so-far", {
-                sent: result.mails_sent_for_this_course,
-                max: result.max_mails_per_person_and_course,
-              })}
-            </div>
-            {result.retired_mail_count > 0 && (
-              <div>
-                {t("credit-registration-admin-resend-retired-mails", {
-                  count: result.retired_mail_count,
-                })}
-              </div>
-            )}
+          <ResendOutcomeNotice result={result}>
             {result.linking_emails.map((mail) => (
               <InlineParts
                 key={mail.id}
@@ -123,7 +118,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
                 ]}
               />
             ))}
-          </Infobox>
+          </ResendOutcomeNotice>
         )}
         <form className={dialogFormCss} onSubmit={submit}>
           <p className={proseCss}>

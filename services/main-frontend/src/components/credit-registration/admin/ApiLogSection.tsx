@@ -202,8 +202,9 @@ const ApiLogSection: React.FC = () => {
         {(page) => (
           <>
             {/* Only where the pager below is absent: it renders nothing under two pages, and its
-                own "showing x of y" states the same total more usefully when it is there. */}
-            {page.total_pages < 2 && (
+                own "showing x of y" states the same total more usefully when it is there. An
+                empty table already says so in its own empty state. */}
+            {page.total_pages < 2 && page.total_count > 0 && (
               <p className={noteCss}>
                 {t("credit-registration-admin-call-count", { count: page.total_count })}
               </p>

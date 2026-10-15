@@ -54,7 +54,10 @@ describe("date and time fields", () => {
     ).not.toHaveLength(0)
     expect(container.querySelector('input[type="time"]')).not.toBeInTheDocument()
     expect(container.querySelector('input[type="hidden"]')).toHaveValue("12:30")
-    expect(screen.queryByRole("button")).not.toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Time Time" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    )
   })
 
   test("TimeField updates the hidden value when the value prop changes", () => {
@@ -149,7 +152,7 @@ describe("date and time fields", () => {
     expect(within(timeGroup).getByRole("textbox")).toBeInTheDocument()
     expect(within(timeGroup).getByRole("button", { name: "Decrease hour" })).toBeInTheDocument()
     expect(within(timeGroup).getByRole("button", { name: "Decrease minute" })).toBeInTheDocument()
-    expect(within(timeGroup).getByRole("group", { name: "Day period" })).toBeInTheDocument()
+    expect(within(timeGroup).queryByRole("group", { name: "Day period" })).not.toBeInTheDocument()
   })
 
   test("replaces the calendar and time panels while the inline month picker is open", () => {
@@ -249,6 +252,47 @@ describe("date and time fields", () => {
       "true",
     )
   })
+
+  test("DateField forwards data-testid to the group, hidden value, and calendar trigger", () => {
+    renderWithForm<{ d: string }>(
+      (control) => <DateField name="d" control={control} label="Date" data-testid="start-date" />,
+      { defaultValues: { d: "2026-03-11" } },
+    )
+    const group = screen.getByRole("group", { name: "Date" })
+
+    expect(screen.getByTestId("start-date")).toBe(group)
+    expect(screen.getByTestId("start-date-value")).toHaveValue("2026-03-11")
+    expect(screen.getByTestId("start-date-trigger")).toBe(within(group).getByRole("button"))
+  })
+
+  test("DateTimeLocalField forwards data-testid to the group, hidden value, and trigger", () => {
+    renderWithForm<{ dt: string }>(
+      (control) => (
+        <DateTimeLocalField
+          name="dt"
+          control={control}
+          label="Publish at"
+          data-testid="publish-at"
+        />
+      ),
+      { defaultValues: { dt: "2026-03-11T12:30" } },
+    )
+    const group = screen.getByRole("group", { name: "Publish at" })
+
+    expect(screen.getByTestId("publish-at")).toBe(group)
+    expect(screen.getByTestId("publish-at-value")).toHaveValue("2026-03-11T12:30")
+    expect(screen.getByTestId("publish-at-trigger")).toBe(within(group).getByRole("button"))
+  })
+
+  test("TimeField forwards data-testid to the group and hidden value", () => {
+    renderWithForm<{ t: string }>(
+      (control) => <TimeField name="t" control={control} label="Time" data-testid="start-time" />,
+      { defaultValues: { t: "12:30" } },
+    )
+
+    expect(screen.getByTestId("start-time")).toBe(screen.getByRole("group", { name: "Time" }))
+    expect(screen.getByTestId("start-time-value")).toHaveValue("12:30")
+  })
 })
 
 describe("FileField", () => {
@@ -282,6 +326,35 @@ describe("FileField", () => {
 
     expect(screen.getByRole("button", { name: /Documents/i })).toHaveAccessibleDescription(
       /required/i,
+    )
+  })
+
+  test("forwards accept to the underlying input", () => {
+    const { container } = renderWithForm<{ files: File[] }>((control) => (
+      <FileField name="files" control={control} label="Documents" accept="image/*,.svg" />
+    ))
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+
+    expect(input).toHaveAttribute("accept", "image/*,.svg")
+  })
+
+  test("omits the accept attribute when not given", () => {
+    const { container } = renderWithForm<{ files: File[] }>((control) => (
+      <FileField name="files" control={control} label="Documents" />
+    ))
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+
+    expect(input).not.toHaveAttribute("accept")
+  })
+
+  test("forwards data-testid to the visible button and the hidden input", () => {
+    const { container } = renderWithForm<{ files: File[] }>((control) => (
+      <FileField name="files" control={control} label="Documents" data-testid="documents" />
+    ))
+
+    expect(screen.getByTestId("documents")).toBe(screen.getByRole("button", { name: /Documents/i }))
+    expect(screen.getByTestId("documents-input")).toBe(
+      container.querySelector('input[type="file"]'),
     )
   })
 })

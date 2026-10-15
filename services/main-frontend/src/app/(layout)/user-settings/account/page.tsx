@@ -23,8 +23,9 @@ const AccountSettingsPage: React.FC = () => {
   const getUserDetails = useUserDetailsForUserQuery()
 
   return (
-    <div
-      className={css`
+    <QueryResult
+      query={getUserDetails}
+      contentClassName={css`
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
@@ -33,66 +34,64 @@ const AccountSettingsPage: React.FC = () => {
         }
       `}
     >
-      <QueryResult query={getUserDetails}>
-        {(data) => (
-          <>
-            <EditUserInformationForm
-              firstName={data.first_name ?? ""}
-              lastName={data.last_name ?? ""}
-              country={data.country ?? ""}
-              emailCommunicationConsent={data.email_communication_consent ?? false}
-              email={data.email}
-            />
+      {(data) => (
+        <>
+          <EditUserInformationForm
+            firstName={data.first_name ?? ""}
+            lastName={data.last_name ?? ""}
+            country={data.country ?? ""}
+            emailCommunicationConsent={data.email_communication_consent ?? false}
+            email={data.email}
+          />
 
-            <EmailVerificationSection />
+          <EmailVerificationSection />
 
-            <div className={settingsCardCss}>
+          <div className={settingsCardCss}>
+            <div
+              className={css`
+                display: flex;
+                align-items: center;
+                gap: 0.625rem;
+                margin-bottom: 1.25rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+              `}
+            >
               <div
                 className={css`
                   display: flex;
                   align-items: center;
-                  gap: 0.625rem;
-                  margin-bottom: 1.25rem;
-                  padding-bottom: 1rem;
-                  border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+                  justify-content: center;
+                  width: 32px;
+                  height: 32px;
+                  background: ${baseTheme.colors.green[75]};
+                  border-radius: 6px;
+                  flex-shrink: 0;
                 `}
               >
-                <div
+                <Padlock
+                  size={16}
                   className={css`
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 32px;
-                    height: 32px;
-                    background: ${baseTheme.colors.green[75]};
-                    border-radius: 6px;
-                    flex-shrink: 0;
+                    color: ${baseTheme.colors.green[700]};
                   `}
-                >
-                  <Padlock
-                    size={16}
-                    className={css`
-                      color: ${baseTheme.colors.green[700]};
-                    `}
-                  />
-                </div>
-                <h3
-                  className={css`
-                    font-size: 1.0625rem;
-                    font-weight: ${fontWeights.semibold};
-                    color: ${baseTheme.colors.gray[700]};
-                    margin: 0;
-                  `}
-                >
-                  {t("user-settings-password-security")}
-                </h3>
+                />
               </div>
-              <ChangeUserPasswordForm />
+              <h3
+                className={css`
+                  font-size: 1.0625rem;
+                  font-weight: ${fontWeights.semibold};
+                  color: ${baseTheme.colors.gray[700]};
+                  margin: 0;
+                `}
+              >
+                {t("user-settings-password-security")}
+              </h3>
             </div>
-          </>
-        )}
-      </QueryResult>
-    </div>
+            <ChangeUserPasswordForm />
+          </div>
+        </>
+      )}
+    </QueryResult>
   )
 }
 

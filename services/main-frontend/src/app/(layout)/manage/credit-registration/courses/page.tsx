@@ -28,6 +28,7 @@ import {
 import ExternalCreditTargetActions from "@/components/credit-registration/admin/ExternalCreditTargetActions"
 import ExternalCreditTargetDialog from "@/components/credit-registration/admin/ExternalCreditTargetDialog"
 import FacetChip from "@/components/credit-registration/admin/FacetChip"
+import { moduleSubtitleParts } from "@/components/credit-registration/admin/moduleSubtitle"
 import { formatPercent } from "@/components/credit-registration/admin/percent"
 import { registrationsListHref } from "@/components/credit-registration/admin/registrationsListUrl"
 import {
@@ -49,10 +50,11 @@ import {
 } from "@/components/credit-registration/constants"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   controlCss,
   controlsCss,
   headingCss,
-  codeValueCss,
   noteCss,
   rowCss,
   sectionCardCss,
@@ -247,7 +249,7 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
 const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (module.failed_count === 0) {
-    return null
+    return 0
   }
   const rate = failureRatePercent(module)
   const terminal = module.success_count + module.failed_count
@@ -293,9 +295,8 @@ const FailureRateCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ 
 const BackfillCell: React.FC<{ module: CreditRegistrationCourseStats }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const gap = backfillGap(module)
-  // Empty at zero like the count columns beside it.
   if (gap <= 0) {
-    return null
+    return 0
   }
   const counts = { missing: gap, eligible: module.eligible_completion_count }
   return (
@@ -324,32 +325,6 @@ const ModuleStepCounts: React.FC<{ module: CreditRegistrationCourseStats }> = ({
         courseModuleId={module.credit_unit_id}
       />
     </div>
-  )
-}
-
-/** A zero is left empty, so the counts that matter stand out. */
-const nonZero = (count: number): number | null => (count === 0 ? null : count)
-
-const stripModulePrefix = (value: string): string => value.replace(/^Module\s+/, "")
-
-/** Module name and UH course code are one string in some configurations; printing it twice is noise. */
-const moduleSubtitle = (
-  module: CreditRegistrationCourseStats,
-  tiersLabel: string | null,
-): string[] => {
-  const seen = new Set<string>()
-  return [module.course_module_name, module.uh_course_code, tiersLabel].filter(
-    (part): part is string => {
-      if (!part) {
-        return false
-      }
-      const key = stripModulePrefix(part)
-      if (seen.has(key)) {
-        return false
-      }
-      seen.add(key)
-      return true
-    },
   )
 }
 
@@ -523,25 +498,30 @@ const CoursesPage: React.FC = () => {
                     {
                       header: t("label-course"),
                       grow: true,
-                      minWidth: "14rem",
+                      minWidth: "13rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <Link
                             href={registrationsListHref({ courseModuleId: row.credit_unit_id })}
                             appearance={LINK_QUIET}
+                            className={breakAnywhereCss}
                           >
                             {row.course_name}
                           </Link>
                           <InlineParts
                             className={cx(noteCss, codeValueCss)}
-                            parts={moduleSubtitle(row, tiersLabel(t, row))}
+                            parts={moduleSubtitleParts(
+                              row.course_module_name,
+                              row.uh_course_code,
+                              tiersLabel(t, row),
+                            )}
                           />
                         </span>
                       ),
                     },
                     {
                       header: t("label-status"),
-                      minWidth: "16rem",
+                      minWidth: "14rem",
                       cell: (row) => {
                         const isPaused = row.paused_at !== null
                         const target = row.external_credit_target
@@ -610,7 +590,9 @@ const CoursesPage: React.FC = () => {
                       nowrap: true,
                       cell: (row) => {
                         const count = inProgressCount(row)
-                        return count === 0 ? null : (
+                        return count === 0 ? (
+                          0
+                        ) : (
                           <Link
                             href={registrationsListHref({
                               courseModuleId: row.credit_unit_id,
@@ -629,7 +611,7 @@ const CoursesPage: React.FC = () => {
                       minWidth: "7rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
-                          <span>{nonZero(row.registered_count)}</span>
+                          <span>{row.registered_count}</span>
                           {row.already_in_sisu_count > 0 && (
                             <span className={noteCss}>
                               {t("credit-registration-admin-already-in-sisu-count", {
@@ -652,7 +634,9 @@ const CoursesPage: React.FC = () => {
                       minWidth: "6rem",
                       nowrap: true,
                       cell: (row) =>
-                        row.needs_attention_count === 0 ? null : (
+                        row.needs_attention_count === 0 ? (
+                          0
+                        ) : (
                           <Link
                             href={registrationsListHref({
                               courseModuleId: row.credit_unit_id,

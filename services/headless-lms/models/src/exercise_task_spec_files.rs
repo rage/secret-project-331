@@ -202,6 +202,25 @@ WHERE exercise_task_id = $1
     Ok(res)
 }
 
+/// Counts a task's rows across all spec kinds, soft-deleted ones included, which is what tells
+/// churn from a no-op.
+pub async fn count_for_exercise_task_including_deleted(
+    conn: &mut PgConnection,
+    exercise_task_id: Uuid,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM exercise_task_spec_files
+WHERE exercise_task_id = $1
+        "#,
+        exercise_task_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -369,16 +388,9 @@ mod test {
         );
     }
 
-    /// Counts every row, soft-deleted ones included, which is what tells churn from a no-op.
-    ///
-    /// Not a `query_scalar!`: `cargo sqlx prepare -- --lib` does not cache test-only queries.
     async fn row_count(conn: &mut PgConnection, exercise_task_id: Uuid) -> i64 {
-        sqlx::query_scalar(
-            "SELECT COUNT(*) FROM exercise_task_spec_files WHERE exercise_task_id = $1",
-        )
-        .bind(exercise_task_id)
-        .fetch_one(conn)
-        .await
-        .unwrap()
+        count_for_exercise_task_including_deleted(conn, exercise_task_id)
+            .await
+            .unwrap()
     }
 }

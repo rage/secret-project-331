@@ -79,6 +79,8 @@ pub enum ResendOutcome {
     AlreadyMailedToEveryKnownAddress,
     /// A cap refused it.
     RefusedByRateCap,
+    /// A linking email went to the person moments ago, which even an override leaves in place.
+    JustSent,
     NoAddressInStudyRegistry,
     NotOnTheCourseRoster,
     /// The number is already linked to an account, so no linking mail is owed.
@@ -95,6 +97,7 @@ impl From<account_linking::ResendOutcome> for ResendOutcome {
             Attempted::Queued => Self::Queued,
             Attempted::AlreadyMailedToEveryKnownAddress => Self::AlreadyMailedToEveryKnownAddress,
             Attempted::RefusedByRateCap => Self::RefusedByRateCap,
+            Attempted::JustSent => Self::JustSent,
             Attempted::NoAddressInStudyRegistry => Self::NoAddressInStudyRegistry,
             Attempted::NotOnTheCourseRoster => Self::NotOnTheCourseRoster,
             Attempted::AlreadyLinked => Self::AlreadyLinked,

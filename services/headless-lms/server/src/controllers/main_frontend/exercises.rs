@@ -1226,7 +1226,7 @@ mod answer_file_download_tests {
     use actix_web::cookie::{Key, SameSite};
     use actix_web::http::StatusCode;
     use actix_web::{App, test};
-    use async_zip::base::read::mem::ZipFileReader;
+    use async_zip::base::read1::seek::ZipArchiveReader;
     use models::library::grading::SubmittedAnswer;
     use models::roles::{RoleDomain, UserRole};
     use std::sync::Arc;
@@ -1368,18 +1368,25 @@ mod answer_file_download_tests {
     }
 
     async fn archive_entries(body: Vec<u8>) -> Vec<(String, String)> {
-        use futures::io::AsyncReadExt;
-        let reader = ZipFileReader::new(body).await.expect("a readable zip");
+        use futures::io::{AsyncReadExt, Cursor};
+        let mut reader = ZipArchiveReader::open(Cursor::new(body))
+            .await
+            .expect("a readable zip");
+        let names: Vec<String> = reader
+            .cdrs()
+            .iter()
+            .map(|cdr| {
+                cdr.insecure_file_name
+                    .as_str()
+                    .expect("a utf-8 entry name")
+                    .to_string()
+            })
+            .collect();
         let mut entries = Vec::new();
-        for index in 0..reader.file().entries().len() {
-            let name = reader.file().entries()[index]
-                .filename()
-                .as_str()
-                .expect("a utf-8 entry name")
-                .to_string();
+        for (index, name) in names.into_iter().enumerate() {
             let mut contents = String::new();
             reader
-                .reader_with_entry(index)
+                .file(index)
                 .await
                 .expect("entry reader")
                 .read_to_string(&mut contents)

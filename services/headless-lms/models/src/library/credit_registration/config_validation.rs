@@ -11,7 +11,6 @@ use crate::course_module_suotar_configurations::{SuotarConfigCheck, SuotarModule
 
 /// The problems the check reports, in the order they block a registration. English on purpose:
 /// this is operator diagnostics stored on the row, not student-facing copy.
-const NO_COURSE_CODE: &str = "No uh_course_code, so nothing can be submitted.";
 const COURSE_CODE_NOT_ALLOWED: &str = "Suotar does not accept this uh_course_code:";
 const NO_ECTS: &str = "No ects_credits, so there is nothing to register.";
 
@@ -52,26 +51,19 @@ pub fn check_module_config(
 ) -> SuotarConfigCheck {
     let mut problems: Vec<Cow<'static, str>> = Vec::new();
 
-    let uh_course_code = facts
-        .uh_course_code
-        .as_deref()
-        .map(str::trim)
-        .filter(|code| !code.is_empty());
-    let (course_code_allowed, checked_course_code, course_code_rejection) =
-        match (uh_course_code, verdict) {
-            (None, _) => {
-                problems.push(NO_COURSE_CODE.into());
-                (Some(false), None, None)
-            }
-            (Some(code), Some(CourseCodeVerdict::Allowed)) => {
-                (Some(true), Some(code.to_string()), None)
-            }
-            (Some(code), Some(CourseCodeVerdict::NotAllowed { reason })) => {
-                problems.push(format!("{COURSE_CODE_NOT_ALLOWED} {reason}").into());
-                (Some(false), Some(code.to_string()), Some(reason.clone()))
-            }
-            (Some(_), None) => (None, None, None),
-        };
+    let uh_course_code = facts.uh_course_code.as_deref().map_or("", str::trim);
+    let (course_code_allowed, checked_course_code, course_code_rejection) = match verdict {
+        Some(CourseCodeVerdict::Allowed) => (Some(true), Some(uh_course_code.to_string()), None),
+        Some(CourseCodeVerdict::NotAllowed { reason }) => {
+            problems.push(format!("{COURSE_CODE_NOT_ALLOWED} {reason}").into());
+            (
+                Some(false),
+                Some(uh_course_code.to_string()),
+                Some(reason.clone()),
+            )
+        }
+        None => (None, None, None),
+    };
     if facts.ects_credits.is_none() {
         problems.push(NO_ECTS.into());
     }

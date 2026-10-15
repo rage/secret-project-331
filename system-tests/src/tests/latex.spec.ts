@@ -29,7 +29,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
   await createCourseChapter(page, "first page")

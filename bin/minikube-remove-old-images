@@ -1,0 +1,53 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# Removes the images earlier builds left in minikube. Skaffold only prunes its images when dev mode exits
+# cleanly, so otherwise every rebuild adds another multi-gigabyte image until the disk fills.
+#
+# Only touches the images the given skaffold file builds, so bin/dev and bin/test never remove each other's.
+# Called automatically after bin/dev and bin/test deploy.
+
+if [ -z ${1+x} ]; then
+  echo "Usage: bin/minikube-remove-old-images <skaffold file>"
+  exit 1
+fi
+
+SKAFFOLD_FILE=$1
+
+# CI deploys with skaffold.production.yaml too, and its images are not leftovers.
+if [ -n "${CI:-}" ]; then
+  exit 0
+fi
+
+MINIKUBE_DOCKER_ENV=$(minikube docker-env --shell bash)
+eval "$MINIKUBE_DOCKER_ENV"
+
+# Containers refer to images by id, so Docker would untag a tag a workload still names and its next pod
+# could not start. Finished pods are left out, as they never start again.
+POD_IMAGES=$(kubectl --context minikube get pods -A --field-selector=status.phase!=Succeeded,status.phase!=Failed -o jsonpath='{..image}')
+WORKLOAD_IMAGES=$(kubectl --context minikube get deployments,statefulsets,daemonsets,jobs,cronjobs -A -o jsonpath='{..image}')
+IMAGES_IN_USE=$(printf '%s %s' "$POD_IMAGES" "$WORKLOAD_IMAGES" | tr ' ' '\n' | sort -u)
+
+REMOVED=0
+for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do
+  # The newest image and the latest tag are the cache the next build starts from.
+  IMAGE_LIST=$(docker images "$REPOSITORY" --format '{{.ID}} {{.Repository}}:{{.Tag}}')
+  NEWEST_IMAGE_ID=$(awk 'NR == 1 { print $1 }' <<< "$IMAGE_LIST")
+  while read -r IMAGE_ID IMAGE; do
+    if [ "$IMAGE_ID" = "$NEWEST_IMAGE_ID" ] || [ "$IMAGE" = "$REPOSITORY:latest" ] || grep -qxF "$IMAGE" <<< "$IMAGES_IN_USE"; then
+      continue
+    fi
+    if REMOVE_ERROR=$(docker rmi "$IMAGE" 2>&1 > /dev/null); then
+      REMOVED=$((REMOVED + 1))
+    elif ! grep -qE 'being used|must be forced' <<< "$REMOVE_ERROR"; then
+      echo "Could not remove $IMAGE: $REMOVE_ERROR" >&2
+    fi
+  done <<< "$IMAGE_LIST"
+done
+
+# Rebuilding a commit that already has an image retags it and leaves the old image without a tag.
+REMOVED=$((REMOVED + $(docker images --filter dangling=true -q | sort -u | wc -l)))
+docker image prune -f > /dev/null
+
+echo "Removed $REMOVED old images from minikube."

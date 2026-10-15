@@ -42,7 +42,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-    await page.getByText("Pages").click()
+    await page.getByRole("tab", { name: "Pages" }).click()
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
     await createCourseChapter(page, "first")

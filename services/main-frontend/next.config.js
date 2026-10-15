@@ -13,13 +13,10 @@ const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedType
 // In Docker, node_modules symlinks into pnpm's global virtual store in the sibling ../pnpm, so
 // tracing and Turbopack need the parent directory as their root to reach it.
 const fileSystemRoot =
-  process.env.PNPM_CONFIG_VIRTUAL_STORE_TYPE === "global" ? path.join(__dirname, "..") : "."
+  process.env.PNPM_CONFIG_VIRTUAL_STORE_TYPE === "global" ? path.join(__dirname, "..") : __dirname
 
 /** @type {import('next').NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   // Type errors are gated by the separate fast tsc check (bin/tsc-check-all + the CI
   // "Typecheck" step), so skip Next's slower in-build type-check.
   typescript: {
@@ -100,9 +97,6 @@ const config = {
     lodash: {
       transform: "lodash/{{member}}",
     },
-  },
-  publicRuntimeConfig: {
-    publicAddress: process.env.PUBLIC_ADDRESS,
   },
   // uuid and react-table ship only ES modules, and next/jest transforms only what is listed here.
   transpilePackages: [

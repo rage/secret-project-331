@@ -19,7 +19,7 @@ async function openPeerReviewConfig(page: Page) {
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to everything\\'\"] svg").click()
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
 
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1" })

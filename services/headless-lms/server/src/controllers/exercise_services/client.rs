@@ -217,23 +217,22 @@ async fn get_courses(
     let mut conn = pool.acquire().await?;
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
-    let courses =
-        models::course_instances::get_enrolled_course_instances_for_user_with_exercise_types(
-            &mut conn,
-            user.id,
-            &capable_slugs,
-        )
-        .await?
-        .into_iter()
-        .map(|ci| api::Course {
-            id: ci.course_id,
-            slug: ci.course_slug,
-            name: ci.course_name,
-            description: ci.course_description,
-            organization_name: ci.organization_name,
-            ai_policy: to_api_ai_policy(ci.course_ai_policy),
-        })
-        .collect();
+    let courses = models::courses::get_enrolled_courses_with_exercise_types(
+        &mut conn,
+        user.id,
+        &capable_slugs,
+    )
+    .await?
+    .into_iter()
+    .map(|course| api::Course {
+        id: course.id,
+        slug: course.slug,
+        name: course.name,
+        description: course.description,
+        organization_name: course.organization_name,
+        ai_policy: to_api_ai_policy(course.ai_policy),
+    })
+    .collect();
 
     // enrolled users may view their courses regardless of role permissions
     let token = skip_authorize();

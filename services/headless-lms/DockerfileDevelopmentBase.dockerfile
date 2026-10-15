@@ -13,8 +13,9 @@ RUN git clone --depth 1 --branch v3.0.0 https://github.com/rui314/mold.git \
   && RUSTUP_TOOLCHAIN="$(rustup show active-toolchain | cut -d' ' -f1)" cargo build --release --locked
 
 # Provides a mapping from ip to country
-RUN curl https://packages.ipfire.org/79842AA7CDBA7AE3-pub.asc | apt-key add - \
-  && echo "deb     https://packages.ipfire.org/location bookworm/" > /etc/apt/sources.list.d/location.list \
+RUN mkdir -p /etc/apt/keyrings \
+  && curl -fsSL -o /etc/apt/keyrings/ipfire-libloc.asc https://packages.ipfire.org/debian/libloc/E4D20FA6FAA108D54ABDFC6541836ADF9D5E2AD9.asc \
+  && echo "deb [signed-by=/etc/apt/keyrings/ipfire-libloc.asc] https://packages.ipfire.org/debian/libloc bookworm main" > /etc/apt/sources.list.d/location.list \
   && apt-get update \
   && apt-get install -yy location \
   && rm -rf /var/lib/apt/lists/*

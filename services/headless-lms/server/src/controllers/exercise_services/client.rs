@@ -3654,11 +3654,13 @@ mod route_tests {
         let mut conn = PgConnection::connect(&test_database_url())
             .await
             .expect("connection");
-        sqlx::query("UPDATE courses SET ai_policy = 'full_use' WHERE id = $1")
-            .bind(fixture.course)
-            .execute(&mut conn)
-            .await
-            .expect("set ai_policy");
+        models::courses::set_course_ai_policy(
+            &mut conn,
+            fixture.course,
+            models::courses::CourseAiPolicy::FullUse,
+        )
+        .await
+        .expect("set ai_policy");
         let app = client_api_app!();
 
         let request = test::TestRequest::get()

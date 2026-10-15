@@ -592,7 +592,7 @@ SELECT DISTINCT ON (ci.id)
     c.slug AS "course_slug!",
     c.name AS "course_name!",
     c.description AS course_description,
-    c.ai_policy AS "course_ai_policy!: CourseAiPolicy",
+    c.ai_policy AS "course_ai_policy!",
     ci.id AS course_instance_id,
     ci.name AS course_instance_name,
     ci.description AS course_instance_description,

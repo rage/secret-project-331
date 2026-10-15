@@ -544,7 +544,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submissions": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions to the given exercise, newest\n * first, each annotated with its grading score and progress if graded.",
+        "summary": "\n * GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions to the given exercise, newest\n * first, each annotated with its grading score and progress if graded, and\n * whether it has a live share link.",
         "operationId": "getClientExerciseSubmissions",
         "parameters": [
           {
@@ -1291,6 +1291,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_shared": {
+            "type": "boolean",
+            "description": "Whether the submission has a live share link, which is what a paste makes."
           },
           "score_given": {
             "type": ["number", "null"],

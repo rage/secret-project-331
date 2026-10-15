@@ -221,6 +221,9 @@ pub struct ExerciseSlideSubmissionListItem {
     pub created_at: DateTime<Utc>,
     pub score_given: Option<f32>,
     pub grading_progress: Option<GradingProgress>,
+    /// Whether the submission has a live share link, which is what a paste makes.
+    #[serde(default)]
+    pub is_shared: bool,
 }
 
 /// Response of `GET submissions/{id}/download`: the files the submission was made from, recovered
@@ -614,5 +617,20 @@ mod test {
             item.grading_progress,
             Some(GradingProgress::FullyGraded)
         ));
+        assert!(!item.is_shared);
+    }
+
+    #[test]
+    fn submission_list_item_reads_is_shared() {
+        let value = json!({
+            "id": Uuid::nil(),
+            "exercise_id": Uuid::nil(),
+            "created_at": "2026-07-21T00:00:00Z",
+            "score_given": null,
+            "grading_progress": null,
+            "is_shared": true
+        });
+        let item: ExerciseSlideSubmissionListItem = serde_json::from_value(value).unwrap();
+        assert!(item.is_shared);
     }
 }

@@ -21,9 +21,10 @@ use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
+use models::exercise_slide_submissions::UserExerciseSlideSubmissionWithGrading;
 use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::future::{Ready, ready};
 use url::Url;
 use utoipa::OpenApi;
@@ -1152,7 +1153,8 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
  * GET /api/v0/exercise-services/client/exercises/:id/submissions
  *
  * Returns the current user's past submissions to the given exercise, newest
- * first, each annotated with its grading score and progress if graded.
+ * first, each annotated with its grading score and progress if graded, and
+ * whether it has a live share link.
  */
 #[utoipa::path(
     get,
@@ -1192,7 +1194,24 @@ async fn get_exercise_submissions(
         )
         .await?;
 
-    let items = submissions
+    let shared_submission_ids =
+        models::exercise_slide_submission_shares::list_by_creator(&mut conn, user.id)
+            .await?
+            .into_iter()
+            .map(|share| share.exercise_slide_submission_id)
+            .collect();
+
+    token.authorized_ok(web::Json(submission_list_items(
+        submissions,
+        &shared_submission_ids,
+    )))
+}
+
+fn submission_list_items(
+    submissions: Vec<UserExerciseSlideSubmissionWithGrading>,
+    shared_submission_ids: &HashSet<Uuid>,
+) -> Vec<api::ExerciseSlideSubmissionListItem> {
+    submissions
         .into_iter()
         .map(|submission| api::ExerciseSlideSubmissionListItem {
             id: submission.id,
@@ -1200,10 +1219,9 @@ async fn get_exercise_submissions(
             created_at: submission.created_at,
             score_given: submission.score_given,
             grading_progress: submission.grading_progress.map(map_grading_progress),
+            is_shared: shared_submission_ids.contains(&submission.id),
         })
-        .collect();
-
-    token.authorized_ok(web::Json(items))
+        .collect()
 }
 
 /**
@@ -1421,6 +1439,32 @@ mod tests {
             reviewing_stage: ReviewingStage::NotStarted,
             selected_exercise_slide_id: None,
         }
+    }
+
+    #[test]
+    fn submission_list_items_mark_shared_submissions() {
+        let submission = |id| UserExerciseSlideSubmissionWithGrading {
+            id,
+            exercise_id: Uuid::nil(),
+            created_at: Utc::now(),
+            score_given: Some(0.0),
+            grading_progress: Some(GradingProgress::FullyGraded),
+        };
+        let pasted = Uuid::new_v4();
+        let submitted = Uuid::new_v4();
+
+        let items = submission_list_items(
+            vec![submission(pasted), submission(submitted)],
+            &HashSet::from([pasted]),
+        );
+
+        assert_eq!(
+            items
+                .iter()
+                .map(|item| (item.id, item.is_shared))
+                .collect::<Vec<_>>(),
+            vec![(pasted, true), (submitted, false)]
+        );
     }
 
     #[test]

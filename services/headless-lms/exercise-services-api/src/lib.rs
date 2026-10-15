@@ -34,7 +34,7 @@ pub struct Course {
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum CourseAiPolicy {
-    /// The teacher has not chosen a policy.
+    /// The teacher has not chosen a policy. AI use is not allowed by default.
     #[default]
     NotSet,
     /// AI may not be used at any point.

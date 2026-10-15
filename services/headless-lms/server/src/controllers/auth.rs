@@ -462,7 +462,7 @@ pub async fn authorize_multiple_actions_on_resources(
 
 /**
 POST `/api/v0/auth/login` Logs in to the system.
-Returns LoginResponse indicating success, email verification required, or failure.
+Returns LoginResponse indicating success, email verification required, password reset required, or failure.
 **/
 #[utoipa::path(
     post,
@@ -593,6 +593,8 @@ async fn handle_production_login(
     let token = skip_authorize();
 
     let Ok(user) = models::users::get_by_email(conn, email).await else {
+        // Nil id hits the dummy-hash path so unknown emails take as long as wrong passwords.
+        models::user_passwords::verify_user_password(conn, Uuid::nil(), password).await?;
         warn!("Authentication failed");
         return token.authorized_ok(web::Json(LoginResponse::Failed));
     };

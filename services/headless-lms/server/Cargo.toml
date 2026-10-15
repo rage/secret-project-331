@@ -74,7 +74,6 @@ walkdir = "2.5.0"
 reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Sessions for Actix web
 actix-session = { version = "0.11.0", features = ["cookie-session"] }
-# An extensible, strongly-typed implementation of OAuth2
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.8"
 # Application-level tracing for Rust.

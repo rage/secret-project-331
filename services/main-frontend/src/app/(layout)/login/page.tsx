@@ -66,6 +66,7 @@ const Login: React.FC = () => {
 
       {(step.step === "credentials" || step.step === "verification") && (
         <CredentialsForm
+          initialEmail={step.step === "credentials" ? step.email : undefined}
           onSubmit={submitCredentials}
           error={credentialsError}
           isSubmitting={isSubmittingCredentials}

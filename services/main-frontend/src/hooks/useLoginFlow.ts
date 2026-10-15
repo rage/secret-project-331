@@ -13,7 +13,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import "@/shared-module/common/init/registerAuthApiClients"
 
 export type LoginStep =
-  | { step: "credentials" }
+  | { step: "credentials"; email?: string }
   | { step: "verification"; token: string }
   | { step: "must_change_password"; email: string }
   | { step: "awaiting_consent_check" }
@@ -149,7 +149,11 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
   const backToCredentials = () => {
     setError(null)
     setCredentialsError(false)
-    setStep({ step: "credentials" })
+    setStep(
+      step.step === "must_change_password"
+        ? { step: "credentials", email: step.email }
+        : { step: "credentials" },
+    )
   }
 
   return {

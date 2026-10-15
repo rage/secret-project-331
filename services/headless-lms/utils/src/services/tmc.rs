@@ -86,7 +86,6 @@ pub struct TMCUserField {
 
 enum TMCRequestAuth {
     UseAdminToken,
-    UseUserToken(SecretString),
     NoAuth,
 }
 
@@ -268,7 +267,6 @@ impl TmcClient {
 
         let access_token = match tmc_request_auth {
             TMCRequestAuth::UseAdminToken => Some(&self.admin_access_token),
-            TMCRequestAuth::UseUserToken(ref token) => Some(token),
             TMCRequestAuth::NoAuth => None,
         };
 
@@ -499,37 +497,6 @@ impl TmcClient {
         } else {
             Ok(TmcAccountDeletion::Deleted)
         }
-    }
-
-    pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(
-        &self,
-        tmc_access_token: &SecretString,
-    ) -> UtilResult<TMCUser> {
-        info!("Getting user details from tmc.mooc.fi");
-
-        let res = self
-            .request_with_headers(
-                reqwest::Method::GET,
-                &format!("{}/current?show_user_fields=1", TMC_API_URL),
-                TMCRequestAuth::UseUserToken(tmc_access_token.clone()),
-                None,
-            )
-            .await?;
-
-        debug!("Received response from TMC, parsing user data");
-        let tmc_user: TMCUser = self
-            .deserialize_response_with_tmc_error_check(res, "current user from TMC by access token")
-            .await?;
-
-        debug!(
-            "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
-            tmc_user.id,
-            tmc_user
-                .courses_mooc_fi_user_id
-                .map(|uuid| uuid.to_string())
-                .unwrap_or_else(|| "None (will generate new UUID)".to_string())
-        );
-        Ok(tmc_user)
     }
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(

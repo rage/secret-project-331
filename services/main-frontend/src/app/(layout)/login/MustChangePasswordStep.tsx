@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { CheckCircle, Padlock, PaperAirplane } from "@vectopus/atlas-icons-react"
 import i18n from "i18next"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
@@ -68,6 +68,12 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
   const { t } = useTranslation()
   const uncheckedReturnTo = useQueryParameter("return_to")
   const [emailSent, setEmailSent] = useState(false)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+
+  // The button that led here unmounts, so move focus to the new view's heading.
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [emailSent])
 
   const sendMutation = useToastMutation(
     async () =>
@@ -95,10 +101,11 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
               color: ${baseTheme.colors.green[600]};
             `,
           )}
-          aria-live="polite"
         >
           <CheckCircle aria-hidden size={28} />
-          <h1 className={headingCss}>{t("password-reset-email-sent")}</h1>
+          <h1 ref={headingRef} tabIndex={-1} className={headingCss}>
+            {t("password-reset-email-sent")}
+          </h1>
         </div>
         <p className={descriptionCss}>{t("password-reset-email-sent-description", { email })}</p>
         <Button variant="primary" size="medium" type="button" onPress={onBack}>
@@ -119,7 +126,9 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
         )}
       >
         <Padlock aria-hidden size={28} />
-        <h1 className={headingCss}>{t("must-change-password-title")}</h1>
+        <h1 ref={headingRef} tabIndex={-1} className={headingCss}>
+          {t("must-change-password-title")}
+        </h1>
       </div>
       <p className={descriptionCss}>{t("must-change-password-description")}</p>
       <div className={emailCss}>{email}</div>

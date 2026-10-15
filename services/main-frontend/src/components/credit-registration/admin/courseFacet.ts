@@ -5,7 +5,7 @@ export const courseFacetId = (unit: CreditRegistrationCourseStats): string =>
   unit.course_id ?? unit.credit_unit_id
 
 /**
- * One option per course and per mooc.fi target. A course can have several enabled modules, and a
+ * One option per course and per mooc.fi target. A course can have several modules, and a
  * Select with two options of the same value refuses to render at all.
  */
 export const courseFacetOptions = (

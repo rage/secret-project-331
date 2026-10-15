@@ -99,7 +99,7 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByLabel("Manage course 'Course Structure'").click()
-    await page.getByText("Pages").click()
+    await page.getByRole("tab", { name: "Pages" }).click()
 
     await expect(page).toHaveURL(
       "http://project-331.local/manage/courses/86cbc198-601c-42f4-8e0f-3e6cce49bbfc/pages",

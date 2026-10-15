@@ -1,9 +1,10 @@
-//! The configuration check: what it reads about each enabled module, and what it concluded.
+//! The configuration check: what it reads about each module with a course code, and what it
+//! concluded.
 
 use crate::prelude::*;
 
 /// Everything the per-module configuration check reads, gathered in one query so validating every
-/// enabled module costs one pass rather than a fan-out per module.
+/// module costs one pass rather than a fan-out per module.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SuotarModuleConfigFacts {
     pub course_module_id: Uuid,
@@ -16,10 +17,10 @@ pub struct SuotarModuleConfigFacts {
     pub stored_course_code_rejection: Option<String>,
 }
 
-/// Every Suotar-enabled module's configuration facts, optionally narrowed to one course. Paused
+/// The configuration facts of every module with a course code, optionally narrowed to one course. Paused
 /// modules are included: a paused module's configuration is exactly what an operator is about to
 /// fix.
-pub async fn get_config_facts_for_enabled_modules(
+pub async fn get_config_facts_for_modules_with_course_code(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,
 ) -> ModelResult<Vec<SuotarModuleConfigFacts>> {
@@ -39,8 +40,8 @@ SELECT cm.id AS "course_module_id!",
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
-WHERE cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
+WHERE cm.deleted_at IS NULL
+  AND TRIM(cm.uh_course_code) <> ''
   AND ($1::uuid IS NULL OR cm.course_id = $1)
 ORDER BY cm.course_id,
   cm.order_number
@@ -52,8 +53,8 @@ ORDER BY cm.course_id,
     Ok(res)
 }
 
-/// Enabled modules and mooc.fi targets the last check found broken. Unchecked ones are not counted:
-/// unknown is not a failure.
+/// Modules with a course code and mooc.fi targets the last check found broken. Unchecked ones are
+/// not counted: unknown is not a failure.
 ///
 /// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's own
 /// "misconfigured" tile. The boolean covers only the course code, while [`check_module_config`]
@@ -78,8 +79,7 @@ pub async fn get_module_ids_failing_config_check(
 SELECT conf.course_module_id
 FROM course_module_suotar_configurations conf
   JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL
-WHERE cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
+WHERE TRIM(cm.uh_course_code) <> ''
   AND conf.deleted_at IS NULL
   AND conf.config_checked_at IS NOT NULL
   AND conf.config_check_message IS NOT NULL
@@ -103,7 +103,7 @@ pub struct SuotarConfigCheck {
 }
 
 /// Stamps the check result on the module, creating the configuration row for a module that has
-/// none: an enabled module with no configuration is itself one of the problems being reported.
+/// none: a module with a course code and no configuration is itself one of the problems being reported.
 ///
 /// Resurrects a soft-deleted row for the same reason [`ensure_exists`](super::ensure_exists) does:
 /// `ON CONFLICT` can only infer against `uq_course_module_suotar_configurations`, so an insert

@@ -1,4 +1,4 @@
-//! The Courses tab: one row per Suotar-enabled course module and per mooc.fi target, with its
+//! The Courses tab: one row per course module with a course code and per mooc.fi target, with its
 //! configuration validated, and the mooc.fi targets' configuration.
 
 use std::collections::HashMap;
@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::course_module_suotar_configurations::SuotarConfigCheck;
 use headless_lms_models::course_module_suotar_configurations::{
-    self, SuotarModuleOverview, get_config_facts_for_enabled_modules,
+    self, SuotarModuleOverview, get_config_facts_for_modules_with_course_code,
 };
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
@@ -29,7 +29,7 @@ use crate::prelude::*;
 use super::dashboard::{CreditRegistrationStepCount, sum_step_counts};
 use super::{attention_rules, authorize_credit_registration_admin, required_reason};
 
-/// Suotar-enabled modules, comfortably above any real deployment's count. The only admin tab
+/// Modules with a course code, comfortably above any real deployment's count. The only admin tab
 /// without a page or a limit of its own before this.
 const COURSES_LIMIT: i64 = 2_000;
 
@@ -81,9 +81,9 @@ pub struct CreditRegistrationCourseStats {
     pub stored_config_check_message: Option<String>,
     /// Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
     /// what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
-    /// a module opted in mid-course keeps a permanent gap against `registration_count` for the
-    /// completions that predate the opt-in. For a mooc.fi target, exactly the completions it is
-    /// responsible for, withdrawn ones left out.
+    /// a module keeps a permanent gap against `registration_count` for the completions that predate
+    /// the push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn
+    /// ones left out.
     pub eligible_completion_count: i64,
     pub registration_count: i64,
     /// Registered, already in Sisu and better grade in Sisu: the denominator the failure rate is
@@ -151,7 +151,7 @@ pub struct AdminDeleteExternalCreditTargetPayload {
 }
 
 /**
-GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
 its validated configuration and its volumes.
 */
 #[instrument(skip(pool, app_conf))]
@@ -161,7 +161,7 @@ its validated configuration and its volumes.
     operation_id = "getCreditRegistrationStatsByCourse",
     tag = "credit-registration-admin",
     responses(
-        (status = 200, description = "One row per enabled course module", body = CreditRegistrationStatsByCourse)
+        (status = 200, description = "One row per course module with a course code", body = CreditRegistrationStatsByCourse)
     )
 )]
 pub async fn get_credit_registration_stats_by_course(
@@ -175,7 +175,7 @@ pub async fn get_credit_registration_stats_by_course(
     let overviews =
         course_module_suotar_configurations::get_module_overviews(&mut conn, COURSES_LIMIT).await?;
     let mut checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
-        get_config_facts_for_enabled_modules(&mut conn, None)
+        get_config_facts_for_modules_with_course_code(&mut conn, None)
             .await?
             .into_iter()
             .map(|facts| {

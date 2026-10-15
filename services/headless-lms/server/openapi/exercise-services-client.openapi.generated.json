@@ -1064,6 +1064,10 @@
         "description": "A course the current user can browse or is enrolled in.",
         "required": ["id", "slug", "name", "organization_name"],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy",
+            "description": "The teacher's AI-use policy for the course, uninterpreted: what each value permits is the\nclient's decision. Absent from a host that predates the field, which reads as `not_set`."
+          },
           "description": {
             "type": ["string", "null"]
           },
@@ -1082,6 +1086,11 @@
             "type": "string"
           }
         }
+      },
+      "CourseAiPolicy": {
+        "type": "string",
+        "description": "A course's AI-use policy as chosen by its teacher.",
+        "enum": ["not_set", "no_ai", "planning_only", "limited", "full_use", "required"]
       },
       "CourseProgress": {
         "type": "object",

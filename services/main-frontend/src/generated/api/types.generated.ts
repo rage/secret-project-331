@@ -1840,7 +1840,6 @@ export type CourseAuditingDataUpdate = {
 export type CourseAuditingModuleUpdate = {
   completion_registration_link_override?: string | null
   ects_credits?: number | null
-  enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
   order_number: number
@@ -1970,7 +1969,6 @@ export type CourseCreditRegistrationEvent = {
 export type CourseCreditRegistrationModuleSummary = {
   course_module_id: string
   course_module_name?: string | null
-  enabled: boolean
   failed_count: number
   /**
    * The pipeline is working on it and nobody has to do anything.
@@ -2255,8 +2253,6 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
-  enable_credit_registration_via_suotar: boolean
-  enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
   order_number: number
@@ -2329,8 +2325,8 @@ export type CourseModuleCompletionWithRegistrationInfo = {
 }
 
 /**
- * Per-module credit-registration configuration: the rollout switch and the module's own fields
- * merged with its `course_module_suotar_configurations` row. Every field of that row is optional
+ * Per-module credit-registration configuration: the module's own fields merged with its
+ * `course_module_suotar_configurations` row. Every field of that row is optional
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export type CourseModuleCreditRegistrationConfig = {
@@ -2351,7 +2347,6 @@ export type CourseModuleCreditRegistrationConfig = {
   credit_registration_paused_at?: string | null
   credit_registration_paused_by_user_id?: string | null
   ects_credits?: number | null
-  enable_credit_registration_via_suotar: boolean
   uh_course_code?: string | null
 }
 
@@ -2368,7 +2363,6 @@ export type CourseModuleInfo = {
    * ECTS credits the module is worth. `None` when the module grants no credits.
    */
   ects_credits?: number | null
-  enable_credit_registration_via_suotar: boolean
   /**
    * Number of non-deleted exercises in this module. Submission density is divided by this so courses
    * of very different size stay comparable. `0` if the module has no chapter-bound exercises.
@@ -2902,9 +2896,9 @@ export type CreditRegistrationCourseStats = {
   /**
    * Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
    * what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
-   * a module opted in mid-course keeps a permanent gap against `registration_count` for the
-   * completions that predate the opt-in. For a mooc.fi target, exactly the completions it is
-   * responsible for, withdrawn ones left out.
+   * a module keeps a permanent gap against `registration_count` for the completions that predate
+   * the push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn
+   * ones left out.
    */
   eligible_completion_count: number
   /**
@@ -4383,8 +4377,6 @@ export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
   ects_credits?: number | null
-  enable_credit_registration_via_suotar: boolean
-  enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
   order_number: number
@@ -4906,8 +4898,6 @@ export type NewModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
   ects_credits?: number | null
-  enable_credit_registration_via_suotar: boolean
-  enable_registering_completion_to_uh_open_university: boolean
   name: string
   order_number: number
   uh_course_code?: string | null
@@ -6410,21 +6400,19 @@ export type UserCompletionInformation = {
   credit_justification?: string | null
   ects_credits?: number | null
   email: string
-  enable_credit_registration_via_suotar: boolean
-  enable_registering_completion_to_uh_open_university: boolean
   /**
-   * Whether this completion in particular goes through the push path. Decides which flow the
-   * page shows: the module flag above only says the module takes part.
+   * Whether this completion goes through the push path, which decides the flow the page shows.
    */
   register_credits_via_suotar: boolean
+  /**
+   * Whether the module has a course code, without which its completions are never registered.
+   */
+  registers_credits: boolean
   /**
    * What the student is told while the completion has no credit registration: `sending` when
    * the push path will create one, `not_registering` when it never will.
    */
   status_before_registration: StudentFacingCreditRegistrationStatus
-  /**
-   * `None` only on a module registering through credit registration.
-   */
   uh_course_code?: string | null
 }
 
@@ -11286,7 +11274,7 @@ export type GetCreditRegistrationStatsByCourseData = {
 
 export type GetCreditRegistrationStatsByCourseResponses = {
   /**
-   * One row per enabled course module
+   * One row per course module with a course code
    */
   200: CreditRegistrationStatsByCourse
 }

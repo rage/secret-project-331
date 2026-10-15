@@ -48,8 +48,8 @@ pub const RETRY_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0009_4a5e_9e6e_c0de
 pub const CRS_101: &str = "CRS-101";
 pub const CRS_B_101: &str = "CRS-B-101";
 pub const CRS_OLD_101: &str = "CRS-OLD-101";
-/// The module `suotar-old-flow-coexistence.spec.ts` treats as already cut over: Suotar-enabled, but
-/// holding a completion the legacy pull path registered before the cutover happened.
+/// The module `suotar-old-flow-coexistence.spec.ts` treats as already cut over, but holding a
+/// completion the legacy pull path registered before the cutover happened.
 pub const CRS_OLD_102: &str = "CRS-OLD-102";
 pub const CRS_ADMIN_101: &str = "CRS-ADMIN-101";
 /// One module per column of the frozen-row grid: an account holds one completion per module.

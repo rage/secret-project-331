@@ -1,8 +1,8 @@
 //! Deciding whether one module's or mooc.fi target's credit-registration configuration is usable.
 //!
 //! Pure: the facts are gathered by
-//! [`crate::course_module_suotar_configurations::get_config_facts_for_enabled_modules`] and
-//! [`crate::external_credit_targets::get_config_facts_for_enabled_targets`], the course code
+//! [`crate::course_module_suotar_configurations::get_config_facts_for_modules_with_course_code`]
+//! and [`crate::external_credit_targets::get_config_facts_for_enabled_targets`], the course code
 //! verdict comes from Suotar's `course-codes/validate`, and the result is stamped back by each
 //! one's `record_config_check`.
 
@@ -13,7 +13,6 @@ use crate::external_credit_targets::ExternalCreditTargetConfigFacts;
 
 /// The problems the check reports, in the order they block a registration. English on purpose:
 /// this is operator diagnostics stored on the row, not student-facing copy.
-const NO_COURSE_CODE: &str = "No uh_course_code, so nothing can be submitted.";
 const COURSE_CODE_NOT_ALLOWED: &str = "Suotar does not accept this uh_course_code:";
 const NO_ECTS: &str = "No ects_credits, so there is nothing to register.";
 
@@ -65,7 +64,7 @@ pub fn check_module_config(
     verdict: Option<&CourseCodeVerdict>,
 ) -> SuotarConfigCheck {
     check_config(
-        facts.uh_course_code.as_deref(),
+        facts.uh_course_code.as_deref().unwrap_or_default(),
         facts.ects_credits.is_some(),
         verdict,
     )
@@ -77,34 +76,29 @@ pub fn check_target_config(
     facts: &ExternalCreditTargetConfigFacts,
     verdict: Option<&CourseCodeVerdict>,
 ) -> SuotarConfigCheck {
-    check_config(Some(&facts.uh_course_code), true, verdict)
+    check_config(&facts.uh_course_code, true, verdict)
 }
 
 fn check_config(
-    uh_course_code: Option<&str>,
+    uh_course_code: &str,
     has_ects_credits: bool,
     verdict: Option<&CourseCodeVerdict>,
 ) -> SuotarConfigCheck {
     let mut problems: Vec<Cow<'static, str>> = Vec::new();
 
-    let uh_course_code = uh_course_code
-        .map(str::trim)
-        .filter(|code| !code.is_empty());
-    let (course_code_allowed, checked_course_code, course_code_rejection) =
-        match (uh_course_code, verdict) {
-            (None, _) => {
-                problems.push(NO_COURSE_CODE.into());
-                (Some(false), None, None)
-            }
-            (Some(code), Some(CourseCodeVerdict::Allowed)) => {
-                (Some(true), Some(code.to_string()), None)
-            }
-            (Some(code), Some(CourseCodeVerdict::NotAllowed { reason })) => {
-                problems.push(format!("{COURSE_CODE_NOT_ALLOWED} {reason}").into());
-                (Some(false), Some(code.to_string()), Some(reason.clone()))
-            }
-            (Some(_), None) => (None, None, None),
-        };
+    let uh_course_code = uh_course_code.trim();
+    let (course_code_allowed, checked_course_code, course_code_rejection) = match verdict {
+        Some(CourseCodeVerdict::Allowed) => (Some(true), Some(uh_course_code.to_string()), None),
+        Some(CourseCodeVerdict::NotAllowed { reason }) => {
+            problems.push(format!("{COURSE_CODE_NOT_ALLOWED} {reason}").into());
+            (
+                Some(false),
+                Some(uh_course_code.to_string()),
+                Some(reason.clone()),
+            )
+        }
+        None => (None, None, None),
+    };
     if !has_ects_credits {
         problems.push(NO_ECTS.into());
     }

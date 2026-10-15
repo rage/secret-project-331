@@ -13,8 +13,6 @@ const baseModule: UserModuleCompletionStatus = {
   certification_enabled: true,
   completed: true,
   default: false,
-  enable_registering_completion_to_uh_open_university: true,
-  enable_credit_registration_via_suotar: false,
   register_credits_via_suotar: false,
   grade: 5,
   module_id: "module-1",
@@ -22,6 +20,7 @@ const baseModule: UserModuleCompletionStatus = {
   order_number: 1,
   passed: true,
   prerequisite_modules_completed: true,
+  registers_credits: true,
 }
 
 describe("CongratulationsLinks accessibility (issue #55)", () => {

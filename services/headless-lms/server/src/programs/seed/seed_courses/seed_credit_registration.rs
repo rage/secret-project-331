@@ -496,13 +496,13 @@ async fn push_mock_suotar_world(base_url: &str) -> Result<()> {
     Ok(())
 }
 
-/// Turns the module on with an enrolment link unique to its course code, without which the config
-/// check flags the module, and opts its students' completions in.
+/// An enrolment link unique to the module's course code, without which the config check flags the
+/// module, and its seeded completions on the push path.
 fn credit_registration_config(course_code: &str) -> CreditRegistrationSeed {
     CreditRegistrationSeed {
         enrolment_link: Some(seeded_enrolment_link(course_code)),
         paused_reason: None,
-        register_eligible_new_completions: true,
+        registers_seeded_completions: true,
     }
 }
 
@@ -527,8 +527,8 @@ fn instance_config(instance_id: Uuid) -> CourseInstanceConfig {
 
 /// Owned by `suotar-old-flow-coexistence.spec.ts`.
 ///
-/// Module 0 stays on the legacy pull path outright. Module 1 is opted into Suotar, but its one
-/// completion predates the opt-in and was already registered through the legacy pull path, so it
+/// Module 0 stays on the legacy pull path outright. Module 1 has a Suotar configuration, but its one
+/// completion predates the push path and was already registered through the legacy pull path, so it
 /// must stay there and never get a Suotar registration. The two completions belong to different
 /// students because the spec tells them apart in the pull stream by address.
 async fn seed_old_flow_course(
@@ -557,7 +557,6 @@ async fn seed_old_flow_course(
                     .order(0)
                     .ects(5.0)
                     .uh_course_code(CRS_OLD_101.to_string())
-                    .register_to_open_university(true)
                     .completion(
                         CompletionBuilder::new(still_legacy.user_id)
                             .email(still_legacy.email.clone())
@@ -573,7 +572,7 @@ async fn seed_old_flow_course(
                     .ects(5.0)
                     .uh_course_code(CRS_OLD_102.to_string())
                     .credit_registration(CreditRegistrationSeed {
-                        register_eligible_new_completions: false,
+                        registers_seeded_completions: false,
                         ..credit_registration_config(CRS_OLD_102)
                     })
                     .default_registrar(registrar_id)
@@ -632,7 +631,6 @@ async fn seed_certificate_detour_course(
             .order(0)
             .ects(5.0)
             .uh_course_code(CRS_DETOUR_101.to_string())
-            .register_to_open_university(true)
             .completion(
                 CompletionBuilder::new(student.user_id)
                     .email(student.email.clone())
@@ -1089,6 +1087,7 @@ async fn seed_eligible_completion(
             passed: Some(true),
             prerequisite_modules_completed: Some(true),
             needs_to_be_reviewed: Some(false),
+            register_credits_via_suotar: true,
         },
     )
     .await?;
@@ -1385,6 +1384,7 @@ async fn seed_superseded_attempt_pair(
             passed: Some(true),
             prerequisite_modules_completed: Some(true),
             needs_to_be_reviewed: Some(false),
+            register_credits_via_suotar: true,
         },
     )
     .await?;

@@ -5252,7 +5252,7 @@ export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean 
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
 export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean = true>(

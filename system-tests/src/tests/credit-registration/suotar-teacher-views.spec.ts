@@ -193,8 +193,8 @@ test("The module editor configures a study registry module by its course code an
   await form.getByRole("button", { name: "Edit" }).click()
 
   await expect(
-    form.getByRole("checkbox", { name: "Register opted-in completions in Sisu" }),
-  ).toBeChecked()
+    form.getByRole("textbox", { name: "University of Helsinki course code" }),
+  ).toHaveValue(CRS_STATES_101)
   await expect(form.getByLabel("Completion registration link", { exact: true })).toHaveValue(
     seededEnrolmentLink(CRS_STATES_101),
   )

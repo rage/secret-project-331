@@ -1,0 +1,220 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.external_completion_id,\n  cr.external_credit_target_id,\n  cr.grade_scale_id AS \"registered_grade_scale_id!\",\n  cr.grade_id AS \"registered_grade_id!\",\n  s.passed AS \"passed!\",\n  s.grade,\n  s.revised_at AS \"completion_revised_at!\"\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\n  -- Membership is the whole eligibility check: the view is the course code and the completion\n  -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.\n  JOIN credit_registration_eligible_completions e ON e.subject_id = cr.subject_id\n  AND e.fully_eligible\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND cr.pending_superseded_by_id IS NULL\n  -- The success set only: a row whose outcome we do not know must not gain a successor.\n  AND cr.state = ANY($4::credit_registration_state [])\n  AND cr.grade_scale_id IS NOT NULL\n  AND cr.grade_id IS NOT NULL\n  -- Only the latest attempt: a newer one, even one that stopped short, reads the completion's grade\n  -- afresh whenever it resolves again.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations later\n    WHERE later.subject_id = cr.subject_id\n      AND later.attempt_number > cr.attempt_number\n      AND later.deleted_at IS NULL\n  )\n  -- Two halves of one cheap pre-filter. A completion unrevised since the attempt was created cannot\n  -- have been regraded after that attempt froze its grade; but one revised for any other reason\n  -- passes that test forever, and only the grade comparison below can tell the two apart, which is\n  -- why the loop stamps the watermark on every candidate it declines. Without the second half the\n  -- limit keeps spending itself on the same rows while a real regrade waits behind them.\n  AND s.revised_at > cr.created_at\n  AND (\n    cr.improvement_checked_completion_updated_at IS NULL\n    OR s.revised_at > cr.improvement_checked_completion_updated_at\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($5::uuid IS NULL OR cr.external_credit_target_id = $5)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY s.revised_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "attempt_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "attempt_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "external_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_credit_target_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "registered_grade_scale_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_scale_id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "registered_grade_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "grade_id"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "passed!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_subjects",
+            "name": "passed"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "grade",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_subjects",
+            "name": "grade"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "completion_revised_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_subjects",
+            "name": "revised_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "credit_registration_state[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "credit_registration_state",
+                  "kind": {
+                    "Enum": [
+                      "pending",
+                      "ready_to_submit",
+                      "resolving_enrolment",
+                      "checking_enrolment",
+                      "no_usable_enrolment",
+                      "submitting",
+                      "submission_uncertain",
+                      "awaiting_verification",
+                      "partially_registered",
+                      "registered",
+                      "duplicate",
+                      "not_improved",
+                      "misregistered",
+                      "failed_retryable",
+                      "failed_permanent",
+                      "blocked",
+                      "cancelled"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "1c550fa60182d1c9bf872fa76c9bec5231db45023f062c38b9ba7d207452caf4"
+}

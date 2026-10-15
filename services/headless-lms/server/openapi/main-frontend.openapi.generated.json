@@ -7635,11 +7635,11 @@
     "/api/v0/main-frontend/credit-registration-admin/courses": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,\nits validated configuration and its volumes.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,\nits validated configuration and its volumes.",
         "operationId": "getCreditRegistrationStatsByCourse",
         "responses": {
           "200": {
-            "description": "One row per enabled course module",
+            "description": "One row per course module with a course code",
             "content": {
               "application/json": {
                 "schema": {
@@ -19442,7 +19442,7 @@
       },
       "CourseAuditingModuleUpdate": {
         "type": "object",
-        "required": ["id", "order_number", "enable_registering_completion_to_uh_open_university"],
+        "required": ["id", "order_number"],
         "properties": {
           "completion_registration_link_override": {
             "type": ["string", "null"]
@@ -19450,9 +19450,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -19866,7 +19863,6 @@
         "description": "One module's live registrations, split so a teacher can add the columns up.\n\n`registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and\n`not_registering_count` partition `registration_count`: every live row falls in exactly one, and\neach is the same classification the row's own badge shows. `needs_admin_attention_count` is not\none of them — it cuts across all five — so it is never added to them.",
         "required": [
           "course_module_id",
-          "enabled",
           "paused",
           "registration_count",
           "registered_count",
@@ -19883,9 +19879,6 @@
           },
           "course_module_name": {
             "type": ["string", "null"]
-          },
-          "enabled": {
-            "type": "boolean"
           },
           "failed_count": {
             "type": "integer",
@@ -20655,9 +20648,7 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "certification_enabled",
-          "enable_credit_registration_via_suotar"
+          "certification_enabled"
         ],
         "properties": {
           "certification_enabled": {
@@ -20689,12 +20680,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -20865,13 +20850,8 @@
       },
       "CourseModuleCreditRegistrationConfig": {
         "type": "object",
-        "description": "Per-module credit-registration configuration: the rollout switch and the module's own fields\nmerged with its `course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
-        "required": [
-          "course_module_id",
-          "course_id",
-          "enable_credit_registration_via_suotar",
-          "credit_registration_has_enrolment_link"
-        ],
+        "description": "Per-module credit-registration configuration: the module's own fields merged with its\n`course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
+        "required": ["course_module_id", "course_id", "credit_registration_has_enrolment_link"],
         "properties": {
           "course_id": {
             "type": "string",
@@ -20911,9 +20891,6 @@
             "type": ["number", "null"],
             "format": "float"
           },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
           "uh_course_code": {
             "type": ["string", "null"]
           }
@@ -20922,13 +20899,7 @@
       "CourseModuleInfo": {
         "type": "object",
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
-        "required": [
-          "id",
-          "order_number",
-          "exercise_count",
-          "daily_submissions",
-          "enable_credit_registration_via_suotar"
-        ],
+        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
         "properties": {
           "daily_submissions": {
             "type": "array",
@@ -20941,9 +20912,6 @@
             "type": ["number", "null"],
             "format": "float",
             "description": "ECTS credits the module is worth. `None` when the module grants no credits."
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
           },
           "exercise_count": {
             "type": "integer",
@@ -22025,7 +21993,7 @@
           "eligible_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module opted in mid-course keeps a permanent gap against `registration_count` for the\ncompletions that predate the opt-in. For a mooc.fi target, exactly the completions it is\nresponsible for, withdrawn ones left out."
+            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn\nones left out."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -25738,13 +25706,7 @@
       },
       "ModifiedModule": {
         "type": "object",
-        "required": [
-          "id",
-          "order_number",
-          "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
-        ],
+        "required": ["id", "order_number", "completion_policy"],
         "properties": {
           "completion_policy": {
             "$ref": "#/components/schemas/CompletionPolicy"
@@ -25755,12 +25717,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -26886,14 +26842,7 @@
       },
       "NewModule": {
         "type": "object",
-        "required": [
-          "name",
-          "order_number",
-          "chapters",
-          "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
-        ],
+        "required": ["name", "order_number", "chapters", "completion_policy"],
         "properties": {
           "chapters": {
             "type": "array",
@@ -26911,12 +26860,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "name": {
             "type": "string"
@@ -30757,8 +30700,7 @@
           "course_module_completion_id",
           "course_name",
           "email",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar",
+          "registers_credits",
           "register_credits_via_suotar",
           "status_before_registration"
         ],
@@ -30791,23 +30733,20 @@
           "email": {
             "type": "string"
           },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
-          },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether this completion in particular goes through the push path. Decides which flow the\npage shows: the module flag above only says the module takes part."
+            "description": "Whether this completion goes through the push path, which decides the flow the page shows."
+          },
+          "registers_credits": {
+            "type": "boolean",
+            "description": "Whether the module has a course code, without which its completions are never registered."
           },
           "status_before_registration": {
             "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
             "description": "What the student is told while the completion has no credit registration: `sending` when\nthe push path will create one, `not_registering` when it never will."
           },
           "uh_course_code": {
-            "type": ["string", "null"],
-            "description": "`None` only on a module registering through credit registration."
+            "type": ["string", "null"]
           }
         }
       },

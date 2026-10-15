@@ -100,8 +100,7 @@ await jest.unstable_mockModule("@wordpress/data", () => ({
 
 // The Vega stack needs `structuredClone` and canvas text measurement, neither of which jsdom has.
 await jest.unstable_mockModule("react-vega", () => ({
-  Vega: stub("div"),
-  VegaLite: stub("div"),
+  VegaEmbed: stub("div"),
 }))
 
 await jest.unstable_mockModule("vega", () => ({

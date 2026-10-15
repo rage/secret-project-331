@@ -21,7 +21,8 @@ pub const STUDENT_NOTIFICATION_LIMIT: i64 = 200;
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum CreditRegistrationNotificationKind {
-    /// The study registry had no usable enrolment, so the student has to act.
+    /// The student has to enrol: the study registry had no usable enrolment, or the row waits for a
+    /// student number that only arrives once the student is on a roster.
     ActionNeeded,
     /// The credit is in the study registry, whether we put it there or found it already recorded.
     Registered,
@@ -40,7 +41,9 @@ impl CreditRegistrationNotificationKind {
     /// and the student-facing status endpoint derive from this rather than keeping their own copy.
     pub fn for_state(state: CreditRegistrationState) -> Option<Self> {
         match state {
-            CreditRegistrationState::NoUsableEnrolment => Some(Self::ActionNeeded),
+            CreditRegistrationState::NoUsableEnrolment | CreditRegistrationState::Pending => {
+                Some(Self::ActionNeeded)
+            }
             _ if CreditRegistrationState::SUCCESS_STATES.contains(&state) => Some(Self::Registered),
             _ => None,
         }
@@ -61,16 +64,20 @@ pub struct StudentNotificationToQueue {
     /// The credits frozen on the row, which may have been clamped to the enrolment's range, else the
     /// module's.
     pub credits: Option<f32>,
+    pub enrolment_link: Option<String>,
 }
 
 /// Claims the rows owed a mail, locking them until the caller's transaction ends, so callers must
 /// pass a transaction. Never claims `cancelled`, `blocked` or any failure state: those get
 /// nothing. Nor a `duplicate` or `not_improved` row whose student already has, or is owed, the
-/// registered mail for another row of the module.
+/// registered mail for another row of the module. A `pending` row is owed the action-needed mail
+/// only while its student has no student number and `is_account_linking_enabled`, since only then
+/// does enrolling lead to one.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
     limit: i64,
+    is_account_linking_enabled: bool,
 ) -> ModelResult<Vec<StudentNotificationToQueue>> {
     let res = sqlx::query!(
         r#"
@@ -82,7 +89,8 @@ SELECT cr.id AS "credit_registration_id!",
   c.language_code AS "course_language_code!",
   cm.name AS "course_module_name?",
   ud.first_name AS "first_name?",
-  COALESCE(cr.credits, cm.ects_credits) AS "credits?"
+  COALESCE(cr.credits, cm.ects_credits) AS "credits?",
+  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?"
 FROM credit_registrations cr
   JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL
   JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
@@ -92,6 +100,17 @@ WHERE cr.deleted_at IS NULL
     (
       cr.state = 'no_usable_enrolment'
       AND cr.action_needed_email_delivery_id IS NULL
+    )
+    OR (
+      cr.state = 'pending'
+      AND $7
+      AND cr.action_needed_email_delivery_id IS NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM verified_student_numbers vsn
+        WHERE vsn.user_id = cr.user_id
+          AND vsn.deleted_at IS NULL
+      )
     )
     OR (
       cr.state = ANY($5::credit_registration_state [])
@@ -130,6 +149,7 @@ LIMIT $1
         &scope.credit_registration_ids,
         &CreditRegistrationState::SUCCESS_STATES as &[CreditRegistrationState],
         &CreditRegistrationState::OTHER_SUCCESS_STATES as &[CreditRegistrationState],
+        is_account_linking_enabled,
     )
     .fetch_all(conn)
     .await?;
@@ -147,6 +167,7 @@ LIMIT $1
             course_module_name: row.course_module_name,
             first_name: row.first_name,
             credits: row.credits,
+            enrolment_link: row.enrolment_link,
         })
         .collect())
 }

@@ -1,13 +1,18 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { css } from "@emotion/css"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { createCodeGiveawayMutation as createCodeGiveawayMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { Dialog, TextField } from "@/shared-module/components"
+
+const fieldsCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
 
 interface NewCodeGiveawayFormProps {
   courseId: string
@@ -16,20 +21,28 @@ interface NewCodeGiveawayFormProps {
   onCreated?: () => void
 }
 
+interface NewCodeGiveawayFields {
+  name: string
+  courseModuleId: string
+  requireCourseSpecificConsentFormQuestionId: string
+}
+
 const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
   courseId,
   dialogOpen,
   setDialogOpen,
   onCreated,
 }) => {
-  const [name, setName] = useState("")
-  const [courseModuleId, setCourseModuleId] = useState<string>("")
-  const [
-    requireCourseSpecificConsentFormQuestionId,
-    setRequireCourseSpecificConsentFormQuestionId,
-  ] = useState<string>("")
+  const { control, watch, reset } = useForm<NewCodeGiveawayFields>({
+    defaultValues: { name: "", courseModuleId: "", requireCourseSpecificConsentFormQuestionId: "" },
+  })
+  const name = watch("name")
+  const courseModuleId = watch("courseModuleId")
+  const requireCourseSpecificConsentFormQuestionId = watch(
+    "requireCourseSpecificConsentFormQuestionId",
+  )
 
-  const valid = useMemo(() => name.trim() !== "", [name])
+  const valid = name.trim() !== ""
   const { t } = useTranslation()
 
   const createCodeGiveawayMutation = useToastMutationOptions(
@@ -40,7 +53,7 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
     },
     {
       onSuccess: () => {
-        setName("")
+        reset()
         setDialogOpen(false)
         if (onCreated) {
           onCreated()
@@ -52,11 +65,11 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
     return null
   }
   return (
-    <StandardDialog
+    <Dialog
       open={dialogOpen}
       onClose={() => setDialogOpen(false)}
       title={t("heading-new-code-giveaway")}
-      buttons={[
+      actions={[
         {
           variant: "primary",
           onClick: () =>
@@ -71,22 +84,20 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
               },
             }),
           disabled: !valid || createCodeGiveawayMutation.isPending,
-          children: t("button-text-create"),
+          label: t("button-text-create"),
         },
       ]}
     >
-      <TextField label={t("label-name")} value={name} onChange={(e) => setName(e.target.value)} />
-      <TextField
-        label={t("label-course-module-id")}
-        value={courseModuleId}
-        onChange={(e) => setCourseModuleId(e.target.value)}
-      />
-      <TextField
-        label={t("label-require-course-specific-consent-form-question-id")}
-        value={requireCourseSpecificConsentFormQuestionId}
-        onChange={(e) => setRequireCourseSpecificConsentFormQuestionId(e.target.value)}
-      />
-    </StandardDialog>
+      <div className={fieldsCss}>
+        <TextField name="name" control={control} label={t("label-name")} />
+        <TextField name="courseModuleId" control={control} label={t("label-course-module-id")} />
+        <TextField
+          name="requireCourseSpecificConsentFormQuestionId"
+          control={control}
+          label={t("label-require-course-specific-consent-form-question-id")}
+        />
+      </div>
+    </Dialog>
   )
 }
 

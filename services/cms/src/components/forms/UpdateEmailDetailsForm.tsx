@@ -3,9 +3,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo } from "react"
+import type { Control } from "react-hook-form"
 
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+import type { EmailTemplateType } from "@/generated/api"
+import { Select, TextField } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { PlaceholderValidationResult } from "../../utils/emailPlaceholders"
@@ -13,30 +14,35 @@ import { getPlaceholderConfig } from "../../utils/emailPlaceholders"
 import PlaceholderInfo from "../email/PlaceholderInfo"
 
 const FieldContainer = styled.div`
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-5);
 `
 
-interface UpdateEmailDetailsFormProps {
-  templateType: unknown
+export interface EmailDetailsFormFields {
+  templateType: EmailTemplateType
   subject: string
-  setTemplateType: React.Dispatch<React.SetStateAction<unknown>>
-  setSubject: (newSubject: string) => void
+}
+
+export const TEMPLATE_TYPE_FIELD_NAME = "templateType"
+export const SUBJECT_FIELD_NAME = "subject"
+
+interface UpdateEmailDetailsFormProps {
+  control: Control<EmailDetailsFormFields>
+  templateType: EmailTemplateType
   placeholderValidation: PlaceholderValidationResult
 }
 
 const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetailsFormProps>> = ({
+  control,
   templateType,
-  subject,
-  setTemplateType,
-  setSubject,
   placeholderValidation,
 }) => {
   const { t } = useTranslation()
-  const templateTypeString =
-    typeof templateType === "string" ? templateType : (templateType as unknown as string)
-  const placeholderConfig = getPlaceholderConfig(templateTypeString)
+  const placeholderConfig = getPlaceholderConfig(templateType)
 
   const templateTypeHelperText = useMemo(() => {
+    if (placeholderConfig?.required.length === 0) {
+      return t("template-type-helper-text-no-required-placeholders")
+    }
     if (placeholderConfig) {
       const requiredPlaceholders = placeholderConfig.required.map((p) => `{{${p}}}`).join(", ")
       return t("template-type-helper-text", { placeholders: requiredPlaceholders })
@@ -60,13 +66,11 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
 
       <div>
         <FieldContainer>
-          <SelectField
-            required
+          <Select
+            name={TEMPLATE_TYPE_FIELD_NAME}
+            control={control}
+            isRequired
             label={t("label-template-type")}
-            value={templateTypeString}
-            onChangeByValue={(value) => {
-              setTemplateType(value)
-            }}
             options={[
               {
                 // oxlint-disable-next-line i18next/no-literal-string
@@ -88,12 +92,32 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
                 value: "confirm_email_code",
                 label: t("email-template-type-confirm-email-code"),
               },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "verify_email_address",
+                label: t("email-template-type-verify-email-address"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "credit_registration_account_linking",
+                label: t("email-template-type-credit-registration-account-linking"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "credit_registration_action_needed",
+                label: t("email-template-type-credit-registration-action-needed"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
+                value: "credit_registration_registered",
+                label: t("email-template-type-credit-registration-registered"),
+              },
             ]}
           />
           {templateTypeHelperText && (
             <div
               className={css`
-                margin-top: 0.25rem;
+                margin-top: var(--space-2);
                 font-size: 0.875rem;
                 color: #6c757d;
               `}
@@ -104,16 +128,14 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
         </FieldContainer>
         <FieldContainer>
           <TextField
-            required
+            name={SUBJECT_FIELD_NAME}
+            control={control}
+            isRequired
             label={t("label-email-subject")}
-            value={subject}
-            onChangeByValue={(value) => {
-              setSubject(value)
-            }}
           />
           <div
             className={css`
-              margin-top: 0.25rem;
+              margin-top: var(--space-2);
               font-size: 0.875rem;
               color: #6c757d;
             `}

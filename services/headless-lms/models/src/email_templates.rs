@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use crate::library::credit_registration::account_linking::link_student_number_url;
 use crate::prelude::*;
 use utoipa::ToSchema;
 
@@ -25,6 +28,47 @@ impl EmailTemplateType {
                 | Self::CreditRegistrationActionNeeded
                 | Self::CreditRegistrationRegistered
         )
+    }
+
+    /// Made-up values for every placeholder the sender fills in mails of this type, for previews
+    /// and test sends. Keys must match what the sender and the credit registration jobs put in.
+    pub fn sample_placeholders(self, base_url: &str) -> HashMap<String, String> {
+        let base_url = base_url.trim_end_matches('/');
+        let sample_id = Uuid::nil();
+        let values: Vec<(&str, String)> = match self {
+            Self::Generic => vec![],
+            Self::ResetPasswordEmail => vec![(
+                "RESET_LINK",
+                format!("{base_url}/reset-user-password/{sample_id}"),
+            )],
+            Self::DeleteUserEmail | Self::ConfirmEmailCode | Self::VerifyEmailAddress => {
+                vec![("CODE", "123456".to_string())]
+            }
+            Self::CreditRegistrationAccountLinking => vec![
+                (
+                    "LINK",
+                    link_student_number_url(base_url, &sample_id.to_string()),
+                ),
+                ("NAME", "Alex".to_string()),
+                ("STUDENT_NUMBER", "012345678".to_string()),
+                ("COURSE_NAME", "Introduction to Programming".to_string()),
+            ],
+            Self::CreditRegistrationActionNeeded | Self::CreditRegistrationRegistered => vec![
+                ("NAME", "Alex".to_string()),
+                ("COURSE_NAME", "Introduction to Programming".to_string()),
+                ("MODULE_NAME", "Part 2".to_string()),
+                ("CREDITS", "5".to_string()),
+                ("ENROLMENT_LINK", "https://example.com/enrol".to_string()),
+                (
+                    "STATUS_LINK",
+                    format!("{base_url}/completion-registration/{sample_id}"),
+                ),
+            ],
+        };
+        values
+            .into_iter()
+            .map(|(key, value)| (key.to_string(), value))
+            .collect()
     }
 }
 
@@ -243,6 +287,26 @@ WHERE id = $1
     Ok(res)
 }
 
+/// The language a template's mails are rendered in: its own, else its course's. `None` for a global
+/// template without one.
+pub async fn get_language(
+    conn: &mut PgConnection,
+    email_template_id: Uuid,
+) -> ModelResult<Option<String>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT email_template_language(et) AS language
+FROM email_templates et
+WHERE et.id = $1
+  AND et.deleted_at IS NULL
+        "#,
+        email_template_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn update_email_template(
     conn: &mut PgConnection,
     email_template_id: Uuid,
@@ -288,7 +352,20 @@ RETURNING *
   "#,
         email_template_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
+    .await?;
+    // The sender claims only deliveries of live templates, so unsent ones would stay queued forever.
+    sqlx::query!(
+        "
+UPDATE email_deliveries
+SET deleted_at = NOW()
+WHERE email_template_id = $1
+  AND sent = FALSE
+  AND deleted_at IS NULL
+        ",
+        email_template_id
+    )
+    .execute(conn)
     .await?;
     Ok(deleted)
 }

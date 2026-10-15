@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 
-import { Badge, Table } from "../../src/shared-module/components"
+import { Badge, Table, type TableProps } from "../../src/shared-module/components"
 
 interface Registration {
   id: string
@@ -34,7 +34,10 @@ const wrapCss = css`
   max-width: 720px;
 `
 
-const meta: Meta<typeof Table<Registration>> = {
+// Storybook collapses a union of props to never; the stories all name the table by caption.
+type CaptionedTableProps = Extract<TableProps<Registration>, { caption: React.ReactNode }>
+
+const meta: Meta<CaptionedTableProps> = {
   title: "Components/Table",
   component: Table,
   parameters: {

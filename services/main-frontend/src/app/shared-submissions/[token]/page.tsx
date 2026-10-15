@@ -8,15 +8,13 @@ import { useTranslation } from "react-i18next"
 
 import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
 import { getSharedSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Breadcrumbs, type BreadcrumbItem, Infobox, QueryResult } from "@/shared-module/components"
 
 const SharedSubmission: React.FC = () => {
   const { token } = useParams<{ token: string }>()
@@ -31,16 +29,7 @@ const SharedSubmission: React.FC = () => {
     }),
   })
 
-  const breadcrumbPieces = useMemo(
-    () => [
-      {
-        text: t("title-shared-submission"),
-        // oxlint-disable-next-line i18next/no-literal-string
-        url: `/shared-submissions/${token}`,
-      },
-    ],
-    [t, token],
-  )
+  const items: BreadcrumbItem[] = useMemo(() => [{ label: t("title-shared-submission") }], [t])
 
   return (
     <div
@@ -49,12 +38,10 @@ const SharedSubmission: React.FC = () => {
         margin: 0 auto;
       `}
     >
-      <Breadcrumbs pieces={breadcrumbPieces} />
+      <Breadcrumbs items={items} />
       <QueryResult
         query={getSharedSubmission}
-        renderBlockingError={() => (
-          <GenericInfobox>{t("message-shared-submission-not-found")}</GenericInfobox>
-        )}
+        renderBlockingError={() => <Infobox>{t("message-shared-submission-not-found")}</Infobox>}
       >
         {(submissionInfo) => {
           const totalScoreGiven = submissionInfo.tasks

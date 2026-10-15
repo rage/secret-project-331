@@ -9,8 +9,8 @@ import type {
   ChatbotConversation,
   ChatbotConversationInfo,
 } from "@/generated/course-material-api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { waitForNextTick } from "@/shared-module/common/utils/async"
+import { useDialog } from "@/shared-module/components"
 import {
   defaultChatbotCommunicationChannel,
   defaultChatbotIsTurnInFlight,
@@ -22,7 +22,7 @@ import type { ChatbotAction } from "../chatbotReducer"
 /// Sets a communication channel so that components outside ChatbotDialog can send
 /// messages to the default chatbot of the course.
 const useSynchronizeDefaultChatbotCommunicationChannel = (
-  isCourseMaterialBlock: boolean,
+  isAlwaysOpen: boolean,
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
   mutateNewMessageAsync: (message: string) => Promise<unknown>,
   mutateNewConversationAsync: () => Promise<ChatbotConversation>,
@@ -40,21 +40,19 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
   const refetchConversationInfo = currentConversationInfo.refetch
 
   useEffect(() => {
-    if (isCourseMaterialBlock) {
+    if (isAlwaysOpen) {
       return undefined
     }
     setDefaultChatbotCommunicationChannel({
       sendNewMessage: async (message) => {
         try {
           if (!currentConversation) {
-            const confirmed = await confirm(
-              <ChatbotDisclaimer hideHeader={true} />,
-              t("about-the-chatbot"),
-              {
-                yesButtonLabel: t("button-text-agree"),
-                noButtonLabel: t("button-text-cancel"),
-              },
-            )
+            const confirmed = await confirm({
+              message: <ChatbotDisclaimer hideHeader={true} />,
+              title: t("about-the-chatbot"),
+              confirmLabel: t("button-text-agree"),
+              cancelLabel: t("button-text-cancel"),
+            })
             if (!confirmed) {
               return
             }
@@ -73,7 +71,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
     })
     return () => setDefaultChatbotCommunicationChannel(null)
   }, [
-    isCourseMaterialBlock,
+    isAlwaysOpen,
     currentConversation,
     refetchConversationInfo,
     setDefaultChatbotCommunicationChannel,
@@ -88,18 +86,18 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
   // tearing it down and letting the next run's set-up re-emit it: that turned every turn start
   // into two announcements (false, then true) to every subscriber.
   useEffect(() => {
-    if (isCourseMaterialBlock) {
+    if (isAlwaysOpen) {
       return undefined
     }
     return () => setDefaultChatbotIsTurnInFlight(false)
-  }, [isCourseMaterialBlock, setDefaultChatbotIsTurnInFlight])
+  }, [isAlwaysOpen, setDefaultChatbotIsTurnInFlight])
 
   useEffect(() => {
-    if (isCourseMaterialBlock) {
+    if (isAlwaysOpen) {
       return
     }
     setDefaultChatbotIsTurnInFlight(isTurnInFlight)
-  }, [isCourseMaterialBlock, isTurnInFlight, setDefaultChatbotIsTurnInFlight])
+  }, [isAlwaysOpen, isTurnInFlight, setDefaultChatbotIsTurnInFlight])
 }
 
 export default useSynchronizeDefaultChatbotCommunicationChannel

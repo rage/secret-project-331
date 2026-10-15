@@ -6,7 +6,7 @@ import type { TabListState } from "@react-stately/tabs"
 import type { UseQueryResult } from "@tanstack/react-query"
 import Link from "next/link"
 import React, { useRef } from "react"
-import { useFocusRing, useHover, useTab } from "react-aria"
+import { useFocusRing, useHover, useTab, VisuallyHidden } from "react-aria"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -30,7 +30,19 @@ export interface RouteTabDefinition {
    * which of its counts is urgent, and a strip where every count is red ranks nothing.
    */
   countTone?: RouteTabCountTone
+  /** Whether to show a dot for a problem the count leaves out, named by `dotLabel`. */
+  dotHook?: () => boolean
+  dotLabel?: string
 }
+
+const dotCss = css`
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  border-radius: 50%;
+  background: ${baseTheme.colors.red[600]};
+`
 
 const COUNT_TONE = {
   neutral: {
@@ -48,9 +60,11 @@ const COUNT_TONE = {
 interface RouteTabProps {
   item: RouteTabDefinition
   state: TabListState<object>
+  /** False when the current route matches no tab; see `RouteTabList`'s `isCurrentRouteATab`. */
+  isCurrentRouteATab: boolean
 }
 
-export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
+export const RouteTab: React.FC<RouteTabProps> = ({ item, state, isCurrentRouteATab }) => {
   const ref = useRef<HTMLAnchorElement>(null)
 
   const { tabProps, isSelected, isDisabled } = useTab(
@@ -61,11 +75,13 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
     state,
     ref,
   )
+  const isCurrent = isSelected && isCurrentRouteATab
 
   const { focusProps, isFocusVisible } = useFocusRing()
   const { hoverProps, isHovered } = useHover({})
 
   const count = item.countHook?.()
+  const hasDot = item.dotHook?.() ?? false
   const countTone = item.countTone === undefined ? COUNT_TONE.neutral : COUNT_TONE[item.countTone]
 
   if (count?.isError) {
@@ -92,8 +108,9 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
       href={item.href}
       replace
       aria-disabled={isDisabled}
+      aria-selected={isCurrent}
       className={cx(
-        tabPillCss({ isSelected, isFocusVisible, isHovered, isDisabled }),
+        tabPillCss({ isSelected: isCurrent, isFocusVisible, isHovered, isDisabled }),
         css`
           font-size: 0.875rem;
           ${respondToOrLarger.sm} {
@@ -142,6 +159,12 @@ export const RouteTab: React.FC<RouteTabProps> = ({ item, state }) => {
         >
           {count.data}
         </span>
+      )}
+      {hasDot && (
+        <>
+          <span className={dotCss} aria-hidden="true" />
+          {item.dotLabel && <VisuallyHidden>{item.dotLabel}</VisuallyHidden>}
+        </>
       )}
     </Link>
   )

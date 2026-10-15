@@ -18,6 +18,7 @@ pub use breaker::is_waiting_to_probe;
 pub use codes::is_waiting_item;
 pub(super) use health_report::{report_breakers, report_rate_limits};
 
+use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
 use headless_lms_models::suotar_circuit_breakers::BreakerTarget;
 use headless_lms_utils::services::suotar::{
@@ -283,6 +284,10 @@ impl InteractiveStudyRegistry for InteractiveSuotar<'_> {
             Some(item) => decode::person_lookup(item),
             None => Err(PersonLookupError::ItemMissingFromResponse),
         }
+    }
+
+    async fn fetch_course_roster(&self, code: &CourseCode) -> Option<Vec<RosterPerson>> {
+        rosters::fetch_one(self, code).await
     }
 
     async fn search_course_rosters(

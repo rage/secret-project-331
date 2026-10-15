@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next"
 
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import {
   ThrottledChildRenderer,
   type ChildFactoryWithCallback,
@@ -14,9 +12,10 @@ import {
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
-  storedAnswerToViewSubmissionFields,
   exerciseTaskGradingToExerciseTaskGradingResult,
+  storedAnswerToViewSubmissionFields,
 } from "@/shared-module/common/utils/typeMappter"
+import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
@@ -114,22 +113,13 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   )
 
   if (missingUrl) {
-    return (
-      <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} variant="readOnly" />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
   }
   if (missingGrading) {
-    return (
-      <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} variant="readOnly" />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
   }
   if (missingSubmission) {
-    return (
-      <ErrorBanner
-        error={t("error-cannot-render-exercise-task-missing-submission")}
-        variant="readOnly"
-      />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-submission")} />
   }
 
   if (!state || !postThisStateToIFrame) {

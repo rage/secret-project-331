@@ -1,7 +1,7 @@
 /**
  * Client for the mock Suotar control surface (`/api/v0/mock-suotar/control/*`).
  *
- * Hand-written because the mock's DTOs are deliberately not exported to `bindings.ts`, the
+ * Hand-written because the mock's DTOs are deliberately not part of the OpenAPI spec, the
  * same way `mock_sisu`'s are not.
  *
  * The tick endpoints exist because the real loops are long-running intervals in their own
@@ -61,11 +61,12 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  /** The phase is paused, its circuit breaker is open, or account linking is off. Nothing ran. */
+  /** The phase is paused, its circuit breaker is open, account linking is off, or Sisu is still on
+   * the previous day. Nothing ran. */
   | {
       status: "skipped"
       phase: CreditRegistrationPhase
-      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled"
+      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled" | "sisuDayGap"
     }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
@@ -239,7 +240,7 @@ export const makeEnrolmentChecksDue = async (
 
 /**
  * Makes the roster listings of the course `scope` names due now and refills its listing rate, so a
- * spec can list its codes again without waiting out the tier interval, a failure backoff or the
+ * spec can list its codes again without waiting for their next fetch, a failure backoff or the
  * limiter. Returns how many codes it moved. Refuses a scope without a course.
  */
 export const makeRosterListingsDue = async (

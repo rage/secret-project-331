@@ -56,9 +56,7 @@ pub(super) fn enrolment_lookup(context: &SubmissionContext) -> Result<Askable, U
             course_code,
         },
         criteria: EnrolmentCriteria {
-            attainment_date: headless_lms_utils::helsinki_time::helsinki_date(
-                context.completion.completion_date,
-            ),
+            attainment_date: context.completion.completion_date.date_naive(),
             credits,
         },
     })

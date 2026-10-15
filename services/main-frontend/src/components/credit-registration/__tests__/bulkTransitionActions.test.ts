@@ -1,6 +1,9 @@
+import type { HandActionAvailability } from "@/generated/api/types.generated"
+
 import type { BulkTransitionRow } from "../admin/bulkTransitionActions"
 import {
-  countBlocking,
+  countResubmissionRisk,
+  countSkipped,
   groupSelectionByState,
   isBulkActionAllowed,
 } from "../admin/bulkTransitionActions"
@@ -11,58 +14,65 @@ import {
   READY_TO_SUBMIT,
 } from "../admin/TransitionTargetSelect"
 
+const REFUSED_RESEND: HandActionAvailability["resubmission"] = {
+  kind: "refused",
+  refusal: "submission_uncertain",
+  available_at: null,
+}
+
 const row = (
   state: BulkTransitionRow["state"],
-  errorCode?: BulkTransitionRow["error_code"],
-): BulkTransitionRow => ({ state, error_code: errorCode ?? null })
+  handActions: Partial<HandActionAvailability> = {},
+): BulkTransitionRow => ({
+  state,
+  hand_actions: {
+    resubmission: { kind: "allowed", risk: "normal" },
+    cancel_refusal: null,
+    check_now: null,
+    ...handActions,
+  },
+})
 
 describe("which bulk moves a selection allows", () => {
-  test("offers a resend only where sending again could get through", () => {
-    expect(isBulkActionAllowed(READY_TO_SUBMIT, row("failed_retryable"))).toBe(true)
+  test("follows the server's rule for each row", () => {
+    expect(isBulkActionAllowed(READY_TO_SUBMIT, row("failed_permanent"))).toBe(true)
     expect(
       isBulkActionAllowed(
         READY_TO_SUBMIT,
-        row("failed_permanent", "service_temporarily_unavailable"),
+        row("submission_uncertain", { resubmission: REFUSED_RESEND }),
       ),
+    ).toBe(false)
+    expect(
+      isBulkActionAllowed(CHECK_NOW, row("awaiting_verification", { check_now: "attainment" })),
     ).toBe(true)
-    expect(isBulkActionAllowed(READY_TO_SUBMIT, row("failed_permanent", "person_not_found"))).toBe(
-      false,
-    )
-    expect(isBulkActionAllowed(READY_TO_SUBMIT, row("blocked", "missing_uh_course_code"))).toBe(
-      false,
-    )
-    expect(isBulkActionAllowed(READY_TO_SUBMIT, row("misregistered", "misregistered"))).toBe(false)
-    expect(isBulkActionAllowed(READY_TO_SUBMIT, row("submission_uncertain", "sisu_timeout"))).toBe(
-      false,
-    )
+    expect(isBulkActionAllowed(CHECK_NOW, row("failed_permanent"))).toBe(false)
+    expect(
+      isBulkActionAllowed(CANCELLED, row("submitting", { cancel_refusal: "already_submitted" })),
+    ).toBe(false)
+    expect(isBulkActionAllowed(CLEAR_ATTENTION, row("submission_uncertain"))).toBe(true)
   })
 
-  test("offers a registry check only where the outcome is what is unknown", () => {
-    expect(isBulkActionAllowed(CHECK_NOW, row("submission_uncertain", "sisu_timeout"))).toBe(true)
-    expect(isBulkActionAllowed(CHECK_NOW, row("awaiting_verification"))).toBe(true)
-    expect(isBulkActionAllowed(CHECK_NOW, row("blocked"))).toBe(false)
-  })
-
-  test("refuses to cancel a row that may already hold credits", () => {
-    expect(isBulkActionAllowed(CANCELLED, row("submission_uncertain", "sisu_timeout"))).toBe(false)
-    expect(isBulkActionAllowed(CANCELLED, row("failed_permanent", "person_not_found"))).toBe(true)
-  })
-
-  test("allows dismissing the flag on anything", () => {
-    expect(isBulkActionAllowed(CLEAR_ATTENTION, row("submission_uncertain", "sisu_timeout"))).toBe(
-      true,
-    )
-    expect(isBulkActionAllowed(CLEAR_ATTENTION, row("blocked"))).toBe(true)
-  })
-
-  test("counts the rows an action cannot help", () => {
+  test("counts the rows an action would skip", () => {
     const selection = [
-      row("failed_retryable"),
-      row("blocked", "missing_ects_credits"),
-      row("failed_permanent", "person_not_found"),
+      row("failed_permanent"),
+      row("submission_uncertain", { resubmission: REFUSED_RESEND }),
+      row("misregistered", {
+        resubmission: { kind: "allowed", risk: "replaces_reversed_attainment" },
+      }),
     ]
-    expect(countBlocking(READY_TO_SUBMIT, selection)).toBe(2)
-    expect(countBlocking(CLEAR_ATTENTION, selection)).toBe(0)
+    expect(countSkipped(READY_TO_SUBMIT, selection)).toBe(1)
+    expect(countSkipped(CLEAR_ATTENTION, selection)).toBe(0)
+  })
+
+  test("counts resend risks among the rows a resend goes to", () => {
+    const selection = [
+      row("failed_permanent", { resubmission: { kind: "allowed", risk: "likely_rejected_again" } }),
+      row("failed_permanent", { resubmission: { kind: "allowed", risk: "likely_rejected_again" } }),
+      row("failed_retryable"),
+      row("submission_uncertain", { resubmission: REFUSED_RESEND }),
+    ]
+    expect(countResubmissionRisk("likely_rejected_again", selection)).toBe(2)
+    expect(countResubmissionRisk("possible_duplicate", selection)).toBe(0)
   })
 })
 

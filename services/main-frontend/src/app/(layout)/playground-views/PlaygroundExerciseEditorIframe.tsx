@@ -2,8 +2,8 @@
 
 import { css } from "@emotion/css"
 
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { useDialog } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   CurrentStateMessage,

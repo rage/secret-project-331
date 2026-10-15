@@ -58,7 +58,7 @@ export default function useToastMutation<
   notificationOptions: NotificationOptions,
   mutationOptions: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn"> = {},
 ): UseMutationResult<TData, TError, TVariables, TContext> {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   const showToastInfinitely = useSetShowStuffInfinitelyInSystemTestScreenshots()
   let toastId = ""
   /** Shows a success toast with method-specific defaults and optional visual overrides. */

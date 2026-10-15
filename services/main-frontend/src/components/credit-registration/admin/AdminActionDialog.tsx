@@ -7,7 +7,7 @@ import type { Control, FieldValues } from "react-hook-form"
 import type { ButtonVariant, DialogAction } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
-import { BUTTON_DESTRUCTIVE, BUTTON_PRIMARY } from "../constants"
+import { BUTTON_DANGER, BUTTON_PRIMARY } from "../constants"
 import { dialogFormCss, dialogFormStartCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -16,7 +16,13 @@ import type { WithReason } from "./ReasonConfirmDialog"
 // A field's floating-label band eats into the grid gap above it, so the description reads closer
 // to the field than the form's other gaps; this makes up the difference.
 const descriptionCss = css`
+  display: grid;
+  gap: var(--space-2);
   margin-bottom: var(--space-2);
+
+  > p {
+    margin: 0;
+  }
 `
 
 interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result> {
@@ -25,7 +31,7 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   /** Lower it to `tertiary` where the action must not read as the row's obvious next step. */
   triggerVariant?: ButtonVariant
   dialogTitle: string
-  /** One sentence saying what confirming does, above the fields. */
+  /** What confirming does, above the fields. */
   description: React.ReactNode
   /** Verb phrase naming the action, e.g. "Send to Sisu again". */
   confirmLabel: string
@@ -35,7 +41,19 @@ interface AdminActionDialogProps<Fields extends FieldValues & WithReason, Result
   mutationFn: (fields: Fields) => Promise<Result>
   onSuccess?: (result: Result) => void
   renderFields: (control: Control<Fields>) => React.ReactNode
-  renderResult: (result: Result) => React.ReactNode
+  /** Under the trigger. Omit it where the caller reports the result elsewhere, from `onSuccess`. */
+  renderResult?: (result: Result) => React.ReactNode
+  /**
+   * Opens the dialog from elsewhere, such as a row's More menu. Renders the dialog alone: no
+   * trigger button and no `renderResult`.
+   */
+  openState?: DialogOpenState
+}
+
+/** A dialog opened by something other than its own trigger button. */
+export interface DialogOpenState {
+  isOpen: boolean
+  onClose: () => void
 }
 
 /**
@@ -56,12 +74,15 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   onSuccess,
   renderFields,
   renderResult,
+  openState,
 }: AdminActionDialogProps<Fields, Result>) {
-  const [open, setOpen] = useState(false)
+  const [ownOpen, setOwnOpen] = useState(false)
+  const open = openState?.isOpen ?? ownOpen
+  const close = () => (openState ? openState.onClose() : setOwnOpen(false))
   const { control, handleSubmit } = useReasonRequiredForm<Fields>(defaultValues)
 
   const { result, mutation } = useActionResult(mutationFn, (data) => {
-    setOpen(false)
+    close()
     onSuccess?.(data)
   })
 
@@ -69,29 +90,35 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   const actions: readonly [DialogAction] = [
     {
       label: confirmLabel,
-      variant: isDestructive ? BUTTON_DESTRUCTIVE : BUTTON_PRIMARY,
+      variant: isDestructive ? BUTTON_DANGER : BUTTON_PRIMARY,
       isLoading: mutation.isPending,
       onPress: () => void submit(),
     },
   ]
 
+  const dialog = (
+    <Dialog open={open} onClose={close} title={dialogTitle} actions={actions}>
+      <form className={dialogFormCss} onSubmit={submit}>
+        <div className={cx(proseCss, descriptionCss)}>{description}</div>
+        {renderFields(control)}
+      </form>
+    </Dialog>
+  )
+  if (openState) {
+    return dialog
+  }
   return (
     <div className={dialogFormStartCss}>
       <Button
         variant={triggerVariant}
         size="medium"
         disabled={triggerDisabled ?? false}
-        onClick={() => setOpen(true)}
+        onClick={() => setOwnOpen(true)}
       >
         {triggerLabel}
       </Button>
-      {result && renderResult(result)}
-      <Dialog open={open} onClose={() => setOpen(false)} title={dialogTitle} actions={actions}>
-        <form className={dialogFormCss} onSubmit={submit}>
-          <p className={cx(proseCss, descriptionCss)}>{description}</p>
-          {renderFields(control)}
-        </form>
-      </Dialog>
+      {result && renderResult?.(result)}
+      {dialog}
     </div>
   )
 }

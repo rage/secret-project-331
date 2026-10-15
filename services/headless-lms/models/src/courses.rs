@@ -115,6 +115,16 @@ pub struct Course {
     pub ai_policy: CourseAiPolicy,
     pub course_material_ai_instructions: Option<bool>,
 }
+impl Course {
+    pub fn is_closed(&self) -> bool {
+        if let Some(closed_at) = self.closed_at {
+            let now = chrono::Utc::now();
+            closed_at <= now
+        } else {
+            false
+        }
+    }
+}
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -249,6 +259,10 @@ pub struct CourseAuditingData {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub description: Option<String>,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub is_unlisted: bool,
+    pub is_joinable_by_code_only: bool,
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
@@ -264,6 +278,10 @@ pub struct CourseAuditingData {
 
 pub struct CourseAuditingDataUpdate {
     pub description: Option<String>,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub is_unlisted: bool,
+    pub is_joinable_by_code_only: bool,
     pub closed_at: Option<DateTime<Utc>>,
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
@@ -380,6 +398,10 @@ SELECT c.id,
   c.updated_at,
   c.organization_id,
   c.description,
+  c.is_draft,
+  c.is_test_mode,
+  c.is_unlisted,
+  c.is_joinable_by_code_only,
   c.closed_at,
   c.closed_additional_message,
   c.closed_course_successor_id,
@@ -443,6 +465,10 @@ GROUP BY c.id,
             updated_at: c.updated_at,
             organization_id: c.organization_id,
             description: c.description,
+            is_draft: c.is_draft,
+            is_test_mode: c.is_test_mode,
+            is_unlisted: c.is_unlisted,
+            is_joinable_by_code_only: c.is_joinable_by_code_only,
             closed_at: c.closed_at,
             closed_additional_message: c.closed_additional_message,
             closed_course_successor_id: c.closed_course_successor_id,
@@ -470,6 +496,10 @@ SELECT c.id,
   c.updated_at,
   c.organization_id,
   c.description,
+  c.is_draft,
+  c.is_test_mode,
+  c.is_unlisted,
+  c.is_joinable_by_code_only,
   c.closed_at,
   c.closed_additional_message,
   c.closed_course_successor_id,
@@ -509,6 +539,10 @@ GROUP BY c.id,
         updated_at: course_data.updated_at,
         organization_id: course_data.organization_id,
         description: course_data.description,
+        is_draft: course_data.is_draft,
+        is_test_mode: course_data.is_test_mode,
+        is_unlisted: course_data.is_unlisted,
+        is_joinable_by_code_only: course_data.is_joinable_by_code_only,
         closed_at: course_data.closed_at,
         closed_additional_message: course_data.closed_additional_message,
         closed_course_successor_id: course_data.closed_course_successor_id,
@@ -630,14 +664,22 @@ pub async fn update_course_auditing_data(
         r#"
 UPDATE courses
 SET description = $2,
-  closed_at = $3,
-  closed_additional_message = $4,
-  closed_course_successor_id = $5
+  is_draft = $3,
+  is_test_mode = $4,
+  is_unlisted = $5,
+  is_joinable_by_code_only = $6,
+  closed_at = $7,
+  closed_additional_message = $8,
+  closed_course_successor_id = $9
 WHERE id = $1
   AND deleted_at IS NULL
 "#,
         course_id,
         data_update.description,
+        data_update.is_draft,
+        data_update.is_test_mode,
+        data_update.is_unlisted,
+        data_update.is_joinable_by_code_only,
         data_update.closed_at,
         data_update.closed_additional_message,
         data_update.closed_course_successor_id
@@ -1689,7 +1731,7 @@ FROM (
     WHERE c.deleted_at IS NULL AND ce.deleted_at IS NULL AND c.id = ce.course_id
     GROUP BY c.id
     ORDER BY distance ASC
-    LIMIT 5
+    LIMIT 10
 ) t
 UNION ALL
 SELECT DISTINCT c.id

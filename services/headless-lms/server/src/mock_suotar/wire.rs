@@ -69,9 +69,9 @@ pub struct ImportAttainmentRequestItem {
 }
 
 impl ImportAttainmentRequestItem {
-    /// The date the attainment gets: the Helsinki date of the moment sent.
+    /// The date the attainment gets: the UTC date of the moment sent.
     pub fn attainment_date(&self) -> NaiveDate {
-        headless_lms_utils::helsinki_time::helsinki_date(self.attained_at)
+        self.attained_at.date_naive()
     }
 }
 

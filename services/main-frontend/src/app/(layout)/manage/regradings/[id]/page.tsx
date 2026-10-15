@@ -7,13 +7,12 @@ import { useParams } from "next/navigation"
 import type React from "react"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { getRegradingInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Meter, METER_KIND, QueryResult, TONE } from "@/shared-module/components"
+import { Meter, METER_KIND, QueryResult, Table, TONE } from "@/shared-module/components"
 
 const ViewRegradingPage: React.FC = () => {
   const { t } = useTranslation()
@@ -104,57 +103,56 @@ const ViewRegradingPage: React.FC = () => {
               `}
             >
               <h2>{t("header-submissions")}</h2>
-              <FullWidthTable>
-                <thead>
-                  <tr
-                    className={css`
-                      text-align: left;
-                      font-size: 13px;
-                    `}
-                  >
-                    {}
-                    <th>execise_task_submission_id</th>
-                    {}
-                    <th>grading_progress</th>
-                    {}
-                    <th>grading_started_at</th>
-                    {}
-                    <th>grading_completed_at</th>
-                    {}
-                    <th>grade_before_regrading</th>
-                    {}
-                    <th>regrading_grade</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.submission_infos.map((si) => (
-                    <FullWidthTableRow key={si.exercise_task_submission_id}>
-                      <td>{si.exercise_task_submission_id}</td>
-                      <td>
-                        {si.grading_after_regrading
-                          ? si.grading_after_regrading.grading_progress
-                          : "null"}
-                      </td>
-                      <td>
-                        {si?.grading_after_regrading?.grading_started_at
-                          ? dateToString(si.grading_after_regrading.grading_started_at)
-                          : "null"}
-                      </td>
-                      <td>
-                        {si?.grading_after_regrading?.grading_completed_at
-                          ? dateToString(si.grading_after_regrading.grading_completed_at)
-                          : "null"}
-                      </td>
-                      <td>{si.grading_before_regrading.score_given ?? "null"}</td>
-                      <td>
-                        {si.grading_after_regrading
-                          ? (si.grading_after_regrading.score_given ?? "null")
-                          : "null"}
-                      </td>
-                    </FullWidthTableRow>
-                  ))}
-                </tbody>
-              </FullWidthTable>
+              <Table
+                caption={t("header-submissions")}
+                density="compact"
+                rows={data.submission_infos}
+                rowKey={(si) => si.exercise_task_submission_id}
+                columns={[
+                  {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    header: "execise_task_submission_id",
+                    cell: (si) => si.exercise_task_submission_id,
+                  },
+                  {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    header: "grading_progress",
+                    cell: (si) =>
+                      si.grading_after_regrading
+                        ? si.grading_after_regrading.grading_progress
+                        : "null",
+                  },
+                  {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    header: "grading_started_at",
+                    cell: (si) =>
+                      si.grading_after_regrading?.grading_started_at
+                        ? dateToString(si.grading_after_regrading.grading_started_at)
+                        : "null",
+                  },
+                  {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    header: "grading_completed_at",
+                    cell: (si) =>
+                      si.grading_after_regrading?.grading_completed_at
+                        ? dateToString(si.grading_after_regrading.grading_completed_at)
+                        : "null",
+                  },
+                  {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    header: "grade_before_regrading",
+                    cell: (si) => si.grading_before_regrading.score_given ?? "null",
+                  },
+                  {
+                    // oxlint-disable-next-line i18next/no-literal-string
+                    header: "regrading_grade",
+                    cell: (si) =>
+                      si.grading_after_regrading
+                        ? (si.grading_after_regrading.score_given ?? "null")
+                        : "null",
+                  },
+                ]}
+              />
             </div>
             <DebugModal data={data} />
           </div>

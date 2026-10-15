@@ -15,7 +15,9 @@ type NextLinkMockProps = {
   shallow?: boolean
   locale?: string | false
   legacyBehavior?: boolean
+  passHref?: boolean
   onNavigate?: (event: NavigateEvent) => void
+  transitionTypes?: string[]
   as?: string | URL
 } & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "children">
 

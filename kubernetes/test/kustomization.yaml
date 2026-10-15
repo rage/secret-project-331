@@ -5,6 +5,7 @@
 resources:
   - ../production
   - ../base-data
+  - ../mailpit
   - headless-lms/env.yml
   - access-ingress-internally.yml
   - tmc-service-account.yml

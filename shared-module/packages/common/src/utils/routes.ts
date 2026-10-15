@@ -29,24 +29,14 @@ export function manageCourseFeedbackRoute(courseId: string) {
   return `/manage/courses/${courseId}/feedback`
 }
 
-export function manageCourseFeedbackUnreadRoute(courseId: string) {
-  return `/manage/courses/${courseId}/feedback/unread`
+export function manageCourseFeedbackFeedbackRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/feedback/feedback`
+  return subtab ? `${base}/${subtab}` : base
 }
 
-export function manageCourseFeedbackReadRoute(courseId: string) {
-  return `/manage/courses/${courseId}/feedback/read`
-}
-
-export function manageCourseChangeRequestsRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests`
-}
-
-export function manageCourseChangeRequestsPendingRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests/pending`
-}
-
-export function manageCourseChangeRequestsOldRoute(courseId: string) {
-  return `/manage/courses/${courseId}/change-requests/old`
+export function manageCourseFeedbackChangeRequestsRoute(courseId: string, subtab?: string) {
+  const base = `/manage/courses/${courseId}/feedback/change-requests`
+  return subtab ? `${base}/${subtab}` : base
 }
 
 export function manageCourseExercisesRoute(courseId: string) {
@@ -369,6 +359,11 @@ export function creditRegistrationLinkingRoute() {
 
 export function creditRegistrationSystemRoute() {
   return "/manage/credit-registration/system"
+}
+
+/** The System page's API log with one call's full bodies open, every registration it carried. */
+export function creditRegistrationSuotarApiCallRoute(suotarApiCallId: string) {
+  return `/manage/credit-registration/system?suotar_api_call_id=${encodeURIComponent(suotarApiCallId)}`
 }
 
 export function creditRegistrationEnrolmentChecksRoute() {

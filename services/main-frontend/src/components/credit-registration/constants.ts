@@ -2,7 +2,7 @@
 
 import type { TFunction } from "i18next"
 
-export { ABSENT_LABEL as ABSENT, MIDDLE_DOT, TONE } from "@/shared-module/components"
+export { TONE } from "@/shared-module/components"
 
 /**
  * The namespace every view in this feature reads. Its strings are a third of the service's
@@ -17,13 +17,16 @@ export type CreditRegistrationTFunction = TFunction<typeof CREDIT_REGISTRATION_N
 /** How much of a uuid an operator needs to recognise a row in a chip or a target label. */
 export const ID_PREFIX_LENGTH = 8
 
-/** Between a timeline step and its result, which are styled apart and so cannot share one string. */
-export const STEP_RESULT_SEPARATOR = ": "
-
 export const STACKED = "stacked" as const
 
 /** `TableColumn.align` for numeric columns. */
 export const ALIGN_END = "end" as const
+
+/** `TableColumn.align` for a column of icons or short controls. */
+export const ALIGN_CENTER = "center" as const
+
+/** `TableColumn.sortDirection` for the column a table is currently sorted by. */
+export const SORT_ASCENDING = "ascending" as const
 
 /** `QueryResult.refreshIndicator` for polled views: a poll must not blank or freeze the page. */
 export const QUIET_REFRESH = "quiet" as const
@@ -74,7 +77,7 @@ export const BUTTON_SMALL = "small" as const
 export const BUTTON_TERTIARY = "tertiary" as const
 
 /** `Button.variant` for an action that ends something and cannot be taken back. */
-export const BUTTON_DESTRUCTIVE = "destructive" as const
+export const BUTTON_DANGER = "danger" as const
 
 /** `Table.responsive` for an operator table that becomes labelled cards on a phone. */
 export const TABLE_STACK = "stack" as const
@@ -123,4 +126,4 @@ export const openUniversityEnrolmentInfoUrl = (language: string): string =>
     : OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN
 
 /** Kept in one place so every page that names it can change together. */
-export const SUPPORT_EMAIL = "mooc@cs.helsinki.fi"
+export const SUPPORT_EMAIL = "mooc@helsinki.fi"

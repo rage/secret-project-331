@@ -9,10 +9,10 @@ import {
   useTotalUsersReturnedExercisesQuery,
   useTotalUsersStartedAllLanguageVersionsQuery,
 } from "@/hooks/stats"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ErrorNotice } from "@/shared-module/components"
 
 interface AllLanguageTotalStatsProps {
   courseId: string
@@ -91,8 +91,7 @@ const AllLanguageTotalStats: React.FC<React.PropsWithChildren<AllLanguageTotalSt
       `}
     >
       {hasError ? (
-        <ErrorBanner
-          variant="readOnly"
+        <ErrorNotice
           error={
             totalUsersQuery.error ||
             totalCompletionsQuery.error ||

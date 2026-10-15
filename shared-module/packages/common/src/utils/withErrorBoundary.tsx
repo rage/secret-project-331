@@ -68,7 +68,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
 
       if (error) {
         const context = (
-          <Translation>
+          <Translation ns="errors">
             {(t) => (
               <>
                 {t("error-part-of-page-has-crashed-error", { error })}

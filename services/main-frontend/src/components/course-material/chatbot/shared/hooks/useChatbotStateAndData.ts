@@ -1,5 +1,7 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
-import { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import React, { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import type { Control } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
@@ -13,7 +15,9 @@ import type {
   SendChatbotToolResponseData,
 } from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
+import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
+import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
+import useUpdateConversationTitleMutation from "@/hooks/course-material/chatbot/useUpdateConversationTitle"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -48,11 +52,20 @@ export interface ClientToolResponse {
 /** A turn `runTurn` refused because another is still streaming. Never surfaced to the learner. */
 class TurnAlreadyRunningError extends Error {}
 
+/** react-hook-form field name for the chatbot composer's only field. */
+export const MESSAGE_FIELD = "message" as const
+
+/** The chatbot composer's only field: the message being drafted. */
+export interface ChatbotComposerValues {
+  [MESSAGE_FIELD]: string
+}
+
 /// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
+  control: Control<ChatbotComposerValues>
+  /** Reads the composer's current text and sends it as a new message. */
+  submitMessage: () => Promise<void>
   error: unknown | null
   messageState: ChatbotState
   dispatch: (action: ChatbotAction) => void
@@ -64,6 +77,18 @@ export interface ChatbotStateAndData {
   isTurnInFlight: boolean
   /** Ends the turn that is streaming now, without surfacing an error. Does nothing otherwise. */
   stopTurn: () => void
+  setDialogOpen: React.Dispatch<boolean> | undefined
+  isOpen: boolean
+  convId: string | null
+  setConvId: React.Dispatch<string>
+  updateConversationTitleMutation: UseMutationResult<
+    unknown,
+    unknown,
+    string | null | undefined,
+    unknown
+  >
+  handlePickSuggestionMutation: UseMutationResult<void, unknown, string, unknown>
+  handleSubmitMutation: UseMutationResult<void, unknown, string, unknown>
 }
 
 /**
@@ -76,18 +101,28 @@ export interface ChatbotStateAndData {
  * is otherwise null there anyway.
  */
 const useChatbotStateAndData = (
-  chatbotConfigurationId: string,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>> | undefined,
+  chatbotConfigurationId: string | null,
   pageId: string | null,
-) => {
+  isAlwaysOpen: boolean,
+): ChatbotStateAndData => {
   const { t } = useTranslation()
-  const [newMessage, setNewMessage] = useState("")
+  const composerForm = useForm<ChatbotComposerValues>({ defaultValues: { [MESSAGE_FIELD]: "" } })
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
+
+  let [isOpen, setIsOpen] = useState(false)
+  let setDialogOpen: React.Dispatch<boolean> | undefined = setIsOpen
+
+  if (isAlwaysOpen) {
+    isOpen = true
+    setDialogOpen = undefined
+  }
+
   const [messageState, dispatch] = useReducer(chatbotReducer, {
     messages: [],
     executionPayloadByToolCallId: {},
   })
+  const [convId, setConvId] = useState<null | string>(null)
 
   const turnAbortControllerRef = useRef<AbortController | null>(null)
   // Kept in sync with the ref, at the two points the ref is armed and released.
@@ -113,15 +148,31 @@ const useChatbotStateAndData = (
         apply(...args)
       }
     }
-
   const anonymousToken = getSavedChatbotAnonymousToken()
 
-  const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId, anonymousToken)
+  const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
+
+  const activeConversationId = currentConversationIdQuery.isLoading
+    ? null
+    : (convId ?? currentConversationIdQuery.data)
+
+  const currentConversationInfo = useConversationInfo(
+    chatbotConfigurationId,
+    activeConversationId,
+    anonymousToken,
+  )
+
   const newConversationMutation = useNewConversationMutation(
     chatbotConfigurationId,
-    currentConversationInfo,
-    setNewMessage,
+    composerForm.reset,
     setError,
+    setConvId,
+  )
+
+  // .mutate call takes as an argument a string that is to be used as the conversation title
+  const updateConversationTitleMutation = useUpdateConversationTitleMutation(
+    chatbotConfigurationId,
+    activeConversationId,
   )
 
   /**
@@ -251,7 +302,7 @@ const useChatbotStateAndData = (
         const conversationId = requireConversationId()
         const message = messageToSend.trim()
         dispatch({ type: "USER_SENDS_MESSAGE", payload: message })
-        setNewMessage("")
+        composerForm.resetField(MESSAGE_FIELD)
         const pageContext: ChatbotPageContext | undefined =
           pageId !== null ? { page_id: pageId } : undefined
         await postChatbotStream(
@@ -268,6 +319,37 @@ const useChatbotStateAndData = (
       onSuccess: settleFinishedTurn,
       onError: onTurnError,
     },
+  )
+
+  const handleSubmitMutation = useToastMutation(
+    async (message: string) => {
+      const titleIsMissing = !currentConversationInfo.data?.current_conversation?.conversation_title
+
+      await newMessageMutation.mutateAsync(message)
+
+      if (titleIsMissing) {
+        updateConversationTitleMutation.mutate(message)
+      }
+    },
+    { notify: false },
+  )
+
+  const handlePickSuggestionMutation = useToastMutation(
+    async (message: string) => {
+      const titleIsMissing = !currentConversationInfo.data?.current_conversation?.conversation_title
+
+      await newMessageMutation.mutateAsync(message)
+
+      if (titleIsMissing) {
+        updateConversationTitleMutation.mutate(message)
+      }
+    },
+    { notify: false },
+  )
+
+  const submitComposerMessage = useCallback(
+    (values: ChatbotComposerValues) => handleSubmitMutation.mutate(values.message),
+    [handleSubmitMutation],
   )
 
   const toolResponseMutation = useToastMutation(
@@ -296,14 +378,21 @@ const useChatbotStateAndData = (
     newMessageMutation,
     toolResponseMutation,
     currentConversationInfo,
-    newMessage,
-    setNewMessage,
+    control: composerForm.control,
+    submitMessage: composerForm.handleSubmit(submitComposerMessage),
     messageState,
     dispatch,
     error,
     chatbotMessageAnnouncement,
     isTurnInFlight,
     stopTurn,
+    setDialogOpen,
+    isOpen,
+    convId,
+    setConvId,
+    updateConversationTitleMutation,
+    handlePickSuggestionMutation,
+    handleSubmitMutation,
   }
 }
 

@@ -19,15 +19,13 @@ import type {
   ReportReason,
 } from "@/generated/course-material-api/types.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PeerReviewProgress from "@/shared-module/common/components/PeerReview/PeerReviewProgress"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import { Button, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -203,18 +201,18 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   }
 
   if (query.isError) {
-    return <ErrorBanner variant={"readOnly"} error={query.error} />
+    return <ErrorNotice error={query.error} />
   }
 
   // Uses isFetching instead of isPending because we want there to be a visual indication when the refresh button is clicked
   if (query.isFetching) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   if (!query.data) {
     return (
       <div>
-        <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+        <ErrorNotice error={t("error-loading-exercise")} />
         <button
           className={cx(exerciseButtonStyles)}
           onClick={() => {
@@ -435,7 +433,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           gap: 6px;
         `}
         variant={"icon"}
-        transform="capitalize"
         size={"small"}
         onClick={() => setIsReportDialogOpen(true)}
       >

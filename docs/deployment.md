@@ -19,6 +19,7 @@ On every push, GitHub Actions runs three stages:
 | Cluster         | Minikube            | Minikube                   | GCP Kubernetes             |
 | Domain          | `project-331.local` | `project-331.local`        | `courses.mooc.fi`          |
 | Skaffold config | `skaffold.yaml`     | `skaffold.production.yaml` | `skaffold.production.yaml` |
+| Email           | Mailpit             | Mailpit                    | SMTP relay                 |
 
 `bin/dev` uses live reload for fast iteration. `bin/test` builds production images and mirrors the CI environment — use it to reproduce CI failures locally.
 
@@ -30,6 +31,7 @@ Kubernetes manifests are managed with Kustomize. A shared base defines most reso
 - `kubernetes/dev` - development overlay (`bin/dev`)
 - `kubernetes/test` - test overlay (`bin/test`)
 - `kubernetes/production` - production overlay
+- `kubernetes/mailpit` - local email catcher, included by the dev and test overlays; inbox at <http://project-331.local/mailpit/>
 
 ## Ingress
 

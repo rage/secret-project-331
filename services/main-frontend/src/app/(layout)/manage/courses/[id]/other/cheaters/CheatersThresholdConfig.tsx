@@ -3,7 +3,9 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { Gear } from "@vectopus/atlas-icons-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
+import { VisuallyHidden } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,13 +15,17 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseModule, CourseModuleThresholdInfo } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { QueryResult, QueryResults } from "@/shared-module/components"
+import {
+  Button,
+  QueryResult,
+  QueryResults,
+  Table,
+  TextField,
+  ErrorNotice,
+} from "@/shared-module/components"
 
 interface CheatersThresholdConfigProps {
   courseId: string
@@ -29,6 +35,17 @@ const SECONDS_PER_HOUR = 3600
 // The backend stores the threshold as a 32-bit signed integer number of seconds, so reject
 // anything that would overflow it before sending the request.
 const MAX_DURATION_SECONDS = 2_147_483_647
+const ERROR_ANNOUNCEMENT = "off" as const
+
+interface ThresholdFormFields {
+  durations: Record<string, number | null>
+}
+
+/** The value a module's field shows before the user has touched it: the configured threshold, or the policy default. */
+function computeDisplayHours(info: CourseModuleThresholdInfo | undefined): number {
+  const seconds = info?.configured_duration_seconds ?? info?.default_duration_seconds ?? 0
+  return seconds / SECONDS_PER_HOUR
+}
 
 /** Renders threshold configuration UI for the cheaters section. */
 export default function CheatersThresholdConfig({ courseId }: CheatersThresholdConfigProps) {
@@ -64,9 +81,40 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     )
   }, [courseStructureQuery.data?.modules])
 
-  const [moduleThresholds, setModuleThresholds] = useState<Map<string, number | undefined>>(
-    () => new Map(),
-  )
+  const {
+    control,
+    watch,
+    reset,
+    resetField,
+    formState: { dirtyFields },
+  } = useForm<ThresholdFormFields>({ defaultValues: { durations: {} } })
+  const durations = watch("durations")
+
+  // Fields are seeded from the two queries once both have settled, then left alone: a later
+  // refetch (after a save) updates one field at a time via `resetField`, not this bulk reset.
+  const hasSeededFormRef = useRef(false)
+  useEffect(() => {
+    if (hasSeededFormRef.current || sortedModules.length === 0 || thresholdsQuery.isPending) {
+      return
+    }
+    hasSeededFormRef.current = true
+    reset({
+      durations: Object.fromEntries(
+        sortedModules.map((module) => [
+          module.id,
+          computeDisplayHours(thresholdInfoByModule.get(module.id)),
+        ]),
+      ),
+    })
+  }, [sortedModules, thresholdInfoByModule, thresholdsQuery.isPending, reset])
+
+  // Drop the in-progress edit once it is persisted so the row reflects the refetched saved state
+  // (otherwise a removed threshold would stay "edited" and never show the implicit default again).
+  const resetEditedThreshold = async (moduleId: string) => {
+    const { data: refreshedThresholds } = await thresholdsQuery.refetch()
+    const info = refreshedThresholds?.find((entry) => entry.course_module_id === moduleId)
+    resetField(`durations.${moduleId}`, { defaultValue: computeDisplayHours(info) })
+  }
 
   const handleUpdateThreshold = (moduleId: string, durationSeconds: number | undefined) => {
     if (durationSeconds === undefined) {
@@ -84,26 +132,12 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     })
   }
 
-  // Drop the in-progress edit once it is persisted so the row reflects the refetched saved state
-  // (otherwise a removed threshold would stay "edited" and never show the implicit default again).
-  const clearEditedThreshold = (moduleId: string) => {
-    setModuleThresholds((prev) => {
-      if (!prev.has(moduleId)) {
-        return prev
-      }
-      const next = new Map(prev)
-      next.delete(moduleId)
-      return next
-    })
-  }
-
   const postThresholdForModuleMutation = useToastMutationOptions(
     createCourseModuleThresholdMutation(),
     { notify: true, successMessage: t("threshold-added-successfully"), method: "POST" },
     {
       onSuccess: (_data, variables) => {
-        clearEditedThreshold(variables.path.course_module_id)
-        thresholdsQuery.refetch()
+        void resetEditedThreshold(variables.path.course_module_id)
       },
     },
   )
@@ -113,8 +147,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     { notify: true, successMessage: t("threshold-removed-successfully"), method: "DELETE" },
     {
       onSuccess: (_data, variables) => {
-        clearEditedThreshold(variables.path.course_module_id)
-        thresholdsQuery.refetch()
+        void resetEditedThreshold(variables.path.course_module_id)
       },
     },
   )
@@ -158,10 +191,13 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
         `}
       >
         {postThresholdForModuleMutation.isError && (
-          <ErrorBanner variant="readOnly" error={postThresholdForModuleMutation.error} />
+          <ErrorNotice error={postThresholdForModuleMutation.error} announce={ERROR_ANNOUNCEMENT} />
         )}
         {deleteThresholdForModuleMutation.isError && (
-          <ErrorBanner variant="readOnly" error={deleteThresholdForModuleMutation.error} />
+          <ErrorNotice
+            error={deleteThresholdForModuleMutation.error}
+            announce={ERROR_ANNOUNCEMENT}
+          />
         )}
         <h5 className="heading">
           <Gear size={16} weight="bold" aria-hidden="true" />
@@ -172,7 +208,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
           // A thresholds failure should not block the table: it can be rendered from the course
           // structure alone, with saved values simply missing.
           <>
-            <ErrorBanner variant="readOnly" error={thresholdsQuery.error} />
+            <ErrorNotice error={thresholdsQuery.error} />
             <QueryResult query={courseStructureQuery}>{() => renderThresholdTable()}</QueryResult>
           </>
         ) : (
@@ -187,217 +223,183 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
   )
 
   function renderThresholdTable() {
+    const rows = sortedModules.map((module: CourseModule) => {
+      const info = thresholdInfoByModule.get(module.id)
+      const configuredSeconds = info?.configured_duration_seconds ?? undefined
+      const minimumSeconds = info?.minimum_duration_seconds ?? 0
+      const configuredHours =
+        configuredSeconds !== undefined ? configuredSeconds / SECONDS_PER_HOUR : undefined
+      const isEdited = Boolean(dirtyFields.durations?.[module.id])
+      const fieldValue = durations[module.id]
+      const editedHours =
+        typeof fieldValue === "number" && Number.isFinite(fieldValue) ? fieldValue : undefined
+      const durationHours = isEdited ? editedHours : configuredHours
+      const isDefault = module.name === null
+      const moduleName = module.name ?? t("default-module")
+      const hasValue = durationHours !== undefined
+      const hasConfiguredValue = configuredSeconds !== undefined
+      // Validate in seconds, mirroring the backend, so the hours->seconds rounding and
+      // the saved-value comparison use the exact value that will be stored. This also
+      // means a tiny positive value that rounds to 0 is treated as 0 (check off) rather
+      // than silently saved as a different number.
+      const durationSeconds = hasValue
+        ? Math.round((durationHours as number) * SECONDS_PER_HOUR)
+        : undefined
+      const isInvalid =
+        durationSeconds !== undefined &&
+        (durationSeconds < minimumSeconds || durationSeconds > MAX_DURATION_SECONDS)
+      const errorMessage = !isInvalid
+        ? undefined
+        : durationSeconds !== undefined && durationSeconds > MAX_DURATION_SECONDS
+          ? t("threshold-too-large")
+          : minimumSeconds > 0
+            ? t("threshold-must-be-at-least-3-hours")
+            : t("threshold-must-be-non-negative")
+      // A small (exempt) module with an effective threshold of 0 has its duration check
+      // turned off; surface that explicitly so saving 0 is never a silent no-op.
+      const disablesCheck =
+        minimumSeconds === 0 && durationSeconds !== undefined && durationSeconds === 0
+      const isRemoving = hasConfiguredValue && isEdited && editedHours === undefined
+      // With thresholdsQuery resolved, no configured value means the backend default
+      // applies; the field already shows it (seeded as the default value), this only
+      // gates the "using the default" note beside it.
+      const showsImplicitDefault = !hasConfiguredValue && !isEdited
+      const isSaved =
+        !isEdited ||
+        (durationSeconds !== undefined && durationSeconds === configuredSeconds) ||
+        (!hasValue && !hasConfiguredValue)
+      const minHours = minimumSeconds / SECONDS_PER_HOUR
+      // oxlint-disable-next-line i18next/no-literal-string
+      const inputId = `duration-input-${module.id}`
+      return {
+        module,
+        moduleName,
+        isDefault,
+        durationSeconds,
+        errorMessage,
+        isInvalid,
+        isRemoving,
+        isSaved,
+        hasValue,
+        hasConfiguredValue,
+        disablesCheck,
+        showsImplicitDefault,
+        minHours,
+        inputId,
+      }
+    })
+
     return (
       <div
         className={css`
           margin-top: 1rem;
         `}
       >
-        <table
-          className={css`
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            th {
-              text-align: left;
-              padding: 0.75rem;
-              border-bottom: 1px solid ${baseTheme.colors.gray[200]};
-              font-weight: 600;
-              color: ${baseTheme.colors.gray[700]};
-            }
-            th:first-of-type {
-              width: 30%;
-            }
-            th:nth-of-type(2) {
-              width: 30%;
-            }
-            th:last-of-type {
-              width: 40%;
-              min-width: 150px;
-            }
-            td {
-              padding: 0.75rem;
-              border-bottom: 1px solid ${baseTheme.colors.gray[100]};
-              vertical-align: middle;
-            }
-            td:last-of-type {
-              min-width: 150px;
-            }
-            tr:last-child td {
-              border-bottom: none;
-            }
-          `}
-          aria-label={t("configure-threshold")}
-        >
-          <caption
-            className={css`
-              text-align: left;
-              font-weight: 600;
-              margin-bottom: 0.5rem;
-              caption-side: top;
-            `}
-          >
-            {t("configure-threshold")}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">{t("module")}</th>
-              <th scope="col" id="duration-header">
-                {t("duration-in-hours")}
-              </th>
-              <th scope="col">{t("actions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedModules.map((module: CourseModule) => {
-              const info = thresholdInfoByModule.get(module.id)
-              const configuredSeconds = info?.configured_duration_seconds ?? undefined
-              const minimumSeconds = info?.minimum_duration_seconds ?? 0
-              const defaultSeconds = info?.default_duration_seconds ?? 0
-              const configuredHours =
-                configuredSeconds !== undefined ? configuredSeconds / SECONDS_PER_HOUR : undefined
-              const isEdited = moduleThresholds.has(module.id)
-              const editedHours = moduleThresholds.get(module.id)
-              const durationHours = isEdited ? editedHours : configuredHours
-              const isDefault = module.name === null
-              const moduleName = module.name ?? t("default-module")
-              const hasValue = durationHours !== undefined
-              const hasConfiguredValue = configuredSeconds !== undefined
-              // Validate in seconds, mirroring the backend, so the hours->seconds rounding and
-              // the saved-value comparison use the exact value that will be stored. This also
-              // means a tiny positive value that rounds to 0 is treated as 0 (check off) rather
-              // than silently saved as a different number.
-              const durationSeconds = hasValue
-                ? Math.round((durationHours as number) * SECONDS_PER_HOUR)
-                : undefined
-              const isInvalid =
-                durationSeconds !== undefined &&
-                (durationSeconds < minimumSeconds || durationSeconds > MAX_DURATION_SECONDS)
-              const errorMessage = !isInvalid
-                ? undefined
-                : durationSeconds !== undefined && durationSeconds > MAX_DURATION_SECONDS
-                  ? t("threshold-too-large")
-                  : minimumSeconds > 0
-                    ? t("threshold-must-be-at-least-3-hours")
-                    : t("threshold-must-be-non-negative")
-              // A small (exempt) module with an effective threshold of 0 has its duration check
-              // turned off; surface that explicitly so saving 0 is never a silent no-op.
-              const disablesCheck =
-                minimumSeconds === 0 && durationSeconds !== undefined && durationSeconds === 0
-              const isRemoving = hasConfiguredValue && isEdited && editedHours === undefined
-              // With thresholdsQuery resolved, no configured value means the backend default
-              // applies; show it as the value instead of an empty field.
-              const showsImplicitDefault = !hasConfiguredValue && !isEdited
-              const displayedValue = showsImplicitDefault
-                ? (defaultSeconds / SECONDS_PER_HOUR).toString()
-                : (durationHours?.toString() ?? "")
-              const isSaved =
-                !isEdited ||
-                (durationSeconds !== undefined && durationSeconds === configuredSeconds) ||
-                (!hasValue && !hasConfiguredValue)
-              const minHours = minimumSeconds / SECONDS_PER_HOUR
-              // oxlint-disable-next-line i18next/no-literal-string
-              const inputId = `duration-input-${module.id}`
-              // oxlint-disable-next-line i18next/no-literal-string
-              const labelId = `${inputId}-label`
-              return (
-                <tr key={module.id}>
-                  <td>{isDefault ? <strong>{moduleName}</strong> : moduleName}</td>
-                  <td>
-                    <span
-                      id={labelId}
-                      className={css`
-                        position: absolute;
-                        width: 1px;
-                        height: 1px;
-                        padding: 0;
-                        margin: -1px;
-                        overflow: hidden;
-                        clip-path: inset(50%);
-                        white-space: nowrap;
-                        border-width: 0;
-                      `}
-                    >
-                      {moduleName}
-                    </span>
-                    <div
-                      className={css`
-                        display: inline-block;
-                        vertical-align: middle;
-                      `}
-                    >
-                      <TextField
-                        id={inputId}
-                        className="duration-threshold"
-                        type="number"
-                        min={minHours}
-                        step={0.01}
-                        {...omitUndefined({ error: errorMessage })}
-                        aria-labelledby={`duration-header ${labelId}`}
-                        value={displayedValue}
-                        onChangeByValue={(value: string) => {
-                          // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt/parseFloat intended; Number() differs
-                          const parsed = parseFloat(value)
-                          setModuleThresholds((prev) => {
-                            const next = new Map(prev)
-                            // oxlint-disable-next-line unicorn/no-immediate-mutation -- intended immutable copy-then-set; folding breaks tuple inference
-                            next.set(module.id, Number.isFinite(parsed) ? parsed : undefined)
-                            return next
-                          })
-                        }}
-                      />
-                    </div>
-                    {showsImplicitDefault && (
-                      <span
-                        className={css`
-                          margin-left: 0.5rem;
-                          color: ${baseTheme.colors.gray[500]};
-                          font-size: 0.875rem;
-                        `}
-                      >
-                        {t("threshold-default-in-use")}
-                      </span>
-                    )}
-                    {disablesCheck && (
-                      <span
-                        className={css`
-                          margin-left: 0.5rem;
-                          color: ${baseTheme.colors.gray[500]};
-                          font-size: 0.875rem;
-                        `}
-                      >
-                        {t("cheater-detection-disabled")}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <Button
-                      variant={isSaved ? "secondary" : isRemoving ? "reject" : "primary"}
-                      size="medium"
-                      disabled={
-                        (!hasValue && !hasConfiguredValue) ||
-                        postThresholdForModuleMutation.isPending ||
-                        deleteThresholdForModuleMutation.isPending ||
-                        (isInvalid && !isRemoving) ||
-                        isSaved
+        <Table
+          caption={t("configure-threshold")}
+          rows={rows}
+          rowKey={(row) => row.module.id}
+          columns={[
+            {
+              header: t("module"),
+              width: "30%",
+              cell: ({ isDefault, moduleName }) =>
+                isDefault ? <strong>{moduleName}</strong> : moduleName,
+            },
+            {
+              header: t("duration-in-hours"),
+              width: "30%",
+              cell: ({
+                module,
+                moduleName,
+                errorMessage,
+                showsImplicitDefault,
+                disablesCheck,
+                minHours,
+                inputId,
+              }) => (
+                <div
+                  className={css`
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: var(--space-2);
+                  `}
+                >
+                  <div>
+                    <TextField
+                      id={inputId}
+                      name={`durations.${module.id}`}
+                      control={control}
+                      label={
+                        <VisuallyHidden>
+                          {t("duration-in-hours")}, {moduleName}
+                        </VisuallyHidden>
                       }
-                      onClick={() => handleUpdateThreshold(module.id, durationSeconds)}
+                      className="duration-threshold"
+                      type="number"
+                      min={minHours}
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      step="0.01"
+                      {...omitUndefined({ errorMessage })}
+                    />
+                  </div>
+                  {showsImplicitDefault && (
+                    <span
                       className={css`
-                        min-width: 140px;
+                        color: ${baseTheme.colors.gray[500]};
+                        font-size: 0.875rem;
                       `}
                     >
-                      {isSaved
-                        ? t("saved")
-                        : isRemoving
-                          ? t("remove-threshold")
-                          : t("set-threshold")}
-                    </Button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                      {t("threshold-default-in-use")}
+                    </span>
+                  )}
+                  {disablesCheck && (
+                    <span
+                      className={css`
+                        color: ${baseTheme.colors.gray[500]};
+                        font-size: 0.875rem;
+                      `}
+                    >
+                      {t("cheater-detection-disabled")}
+                    </span>
+                  )}
+                </div>
+              ),
+            },
+            {
+              header: t("actions"),
+              minWidth: 150,
+              cell: ({
+                module,
+                durationSeconds,
+                isInvalid,
+                isRemoving,
+                isSaved,
+                hasValue,
+                hasConfiguredValue,
+              }) => (
+                <Button
+                  variant={isSaved ? "secondary" : isRemoving ? "danger" : "primary"}
+                  size="medium"
+                  disabled={
+                    (!hasValue && !hasConfiguredValue) ||
+                    postThresholdForModuleMutation.isPending ||
+                    deleteThresholdForModuleMutation.isPending ||
+                    (isInvalid && !isRemoving) ||
+                    isSaved
+                  }
+                  onClick={() => handleUpdateThreshold(module.id, durationSeconds)}
+                  className={css`
+                    min-width: 140px;
+                  `}
+                >
+                  {isSaved ? t("saved") : isRemoving ? t("remove-threshold") : t("set-threshold")}
+                </Button>
+              ),
+            },
+          ]}
+        />
       </div>
     )
   }

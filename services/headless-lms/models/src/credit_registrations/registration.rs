@@ -93,6 +93,12 @@ pub struct CreditRegistration {
     /// Set while a lookup is out for a row parked in `no_usable_enrolment`; see
     /// [`claim_enrolment_checks`](super::claim_enrolment_checks).
     pub enrolment_check_claimed_until: Option<DateTime<Utc>>,
+    /// When the row last entered a different state. Not `state_entered_at`, which every write that
+    /// keeps the state (each verify poll, each enrolment check) moves too.
+    pub state_changed_at: DateTime<Utc>,
+    /// When a state change last moved the row into another timeline phase; see
+    /// [`TimelinePhase::entered_with`](crate::library::credit_registration::timeline::TimelinePhase::entered_with).
+    pub phase_started_at: DateTime<Utc>,
 }
 
 impl CreditRegistration {
@@ -101,6 +107,7 @@ impl CreditRegistration {
         ResubmissionFacts {
             state: self.state,
             is_superseded: self.superseded_by_id.is_some(),
+            error_code: self.error_code,
             resubmit_not_before: self.resubmit_not_before,
             submitted_at: self.submitted_at,
         }

@@ -1,6 +1,7 @@
 //! One tool-call round: running the calls the server answers, storing each beside its output, and
 //! handing the round's items on to the next request.
 
+use headless_lms_utils::cache::Cache;
 use std::ops::DerefMut;
 
 use futures::StreamExt;
@@ -482,9 +483,11 @@ fn item_without_reasoning_payload(item: &OutputItem) -> OutputItem {
 ///
 /// Takes `conn` by value rather than by reference so that the caller can hand over the pooled
 /// connection it no longer needs, instead of keeping one borrowed for as long as this stream lives.
+#[allow(clippy::too_many_arguments)]
 pub(super) async fn parse_tool<'a, C>(
     mut conn: C,
     app_config: &'a ApplicationConfiguration,
+    cache: &'a Cache,
     mut lines: ResponseLinesStream<'a>,
     conversation_id: Uuid,
     response_id: String,
@@ -605,7 +608,7 @@ where
                     // function call without its output. `args` is only borrowed here, so it is
                     // still available below on the error path.
                     let tool_call =
-                        call_chatbot_tool(&mut conn, app_config, &name, &args, user_context).await;
+                        call_chatbot_tool(&mut conn, app_config, cache, &name, &args, user_context).await;
                     match tool_call {
                         Ok(result) => result,
                         Err(error) => ChatbotToolCallResult {
@@ -762,10 +765,12 @@ mod tests {
         let user_context = context(None, None, Vec::new());
         let app_config =
             ApplicationConfiguration::mock_conf().expect("the mock configuration builds");
+        let cache = Cache::new("redis://127.0.0.1:1").expect("cache");
 
         let mut events = parse_tool(
             tx.as_mut() as &mut PgConnection,
             &app_config,
+            &cache,
             azure_response_stream(&[
                 "event: response.output_item.added",
                 r#"data: {"type":"response.output_item.added","item":{"type":"reasoning","id":"rs_1","response_id":"resp_1","summary":[]}}"#,
@@ -829,10 +834,12 @@ mod tests {
         let user_context = context(None, None, Vec::new());
         let app_config =
             ApplicationConfiguration::mock_conf().expect("the mock configuration builds");
+        let cache = Cache::new("redis://127.0.0.1:1").expect("cache");
 
         let mut events = parse_tool(
             tx.as_mut() as &mut PgConnection,
             &app_config,
+            &cache,
             azure_response_stream(&[
                 "event: response.output_item.done",
                 r#"data: {"type":"response.output_item.done","item":{"type":"function_call","id":"fc_1","response_id":"resp_1","call_id":"call_1","name":"no_such_tool","arguments":"{}"}}"#,

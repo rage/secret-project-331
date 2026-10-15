@@ -14,6 +14,7 @@ import {
   TIME,
 } from "../__fixtures__/chatBodyProps"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
+import ChatbotContext from "../shared/ChatbotContext"
 import {
   multipleChoiceAnswer,
   ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
@@ -93,7 +94,11 @@ const askedQuestion = (): ChatbotConversationMessage[] => [
 
 describe("Clarifying question from the chatbot", () => {
   it("names the question group after the question and offers every choice as a button", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
+    render(
+      <ChatbotContext value={makeChatBodyProps({ messages: askedQuestion() }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     const group = screen.getByRole("group", { name: QUESTION })
     for (const choice of CHOICES) {
@@ -103,7 +108,11 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("identifies the question as the chatbot's to a screen reader", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
+    render(
+      <ChatbotContext value={makeChatBodyProps({ messages: askedQuestion() }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(screen.getByRole("listitem", { name: "question-from-the-chatbot" })).toHaveTextContent(
       QUESTION,
@@ -114,7 +123,11 @@ describe("Clarifying question from the chatbot", () => {
   // recovers the question from.
   it("answers with the position of the chosen choice", () => {
     const { props, answer } = makeChatBodyProps({ messages: askedQuestion() })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     fireEvent.click(screen.getByRole("button", { name: "for loops" }))
 
@@ -126,7 +139,11 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("hands focus to the message field, which outlives the choices", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
+    render(
+      <ChatbotContext value={makeChatBodyProps({ messages: askedQuestion() }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     fireEvent.click(screen.getByRole("button", { name: "for loops" }))
 
@@ -135,7 +152,11 @@ describe("Clarifying question from the chatbot", () => {
 
   it("disables the choices while a message is streaming, before the call is stored", () => {
     const { props } = makeChatBodyProps({ messages: askedQuestion(), isTurnInFlight: true })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     for (const choice of CHOICES) {
       expect(screen.getByRole("button", { name: choice })).toBeDisabled()
@@ -145,7 +166,11 @@ describe("Clarifying question from the chatbot", () => {
 
   it("keeps the choices visible but disabled, with the chosen one marked, once answered", () => {
     const { props } = makeChatBodyProps({ messages: [...askedQuestion(), answerMessage(3)] })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     const group = screen.getByRole("group", { name: QUESTION })
     expect(group).toHaveTextContent("chatbot-question-answered")
@@ -164,7 +189,11 @@ describe("Clarifying question from the chatbot", () => {
   // one. Neither says which choice the learner picked, so none is marked.
   it("marks no choice when the closed call carries no stored answer", () => {
     const { props } = makeChatBodyProps({ messages: [...askedQuestion(), answerMessage(3, null)] })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     for (const choice of CHOICES) {
       const button = screen.getByRole("button", { name: choice })
@@ -183,7 +212,11 @@ describe("Clarifying question from the chatbot", () => {
         conversationMessage({ role: "user", text: "Never mind, explain both", orderNumber: 3 }),
       ],
     })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(screen.getByRole("group", { name: QUESTION })).toHaveTextContent(
       "chatbot-question-closed",
@@ -198,7 +231,11 @@ describe("Clarifying question from the chatbot", () => {
 
   it("highlights the clicked choice immediately, before the server confirms it", () => {
     const { props } = makeChatBodyProps({ messages: askedQuestion() })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     fireEvent.click(screen.getByRole("button", { name: "for loops" }))
 
@@ -209,7 +246,11 @@ describe("Clarifying question from the chatbot", () => {
   })
 
   it("leaves the message field usable while a question is waiting", () => {
-    render(<ChatbotChatBody {...makeChatBodyProps({ messages: askedQuestion() }).props} />)
+    render(
+      <ChatbotContext value={makeChatBodyProps({ messages: askedQuestion() }).props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(screen.getByPlaceholderText("label-message")).toBeEnabled()
   })
@@ -221,7 +262,11 @@ describe("Clarifying question from the chatbot", () => {
       messages: askedQuestion(),
       suggestedMessages: [{ id: SUGGESTION_ID, message: SUGGESTION }],
     })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(screen.queryByRole("button", { name: SUGGESTION })).toBeNull()
   })
@@ -235,7 +280,11 @@ describe("Clarifying question from the chatbot", () => {
       ],
       suggestedMessages: [{ id: SUGGESTION_ID, message: SUGGESTION }],
     })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(screen.getByRole("button", { name: SUGGESTION })).toBeInTheDocument()
   })
@@ -245,7 +294,11 @@ describe("Clarifying question from the chatbot", () => {
     const { props } = makeChatBodyProps({
       messages: [questionMessage(1, JSON.stringify({ question: QUESTION, choices: [] }))],
     })
-    render(<ChatbotChatBody {...props} />)
+    render(
+      <ChatbotContext value={props}>
+        <ChatbotChatBody />
+      </ChatbotContext>,
+    )
 
     expect(screen.queryByRole("group", { name: QUESTION })).toBeNull()
   })

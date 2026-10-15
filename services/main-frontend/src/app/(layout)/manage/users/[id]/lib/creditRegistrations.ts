@@ -135,7 +135,7 @@ export interface StudentNumberState {
   /** Null until a number is confirmed; the credits wait in the pipeline until then. */
   studentNumber: string | null
   verifiedVia: StudentNumberVerificationMethod | null
-  /** Our own send status for the confirmation link, present only while nothing is linked. */
+  /** Our own send status for the account linking email, present only while nothing is linked. */
   linkingEmail: TeacherLinkingEmailStatus | null
 }
 

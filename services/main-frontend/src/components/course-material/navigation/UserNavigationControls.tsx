@@ -5,10 +5,8 @@ import { useAtomValue } from "jotai"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
 import { menuEntryLayout } from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useLogout from "@/shared-module/common/hooks/useLogout"
@@ -16,6 +14,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import "@/shared-module/common/init/registerAuthApiClients"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
+import { Button, LoadingRegion } from "@/shared-module/components"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
 import CourseSettingsModal from "../modals/CourseSettingsModal"
@@ -74,7 +73,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
     permissionCheck.data[0] === true
 
   if (loginStateContext.isLoading) {
-    return <Spinner variant="large" />
+    return <LoadingRegion minHeight={40} />
   }
 
   // oxlint-disable-next-line i18next/no-literal-string

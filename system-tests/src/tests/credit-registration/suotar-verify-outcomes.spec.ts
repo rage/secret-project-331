@@ -45,13 +45,18 @@ test.describe("A submission the study registry has not answered yet", () => {
     await makeRegistrationDueNow(adminApi, submitted.id)
     await runVerifyPollTick(page.request, scope)
 
-    await test.step("A pending submission is polled again soon but not resubmitted", async () => {
+    await test.step("A pending submission is polled before its retryAfter but not resubmitted", async () => {
       const { registration } = await adminRegistrationDetails(adminApi, submitted.id)
-      // The mock answers `submissionPending` with a `retryAfter` a day out, like Suotar does.
-      const hoursUntilNextPoll =
-        (new Date(registration.next_attempt_at).getTime() - Date.now()) / 3_600_000
-      expect(hoursUntilNextPoll).toBeLessThan(1)
-      expect(registration.resubmission_refusal).toBe("already_submitted")
+      // The mock answers `submissionPending` with a `retryAfter` a day out, like Suotar does; the
+      // next poll follows the verify schedule instead of waiting that out.
+      expect(registration.resubmit_not_before).not.toBeNull()
+      expect(new Date(registration.next_attempt_at).getTime()).toBeLessThan(
+        new Date(registration.resubmit_not_before ?? 0).getTime(),
+      )
+      expect(registration.hand_actions.resubmission).toMatchObject({
+        kind: "refused",
+        refusal: "already_submitted",
+      })
     })
 
     await makeRegistrationDueNow(adminApi, submitted.id)
@@ -141,8 +146,16 @@ test.describe("A submission the study registry reversed after accepting it", () 
         CRS_B_101,
         "verify_attainments",
       )
-      // Due, so what stops the polling is the state the row is in rather than a backoff.
-      await makeRegistrationDueNow(adminApi, submitted.id)
+      const checkNow = await adminApi.post(adminRegistrationTransitionUrl(submitted.id), {
+        data: {
+          action: { kind: "check_now" },
+          reason: "System test: a reversed row has no check.",
+        },
+      })
+      expect(await checkNow.json()).toMatchObject({
+        outcome: "refused",
+        refusal: "nothing_to_check",
+      })
       await runVerifyPollTick(page.request, scope)
       await runVerifyPollTick(page.request, scope)
       // Only a human moves a row the study registry reversed, so a poller that keeps

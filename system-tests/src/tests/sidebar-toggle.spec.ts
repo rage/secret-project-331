@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -26,13 +27,15 @@ test("Changing view in the cms sidebar works", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "Landing Page Hero Section" })).toBeVisible()
 
-  // Select block-list
-  await page.locator("select").selectOption("block-list")
+  const sidebarView = new Select(page, page.locator("#select-sidebar-view"), {
+    name: "Toggle view",
+  })
+
+  await sidebarView.chooseOption("Current blocks")
 
   await expect(page.getByText("Course Objective Section").first()).toBeVisible()
 
-  // Select block-menu
-  await page.locator("select").selectOption("block-menu")
+  await sidebarView.chooseOption("Add block / All available blocks")
 
   await expect(page.getByRole("option", { name: "List", exact: true })).toBeVisible()
 })

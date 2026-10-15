@@ -19,6 +19,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserDetail, UserRole } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { dateToString } from "@/shared-module/common/utils/time"
 import {
   Avatar,
   Badge,
@@ -106,8 +107,11 @@ const idButtonRowCss = css`
 // CopyButton's default chrome is a bordered chip, which reads as a Badge once it carries a text
 // label rather than just its glyph.
 const quietCopyButtonCss = css`
+  padding: 0;
   border: none;
   background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 `
 
 /** The number the credits are registered under, or what we last did about getting one confirmed. */
@@ -154,7 +158,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userDetailsNotFound,
   studentNumber,
 }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const rolesQuery = useQuery({ ...getUserRolesOptions({ path: { user_id: userId } }) })
   const userQuery = useQuery({ ...getUserOptions({ path: { user_id: userId } }) })
 
@@ -180,7 +184,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
           <Badge tone={verifiedAt ? TONE.SUCCESS : TONE.NEUTRAL}>
             {verifiedAt
               ? t("email-verified-on", {
-                  date: new Date(verifiedAt).toLocaleString(i18n.language),
+                  date: dateToString(verifiedAt),
                 })
               : t("email-not-verified")}
           </Badge>

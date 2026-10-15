@@ -56,6 +56,7 @@ await jest.unstable_mockModule("@wordpress/block-editor", () => ({
   InspectorControls: stub("div"),
   MediaPlaceholder: stub("div"),
   ObserveTyping: stub("div"),
+  PlainText: stub("div"),
   RichText: stub("div"),
   WritingFlow: stub("div"),
   __experimentalLibrary: stub("div"),

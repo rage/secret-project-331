@@ -9,12 +9,13 @@ import {
   listCreditRegistrationPhasesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Menu, type MenuItemDescriptor } from "@/shared-module/components"
+import { Menu, type MenuItemDescriptor, useDialog } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { usePauseResumeAction } from "./usePauseResumeAction"
+
+const LINK_EMAILS_PHASE = "link-emails"
 
 interface Props {
   phase: string
@@ -42,7 +43,10 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => 
     pauseActionLabel: t("button-text-credit-registration-phase-pause"),
     resumeActionLabel: t("button-text-credit-registration-phase-resume"),
     pauseDialogTitle: t("credit-registration-admin-phase-pause-title", { phase }),
-    pauseReasonDescription: t("credit-registration-admin-phase-pause-reason-description"),
+    pauseReasonDescription:
+      phase === LINK_EMAILS_PHASE
+        ? `${t("credit-registration-admin-phase-pause-reason-description")} ${t("credit-registration-admin-link-emails-pause-note")}`
+        : t("credit-registration-admin-phase-pause-reason-description"),
   })
 
   const runNowMutation = useToastMutation(
@@ -61,11 +65,10 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => 
     label: t("button-text-credit-registration-phase-run-now"),
     isDisabled: runNowMutation.isPending,
     onAction: async () => {
-      const confirmed = await confirm(
-        t("credit-registration-admin-phase-run-now-confirm", { phase }),
-        undefined,
-        { yesButtonLabel: t("button-text-credit-registration-phase-run-now") },
-      )
+      const confirmed = await confirm({
+        message: t("credit-registration-admin-phase-run-now-confirm", { phase }),
+        confirmLabel: t("button-text-credit-registration-phase-run-now"),
+      })
       if (confirmed) {
         runNowMutation.mutate()
       }

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 
 import type { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
+import { Button } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -35,15 +35,13 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
             {data.map((exercise_service) => (
               <li key={exercise_service.name}>
                 <Button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
+                  onClick={() => {
                     if (!exercise_service.public_iframe_url) {
                       return
                     }
                     onChooseItem(exercise_service)
                   }}
-                  variant="outlined"
+                  variant="secondary"
                   size="medium"
                 >
                   {exercise_service.name}

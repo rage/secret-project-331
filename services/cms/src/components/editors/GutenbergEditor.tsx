@@ -36,16 +36,23 @@ import {
 } from "@wordpress/block-editor"
 // This import is needed for bold, italics, ... formatting
 import "@wordpress/format-library"
+import {
+  type BlockStyle,
+  store as blocksStore,
+  registerBlockStyle,
+  unregisterBlockStyle,
+} from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
+import { dispatch, select } from "@wordpress/data"
 import { addFilter, removeFilter } from "@wordpress/hooks"
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { toast } from "react-hot-toast"
 
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { LoadingRegion, Select } from "@/shared-module/components"
 import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -86,6 +93,20 @@ interface EditorContentStyle {
 const EDITOR_STYLE_TRANSFORM_OPTIONS = {
   ignoredSelectors: [/\.editor-styles-wrapper/gi],
 }
+// By name: @wordpress/rich-text is only a transitive dependency.
+// oxlint-disable-next-line i18next/no-literal-string
+const RICH_TEXT_STORE = "core/rich-text"
+
+/** A registered rich text format type; the fields this file touches. */
+interface FormatType {
+  name: string
+}
+
+interface RichTextActions {
+  addFormatTypes: (formatTypes: FormatType[]) => void
+  removeFormatTypes: (names: string[]) => void
+}
+
 // oxlint-disable-next-line i18next/no-literal-string
 const EDITOR_STYLES_SCOPE = ":where(.editor-styles-wrapper)"
 
@@ -95,6 +116,20 @@ interface GutenbergEditorProps {
   allowedBlocks?: string[]
   allowedBlockVariations?: Record<string, string[]>
   customBlocks?: CustomBlockDefinition[]
+  /**
+   * Style choices that replace a block type's registered ones while this editor is mounted. The
+   * block registry is global, so registering them for good would offer them in every editor.
+   */
+  blockStyles?: Record<string, BlockStyle[]>
+  /**
+   * The only rich text formats offered while this editor is mounted. Format types are global, so the
+   * rest are unregistered on mount and restored on unmount.
+   */
+  allowedFormats?: readonly string[]
+  /** Merged over the default block editor settings, e.g. to disable block supports or replace `styles`. */
+  settingsOverrides?: Record<string, unknown>
+  /** Layout of the top-level block list; its `alignments` limit the block alignment toolbar. */
+  rootLayout?: Record<string, unknown>
   mediaUpload: (props: MediaUploadProps) => void
   inspectorButtons?: React.JSX.Element
   /** This component has to run block migrations and validations once the Gutenberg editor and blocks have been loaded.
@@ -115,6 +150,15 @@ interface GutenbergEditorChangeOptions {
 interface EditorCanvasProps {
   contentRef: React.RefObject<HTMLDivElement | null>
 }
+
+type SidebarView = "block-props" | "block-list" | "block-menu"
+
+interface SidebarViewFormFields {
+  sidebarView: SidebarView
+}
+
+const DEFAULT_SIDEBAR_VIEW: SidebarView = "block-props"
+const SIDEBAR_VIEW_FIELD_NAME = "sidebarView"
 
 /**
  * The editable block canvas.
@@ -151,6 +195,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   allowedBlockVariations,
   allowedBlocks,
   customBlocks,
+  blockStyles,
+  allowedFormats,
+  settingsOverrides,
+  rootLayout,
   mediaUpload,
   inspectorButtons,
   needToRunMigrationsAndValidations,
@@ -174,6 +222,43 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     ensureStandaloneGutenbergBootstrap({ allowedBlockVariations, customBlocks })
     setIsGutenbergBootstrapped(true)
   }, [allowedBlockVariations, customBlocks])
+
+  // Declared after the bootstrap effect so it runs after the bootstrap registers the global styles.
+  useEffect(() => {
+    if (!blockStyles) {
+      return
+    }
+    const replacedStyles = Object.entries(blockStyles).map(([blockName, styles]) => {
+      const previousStyles: BlockStyle[] = select(blocksStore).getBlockStyles(blockName) ?? []
+      previousStyles.forEach((style) => unregisterBlockStyle(blockName, style.name))
+      registerBlockStyle(blockName, styles)
+      return { blockName, styles, previousStyles }
+    })
+    return () => {
+      replacedStyles.forEach(({ blockName, styles, previousStyles }) => {
+        styles.forEach((style) => unregisterBlockStyle(blockName, style.name))
+        if (previousStyles.length > 0) {
+          registerBlockStyle(blockName, previousStyles)
+        }
+      })
+    }
+  }, [blockStyles])
+
+  useEffect(() => {
+    if (!allowedFormats) {
+      return
+    }
+    const formatTypes: FormatType[] = select(RICH_TEXT_STORE).getFormatTypes()
+    const removedFormats = formatTypes.filter((format) => !allowedFormats.includes(format.name))
+    if (removedFormats.length === 0) {
+      return
+    }
+    const richTextActions = dispatch(RICH_TEXT_STORE) as RichTextActions
+    richTextActions.removeFormatTypes(removedFormats.map((format) => format.name))
+    return () => {
+      richTextActions.addFormatTypes(removedFormats)
+    }
+  }, [allowedFormats])
 
   const allowedBlockTypes = useMemo(() => {
     if (!allowedBlocks && !customBlocks) {
@@ -203,8 +288,9 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
       codeEditingEnabled: false,
       mediaUpload,
       allowedBlockTypes,
+      ...settingsOverrides,
     }),
-    [allowedBlockTypes, mediaUpload],
+    [allowedBlockTypes, mediaUpload, settingsOverrides],
   )
 
   useEffect(() => {
@@ -288,12 +374,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     }
   }
 
-  const [sidebarView, setSidebarView] = useState<
-    "block-props" | "block-list" | "block-menu" | string
-  >(
-    // oxlint-disable-next-line i18next/no-literal-string
-    "block-props",
-  )
+  const { control: sidebarViewControl } = useForm<SidebarViewFormFields>({
+    defaultValues: { sidebarView: DEFAULT_SIDEBAR_VIEW },
+  })
+  const sidebarView = useWatch({ control: sidebarViewControl, name: SIDEBAR_VIEW_FIELD_NAME })
 
   useEffect(() => {
     addFilter(
@@ -384,7 +468,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [showEditor])
 
   if (!showEditor) {
-    return <Spinner variant="large" />
+    return <LoadingRegion size="lg" />
   }
 
   return (
@@ -475,13 +559,14 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                   </div>
                   <div
                     className={css`
-                      margin: 1rem;
-                      margin-bottom: 0;
+                      margin: var(--space-4);
+                      margin-bottom: var(--space-3);
                     `}
                   >
-                    <SelectField
-                      id={"select-sidebar-view"}
-                      value={sidebarView}
+                    <Select
+                      id="select-sidebar-view"
+                      name={SIDEBAR_VIEW_FIELD_NAME}
+                      control={sidebarViewControl}
                       label={t("editor-select-sidebar-view")}
                       options={[
                         // oxlint-disable-next-line i18next/no-literal-string
@@ -491,13 +576,12 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                         // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-menu", label: t("block-menu") },
                       ]}
-                      onChangeByValue={(val) => setSidebarView(val)}
                     />
                   </div>
                   {inspectorButtons && (
                     <div
                       className={css`
-                        margin: 1rem;
+                        margin: var(--space-4);
                         margin-top: 0;
                       `}
                     >
@@ -518,7 +602,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                 />
                 <EditorCanvas contentRef={localRef}>
                   <ObserveTyping>
-                    <BlockList />
+                    <BlockList layout={rootLayout} />
 
                     {content.length > 0 && <ButtonBlockAppender rootClientId={undefined} />}
                   </ObserveTyping>

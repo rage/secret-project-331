@@ -21,12 +21,14 @@ pub mod payload;
 pub mod pending_reason;
 pub mod preconditions;
 pub mod scrub;
+pub mod sisu_day_gap;
 pub mod student_facing_status;
 pub mod student_notifications;
 pub mod student_number;
 pub mod student_number_change;
 pub mod study_registry;
 pub mod submission_context;
+pub mod timeline;
 
 // Only symbols reached from outside this module in more than one place are hoisted here; everything
 // else goes through its submodule's own path (`credit_registration::submodule::Item`).

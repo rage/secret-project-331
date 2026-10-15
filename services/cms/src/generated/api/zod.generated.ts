@@ -190,6 +190,23 @@ export const zDatabaseChapter = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * A template rendered as it would be sent, with sample placeholder values.
+ */
+export const zEmailTemplatePreview = z.object({
+  html: z.string(),
+  plain_text: z.string(),
+  subject: z.string(),
+})
+
+/**
+ * The editor's unsaved subject and body.
+ */
+export const zEmailTemplatePreviewRequest = z.object({
+  content: z.unknown(),
+  subject: z.string(),
+})
+
 export const zEmailTemplateType = z.enum([
   "reset_password_email",
   "delete_user_email",
@@ -812,6 +829,28 @@ export const zUpdateCmsEmailTemplatePath = z.object({
  * Updated email template
  */
 export const zUpdateCmsEmailTemplateResponse = zEmailTemplate
+
+export const zPreviewCmsEmailTemplateBody = zEmailTemplatePreviewRequest
+
+export const zPreviewCmsEmailTemplatePath = z.object({
+  email_template_id: z.uuid(),
+})
+
+/**
+ * Rendered email
+ */
+export const zPreviewCmsEmailTemplateResponse = zEmailTemplatePreview
+
+export const zSendCmsEmailTemplateTestBody = zEmailTemplatePreviewRequest
+
+export const zSendCmsEmailTemplateTestPath = z.object({
+  email_template_id: z.uuid(),
+})
+
+/**
+ * Id of the queued test delivery
+ */
+export const zSendCmsEmailTemplateTestResponse = z.uuid()
 
 export const zGetCmsExamInstructionsPath = z.object({
   exam_id: z.uuid(),

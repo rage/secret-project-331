@@ -1,33 +1,60 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
+import { headingCss } from "@/components/credit-registration/styles"
 import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, Dialog } from "@/shared-module/components"
 
 import ExerciseList from "./ExerciseList"
 import ResetFilter from "./ResetFilter"
 import SelectedUsers from "./SelectedUsers"
+
+export interface ResetFormFields {
+  onlyResetBelowThreshold: boolean
+  pointsThreshold: number | null
+  resetAllBelowMaxPoints: boolean
+  resetOnlyLockedPeerReviews: boolean
+  selectedExercises: Record<string, boolean>
+}
 
 const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const { data: users, isLoading } = useUsers(courseId)
   const [selectedUsers, setSelectedUsers] = useState<UserDetail[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [threshold, setThreshold] = useState<number | null>(null)
-  const [resetOnlyLockedPeerReviews, setResetOnlyLockedPeerReviews] = useState<boolean>(false)
-  const [resetAllBelowMaxPoints, setResetAllBelowMaxPoints] = useState<boolean>(false)
 
-  const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([])
+  const { control, watch, setValue } = useForm<ResetFormFields>({
+    defaultValues: {
+      onlyResetBelowThreshold: false,
+      pointsThreshold: null,
+      resetAllBelowMaxPoints: false,
+      resetOnlyLockedPeerReviews: false,
+      selectedExercises: {},
+    },
+  })
+  const resetOnlyLockedPeerReviews = watch("resetOnlyLockedPeerReviews")
+  const resetAllBelowMaxPoints = watch("resetAllBelowMaxPoints")
+  const threshold = watch("pointsThreshold")
+  const selectedExercisesMap = watch("selectedExercises")
+  // Not memoized: react-hook-form mutates the object `watch` returns in place, so a memo keyed on
+  // it would never see a new reference and would hold the empty first-render result, leaving the
+  // reset button disabled however many exercises the user ticks.
+  const selectedExerciseIds = Object.entries(selectedExercisesMap)
+    .filter(([, selected]) => selected)
+    .map(([id]) => id)
+  const setSelectedExerciseIds = (ids: string[]) => {
+    setValue("selectedExercises", Object.fromEntries(ids.map((id) => [id, true])))
+  }
 
   useEffect(() => {
     if (!users) {
@@ -85,12 +112,12 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   return (
     <div>
       <h3
-        className={css`
-          color: ${baseTheme.colors.gray[700]};
-          font-family: ${secondaryFont};
-          padding-bottom: 22px;
-          font-weight: ${fontWeights.medium};
-        `}
+        className={cx(
+          headingCss,
+          css`
+            padding-bottom: var(--space-4);
+          `,
+        )}
       >
         {t("title-reset-exercises")}
       </h3>
@@ -110,14 +137,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         />
       </div>
 
-      <ResetFilter
-        threshold={threshold}
-        setThreshold={setThreshold}
-        resetAllBelowMaxPoints={resetAllBelowMaxPoints}
-        setResetAllBelowMaxPoints={setResetAllBelowMaxPoints}
-        resetOnlyLockedPeerReviews={resetOnlyLockedPeerReviews}
-        setResetOnlyLockedPeerReviews={setResetOnlyLockedPeerReviews}
-      ></ResetFilter>
+      <ResetFilter control={control} />
 
       <div
         className={css`
@@ -128,6 +148,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
       <ExerciseList
         courseId={courseId}
+        control={control}
         selectedExerciseIds={selectedExerciseIds}
         setSelectedExerciseIds={setSelectedExerciseIds}
       />
@@ -146,22 +167,21 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
       </div>
 
       {isModalOpen && (
-        <StandardDialog
+        <Dialog
           onClose={() => setIsModalOpen(false)}
           title={t("confirm-reset-title")}
           open={isModalOpen}
-          leftAlignTitle={true}
-          buttons={[
+          actions={[
             {
               variant: "primary",
               onClick: () => resetMutation.mutate(),
               disabled: selectedUsers.length === 0 || selectedExerciseIds.length === 0,
-              children: t("button-reset"),
+              label: t("button-reset"),
             },
             {
               variant: "secondary",
               onClick: () => setIsModalOpen(false),
-              children: t("button-text-cancel"),
+              label: t("button-text-cancel"),
             },
           ]}
         >
@@ -198,7 +218,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
               </div>
             )}
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
     </div>
   )

@@ -8,12 +8,12 @@ import { useTranslation } from "react-i18next"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
 import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-material-api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, ErrorNotice } from "@/shared-module/components"
 import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import type { BlockRendererProps } from "../.."
+import ChatbotChatBox from "./ChatbotChatBox"
 
 interface ChatbotBlockProps {
   chatbotConfigurationId: string
@@ -53,9 +53,11 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
         >
           <ChatbotChat
             chatbotConfigurationId={chatbotConfigurationId}
-            isCourseMaterialBlock={true}
+            isAlwaysOpen={true}
             pageId={pageId}
-          />
+          >
+            <ChatbotChatBox />
+          </ChatbotChat>
         </div>
       </div>
     )
@@ -65,7 +67,7 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
     <QueryResult query={defaultChatbotConfiguration}>
       {(defaultChatbotConfigurationId) => {
         if (chatbotConfigurationId === defaultChatbotConfigurationId) {
-          return <ErrorBanner variant={"readOnly"} error={t("error-default-chatbot-in-block")} />
+          return <ErrorNotice error={t("error-default-chatbot-in-block")} />
         }
 
         return (
@@ -81,9 +83,11 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
             >
               <ChatbotChat
                 chatbotConfigurationId={chatbotConfigurationId}
-                isCourseMaterialBlock={true}
+                isAlwaysOpen={true}
                 pageId={pageId}
-              />
+              >
+                <ChatbotChatBox />
+              </ChatbotChat>
             </div>
           </div>
         )

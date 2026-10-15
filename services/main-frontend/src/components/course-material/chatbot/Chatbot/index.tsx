@@ -6,6 +6,7 @@ import React from "react"
 import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 import ChatbotChat from "../shared/ChatbotChat"
+import ChatbotDialog from "./ChatbotDialog"
 
 export interface ChatbotProps {
   chatbotConfigurationId: string
@@ -13,12 +14,15 @@ export interface ChatbotProps {
 
 const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const pageId = useAtomValue(currentPageIdAtom)
+
   return (
     <ChatbotChat
       chatbotConfigurationId={chatbotConfigurationId}
-      isCourseMaterialBlock={false}
+      isAlwaysOpen={false}
       pageId={pageId}
-    />
+    >
+      <ChatbotDialog />
+    </ChatbotChat>
   )
 }
 

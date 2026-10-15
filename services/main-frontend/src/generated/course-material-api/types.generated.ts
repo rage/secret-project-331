@@ -143,6 +143,7 @@ export type ChatbotChatStreamEvent =
 export type ChatbotConversation = {
   anonymous_token?: string | null
   chatbot_configuration_id: string
+  conversation_title?: string | null
   course_id?: string | null
   created_at: string
   deleted_at?: string | null
@@ -937,10 +938,15 @@ export type NewCourseBackgroundQuestionAnswer = {
 }
 
 export type NewFeedback = {
+  category?: null | NewFeedbackCategory
   feedback_given: string
   page_id: string
   related_blocks: Array<FeedbackBlock>
   selected_text?: string | null
+}
+
+export type NewFeedbackCategory = {
+  name: string
 }
 
 export type NewFlaggedAnswerWithToken = {
@@ -1390,7 +1396,6 @@ export type UserDetail = {
   email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
-  search_helper?: string | null
   updated_at: string
   user_id: string
 }
@@ -1596,6 +1601,23 @@ export type GetCourseMaterialChapterPagesExcludingFrontPageResponses = {
 export type GetCourseMaterialChapterPagesExcludingFrontPageResponse =
   GetCourseMaterialChapterPagesExcludingFrontPageResponses[keyof GetCourseMaterialChapterPagesExcludingFrontPageResponses]
 
+export type AllUserConversationsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/course-material/chatbot/conversations/all"
+}
+
+export type AllUserConversationsResponses = {
+  /**
+   * All chatbot conversations for user
+   */
+  200: Array<ChatbotConversation>
+}
+
+export type AllUserConversationsResponse =
+  AllUserConversationsResponses[keyof AllUserConversationsResponses]
+
 export type GetDefaultChatbotConfigurationForCourseData = {
   body?: never
   path: {
@@ -1618,7 +1640,34 @@ export type GetDefaultChatbotConfigurationForCourseResponses = {
 export type GetDefaultChatbotConfigurationForCourseResponse =
   GetDefaultChatbotConfigurationForCourseResponses[keyof GetDefaultChatbotConfigurationForCourseResponses]
 
-export type GetChatbotCurrentConversationInfoData = {
+export type GetConversationInfoData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: {
+    /**
+     * Conversation id
+     */
+    conversation_id?: string
+  }
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations"
+}
+
+export type GetConversationInfoResponses = {
+  /**
+   * Selected chatbot conversation info
+   */
+  200: ChatbotConversationInfo
+}
+
+export type GetConversationInfoResponse =
+  GetConversationInfoResponses[keyof GetConversationInfoResponses]
+
+export type GetCurrentConversationIdData = {
   body?: never
   path: {
     /**
@@ -1627,18 +1676,18 @@ export type GetChatbotCurrentConversationInfoData = {
     chatbot_configuration_id: string
   }
   query?: never
-  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current"
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id"
 }
 
-export type GetChatbotCurrentConversationInfoResponses = {
+export type GetCurrentConversationIdResponses = {
   /**
-   * Current chatbot conversation info
+   * Current conversation ID
    */
-  200: ChatbotConversationInfo
+  200: string | null
 }
 
-export type GetChatbotCurrentConversationInfoResponse =
-  GetChatbotCurrentConversationInfoResponses[keyof GetChatbotCurrentConversationInfoResponses]
+export type GetCurrentConversationIdResponse =
+  GetCurrentConversationIdResponses[keyof GetCurrentConversationIdResponses]
 
 export type NewChatbotConversationData = {
   body?: never
@@ -1713,6 +1762,29 @@ export type SendChatbotToolResponseResponses = {
 
 export type SendChatbotToolResponseResponse =
   SendChatbotToolResponseResponses[keyof SendChatbotToolResponseResponses]
+
+export type UpdateTitleData = {
+  body: string
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title"
+}
+
+export type UpdateTitleResponses = {
+  /**
+   * Conversation title updated
+   */
+  200: unknown
+}
 
 export type ClaimCodeFromCodeGiveawayData = {
   body?: never

@@ -66,6 +66,9 @@ pub struct PhaseSpec {
     /// linking switched off. `enrolment-discovery` is not one: with linking off it still wakes
     /// linked students' registrations and only leaves out the mails.
     pub is_account_linking_only: bool,
+    /// Sends attainments, so sits out the nightly
+    /// [`sisu_day_gap`](headless_lms_models::library::credit_registration::sisu_day_gap).
+    pub waits_out_sisu_day_gap: bool,
 }
 
 /// What a spec below leaves as it is: a `credit-registrar` phase over ledger rows that calls no
@@ -78,6 +81,7 @@ const DEFAULTS: PhaseSpec = PhaseSpec {
     breakers: &[],
     owned_states: &[],
     is_account_linking_only: false,
+    waits_out_sisu_day_gap: false,
 };
 
 const STUDY_REGISTRY: &[BreakerTarget] = &[BreakerTarget::StudyRegistry];
@@ -134,6 +138,7 @@ const IMPORT: PhaseSpec = PhaseSpec {
         CreditRegistrationState::CheckingEnrolment,
         CreditRegistrationState::Submitting,
     ],
+    waits_out_sisu_day_gap: true,
     ..DEFAULTS
 };
 const VERIFY: PhaseSpec = PhaseSpec {

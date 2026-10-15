@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -11,7 +12,7 @@ test.use({
 test("widget, checkbox", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes, example, checkbox" })
+  await Select.labelled(page, "Playground examples").chooseOption("Quizzes, example, checkbox")
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 

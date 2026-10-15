@@ -5,6 +5,7 @@ import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { tableRowByCell } from "@/utils/tableRows"
 
 test.describe("test teacher changing grade behavior", () => {
   let studentContext: BrowserContext
@@ -56,9 +57,7 @@ test.describe("test teacher changing grade behavior", () => {
         .filter({ has: teacherPage.getByRole("heading", { name: "Default", exact: true }) })
         .getByRole("link", { name: "View points" })
         .click()
-      await teacherPage
-        .getByRole("link", { name: "02364d40-2aac-4763-8a06-2381fd298d79	" })
-        .click()
+      await tableRowByCell(teacherPage, "student1@example.com").getByRole("link").click()
 
       const exerciseDetailsComponent = teacherPage
         .getByTestId("exercise-status")

@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import countries from "@/shared-module/common/locales/en/countries.json"
+import { Select } from "@/shared-module/components"
 
 import CompletionsByCountry from "../visualizations/country/CompletionsByCountry"
 import StudentsByCountry from "../visualizations/country/StudentsByCountry"
@@ -18,7 +19,8 @@ const CountryStatsTab: React.FC<CountryStatsTabProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const { t: tCountries } = useTranslation("countries")
 
-  const [selectedCountry, setSelectedCountry] = useState<string>("")
+  const { control, watch } = useForm<{ country: string }>({ defaultValues: { country: "" } })
+  const selectedCountry = watch("country")
 
   const countriesOptions = useMemo(
     () =>
@@ -31,12 +33,12 @@ const CountryStatsTab: React.FC<CountryStatsTabProps> = ({ courseId }) => {
 
   return (
     <>
-      <SearchableSelectField
+      <Select
+        name="country"
+        control={control}
         label={t("label-select-country")}
         options={countriesOptions}
-        value={selectedCountry}
-        onChangeByValue={setSelectedCountry}
-        placeholder={t("label-select-country")}
+        searchEnabled
       />
       <StudentsByCountry courseId={courseId} selectedCountry={selectedCountry} />
       <CompletionsByCountry courseId={courseId} selectedCountry={selectedCountry} />

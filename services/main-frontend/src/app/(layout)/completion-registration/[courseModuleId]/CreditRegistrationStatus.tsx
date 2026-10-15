@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next"
 
 import {
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TIME_DATE,
   TIME_IN_TITLE,
@@ -22,6 +21,7 @@ import {
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
+import { LinkingEmailQuestions } from "@/components/credit-registration/LinkingEmailQuestions"
 import {
   RegistrationActions,
   type RegistrationCardAction,
@@ -189,7 +189,10 @@ const CardHeading: React.FC<{
     <header className={cardTitleBandCss}>
       <h1 className={pageTitleCss}>{t("register-completion")}</h1>
       <p className={subheadingCss}>
-        {t("course")}: {moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName}
+        {t("course")}:{" "}
+        {moduleName
+          ? t("credit-registration-course-and-module", { course: courseName, module: moduleName })
+          : courseName}
       </p>
       {typeof ectsCredits === "number" ? (
         <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
@@ -296,7 +299,11 @@ const Tracker: React.FC<TrackerProps> = ({
       <article className={bandedCardCss}>
         {heading}
 
-        <StudentNumberLinkStep registration={registration} verifiedNumber={verifiedNumber} />
+        <StudentNumberLinkStep
+          registration={registration}
+          verifiedNumber={verifiedNumber}
+          enrolmentRoute={enrolmentRoute}
+        />
 
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep
@@ -356,6 +363,12 @@ const Tracker: React.FC<TrackerProps> = ({
           })}
         </section>
       ) : null}
+
+      <LinkingEmailQuestions
+        registration={registration}
+        verifiedNumber={verifiedNumber}
+        enrolmentRoute={enrolmentRoute}
+      />
     </>
   )
 }

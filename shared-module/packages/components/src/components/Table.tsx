@@ -17,6 +17,7 @@ import { ChevronIcon } from "./primitives/ChevronIcon"
 import {
   alignCss,
   bodyCellCss,
+  breakAnywhereCss,
   captionCss,
   cellCompactCss,
   cellCss,
@@ -30,6 +31,7 @@ import {
   expandIconCss,
   expandLabelCss,
   frameCss,
+  groupHeaderCellCss,
   growFixedCss,
   headerCellCss,
   nowrapCss,
@@ -98,6 +100,11 @@ export interface TableColumn<Row> {
    */
   nowrap?: boolean
   /**
+   * Lets the cell break an unbreakable token (an id, an email) anywhere, so the column can shrink
+   * below it. Leave unset for words and dates, which should only wrap between words.
+   */
+  breakAnywhere?: boolean
+  /**
    * Turns the header into a button and shows a sort indicator. Called with the direction the
    * press asks for, which is the opposite of `sortDirection` once this column is the sorted one.
    * Sorting itself belongs to the caller.
@@ -122,14 +129,36 @@ export interface TableSelection<Row> {
   rowLabel?: (row: Row) => string
 }
 
-export interface TableProps<Row> {
+/**
+ * How the table is named for assistive tech: its own caption, visually hidden unless
+ * `showCaption`, or the id of a visible heading that already names it, so the name is not read
+ * twice.
+ */
+export type TableName =
+  | { caption: React.ReactNode; showCaption?: boolean; labelledBy?: never }
+  | { labelledBy: string; caption?: never; showCaption?: never }
+
+/** The heading a run of rows is listed under. */
+export interface TableRowGroup {
+  key: string
+  label: React.ReactNode
+}
+
+export type TableProps<Row> = TableName & TableOptions<Row>
+
+export interface TableOptions<Row> {
   columns: TableColumn<Row>[]
   rows: Row[]
-  /** Stable identity per row; keeps React from reusing the wrong row on reorder. */
+  /**
+   * Stable identity per row; keeps React from reusing the wrong row on reorder. Also emitted as
+   * the row's `data-row-key`, so a test can scope to one row.
+   */
   rowKey: (row: Row, index: number) => React.Key
-  /** Names the table for assistive tech; visually hidden unless `showCaption`. */
-  caption: React.ReactNode
-  showCaption?: boolean
+  /**
+   * Puts a heading row before each run of consecutive rows in the same group. Sort the rows by
+   * group first: a group that comes back after another gets a second heading.
+   */
+  rowGroup?: (row: Row) => TableRowGroup
   density?: TableDensity
   /**
    * Fills the body with this when there are no rows. Defaults to a translated line, so a
@@ -150,6 +179,7 @@ export interface TableProps<Row> {
   /** Adds a leading checkbox column. Controlled: hand it the picked keys and handle the change. */
   selection?: TableSelection<Row>
   className?: string
+  "data-testid"?: string | undefined
 }
 
 function cssLength(value: string | number): string {
@@ -281,6 +311,8 @@ export function Table<Row>({
   rowKey,
   caption,
   showCaption = false,
+  labelledBy,
+  rowGroup,
   density = "comfortable",
   emptyState,
   overflowCue = true,
@@ -290,6 +322,7 @@ export function Table<Row>({
   expandableRow,
   selection,
   className,
+  "data-testid": dataTestId,
 }: TableProps<Row>) {
   const { t } = useTranslation("shared-module")
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -377,6 +410,7 @@ export function Table<Row>({
     cell: cx(
       isFixedLayout || column.minWidth === undefined ? undefined : minWidthCss(column.minWidth),
       wrapFor(column),
+      column.breakAnywhere ? breakAnywhereCss : undefined,
       alignFor(column),
     ),
   }))
@@ -455,7 +489,7 @@ export function Table<Row>({
     )
 
   return (
-    <div className={cx(frameCss, stackClass, className)}>
+    <div className={cx(frameCss, stackClass, className)} data-testid={dataTestId}>
       <div className={scrollCss} ref={scrollRef}>
         <table
           className={cx(
@@ -465,8 +499,9 @@ export function Table<Row>({
             rowHover && rowHoverCss,
           )}
           role={isStacking ? "table" : undefined}
+          aria-labelledby={labelledBy}
         >
-          {showCaption ? (
+          {labelledBy !== undefined ? null : showCaption ? (
             <caption className={captionCss}>{caption}</caption>
           ) : (
             // oxlint-disable-next-line i18next/no-literal-string -- element name, not user-facing text
@@ -551,10 +586,28 @@ export function Table<Row>({
                 const detail = expandableRow?.(row) ?? null
                 const isExpanded = expandedRowKeys.has(String(key))
                 const detailId = `${detailIdPrefix}-${rowIndex}`
+                const group = rowGroup?.(row)
+                const previousRow = rowIndex > 0 ? rows[rowIndex - 1] : undefined
+                const startsGroup =
+                  group !== undefined &&
+                  (previousRow === undefined || rowGroup?.(previousRow).key !== group.key)
 
                 return (
                   <React.Fragment key={key}>
-                    <tr role={isStacking ? "row" : undefined}>
+                    {startsGroup ? (
+                      <tr data-table-group="true" role={isStacking ? "row" : undefined}>
+                        <th
+                          className={groupHeaderCellCss}
+                          colSpan={totalColumnCount}
+                          data-table-group="true"
+                          role={isStacking ? "rowheader" : undefined}
+                          scope="colgroup"
+                        >
+                          {group.label}
+                        </th>
+                      </tr>
+                    ) : null}
+                    <tr data-row-key={String(key)} role={isStacking ? "row" : undefined}>
                       {hasSelection ? (
                         <td
                           className={cx(

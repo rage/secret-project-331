@@ -13,7 +13,7 @@ pub async fn ensure_resend_possible(
     app_conf: &ApplicationConfiguration,
     course_id: Uuid,
 ) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.account_linking_enabled {
+    if !app_conf.suotar_configuration.is_account_linking_enabled() {
         return Err(controller_err!(
             BadRequest,
             "Account linking is switched off.".to_string()
@@ -42,6 +42,8 @@ pub enum ResendOutcome {
     AlreadyMailedToEveryKnownAddress,
     /// A cap refused it.
     RefusedByRateCap,
+    /// A linking email went to the person moments ago, which even an override leaves in place.
+    JustSent,
     NoAddressInStudyRegistry,
     NotOnTheCourseRoster,
     /// The number is already linked to an account, so no linking mail is owed.
@@ -58,6 +60,7 @@ impl From<account_linking::ResendOutcome> for ResendOutcome {
             Attempted::Queued => Self::Queued,
             Attempted::AlreadyMailedToEveryKnownAddress => Self::AlreadyMailedToEveryKnownAddress,
             Attempted::RefusedByRateCap => Self::RefusedByRateCap,
+            Attempted::JustSent => Self::JustSent,
             Attempted::NoAddressInStudyRegistry => Self::NoAddressInStudyRegistry,
             Attempted::NotOnTheCourseRoster => Self::NotOnTheCourseRoster,
             Attempted::AlreadyLinked => Self::AlreadyLinked,

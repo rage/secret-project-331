@@ -255,6 +255,11 @@ bin/seed
 
 Default accounts are defined in `services/headless-lms/server/src/programs/seed`.
 
+## Email
+
+`bin/dev` and `bin/test` deliver all email to a local [Mailpit](https://mailpit.axllent.org/)
+instead of a real mail server. Read it at <http://project-331.local/mailpit/>.
+
 ## Editor setup
 
 To open the project in VS Code with recommended settings and extensions:

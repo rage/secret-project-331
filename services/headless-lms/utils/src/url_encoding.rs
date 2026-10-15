@@ -6,9 +6,13 @@ use percent_encoding::{AsciiSet, NON_ALPHANUMERIC, percent_decode_str, utf8_perc
 /// characters, non-ASCII characters, and control characters) to preserve the original information
 /// while making the value ASCII-safe for use in HTTP headers or other contexts requiring ASCII-compatibility.
 pub fn url_encode(value: &str) -> Bytes {
-    utf8_percent_encode(value, NON_ALPHANUMERIC)
-        .to_string()
-        .into()
+    percent_encode_component(value).into()
+}
+
+/// Percent-encodes everything but ASCII alphanumerics, for a value placed in one URL path
+/// segment or query parameter. Same encoding as [`url_encode`], as a `String`.
+pub fn percent_encode_component(value: &str) -> String {
+    utf8_percent_encode(value, NON_ALPHANUMERIC).to_string()
 }
 
 /// URL-decodes a percent-encoded string back to its original UTF-8 representation.

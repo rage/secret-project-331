@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+import { selectTab } from "@/utils/selectTab"
 
 import { withViewportSize } from "../../utils/viewportUtils"
 
@@ -28,7 +29,7 @@ test.describe("Dialog narrow screen accessibility", () => {
     await page
       .locator("[aria-label=\"Manage course \\'Material references course\\'\"] svg")
       .click()
-    await page.getByRole("tab", { name: "Other" }).click()
+    await selectTab(page, "Other")
     await page.getByRole("tab", { name: "References" }).click()
     await page.getByText("Add new reference").waitFor()
 

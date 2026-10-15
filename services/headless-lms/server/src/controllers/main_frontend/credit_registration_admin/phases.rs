@@ -104,6 +104,9 @@ pub struct CreditRegistrationPhaseList {
     /// Every phase is stopped, which is what the kill switch does.
     pub paused_globally: bool,
     pub circuit_breakers: Vec<CreditRegistrationCircuitBreakerState>,
+    /// The git commit the answering server was built from, or `unknown` for a build without one.
+    /// Workers may run another build while a rollout is under way.
+    pub server_build_commit: String,
 }
 
 /**
@@ -159,6 +162,7 @@ pub async fn list_credit_registration_phases(
         heartbeat_interval_multiplier: PHASE_HEARTBEAT_INTERVAL_MULTIPLIER,
         consecutive_failure_limit: PHASE_CONSECUTIVE_FAILURE_LIMIT,
         circuit_breakers,
+        server_build_commit: crate::config::server_runtime_config().build_commit.clone(),
     }))
 }
 

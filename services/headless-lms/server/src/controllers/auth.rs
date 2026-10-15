@@ -10,19 +10,24 @@ use crate::{
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
-        session_verification::{self, CodeCheck, EmailCodeOutcome},
+        session_verification::{self, EmailCodeOutcome},
     },
     prelude::*,
 };
 use actix_session::Session;
-use actix_web::http::header::{CacheControl, CacheDirective};
+use actix_web::{
+    cookie::Cookie,
+    http::header::{CacheControl, CacheDirective},
+};
 use anyhow::Error;
 use anyhow::anyhow;
 use chrono::Duration;
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
-    email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
-    user_email_codes::UserEmailCodePurpose, users,
+    email_templates::EmailTemplateType,
+    email_verification_tokens, user_email_codes,
+    user_email_codes::{CodeCheck, UserEmailCodePurpose},
+    users,
 };
 use headless_lms_utils::{
     cache::Cache,
@@ -501,15 +506,18 @@ pub async fn login(
     let Login { email, password } = payload.into_inner();
 
     // Development mode UUID login (allows logging in with a user ID string)
-    let response = if app_conf.development_uuid_login {
-        handle_uuid_login(&session, &mut conn, &email).await?
-    } else if app_conf.test_mode {
-        // Test mode: authenticate using seeded test credentials or stored password
+    if app_conf.development_uuid_login {
+        return handle_uuid_login(&session, &mut conn, &email).await;
+    }
+
+    // Test mode: authenticate using seeded test credentials or stored password
+    if app_conf.test_mode {
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
-    } else {
+    }
+
+    let response =
         handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
-            .await?
-    };
+            .await?;
     skip_authorize().authorized_ok(HttpResponse::Ok().json(response.data.into_inner()))
 }
 
@@ -517,17 +525,22 @@ async fn handle_uuid_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     warn!("Trying development mode UUID login");
     let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
         let user = { models::users::get_by_id(conn, id).await? };
+        let browser_token = session_verification::remember_test_mode_browser(conn, user.id).await?;
         authentication::remember(session, user)?;
-        token.authorized_ok(web::Json(LoginResponse::Success))
+        token.authorized_ok(
+            HttpResponse::Ok()
+                .cookie(session_verification::browser_cookie(&browser_token))
+                .json(LoginResponse::Success),
+        )
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(LoginResponse::Failed))
+        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -675,7 +688,8 @@ async fn handle_production_login(
     let token = skip_authorize();
     if is_authenticated {
         if let Some(user) = authenticated_user {
-            // Test-mode and UUID logins skip the code, since the system tests have no mail capture.
+            // Test-mode and UUID logins skip the code and remember the browser instead: neither
+            // development nor the system tests have mail capture.
             if session_verification::applies_to(conn, user.id).await? {
                 return handle_email_verification(conn, &user).await;
             }
@@ -1316,12 +1330,14 @@ pub async fn verify_email(
     skip_token.authorized_ok(HttpResponse::Ok().cookie(cookie).json(true))
 }
 
+/// How the user can confirm the session.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum SessionChallengeMethod {
     EmailCode,
 }
 
+/// Why the session needs confirming.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum SessionChallengeReason {
@@ -1368,29 +1384,22 @@ pub async fn session_status(
     let mut conn = pool.acquire().await?;
     session_verification::delete_expired_occasionally(&mut conn).await?;
 
-    let mut response = HttpResponse::Ok();
-    response.insert_header(CacheControl(vec![CacheDirective::NoStore]));
-    let mut verification_required = false;
-    if let Some(user) = user
-        && session_verification::applies_to(&mut conn, user.id).await?
-    {
-        match session_verification::recognize(
-            &mut conn,
-            &ip_to_country_mapper,
-            app_conf.test_mode,
-            user.id,
-            &req,
-        )
-        .await?
-        {
-            Some(recognition) => {
-                if let Some(cookie) = recognition.renewed_cookie {
-                    response.cookie(cookie);
-                }
-            }
-            None => verification_required = true,
+    let check = match user {
+        Some(user) => {
+            check_session(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req).await?
         }
-    }
+        None => SessionCheck::NotRequired {
+            renewed_cookie: None,
+        },
+    };
+    let (mut response, verification_required) = match check {
+        SessionCheck::NotRequired { renewed_cookie } => (
+            session_verification::ok_with_renewed_cookie(renewed_cookie),
+            false,
+        ),
+        SessionCheck::Required => (HttpResponse::Ok(), true),
+    };
+    response.insert_header(CacheControl(vec![CacheDirective::NoStore]));
     let challenges = if verification_required {
         vec![SessionChallenge {
             method: SessionChallengeMethod::EmailCode,
@@ -1405,24 +1414,37 @@ pub async fn session_status(
     }))
 }
 
-/// Whether the user is one [`session_status`] asks to confirm the session.
-async fn session_needs_verification(
+/// Whether [`session_status`] asks the user to confirm the session.
+enum SessionCheck {
+    /// The response must set `renewed_cookie` when there is one.
+    NotRequired {
+        renewed_cookie: Option<Cookie<'static>>,
+    },
+    Required,
+}
+
+async fn check_session(
     conn: &mut PgConnection,
     ip_to_country_mapper: &IpToCountryMapper,
     app_conf: &ApplicationConfiguration,
     user_id: Uuid,
     req: &HttpRequest,
-) -> Result<bool, ControllerError> {
-    Ok(session_verification::applies_to(conn, user_id).await?
-        && session_verification::recognize(
-            conn,
-            ip_to_country_mapper,
-            app_conf.test_mode,
-            user_id,
-            req,
-        )
-        .await?
-        .is_none())
+) -> Result<SessionCheck, ControllerError> {
+    if !session_verification::applies_to(conn, user_id).await? {
+        return Ok(SessionCheck::NotRequired {
+            renewed_cookie: None,
+        });
+    }
+    Ok(
+        match session_verification::recognize(conn, ip_to_country_mapper, app_conf, user_id, req)
+            .await?
+        {
+            Some(recognition) => SessionCheck::NotRequired {
+                renewed_cookie: recognition.renewed_cookie,
+            },
+            None => SessionCheck::Required,
+        },
+    )
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -1431,6 +1453,7 @@ pub struct SessionEmailCodeRequest {
     pub resend: bool,
 }
 
+/// What asking for a session confirmation code did. `masked_email` is where the code goes.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SessionEmailCodeResult {
@@ -1474,14 +1497,16 @@ pub async fn send_session_email_code(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<SessionEmailCodeRequest>,
-) -> ControllerResult<web::Json<SessionEmailCodeResult>> {
+) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
-    let needed =
-        session_needs_verification(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req)
-            .await?;
-    if !needed {
-        return token.authorized_ok(web::Json(SessionEmailCodeResult::NotRequired));
+    if let SessionCheck::NotRequired { renewed_cookie } =
+        check_session(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req).await?
+    {
+        return token.authorized_ok(
+            session_verification::ok_with_renewed_cookie(renewed_cookie)
+                .json(SessionEmailCodeResult::NotRequired),
+        );
     }
 
     let email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
@@ -1489,7 +1514,7 @@ pub async fn send_session_email_code(
         .email;
     let masked_email = session_verification::mask_email(&email);
     let outcome = session_verification::send_email_code(&mut conn, user.id, payload.resend).await?;
-    token.authorized_ok(web::Json(match outcome {
+    token.authorized_ok(HttpResponse::Ok().json(match outcome {
         EmailCodeOutcome::Sent => SessionEmailCodeResult::Sent { masked_email },
         EmailCodeOutcome::AlreadySent => SessionEmailCodeResult::AlreadySent { masked_email },
         EmailCodeOutcome::RecentlySent {
@@ -1504,12 +1529,14 @@ pub async fn send_session_email_code(
     }))
 }
 
+/// The emailed code the user typed to confirm the session.
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct SessionVerifyRequest {
     #[schema(value_type = String)]
     pub code: DbSecret,
 }
 
+/// Outcome of submitting a session confirmation code.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SessionVerifyResult {
@@ -1547,11 +1574,13 @@ pub async fn verify_session(
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
-    let needed =
-        session_needs_verification(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req)
-            .await?;
-    if !needed {
-        return token.authorized_ok(HttpResponse::Ok().json(SessionVerifyResult::NotRequired));
+    if let SessionCheck::NotRequired { renewed_cookie } =
+        check_session(&mut conn, &ip_to_country_mapper, &app_conf, user.id, &req).await?
+    {
+        return token.authorized_ok(
+            session_verification::ok_with_renewed_cookie(renewed_cookie)
+                .json(SessionVerifyResult::NotRequired),
+        );
     }
 
     let mut tx = conn.begin().await?;

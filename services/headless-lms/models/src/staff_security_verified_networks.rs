@@ -211,6 +211,7 @@ WHERE user_id = $1
     Ok(())
 }
 
+/// Hard-deletes every expired network. Returns how many.
 pub async fn delete_expired(conn: &mut PgConnection) -> ModelResult<u64> {
     let result = sqlx::query!(
         r#"

@@ -171,9 +171,9 @@
   "read-only": "Read only",
   "removed-text": "Removed text",
   "required": "Required",
+  "resend-code-in": "Resend in {{time}}",
   "resources": "Resources",
   "select-question": "Select question type",
-  "session-verification-code-label": "Verification code",
   "session-verification-code-sent-to": "We sent a code to {{email}}.",
   "session-verification-daily-limit-reached": "You have reached today's limit for sending codes.",
   "session-verification-didnt-get-it": "Didn't get it?",
@@ -210,5 +210,6 @@
   "university-of-helsinki": "University of Helsinki",
   "user-settings": "User settings",
   "value-of-maximum": "{{value}} / {{maximum}}",
+  "verification-code-label": "Verification code",
   "yes": "Yes"
 }

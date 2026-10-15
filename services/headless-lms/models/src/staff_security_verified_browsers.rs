@@ -57,20 +57,30 @@ RETURNING id
     Ok(id)
 }
 
-/// Like [`insert`], but leaves an existing row with the same token alone, whoever it belongs to.
-pub async fn insert_if_absent(
+/// Remembers each `(user_id, token)` browser for six months, renewing an expired row the same user
+/// already holds for that token. Never touches a row of another user.
+pub async fn insert_or_renew_expired(
     conn: &mut PgConnection,
-    user_id: Uuid,
-    token: &SecretString,
+    browsers: &[(Uuid, SecretString)],
 ) -> ModelResult<()> {
+    let (user_ids, token_digests): (Vec<Uuid>, Vec<Vec<u8>>) = browsers
+        .iter()
+        .map(|(user_id, token)| (*user_id, token_digest(token)))
+        .unzip();
     sqlx::query!(
         r#"
 INSERT INTO staff_security_verified_browsers (user_id, token_digest, expires_at)
-VALUES ($1, $2, now() + interval '6 months')
-ON CONFLICT (token_digest) DO NOTHING
+SELECT user_id,
+  token_digest,
+  now() + interval '6 months'
+FROM UNNEST($1::uuid [], $2::bytea []) AS browsers(user_id, token_digest)
+ON CONFLICT (token_digest) DO UPDATE
+SET expires_at = EXCLUDED.expires_at
+WHERE staff_security_verified_browsers.user_id = EXCLUDED.user_id
+  AND staff_security_verified_browsers.expires_at <= now()
         "#,
-        user_id,
-        token_digest(token),
+        &user_ids,
+        &token_digests,
     )
     .execute(conn)
     .await?;
@@ -129,6 +139,7 @@ WHERE user_id = $1
     Ok(())
 }
 
+/// Hard-deletes every expired browser. Returns how many.
 pub async fn delete_expired(conn: &mut PgConnection) -> ModelResult<u64> {
     let result = sqlx::query!(
         r#"

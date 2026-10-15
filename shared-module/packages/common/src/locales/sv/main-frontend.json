@@ -1667,7 +1667,6 @@
   "users-with-unregistered": "Användare med oregistrerade",
   "valid-service-info": "Giltig tjänsteinformation",
   "validation-required": "Detta fält är obligatoriskt",
-  "verification-code-label": "Verifieringskod",
   "verification-code-placeholder": "Ange en 6-siffrig kod",
   "verification-failed": "Ogiltig eller utgången verifieringskod",
   "verification-url": "Verifierings-URL",

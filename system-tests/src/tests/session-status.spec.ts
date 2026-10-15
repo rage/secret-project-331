@@ -35,7 +35,8 @@ test("A role user on an unrecognized browser must enter the emailed code", async
 
   await dialog.getByRole("textbox").first().click()
   await page.keyboard.type(code)
-  await dialog.getByRole("button", { name: "Verify" }).click()
+  await expect(dialog.getByRole("button", { name: "Verify" })).toBeEnabled()
+  await page.keyboard.press("Enter")
   await expect(dialog).toBeHidden()
 
   const sessionStatus = page.waitForResponse(

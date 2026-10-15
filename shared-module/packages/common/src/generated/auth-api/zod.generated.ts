@@ -164,8 +164,14 @@ export const zSendEmailCodeData = z.object({
   password: z.string(),
 })
 
+/**
+ * How the user can confirm the session.
+ */
 export const zSessionChallengeMethod = z.enum(["email_code"])
 
+/**
+ * Why the session needs confirming.
+ */
 export const zSessionChallengeReason = z.enum(["unrecognized_network"])
 
 /**
@@ -180,6 +186,9 @@ export const zSessionEmailCodeRequest = z.object({
   resend: z.boolean(),
 })
 
+/**
+ * What asking for a session confirmation code did. `masked_email` is where the code goes.
+ */
 export const zSessionEmailCodeResult = z.union([
   z.object({
     masked_email: z.string(),
@@ -218,10 +227,16 @@ export const zSessionStatus = z.object({
   verification_required: z.boolean(),
 })
 
+/**
+ * The emailed code the user typed to confirm the session.
+ */
 export const zSessionVerifyRequest = z.object({
   code: z.string(),
 })
 
+/**
+ * Outcome of submitting a session confirmation code.
+ */
 export const zSessionVerifyResult = z.union([
   z.object({
     type: z.enum(["verified"]),

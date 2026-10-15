@@ -12092,7 +12092,7 @@ export type GetEmailVerificationCodeForTestModeData = {
   path?: never
   query?: {
     /**
-     * Which of the caller's codes to return. Email ownership verification when left out.
+     * The kinds of code the test-mode endpoint hands out.
      */
     purpose?: "email_ownership_verification" | "network_verification"
   }

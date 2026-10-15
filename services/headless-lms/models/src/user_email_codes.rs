@@ -257,3 +257,91 @@ WHERE user_id = $1
     .await?;
     Ok(count)
 }
+
+/// What submitting a code for a purpose amounted to.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum CodeCheck {
+    /// The code matched and is now spent.
+    Valid,
+    /// Wrong, superseded, spent or never requested.
+    Invalid,
+    Expired,
+    /// The latest code was retired after `max_attempts` wrong guesses; only a new one helps.
+    TooManyAttempts,
+}
+
+/// Checks `code` against the user's latest code for `purpose`, counting a wrong guess against it.
+///
+/// On [`CodeCheck::Valid`] the code is spent; run it in the transaction that acts on the proof.
+pub async fn check_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+    code: &DbSecret,
+    max_attempts: i32,
+) -> ModelResult<CodeCheck> {
+    let Some(latest) = get_latest_user_email_code(conn, user_id, purpose).await? else {
+        return Ok(CodeCheck::Invalid);
+    };
+    if latest.used_at.is_some() {
+        return Ok(CodeCheck::Invalid);
+    }
+    if latest.deleted_at.is_some() {
+        return Ok(if latest.attempt_count >= max_attempts {
+            CodeCheck::TooManyAttempts
+        } else {
+            CodeCheck::Invalid
+        });
+    }
+    // Before counting the guess: attempts against a code that can no longer be spent would only
+    // strand the user on "too many attempts" for a code they have to replace anyway.
+    if latest.expires_at <= Utc::now() {
+        return Ok(CodeCheck::Expired);
+    }
+    if is_reset_user_email_code_valid(conn, user_id, purpose, code).await?
+        && mark_user_email_code_used(conn, user_id, purpose, code).await?
+    {
+        return Ok(CodeCheck::Valid);
+    }
+    // A concurrent duplicate submission blocks on the winner's spend and then finds no live code
+    // to count against, so it lands on Invalid.
+    let retired = record_failed_attempt(conn, user_id, purpose, max_attempts).await?;
+    Ok(if retired {
+        CodeCheck::TooManyAttempts
+    } else {
+        CodeCheck::Invalid
+    })
+}
+
+/// The user's most recently created code for `purpose`, spent and retired ones included.
+async fn get_latest_user_email_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<Option<UserEmailCode>> {
+    let record = sqlx::query_as!(
+        UserEmailCode,
+        r#"
+SELECT id,
+  user_id,
+  code,
+  purpose AS "purpose: UserEmailCodePurpose",
+  attempt_count,
+  expires_at,
+  used_at,
+  created_at,
+  updated_at,
+  deleted_at
+FROM user_email_codes
+WHERE user_id = $1
+  AND purpose = $2
+ORDER BY created_at DESC
+LIMIT 1
+        "#,
+        user_id,
+        purpose as UserEmailCodePurpose,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(record)
+}

@@ -1056,10 +1056,12 @@
       },
       "SessionChallengeMethod": {
         "type": "string",
+        "description": "How the user can confirm the session.",
         "enum": ["email_code"]
       },
       "SessionChallengeReason": {
         "type": "string",
+        "description": "Why the session needs confirming.",
         "enum": ["unrecognized_network"]
       },
       "SessionEmailCodeRequest": {
@@ -1142,7 +1144,8 @@
               }
             }
           }
-        ]
+        ],
+        "description": "What asking for a session confirmation code did. `masked_email` is where the code goes."
       },
       "SessionStatus": {
         "type": "object",
@@ -1162,6 +1165,7 @@
       },
       "SessionVerifyRequest": {
         "type": "object",
+        "description": "The emailed code the user typed to confirm the session.",
         "required": ["code"],
         "properties": {
           "code": {
@@ -1221,7 +1225,8 @@
               }
             }
           }
-        ]
+        ],
+        "description": "Outcome of submitting a session confirmation code."
       },
       "SignupResponse": {
         "oneOf": [

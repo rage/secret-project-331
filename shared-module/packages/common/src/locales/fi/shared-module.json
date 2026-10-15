@@ -179,9 +179,9 @@
   "report": "Ilmianna",
   "report-as-spam": "Merkitse spammiksi",
   "required": "Vaadittu",
+  "resend-code-in": "Lähetä uudelleen {{time}} kuluttua",
   "resources": "Materiaalit",
   "select-question": "Valitse kysymyksen tyypiksi",
-  "session-verification-code-label": "Vahvistuskoodi",
   "session-verification-code-sent-to": "Lähetimme koodin osoitteeseen {{email}}.",
   "session-verification-daily-limit-reached": "Olet saavuttanut tämän päivän koodien lähetysrajan.",
   "session-verification-didnt-get-it": "Eikö koodi tullut?",
@@ -220,6 +220,7 @@
   "university-of-helsinki": "Helsingin yliopisto",
   "user-settings": "Käyttäjän asetukset",
   "value-of-maximum": "{{value}}/{{maximum}}",
+  "verification-code-label": "Vahvistuskoodi",
   "what-you-will-learn": "Mitä opit tässä luvussa",
   "yes": "Kyllä"
 }

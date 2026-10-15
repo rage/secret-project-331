@@ -157,9 +157,9 @@
   "report": "تقرير",
   "report-as-spam": "الإبلاغ كرسالة مزعجة",
   "required": "مطلوب",
+  "resend-code-in": "إعادة الإرسال بعد {{time}}",
   "resources": "الموارد",
   "select-question": "اختر نوع السؤال",
-  "session-verification-code-label": "رمز التحقق",
   "session-verification-code-sent-to": "أرسلنا رمزًا إلى {{email}}.",
   "session-verification-daily-limit-reached": "لقد بلغت الحد اليومي لإرسال الرموز.",
   "session-verification-didnt-get-it": "لم يصلك الرمز؟",
@@ -191,6 +191,7 @@
   "translate": "ترجمة",
   "university-of-helsinki": "جامعة هلسنكي",
   "user-settings": "إعدادات المستخدم",
+  "verification-code-label": "رمز التحقق",
   "what-you-will-learn": "ماذا ستتعلم في هذا الفصل",
   "yes": "نعم"
 }

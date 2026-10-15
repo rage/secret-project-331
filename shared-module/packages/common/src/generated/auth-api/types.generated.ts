@@ -236,8 +236,14 @@ export type SessionChallenge = {
   reasons: Array<SessionChallengeReason>
 }
 
+/**
+ * How the user can confirm the session.
+ */
 export type SessionChallengeMethod = "email_code"
 
+/**
+ * Why the session needs confirming.
+ */
 export type SessionChallengeReason = "unrecognized_network"
 
 export type SessionEmailCodeRequest = {
@@ -247,6 +253,9 @@ export type SessionEmailCodeRequest = {
   resend: boolean
 }
 
+/**
+ * What asking for a session confirmation code did. `masked_email` is where the code goes.
+ */
 export type SessionEmailCodeResult =
   | {
       masked_email: string
@@ -277,10 +286,16 @@ export type SessionStatus = {
   verification_required: boolean
 }
 
+/**
+ * The emailed code the user typed to confirm the session.
+ */
 export type SessionVerifyRequest = {
   code: string
 }
 
+/**
+ * Outcome of submitting a session confirmation code.
+ */
 export type SessionVerifyResult =
   | {
       type: "verified"

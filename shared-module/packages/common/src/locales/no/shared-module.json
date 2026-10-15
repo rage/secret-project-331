@@ -156,9 +156,9 @@
   "report": "Rapport",
   "report-as-spam": "Rapporter som spam",
   "required": "Påkrevd",
+  "resend-code-in": "Send på nytt om {{time}}",
   "resources": "Ressurser",
   "select-question": "Velg spørsmålstype",
-  "session-verification-code-label": "Bekreftelseskode",
   "session-verification-code-sent-to": "Vi sendte en kode til {{email}}.",
   "session-verification-daily-limit-reached": "Du har nådd dagens grense for sending av koder.",
   "session-verification-didnt-get-it": "Fikk du ikke koden?",
@@ -189,6 +189,7 @@
   "translate": "Oversette",
   "university-of-helsinki": "Universitetet i Helsinki",
   "user-settings": "Brukerinnstillinger",
+  "verification-code-label": "Bekreftelseskode",
   "what-you-will-learn": "Hva du vil lære i dette kapittelet",
   "yes": "Ja"
 }

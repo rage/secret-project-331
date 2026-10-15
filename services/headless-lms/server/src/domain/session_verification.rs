@@ -3,14 +3,17 @@
 
 use std::net::IpAddr;
 
-use actix_web::cookie::{Cookie, SameSite, time::Duration as CookieDuration};
+use actix_web::{
+    HttpResponseBuilder,
+    cookie::{Cookie, SameSite, time::Duration as CookieDuration},
+};
 use chrono::Duration;
 use headless_lms_models::{
     email_deliveries,
     email_templates::{self, EmailTemplateType},
     staff_security_verified_browsers as verified_browsers,
     staff_security_verified_networks as verified_networks, user_email_codes,
-    user_email_codes::UserEmailCodePurpose,
+    user_email_codes::{CodeCheck, UserEmailCodePurpose},
 };
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use secrecy::{ExposeSecret, SecretString};
@@ -66,7 +69,7 @@ fn parse_forwarded_ip(entry: &str) -> Option<IpAddr> {
         .map(|ip| ip.to_canonical())
 }
 
-/// Loopback and private (RFC 1918, ULA) addresses, which in test mode pass without a network.
+/// Loopback and private (RFC 1918, ULA) addresses, which in development pass without a network.
 fn is_local(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => ip.is_loopback() || ip.is_private(),
@@ -90,13 +93,23 @@ pub fn browser_cookie(token: &SecretString) -> Cookie<'static> {
         .finish()
 }
 
+/// A 200 response that sets [`Recognition::renewed_cookie`], if any.
+pub fn ok_with_renewed_cookie(renewed_cookie: Option<Cookie<'static>>) -> HttpResponseBuilder {
+    let mut response = HttpResponse::Ok();
+    if let Some(cookie) = renewed_cookie {
+        response.cookie(cookie);
+    }
+    response
+}
+
 /// A request from a remembered browser on a verified network.
 #[derive(Debug)]
 pub struct Recognition {
     pub browser_id: Uuid,
     /// The networks the request matched; empty for a local address in test mode.
     pub network_ids: Vec<Uuid>,
-    /// Set when the browser's lifetime was extended, so the response must carry it.
+    /// Set when the browser's lifetime was extended; the response must carry it, see
+    /// [`ok_with_renewed_cookie`].
     pub renewed_cookie: Option<Cookie<'static>>,
 }
 
@@ -106,10 +119,12 @@ pub struct Recognition {
 pub async fn recognize(
     conn: &mut PgConnection,
     ip_to_country: &IpToCountryMapper,
-    test_mode: bool,
+    app_conf: &ApplicationConfiguration,
     user_id: Uuid,
     req: &HttpRequest,
 ) -> ModelResult<Option<Recognition>> {
+    // UUID login is development only and may run without the country lists.
+    let is_development = app_conf.test_mode || app_conf.development_uuid_login;
     let Some(token) = browser_token(req) else {
         return Ok(None);
     };
@@ -120,7 +135,7 @@ pub async fn recognize(
         return Ok(None);
     };
 
-    let network_ids = if test_mode && is_local(ip) {
+    let network_ids = if is_development && is_local(ip) {
         Vec::new()
     } else {
         let candidates = verified_networks::get_candidates(conn, user_id, ip, browser_id).await?;
@@ -132,7 +147,7 @@ pub async fn recognize(
         let matched: Vec<Uuid> = candidates
             .iter()
             // The dev and test lists are truncated, so countries there are unreliable.
-            .filter(|c| c.contains_ip && (test_mode || c.country.as_deref() == country))
+            .filter(|c| c.contains_ip && (is_development || c.country.as_deref() == country))
             .map(|c| c.id)
             .collect();
         if !matched.is_empty() {
@@ -225,8 +240,8 @@ pub async fn forget_after_password_change(
     Ok(())
 }
 
-/// The token test-mode logins give a user's browser. Fixed, and seeded for every seeded user, so
-/// that saved Playwright logins keep working across reseeds.
+/// The token test-mode and UUID logins give a user's browser. Fixed, and seeded for every seeded
+/// user, so that saved Playwright logins keep working across reseeds.
 fn test_mode_browser_token(user_id: Uuid) -> SecretString {
     SecretString::from(format!("test-mode-browser-{user_id}"))
 }
@@ -237,9 +252,20 @@ pub async fn remember_test_mode_browser(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> ModelResult<SecretString> {
-    let token = test_mode_browser_token(user_id);
-    verified_browsers::insert_if_absent(conn, user_id, &token).await?;
-    Ok(token)
+    remember_test_mode_browsers(conn, &[user_id]).await?;
+    Ok(test_mode_browser_token(user_id))
+}
+
+/// [`remember_test_mode_browser`] for many users in one statement.
+pub async fn remember_test_mode_browsers(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+) -> ModelResult<()> {
+    let browsers: Vec<_> = user_ids
+        .iter()
+        .map(|user_id| (*user_id, test_mode_browser_token(*user_id)))
+        .collect();
+    verified_browsers::insert_or_renew_expired(conn, &browsers).await
 }
 
 /// Hard-deletes expired browsers and networks on a small fraction of calls.
@@ -264,6 +290,7 @@ pub fn mask_email(email: &str) -> String {
     }
 }
 
+/// What [`send_email_code`] did.
 #[derive(Debug, PartialEq, Eq)]
 pub enum EmailCodeOutcome {
     Sent,
@@ -273,6 +300,16 @@ pub enum EmailCodeOutcome {
         retry_after_seconds: i64,
     },
     DailyLimitReached,
+}
+
+/// Checks `code` against the user's network verification code. On [`CodeCheck::Valid`] the code is
+/// spent, in the caller's transaction.
+pub async fn check_email_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    code: &DbSecret,
+) -> ModelResult<CodeCheck> {
+    user_email_codes::check_code(conn, user_id, PURPOSE, code, MAX_CODE_ATTEMPTS).await
 }
 
 /// Mails the user a code, unless one is out already.
@@ -334,47 +371,4 @@ pub async fn send_email_code(
     email_deliveries::insert_email_delivery(&mut tx, user_id, template.id).await?;
     tx.commit().await?;
     Ok(EmailCodeOutcome::Sent)
-}
-
-#[derive(Debug)]
-pub enum CodeCheck {
-    Valid,
-    Invalid,
-    Expired,
-    TooManyAttempts,
-}
-
-/// Checks `code` against the user's outstanding code, counting a wrong one against it.
-///
-/// On [`CodeCheck::Valid`] the code is spent, in the caller's transaction.
-pub async fn check_email_code(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    code: &DbSecret,
-) -> ModelResult<CodeCheck> {
-    let Some(outstanding) =
-        user_email_codes::get_outstanding_user_email_code(conn, user_id, PURPOSE).await?
-    else {
-        return Ok(CodeCheck::Invalid);
-    };
-    // Before counting the guess: attempts against a code that can no longer be spent would only
-    // strand the user on "too many attempts" for a code they have to replace anyway.
-    if outstanding.expires_at <= Utc::now() {
-        return Ok(CodeCheck::Expired);
-    }
-    if outstanding.attempt_count >= MAX_CODE_ATTEMPTS {
-        return Ok(CodeCheck::TooManyAttempts);
-    }
-    if user_email_codes::is_reset_user_email_code_valid(conn, user_id, PURPOSE, code).await?
-        && user_email_codes::mark_user_email_code_used(conn, user_id, PURPOSE, code).await?
-    {
-        return Ok(CodeCheck::Valid);
-    }
-    let retired =
-        user_email_codes::record_failed_attempt(conn, user_id, PURPOSE, MAX_CODE_ATTEMPTS).await?;
-    Ok(if retired {
-        CodeCheck::TooManyAttempts
-    } else {
-        CodeCheck::Invalid
-    })
 }

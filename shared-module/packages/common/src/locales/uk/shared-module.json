@@ -156,9 +156,9 @@
   "report": "Звіт",
   "report-as-spam": "Повідомити про спам",
   "required": "Обов‘язково",
+  "resend-code-in": "Надіслати ще раз через {{time}}",
   "resources": "Ресурси",
   "select-question": "Виберіть тип питання",
-  "session-verification-code-label": "Код підтвердження",
   "session-verification-code-sent-to": "Ми надіслали код на {{email}}.",
   "session-verification-daily-limit-reached": "Ви досягли сьогоднішнього ліміту надсилання кодів.",
   "session-verification-didnt-get-it": "Не отримали код?",
@@ -190,6 +190,7 @@
   "translate": "Перекласти",
   "university-of-helsinki": "Університет Гельсінкі",
   "user-settings": "Налаштування користувача",
+  "verification-code-label": "Код підтвердження",
   "what-you-will-learn": "Про що ви дізнаєтеся в цьому розділі",
   "yes": "Так"
 }

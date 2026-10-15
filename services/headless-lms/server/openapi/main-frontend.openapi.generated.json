@@ -9371,6 +9371,7 @@
             "required": false,
             "schema": {
               "type": "string",
+              "description": "The kinds of code the test-mode endpoint hands out.",
               "enum": ["email_ownership_verification", "network_verification"]
             }
           }

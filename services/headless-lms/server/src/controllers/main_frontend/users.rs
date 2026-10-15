@@ -1026,21 +1026,16 @@ pub async fn change_user_password(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<ChangePasswordData>,
     user: AuthUser,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let password_hash = models::user_passwords::hash_password(&payload.new_password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
     let mut tx = conn.begin().await?;
-    let recognition = session_verification::recognize(
-        &mut tx,
-        &ip_to_country_mapper,
-        app_conf.test_mode,
-        user.id,
-        &req,
-    )
-    .await?;
+    let recognition =
+        session_verification::recognize(&mut tx, &ip_to_country_mapper, &app_conf, user.id, &req)
+            .await?;
     let res = models::user_passwords::change_user_password_with_old_password(
         &mut tx,
         user.id,
@@ -1054,7 +1049,8 @@ pub async fn change_user_password(
     }
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(res))
+    let renewed_cookie = recognition.and_then(|r| r.renewed_cookie);
+    token.authorized_ok(session_verification::ok_with_renewed_cookie(renewed_cookie).json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

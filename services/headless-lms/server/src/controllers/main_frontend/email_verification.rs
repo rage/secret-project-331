@@ -8,7 +8,7 @@ and the OIDC discovery document advertises an `email_verified` claim.
 use headless_lms_models::{
     email_templates::{self, EmailTemplateType},
     user_details::{self, EmailVerificationMethod},
-    user_email_codes::{self, UserEmailCodePurpose},
+    user_email_codes::{self, CodeCheck, UserEmailCodePurpose},
 };
 use secrecy::ExposeSecret;
 use utoipa::{IntoParams, OpenApi, ToSchema};
@@ -214,19 +214,15 @@ pub async fn verify_email_ownership(
         .is_some()
     {
         VerifyEmailOwnershipResult::AlreadyVerified
-    } else if !user_email_codes::is_reset_user_email_code_valid(
+    } else if user_email_codes::check_code(
         &mut tx,
         user.id,
         PURPOSE,
         &payload.code,
+        MAX_CODE_ATTEMPTS,
     )
     .await?
-    {
-        user_email_codes::record_failed_attempt(&mut tx, user.id, PURPOSE, MAX_CODE_ATTEMPTS)
-            .await?;
-        VerifyEmailOwnershipResult::Invalid
-    } else if user_email_codes::mark_user_email_code_used(&mut tx, user.id, PURPOSE, &payload.code)
-        .await?
+        == CodeCheck::Valid
     {
         user_details::set_email_verified(
             &mut tx,
@@ -237,8 +233,6 @@ pub async fn verify_email_ownership(
         .await?;
         VerifyEmailOwnershipResult::Verified
     } else {
-        // The spend blocks on the winner's row lock and then matches nothing, so a concurrent
-        // duplicate submission lands here rather than recording a second proof.
         VerifyEmailOwnershipResult::Invalid
     };
 
@@ -247,6 +241,7 @@ pub async fn verify_email_ownership(
     token.authorized_ok(web::Json(result))
 }
 
+/// The kinds of code the test-mode endpoint hands out.
 #[derive(Debug, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum TestModeCodePurpose {
@@ -254,6 +249,7 @@ pub enum TestModeCodePurpose {
     NetworkVerification,
 }
 
+/// Query of [`get_email_verification_code_for_test_mode`].
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct TestModeCodeQuery {

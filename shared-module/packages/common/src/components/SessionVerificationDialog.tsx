@@ -1,13 +1,14 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import React, { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import React, { useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Dialog } from "@/shared-module/components/components/Dialog"
-import { OtpField } from "@/shared-module/components/components/OtpField"
+import {
+  ONE_TIME_CODE_LENGTH,
+  OneTimeCodeForm,
+} from "@/shared-module/components/components/OneTimeCodeForm"
 
 import { isAppApiError } from "../errors/AppApiError"
 import {
@@ -20,43 +21,9 @@ import useLogout from "../hooks/useLogout"
 import useSessionVerificationRequired from "../hooks/useSessionVerificationRequired"
 import "../init/registerAuthApiClients"
 
-const CODE_LENGTH = 6
 const HTTP_TOO_MANY_REQUESTS = 429
-
-const bodyCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-
-  p {
-    margin: 0;
-  }
-`
-
-const resendCss = css`
-  font-size: var(--font-size-1);
-  color: var(--color-gray-600);
-`
-
-const resendButtonCss = css`
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  font-weight: 600;
-  color: var(--color-green-700);
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-`
+/** The server refuses a resend for two minutes after a code went out. */
+const RESEND_COOLDOWN_SECONDS = 120
 
 /**
  * Blocking "is it really you" dialog; renders nothing unless the session needs verification.
@@ -69,11 +36,10 @@ const SessionVerificationDialog: React.FC = () => {
   const isVerificationRequired = useSessionVerificationRequired()
   const [maskedEmail, setMaskedEmail] = useState<string | null>(null)
   const [resendNotice, setResendNotice] = useState<string | null>(null)
+  const [lastSentAt, setLastSentAt] = useState<string | null>(null)
   const [codeError, setCodeError] = useState<string | null>(null)
-  const { control, handleSubmit, watch, reset } = useForm<{ code: string }>({
-    defaultValues: { code: "" },
-  })
-  const code = watch("code")
+  const [code, setCode] = useState("")
+  const formId = useId()
 
   const requestEmailCode = useMutation({
     ...postAuthSessionStatusEmailCodeMutation(),
@@ -85,6 +51,11 @@ const SessionVerificationDialog: React.FC = () => {
       setMaskedEmail(result.masked_email)
       switch (result.type) {
         case "recently_sent":
+          setLastSentAt(
+            new Date(
+              Date.now() + (result.retry_after_seconds - RESEND_COOLDOWN_SECONDS) * 1000,
+            ).toISOString(),
+          )
           setResendNotice(
             t("session-verification-recently-sent", { seconds: result.retry_after_seconds }),
           )
@@ -93,6 +64,9 @@ const SessionVerificationDialog: React.FC = () => {
           setResendNotice(t("session-verification-daily-limit-reached"))
           break
         case "sent":
+          setLastSentAt(new Date().toISOString())
+          setResendNotice(null)
+          break
         case "already_sent":
           setResendNotice(null)
           break
@@ -110,12 +84,8 @@ const SessionVerificationDialog: React.FC = () => {
         return
       }
       setCodeError(verifyFailureMessage(result.type))
-      reset({ code: "" })
     },
-    onError: (error) => {
-      setCodeError(errorMessage(error))
-      reset({ code: "" })
-    },
+    onError: (error) => setCodeError(errorMessage(error)),
   })
 
   useEffect(() => {
@@ -148,8 +118,6 @@ const SessionVerificationDialog: React.FC = () => {
     }
   }
 
-  const submit = handleSubmit((values) => verifyCode.mutate({ body: { code: values.code } }))
-
   return (
     <Dialog
       open={isVerificationRequired}
@@ -163,44 +131,36 @@ const SessionVerificationDialog: React.FC = () => {
         {
           label: t("session-verification-verify"),
           variant: "primary",
+          type: "submit",
+          domProps: { form: formId },
           isLoading: verifyCode.isPending,
-          disabled: code.length !== CODE_LENGTH,
-          onPress: () => void submit(),
+          disabled: code.length !== ONE_TIME_CODE_LENGTH,
         },
       ]}
     >
-      <div className={bodyCss}>
-        <p>
-          {t("session-verification-unrecognized-network")}
-          {maskedEmail !== null &&
-            ` ${t("session-verification-code-sent-to", { email: maskedEmail })}`}
-        </p>
-        <OtpField
-          name="code"
-          control={control}
-          label={t("session-verification-code-label")}
-          length={CODE_LENGTH}
-          // oxlint-disable-next-line i18next/no-literal-string
-          fieldSize="lg"
-          isFullWidth
-          // oxlint-disable-next-line jsx-a11y/no-autofocus -- the dialog exists only to take the code
-          autoFocus
-          autoComplete="one-time-code"
-          errorMessage={codeError ?? undefined}
-        />
-        <p className={resendCss}>
-          {resendNotice !== null ? <span role="status">{resendNotice}</span> : null}{" "}
-          {t("session-verification-didnt-get-it")}{" "}
-          <button
-            type="button"
-            className={resendButtonCss}
-            disabled={requestEmailCode.isPending}
-            onClick={() => sendCode({ body: { resend: true } })}
-          >
-            {t("session-verification-send-again")}
-          </button>
-        </p>
-      </div>
+      <OneTimeCodeForm
+        id={formId}
+        message={
+          maskedEmail === null
+            ? t("session-verification-unrecognized-network")
+            : `${t("session-verification-unrecognized-network")} ${t("session-verification-code-sent-to", { email: maskedEmail })}`
+        }
+        onSubmit={async (submittedCode) => {
+          // Failures are shown through the mutation's own callbacks.
+          await verifyCode.mutateAsync({ body: { code: submittedCode } }).catch(() => undefined)
+        }}
+        onCodeChange={setCode}
+        error={codeError}
+        isSubmitting={verifyCode.isPending}
+        resend={{
+          helperText: t("session-verification-didnt-get-it"),
+          label: t("session-verification-send-again"),
+          onResend: () => sendCode({ body: { resend: true } }),
+          cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+          lastSentAt,
+          statusMessage: resendNotice,
+        }}
+      />
     </Dialog>
   )
 }

@@ -16,7 +16,7 @@ test("Changing view in the cms sidebar works", async ({ page }) => {
     .locator("[aria-label=\"Manage\\ course\\ \\'Introduction\\ to\\ Statistics\\'\"] svg")
     .click()
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/f307d05f-be34-4148-bb0c-21d6f7a35cdb/pages",
   )

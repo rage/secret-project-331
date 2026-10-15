@@ -34,7 +34,7 @@ test.describe("Uploading media as admin", () => {
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
 
-    await page.getByText("Pages").click()
+    await page.getByRole("tab", { name: "Pages" }).click()
 
     await page
       .getByRole("row", { name: /Welcome to Introduction to Everything/ })

@@ -5,10 +5,11 @@
 //      don't inherit the router basepath (TanStack/router #4888), and so need them unprefixed.
 //   3. Serve the prerendered SPA shell (dist/client/_shell.html) for other GET navigations; the
 //      client router (with basepath) renders the matched route.
-//   4. Stamp the iframe/CORS/CSP headers on EVERY response, including static assets and @fontsource
+//   4. Answer CORS preflights before any of the above.
+//   5. Stamp the iframe/CORS/CSP headers on EVERY response, including static assets and @fontsource
 //      fonts the opaque-origin iframe fetches cross-origin — Start middleware skips static
 //      responses, which is why this server exists.
-//   5. Bind 0.0.0.0:$PORT.
+//   6. Bind 0.0.0.0:$PORT.
 import { createReadStream } from "node:fs"
 import { stat } from "node:fs/promises"
 import { createServer } from "node:http"
@@ -17,7 +18,7 @@ import { Readable } from "node:stream"
 
 // Built server-entry: { fetch(request) => Response }.
 import serverEntry from "./dist/server/index.js"
-import { IFRAME_HEADERS } from "./iframe-headers.mjs"
+import { answerPreflight, IFRAME_HEADERS } from "./iframe-headers.mjs"
 
 const ROOT = import.meta.dirname
 const CLIENT_DIR = join(ROOT, "dist", "client")
@@ -101,6 +102,9 @@ function sendFile(res, filePath, { status = 200, cache = "no-cache" } = {}) {
 
 const server = createServer(async (req, res) => {
   try {
+    if (answerPreflight(req, res)) {
+      return
+    }
     const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`)
     const isGet = req.method === "GET" || req.method === "HEAD"
 

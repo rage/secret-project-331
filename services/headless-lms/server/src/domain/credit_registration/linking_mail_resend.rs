@@ -6,8 +6,8 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-/// Refuses a resend while account linking is switched off, or for a course with no credit
-/// registration module configured.
+/// Refuses a resend while account linking is switched off, or for a course with no module that
+/// registers credits.
 pub async fn ensure_resend_possible(
     conn: &mut PgConnection,
     app_conf: &ApplicationConfiguration,
@@ -19,13 +19,14 @@ pub async fn ensure_resend_possible(
             "Account linking is switched off.".to_string()
         ));
     }
-    let enabled_module_ids =
-        models::course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
-            .await?;
-    if enabled_module_ids.is_empty() {
+    let registers_credits = models::course_modules::get_by_course_id(conn, course_id)
+        .await?
+        .iter()
+        .any(|module| models::course_modules::registers_credits(module.uh_course_code.as_deref()));
+    if !registers_credits {
         return Err(controller_err!(
             BadRequest,
-            "This course has no credit registration module configured.".to_string()
+            "This course has no module with a course code.".to_string()
         ));
     }
     Ok(())

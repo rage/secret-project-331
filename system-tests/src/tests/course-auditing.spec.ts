@@ -100,21 +100,7 @@ test.describe("Course auditing", () => {
       .getByRole("textbox", { name: "Completion registration link" })
       .fill("https://www.example.com/override")
 
-    await defaultModuleFields
-      .getByRole("checkbox", {
-        name: "Enable registering completion to the Open University of University of Helsinki",
-      })
-      .check()
-
     await defaultModuleFields.getByRole("textbox", { name: "ECTS credits" }).fill("3")
-
-    await auditingCourseCard
-      .getByTestId("edit-module-fields")
-      .filter({ hasText: "Another module" })
-      .getByRole("checkbox", {
-        name: "Enable registering completion to the Open University of University of Helsinki",
-      })
-      .check()
 
     await auditingCourseCard
       .getByTestId("edit-module-fields")
@@ -176,16 +162,6 @@ test.describe("Course auditing", () => {
       auditingCourseCard
         .getByRole("group", { name: "Default module" })
         .getByTestId("content-display-box")
-        .filter({
-          hasText: "Enable registering completion to the Open University of University of Helsinki",
-        })
-        .getByText("True"),
-    ).toBeVisible()
-
-    await expect(
-      auditingCourseCard
-        .getByRole("group", { name: "Default module" })
-        .getByTestId("content-display-box")
         .filter({ hasText: "University of Helsinki course code" })
         .getByText("TEST001"),
     ).toBeVisible()
@@ -204,16 +180,6 @@ test.describe("Course auditing", () => {
         .getByTestId("content-display-box")
         .filter({ hasText: "ECTS credits" })
         .getByText("4"),
-    ).toBeVisible()
-
-    await expect(
-      auditingCourseCard
-        .getByRole("group", { name: "Bonus module" })
-        .getByTestId("content-display-box")
-        .filter({
-          hasText: "Enable registering completion to the Open University of University of Helsinki",
-        })
-        .getByText("False"),
     ).toBeVisible()
 
     await expect(

@@ -567,22 +567,19 @@ pub async fn update_course_auditing_data(
             module.completion_registration_link_override.as_deref(),
         )?;
     }
-    let (
-        module_ids,
-        uh_course_codes,
-        completion_registration_link_overrides,
-        ects_credits,
-        enable_registering_completion_to_uh_open_university,
-    ): (Vec<_>, Vec<_>, Vec<_>, Vec<_>, Vec<_>) =
-        multiunzip(data_update.modules.into_iter().map(|m| {
-            (
-                m.id,
-                m.uh_course_code,
-                m.completion_registration_link_override,
-                m.ects_credits,
-                m.enable_registering_completion_to_uh_open_university,
-            )
-        }));
+    let (module_ids, uh_course_codes, completion_registration_link_overrides, ects_credits): (
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+    ) = multiunzip(data_update.modules.into_iter().map(|m| {
+        (
+            m.id,
+            crate::course_modules::normalize_uh_course_code(m.uh_course_code),
+            m.completion_registration_link_override,
+            m.ects_credits,
+        )
+    }));
 
     let new_prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
 
@@ -706,33 +703,29 @@ WHERE id = $1
 UPDATE course_modules cm
 SET uh_course_code = v.uh_course_code,
   completion_registration_link_override = v.completion_registration_link_override,
-  ects_credits = v.ects_credits,
-  enable_registering_completion_to_uh_open_university = v.enable_registering_completion_to_uh_open_university
+  ects_credits = v.ects_credits
 FROM (
     SELECT *
     FROM UNNEST(
         $1::uuid [],
         $2::TEXT [],
         $3::TEXT [],
-        $4::FLOAT8 [],
-        $5::BOOLEAN []
+        $4::FLOAT8 []
       ) AS v(
         id,
         uh_course_code,
         completion_registration_link_override,
-        ects_credits,
-        enable_registering_completion_to_uh_open_university
+        ects_credits
       )
   ) AS v
 WHERE cm.id = v.id
-  AND cm.course_id = $6
+  AND cm.course_id = $5
   AND cm.deleted_at IS NULL
 "#,
         &module_ids,
         &uh_course_codes as &[Option<String>],
         &completion_registration_link_overrides as &[Option<String>],
         &ects_credits as &[Option<f32>],
-        &enable_registering_completion_to_uh_open_university,
         course_id
     )
     .execute(&mut *tx)

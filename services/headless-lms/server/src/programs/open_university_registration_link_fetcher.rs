@@ -64,8 +64,7 @@ async fn fetch_and_update_completion_links(
     let client = Client::default();
     let now = Utc::now().naive_utc();
 
-    let course_codes =
-        models::course_modules::get_all_uh_course_codes_for_open_university(conn).await?;
+    let course_codes = models::course_modules::get_all_uh_course_codes(conn).await?;
     tracing::info!("Found {} course codes to process", course_codes.len());
 
     for (index, uh_course_code) in course_codes.iter().enumerate() {

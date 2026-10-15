@@ -48,9 +48,14 @@ const CompletionPage: React.FC = () => {
   return (
     <QueryResult query={userCompletionInformation} refreshIndicator={QUIET_REFRESH}>
       {(data) => {
-        // Both flags: the module's is permission to use the push path, the completion's own is
-        // whether this student's completion was put on it. Without both, this shows the old page.
-        if (data.enable_credit_registration_via_suotar && data.register_credits_via_suotar) {
+        if (!data.registers_credits) {
+          return (
+            <Infobox tone={TONE.INFO} heading={t("register-completion")}>
+              {t("this-course-does-not-register-credits-for-you")}
+            </Infobox>
+          )
+        }
+        if (data.register_credits_via_suotar) {
           return (
             <CreditRegistrationStatus
               courseModuleId={courseModuleId}
@@ -61,13 +66,7 @@ const CompletionPage: React.FC = () => {
             />
           )
         }
-        if (!data.enable_registering_completion_to_uh_open_university) {
-          return (
-            <Infobox tone={TONE.INFO} heading={t("register-completion")}>
-              {t("this-course-does-not-register-credits-for-you")}
-            </Infobox>
-          )
-        }
+        // A completion from before the push path keeps the old page.
         return (
           <RegisterCompletion
             courseModuleId={courseModuleId}

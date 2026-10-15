@@ -34,7 +34,6 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     showClosedCourseSuccessorId,
     showAdditionalMessage,
     showCompletionRegistrationLink,
-    showEnableRegisterinCompletionToUhOpenUniversity,
     showUhCourseCode,
     showEctsCredits,
   ] = watch([
@@ -46,7 +45,6 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     "show_closed_course_successor_id",
     "show_additional_message",
     "show_completion_registration_link",
-    "show_enable_registering_completion_to_uh_open_university",
     "show_uh_course_code",
     "show_ects_credits",
   ])
@@ -77,17 +75,11 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
   }
 
   const allSelectedModuleData = Boolean(
-    showCompletionRegistrationLink &&
-    showEnableRegisterinCompletionToUhOpenUniversity &&
-    showUhCourseCode &&
-    showEctsCredits,
+    showCompletionRegistrationLink && showUhCourseCode && showEctsCredits,
   )
 
   const handleToggleAllModuleData = (next: boolean) => {
     setValue("show_completion_registration_link", next, { shouldDirty: true })
-    setValue("show_enable_registering_completion_to_uh_open_university", next, {
-      shouldDirty: true,
-    })
     setValue("show_uh_course_code", next, { shouldDirty: true })
     setValue("show_ects_credits", next, { shouldDirty: true })
   }
@@ -179,11 +171,6 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
             name="show_completion_registration_link"
             control={control}
             label={t("course-auditing-filter-completion-registration-link")}
-          />
-          <Checkbox
-            name="show_enable_registering_completion_to_uh_open_university"
-            control={control}
-            label={t("course-auditing-filter-enable-registering-completion-to-uh-open-university")}
           />
           <Checkbox
             name="show_uh_course_code"

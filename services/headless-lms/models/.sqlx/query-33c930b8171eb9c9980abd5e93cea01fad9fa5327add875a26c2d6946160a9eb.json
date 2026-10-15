@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.automatic_completion,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_requires_exam,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.enable_registering_completion_to_uh_open_university,\n  cm.certification_enabled,\n  enable_credit_registration_via_suotar\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
+  "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number,\n    automatic_completion,\n    automatic_completion_number_of_exercises_attempted_treshold,\n    automatic_completion_number_of_points_treshold,\n    automatic_completion_requires_exam,\n    ects_credits,\n    uh_course_code,\n    completion_registration_link_override\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled\n        ",
   "describe": {
     "columns": [
       {
@@ -170,17 +170,6 @@
       },
       {
         "ordinal": 15,
-        "name": "enable_registering_completion_to_uh_open_university",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "enable_registering_completion_to_uh_open_university"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
         "name": "certification_enabled",
         "type_info": "Bool",
         "origin": {
@@ -189,22 +178,21 @@
             "name": "certification_enabled"
           }
         }
-      },
-      {
-        "ordinal": 17,
-        "name": "enable_credit_registration_via_suotar",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "course_modules",
-            "name": "enable_credit_registration_via_suotar"
-          }
-        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Float4",
+        "Varchar",
+        "Varchar"
       ]
     },
     "nullable": [
@@ -223,10 +211,8 @@
       false,
       true,
       true,
-      false,
-      false,
       false
     ]
   },
-  "hash": "a76de1b4abe85edeb5d0a2b35eb1102230ed808596cf37afdac3f7072ec8ba25"
+  "hash": "33c930b8171eb9c9980abd5e93cea01fad9fa5327add875a26c2d6946160a9eb"
 }

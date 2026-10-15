@@ -64,7 +64,7 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
         setStep({ step: "verification", token: response.email_verification_token })
         return false
       } else if (response.type === "must_change_password") {
-        setStep({ step: "must_change_password", email: credentials.email })
+        setStep({ step: "must_change_password", email: credentials.email.trim() })
         return false
       }
       setCredentialsError(true)
@@ -147,8 +147,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
   }
 
   const backToCredentials = () => {
-    setStep({ step: "credentials" })
+    setError(null)
     setCredentialsError(false)
+    setStep({ step: "credentials" })
   }
 
   return {

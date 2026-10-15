@@ -86,7 +86,12 @@ test.describe("Course metadata generation", () => {
         .filter({ hasText: "Default" })
         .getByLabel("University of Helsinki course code")
         .fill("TEST001")
-      await page.locator("form").filter({ hasText: "Default" }).getByLabel("ECTS credits").fill("5")
+      await page
+        .locator("form")
+        .filter({ hasText: "Default" })
+        .getByLabel("ECTS credits", { exact: true })
+        .fill("5")
+      await page.keyboard.press("Tab")
       await page
         .locator("form")
         .filter({ hasText: "Default" })

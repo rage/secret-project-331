@@ -50,7 +50,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   })
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
-  await page.getByRole("link", { name: "Register", exact: true }).click()
+  await page.getByRole("link", { name: "Register completion", exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

@@ -45,6 +45,21 @@ const descriptionCss = css`
   line-height: 1.5;
 `
 
+const emailCss = css`
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  background: ${baseTheme.colors.gray[100]};
+  color: ${baseTheme.colors.gray[600]};
+  font-size: 0.95rem;
+`
+
+const actionsCss = css`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+`
+
 /** Login step for accounts without a stored password: offers a password reset email instead. */
 export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
   email,
@@ -107,30 +122,13 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
         <h1 className={headingCss}>{t("must-change-password-title")}</h1>
       </div>
       <p className={descriptionCss}>{t("must-change-password-description")}</p>
-      <div
-        className={css`
-          padding: 0.75rem 1rem;
-          border-radius: 6px;
-          background: ${baseTheme.colors.gray[100]};
-          color: ${baseTheme.colors.gray[600]};
-          font-size: 0.95rem;
-        `}
-      >
-        {email}
-      </div>
+      <div className={emailCss}>{email}</div>
       {/* notify:true already announces this error via the toast; the notice is the persistent copy */}
       {sendMutation.isError && (
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
         <ErrorNotice error={sendMutation.error} announce="off" />
       )}
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 1rem;
-        `}
-      >
+      <div className={actionsCss}>
         <Button
           variant="primary"
           size="medium"

@@ -27,7 +27,8 @@ IMAGES_IN_USE=$(printf '%s %s' "$POD_IMAGES" "$WORKLOAD_IMAGES" | tr ' ' '\n' | 
 REMOVED=0
 for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do
   # The newest image and the latest tag are the cache the next build starts from.
-  NEWEST_IMAGE_ID=$(docker images "$REPOSITORY" --format '{{.ID}}' | awk 'NR == 1')
+  IMAGE_LIST=$(docker images "$REPOSITORY" --format '{{.ID}} {{.Repository}}:{{.Tag}}')
+  NEWEST_IMAGE_ID=$(awk 'NR == 1 { print $1 }' <<< "$IMAGE_LIST")
   while read -r IMAGE_ID IMAGE; do
     if [ "$IMAGE_ID" = "$NEWEST_IMAGE_ID" ] || [ "$IMAGE" = "$REPOSITORY:latest" ] || grep -qxF "$IMAGE" <<< "$IMAGES_IN_USE"; then
       continue
@@ -35,7 +36,7 @@ for REPOSITORY in $(sed -n 's/^ *- image: //p' "$SKAFFOLD_FILE"); do
     if docker rmi "$IMAGE" > /dev/null 2>&1; then
       REMOVED=$((REMOVED + 1))
     fi
-  done < <(docker images "$REPOSITORY" --format '{{.ID}} {{.Repository}}:{{.Tag}}')
+  done <<< "$IMAGE_LIST"
 done
 
 echo "Removed $REMOVED old images from minikube."

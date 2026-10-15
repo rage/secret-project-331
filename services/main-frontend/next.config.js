@@ -98,12 +98,13 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
-  // uuid and react-table ship only ES modules, and next/jest transforms only what is listed here.
+  // uuid, react-table and jotai ship only ES modules, and next/jest transforms only what is listed here.
   transpilePackages: [
     "@vectopus/atlas-icons-react",
     "uuid",
     "@tanstack/react-table",
     "@tanstack/table-core",
+    "jotai",
   ],
   allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code

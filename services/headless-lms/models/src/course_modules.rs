@@ -238,9 +238,16 @@ pub struct ModuleSizeCounts {
     pub exercises: i64,
 }
 
-/// Whether completions of a module with this course code are registered at all. Must match the
-/// `TRIM(cm.uh_course_code) <> ''` predicate the SQL side uses, `credit_registration_eligible_completions`
-/// among others.
+/// Stores a blank course code as `None` and a real one trimmed, so every reader can test for presence.
+pub fn normalize_uh_course_code(uh_course_code: Option<String>) -> Option<String> {
+    uh_course_code
+        .map(|code| code.trim().to_owned())
+        .filter(|code| !code.is_empty())
+}
+
+/// Whether completions of a module with this course code are registered at all. Relies on
+/// [`normalize_uh_course_code`] having been applied on write, which is what the SQL side's
+/// `TRIM(cm.uh_course_code) <> ''` predicates assume.
 pub fn registers_credits(uh_course_code: Option<&str>) -> bool {
     uh_course_code.is_some_and(|code| !code.trim().is_empty())
 }
@@ -383,7 +390,7 @@ RETURNING id,
         points_treshold,
         requires_exam,
         new_course_module.ects_credits,
-        new_course_module.uh_course_code,
+        normalize_uh_course_code(new_course_module.uh_course_code.clone()),
         new_course_module.completion_registration_link_override,
     )
     .fetch_one(conn)
@@ -944,7 +951,7 @@ RETURNING id,
   ects_credits,
   certification_enabled
         ",
-        uh_course_code,
+        normalize_uh_course_code(uh_course_code),
         id,
     )
     .fetch_one(conn)
@@ -991,6 +998,7 @@ pub async fn update(
     } = updated_course_module;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
+    let uh_course_code = normalize_uh_course_code(uh_course_code.clone());
     sqlx::query!(
         "
 UPDATE course_modules

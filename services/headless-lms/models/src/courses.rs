@@ -575,7 +575,7 @@ pub async fn update_course_auditing_data(
     ) = multiunzip(data_update.modules.into_iter().map(|m| {
         (
             m.id,
-            m.uh_course_code,
+            crate::course_modules::normalize_uh_course_code(m.uh_course_code),
             m.completion_registration_link_override,
             m.ects_credits,
         )

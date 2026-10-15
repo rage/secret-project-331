@@ -3,7 +3,6 @@ pub mod open_university_config;
 pub mod program_config;
 
 use crate::{
-    OAuthClient,
     config::program_config::ProgramConfig,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
@@ -25,14 +24,12 @@ use headless_lms_utils::{
     cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
     services::sisu::SisuClient, services::suotar::SuotarClient, services::tmc::TmcClient,
 };
-use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use secrecy::{ExposeSecret, SecretString};
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::{
     env,
     sync::{Arc, OnceLock},
 };
-use url::Url;
 
 static SERVER_RUNTIME_CONFIG: OnceLock<ServerRuntimeConfig> = OnceLock::new();
 
@@ -66,8 +63,6 @@ impl FileStoreRuntimeConfig {
 pub struct ServerRuntimeConfig {
     /// Database connection URL — contains credentials, so kept secret.
     pub database_url: SecretString,
-    pub oauth_application_id: String,
-    pub oauth_secret: SecretString,
     pub icu4x_postcard_path: String,
     pub app_conf: ApplicationConfiguration,
     /// Redis connection URL — may contain credentials, so kept secret.
@@ -107,13 +102,6 @@ impl ServerRuntimeConfig {
             database_url: SecretString::new(
                 env::var("DATABASE_URL")
                     .context("DATABASE_URL must be defined")?
-                    .into(),
-            ),
-            oauth_application_id: env::var("OAUTH_APPLICATION_ID")
-                .context("OAUTH_APPLICATION_ID must be defined")?,
-            oauth_secret: SecretString::new(
-                env::var("OAUTH_SECRET")
-                    .context("OAUTH_SECRET must be defined")?
                     .into(),
             ),
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
@@ -178,10 +166,6 @@ pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
 
 pub struct ServerConfigBuilder {
     pub database_url: SecretString,
-    pub oauth_application_id: String,
-    pub oauth_secret: SecretString,
-    pub auth_url: Url,
-    pub token_url: Url,
     pub icu4x_postcard_path: String,
     pub file_store: Arc<dyn FileStore + Send + Sync>,
     pub app_conf: ApplicationConfiguration,
@@ -195,14 +179,6 @@ impl ServerConfigBuilder {
     pub async fn from_runtime_config(runtime_config: &ServerRuntimeConfig) -> anyhow::Result<Self> {
         Ok(Self {
             database_url: runtime_config.database_url.clone(),
-            oauth_application_id: runtime_config.oauth_application_id.clone(),
-            oauth_secret: runtime_config.oauth_secret.clone(),
-            auth_url: "https://tmc.mooc.fi/oauth/authorize"
-                .parse()
-                .context("Failed to parse auth_url")?,
-            token_url: "https://tmc.mooc.fi/oauth/token"
-                .parse()
-                .context("Failed to parse token url")?,
             icu4x_postcard_path: runtime_config.icu4x_postcard_path.clone(),
             file_store: crate::setup_file_store(
                 &runtime_config.file_store,
@@ -242,14 +218,6 @@ impl ServerConfigBuilder {
             .await?;
         crate::domain::internal_error_reporting::init_error_reporting(db_pool.clone());
         let db_pool = Data::new(db_pool);
-
-        let oauth_client: OAuthClient = BasicClient::new(ClientId::new(self.oauth_application_id))
-            .set_client_secret(ClientSecret::new(
-                self.oauth_secret.expose_secret().to_string(),
-            ))
-            .set_auth_uri(AuthUrl::from_url(self.auth_url.clone()))
-            .set_token_uri(TokenUrl::from_url(self.token_url.clone()));
-        let oauth_client = Data::new(oauth_client);
 
         let icu4x_blob = Icu4xBlob::new(&self.icu4x_postcard_path)?;
         let icu4x_blob = Data::new(icu4x_blob);
@@ -293,7 +261,6 @@ impl ServerConfigBuilder {
         let config = ServerConfig {
             json_config,
             db_pool,
-            oauth_client,
             icu4x_blob,
             ip_to_country_mapper,
             file_store: self.file_store,
@@ -315,7 +282,6 @@ pub struct ServerConfig {
     pub payload_config: Data<PayloadConfig>,
     pub json_config: Data<web::JsonConfig>,
     pub db_pool: Data<PgPool>,
-    pub oauth_client: Data<OAuthClient>,
     pub icu4x_blob: Data<Icu4xBlob>,
     pub ip_to_country_mapper: Data<IpToCountryMapper>,
     pub file_store: Arc<dyn FileStore + Send + Sync>,
@@ -333,7 +299,6 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
     let ServerConfig {
         json_config,
         db_pool,
-        oauth_client,
         icu4x_blob,
         ip_to_country_mapper,
         file_store,
@@ -357,7 +322,6 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(payload_config)
         .app_data(json_config)
         .app_data(db_pool)
-        .app_data(oauth_client)
         .app_data(icu4x_blob)
         .app_data(ip_to_country_mapper)
         .app_data(file_store)

@@ -98,8 +98,6 @@ async fn test_runtime_config() -> &'static ServerRuntimeConfig {
             .expect("Failed to build the mock application configuration");
         set_server_runtime_config(ServerRuntimeConfig {
             database_url: SecretString::new(database_url.into()),
-            oauth_application_id: "some-id".to_string(),
-            oauth_secret: SecretString::new("some-secret".into()),
             icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
             redis_url: SecretString::new("redis://example.com".into()),
             mock_suotar_redis_db_index: 2,
@@ -131,10 +129,6 @@ pub async fn test_config() -> ServerConfig {
     let runtime_config = test_runtime_config().await;
     ServerConfigBuilder {
         database_url: runtime_config.database_url.clone(),
-        oauth_application_id: runtime_config.oauth_application_id.clone(),
-        oauth_secret: runtime_config.oauth_secret.clone(),
-        auth_url: "https://example.com".parse().unwrap(),
-        token_url: "https://example.com/token".parse().unwrap(),
         icu4x_postcard_path: runtime_config.icu4x_postcard_path.clone(),
         file_store: Arc::new(futures::executor::block_on(async {
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
@@ -156,8 +150,6 @@ pub async fn init_actix() -> (
     impl actix_web::dev::Service<Request, Response = ServiceResponse<BoxBody>, Error = actix_web::Error>,
     PgPool,
 ) {
-    // TODO: Audit that the environment access only happens in single-threaded code.
-    unsafe { env::set_var("OAUTH_APPLICATION_ID", "some-id") };
     // TODO: Audit that the environment access only happens in single-threaded code.
     unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
     let server_config = test_config().await;

@@ -54,10 +54,6 @@ pub async fn test_config() -> ServerConfig {
         .unwrap_or_else(|_| default_database_url_for_tests());
     ServerConfigBuilder {
         database_url: SecretString::new(database_url.into()),
-        oauth_application_id: "some-id".to_string(),
-        oauth_secret: SecretString::new("some-secret".into()),
-        auth_url: "http://example.com".parse().unwrap(),
-        token_url: "http://example.com/token".parse().unwrap(),
         icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
         file_store: Arc::new(
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())

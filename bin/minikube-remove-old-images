@@ -15,6 +15,11 @@ fi
 
 SKAFFOLD_FILE=$1
 
+# CI deploys with skaffold.production.yaml too, and its images are not leftovers.
+if [ -n "${CI:-}" ]; then
+  exit 0
+fi
+
 MINIKUBE_DOCKER_ENV=$(minikube docker-env --shell bash)
 eval "$MINIKUBE_DOCKER_ENV"
 

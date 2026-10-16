@@ -79,11 +79,13 @@ export const COPY_EXCLUDES = new Set([
   ".playwright-cli",
   "playwright/.cache",
   // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
-  // standalone project, so not generated.
+  // standalone project, which gets STANDALONE_DOCKERFILE instead.
   "Dockerfile",
   "Dockerfile.production.slim.dockerfile",
-  ".dockerignore",
 ])
+
+/** The template's Dockerfile for a standalone project, renamed to `Dockerfile` on scaffold. */
+const STANDALONE_DOCKERFILE = "standalone.Dockerfile"
 
 const STANDALONE_EDITORCONFIG = `root = true
 
@@ -339,6 +341,8 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   ])
 
   await renameLocales(projectPath, projectName)
+
+  await rename(join(projectPath, STANDALONE_DOCKERFILE), join(projectPath, "Dockerfile"))
 
   // Standalone .editorconfig (the template's delegates to the monorepo root).
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)

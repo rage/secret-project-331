@@ -59,10 +59,9 @@ pub async fn ensure_user_can_add_exercise_tasks(
     if is_user_global_admin(conn, user_id).await? {
         return Ok(());
     }
-    Err(ControllerError::new(
-        ControllerErrorType::BadRequest,
-        format!("Only global admins can add exercises of type “{service_name}”."),
-        None,
+    Err(controller_err!(
+        BadRequest,
+        format!("Only global admins can add exercises of type “{service_name}”.")
     ))
 }
 

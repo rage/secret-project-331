@@ -28,10 +28,9 @@ a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
    decision below).
 3. **Project type** — `React` (only one implemented). `Svelte` and `No framework` are shown as
    disabled placeholders in the picker and cannot be selected (arrow-key navigation skips them).
-4. **Package manager** — npm / yarn / pnpm. Only used for the printed next-steps text.
-5. **Dev server port** — default `3002`, validated 1–65535. ⚠️ `3002` collides with example-exercise;
+4. **Dev server port** — default `3002`, validated 1–65535. ⚠️ `3002` collides with example-exercise;
    pick a free one (quizzes uses 3004, tmc 3005).
-6. **Confirmation** — "The project will be created in `<abs path>`. Continue?" (default no).
+5. **Confirmation** — "The project will be created in `<abs path>`. Continue?" (default no).
 
 ## What it generates (the pipeline)
 

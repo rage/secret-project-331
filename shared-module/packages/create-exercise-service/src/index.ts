@@ -348,9 +348,7 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)
 
   // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). pnpm skips a dep's
-  // build script unless allow-listed, so this lets `pnpm install` build esbuild. Always emitted:
-  // npm and yarn ignore the file, and this repo is a pnpm shop, so a `pnpm install` in a project
-  // scaffolded with npm/yarn still works instead of failing on esbuild's skipped build script.
+  // build script unless allow-listed, so this lets `pnpm install` build esbuild.
   await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
 
   // Track the vendored shared-module snapshot instead of ignoring it (it is real source now).
@@ -361,8 +359,6 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
     .replace(/^shared-module\n?/m, "")
   await writeFile(gitignorePath, gitignore)
 }
-
-export type PackageManager = "npm" | "yarn" | "pnpm"
 
 function assertPortableExercisePackageSpecifiers(
   specifiers: Partial<Record<ExercisePackageName, string>>,
@@ -392,8 +388,6 @@ export interface ScaffoldOptions {
   /** Absolute path the project will be created at. */
   absoluteProjectPath: string
   port: number
-  /** Package manager the generated project targets; used only for the printed "next steps". */
-  packageManager?: PackageManager
   /**
    * How to supply the shared exercise code. Defaults to auto-detect: "npm" when running from the
    * published package, "vendor" when running inside the monorepo.
@@ -497,17 +491,6 @@ async function main() {
       },
     ],
   })
-  const packageManager: PackageManager = await select({
-    message: "Package manager",
-    // pnpm is the repo's package manager and the only one that needs the generated
-    // pnpm-workspace.yaml, so it's the default.
-    default: "pnpm",
-    choices: [
-      { name: "pnpm", value: "pnpm" },
-      { name: "npm", value: "npm" },
-      { name: "yarn", value: "yarn" },
-    ],
-  })
   const port = await input({
     message: "Development server port",
     default: "3002",
@@ -537,7 +520,6 @@ async function main() {
       projectName,
       absoluteProjectPath,
       port: Number(port),
-      packageManager,
     })
   } catch (error) {
     console.error(error instanceof Error ? error.message : error)
@@ -556,8 +538,8 @@ Done! Created exercise service "${projectName}" in ${absoluteProjectPath}
 
 Next steps:
   cd ${projectPath}
-  ${packageManager} install
-  ${packageManager} run dev    # → http://localhost:${port}
+  pnpm install
+  pnpm run dev    # → http://localhost:${port}
 
 ${sharedModuleNote}
 `)

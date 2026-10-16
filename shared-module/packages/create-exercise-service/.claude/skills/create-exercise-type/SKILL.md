@@ -501,7 +501,7 @@ bin/create-exercise-service
 ```
 
 It prompts, in order: **Project name** → **Path** (default is the name, resolved relative to the CLI
-package dir — pass an explicit path) → **Project type** (only _React_ works) → **Package manager** →
+package dir — pass an explicit path) → **Project type** (only _React_ works) →
 **Dev server port** (default `3002`, which collides with example-exercise — pick another) →
 **Confirm** (default No, so type `y`). Then `cd <project> && pnpm install && pnpm run dev`.
 

@@ -27,26 +27,22 @@ export interface ExerciseFeedback {
   selectedOptionIsCorrect: boolean
 }
 
-// ---------------------------------------------------------------------------------------------------
-// Versioning (reference/07 #1)
-//
-// Specs and answers are stored forever in a DB we cannot migrate, so every stored shape carries a
-// `version` discriminant from day one. Old data predates the field, so `version` is DETECTED BY
-// ABSENCE and lifted on read (migrate-on-read); the next save persists the upgraded shape
-// (persist-on-save). The interfaces above are the *internal* runtime shapes; the `Versioned*` types
-// below are the *stored/wire* shapes. The one place blobs are lifted is `migration/migrateToLatest.ts`,
-// which every door calls (see `IframeView.tsx`, `server/publicSpec.ts`, `server/modelSolution.ts`,
-// `server/grade.ts`, and the CSV export routes).
-//
-// NOTE: the public spec has no versioned wire envelope yet — its endpoint response must stay a bare
-// array (the scaffolder's `smoke.mjs` asserts `Array.isArray(publicSpec)`). The migration chain still
-// accepts a future `{ version, options }` envelope so the reader is ready when that changes.
+// Versioning (reference/07 #1): specs, answers and feedback are stored forever in a DB we cannot
+// migrate, so every stored shape carries a `version`. The interfaces above are the internal runtime
+// shapes; the `Versioned*` types below are the stored/wire shapes, lifted on read only by
+// `migration/migrateToLatest.ts`.
 export const SPEC_VERSION = LATEST_SPEC_VERSION
 
 /** Stored private spec: the bare `Alternative[]` wrapped so it can gain a version. */
 export interface VersionedPrivateSpec {
   version: typeof SPEC_VERSION
   alternatives: Alternative[]
+}
+
+/** Stored public spec: the `PublicAlternative[]` wrapped so it can carry a version. */
+export interface VersionedPublicSpec {
+  version: typeof SPEC_VERSION
+  options: PublicAlternative[]
 }
 
 /** Stored answer: `version` sits alongside the payload so `data.selectedOptionId` still reads. */
@@ -73,6 +69,10 @@ export const isObject = (value: unknown): value is Record<string, unknown> =>
 /** persist-on-save: wrap the internal alternatives in the current versioned envelope. */
 export function toVersionedPrivateSpec(alternatives: Alternative[]): VersionedPrivateSpec {
   return { version: SPEC_VERSION, alternatives }
+}
+
+export function toVersionedPublicSpec(options: PublicAlternative[]): VersionedPublicSpec {
+  return { version: SPEC_VERSION, options }
 }
 
 export function toVersionedAnswer(selectedOptionId: string): VersionedAnswer {
@@ -129,10 +129,6 @@ export function isAlternative(value: unknown): value is Alternative {
 
 export function isPublicAlternative(value: unknown): value is PublicAlternative {
   return isObject(value) && typeof value.id === "string" && typeof value.name === "string"
-}
-
-export function isExerciseFeedback(value: unknown): value is ExerciseFeedback {
-  return isObject(value) && typeof value.selectedOptionIsCorrect === "boolean"
 }
 
 // Reading stored blobs (the forgiving iframe `parse*` and the strict `migrate*ToLatest`) lives in

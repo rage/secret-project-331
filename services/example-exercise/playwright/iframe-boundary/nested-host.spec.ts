@@ -49,9 +49,12 @@ test("delivers state through a sandboxed distinct-origin iframe", async ({
   )
   await host.setState(
     exerciseEditorState({
-      private_spec: [
-        { id: "11111111-1111-1111-1111-111111111111", name: "Helsinki", correct: true },
-      ],
+      private_spec: {
+        version: "1",
+        alternatives: [
+          { id: "11111111-1111-1111-1111-111111111111", name: "Helsinki", correct: true },
+        ],
+      },
     }),
   )
   await host.waitForViewType("exercise-editor")

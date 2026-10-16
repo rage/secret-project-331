@@ -1,5 +1,6 @@
 import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
 import {
+  csvText,
   parseItemsRequest,
   parseSpecArrayStrict,
   type CsvExportColumn,
@@ -37,8 +38,8 @@ export const handleExportDefinitions = jsonRoute(async (request) => {
         rows: privateSpec.map((alternative, index) => ({
           option_index: index,
           option_count: privateSpec.length,
-          option_id: alternative.id,
-          option_name: alternative.name,
+          option_id: csvText(alternative.id),
+          option_name: csvText(alternative.name),
           option_correct: alternative.correct,
         })),
       }

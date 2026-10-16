@@ -16,11 +16,14 @@ describe("POST /api/export-answers", () => {
       post({
         items: [
           {
-            private_spec: [
-              { id: "id-1", name: "Correct option", correct: true },
-              { id: "id-2", name: "Wrong option", correct: false },
-            ],
-            answer: { selectedOptionId: "id-1" },
+            private_spec: {
+              version: "1",
+              alternatives: [
+                { id: "id-1", name: "Correct option", correct: true },
+                { id: "id-2", name: "Wrong option", correct: false },
+              ],
+            },
+            answer: { version: "1", selectedOptionId: "id-1" },
             grading: {
               score_given: 1,
               grading_progress: "FullyGraded",
@@ -48,8 +51,11 @@ describe("POST /api/export-answers", () => {
       post({
         items: [
           {
-            private_spec: [{ id: "id-1", name: "Correct option", correct: true }],
-            answer: { selectedOptionId: "missing-option" },
+            private_spec: {
+              version: "1",
+              alternatives: [{ id: "id-1", name: "Correct option", correct: true }],
+            },
+            answer: { version: "1", selectedOptionId: "missing-option" },
             grading: {
               score_given: 0,
               grading_progress: "FullyGraded",
@@ -69,6 +75,29 @@ describe("POST /api/export-answers", () => {
       selected_option_correct: null,
       grading_selected_option_is_correct: false,
       score_given: 0,
+    })
+  })
+
+  it("defuses cells a spreadsheet would run as formulas", async () => {
+    const res = await handleExportAnswers(
+      post({
+        items: [
+          {
+            private_spec: {
+              version: "1",
+              alternatives: [{ id: "=1+1", name: "@SUM(A1)", correct: true }],
+            },
+            answer: { version: "1", selectedOptionId: "=1+1" },
+            grading: null,
+            model_solution_spec: null,
+          },
+        ],
+      }),
+    )
+    const body = (await res.json()) as { results: { rows: Record<string, unknown>[] }[] }
+    expect(body.results[0]!.rows[0]).toMatchObject({
+      selected_option_id: "'=1+1",
+      selected_option_name: "'@SUM(A1)",
     })
   })
 

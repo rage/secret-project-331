@@ -10,49 +10,28 @@ function post(body: unknown): Request {
   })
 }
 
+const PRIVATE_SPEC = {
+  version: "1",
+  alternatives: [
+    { id: "a", name: "Right", correct: true },
+    { id: "b", name: "Wrong", correct: false },
+  ],
+}
+
 describe("POST /api/public-spec", () => {
   it("strips the `correct` flag so answers never reach the browser", async () => {
     const res = await handlePublicSpec(
-      post({
-        request_id: "r1",
-        upload_url: null,
-        private_spec: [
-          { id: "a", name: "Right", correct: true },
-          { id: "b", name: "Wrong", correct: false },
-        ],
-      }),
+      post({ request_id: "r1", upload_url: null, private_spec: PRIVATE_SPEC }),
     )
     expect(res.status).toBe(200)
-    const spec = (await res.json()) as Record<string, unknown>[]
-    expect(spec).toEqual([
-      { id: "a", name: "Right" },
-      { id: "b", name: "Wrong" },
-    ])
-    expect(JSON.stringify(spec)).not.toContain("correct")
-  })
-
-  it("accepts a versioned private_spec envelope and still strips `correct` (migrate-on-read)", async () => {
-    const res = await handlePublicSpec(
-      post({
-        request_id: "r1",
-        upload_url: null,
-        private_spec: {
-          version: "1",
-          alternatives: [
-            { id: "a", name: "Right", correct: true },
-            { id: "b", name: "Wrong", correct: false },
-          ],
-        },
-      }),
-    )
-    expect(res.status).toBe(200)
-    const spec = (await res.json()) as Record<string, unknown>[]
-    // Output stays a bare array (smoke.mjs asserts Array.isArray) with no `correct`.
-    expect(Array.isArray(spec)).toBe(true)
-    expect(spec).toEqual([
-      { id: "a", name: "Right" },
-      { id: "b", name: "Wrong" },
-    ])
+    const spec = (await res.json()) as unknown
+    expect(spec).toEqual({
+      version: "1",
+      options: [
+        { id: "a", name: "Right" },
+        { id: "b", name: "Wrong" },
+      ],
+    })
     expect(JSON.stringify(spec)).not.toContain("correct")
   })
 
@@ -61,10 +40,16 @@ describe("POST /api/public-spec", () => {
     expect(res.status).toBe(400)
   })
 
-  it("rejects a non-array private_spec with 400", async () => {
+  it.each([
+    ["an unversioned", { alternatives: PRIVATE_SPEC.alternatives }],
+    ["an unknown version of", { ...PRIVATE_SPEC, version: "2" }],
+    ["an unreadable", { version: "1", alternatives: "x" }],
+    ["a malformed option in a", { version: "1", alternatives: [{ id: "a" }] }],
+  ])("rejects %s private_spec with a fixed 400 body", async (_case, privateSpec) => {
     const res = await handlePublicSpec(
-      post({ request_id: "r1", upload_url: null, private_spec: "x" }),
+      post({ request_id: "r1", upload_url: null, private_spec: privateSpec }),
     )
     expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ message: "Bad request" })
   })
 })

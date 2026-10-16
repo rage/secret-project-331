@@ -20,6 +20,15 @@ export interface CsvExportRequest<T> {
   items: T[]
 }
 
+/**
+ * Neutralises a text cell a spreadsheet would run as a formula (leading `=`, `+`, `-`, `@`, tab or
+ * carriage return) by prefixing an apostrophe. The host writes cells verbatim, so every text cell
+ * built from teacher or student input goes through this.
+ */
+export function csvText(text: string | null): string | null {
+  return text !== null && /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+}
+
 /** Validates that the body is `{ items: [...] }`, throwing a 400 otherwise. */
 export function parseItemsRequest<T>(body: unknown): CsvExportRequest<T> {
   if (

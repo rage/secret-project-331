@@ -14,6 +14,7 @@ import useExerciseServiceParentConnection from "@/shared-module/exercise-react/r
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import {
   parseAnswer,
+  parseFeedback,
   parseModelSolution,
   parsePreviousSubmission,
   parsePrivateSpec,
@@ -26,7 +27,6 @@ import type {
   ModelSolutionApi,
   PublicAlternative,
 } from "@/util/stateInterfaces"
-import { isExerciseFeedback } from "@/util/stateInterfaces"
 
 export interface SubmissionData {
   grading: ExerciseTaskGradingResult
@@ -88,12 +88,11 @@ const IframeView: React.FC = () => {
             private_spec: parsePrivateSpec(data.private_spec),
           })
         } else if (messageData.view_type === "view-submission") {
-          const feedbackJson = data.grading?.feedback_json
           setState({
             view_type: messageData.view_type,
             public_spec: parsePublicSpec(data.public_spec),
             answer: parseAnswer(data.user_answer),
-            feedback_json: isExerciseFeedback(feedbackJson) ? feedbackJson : null,
+            feedback_json: parseFeedback(data.grading?.feedback_json),
             model_solution_spec: parseModelSolution(data.model_solution_spec),
             grading: data.grading ?? null,
           })

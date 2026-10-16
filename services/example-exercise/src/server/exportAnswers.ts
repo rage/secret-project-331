@@ -1,6 +1,7 @@
 import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
 import type { CsvExportColumn, CsvExportResponse } from "@/server/csvExportUtils"
 import {
+  csvText,
   parseBooleanFieldFromObject,
   parseItemsRequest,
   parseNumberField,
@@ -47,8 +48,8 @@ export const handleExportAnswers = jsonRoute(async (request) => {
       return {
         rows: [
           {
-            selected_option_id: selectedOptionId,
-            selected_option_name: selectedOption?.name ?? null,
+            selected_option_id: csvText(selectedOptionId),
+            selected_option_name: csvText(selectedOption?.name ?? null),
             selected_option_correct: selectedOption?.correct ?? null,
             grading_selected_option_is_correct: parseBooleanFieldFromObject(
               item.grading,

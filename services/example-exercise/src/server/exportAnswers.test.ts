@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 
+import { MAX_REQUEST_BYTES } from "@/lib/apiRoutes"
+
 import { handleExportAnswers } from "./exportAnswers"
 
 function post(body: unknown): Request {
@@ -99,6 +101,49 @@ describe("POST /api/export-answers", () => {
       selected_option_id: "'=1+1",
       selected_option_name: "'@SUM(A1)",
     })
+  })
+
+  it("reads answers and feedback through the migration chain", async () => {
+    const privateSpec = {
+      version: "1",
+      alternatives: [{ id: "id-1", name: "Correct option", correct: true }],
+    }
+    const res = await handleExportAnswers(
+      post({
+        items: [
+          {
+            private_spec: privateSpec,
+            answer: { version: "2", selectedOptionId: "id-1" },
+            grading: {
+              score_given: 1,
+              feedback_json: { version: "2", selectedOptionIsCorrect: true },
+            },
+            model_solution_spec: null,
+          },
+        ],
+      }),
+    )
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as { results: { rows: Record<string, unknown>[] }[] }
+    expect(body.results[0]!.rows[0]).toMatchObject({
+      selected_option_id: null,
+      grading_selected_option_is_correct: null,
+      score_given: 1,
+    })
+  })
+
+  it("accepts a batch larger than a spec request may be", async () => {
+    const item = {
+      private_spec: {
+        version: "1",
+        alternatives: [{ id: "id-1", name: "x".repeat(MAX_REQUEST_BYTES), correct: true }],
+      },
+      answer: { version: "1", selectedOptionId: "id-1" },
+      grading: null,
+      model_solution_spec: null,
+    }
+    const res = await handleExportAnswers(post({ items: [item] }))
+    expect(res.status).toBe(200)
   })
 
   it("fails with an invalid payload", async () => {

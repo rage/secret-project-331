@@ -1,15 +1,18 @@
-import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
+import { jsonRoute, MAX_EXPORT_REQUEST_BYTES, readJsonBody } from "@/lib/apiRoutes"
 import type { CsvExportColumn, CsvExportResponse } from "@/server/csvExportUtils"
 import {
   csvText,
-  parseBooleanFieldFromObject,
   parseItemsRequest,
   parseNumberField,
   parseSpecArrayStrict,
-  parseStringField,
 } from "@/server/csvExportUtils"
-import { migratePrivateSpecToLatest } from "@/util/migration/migrateToLatest"
-import { isAlternative } from "@/util/stateInterfaces"
+import {
+  migrateAnswerToLatest,
+  migratePrivateSpecToLatest,
+  parseFeedback,
+} from "@/util/migration/migrateToLatest"
+import { MalformedBlobError } from "@/util/migration/versions"
+import { isAlternative, isObject, type Answer } from "@/util/stateInterfaces"
 
 interface CsvExportAnswersRequestItem {
   private_spec: unknown
@@ -29,8 +32,20 @@ const COLUMNS: CsvExportColumn[] = [
   { key: "score_given", header: "Score given" },
 ]
 
+// One student's unreadable answer leaves that row's cells empty rather than failing the export.
+function readAnswer(blob: unknown): Answer | null {
+  try {
+    return migrateAnswerToLatest(blob)
+  } catch (error) {
+    if (error instanceof MalformedBlobError) {
+      return null
+    }
+    throw error
+  }
+}
+
 export const handleExportAnswers = jsonRoute(async (request) => {
-  const body = await readJsonBody(request)
+  const body = await readJsonBody(request, MAX_EXPORT_REQUEST_BYTES)
   const parsed = parseItemsRequest<CsvExportAnswersRequestItem>(body)
 
   const response: CsvExportResponse = {
@@ -42,8 +57,9 @@ export const handleExportAnswers = jsonRoute(async (request) => {
         isAlternative,
         "Invalid private_spec: expected an array of alternatives",
       )
-      const selectedOptionId = parseStringField(item.answer, "selectedOptionId")
+      const selectedOptionId = readAnswer(item.answer)?.selectedOptionId ?? null
       const selectedOption = privateSpec.find((option) => option.id === selectedOptionId) ?? null
+      const feedback = parseFeedback(isObject(item.grading) ? item.grading.feedback_json : null)
 
       return {
         rows: [
@@ -51,11 +67,7 @@ export const handleExportAnswers = jsonRoute(async (request) => {
             selected_option_id: csvText(selectedOptionId),
             selected_option_name: csvText(selectedOption?.name ?? null),
             selected_option_correct: selectedOption?.correct ?? null,
-            grading_selected_option_is_correct: parseBooleanFieldFromObject(
-              item.grading,
-              "feedback_json",
-              "selectedOptionIsCorrect",
-            ),
+            grading_selected_option_is_correct: feedback?.selectedOptionIsCorrect ?? null,
             score_given: parseNumberField(item.grading, "score_given"),
           },
         ],

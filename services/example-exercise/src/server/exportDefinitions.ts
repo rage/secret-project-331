@@ -1,4 +1,4 @@
-import { jsonRoute, readJsonBody } from "@/lib/apiRoutes"
+import { jsonRoute, MAX_EXPORT_REQUEST_BYTES, readJsonBody } from "@/lib/apiRoutes"
 import {
   csvText,
   parseItemsRequest,
@@ -22,7 +22,7 @@ const COLUMNS: CsvExportColumn[] = [
 ]
 
 export const handleExportDefinitions = jsonRoute(async (request) => {
-  const body = await readJsonBody(request)
+  const body = await readJsonBody(request, MAX_EXPORT_REQUEST_BYTES)
   const parsed = parseItemsRequest<CsvExportDefinitionsRequestItem>(body)
 
   const response: CsvExportResponse = {

@@ -2302,7 +2302,15 @@
       "ExerciseServiceIframeRenderingInfo": {
         "type": "object",
         "description": "Exercise service definition that the CMS can use to render the editor view.",
-        "required": ["id", "name", "slug", "public_iframe_url", "has_custom_view"],
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "public_iframe_url",
+          "has_custom_view",
+          "is_global_admin_only",
+          "is_experimental"
+        ],
         "properties": {
           "has_custom_view": {
             "type": "boolean"
@@ -2310,6 +2318,14 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "name": {
             "type": "string"

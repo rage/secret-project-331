@@ -3731,6 +3731,14 @@ export type ExerciseService = {
    * This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
    */
   internal_url?: string | null
+  /**
+   * Shown to teachers as a tag only; changes no behaviour.
+   */
+  is_experimental: boolean
+  /**
+   * Only global admins can add new tasks of this type; teachers can still edit existing ones.
+   */
+  is_global_admin_only: boolean
   max_reprocessing_submissions_at_once: number
   name: string
   public_url: string
@@ -3738,8 +3746,19 @@ export type ExerciseService = {
   updated_at: string
 }
 
+/**
+ * The admin-editable fields of an exercise service, for creating or updating one.
+ */
 export type ExerciseServiceNewOrUpdate = {
   internal_url?: string | null
+  /**
+   * Shown to teachers as a tag only; changes no behaviour.
+   */
+  is_experimental: boolean
+  /**
+   * Only global admins can add new tasks of this type; teachers can still edit existing ones.
+   */
+  is_global_admin_only: boolean
   max_reprocessing_submissions_at_once: number
   name: string
   public_url: string

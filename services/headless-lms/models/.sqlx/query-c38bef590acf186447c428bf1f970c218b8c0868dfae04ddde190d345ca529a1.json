@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE exercise_services\n    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5\nWHERE id=$6\n    RETURNING *\n        ",
+  "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once,\n    is_global_admin_only,\n    is_experimental\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING *\n  ",
   "describe": {
     "columns": [
       {
@@ -101,6 +101,28 @@
             "name": "max_reprocessing_submissions_at_once"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_global_admin_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "is_global_admin_only"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "is_experimental",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "is_experimental"
+          }
+        }
       }
     ],
     "parameters": {
@@ -110,7 +132,8 @@
         "Varchar",
         "Varchar",
         "Int4",
-        "Uuid"
+        "Bool",
+        "Bool"
       ]
     },
     "nullable": [
@@ -122,8 +145,10 @@
       false,
       false,
       true,
+      false,
+      false,
       false
     ]
   },
-  "hash": "ccdcf7ce3537744686b4a00dc74692d8c5b333e058fcf54fed5891ec2c527d60"
+  "hash": "c38bef590acf186447c428bf1f970c218b8c0868dfae04ddde190d345ca529a1"
 }

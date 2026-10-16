@@ -19,6 +19,10 @@ pub struct ExerciseService {
     /// This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
     pub internal_url: Option<String>,
     pub max_reprocessing_submissions_at_once: i32,
+    /// Only global admins can add new tasks of this type; teachers can still edit existing ones.
+    pub is_global_admin_only: bool,
+    /// Shown to teachers as a tag only; changes no behaviour.
+    pub is_experimental: bool,
 }
 
 /// Exercise service definition that the CMS can use to render the editor view.
@@ -31,8 +35,13 @@ pub struct ExerciseServiceIframeRenderingInfo {
     pub public_iframe_url: String,
     // #[serde(skip_serializing_if = "Option::is_none")]
     pub has_custom_view: bool,
+    /// Only global admins can add new tasks of this type; teachers can still edit existing ones.
+    pub is_global_admin_only: bool,
+    /// Shown to teachers as a tag only; changes no behaviour.
+    pub is_experimental: bool,
 }
 
+/// The admin-editable fields of an exercise service, for creating or updating one.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct ExerciseServiceNewOrUpdate {
@@ -41,6 +50,10 @@ pub struct ExerciseServiceNewOrUpdate {
     pub public_url: String,
     pub internal_url: Option<String>,
     pub max_reprocessing_submissions_at_once: i32,
+    /// Only global admins can add new tasks of this type; teachers can still edit existing ones.
+    pub is_global_admin_only: bool,
+    /// Shown to teachers as a tag only; changes no behaviour.
+    pub is_experimental: bool,
 }
 
 pub async fn get_exercise_service(
@@ -70,8 +83,9 @@ pub async fn update_exercise_service(
         ExerciseService,
         r#"
 UPDATE exercise_services
-    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5
-WHERE id=$6
+    SET name=$1, slug=$2, public_url=$3, internal_url=$4, max_reprocessing_submissions_at_once=$5,
+      is_global_admin_only=$6, is_experimental=$7
+WHERE id=$8
     RETURNING *
         "#,
         exercise_service_update.name,
@@ -79,6 +93,8 @@ WHERE id=$6
         exercise_service_update.public_url,
         exercise_service_update.internal_url,
         exercise_service_update.max_reprocessing_submissions_at_once,
+        exercise_service_update.is_global_admin_only,
+        exercise_service_update.is_experimental,
         id
     )
     .fetch_one(conn)
@@ -256,6 +272,8 @@ pub async fn get_all_exercise_services_iframe_rendering_infos(
                         slug: exercise_service.slug,
                         public_iframe_url: url.to_string(),
                         has_custom_view: service_info.has_custom_view,
+                        is_global_admin_only: exercise_service.is_global_admin_only,
+                        is_experimental: exercise_service.is_experimental,
                     })
                 } _ => {
                     warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it has an invalid base url");
@@ -283,16 +301,20 @@ INSERT INTO exercise_services (
     slug,
     public_url,
     internal_url,
-    max_reprocessing_submissions_at_once
+    max_reprocessing_submissions_at_once,
+    is_global_admin_only,
+    is_experimental
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
   "#,
         exercise_service_update.name,
         exercise_service_update.slug,
         exercise_service_update.public_url,
         exercise_service_update.internal_url,
-        exercise_service_update.max_reprocessing_submissions_at_once
+        exercise_service_update.max_reprocessing_submissions_at_once,
+        exercise_service_update.is_global_admin_only,
+        exercise_service_update.is_experimental
     )
     .fetch_one(conn)
     .await?;
@@ -318,6 +340,8 @@ mod test {
                 public_url: "https://example.com".to_string(),
                 internal_url: Some("http://internal.example.com".to_string()),
                 max_reprocessing_submissions_at_once: 1,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await
@@ -422,6 +446,8 @@ mod test {
                 public_url: "https://example.com".to_string(),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await

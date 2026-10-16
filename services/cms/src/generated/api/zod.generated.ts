@@ -269,6 +269,8 @@ export const zExamInstructionsUpdate = z.object({
 export const zExerciseServiceIframeRenderingInfo = z.object({
   has_custom_view: z.boolean(),
   id: z.uuid(),
+  is_experimental: z.boolean(),
+  is_global_admin_only: z.boolean(),
   name: z.string(),
   public_iframe_url: z.string(),
   slug: z.string(),

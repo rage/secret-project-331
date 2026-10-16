@@ -3043,6 +3043,8 @@ export const zExerciseService = z.object({
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   internal_url: z.string().nullish(),
+  is_experimental: z.boolean(),
+  is_global_admin_only: z.boolean(),
   max_reprocessing_submissions_at_once: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -3053,8 +3055,13 @@ export const zExerciseService = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * The admin-editable fields of an exercise service, for creating or updating one.
+ */
 export const zExerciseServiceNewOrUpdate = z.object({
   internal_url: z.string().nullish(),
+  is_experimental: z.boolean(),
+  is_global_admin_only: z.boolean(),
   max_reprocessing_submissions_at_once: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })

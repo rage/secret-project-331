@@ -4213,7 +4213,8 @@ export type MyCreditRegistration = {
    */
   enrolment_found: boolean
   /**
-   * The open university enrolment page, for a row the study registry has no enrolment for.
+   * The module's open university enrolment page, in every status: an open university student
+   * needs it before they have a student number to be looked up by.
    */
   enrolment_link?: string | null
   enrolment_realisation_name?: string | null

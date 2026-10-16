@@ -38,6 +38,34 @@ impl AuthorizedOk for AuthorizationToken {
     }
 }
 
+/// Rejects saving `exercise_tasks` on a page when that would add a task of a type only global
+/// admins can add and the user is not one. `page_id` is `None` for a page that does not exist yet.
+pub async fn ensure_user_can_add_exercise_tasks(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    page_id: Option<Uuid>,
+    exercise_tasks: &[models::pages::CmsPageExerciseTask],
+) -> Result<(), ControllerError> {
+    let added_service_names =
+        models::pages::get_global_admin_only_exercise_service_names_added_by_tasks(
+            conn,
+            page_id,
+            exercise_tasks,
+        )
+        .await?;
+    let Some(service_name) = added_service_names.first() else {
+        return Ok(());
+    };
+    if is_user_global_admin(conn, user_id).await? {
+        return Ok(());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::BadRequest,
+        format!("Only global admins can add exercises of type “{service_name}”."),
+        None,
+    ))
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

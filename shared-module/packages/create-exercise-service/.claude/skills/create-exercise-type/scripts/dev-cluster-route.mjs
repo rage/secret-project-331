@@ -5,6 +5,8 @@
 // The backend pod must reach the host, which `kubectl port-forward` cannot do (it only forwards the
 // other way), so a selector-less Service is backed by an EndpointSlice holding the host's address.
 
+import { pathToFileURL } from "node:url"
+
 const DEFAULT_HOST_IP = "192.168.49.1" // host.minikube.internal with the docker driver
 
 function usage() {
@@ -70,7 +72,7 @@ spec:
 `
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2)
   if (args.includes("-h") || args.includes("--help")) {
     console.log(usage())

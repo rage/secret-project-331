@@ -302,8 +302,7 @@ should keep this pattern — the endpoint tests double as a spec of the request/
 - `src/util/migration/{versions,migrateToLatest}.ts` — **keep the chain structure, retype it**: one
   version source + per-kind step registries (empty at v1) + `migrate*ToLatest` per stored type, with
   the forgiving `parse*` wrappers for the iframe. Every door routes through it; adding v2 later must
-  stay a one-line registry addition per kind. Delete `legacyBlobs.ts`, its test and its calls: they
-  lift example-exercise's pre-versioning data, which a new type does not have.
+  stay a one-line registry addition per kind.
 - `src/server/{publicSpec,modelSolution,grade}.ts` — your spec-derivation and grading logic. Keep the
   checker (normalization/acceptance) under `src/server/`, **never** in a view-imported util: public
   source maps ship, so grading code reachable from a view module can leak the algorithm to students

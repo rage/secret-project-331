@@ -111,6 +111,23 @@ relabels future blobs instead of migrating them.
   `exportAnswers.ts`, their two `src/routes/api/export-*.ts` routes, and their `*.test.ts` files, or
   they'll fail `tsc`/`vitest` by importing types you removed.
 
+## Look and feel (decided in Gate 3)
+
+- **Student views** follow the quizzes widgets (`services/quizzes/src/components/exercise-service-
+  views/`: `AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles.tsx`, `ViewSubmission/impl-by-
+  quiz-item-type/MultipleChoice.tsx`): bordered option rows, CORRECT/INCORRECT badges, feedback
+  blocks with a coloured left bar, white item cards. The iframe paints no background, so cards must
+  read on both white and the host's gray.
+- **Editor controls** follow `shared-module/packages/components`
+  (`src/components/primitives/buttonStyles.ts`, `src/components/primitives/checkableStyles.ts`,
+  `src/styles/tokens.ts`). A standalone plugin copies the tokens and styles onto native controls
+  rather than vendoring that react-aria package.
+- **Counters show the unit their limit enforces.**
+- **Mockups** are static HTML using the real token values, rendered to PNG, with the new design
+  shown above the current one when restyling. When a view embeds a third-party renderer, mock it up
+  with the real library inside the plugin's iframe wrapper instead: static HTML hides how the library
+  lays out and behaves there.
+
 ## Step 4 — Implement the 3 views
 
 - `src/components/ExerciseEditor.tsx` — teacher UI editing the private spec; post `current-state`

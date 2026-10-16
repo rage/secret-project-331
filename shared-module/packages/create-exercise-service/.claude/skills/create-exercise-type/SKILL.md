@@ -69,8 +69,10 @@ plugin cannot store files itself or mint their IDs — but files *are* available
 answer and spec uploads and hands back IDs and URLs (see the file-upload gotchas below). You cannot
 mutate a stored blob's shape in place without a version bump + a migration step (migrate-on-read,
 reference/07 §1); you cannot make view-submission depend on server-only data it is never sent; and
-nothing you build may require the host to migrate its database. When an ask
-lands here, refuse the impossible part explicitly and redesign around it.
+nothing you build may require the host to migrate its database. When an ask lands here, refuse the
+impossible part explicitly and redesign around it. These are limits of the current contract: when a
+design truly needs more (say, the submitter's pseudonymous id in the grading request), propose an
+additive host change as separate scope — never something the plugin attempts on its own.
 
 **Sign-off is its own final round.** Never bundle the confirmation/sign-off question with open
 substantive questions; ask for sign-off only after a full round in which the presented artifact did
@@ -129,10 +131,6 @@ including ones you discover later while implementing. **If it wraps a third-part
 library**, spike it with real teacher exports inside the real host sandbox before Gate 1 closes
 (the checklist is reference/07 §12).
 
-**The platform contract is not frozen.** When the design needs something the host doesn't provide
-(a field in the grading request), propose an additive platform change as separate scope here,
-rather than designing around its absence.
-
 **For any exercise that ingests user content or files, settle the abuse/threat surface here in
 Gate 1**, not Gate 2: malicious, oversized, or executable content; whether grading must *fetch and
 scan* the bytes (which forces async grading **and** an SSRF surface — reference/07 §6/§8); PII in
@@ -151,10 +149,10 @@ boundary: a field you forget to drop leaks answers into every student's browser 
 spec was already served. These are the most expensive-to-get-wrong decisions in the task.
 
 Read **`reference/07-key-design-decisions.md`** (at minimum Part I in full plus the one-screen
-checklist at the end; Part II when you design the tests). Open the gate with "Gate 1 items the data
-model can't do as written", each checked against the host source with file:line, failure semantics
-included. Then design **each of the five types in turn** — private spec, public spec, model solution
-spec, answer, feedback — as its own short conversation round:
+checklist at the end; Part II when you design the tests). Start Gate 2 by listing every Gate 1
+feature the proposed types can't support, each checked against host source (file:line). Then design
+**each of the five types in turn** — private spec, public spec, model solution spec, answer,
+feedback — as its own short conversation round:
 
 - **Propose actual TypeScript type definitions**, not prose. Sign-off applies to the exact types
   shown; if a later answer changes them, the changed types go back to the user.
@@ -198,27 +196,10 @@ inline-vs-download rule) goes back for a quick confirm — it's part of the desi
 implementation detail.
 
 **Look and feel is part of this gate — decide it before any view code.** Default to the platform's
-own look, restrained and minimal, never the look of a system the format came from (a port that
-imitated Moodle's UI had to be redone):
-
-- **Student views** follow the quizzes widgets (`services/quizzes/src/components/exercise-service-
-  views/`: `AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles.tsx`, `ViewSubmission/impl-by-
-  quiz-item-type/MultipleChoice.tsx`): bordered option rows, CORRECT/INCORRECT badges, feedback
-  blocks with a coloured left bar, white item cards. The iframe paints no background, so cards must
-  read on both white and the host's gray.
-- **Editor controls** follow `shared-module/packages/components` (`primitives/buttonStyles.ts`,
-  `primitives/checkableStyles.ts`, `styles/tokens.ts`). A standalone plugin copies the tokens and
-  styles onto native controls rather than vendoring that react-aria package.
-- **Ask which source wording and semantics survive** (e.g. a port kept Moodle's "Mark 0.50 out of
-  1.00" while taking everything else from quizzes), and make counters show the unit their limit
-  enforces.
-- **Show a mockup and get explicit approval before implementing it**: static HTML using the real
-  token values, rendered to PNG, the new design shown above the current one when restyling. When a
-  view embeds a third-party renderer, mock it up with the real library inside the plugin's iframe
-  wrapper instead — static HTML hides how the library actually lays out and behaves there.
-- **Feature completeness beats mockup fidelity.** Where a format feature doesn't fit the look (rich
-  text or maths in options, inline blanks, per-option feedback, limits and counters), adjust the
-  look, never drop the feature, and list each such deviation for the user.
+own look, restrained and minimal, never the look of the system a format came from; ask which source
+wording survives. Get a mockup approved before writing view code. Where a format feature doesn't fit
+the look, adjust the look rather than drop the feature, and list each such deviation for the user.
+The reference styles and the mockup procedure are in reference/05, "Look and feel".
 
 ## Implement the confirmed design
 
@@ -265,13 +246,11 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   is cut from the *monorepo* (the CWD repo), not the plugin's separate git root, so the agent sees
   none of the plugin's files — it will stall, or worse, fabricate fixes to code it can't see. Spawn
   plain agents with the plugin's absolute path and run them sequentially (they share one working
-  tree). Have each commit typecheck on its own: shared code (theme tokens, types) lands with its
-  first user.
+  tree).
 - **Keep the template's guard rails wired, don't just keep their files**: `publicSpec.ts` /
   `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve, and every stored-blob
   door goes through the `migrate*ToLatest` chain (`src/util/migration/` in the template) — adapt
-  these to your types; deleting the call sites silently disarms them. Do delete `legacyBlobs.ts`
-  (the template's own pre-versioning data), so a versionless blob is rejected.
+  these to your types; deleting the call sites silently disarms them.
 - **Locales** live at `src/locales/<lang>/<slug>.json` (per-language dirs, file named after your
   slug); keep en/fi key sets identical.
 - **The scaffold is ESM** (`type: module`): in Playwright/test files use
@@ -299,12 +278,6 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   plain action and don't give it a pending state.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
-- **Keep `answerPreflight` first** in `server.mjs` and the rsbuild `server.setup` middleware when
-  editing either: the Playground POSTs your spec endpoints from the browser, and an unanswered
-  `OPTIONS` fails there while a real course (server-to-server) still works.
-- **Bundle every browser library into the service** (Monaco, KaTeX, editors): load nothing from a
-  CDN at runtime — the template's "loads nothing from outside this service" test catches strays.
-  The project guide lists the view-level traps.
 
 ## Verify
 

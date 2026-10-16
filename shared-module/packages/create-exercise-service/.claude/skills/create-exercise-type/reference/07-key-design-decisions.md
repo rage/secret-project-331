@@ -38,8 +38,8 @@ Decisions to make:
   (`services/quizzes/types/quizTypes/privateSpec.ts`).
 - **Reject a blob with no known version.** Every blob a new type writes carries one, so "missing
   means v1" (quizzes' fallback for its pre-versioning data) only lets junk through. One typed error
-  covers a missing or unknown version and an unreadable shape: spec endpoints answer it `400`, grade
-  answers it with a `Failed` result, views fall back to a default — never a `500`.
+  covers a missing or unknown version and an unreadable shape: spec endpoints answer it `400`, views
+  fall back to a default, and grade answers it as §8 "Failure semantics" says.
 - **Normalize at every entry point, not in one place — but behind ONE reusable function.** Old blobs
   enter through every door that reads them, and all must migrate-on-read: the public-spec and
   model-solution endpoints, grade, the CSV exports, and each view's `set-state` (the editor's
@@ -64,8 +64,7 @@ is a one-line registry addition" — is the point of centralizing; design for it
 versions, because retrofitting it across scattered call sites is the expensive part.
 `example-exercise` (and therefore every scaffolded project) ships this chain **at v1** with empty
 registries — `src/util/migration/{versions,migrateToLatest}.ts` — so a new plugin retypes it rather
-than building it from scratch. Its `legacyBlobs.ts` lifts example-exercise's own pre-versioning
-data; a new type deletes it.
+than building it from scratch.
 
 **On an unknown/typo'd item type during migration, fail loud — never fabricate.** Quizzes' old v1
 migrator returned a hardcoded placeholder essay (literal-string content) for unknown types, which
@@ -431,8 +430,8 @@ the correct posture differs:
 - **Server endpoints**: validate strictly and return 400 (`BadRequestError` + `jsonRoute` pattern).
   A malformed `SpecRequest`/`GradingRequest` is a bug or an attack, not a UX event. One nuance:
   grade should distinguish _malformed request envelope_ (400) from _unexpected-but-old spec/answer
-  shapes_ (migrate, then grade) — regrading replays history at you, and a 500 mid-regrade is your
-  bug (`Failed` grading_progress exists for genuinely ungradeable submissions).
+  shapes_ (migrate, then grade) — regrading replays history at you; for what is genuinely
+  ungradeable, see §8 "Failure semantics".
 
 **Every endpoint is effectively unauthenticated**: the plugin cannot verify the host's calls. So
 every endpoint reads a streamed, capped body (`413` past it; the template's `readJsonBody`),
@@ -603,9 +602,8 @@ fine too.
 Quizzes' `grade.test.ts` is the model — a table of cases per item type: correct / partially correct /
 wrong / empty ("didn't select anything") / _unknown item type_ (`generateUnknownItemTypeGradingRequest`)
 / old-format request (`oldGenerateMultipleChoiceRequest`). Assert exact `score_given`, the
-`grading_progress`, and the `feedback_json` shape. Malformed `submission_data` must yield a graceful
-result (`Failed`, or 0 for the one bad part) — never a non-2xx, because the regrader will replay
-whatever history contains (§8).
+`grading_progress`, and the `feedback_json` shape, including malformed `submission_data` (§8
+"Failure semantics").
 
 ### 7. Form tests: the editor's output IS the private spec
 

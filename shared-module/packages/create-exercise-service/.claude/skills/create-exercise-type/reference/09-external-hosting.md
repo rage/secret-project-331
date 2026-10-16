@@ -64,17 +64,12 @@ not repeat it. What follows is what you need to route correctly and to build a p
   listen until the backend answers (Cloud Run's default TCP startup probe then waits for it).
 - **Rate limits key on the client address** from `X-Forwarded-For`, counted from the end by the
   trusted hops (2 behind the shared load balancer): default to 0 in code, set 2 in the image, and
-  keep ingress limited to the load balancer, or the header is forgeable. Give the limits a scale
-  factor so local tests can run against them.
+  keep ingress limited to the load balancer, or the header is forgeable.
 - **Cloud Run's `/tmp` is memory**: a disk cache counts against the instance's memory limit, so size
   it inside that, keyed by an immutable host object name.
-- **A non-Node backend in the same image** (an engine, a PHP or Python service): one image, `tini`
-  plus a small supervisor that exits when any child dies and stops Node first, backends on loopback
-  ports other than 8080, upstream refs pinned, slim stages, and the Node side rejecting any spec
-  that would make the backend fetch a remote resource (an include by URL). Build the runtime stage
-  with `--target` to test it locally. Make read-only files readable with `chmod -R a+rX` for the
-  non-root user, and copy config files individually: copying a `rootfs/` tree onto `/` applies the
-  checkout's directory modes to `/etc`.
+- **A non-Node backend** (an engine, a PHP or Python service) goes in the same image under a small
+  supervisor that exits when any child dies, listens on loopback only, and is never handed a spec
+  that would make it fetch a remote resource.
 
 ## Registering
 

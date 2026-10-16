@@ -159,8 +159,7 @@ the host's address (`host.minikube.internal`, `192.168.49.1` with the docker dri
 
 Every Playwright system-test run's globalSetup reseeds the test database and deletes the row, and a
 type added while a system-test run is in progress can leak into its screenshots, so don't register
-against a database another run is using. While this dev server holds the port, the plugin's own
-Playwright suite cannot start its root-path server (see `08`, Execution).
+against a database another run is using.
 
 ## Backend + infra checklist (condensed)
 

@@ -105,9 +105,8 @@ Consequences, all enforced in this template already (`src/util/stateInterfaces.t
   guessing shapes off `any` later. This template ships `SPEC_VERSION` + `Versioned*` shapes.
 - **Reject a blob with no known version.** Everything this service writes carries one, so "missing
   means v1" only lets junk through. `detectVersion` throws `MalformedBlobError`, which spec
-  endpoints answer `400`, grade answers with a `Failed` result, and the views replace with a
-  default. `src/util/migration/legacyBlobs.ts` lifts the template's own pre-versioning data; delete
-  it, its test and its calls.
+  endpoints answer `400` and the views replace with a default (grade: see "Trust boundary" below);
+  delete `src/util/migration/legacyBlobs.ts`, which lifts the template's own pre-versioning data.
 - **Migrate-on-read at every entry door, persist-on-save.** Old blobs enter through every door that
   reads them, and all must normalize old → current: each view's `set-state` handler
   (`IframeView.tsx`), the public-spec and model-solution endpoints, grade, and the CSV exports. You
@@ -341,15 +340,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   `{{params}}`.
 - **State survives only through submissions.** The host keeps no drafts and gives the iframe no exit
   hook: emit `current-state` continuously, and tell students only submitting saves.
-- **Wrapping a third-party engine or format:** spike it with real teacher exports in the real host
-  sandbox before designing (React/peer compatibility, bundle size, off-origin requests, whether
-  grading runs in Node, whether its strip functions leak, whether its scorers trust client-reported
-  status). Treat its public/strip functions as deny-lists: project through an allowlisting parser,
-  fail closed, leak-check recursively. Pin anything that grades or derives specs exactly, keep a
-  golden corpus (fixtures × correct/empty/garbage → points) and projection snapshots an upgrade must
-  reproduce byte for byte, and record the engine version in `feedback_json`. Engine calls during spec
-  derivation bound their time and concurrency inside the host's 120 s timeout and fail the whole
-  request. Secrets in a container that runs untrusted input are reachable.
+- **Wrapping a third-party engine or format:** its public/strip functions are deny-lists — project
+  through an allowlisting parser and fail closed. Pin anything that grades or derives specs exactly,
+  guard upgrades with a golden corpus (fixtures × correct/empty/garbage → points), and record the
+  engine version in `feedback_json`.
 - **The slug is forever.** It's the DB routing key baked into every stored exercise task; renaming
   later means data surgery in the _host_ DB. Pick it like a public API name.
 - **Content strings vs UI strings.** Teacher-authored text (prompts, labels, per-option feedback)
@@ -432,10 +426,7 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   tests reveal it.
 - **Bundle browser libraries; load nothing from a CDN.** Libraries hard-code CDN URLs in their CSS
   and at runtime; the plugin-contract test "loads nothing from outside this service" catches them, so
-  keep it pushing every view with representative content. For a code editor, import only the Monaco
-  contributions you use, create its worker with `new Worker(new URL(...), { type: "module" })`,
-  keep the editor uncontrolled (a controlled one drops keystrokes during fast typing), and
-  `await document.fonts.load(...)` for its font before mounting — Monaco measures glyphs once.
+  keep it pushing every view with representative content.
 - **A library that touches `window`/`document` as its module loads** needs `ssr: false` on the
   `/iframe` route (`src/routes/iframe.tsx`); `withNoSsr` only guards rendering, not imports.
 - **Third-party widget CSS assumes its home site's globals** (the root font size, `box-sizing:
@@ -443,8 +434,6 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   widget's `rem` rules don't move it.
 - **Legacy React libraries** (class widgets, `findDOMNode`, string refs) log errors on every render
   under the default client entry's `StrictMode`: add a `src/client.tsx` that hydrates without it.
-  They also need `test.server.deps.inline` in `vitest.config.ts` when they import CSS/SVG, svgr's
-  `exclude: /node_modules/`, and `@types/react` matching the React they pin.
 - **Height tracking measures the view's own element**, so popovers, tooltips and dialogs rendered in
   a portal outside it get clipped by the iframe: reserve height for them while they are open.
 - **The host's `open-dialog` answers asynchronously**, so a file picker opened after the dialog

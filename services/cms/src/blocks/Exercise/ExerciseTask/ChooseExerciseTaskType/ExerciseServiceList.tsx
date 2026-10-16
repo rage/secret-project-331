@@ -5,8 +5,7 @@ import { css } from "@emotion/css"
 import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
 import type { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { Button } from "@/shared-module/components"
-import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import { Button, QueryResults } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import useAllExerciseServices from "../../../../hooks/useAllExerciseServices"
@@ -20,12 +19,13 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
   const isGlobalAdminQuery = useAuthorizeMultiple([
     { action: { type: "administrate" }, resource: { type: "global_permissions" } },
   ])
-  const isGlobalAdmin = isGlobalAdminQuery.data?.[0] === true
   const { t } = useTranslation()
 
   return (
-    <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
-      {(data) => (
+    <QueryResults
+      queries={[exerciseServicesQuery, isGlobalAdminQuery] as const}
+      treatEmptyAsData
+      renderData={([data, [isGlobalAdmin]]) => (
         <div>
           <h2>{t("please-select-exercise-type")}</h2>
           <ul
@@ -60,7 +60,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
           </ul>
         </div>
       )}
-    </QueryResult>
+    />
   )
 }
 

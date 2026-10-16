@@ -162,7 +162,7 @@ async function main() {
     // 3. Push the answer-exercise view with a two-option public spec.
     pw(
       "eval",
-      "() => window.__host.setState('answer-exercise', { public_spec: [{ id: 'a', name: 'Helsinki' }, { id: 'b', name: 'Tampere' }], previous_submission: null })",
+      "() => window.__host.setState('answer-exercise', { public_spec: { version: '1', options: [{ id: 'a', name: 'Helsinki' }, { id: 'b', name: 'Tampere' }] }, previous_submission: null })",
     )
 
     // 4. The iframe should switch to that view — its set-state ack is the view rendering the options.

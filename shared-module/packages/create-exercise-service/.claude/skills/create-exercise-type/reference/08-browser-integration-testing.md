@@ -47,10 +47,16 @@ Cover the complete authored behavior, not only happy paths:
   the protocol interaction can overlap;
 - if teacher or student content renders as markup, injection payloads rendered inert, with the
   assertions scoped to the rich-text container (mark it with a data attribute) — the UI's own icons
-  are `<svg>` too.
+  are `<svg>` too;
+- every request going to the plugin's own origin, with every view pushed representative content:
+  libraries hard-code CDN URLs in CSS and at runtime, and a failed-request check misses the ones
+  that load. The template's "loads nothing from outside this service" does this; keep it.
 
 The emulator may return deterministic URLs so the plugin can finish its state transition. That
-proves only how the plugin handles a host response.
+proves only how the plugin handles a host response. A plugin that fetches host-stored files
+server-side gets a fake host file server as a second `webServer` entry, mimicking the host's
+`/api/v0/files/<slug>/<name>` answering `302` to the storage URL, with the plugin's allowed-origin
+configuration pointed at it.
 
 ### Iframe boundary
 
@@ -79,7 +85,10 @@ Playground's first spec requests answer 400 while its private spec is still `nul
 failed requests to the plugin rather than on console errors. Paste into code editors through the
 clipboard (grant `clipboard-read`/`clipboard-write`) — typed text gets auto-closed brackets — and
 scroll Playground buttons into view before clicking, or the click can be lost. This level is also
-the only real proof of the CORS preflight: capture the `OPTIONS` request and assert its `204`.
+the only real proof of the CORS preflight, which Playwright's request events never report: open a
+CDP session (`context.newCDPSession(page)`, `Network.enable`), pair `Network.requestWillBeSent`
+`OPTIONS` requests to the plugin with the `Network.responseReceived` events whose `type` is
+`"Preflight"`, and assert a `204`.
 
 For a host-mediated upload claim, inspect the real `/api/v0/files/playground` multipart request and
 assert its UUID field name, original filename, MIME type, length, exact bytes, and SHA-256. Then

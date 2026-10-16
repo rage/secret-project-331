@@ -32,13 +32,19 @@ current shape (now at `version: "3"`).
 Decisions to make:
 
 - **Put a `version` discriminant in every stored type** — private spec, public spec, model solution
-  spec, _and the answer_ (quizzes versions `UserAnswer` too: `types/quizTypes/answer.ts`). The
-  current quizzes private spec is literally `version: "3"`
+  spec, _the answer_ (quizzes versions `UserAnswer` too: `types/quizTypes/answer.ts`) _and
+  `feedback_json`_, which the host stores with the grading and view-submission renders for years.
+  The current quizzes private spec is literally `version: "3"`
   (`services/quizzes/types/quizTypes/privateSpec.ts`).
+- **Reject a blob with no known version.** Every blob a new type writes carries one, so "missing
+  means v1" (quizzes' fallback for its pre-versioning data) only lets junk through. One typed error
+  covers a missing or unknown version and an unreadable shape: spec endpoints answer it `400`, grade
+  answers it with a `Failed` result, views fall back to a default — never a `500`.
 - **Normalize at every entry point, not in one place — but behind ONE reusable function.** Old blobs
-  enter through _four_ doors and all must migrate-on-read: the public-spec endpoint, the
-  model-solution endpoint, the grade path, and the editor's `set-state` handler. Quizzes routes all
-  four through a single chain module (`src/util/migration/migrateToLatest.ts`, one
+  enter through every door that reads them, and all must migrate-on-read: the public-spec and
+  model-solution endpoints, grade, the CSV exports, and each view's `set-state` (the editor's
+  private spec; the public spec, answer, model solution and feedback in the student views). Quizzes
+  routes them through a single chain module (`src/util/migration/migrateToLatest.ts`, one
   `migrate*ToLatest` call per door) rather than copy-pasting a version check — see the recipe below.
 - **Migrate-on-read, persist-on-save.** You can't rewrite stored blobs; you _can_ return the
   upgraded shape so the next save persists it. Internal code past the entry points should only ever
@@ -58,7 +64,8 @@ is a one-line registry addition" — is the point of centralizing; design for it
 versions, because retrofitting it across scattered call sites is the expensive part.
 `example-exercise` (and therefore every scaffolded project) ships this chain **at v1** with empty
 registries — `src/util/migration/{versions,migrateToLatest}.ts` — so a new plugin retypes it rather
-than building it from scratch.
+than building it from scratch. Its `legacyBlobs.ts` lifts example-exercise's own pre-versioning
+data; a new type deletes it.
 
 **On an unknown/typo'd item type during migration, fail loud — never fabricate.** Quizzes' old v1
 migrator returned a hardcoded placeholder essay (literal-string content) for unknown types, which
@@ -160,10 +167,11 @@ Three host behaviors worth internalizing:
   want circulated. Per the thesis, it "lacks certain testing rules used for sensitive correctness
   checking." Show _a_ correct answer, not the checker. Assume it will be screenshotted and shared
   (and that peer reviewers get it early).
-- **`answer` — may:** the student's choices/inputs by id, plus what's needed to reconstruct their
-  variant (seed) if randomized. **Must not:** client-computed correctness (never trusted anyway, and
-  it leaks grading logic paths); copied spec content; PII or hidden fields — **peer reviewers render
-  this object**, so anything in it is shown to another student.
+- **`answer` — may:** the student's choices/inputs by id, plus the variant seed view-submission
+  needs to render a randomized exercise — which grading re-derives rather than trusts (§5).
+  **Must not:** client-computed correctness (never trusted anyway, and it leaks grading logic
+  paths); copied spec content; PII or hidden fields — **peer reviewers render this object**, so
+  anything in it is shown to another student.
 - **`feedback_json` / `feedback_text` — may:** feedback about _the submitted answer_, at the
   granularity you chose. **Must not:** the full answer key or the correctness of _unchosen_ options
   while retries may remain. Crucial: the `GradingRequest` contains no attempt count —
@@ -184,7 +192,8 @@ Three host behaviors worth internalizing:
   `option-1`), in **asymmetric metadata** (only correct options carry a `feedbackMessage` or a
   longer explanation — presence of the field is the leak), in **counts/weights** ("select exactly
   2" when the task doesn't say so; per-option point weights), or in **authoring artifacts** (casing,
-  whitespace, the teacher's `TODO` notes). Shuffle or normalize these in the derivation.
+  whitespace, the teacher's `TODO` notes). Shuffle (server-side, §4) or normalize these in the
+  derivation.
 - **L3 — The checker in the model solution.** Publishing the regex/tolerance/hidden tests lets
   students game the grader beyond knowing one correct answer — worse than L1 because it survives
   spec edits.
@@ -202,14 +211,18 @@ Three host behaviors worth internalizing:
 - **L8 — Grading logic in the client bundle.** The services ship **public source maps**
   (`rsbuild.config.ts`: "Public source maps (this is open source)"). Import your grader into an
   iframe view "for client-side preview" and the entire acceptance logic ships readably to every
-  student. Keep grading code strictly under `src/server/` and never import it from view code.
+  student. Keep grading code strictly under `src/server/` and never import it from view code. The
+  leak is the acceptance rule, not the code: a generic grader whose every secret lives in the
+  private spec (a wrapped engine's scorer) may run in the editor for a teacher's preview.
 - **L9 — Projection by subtraction.** Building the public spec via `{...privateSpec}` +
   `delete copy.correct` means every _future_ private field leaks by default. Build projections by
   **explicit pick** (construct the object from named fields, as example-exercise's
   `map(a => ({id: a.id, name: a.name}))` does) so new fields are private until you opt them in.
-- **L10 — Error/log echoes.** 400/500 bodies or server logs that echo spec fragments back; be
-  deliberate about what error messages contain (the iframe already logs all port messages to the
-  console by design — that's fine, it's client-visible data by definition).
+- **L10 — Error/log echoes.** 400/500 bodies or server logs that echo spec fragments back. The host
+  copies every non-2xx body into its own logs and error messages, so answer from a fixed set of
+  bodies (the template's `ERROR_MESSAGES`) and log the detail only in your service — without
+  secrets: a leak guard's error says a value leaked, not which. The iframe logging port messages to
+  its own console is fine; that is client-visible data by definition.
 - **L11 — Injection from rendered answer content.** The answer is attacker-controlled and is
   rendered to peer reviewers, so treat every answer field as untrusted input *in the view*, not just
   in classification: scheme-check any URL before using it as `href`/`src` (`http(s)` only), never
@@ -218,7 +231,10 @@ Three host behaviors worth internalizing:
   executes in a peer reviewer's iframe (a real session bug) — a stored-XSS hole general to any type
   that renders free-form answer content: essay text, filenames, URLs. Unlike L1–L10 this is an
   *inbound* injection, not an outbound information leak, but it lives in the same untrusted-boundary
-  discipline.
+  discipline. Strip C0/C1 control characters and bidi overrides/isolates from untrusted text shown
+  to teachers and reviewers, or it can reorder or hide what they read. A CSV export is a render site
+  too: the host writes cells verbatim, so prefix a text cell starting with `=`, `+`, `-`, `@`, tab
+  or CR with `'` (the template's `csvText`).
 
 #### 3d. Rules that make leaks structurally hard
 
@@ -256,19 +272,26 @@ against the **private** spec. Two rules keep this correspondence intact:
   breaks). This rule is about authored domain entities, not uploaded files: the host creates opaque
   upload IDs after it receives the iframe's files.
 - **Derivation is deterministic** — a re-save of an unchanged private spec should produce an
-  equivalent public spec. If you shuffle options for anti-cheating, either shuffle in the _view_
-  (per render) or derive the order from a seed stored in the private spec — never `Math.random()`
-  in the generator.
+  equivalent public spec, so never `Math.random()` in the generator. To shuffle options, shuffle in
+  the derivation from a seed minted in the editor and kept in the private spec. Shuffling in the
+  _view_ hides nothing: the public spec still carries the authored order (and any id derived from a
+  position), and a client shuffle from a public seed is reversible.
 
 ### 5. Know the generation timing: specs are per-exercise-at-save-time, not per-student
 
 The backend generates `public_spec`/`model_solution_spec` **once, when the teacher saves the page**,
 and stores them. Every student receives the same public spec. Consequences:
 
-- **No per-student randomization via the public spec.** If each student should get a different
-  variant, it has to happen in the answer view (seeded client-side, with the seed or the concrete
-  variant recorded _in the answer_ so grading and view-submission can reconstruct it) — or the
-  exercise must be modeled so one public spec covers all variants.
+- **No per-student randomization via the public spec.** One public spec covers every variant and
+  the variant is picked per student. A seed the client records is forgeable (a student shops for an
+  easy variant), so the grader derives it from the submitter's pseudonymous id plus a per-exercise
+  salt minted in the editor (private spec, so it survives course copy). That needs
+  `pseudonymous_user_id` in the grading request: check that the host's
+  `ExerciseTaskGradingRequest` carries it, and if not, propose the additive platform change in
+  Gate 1. The views derive the same seed from `user_information.pseudonymous_id`, a UUIDv5
+  namespaced by the `exercise_services` row id — recreating that row reassigns every variant. A
+  peer reviewer's id is their own, so show a variant-dependent model solution only when the
+  viewer's seed equals the answer's.
 - The `SpecRequest` also carries an `upload_url` (JWT-authorized) — generators may upload derived
   files, but the JSON spec they return is still static per exercise.
 
@@ -279,13 +302,14 @@ The answer is stored per-submission forever and is the input to grading and to v
 - **Reference, don't copy**: store `selectedOptionId`, not the option text. Copies go stale when the
   teacher edits the exercise, and bloat every submission row.
 - ...**except** what's needed to reconstruct the student's experience when the spec has since changed
-  or was randomized (see #5) — then record the variant/seed in the answer.
+  or was randomized (see #5) — then record the variant/seed in the answer, for rendering only.
 - **Grade must work from `private_spec + answer` alone for answer-key grading** — no session, no DB,
-  no fetches; if grading needs something, it belongs in one of those two. The one exception is a
-  grader that must dereference a *client-supplied* URL (file submission: download the uploaded bytes
-  to scan them). That fetch is unavoidable, but the URL is attacker-controlled — treat it as hostile
-  and guard it (§8, "When grading must fetch"), and expect it to force async delivery (§8), since
-  network I/O rarely completes in-request.
+  no fetches; if grading needs something, it belongs in one of those two. The request carries no
+  locale, so a locale-dependent parse (a decimal comma) needs the locale stored in the spec or the
+  answer. The one exception is a grader that must dereference a *client-supplied* URL (file
+  submission: download the uploaded bytes to scan them). That fetch is unavoidable, but the URL is
+  attacker-controlled — treat it as hostile and guard it (§8, "When grading must fetch"), and expect
+  it to force async delivery (§8), since network I/O rarely completes in-request.
 - **Version the answer type too** (quizzes: `isOldUserAnswer`) — and make the parser actually **read
   the incoming version** and dispatch through the migration chain. A "versioned" parser that ignores
   `value.version` and stamps the current version onto whatever arrives silently *relabels* future
@@ -328,7 +352,8 @@ endpoints shouldn't assume every stored spec passed it (older data, other writer
 are easy to forget and bite grading later: **id uniqueness** (duplicate item ids double-count in
 scoring and orphan stored answers on re-save) and **finite, in-range numeric weights** (an editor's
 `Number(input)` happily yields `NaN`/`Infinity`/negatives/fractions — `score_maximum` must stay a
-sane positive number).
+sane positive number). The answer view's `valid` must likewise reject whatever the grader would find
+unparseable — a library's own validator often checks only for emptiness.
 
 Two related patterns worth copying:
 
@@ -340,7 +365,9 @@ Two related patterns worth copying:
 - **The `valid` flag must reflect seeded state.** If the answer view seeds itself from
   `previous_submission` on a retry, emit a `current-state` for the seeded answer — a view that only
   emits on user interaction leaves `valid` unset, silently blocking a student who wants to resubmit
-  their prior answer unchanged until they touch the form.
+  their prior answer unchanged until they touch the form. Seed by merging the stored answer over the
+  view's default state rather than replacing it: an answer from an earlier spec version can lack
+  parts the spec has now, or name parts it no longer has.
 
 ### 8. Choose your grading model consciously
 
@@ -361,6 +388,11 @@ Two related patterns worth copying:
      until a manual regrade — no host-side timeout rescues it.
   5. An in-memory retry queue is **not durable across restarts** — surface that tradeoff in Gate 1
      when async is chosen, rather than absorbing it silently.
+- **Failure semantics**: the host never retries a non-2xx from `/api/grade` — a first submission
+  is rolled back (the student must resubmit) and a regrade is stored as failed. So answer an
+  ungradeable submission with a `Failed` result, keep `503` for "temporarily unavailable", and
+  grade each part of a multi-part answer in its own `try`/`catch`, so one bad part scores 0 (logged
+  without its content) instead of failing the submission.
 - **Score semantics**: `score_given / score_maximum` is a ratio the host scales to the exercise's
   points. Keep `score_maximum` stable per exercise; decide partial-credit policy per item type
   (quizzes' choose-N vs multiple-choice differ) and encode the policy _in the private spec_ if
@@ -401,6 +433,13 @@ the correct posture differs:
   grade should distinguish _malformed request envelope_ (400) from _unexpected-but-old spec/answer
   shapes_ (migrate, then grade) — regrading replays history at you, and a 500 mid-regrade is your
   bug (`Failed` grading_progress exists for genuinely ungradeable submissions).
+
+**Every endpoint is effectively unauthenticated**: the plugin cannot verify the host's calls. So
+every endpoint reads a streamed, capped body (`413` past it; the template's `readJsonBody`),
+expensive ones also get per-client rate limits and bounded concurrency, and the hosting's maximum
+instance count is the cost ceiling. Grading needs a wall-clock budget, not just input caps, with a
+CI test that grades an answer at every cap inside it; size that worst case against the host's
+2 MiB JSON limit. These are Gate 2 numbers for the user, like any other limit.
 
 One policy question hides inside this: **what happens to already-stored answers when the teacher
 later tightens the spec?** A regrade replays an answer valid when submitted against the _current_
@@ -455,6 +494,34 @@ visibility enum (quizzes: `services/quizzes/types/quizTypes/privateSpec.ts`,
 new enum value, not a schema change), and a trivial model-solution projection — filter by
 `on-model-solution` and carry plain strings, so after-answer text structurally cannot leak.
 
+### 12. Wrapping a third-party engine or format
+
+When the type wraps someone else's renderer, scorer or package format, most of the risk lives in
+the library, so find it before the design depends on it:
+
+- **Spike before Gate 1 closes.** Run real exports from the tools teachers use through the library
+  inside the real host sandbox, and check peer-dependency/React compatibility, bundle size, requests
+  to other origins, whether grading can run in Node, whether the library's own public/strip
+  functions leak, whether its scorers trust client-reported fields, and its upgrade churn. Mark a
+  design claim "(verified)" only against a probe.
+- **A library's public/strip function is a deny-list until proven otherwise.** Project through a
+  parser that drops unknown keys and allowlists types at every depth, fail closed, and run a
+  recursive leak check on the result. A scorer that trusts a client-reported status (completed,
+  passed, score) cannot grade: treat those items as ungraded.
+- **Pin anything that grades or derives specs exactly**, with no automated updates: a stored answer
+  must grade the same after an upgrade. Keep a golden corpus (fixtures × correct/empty/garbage →
+  points) and projection snapshots an upgrade must reproduce byte for byte, record the engine
+  version in `feedback_json`, and run tests against a real external engine under their own vitest
+  config.
+- **A spec derivation that calls an engine** bounds its concurrency and total time inside the
+  host's 120 s spec-request timeout, fails the whole request rather than return a partial spec, and
+  gives byte-identical output for the same input.
+- **Secrets in a container that runs untrusted input are reachable** — raise it in Gate 1. When a
+  view needs private data handled server-side, ship it in the public spec as an AEAD-sealed blob
+  with a key id; the development key works only outside production.
+- **A scan of imported content for outside URLs** skips identifiers that are never fetched (XML
+  namespaces, `schemaLocation`).
+
 ---
 
 ## Part II — Testing the data models and forms
@@ -493,9 +560,9 @@ let you refactor the current types fearlessly — they prove ancient data still 
 Start this suite at version 1 even though there's nothing to migrate yet: a test asserting "a v1
 spec passes through normalization unchanged" is the anchor the v2 migration tests attach to later.
 
-Also test the **chain entry points** themselves, not just the per-version step functions: a
-versionless (v1) blob lifts all the way to the latest version in one call, an already-latest blob is
-returned unchanged, an unknown/future version throws, an unknown item type throws (fail-loud, no
+Also test the **chain entry points** themselves, not just the per-version step functions: a v1 blob
+lifts all the way to the latest version in one call, an already-latest blob is returned unchanged, a
+versionless or unknown/future version throws, an unknown item type throws (fail-loud, no
 fabricated placeholder), and — when you add a version — every _other_ item type is deep-equal to its
 prior shape (the pass-through guarantee). Quizzes: `tests/util/migrationTests/migrateToLatest.test.ts`
 and `closedEndedV2ToV3.test.ts`.
@@ -537,7 +604,8 @@ Quizzes' `grade.test.ts` is the model — a table of cases per item type: correc
 wrong / empty ("didn't select anything") / _unknown item type_ (`generateUnknownItemTypeGradingRequest`)
 / old-format request (`oldGenerateMultipleChoiceRequest`). Assert exact `score_given`, the
 `grading_progress`, and the `feedback_json` shape. Malformed `submission_data` must yield a graceful
-result or 400 — never a 500, because the regrader will replay whatever history contains.
+result (`Failed`, or 0 for the one bad part) — never a non-2xx, because the regrader will replay
+whatever history contains (§8).
 
 ### 7. Form tests: the editor's output IS the private spec
 
@@ -550,7 +618,7 @@ type — test it at that boundary. Pattern per `IframeView.test.tsx` (Testing Li
 - Test the `valid` transitions specifically: fresh/empty spec → `valid: false`; each Part I #7
   invariant flips it at the right moment. This is where "can save a broken exercise" bugs live.
 - Feed the editor an **old-version spec** via `set-state` and assert it emits the migrated current
-  version — the editor is one of the four migration doors (#1).
+  version — the editor is one of the migration doors (#1).
 - Same approach for AnswerExercise (interactions → emitted answer) and ViewSubmission (given
   spec+answer+feedback fixtures → renders correct/incorrect states; wrong-id answer doesn't crash).
 
@@ -644,13 +712,19 @@ playwright/
   markup through `feedback_text`. And mind the locale: the `GradingRequest` carries **no language**,
   so any `feedback_text` string ships untranslated to every course. Learner-facing feedback that must
   be localized belongs in `feedback_json`, rendered by view-submission (which follows `set-language`);
-  keep `feedback_text` minimal or language-neutral.
+  keep `feedback_text` minimal or language-neutral. Text the server builds (feedback, editor issues)
+  goes out as codes plus params that the views render from the locale files, and the template's
+  `locales.test.ts` checks every code has a key and every language the same keys and `{{params}}`.
+- **State survives only through submissions.** The host keeps no drafts and gives the iframe no
+  exit hook, so anything not submitted is lost on reload. Emit `current-state` continuously, and
+  tell students that only submitting saves.
 
 ## The one-screen checklist
 
 Before writing the editor UI, be able to answer:
 
-1. What is the **versioned** private-spec type, and where does its `version` field live?
+1. What is the **versioned** private-spec type, and where does its `version` field live? If the type
+   wraps a third-party engine, has the §12 spike checked it?
 2. What do the two projections drop — and did you check the derivable-answer leaks (ordering, id
    patterns, asymmetric metadata, counts/weights, authoring artifacts)? Are projections built by
    explicit pick, never spread-then-delete?
@@ -661,13 +735,15 @@ Before writing the editor UI, be able to answer:
    full reveals living in `model_solution_spec` instead?
 5. Where are domain ids minted? (Must be: the editor.) If the exercise uploads files, does the
    iframe send only ordered `File[]`, with host-assigned upload IDs returned in matching order?
-6. Is derivation pure and deterministic? Where does randomization live, if any?
+6. Is derivation pure and deterministic? Where does randomization live, if any — and is every seed
+   private or derived server-side, never trusted from the client?
 7. Can the answer + private spec alone produce a grade? Is the answer versioned? Does it contain
    nothing you wouldn't show a peer reviewer?
 8. What are the validity invariants, and which single function encodes them?
 9. Sync or async grading? What's the partial-credit policy and where is it configured?
-10. Which of the four entry doors normalize old versions? (Must be: all four, via one shared
-    `migrate*ToLatest` chain — and adding the next version is a one-line registry addition.)
+10. Do all five stored kinds (feedback included) carry a version, and does every entry door
+    normalize old versions through one shared `migrate*ToLatest` chain, rejecting a versionless
+    blob? (Adding the next version must be a one-line registry addition.)
 11. Does **every editor control that affects the saved/graded result** write to a private-spec
     field (never to component-local state)? Is each mode/strategy selector a discriminated union on
     a tag, with an exhaustive switch in grading and every derivation — no single field carrying two

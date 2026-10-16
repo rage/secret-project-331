@@ -76,6 +76,9 @@ lands here, refuse the impossible part explicitly and redesign around it.
 substantive questions; ask for sign-off only after a full round in which the presented artifact did
 not change.
 
+**Write each gate to a file** with an "Open questions (default first)" list and a dated "Decisions
+(user)" section; implementers build from that file, not from the chat.
+
 **Headless / subagent context.** If `AskUserQuestion` is unavailable (you are running as a subagent,
 or without an interactive user), do **not** skip a gate or sign off on your own behalf. Present the
 full proposal for the gate you are at — every open question with your recommended default — as your
@@ -122,7 +125,13 @@ is free).
 **If the type ports an external format or system** (a quiz format, another LMS's question type),
 settle the parity policy here: default to the source's semantics, support the format completely or
 name what is deferred, and surface every deviation from the source for explicit confirmation —
-including ones you discover later while implementing.
+including ones you discover later while implementing. **If it wraps a third-party engine or
+library**, spike it with real teacher exports inside the real host sandbox before Gate 1 closes
+(the checklist is reference/07 §12).
+
+**The platform contract is not frozen.** When the design needs something the host doesn't provide
+(a field in the grading request), propose an additive platform change as separate scope here,
+rather than designing around its absence.
 
 **For any exercise that ingests user content or files, settle the abuse/threat surface here in
 Gate 1**, not Gate 2: malicious, oversized, or executable content; whether grading must *fetch and
@@ -142,9 +151,10 @@ boundary: a field you forget to drop leaks answers into every student's browser 
 spec was already served. These are the most expensive-to-get-wrong decisions in the task.
 
 Read **`reference/07-key-design-decisions.md`** (at minimum Part I in full plus the one-screen
-checklist at the end; Part II when you design the tests), then design **each of the five types in
-turn** — private spec, public spec, model solution spec, answer, feedback — as its own short
-conversation round:
+checklist at the end; Part II when you design the tests). Open the gate with "Gate 1 items the data
+model can't do as written", each checked against the host source with file:line, failure semantics
+included. Then design **each of the five types in turn** — private spec, public spec, model solution
+spec, answer, feedback — as its own short conversation round:
 
 - **Propose actual TypeScript type definitions**, not prose. Sign-off applies to the exact types
   shown; if a later answer changes them, the changed types go back to the user.
@@ -160,7 +170,8 @@ conversation round:
   ceilings, character limits. "Add limits" from the user + a number you invented is not a confirmed
   design; propose the value, let them confirm or change it. Limits invented *mid-design* (a character
   cap, a retry count, a timeout) are still limits — surface each as its own number, not folded into a
-  bulk "confirm the invariants" or an option label.
+  bulk "confirm the invariants" or an option label. That includes the cost ceilings of endpoints
+  anyone can call: body caps, rate limits, a grading time budget (reference/07 §9).
 - **Delegation is not sign-off.** When the user says "you come up with X," draft X, then present the
   draft for confirmation before implementing it. Same for anything you invent post-gate.
 
@@ -180,9 +191,11 @@ per view, before implementing:
 
 For each view present **2–3 concrete layout options** (ASCII mockups in `AskUserQuestion` option
 previews work well), state what information appears in which state (empty, filled, error, graded),
-and iterate until the user explicitly confirms one. Behavior you invent during implementation that
-wasn't in the confirmed design (a preview-file-types list, an inline-vs-download rule) goes back for
-a quick confirm — it's part of the design, not an implementation detail.
+and iterate until the user explicitly confirms one. Check every item a view displays against the
+data that view receives — the answer view gets only the public spec. Behavior you invent during
+implementation that wasn't in the confirmed design (a preview-file-types list, an
+inline-vs-download rule) goes back for a quick confirm — it's part of the design, not an
+implementation detail.
 
 **Look and feel is part of this gate — decide it before any view code.** Default to the platform's
 own look, restrained and minimal, never the look of a system the format came from (a port that
@@ -200,7 +213,9 @@ imitated Moodle's UI had to be redone):
   1.00" while taking everything else from quizzes), and make counters show the unit their limit
   enforces.
 - **Show a mockup and get explicit approval before implementing it**: static HTML using the real
-  token values, rendered to PNG, the new design shown above the current one when restyling.
+  token values, rendered to PNG, the new design shown above the current one when restyling. When a
+  view embeds a third-party renderer, mock it up with the real library inside the plugin's iframe
+  wrapper instead — static HTML hides how the library actually lays out and behaves there.
 - **Feature completeness beats mockup fidelity.** Where a format feature doesn't fit the look (rich
   text or maths in options, inline blanks, per-option feedback, limits and counters), adjust the
   look, never drop the feature, and list each such deviation for the user.
@@ -232,7 +247,9 @@ ln -s AGENTS.md <project>/CLAUDE.md          # relative symlink, so Claude Code 
 `AGENTS_TEMPLATE.md` (alongside the drivers here) is the source of truth — a distillation of
 `reference/07`: the five data types and what each may/must-not contain, the leak catalogue, and the
 peer-review/exam-mode visibility surprises. Nothing needs substituting (it refers to "this service"
-generically). **Keep it in sync with `reference/07`** whenever the data-model doctrine changes.
+generically). **Keep it in sync with `reference/07`** whenever the data-model doctrine changes. As
+you implement, extend its "Where each concern lives" table with the type's own modules, environment
+variables and fixture rules.
 
 **Then read `reference/05-step-by-step-checklist.md` and follow it for your track** — it is the
 mandatory sequence, not optional background: it routes the five types (`src/util/stateInterfaces.ts`)
@@ -253,7 +270,8 @@ Authoring gotchas (each cost a real session a debugging round-trip):
 - **Keep the template's guard rails wired, don't just keep their files**: `publicSpec.ts` /
   `modelSolution.ts` must keep *calling* `assertNoLeak` on what they serve, and every stored-blob
   door goes through the `migrate*ToLatest` chain (`src/util/migration/` in the template) — adapt
-  these to your types; deleting the call sites silently disarms them.
+  these to your types; deleting the call sites silently disarms them. Do delete `legacyBlobs.ts`
+  (the template's own pre-versioning data), so a versionless blob is rejected.
 - **Locales** live at `src/locales/<lang>/<slug>.json` (per-language dirs, file named after your
   slug); keep en/fi key sets identical.
 - **The scaffold is ESM** (`type: module`): in Playwright/test files use
@@ -285,7 +303,8 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   editing either: the Playground POSTs your spec endpoints from the browser, and an unanswered
   `OPTIONS` fails there while a real course (server-to-server) still works.
 - **Bundle every browser library into the service** (Monaco, KaTeX, editors): load nothing from a
-  CDN at runtime. The project guide lists the view-level traps.
+  CDN at runtime — the template's "loads nothing from outside this service" test catches strays.
+  The project guide lists the view-level traps.
 
 ## Verify
 
@@ -366,7 +385,8 @@ Bundled in **`reference/`** (start at `reference/README.md`), alongside the ship
   plugins, and a standalone one in the local dev cluster).
 - `05` the end-to-end checklist — **mandatory reading at the implementation step above**.
 - `06` the design rationale.
-- `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.
+- `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above —
+  and, in §12, wrapping a third-party engine or format.
 - `08` the mandatory browser-integration levels, upload evidence, and portable execution rules.
 - `09` hosting a standalone (Track A) plugin on the shared Google Cloud setup, and registering it.
 

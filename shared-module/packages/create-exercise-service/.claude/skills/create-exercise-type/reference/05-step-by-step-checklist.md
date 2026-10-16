@@ -72,8 +72,10 @@ run them in CI. Review autofixes before accepting them — `unicorn/prefer-numbe
 `migrateToLatest.test.ts`, `publicSpec`/`modelSolution`/`grade`/`roundTrip`/`export*` `.test.ts`, the
 component `*.test.tsx`) — they assert the multiple-choice model and will fail `tsc`/vitest until you
 rewrite them, so removing them first avoids editing under a wall of unrelated errors. Keep only the
-generic ones (`leakGuard`, `status`, `router`), then rewrite the deleted suites for your data types
-as you implement (Verify / `07` Part II is the bar).
+generic ones (`leakGuard`, `status`, `router`, `locales`, `corsPreflight`, `gracefulShutdown`,
+`dockerfiles`), then rewrite the deleted suites for your data types as you implement (Verify / `07`
+Part II is the bar). Delete `src/util/migration/legacyBlobs.ts`, its test and its calls too: they
+lift example-exercise's pre-versioning data, and without them a versionless blob is rejected.
 
 Edit `src/util/stateInterfaces.ts`: replace `Alternative`/`PublicAlternative`/`Answer`/
 `ModelSolutionApi`/`ExerciseFeedback` with your `private_spec` / `public_spec` / `model_solution_spec`
@@ -84,9 +86,9 @@ your grade handler: `GradingRequest<YourPrivateSpec, YourAnswer>`, `GradingResul
 Adapt the template's **migration chain** to your types rather than replacing it with inline version
 checks: the per-type version registry + `migrate*ToLatest` functions the template ships are what
 every stored-blob door must route through, and adding v2 later must stay a one-line registry
-addition (see `07` §1). Version gates apply to **every** stored type — including the answer: a
-parser that stamps the current version without reading the incoming one silently relabels future
-blobs instead of migrating them.
+addition (see `07` §1). Version gates apply to **every** stored type — including the answer and
+`feedback_json`: a parser that stamps the current version without reading the incoming one silently
+relabels future blobs instead of migrating them.
 
 ## Step 3 — Implement the 3 server transforms
 
@@ -159,10 +161,9 @@ already supports arbitrary services.
 
 ## Step 7 (Track B) — Infra manifests
 
-- The scaffolder deliberately excludes `Dockerfile`, `Dockerfile.production.slim.dockerfile`, and
-  `.dockerignore` (moocfi-internal deploy files, broken in a standalone project — see `03`). Copy
-  these three from `services/example-exercise/` into `services/<slug>/` before wiring skaffold below,
-  or the build will fail with "Dockerfile not found."
+- The scaffold's `Dockerfile` is the standalone one (public `node` images, see `03`). Replace it
+  with `Dockerfile` and `Dockerfile.production.slim.dockerfile` from `services/example-exercise/`
+  before wiring skaffold below — the monorepo builds on its private base images.
 - `kubernetes/base/<slug>/deployment.yml` (headless Service + Deployment; env
   `PUBLIC_BASE_PATH=/<base-path>`; probes on `/<base-path>/api/status/up`) — model on
   `kubernetes/base/example-exercise/deployment.yml`.
@@ -187,11 +188,10 @@ The `service_info_fetcher` worker discovers your endpoints within ~60s and popul
 ## Step 9 (Track A) — Deploy and register a standalone plugin
 
 Host it per `09-external-hosting.md` (one Cloud Run service per plugin behind the shared
-`*.exercises.mooc.fi` load balancer; the plugin repo needs a `Dockerfile`, which the scaffold
-excludes). Then register it via the admin API `POST /api/v0/main-frontend/exercise-services` with
-`public_url` = the hosting's `service_info_url` output
-(`https://<name>.exercises.mooc.fi/api/service-info`) and `internal_url` unset; registration fetches
-service-info immediately. No monorepo changes.
+`*.exercises.mooc.fi` load balancer, built from the scaffold's `Dockerfile`). Then register it via
+the admin API `POST /api/v0/main-frontend/exercise-services` with `public_url` = the hosting's
+`service_info_url` output (`https://<name>.exercises.mooc.fi/api/service-info`) and `internal_url`
+unset; registration fetches service-info immediately. No monorepo changes.
 
 ## Definition of done
 

@@ -25,15 +25,16 @@ The plugin may choose _any_ JSON shape for each of these. The host treats them a
 it stores them and passes them back, never inspecting their contents. The only contract the host
 cares about is the _envelope_ types (below), not the inner spec/answer JSON.
 
-Because the iframe receives its state as untyped `data` over `postMessage`, the file also exports
-**defensive parsers** (`parsePublicSpec`, `parsePrivateSpec`, `parseAnswer`, `parseModelSolution`)
-and type guards (`isAlternative`, `isPublicAlternative`, `isExerciseFeedback`). These are
+Because the iframe receives its state as untyped `data` over `postMessage`, the template has
+**defensive parsers** (`parsePublicSpec`, `parsePrivateSpec`, `parseAnswer`, `parseModelSolution`,
+`parseFeedback` in `src/util/migration/migrateToLatest.ts`) and type guards (`isAlternative`,
+`isPublicAlternative`). These are
 deliberately forgiving: a missing/malformed field yields an empty/default value rather than a
 crash. A new plugin should follow the same pattern — never trust the incoming blob's shape.
 
 The file also demonstrates the two durability patterns from `reference/07`: **versioning** (a
-`SPEC_VERSION` discriminant + `Versioned*` stored shapes + `alternativesFromStored`, which migrates
-both the legacy bare-`Alternative[]` blob and the versioned envelope on read) and a single
+`SPEC_VERSION` discriminant + `Versioned*` stored shapes for all five kinds, read back only through
+`src/util/migration/migrateToLatest.ts`, which rejects a blob with no known version) and a single
 **`validatePrivateSpec(spec) → { valid, errors }`** authority (invariants: ≥1 option, ≥1 correct,
 non-empty names; errors are i18n keys) that the editor uses to both set `valid` and render errors.
 
@@ -104,12 +105,13 @@ optional/nullable; the grade/public-spec/model-solution trio is mandatory.
 
 ### `src/server/publicSpec.ts` → `POST /api/public-spec`
 
-Input `SpecRequest` (`{ request_id, private_spec, upload_url }`), output `public_spec`. Derives the
-student-visible spec from the private one — here, by dropping the `correct` flag so answers don't
-leak to the browser. **This is the security boundary between teacher data and student data.** Both
-this endpoint and `modelSolution.ts` run the fail-closed `src/server/leakGuard.ts` (`assertNoLeak`,
-which walks the projection for forbidden **keys** and forbidden **values**) before returning, so a
-regression that forgets to drop a field throws (500) instead of serving a leak.
+Input `SpecRequest` (`{ request_id, private_spec, upload_url }`), output `public_spec`
+(`{ version, options }`). Derives the student-visible spec from the private one — here, by dropping
+the `correct` flag so answers don't leak to the browser. **This is the security boundary between
+teacher data and student data.** Both this endpoint and `modelSolution.ts` run the fail-closed
+`src/server/leakGuard.ts` (`assertNoLeak`, which walks the projection for forbidden **keys** and
+forbidden **values**) before returning, so a regression that forgets to drop a field throws (500)
+instead of serving a leak.
 
 ### `src/server/modelSolution.ts` → `POST /api/model-solution`
 
@@ -121,7 +123,9 @@ students _after_ they answer.
 Input `GradingRequest<Alternative[], Answer>` (the backend sends `exercise_spec` = the private
 spec, and `submission_data` = the student's answer), output `GradingResult`. Returns
 `grading_progress`, `score_given`/`score_maximum`, `feedback_text`, and the plugin-defined
-`feedback_json`. example-exercise grades synchronously (`grading_progress: "FullyGraded"`).
+`feedback_json`. example-exercise grades synchronously (`grading_progress: "FullyGraded"`), and
+answers a stored blob it cannot read with a `Failed` result rather than an error status, which the
+host would never retry.
 
 ### Optional CSV export endpoints
 
@@ -134,10 +138,13 @@ for the full removal list.
 
 ### The `jsonRoute` / `readJsonBody` helpers (`src/lib/apiRoutes.ts`)
 
-All POST handlers wrap in `jsonRoute()`, which turns a thrown `BadRequestError` into a `400` and any
-other error into a `500`, both as JSON `ClientErrorResponse`. `readJsonBody()` enforces
-`Content-Type: application/json` and non-empty valid JSON. Note: TanStack Start doesn't auto-405
-undeclared verbs, but the backend only calls the documented verb.
+All POST handlers wrap in `jsonRoute()`, which turns a thrown `BadRequestError` or
+`MalformedBlobError` into a `400`, a `RequestTooLargeError` into a `413` and any other error into a
+`500`. Every body comes from the fixed `ERROR_MESSAGES` — the host copies error bodies into its own
+logs — and the detail is logged here. `readJsonBody()` enforces `Content-Type: application/json`,
+a byte cap counted as the body streams in (`MAX_REQUEST_BYTES`; `MAX_EXPORT_REQUEST_BYTES` for the
+CSV exports), and non-empty valid JSON. Note: TanStack Start doesn't auto-405 undeclared verbs, but
+the backend only calls the documented verb.
 
 ## 4. Client side — the three iframe views
 
@@ -177,7 +184,9 @@ type State =
 
 Guards on `port`/`state` (shows "waiting" strings), then renders one of the three view components
 inside a `<div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type=...>`. Wrapped in
-`withErrorBoundary(withNoSsr(...))` — the exercise UI must not SSR.
+`withErrorBoundary(withNoSsr(...))` — the exercise UI must not SSR. `withNoSsr` only skips
+rendering on the server; a library that touches `window`/`document` as its module loads also needs
+`ssr: false` on the `/iframe` route in `src/routes/iframe.tsx`.
 
 ### The three views
 
@@ -217,7 +226,8 @@ name/port.
   `strictPort`, so a taken port fails instead of silently moving; inlines `NEXT_PUBLIC_SERVICE_SLUG`
   for the vendored error reporter; public source maps.
 - **`iframe-headers.mjs`**: the CSP/CORS/embedding headers. Permissive CSP
-  (`default-src *`) is safe _because the iframe sandbox provides isolation_.
+  (`default-src *`, plus `data:` and `blob:`, which `*` does not match) is safe _because the iframe
+  sandbox provides isolation_.
   `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Private-Network: true` because the
   iframe fetches its own API/fonts/assets cross-origin. `Allow-Methods` / `Allow-Headers` /
   `Max-Age` plus `answerPreflight()` serve the Playground's browser-side JSON POSTs to the spec
@@ -228,9 +238,13 @@ name/port.
   server-entry fetch handler — server routes are declared at logical paths (`/api/grade`) and don't
   inherit the router basepath, (3) serves the prerendered SPA shell `_shell.html` for navigations,
   (4) **re-stamps `IFRAME_HEADERS` on every response** including static assets (Start middleware
-  skips static responses, which is the whole reason this file exists), (5) binds `0.0.0.0:$PORT`.
-- **`Dockerfile`** (dev) and **`Dockerfile.production.slim.dockerfile`** (prod). Dev image just runs
-  `pnpm run dev`; prod builds then runs `node server.mjs`.
+  skips static responses, which is the whole reason this file exists), (5) binds `0.0.0.0:$PORT`,
+  and (6) drains in-flight requests on `SIGTERM` via `graceful-shutdown.mjs`.
+- **`Dockerfile`** (dev) and **`Dockerfile.production.slim.dockerfile`** (prod) are the monorepo's,
+  on private base images. Dev image just runs `pnpm run dev`; prod builds then runs
+  `node server.mjs`. **`standalone.Dockerfile`** is what the scaffolder ships as a generated
+  project's `Dockerfile` (public `node` images; see `09`). `src/lib/dockerfiles.test.ts` checks
+  that each production image copies every module `server.mjs` imports.
 
 ## 6. The vendored `src/shared-module/`
 
@@ -273,10 +287,12 @@ Library): `serviceInfo.test.ts`, `publicSpec.test.ts`, `modelSolution.test.ts`, 
 `router.test.ts`, plus the doctrine tests from `reference/07 Part II`: `leakGuard.test.ts` (leak
 regression), `roundTrip.test.ts` (an answer built only from the public spec grades against the
 private spec), `stateInterfaces.test.ts` (validity), and
-`src/util/migration/migrateToLatest.test.ts` (the migration suite anchored at v1: a legacy
-no-version blob lifts to latest, a v1 blob passes through unchanged, an unknown/future version fails
-loud, with frozen per-version fixtures). A new plugin should keep this pattern — the endpoint tests
-double as a spec of the request/response envelopes.
+`src/util/migration/migrateToLatest.test.ts` (the migration suite anchored at v1: a v1 blob passes
+through unchanged, a versionless or unknown/future version fails loud, with frozen per-version
+fixtures; `legacyBlobs.test.ts` covers the template's own pre-versioning data). Plumbing tests:
+`locales.test.ts` (identical keys and `{{params}}` across languages, a key for every code a view
+shows), `gracefulShutdown.test.ts`, `dockerfiles.test.ts`, `corsPreflight.test.ts`. A new plugin
+should keep this pattern — the endpoint tests double as a spec of the request/response envelopes.
 
 ## What a new plugin must change vs. keep
 
@@ -286,7 +302,8 @@ double as a spec of the request/response envelopes.
 - `src/util/migration/{versions,migrateToLatest}.ts` — **keep the chain structure, retype it**: one
   version source + per-kind step registries (empty at v1) + `migrate*ToLatest` per stored type, with
   the forgiving `parse*` wrappers for the iframe. Every door routes through it; adding v2 later must
-  stay a one-line registry addition per kind.
+  stay a one-line registry addition per kind. Delete `legacyBlobs.ts`, its test and its calls: they
+  lift example-exercise's pre-versioning data, which a new type does not have.
 - `src/server/{publicSpec,modelSolution,grade}.ts` — your spec-derivation and grading logic. Keep the
   checker (normalization/acceptance) under `src/server/`, **never** in a view-imported util: public
   source maps ship, so grading code reachable from a view module can leak the algorithm to students
@@ -306,7 +323,7 @@ double as a spec of the request/response envelopes.
 **Keep verbatim (the plugin plumbing ~80%):** the protocol envelope usage, the `IframeView`
 state-machine **wiring** and `Renderer` dispatcher wiring (handshake, `flushSync`, error boundary — you
 retype only their `State`/props, per the change list above), `apiRoutes.ts` helpers, all of
-`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`, `router.tsx`,
-`basePath.ts`, Dockerfiles.
+`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `graceful-shutdown.mjs`,
+`iframe-headers.mjs`, `router.tsx`, `basePath.ts`, Dockerfiles.
 
 This ~80/20 split is exactly why the scaffolding CLI exists — see `03-scaffolding-cli.md`.

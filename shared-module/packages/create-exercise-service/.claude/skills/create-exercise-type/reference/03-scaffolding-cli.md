@@ -41,8 +41,8 @@ a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
    `dist`/`build`/`coverage`/`.turbo`/`.tanstack`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`,
    `tsconfig.tsbuildinfo`, `.vscode`, the template's own Playwright output dirs (`test-results`,
    `playwright-report`, `blob-report`, `.playwright-cli` — git-ignored but not `.gitignore`-aware
-   copying, so excluded explicitly), the moocfi-internal deploy files (`Dockerfile`,
-   `Dockerfile.production.slim.dockerfile`, `.dockerignore`), and the template's own
+   copying, so excluded explicitly), the monorepo's Dockerfiles (`Dockerfile`,
+   `Dockerfile.production.slim.dockerfile`, on private base images), and the template's own
    `src/shared-module/` (re-vendored next).
 2. **`vendorSharedModules`** — in monorepo/vendor mode, copies a fresh snapshot of four shared
    packages (see below). In published/npm mode, imports are rewritten to `@moocfi/exercise-*` and
@@ -59,6 +59,7 @@ a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
      This updates e.g. `serviceInfo.ts`'s `service_name` and `ClientLayoutWrapper.tsx`'s
      `SERVICE_NAME`. It's a sweep, not a fixed file list, so it stays correct as the template evolves.
    - `renameLocales`: `src/locales/{en,fi}/example-exercise.json` → `<projectName>.json`.
+   - Renames `standalone.Dockerfile` to `Dockerfile`; `.dockerignore` is copied as is.
    - Writes a standalone `.editorconfig` and a minimal `pnpm-workspace.yaml`
      (`allowBuilds: esbuild: true`).
    - Edits `.gitignore` to _remove_ the `shared-module` ignore line — in the generated project the

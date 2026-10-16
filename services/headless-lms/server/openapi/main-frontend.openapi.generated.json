@@ -23580,7 +23580,9 @@
           "name",
           "slug",
           "public_url",
-          "max_reprocessing_submissions_at_once"
+          "max_reprocessing_submissions_at_once",
+          "is_global_admin_only",
+          "is_experimental"
         ],
         "properties": {
           "created_at": {
@@ -23598,6 +23600,14 @@
           "internal_url": {
             "type": ["string", "null"],
             "description": "This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url."
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "max_reprocessing_submissions_at_once": {
             "type": "integer",
@@ -23620,10 +23630,26 @@
       },
       "ExerciseServiceNewOrUpdate": {
         "type": "object",
-        "required": ["name", "slug", "public_url", "max_reprocessing_submissions_at_once"],
+        "description": "The admin-editable fields of an exercise service, for creating or updating one.",
+        "required": [
+          "name",
+          "slug",
+          "public_url",
+          "max_reprocessing_submissions_at_once",
+          "is_global_admin_only",
+          "is_experimental"
+        ],
         "properties": {
           "internal_url": {
             "type": ["string", "null"]
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "max_reprocessing_submissions_at_once": {
             "type": "integer",

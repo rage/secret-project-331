@@ -1044,6 +1044,8 @@ mod test {
                 public_url: "".to_string(),
                 internal_url: Some(server.url()),
                 max_reprocessing_submissions_at_once,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await?;

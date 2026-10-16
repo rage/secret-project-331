@@ -6,7 +6,7 @@ export const IFRAME_HEADERS = {
   "X-Content-Type-Options": "nosniff",
   "Permissions-Policy": "fullscreen=(self)",
   "Content-Security-Policy":
-    "default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:",
+    "default-src * 'self' data: blob: 'unsafe-inline' 'unsafe-eval'; worker-src 'self' blob:",
   "X-XSS-Protection": "1; mode=block",
   "Access-Control-Allow-Private-Network": "true",
   // Cross-origin iframe: API routes, fonts and assets need permissive CORS.

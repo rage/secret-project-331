@@ -91,10 +91,13 @@ export function toVersionedFeedback(selectedOptionIsCorrect: boolean): Versioned
 // half-finished spec that parses fine but is not yet safe to save/derive/grade. `validatePrivateSpec`
 // is the single authority for that judgement — the editor uses it both to set the emitted `valid`
 // flag AND to show the errors to the author. Errors are i18n keys so the caller can localize them.
-export type PrivateSpecValidationError =
-  | "validation-error-no-options"
-  | "validation-error-no-correct-option"
-  | "validation-error-empty-option-name"
+/** Every error `validatePrivateSpec` can report; each is also a locale key. */
+export const PRIVATE_SPEC_VALIDATION_ERRORS = [
+  "validation-error-no-options",
+  "validation-error-no-correct-option",
+  "validation-error-empty-option-name",
+] as const
+export type PrivateSpecValidationError = (typeof PRIVATE_SPEC_VALIDATION_ERRORS)[number]
 
 export interface PrivateSpecValidation {
   valid: boolean

@@ -4,7 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import Renderer from "@/components/Renderer"
 import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { isSetLanguageMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import {
+  isDialogResponseMessage,
+  isSetLanguageMessage,
+  isUploadResultMessage,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
 import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
@@ -99,6 +103,8 @@ const IframeView: React.FC = () => {
       })
     } else if (isSetLanguageMessage(messageData)) {
       i18n.changeLanguage(messageData.data)
+    } else if (isDialogResponseMessage(messageData) || isUploadResultMessage(messageData)) {
+      // Answers to `useParentDialog` / `useFileUpload`, which listen on the same port.
     } else {
       console.error("Frame received an unknown message from message port")
     }

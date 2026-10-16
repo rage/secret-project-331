@@ -10,13 +10,13 @@ afterEach(() => {
 
 describe("initI18n", () => {
   it.each([
-    ["fi-FI", "Oikein"],
-    ["en-US", "Correct"],
-    ["sv", "Correct"],
+    ["fi-FI", "Odotetaan porttia..."],
+    ["en-US", "Waiting for port..."],
+    ["sv", "Waiting for port..."],
   ])("loads %s without errors", async (language, expected) => {
     const consoleError = vi.spyOn(console, "error")
     await i18n.changeLanguage(language)
-    expect(i18n.t("correct")).toBe(expected)
+    expect(i18n.t("waiting-for-port")).toBe(expected)
     expect(consoleError).not.toHaveBeenCalled()
   })
 })

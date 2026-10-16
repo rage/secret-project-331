@@ -82,3 +82,37 @@ contractTest("view-submission renders the graded submission", async ({ page }) =
   await host.waitForViewType("view-submission")
   await expect(page.getByRole("checkbox", { name: "Helsinki" })).toBeVisible()
 })
+
+// Libraries hard-code CDN URLs in CSS and at runtime; a failed-request check only sees the ones that
+// fail. Push every view so each one's assets load.
+contractTest("loads nothing from outside this service", async ({ page, baseURL }) => {
+  const ownOrigin = new URL(baseURL ?? "").origin
+  const outside: string[] = []
+  page.on("request", (request) => {
+    const url = new URL(request.url())
+    if (url.origin !== ownOrigin && url.protocol !== "data:" && url.protocol !== "blob:") {
+      outside.push(url.href)
+    }
+  })
+
+  await page.reload()
+  const host = await createHostEmulator(page)
+  await host.setState(
+    exerciseEditorState({ private_spec: [{ id: OPTIONS[0].id, name: "Helsinki", correct: true }] }),
+  )
+  await host.waitForViewType("exercise-editor")
+  await host.setState(answerExerciseState({ public_spec: OPTIONS }))
+  await host.waitForViewType("answer-exercise")
+  await host.setState(
+    viewSubmissionState({
+      public_spec: OPTIONS,
+      user_answer: { selectedOptionId: OPTIONS[0].id },
+      model_solution_spec: { correctOptionIds: [OPTIONS[0].id] },
+      grading: null,
+    }),
+  )
+  await host.waitForViewType("view-submission")
+  await page.waitForLoadState("networkidle")
+
+  expect(outside).toEqual([])
+})

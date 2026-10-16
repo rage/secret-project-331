@@ -16,7 +16,10 @@ const initI18n = (defaultNS: string) =>
   createI18n(defaultNS, (language, namespace) => {
     const primarySubtag = language.toLowerCase().split(/[-_]/)[0] ?? ""
     return LOCALE_LANGUAGES.has(primarySubtag)
-      ? import(`../locales/${primarySubtag}/${namespace}.json`)
+      ? import(`../locales/${primarySubtag}/${namespace}.json`).then(
+          // Hyphenated keys aren't named exports of a JSON module, only properties of its default.
+          (module: { default: Record<string, string> }) => module.default,
+        )
       : Promise.resolve({})
   })
 

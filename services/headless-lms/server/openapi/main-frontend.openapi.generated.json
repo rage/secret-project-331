@@ -25100,7 +25100,7 @@
           },
           "enrolment_link": {
             "type": ["string", "null"],
-            "description": "The open university enrolment page, for a row the study registry has no enrolment for."
+            "description": "The module's open university enrolment page, in every status: an open university student\nneeds it before they have a student number to be looked up by."
           },
           "enrolment_realisation_name": {
             "type": ["string", "null"]

@@ -137,7 +137,8 @@ pub struct MyCreditRegistration {
     pub submitted_at: Option<DateTime<Utc>>,
     /// A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
     pub is_processing_in_sisu: bool,
-    /// The open university enrolment page, for a row the study registry has no enrolment for.
+    /// The module's open university enrolment page, in every status: an open university student
+    /// needs it before they have a student number to be looked up by.
     pub enrolment_link: Option<String>,
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
     /// addressed to a Sisu person, and a never-linked account names none.
@@ -708,8 +709,7 @@ pub async fn claim_student_number_verification_token(
     }))
 }
 
-/// Assembles the wire rows for one account, adding the enrolment link and the linking-mail status the
-/// ledger does not carry.
+/// Assembles the wire rows for one account, adding the linking-mail status the ledger does not carry.
 async fn build_my_credit_registrations(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -734,11 +734,6 @@ async fn build_my_credit_registrations(
                 row.enrolment_resolved,
             )
         };
-        let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
-            row.enrolment_link.clone()
-        } else {
-            None
-        };
         let linking_email = if status == StudentFacingCreditRegistrationStatus::NeedsStudentNumber {
             resolve_linking_email(conn, user_id, &row, &mut linking_mails).await?
         } else {
@@ -749,7 +744,6 @@ async fn build_my_credit_registrations(
         res.push(to_my_credit_registration(
             row,
             status,
-            enrolment_link,
             linking_email,
             notification_email,
         ));
@@ -760,7 +754,6 @@ async fn build_my_credit_registrations(
 fn to_my_credit_registration(
     row: StudentCreditRegistration,
     status: StudentFacingCreditRegistrationStatus,
-    enrolment_link: Option<String>,
     linking_email: Option<LinkingEmailStatus>,
     notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
@@ -801,7 +794,7 @@ fn to_my_credit_registration(
         submitted_at: row.submitted_at,
         is_processing_in_sisu: status == StudentFacingCreditRegistrationStatus::WaitingForSisu
             && row.is_partially_registered,
-        enrolment_link,
+        enrolment_link: row.enrolment_link,
         linking_email,
         notification_email,
     }

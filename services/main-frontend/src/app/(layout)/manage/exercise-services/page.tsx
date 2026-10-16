@@ -44,6 +44,8 @@ const ExerciseServicePage: React.FC = () => {
     public_url: "",
     internal_url: "",
     max_reprocessing_submissions_at_once: 1,
+    is_global_admin_only: false,
+    is_experimental: false,
   })
 
   const getExerciseServices = useQuery(getExerciseServicesOptions())
@@ -81,6 +83,8 @@ const ExerciseServicePage: React.FC = () => {
       public_url: "",
       internal_url: "",
       max_reprocessing_submissions_at_once: 1,
+      is_global_admin_only: false,
+      is_experimental: false,
     })
   }
 
@@ -130,6 +134,7 @@ const ExerciseServicePage: React.FC = () => {
         exercise_service={exerciseService}
         onChange={onChangeCreationModal}
         onChangeName={onChangeName}
+        onChangeFlags={(flags) => setExerciseService((previous) => ({ ...previous, ...flags }))}
         handleSubmit={async () => {
           if (!canSave(exerciseService)) {
             return

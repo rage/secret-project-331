@@ -2,7 +2,9 @@
 
 import { css } from "@emotion/css"
 
+import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
 import type { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { Button } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -15,6 +17,10 @@ interface Props {
 
 const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChooseItem }) => {
   const exerciseServicesQuery = useAllExerciseServices()
+  const isGlobalAdminQuery = useAuthorizeMultiple([
+    { action: { type: "administrate" }, resource: { type: "global_permissions" } },
+  ])
+  const isGlobalAdmin = isGlobalAdminQuery.data?.[0] === true
   const { t } = useTranslation()
 
   return (
@@ -32,22 +38,25 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
               }
             `}
           >
-            {data.map((exercise_service) => (
-              <li key={exercise_service.name}>
-                <Button
-                  onClick={() => {
-                    if (!exercise_service.public_iframe_url) {
-                      return
-                    }
-                    onChooseItem(exercise_service)
-                  }}
-                  variant="secondary"
-                  size="medium"
-                >
-                  {exercise_service.name}
-                </Button>
-              </li>
-            ))}
+            {data
+              .filter((exercise_service) => isGlobalAdmin || !exercise_service.is_global_admin_only)
+              .map((exercise_service) => (
+                <li key={exercise_service.name}>
+                  <Button
+                    onClick={() => {
+                      if (!exercise_service.public_iframe_url) {
+                        return
+                      }
+                      onChooseItem(exercise_service)
+                    }}
+                    variant="secondary"
+                    size="medium"
+                  >
+                    {exercise_service.name}
+                  </Button>
+                  <ExerciseServiceBadges exerciseService={exercise_service} />
+                </li>
+              ))}
           </ul>
         </div>
       )}

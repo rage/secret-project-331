@@ -224,6 +224,8 @@
   "label-email-subject": "Email subject",
   "label-exercises-done-through-locking": "Exercises done through locking",
   "label-exercises-done-through-locking-description": "When enabled, exercises in this chapter require manual review after locking. Students will not receive points until the chapter is locked and teacher reviews their answers.",
+  "label-experimental": "Experimental",
+  "label-global-admins-only": "Global admins only",
   "label-no-padding": "No padding",
   "label-points-are-all-or-nothing": "Points are all or nothing",
   "label-question": "Question",

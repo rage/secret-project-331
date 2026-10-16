@@ -236,6 +236,10 @@ The backend communicates with the plugin via REST to grade answers and generate 
 - **Method**: POST
 - **Purpose**: Grades a student's answer.
 
+> **Who submitted.** The grading request carries `pseudonymous_user_id`: the submitter's
+> pseudonym for this service, equal to the id the iframe sees. It stays the submitter's when a
+> teacher triggers a regrade.
+
 > **Grading a file answer.** The grading request carries `submission_files` alongside
 > `submission_data`: the answer's files in the order the plugin named them in `current-state`'s
 > `files`, and an empty list for an answer that has none. Each entry has the host `id` the plugin

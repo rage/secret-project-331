@@ -35,6 +35,7 @@ pub async fn regrade(
         Url,
         &ExerciseTask,
         &ExerciseTaskSubmission,
+        Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
@@ -174,6 +175,7 @@ async fn do_single_regrading(
         Url,
         &ExerciseTask,
         &ExerciseTaskSubmission,
+        Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
@@ -220,15 +222,15 @@ async fn do_single_regrading(
             models::exercise_slides::get_exercise_slide(&mut *conn, submission.exercise_slide_id)
                 .await?;
         let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
+        let exercise_slide_submission = models::exercise_slide_submissions::get_by_id(
+            &mut *conn,
+            submission.exercise_slide_submission_id,
+        )
+        .await?;
         if exercise.exam_id.is_some() {
             info!(
                 "Submission being regraded is from an exam, making sure we only give points from the last submission."
             );
-            let exercise_slide_submission = models::exercise_slide_submissions::get_by_id(
-                &mut *conn,
-                submission.exercise_slide_submission_id,
-            )
-            .await?;
             let latest_submission =
                 models::exercise_slide_submissions::get_users_latest_exercise_slide_submission(
                     &mut *conn,
@@ -295,14 +297,22 @@ async fn do_single_regrading(
                     get_internal_grade_url(exercise_service, exercise_service_info).await?;
 
                 let exercise_service_name = exercise_service.name.clone();
-                let grading_future = send_grading_request(grade_url, &exercise_task, &submission)
-                    .map(move |exercise_service_result| GradingData {
-                        exercise_service_name,
-                        regrading_submission,
-                        grading: not_ready_grading,
-                        exercise,
-                        exercise_service_result,
-                    });
+                let grading_future = send_grading_request(
+                    grade_url,
+                    &exercise_task,
+                    &submission,
+                    models::exercise_tasks::pseudonymous_user_id(
+                        &exercise_service.id,
+                        &exercise_slide_submission.user_id,
+                    ),
+                )
+                .map(move |exercise_service_result| GradingData {
+                    exercise_service_name,
+                    regrading_submission,
+                    grading: not_ready_grading,
+                    exercise,
+                    exercise_service_result,
+                });
                 entry.push(Box::pin(grading_future));
             } else {
                 // we can't send this submission right now
@@ -442,7 +452,7 @@ mod test {
         regrade(
             tx.as_mut(),
             &services,
-            |_, _, _| {
+            |_, _, _, _| {
                 async {
                     Ok(ExerciseTaskGradingResult {
                         grading_progress: GradingProgress::FullyGraded,
@@ -559,7 +569,7 @@ mod test {
         regrade(
             tx.as_mut(),
             &services,
-            |_, _, _| {
+            |_, _, _, _| {
                 async {
                     Ok(ExerciseTaskGradingResult {
                         grading_progress: GradingProgress::FullyGraded,
@@ -742,7 +752,7 @@ mod test {
         regrade(
             tx.as_mut(),
             &services,
-            |_, _, _| {
+            |_, _, _, _| {
                 async {
                     Ok(ExerciseTaskGradingResult {
                         grading_progress: GradingProgress::Pending,
@@ -874,7 +884,7 @@ mod test {
         regrade(
             tx.as_mut(),
             &services,
-            |_, _, _| {
+            |_, _, _, _| {
                 async {
                     Ok(ExerciseTaskGradingResult {
                         grading_progress: GradingProgress::FullyGraded,
@@ -964,7 +974,7 @@ mod test {
         regrade(
             tx.as_mut(),
             &services,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             &init_file_store(),
             &init_app_conf().expect("app conf"),
         )
@@ -1011,7 +1021,7 @@ mod test {
             &submission,
             GradingPolicy::Fixed(mock_results),
             |_| unimplemented!(),
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             &init_file_store(),
             &init_app_conf().expect("app conf"),
         )

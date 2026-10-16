@@ -2216,7 +2216,7 @@ WHERE p.id = $1
 }
 
 /// Names of the exercise services that only global admins can add which saving `exercise_tasks`
-/// on the page would add: a task counts as added unless it is the first in `exercise_tasks` with its
+/// on the page would add: a task counts as added unless it is the first submitted task with its
 /// id and the page already has a task with that id and type. `page_id` is `None` for a page that
 /// does not exist yet.
 pub async fn get_global_admin_only_exercise_service_names_added_by_tasks(

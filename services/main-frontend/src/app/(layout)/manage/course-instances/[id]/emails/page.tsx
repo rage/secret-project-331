@@ -1,21 +1,20 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions,
   getCourseInstanceEmailTemplatesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, Dialog, QueryResult } from "@/shared-module/components"
 
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
@@ -65,20 +64,26 @@ const CourseInstanceEmailTemplates: React.FC = () => {
       `}
     >
       {/* TODO: Perhaps insert some data regarding the course instance */}
-      <h1>{t("title-email-templates")}</h1>
+      <h1
+        className={cx(
+          pageTitleCss,
+          css`
+            margin-bottom: var(--space-4);
+          `,
+        )}
+      >
+        {t("title-email-templates")}
+      </h1>
       <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
         {t("button-text-create")}
       </Button>
 
-      <Dialog open={showForm}>
+      <Dialog open={showForm} onClose={() => setShowForm(false)} title={t("button-text-create")}>
         <div
           className={css`
             margin: 1rem;
           `}
         >
-          <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
-            {t("button-text-close")}
-          </Button>
           <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
         </div>
       </Dialog>

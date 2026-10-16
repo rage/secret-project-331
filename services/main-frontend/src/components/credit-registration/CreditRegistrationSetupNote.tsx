@@ -10,6 +10,7 @@ import { useCourseStructure } from "@/hooks/useCourseStructure"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { hasOnlyDefaultModule } from "./creditRegistrationCopy"
+import { registersCredits } from "./registersCredits"
 import { noteCss, proseCss } from "./styles"
 
 interface Props {
@@ -20,8 +21,7 @@ interface Props {
  * What this course sends to Sisu, and on what settings.
  *
  * For a roster with nothing on it: an empty table says nothing about where the credits of the
- * students who do pass will go. Renders nothing until a module is on that path — a course nobody
- * has opted in must not learn the path exists from an empty state.
+ * students who do pass will go. Renders nothing until a module has a course code.
  */
 const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -31,7 +31,7 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
   const structureQuery = useCourseStructure(courseId)
 
   const configs = configsQuery.data ?? []
-  const enabled = configs.filter((config) => config.enable_credit_registration_via_suotar)
+  const enabled = configs.filter((config) => registersCredits(config.uh_course_code))
 
   if (enabled.length === 0) {
     return null

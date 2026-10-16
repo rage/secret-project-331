@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   createCourseDesignerPlanMutation,
   getCourseDesignerPlansOptions,
@@ -18,18 +19,12 @@ import { Button, QueryResult } from "@/shared-module/components"
 
 import CoursePlanList from "./components/CoursePlanList"
 
-const containerStyles = css`
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
-`
-
 const headerStyles = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-4);
 `
 
 function CoursePlansListPage() {
@@ -50,9 +45,9 @@ function CoursePlansListPage() {
   )
 
   return (
-    <div className={containerStyles}>
+    <div>
       <div className={headerStyles}>
-        <h1>{t("course-plans-title")}</h1>
+        <h1 className={pageTitleCss}>{t("course-plans-title")}</h1>
         <Button
           variant="primary"
           size="medium"

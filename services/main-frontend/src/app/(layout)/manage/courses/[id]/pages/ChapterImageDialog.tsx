@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { Chapter } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 import ChapterImageWidget from "./ChapterImageWidget"
 
@@ -24,9 +24,9 @@ const ChapterImageDialog: React.FC<ChapterImageDialogProps> = ({
   const { t } = useTranslation()
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("button-text-edit-image")}>
+    <Dialog open={open} onClose={onClose} title={t("button-text-edit-image")}>
       <ChapterImageWidget chapter={chapter} onChapterUpdated={onChapterUpdated} />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

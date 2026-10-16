@@ -11,12 +11,11 @@ import PageNotFound from "@/components/course-material/PageNotFound"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import {
@@ -182,11 +181,11 @@ const PagePage: React.FC = () => {
     if ((courseMaterialState.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
-    return <ErrorBanner variant={"readOnly"} error={courseMaterialState.error} />
+    return <ErrorNotice error={courseMaterialState.error} />
   }
 
   if (courseMaterialState.status === "loading") {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   return (

@@ -1,10 +1,11 @@
-//! The `config-validation` phase: the daily pass over every Suotar-enabled module's configuration.
+//! The `config-validation` phase: the daily pass over the configuration of every module with a
+//! course code.
 //!
 //! Asks Suotar's `course-codes/validate` about every distinct course code; the rest of the check
 //! reads the database.
 
 use headless_lms_models::course_module_suotar_configurations::{
-    SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_enabled_modules,
+    SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_modules_with_course_code,
     record_config_check,
 };
 use headless_lms_models::library::credit_registration::config_validation::{
@@ -25,7 +26,7 @@ pub(crate) async fn run<R: StudyRegistry>(
 ) -> CreditRegistrationResult<Counts> {
     let modules = {
         let mut conn = pool.acquire().await?;
-        get_config_facts_for_enabled_modules(&mut conn, scope.course_id).await?
+        get_config_facts_for_modules_with_course_code(&mut conn, scope.course_id).await?
     };
     let course_codes = distinct_course_codes(&modules);
 
@@ -44,7 +45,7 @@ pub(crate) async fn run<R: StudyRegistry>(
     if with_problems > 0 {
         warn!(
             modules_with_problems = with_problems,
-            "Suotar-enabled course modules have configuration problems"
+            "Course modules have credit registration configuration problems"
         );
     }
     let modules_checked = modules.len();
@@ -198,15 +199,5 @@ mod tests {
         let checks = check_modules(&[module(Some("TKT1"), None)], &verdicts(&[]));
         assert_eq!(checks[0].course_code_allowed, None);
         assert_eq!(checks[0].checked_course_code, None);
-    }
-
-    #[test]
-    fn a_module_without_a_code_is_a_problem_whatever_the_registry_says() {
-        let checks = check_modules(
-            &[module(None, Some(true))],
-            &verdicts(&[("TKT1", CourseCodeVerdict::Allowed)]),
-        );
-        assert_eq!(checks[0].course_code_allowed, Some(false));
-        assert!(checks[0].message.is_some());
     }
 }

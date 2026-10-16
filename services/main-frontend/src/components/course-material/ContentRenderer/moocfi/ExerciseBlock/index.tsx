@@ -33,7 +33,6 @@ import useCourseMaterialExerciseQuery, {
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
@@ -43,10 +42,11 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   type CapturedExerciseTaskAnswer,
@@ -248,7 +248,7 @@ const ExerciseBlock: React.FC<
   const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const queryClient = useQueryClient()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const showExercise =
@@ -459,7 +459,7 @@ const ExerciseBlock: React.FC<
       query={getCourseMaterialExercise}
       emptyFallback={
         <div>
-          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <ErrorNotice error={t("error-loading-exercise")} />
           <button
             className={cx(exerciseButtonStyles)}
             onClick={() => {
@@ -507,36 +507,7 @@ const ExerciseBlock: React.FC<
         const dateInTwoDays = new Date()
         dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
 
-        const lang = i18n.language
-
-        let deadlineAsString = ""
-        const DATESTYLE = "long"
-        const TIMESTYLE = "short"
-
-        if (exerciseDeadline) {
-          const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
-
-          deadlineAsString = exerciseDeadline.toLocaleString(lang, {
-            dateStyle: DATESTYLE,
-            timeStyle: TIMESTYLE,
-          })
-
-          const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60)
-            .toString()
-            .split(".")
-          // split always yields at least one element, so the fallback never applies.
-          const start = (timezoneOffsetParts[0] ?? "").padStart(2, "0")
-          let end = ""
-          if (timezoneOffsetParts[1]) {
-            end = timezoneOffsetParts[1].padEnd(2, "0")
-          } else {
-            end = end.padEnd(2, "0")
-          }
-
-          // oxlint-disable-next-line i18next/no-literal-string
-          const timezoneOffset = `(UTC${sign}${start}:${end})`
-          deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
-        }
+        const deadlineAsString = exerciseDeadline ? dateToString(exerciseDeadline) : ""
 
         // These are now arrays so should be refactored
         const inSubmissionView =
@@ -998,7 +969,7 @@ const ExerciseBlock: React.FC<
                     </div>
                   )}
                 {postSubmissionMutation.isError && (
-                  <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
+                  <ErrorNotice error={postSubmissionMutation.error} />
                 )}
               </div>
             </div>

@@ -2,7 +2,6 @@
 
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +9,8 @@ import type { OrgExam } from "@/generated/api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { examRoute, manageExamRoute } from "@/shared-module/common/utils/routes"
-import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
+import { dateToDateTimeLocalString, dateToString } from "@/shared-module/common/utils/time"
+import { Link } from "@/shared-module/components"
 
 type Exam = Pick<
   OrgExam,
@@ -86,7 +86,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
           <span className="label">{t("start-date")}:</span>
           <span className="value">
             <HideTextInSystemTests
-              text={exam.starts_at ? dateToDateTimeLocalString(parseISO(exam.starts_at)) : t("n-a")}
+              text={exam.starts_at ? dateToString(exam.starts_at) : t("n-a")}
               testPlaceholder={dateToDateTimeLocalString(parseISO("2022-01-01T00:00:00"))}
             />
           </span>
@@ -95,16 +95,14 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
           <span className="label">{t("end-date")}:</span>
           <span className="value">
             <HideTextInSystemTests
-              text={exam.ends_at ? dateToDateTimeLocalString(parseISO(exam.ends_at)) : t("n-a")}
+              text={exam.ends_at ? dateToString(exam.ends_at) : t("n-a")}
               testPlaceholder={dateToDateTimeLocalString(parseISO("2022-01-01T00:00:00"))}
             />
           </span>
         </Detail>
         <Detail>
           <span className="label">{t("duration")}:</span>
-          <span className="value">
-            {exam.time_minutes} {t("minutes")}
-          </span>
+          <span className="value">{t("minutes", { count: exam.time_minutes })}</span>
         </Detail>
       </ExamDetails>
       <ManageLink>

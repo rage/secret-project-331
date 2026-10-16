@@ -43,16 +43,25 @@ import {
 } from "./datePickerCalendarTimeUtils"
 import type { DatePickerTimeSelectorProps } from "./datePickerCalendarTypes"
 
-/** Renders editable time controls alongside the calendar when datetime mode is used. */
+/**
+ * Editable time controls: beside the calendar in datetime mode, or alone in the time field's picker.
+ *
+ * `shouldFocusOnMount` focuses the typed-time input on mount, for when no calendar takes focus first.
+ */
 export function HybridTimeSelector({
+  shouldFocusOnMount = false,
+  className,
   timeSelectorProps,
 }: {
+  shouldFocusOnMount?: boolean
+  className?: string
   timeSelectorProps: DatePickerTimeSelectorProps
 }) {
   const { locale } = useLocale()
   const labels = useDatePickerCalendarLabels()
   const groupId = useId()
   const inputId = useId()
+  const inputRef = React.useRef<HTMLInputElement>(null)
   const hourCycle = resolveHourCycle(locale, timeSelectorProps.hourCycle)
   const showsDayPeriod = hourCycle === "h11" || hourCycle === "h12"
   const dayPeriodLabels = resolveDayPeriodLabels(locale)
@@ -69,6 +78,13 @@ export function HybridTimeSelector({
   }, [baseTime.hour, baseTime.minute, baseTime.second, locale, showsDayPeriod])
 
   const [draft, setDraft] = React.useState(formattedDisplay)
+
+  const shouldFocusOnMountRef = React.useRef(shouldFocusOnMount)
+  React.useEffect(() => {
+    if (shouldFocusOnMountRef.current) {
+      inputRef.current?.focus()
+    }
+  }, [])
 
   React.useEffect(() => {
     setDraft(formattedDisplay)
@@ -102,7 +118,7 @@ export function HybridTimeSelector({
 
   return (
     // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled panel div; a semantic element changes styling
-    <div className={timePanelCss} role="group" aria-labelledby={groupId}>
+    <div className={cx(timePanelCss, className)} role="group" aria-labelledby={groupId}>
       <span id={groupId} className={timePanelHeadingCss}>
         {labels.time}
       </span>
@@ -111,6 +127,7 @@ export function HybridTimeSelector({
         className={timeInputCss}
         disabled={isDisabled}
         id={inputId}
+        ref={inputRef}
         inputMode="numeric"
         type="text"
         value={draft}

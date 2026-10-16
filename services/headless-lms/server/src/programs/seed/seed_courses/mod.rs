@@ -151,12 +151,6 @@ pub async fn seed_sample_course(
     // and break the suite, so disable cheater detection. Callers that need detection on (e.g. the
     // dedicated suspected-cheaters course) re-enable it after seeding.
     courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
-    course_modules::update_enable_registering_completion_to_uh_open_university(
-        &mut conn,
-        default_module.id,
-        true,
-    )
-    .await?;
     course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::new_v5(
@@ -341,8 +335,7 @@ pub async fn seed_sample_course(
     let module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2)
-            .set_enable_registering_completion_to_uh_open_university(true),
+        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -1667,7 +1660,6 @@ pub async fn seed_sample_course(
                                 client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
                                 attributes: attributes! {
                                     "alt": "Add alt",
-                                    "anchor": "author-photo",
                                     "blurDataUrl": "",
                                     "href": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
                                     "linkDestination": "media",
@@ -1880,6 +1872,7 @@ pub async fn seed_sample_course(
             order_number: Some(0),
         }],
         page_id: page_3,
+        category: None,
     };
     let feedback = feedback::insert(
         &mut conn,
@@ -1911,6 +1904,7 @@ pub async fn seed_sample_course(
             },
         ],
         page_id: page_3,
+        category: None,
     };
     feedback::insert(
         &mut conn,
@@ -1934,6 +1928,7 @@ pub async fn seed_sample_course(
                 order_number: Some(0),
             }],
             page_id: page_3,
+            category: None,
         },
     )
     .await?;
@@ -1947,6 +1942,7 @@ pub async fn seed_sample_course(
             selected_text: None,
             related_blocks: vec![],
             page_id: page_3,
+            category: None,
         },
     )
     .await?;

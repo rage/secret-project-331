@@ -217,22 +217,22 @@ async fn get_courses(
     let mut conn = pool.acquire().await?;
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
-    let courses =
-        models::course_instances::get_enrolled_course_instances_for_user_with_exercise_types(
-            &mut conn,
-            user.id,
-            &capable_slugs,
-        )
-        .await?
-        .into_iter()
-        .map(|ci| api::Course {
-            id: ci.course_id,
-            slug: ci.course_slug,
-            name: ci.course_name,
-            description: ci.course_description,
-            organization_name: ci.organization_name,
-        })
-        .collect();
+    let courses = models::courses::get_enrolled_courses_with_exercise_types(
+        &mut conn,
+        user.id,
+        &capable_slugs,
+    )
+    .await?
+    .into_iter()
+    .map(|course| api::Course {
+        id: course.id,
+        slug: course.slug,
+        name: course.name,
+        description: course.description,
+        organization_name: course.organization_name,
+        ai_policy: to_api_ai_policy(course.ai_policy),
+    })
+    .collect();
 
     // enrolled users may view their courses regardless of role permissions
     let token = skip_authorize();
@@ -280,9 +280,22 @@ async fn get_course(
         name: course.name,
         description: course.description,
         organization_name: org.name,
+        ai_policy: to_api_ai_policy(course.ai_policy),
     };
 
     token.authorized_ok(web::Json(course))
+}
+
+fn to_api_ai_policy(policy: models::courses::CourseAiPolicy) -> api::CourseAiPolicy {
+    use models::courses::CourseAiPolicy as Db;
+    match policy {
+        Db::NotSet => api::CourseAiPolicy::NotSet,
+        Db::NoAi => api::CourseAiPolicy::NoAi,
+        Db::PlanningOnly => api::CourseAiPolicy::PlanningOnly,
+        Db::Limited => api::CourseAiPolicy::Limited,
+        Db::FullUse => api::CourseAiPolicy::FullUse,
+        Db::Required => api::CourseAiPolicy::Required,
+    }
 }
 
 /**
@@ -1841,7 +1854,6 @@ mod upload_tests {
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock Suotar configuration"),
             development_uuid_login: false,
-            enable_admin_email_verification: false,
             enable_email_ownership_verification: false,
             azure_configuration: None,
             tmc_account_creation_origin: None,
@@ -3633,6 +3645,66 @@ mod route_tests {
         assert_eq!(listed_chapter.id, chapter.id);
         assert_eq!(listed_chapter.name, chapter.name);
         assert_eq!(listed_chapter.chapter_number, chapter.chapter_number);
+    }
+
+    #[actix_web::test]
+    async fn both_course_endpoints_serve_the_courses_ai_policy() {
+        let fixture = committed_fixture(true).await;
+        let mut conn = PgConnection::connect(&test_database_url())
+            .await
+            .expect("connection");
+        let course = models::courses::get_course(&mut conn, fixture.course)
+            .await
+            .expect("course");
+        models::courses::update_course(
+            &mut conn,
+            &upload_tests::app_conf(),
+            fixture.course,
+            models::courses::CourseUpdate {
+                name: course.name,
+                description: course.description,
+                is_draft: course.is_draft,
+                is_test_mode: course.is_test_mode,
+                can_add_chatbot: course.can_add_chatbot,
+                is_unlisted: course.is_unlisted,
+                is_joinable_by_code_only: course.is_joinable_by_code_only,
+                ask_marketing_consent: course.ask_marketing_consent,
+                flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or_default(),
+                flagged_answers_skip_manual_review_and_allow_retry: course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: course.closed_at,
+                closed_additional_message: course.closed_additional_message,
+                closed_course_successor_id: course.closed_course_successor_id,
+                chapter_locking_enabled: course.chapter_locking_enabled,
+                ai_policy: models::courses::CourseAiPolicy::FullUse,
+                course_material_ai_instructions: course.course_material_ai_instructions,
+            },
+        )
+        .await
+        .expect("set ai_policy");
+        let app = client_api_app!();
+
+        let request = test::TestRequest::get()
+            .uri(&format!("/courses/{}", fixture.course))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let course: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(course["ai_policy"], "full_use");
+
+        let request = test::TestRequest::get()
+            .uri("/courses")
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let courses: Vec<api::Course> = test::read_body_json(response).await;
+        let listed = courses
+            .iter()
+            .find(|course| course.id == fixture.course)
+            .expect("the fixture course is listed");
+        assert_eq!(listed.ai_policy, api::CourseAiPolicy::FullUse);
     }
 
     /// Grading carries the exercise's own standing, so a client never has to infer it from the

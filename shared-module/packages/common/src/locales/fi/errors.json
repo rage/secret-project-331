@@ -33,6 +33,8 @@
   "error-status": "Tila: {{status}}",
   "error-title": "Virhe",
   "error-type": "Tyyppi: {{type}}",
+  "errorNotice.status": "Tila",
+  "errorNotice.type": "Tyyppi",
   "failed-to-send-message": "Viestin lähettäminen epäonnistui",
   "go-to-error": "Siirry virheeseen",
   "label-error-loading": "Virhe datan lataamisessa.",

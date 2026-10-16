@@ -11,20 +11,20 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
-import { PLAIN_DISCLOSURE } from "@/components/credit-registration/constants"
+import { DENSITY_COMPACT, PLAIN_DISCLOSURE } from "@/components/credit-registration/constants"
 import { emptyStateCss } from "@/components/credit-registration/styles"
-import {
-  moduleTimingCaptionCss,
-  ModuleTimingCells,
-  moduleTimingLegendCss,
-  moduleTimingTableCss,
-} from "@/components/ModuleTimingTable"
+import { moduleTimingColumns, moduleTimingLegendCss } from "@/components/ModuleTimingTable"
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Disclosure } from "@/shared-module/components"
-import { computeModuleRows, durationSeconds, formatDuration } from "@/utils/moduleTimeline"
+import { Disclosure, Table, type TableColumn } from "@/shared-module/components"
+import {
+  computeModuleRows,
+  durationSeconds,
+  formatDuration,
+  type ModuleRow,
+} from "@/utils/moduleTimeline"
 import {
   colorAt,
   ECHARTS,
@@ -141,6 +141,12 @@ const measureLabelPx = (text: string): number => {
     }
   }
   return labelMeasureCtx ? labelMeasureCtx.measureText(text).width : text.length * FALLBACK_CHAR_PX
+}
+
+/** `courseName` is set only on a course's first row, so it is not repeated down the column. */
+interface CourseModuleRow {
+  moduleRow: ModuleRow
+  courseName: string | null
 }
 
 interface CourseBar {
@@ -702,29 +708,28 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
       )}
       <Disclosure variant={PLAIN_DISCLOSURE} title={t("show-underlying-data")}>
         <div className={tableFrameCss}>
-          <table className={moduleTimingTableCss}>
-            <caption className={moduleTimingCaptionCss}>{t("gantt-timeline-caption")}</caption>
-            <thead>
-              <tr>
-                <th>{t("course")}</th>
-                <th>{t("label-module")}</th>
-                <th>{t("label-started")}</th>
-                <th>{t("label-completed")}</th>
-                <th>{t("label-time-in-module")}</th>
-                <th>{t("label-since-enrolled")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {moduleRowsByCourse.flatMap((course) =>
-                course.rows.map((row, i) => (
-                  <tr key={row.moduleId}>
-                    {i === 0 ? <td rowSpan={course.rows.length}>{course.name}</td> : null}
-                    <ModuleTimingCells row={row} />
-                  </tr>
-                )),
-              )}
-            </tbody>
-          </table>
+          <Table
+            caption={t("gantt-timeline-caption")}
+            showCaption
+            density={DENSITY_COMPACT}
+            columns={[
+              {
+                header: t("course"),
+                cell: ({ courseName }) => courseName,
+              },
+              ...moduleTimingColumns(t).map((column): TableColumn<CourseModuleRow> => ({
+                ...column,
+                cell: (row) => column.cell(row.moduleRow),
+              })),
+            ]}
+            rows={moduleRowsByCourse.flatMap((course) =>
+              course.rows.map((moduleRow, i) => ({
+                moduleRow,
+                courseName: i === 0 ? course.name : null,
+              })),
+            )}
+            rowKey={({ moduleRow }) => moduleRow.moduleId}
+          />
         </div>
       </Disclosure>
     </div>

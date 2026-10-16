@@ -3761,6 +3761,16 @@
               "type": "integer",
               "format": "int64"
             }
+          },
+          {
+            "name": "category_filter",
+            "in": "query",
+            "description": "Selected category",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -3772,6 +3782,49 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Feedback"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/feedback-categories": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.",
+        "operationId": "getCourseFeedbackCategories",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "read",
+            "in": "query",
+            "description": "Categories for read/unread status feedback",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All feedback categories used in feedback for the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeedbackCategory"
                   }
                 }
               }
@@ -3799,11 +3852,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Feedback counts for the course",
+            "description": "Feedback and edit proposal counts for the course",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FeedbackCount"
+                  "$ref": "#/components/schemas/FeedbackEditProposalCounts"
                 }
               }
             }
@@ -7582,11 +7635,11 @@
     "/api/v0/main-frontend/credit-registration-admin/courses": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,\nits validated configuration and its volumes.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,\nits validated configuration and its volumes.",
         "operationId": "getCreditRegistrationStatsByCourse",
         "responses": {
           "200": {
-            "description": "One row per enabled course module",
+            "description": "One row per course module with a course code",
             "content": {
               "application/json": {
                 "schema": {
@@ -12801,37 +12854,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/proposed-edits/course/{course_id}/count": {
-      "get": {
-        "tags": ["proposed_edits"],
-        "summary": "\nGET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.",
-        "operationId": "getEditProposalCount",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Edit proposal counts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProposalCount"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/proposed-edits/process-edit-proposal": {
       "post": {
         "tags": ["proposed_edits"],
@@ -13631,11 +13653,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-email": {
+    "/api/v0/main-frontend/user-details/search-exact": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email",
-        "operationId": "searchUserDetailsByEmail",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query",
+        "operationId": "searchUserDetailsExact",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13648,7 +13670,7 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose id or email equals the query",
             "content": {
               "application/json": {
                 "schema": {
@@ -13663,11 +13685,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-other-details": {
+    "/api/v0/main-frontend/user-details/search-fuzzy": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.",
-        "operationId": "searchUserDetailsByOtherDetails",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email",
+        "operationId": "searchUserDetailsFuzzy",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13680,46 +13702,11 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose name or email resembles the query",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/user-details/search-fuzzy-match": {
-      "post": {
-        "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query",
-        "operationId": "searchUserDetailsFuzzyMatch",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "User details fuzzy search results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
+                  "$ref": "#/components/schemas/FuzzyUserSearchResults"
                 }
               }
             }
@@ -17183,6 +17170,26 @@
           }
         }
       },
+      "CategoryFeedbackCount": {
+        "type": "object",
+        "required": ["category_id", "read_feedback", "unread_feedback"],
+        "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "unread_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "CertificateAllRequirements": {
         "type": "object",
         "required": ["certificate_configuration_id", "course_module_ids"],
@@ -18819,7 +18826,7 @@
       },
       "CourseAuditingModuleUpdate": {
         "type": "object",
-        "required": ["id", "order_number", "enable_registering_completion_to_uh_open_university"],
+        "required": ["id", "order_number"],
         "properties": {
           "completion_registration_link_override": {
             "type": ["string", "null"]
@@ -18827,9 +18834,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -19243,7 +19247,6 @@
         "description": "One module's live registrations, split so a teacher can add the columns up.\n\n`registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and\n`not_registering_count` partition `registration_count`: every live row falls in exactly one, and\neach is the same classification the row's own badge shows. `needs_admin_attention_count` is not\none of them — it cuts across all five — so it is never added to them.",
         "required": [
           "course_module_id",
-          "enabled",
           "paused",
           "registration_count",
           "registered_count",
@@ -19260,9 +19263,6 @@
           },
           "course_module_name": {
             "type": ["string", "null"]
-          },
-          "enabled": {
-            "type": "boolean"
           },
           "failed_count": {
             "type": "integer",
@@ -20032,9 +20032,7 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "certification_enabled",
-          "enable_credit_registration_via_suotar"
+          "certification_enabled"
         ],
         "properties": {
           "certification_enabled": {
@@ -20066,12 +20064,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -20242,13 +20234,8 @@
       },
       "CourseModuleCreditRegistrationConfig": {
         "type": "object",
-        "description": "Per-module credit-registration configuration: the rollout switch and the module's own fields\nmerged with its `course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
-        "required": [
-          "course_module_id",
-          "course_id",
-          "enable_credit_registration_via_suotar",
-          "credit_registration_has_enrolment_link"
-        ],
+        "description": "Per-module credit-registration configuration: the module's own fields merged with its\n`course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
+        "required": ["course_module_id", "course_id", "credit_registration_has_enrolment_link"],
         "properties": {
           "course_id": {
             "type": "string",
@@ -20288,9 +20275,6 @@
             "type": ["number", "null"],
             "format": "float"
           },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
           "uh_course_code": {
             "type": ["string", "null"]
           }
@@ -20299,13 +20283,7 @@
       "CourseModuleInfo": {
         "type": "object",
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
-        "required": [
-          "id",
-          "order_number",
-          "exercise_count",
-          "daily_submissions",
-          "enable_credit_registration_via_suotar"
-        ],
+        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
         "properties": {
           "daily_submissions": {
             "type": "array",
@@ -20318,9 +20296,6 @@
             "type": ["number", "null"],
             "format": "float",
             "description": "ECTS credits the module is worth. `None` when the module grants no credits."
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
           },
           "exercise_count": {
             "type": "integer",
@@ -21380,7 +21355,7 @@
           "eligible_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module opted in mid-course keeps a permanent gap against `registration_count` for the\ncompletions that predate the opt-in."
+            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -24283,6 +24258,13 @@
             "type": "string",
             "format": "date-time"
           },
+          "feedback_category_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "feedback_category_name": {
+            "type": ["string", "null"]
+          },
           "feedback_given": {
             "type": "string"
           },
@@ -24329,16 +24311,70 @@
           }
         }
       },
-      "FeedbackCount": {
+      "FeedbackCategory": {
         "type": "object",
-        "required": ["read", "unread"],
+        "required": ["id", "created_at", "updated_at", "name"],
         "properties": {
-          "read": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FeedbackEditProposalCounts": {
+        "type": "object",
+        "required": [
+          "read_feedback",
+          "unread_feedback",
+          "feedback_categories_counts",
+          "pending_edits",
+          "handled_edits",
+          "total_waiting"
+        ],
+        "properties": {
+          "feedback_categories_counts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryFeedbackCount"
+            }
+          },
+          "handled_edits": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
           },
-          "unread": {
+          "pending_edits": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total_waiting": {
+            "type": "integer",
+            "format": "int32",
+            "description": "pending edits + unread feedback",
+            "minimum": 0
+          },
+          "unread_feedback": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
@@ -24390,6 +24426,23 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "FuzzyUserSearchResults": {
+        "type": "object",
+        "description": "Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.",
+        "required": ["users", "has_more"],
+        "properties": {
+          "has_more": {
+            "type": "boolean",
+            "description": "More users matched than `users` holds."
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            }
           }
         }
       },
@@ -24857,13 +24910,7 @@
       },
       "ModifiedModule": {
         "type": "object",
-        "required": [
-          "id",
-          "order_number",
-          "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
-        ],
+        "required": ["id", "order_number", "completion_policy"],
         "properties": {
           "completion_policy": {
             "$ref": "#/components/schemas/CompletionPolicy"
@@ -24874,12 +24921,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -25854,14 +25895,7 @@
       },
       "NewModule": {
         "type": "object",
-        "required": [
-          "name",
-          "order_number",
-          "chapters",
-          "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
-        ],
+        "required": ["name", "order_number", "chapters", "completion_policy"],
         "properties": {
           "chapters": {
             "type": "array",
@@ -25879,12 +25913,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "name": {
             "type": "string"
@@ -27802,22 +27830,6 @@
           }
         }
       },
-      "ProposalCount": {
-        "type": "object",
-        "required": ["pending", "handled"],
-        "properties": {
-          "handled": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "pending": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        }
-      },
       "ProposalStatus": {
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
@@ -29705,8 +29717,7 @@
           "course_module_completion_id",
           "course_name",
           "email",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar",
+          "registers_credits",
           "register_credits_via_suotar",
           "status_before_registration"
         ],
@@ -29739,23 +29750,20 @@
           "email": {
             "type": "string"
           },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
-          },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether this completion in particular goes through the push path. Decides which flow the\npage shows: the module flag above only says the module takes part."
+            "description": "Whether this completion goes through the push path, which decides the flow the page shows."
+          },
+          "registers_credits": {
+            "type": "boolean",
+            "description": "Whether the module has a course code, without which its completions are never registered."
           },
           "status_before_registration": {
             "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
             "description": "What the student is told while the completion has no credit registration: `sending` when\nthe push path will create one, `not_registering` when it never will."
           },
           "uh_course_code": {
-            "type": ["string", "null"],
-            "description": "`None` only on a module registering through credit registration."
+            "type": ["string", "null"]
           }
         }
       },
@@ -29919,9 +29927,6 @@
             "type": ["string", "null"]
           },
           "last_name": {
-            "type": ["string", "null"]
-          },
-          "search_helper": {
             "type": ["string", "null"]
           },
           "updated_at": {

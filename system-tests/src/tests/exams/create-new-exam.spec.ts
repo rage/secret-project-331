@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -12,9 +13,8 @@ test("Creating an exam works", async ({ page }) => {
   await page.getByRole("button", { name: "Create" }).nth(1).click()
   await page.getByRole("heading", { name: "New Exam" }).waitFor()
   await page.getByLabel("Name", { exact: true }).fill("New exam")
-  await page.getByLabel("Starts at").fill("1990-12-03T12:00")
-
-  await page.getByLabel("Ends at").fill("2052-03-09T09:08:01")
+  await new DateTimeLocalField(page, "exam-starts-at-field").setValue("1990-12-03T12:00")
+  await new DateTimeLocalField(page, "exam-ends-at-field").setValue("2052-03-09T09:08")
   await page.getByLabel("Time in minutes", { exact: true }).fill("7")
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Exam created successfully").waitFor()

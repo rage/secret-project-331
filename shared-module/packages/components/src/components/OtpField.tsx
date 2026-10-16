@@ -29,6 +29,22 @@ const otpSlotsCss = css`
   flex-wrap: wrap;
 `
 
+/** Shares the row instead of wrapping, so a six-digit code stays on one line at 320px. */
+const otpSlotsFullWidthCss = css`
+  flex-wrap: nowrap;
+  justify-content: center;
+
+  & > input {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 56px;
+  }
+`
+
+const otpGroupStartCss = css`
+  margin-inline-start: var(--space-3);
+`
+
 const otpSlotCss = css`
   width: 44px;
   height: 52px;
@@ -37,6 +53,7 @@ const otpSlotCss = css`
   background: var(--field-bg);
   color: var(--field-fg);
   font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
   text-align: center;
   outline: none;
   transition:
@@ -120,7 +137,15 @@ export type OtpFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   isRequired?: boolean
   id?: string
   autoComplete?: string
+  /** Stretches the slots across the field's width, centred, instead of wrapping fixed boxes. */
+  isFullWidth?: boolean
+  /** Slots per visual group, e.g. 3 shows a six-digit code as 3 + 3. Not announced. */
+  groupSize?: number
+  /** Focuses the first slot on mount. */
+  autoFocus?: boolean
   className?: string
+  /** Lands on the slot group, not the individual slot inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -144,6 +169,10 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     className,
     autoComplete,
+    isFullWidth = false,
+    groupSize,
+    autoFocus = false,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -201,6 +230,12 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   })
 
   const otpValue = typeof field.value === "string" ? field.value : ""
+
+  useEffect(() => {
+    if (autoFocus) {
+      slotRefs.current[0]?.focus()
+    }
+  }, [autoFocus])
 
   useEffect(() => {
     if (hiddenInputRef.current) {
@@ -261,11 +296,12 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
       <div
         {...groupFieldProps}
         ref={slotsContainerRef}
-        className={otpSlotsCss}
+        className={cx(otpSlotsCss, isFullWidth && otpSlotsFullWidthCss)}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div typed HTMLDivElement; a native tag changes behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}
+        data-testid={dataTestId}
         onBlur={(event) => {
           if (slotsContainerRef.current?.contains(event.relatedTarget as Node | null)) {
             return
@@ -289,7 +325,11 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
             ref={(element) => {
               slotRefs.current[index] = element
             }}
-            className={cx(otpSlotCss, resolveOtpSlotSizeCss(fieldSize))}
+            className={cx(
+              otpSlotCss,
+              resolveOtpSlotSizeCss(fieldSize),
+              groupSize !== undefined && index > 0 && index % groupSize === 0 && otpGroupStartCss,
+            )}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -319,6 +359,8 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
               commitValue(nextValue)
               slotRefs.current[result.nextIndex]?.focus()
             }}
+            // Selected so typing over a filled slot replaces it; maxLength would otherwise drop the key.
+            onFocus={(event) => event.currentTarget.select()}
             onKeyDown={(event) => {
               if (event.key === "ArrowLeft") {
                 event.preventDefault()

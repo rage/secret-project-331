@@ -74,15 +74,18 @@ export default function useIframeLinkRequests(
       url?: string
       caution?: string
     }): Promise<boolean> =>
-      dialog.confirm(
-        <RequestBody
-          explanation={request.explanation}
-          url={request.url}
-          caution={request.caution}
-        />,
-        request.title,
-        { yesButtonLabel: request.confirmButtonLabel, noButtonLabel: t("button-cancel") },
-      ),
+      dialog.confirm({
+        title: request.title,
+        message: (
+          <RequestBody
+            explanation={request.explanation}
+            url={request.url}
+            caution={request.caution}
+          />
+        ),
+        confirmLabel: request.confirmButtonLabel,
+        cancelLabel: t("button-cancel"),
+      }),
   )
 
   const openLinkOnRequest = useEventCallback((rawUrl: unknown) => {
@@ -107,10 +110,10 @@ export default function useIframeLinkRequests(
       // can still refuse (e.g. a blanket block for the site), and a link that quietly does nothing
       // reads as broken, so say what happened.
       if (!openUrlInNewTab(url.href)) {
-        void dialog.alert(
-          t("opening-the-link-was-blocked-explanation"),
-          t("opening-the-link-was-blocked-title"),
-        )
+        void dialog.alert({
+          message: t("opening-the-link-was-blocked-explanation"),
+          title: t("opening-the-link-was-blocked-title"),
+        })
       }
     })
   })

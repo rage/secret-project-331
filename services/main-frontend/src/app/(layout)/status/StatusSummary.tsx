@@ -11,9 +11,8 @@ import { useStatusEvents } from "@/hooks/useStatusEvents"
 import { useStatusPodDisruptionBudgets } from "@/hooks/useStatusPodDisruptionBudgets"
 import { useStatusPods } from "@/hooks/useStatusPods"
 import { useSystemHealthDetailed } from "@/hooks/useSystemHealthDetailed"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 
 const StatusSummary: React.FC = () => {
   const { t } = useTranslation()
@@ -175,17 +174,17 @@ const StatusSummary: React.FC = () => {
     pdbsLoading ||
     systemHealthDetailedLoading
   ) {
-    return <Spinner />
+    return <LoadingRegion />
   }
 
   if (podsError || deploymentsError || eventsError || pdbsError || systemHealthDetailedError) {
     return (
       <div>
-        {podsError && <ErrorBanner error={podsError} />}
-        {deploymentsError && <ErrorBanner error={deploymentsError} />}
-        {eventsError && <ErrorBanner error={eventsError} />}
-        {pdbsError && <ErrorBanner error={pdbsError} />}
-        {systemHealthDetailedError && <ErrorBanner error={systemHealthDetailedError} />}
+        {podsError && <ErrorNotice error={podsError} />}
+        {deploymentsError && <ErrorNotice error={deploymentsError} />}
+        {eventsError && <ErrorNotice error={eventsError} />}
+        {pdbsError && <ErrorNotice error={pdbsError} />}
+        {systemHealthDetailedError && <ErrorNotice error={systemHealthDetailedError} />}
       </div>
     )
   }

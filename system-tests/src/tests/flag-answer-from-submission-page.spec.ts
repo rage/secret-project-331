@@ -5,8 +5,9 @@ import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { tableRowByCell } from "@/utils/tableRows"
 
-const STUDENT_2_USER_ID = "d7d6246c-45a8-4ff4-bf4d-31dedfaac159"
+const STUDENT_2_EMAIL = "student2@example.com"
 const PLAGIARISM_FEEDBACK = "This answer is word for word another student's."
 const AI_FEEDBACK = "This exercise does not allow AI."
 const PARTIAL_POINTS_FEEDBACK = "Half of the answer was missing."
@@ -64,7 +65,7 @@ test.describe("flagging an answer from the submission page", () => {
         .filter({ has: teacherPage.getByRole("heading", { name: "Default", exact: true }) })
         .getByRole("link", { name: "View points" })
         .click()
-      await teacherPage.getByRole("link", { name: STUDENT_2_USER_ID }).click()
+      await tableRowByCell(teacherPage, STUDENT_2_EMAIL).getByRole("link").click()
       const exerciseDetails = teacherPage
         .getByTestId("exercise-status")
         .filter({ hasText: "Best exercise" })

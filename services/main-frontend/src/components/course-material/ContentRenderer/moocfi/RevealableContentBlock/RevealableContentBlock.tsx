@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import { t } from "i18next"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button } from "@/shared-module/components"
 import type { Block } from "@/types/courseMaterialBlock"
 
 import type { BlockRendererProps } from "../.."
@@ -45,12 +45,7 @@ const RevealableContentBlock: React.FC<
             <ContentRenderer key={content.clientId} data={[content]} isExam={false} />
           ))}
           {!open && (
-            <Button
-              variant={"tertiary"}
-              size={"medium"}
-              transform={"capitalize"}
-              onClick={() => setOpen(!open)}
-            >
+            <Button variant={"tertiary"} size={"medium"} onClick={() => setOpen(!open)}>
               {t("button-text-proceed-after-thinking")}
             </Button>
           )}

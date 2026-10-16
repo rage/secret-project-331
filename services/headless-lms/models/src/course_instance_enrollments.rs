@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
@@ -54,7 +54,6 @@ pub struct CourseModuleInfo {
     pub ects_credits: Option<f32>,
     /// The module's course code in the university's registry, e.g. `BSCS1001`.
     pub uh_course_code: Option<String>,
-    pub enable_credit_registration_via_suotar: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -369,22 +368,6 @@ ORDER BY c.course_module_id, "day!"
             });
     }
 
-    // The flag is not on the `CourseModule` DTO, so `get_by_course_ids` below cannot supply it.
-    let credit_registration_enabled_module_ids: HashSet<Uuid> = sqlx::query_scalar!(
-        "
-SELECT id
-FROM course_modules
-WHERE course_id = ANY($1)
-  AND enable_credit_registration_via_suotar
-  AND deleted_at IS NULL
-        ",
-        &course_ids
-    )
-    .fetch_all(&mut *conn)
-    .await?
-    .into_iter()
-    .collect();
-
     let course_instance_enrollments = get_by_user_id(&mut *conn, user_id).await?;
     let all_course_module_completions =
         crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
@@ -435,8 +418,6 @@ WHERE course_id = ANY($1)
                     .unwrap_or_default(),
                 ects_credits: m.ects_credits,
                 uh_course_code: m.uh_course_code.clone(),
-                enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
-                    .contains(&m.id),
             })
             .collect();
         let course_module_completions = all_course_module_completions

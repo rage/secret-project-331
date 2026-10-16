@@ -2,10 +2,10 @@
 
 import { css } from "@emotion/css"
 import { ApartmentBuilding, Gear } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { LINK_INHERIT } from "@/components/credit-registration/constants"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -14,6 +14,7 @@ import {
   manageOrganizationRoute,
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
+import { Link } from "@/shared-module/components"
 
 interface Props {
   organization: {
@@ -30,7 +31,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
   return (
     <div
       key={organization.id}
-      aria-label={organization.name}
+      aria-label={organization.name || organization.slug}
       className={css`
         padding: 0em 0.4em;
         color: #656565;
@@ -68,7 +69,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
       >
         <OrganizationIcon />
         <OrganizationText
-          name={organization.name}
+          name={organization.name || organization.slug}
           {...omitUndefined({ hidden: organization.hidden })}
         />
         <div
@@ -85,6 +86,7 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             resource={{ type: "organization", id: organization.id }}
           >
             <Link
+              appearance={LINK_INHERIT}
               href={manageOrganizationRoute(organization.id)}
               aria-label={t("label-manage-organization", {
                 name: organization.name,
@@ -120,25 +122,9 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
 
           <Link
             href={organizationFrontPageRoute(organization.slug)}
-            className={css`
-              background-color: rgba(237, 238, 240, 1);
-              color: rgba(26, 35, 51, 1);
-              border: none;
-              border-radius: 0px;
-              padding: 0.4rem 0.8rem;
-              font-family: ${primaryFont};
-              font-size: 18px;
-              line-height: 100%;
-              letter-spacing: 0;
-              cursor: pointer;
-              text-decoration: none;
-              display: inline-block;
-
-              &:hover {
-                transition: background-color 0.3s;
-                background-color: rgb(216, 216, 216);
-              }
-            `}
+            styledAsButton
+            variant="secondary"
+            size="medium"
           >
             {t("label-select")}
           </Link>

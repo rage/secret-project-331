@@ -49,7 +49,7 @@ test("Editing exam instructions works", async ({ page, headless }, testInfo) => 
   await page.getByRole("textbox", { name: "List text" }).nth(1).fill("Two")
 
   await waitForSuccessNotification(page, async () => {
-    await page.locator(`button:text-is("Save")`).click()
+    await page.getByRole("button", { name: "Save", exact: true }).click()
   })
 
   await page.goto("http://project-331.local/org/uh-cs")

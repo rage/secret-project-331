@@ -14,6 +14,28 @@ import { QueryResult } from "@/shared-module/components"
 import CreateTermForm from "./CreateTermForm"
 import TermItem from "./TermItem"
 
+const pageCss = css`
+  display: grid;
+  gap: var(--space-5);
+`
+
+const listCss = css`
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-clear-300);
+  }
+
+  > li:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
+`
+
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
@@ -29,7 +51,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   )
 
   return (
-    <>
+    <div className={pageCss}>
       <h1
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
@@ -42,24 +64,26 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       </h1>
       <CreateTermForm refetch={glossary.refetch} courseId={courseId} />
       <QueryResult query={glossary}>
-        {(data) =>
-          [...data]
-            .toSorted((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
-            .map((term: GlossaryTerm) => (
-              <TermItem
-                key={term.id}
-                term={term}
-                isEditing={editingTerm === term.id}
-                onEdit={() => {
-                  setEditingTerm(term.id)
-                }}
-                onCancel={() => setEditingTerm(null)}
-                refetch={glossary.refetch}
-              />
-            ))
-        }
+        {(data) => (
+          <ul className={listCss}>
+            {[...data]
+              .toSorted((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
+              .map((term: GlossaryTerm) => (
+                <TermItem
+                  key={term.id}
+                  term={term}
+                  isEditing={editingTerm === term.id}
+                  onEdit={() => {
+                    setEditingTerm(term.id)
+                  }}
+                  onCancel={() => setEditingTerm(null)}
+                  refetch={glossary.refetch}
+                />
+              ))}
+          </ul>
+        )}
       </QueryResult>
-    </>
+    </div>
   )
 }
 

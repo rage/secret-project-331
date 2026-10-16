@@ -20,14 +20,13 @@ import useResearchConsentForm from "@/hooks/course-material/useResearchConsentFo
 import useResearchConsentFormAnswers from "@/hooks/course-material/useResearchConsentFormAnswers"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { buildHeadingAnchorIds } from "@/shared-module/common/utils/headingAnchors"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   isMaterialPageAtom,
@@ -225,20 +224,20 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   )
 
   if (glossary.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (glossary.isError) {
-    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
+    return <ErrorNotice error={glossary.error} />
   }
   const glossaryState: GlossaryState = { terms: glossary.data ?? [] }
 
   if (getPageAudioFiles.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (getPageAudioFiles.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPageAudioFiles.error} />
+    return <ErrorNotice error={getPageAudioFiles.error} />
   }
 
   if (getPageAudioFiles.isSuccess) {

@@ -8,9 +8,10 @@ import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types
 import { Disclosure, Infobox, Link } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS, TONE } from "./constants"
+import { registersCredits } from "./registersCredits"
 import { dividedListCss, codeValueCss, noteCss, sectionCss } from "./styles"
 
-/** One enabled module's saved credit-registration configuration, named for the callout. */
+/** One module's saved credit-registration configuration, named for the callout. */
 export interface CreditRegistrationConfigCalloutModule {
   moduleName: string
   config: CourseModuleCreditRegistrationConfig | undefined
@@ -28,10 +29,11 @@ interface Props {
 export const hasCreditRegistrationConfigProblem = (
   config: CourseModuleCreditRegistrationConfig | undefined,
 ): config is CourseModuleCreditRegistrationConfig =>
-  config?.enable_credit_registration_via_suotar === true &&
+  config !== undefined &&
+  registersCredits(config.uh_course_code) &&
   Boolean(config.credit_registration_config_check_message)
 
-/** One callout naming every enabled module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */
+/** One callout naming every module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */
 const CreditRegistrationConfigCallout: React.FC<Props> = ({
   configs,
   fixHref,

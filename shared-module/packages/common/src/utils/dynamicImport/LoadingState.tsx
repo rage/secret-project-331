@@ -30,6 +30,8 @@ const DYNAMIC_LOADING_RETRYING_KEY = "dynamic-loading-retrying"
 const DYNAMIC_LOADING_OFFLINE_KEY = "dynamic-loading-offline"
 const DYNAMIC_LOADING_HARD_TIMEOUT_KEY = "dynamic-loading-hard-timeout"
 
+const OFFLINE_WARNING_DELAY_MS = 1000
+
 const loadingWarningTextClass = css`
   margin: 0.25rem 0 0;
   max-width: 32rem;
@@ -77,9 +79,12 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
   const [showSlowWarning, setShowSlowWarning] = useState(false)
   const [showVerySlowWarning, setShowVerySlowWarning] = useState(false)
   const [hardTimeout, setHardTimeout] = useState(false)
-  const [isOnline, setIsOnline] = useState(() =>
-    typeof navigator !== "undefined" ? navigator.onLine : true,
-  )
+
+  // Default to online so a transient or stale navigator.onLine value during
+  // navigation does not immediately flash an offline warning.
+  const [isOnline, setIsOnline] = useState(true)
+  const [showOfflineWarning, setShowOfflineWarning] = useState(false)
+
   const { t } = useTranslation()
 
   const status = useDynamicImportStatus(debugId)
@@ -120,21 +125,42 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
   }, [])
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    const updateOnlineStatus = () => {
+      setIsOnline(navigator.onLine)
+    }
+
+    window.addEventListener("online", updateOnlineStatus)
+    window.addEventListener("offline", updateOnlineStatus)
+
+    // Reconcile the current value after listeners are attached. This avoids
+    // missing a connectivity change between the initial render and useEffect.
+    updateOnlineStatus()
+
+    return () => {
+      window.removeEventListener("online", updateOnlineStatus)
+      window.removeEventListener("offline", updateOnlineStatus)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isOnline) {
+      setShowOfflineWarning(false)
       return
     }
 
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener("online", handleOnline)
-    window.addEventListener("offline", handleOffline)
+    // navigator.onLine can temporarily report false during navigation/network
+    // transitions. Only show the warning if the browser still reports offline
+    // after a short delay.
+    const timeoutId = setTimeout(() => {
+      if (!navigator.onLine) {
+        setShowOfflineWarning(true)
+      }
+    }, OFFLINE_WARNING_DELAY_MS)
 
     return () => {
-      window.removeEventListener("online", handleOnline)
-      window.removeEventListener("offline", handleOffline)
+      clearTimeout(timeoutId)
     }
-  }, [])
+  }, [isOnline])
 
   const isHardFailure =
     status?.state === DYNAMIC_IMPORT_STATE_IMPORT_REJECTED ||
@@ -163,6 +189,7 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
           ),
           details: status.errorMessage,
         }
+
       case DYNAMIC_IMPORT_STATE_INVALID_EXPORT:
         return {
           title: t(
@@ -171,9 +198,11 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
           ),
           details: status.details,
         }
+
       case DYNAMIC_IMPORT_STATE_RENDER_ERROR:
-        // NOTE: RENDER_ERROR is handled by DynamicImportErrorBoundary after LoadingState
-        // unmounts. This branch is included for correctness but is not reachable in normal flow.
+        // NOTE: RENDER_ERROR is handled by DynamicImportErrorBoundary after
+        // LoadingState unmounts. This branch is included for correctness but
+        // is not reachable in normal flow.
         return {
           title: t(
             DYNAMIC_LOADING_DETECTED_RENDER_ERROR_KEY,
@@ -181,6 +210,7 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
           ),
           details: status.errorMessage,
         }
+
       case DYNAMIC_IMPORT_STATE_IMPORT_RESOLVED_PENDING_COMMIT:
         // NOTE: LoadingState unmounts when wrappedImport resolves, so this
         // state transition happens right as we disappear. Only reachable if
@@ -195,6 +225,7 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
             "Import resolved; waiting for first React commit (mount).",
           ),
         }
+
       default:
         return null
     }
@@ -213,25 +244,34 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
       : null
 
   const showAnyWarning = showSlowWarning || showVerySlowWarning
+
   const showDetected = detectedMessage && (isHardFailure || showSlowWarning)
+
   const showHardTimeoutFallback =
     hardTimeout && status?.state !== DYNAMIC_IMPORT_STATE_COMMITTED && !isHardFailure
 
   return (
     <div>
       <Spinner />
-      {!isOnline && <p className={loadingWarningTextClass}>{offlineWarningText}</p>}
+
+      {showOfflineWarning && <p className={loadingWarningTextClass}>{offlineWarningText}</p>}
+
       {(showAnyWarning || showDetected) && (
         <div className={loadingWarningBoxClass}>
           {showSlowWarning && <p className={loadingWarningTextClass}>{slowWarningText}</p>}
+
           {showVerySlowWarning && <p className={loadingWarningTextClass}>{verySlowWarningText}</p>}
+
           {retryingText && <p className={loadingWarningTextClass}>{retryingText}</p>}
+
           {showDetected && (
             <>
               <p className={loadingWarningTextClass}>{detectedMessage.title}</p>
+
               {detectedMessage.details && (
                 <p className={technicalDetailsClass}>{detectedMessage.details}</p>
               )}
+
               {isHardFailure && (
                 <button
                   type="button"
@@ -245,6 +285,7 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
           )}
         </div>
       )}
+
       {showHardTimeoutFallback && (
         <div className={loadingWarningBoxClass}>
           <p className={loadingWarningTextClass}>
@@ -253,6 +294,7 @@ const LoadingState = ({ debugId }: { debugId: string }) => {
               "Loading has stalled. Please try reloading the page.",
             )}
           </p>
+
           <button
             type="button"
             className={reloadButtonClass}

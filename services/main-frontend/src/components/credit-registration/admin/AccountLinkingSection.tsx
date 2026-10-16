@@ -32,7 +32,6 @@ import type {
   TimelinePhase,
   TimelineStep,
 } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import type { MenuItemDescriptor, StatTileDeltaTone, TableColumn } from "@/shared-module/components"
@@ -42,6 +41,7 @@ import {
   Infobox,
   Link,
   Menu,
+  Pagination,
   QueryResult,
   StatTile,
   StatTileList,
@@ -1320,7 +1320,10 @@ const RecentClaimsBlock: React.FC<{
                 ]}
               />
               <Pagination
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
                 totalPages={page.total_pages}
                 totalItems={page.total_count}
                 itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}

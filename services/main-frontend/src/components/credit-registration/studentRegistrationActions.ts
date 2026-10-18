@@ -3,14 +3,12 @@
 import { useTranslation } from "react-i18next"
 
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import {
-  completionRegistrationRoute,
-  userSettingsStudentNumberRoute,
-} from "@/shared-module/common/utils/routes"
+import { userSettingsStudentNumberRoute } from "@/shared-module/common/utils/routes"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { registrationStatusState } from "./creditRegistrationCopy"
+import { registrationStatusPageRoute } from "./creditRegistrationSubject"
 import { useRequestEnrolmentRecheck } from "./enrolmentActions"
 import type { FailureAction } from "./registrationFailures"
 import { failureActionLabel, failureActions } from "./registrationFailures"
@@ -115,11 +113,12 @@ export const useStudentRegistrationActions = ({
     }
   }
 
-  if (linkToStatusPage && (state === "failed" || state === "action-needed")) {
+  const statusPageRoute = registrationStatusPageRoute(registration)
+  if (linkToStatusPage && statusPageRoute && (state === "failed" || state === "action-needed")) {
     levers.push({
       key: ACTION_KEY.details,
       label: state === "failed" ? t("link-text-see-what-happened") : t("link-text-what-to-do"),
-      href: completionRegistrationRoute(registration.course_module_id),
+      href: statusPageRoute,
     })
   }
 

@@ -1,21 +1,34 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { ArrowLeft } from "@vectopus/atlas-icons-react"
 import { useParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QUIET_REFRESH, TONE } from "@/components/credit-registration/constants"
+import CreditRegistrationStatus from "@/components/credit-registration/CreditRegistrationStatus"
+import { courseModuleSubject } from "@/components/credit-registration/creditRegistrationSubject"
+import { narrowPageCss } from "@/components/credit-registration/styles"
 import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Infobox, QueryResult } from "@/shared-module/components"
+import { Infobox, Link, QueryResult } from "@/shared-module/components"
 
-import CreditRegistrationStatus from "./CreditRegistrationStatus"
 import RegisterCompletion from "./RegisterCompletion"
 
 const REDIRECT = "redirect"
+
+const BACK_ARROW_SIZE = 16
+
+const backLinkCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+`
 
 const CompletionPage: React.FC = () => {
   const { t } = useTranslation()
@@ -57,13 +70,21 @@ const CompletionPage: React.FC = () => {
         }
         if (data.register_credits_via_suotar) {
           return (
-            <CreditRegistrationStatus
-              courseModuleId={courseModuleId}
-              courseName={data.course_name}
-              moduleName={data.course_module_name}
-              ectsCredits={data.ects_credits}
-              statusBeforeRegistration={data.status_before_registration}
-            />
+            <div className={narrowPageCss}>
+              <div>
+                <Link href={profileStudiesRoute()} className={backLinkCss}>
+                  <ArrowLeft size={BACK_ARROW_SIZE} aria-hidden="true" />
+                  {t("heading-my-studies")}
+                </Link>
+              </div>
+              <CreditRegistrationStatus
+                subject={courseModuleSubject(courseModuleId)}
+                courseName={data.course_name}
+                moduleName={data.course_module_name}
+                ectsCredits={data.ects_credits}
+                statusBeforeRegistration={data.status_before_registration}
+              />
+            </div>
           )
         }
         // A completion from before the push path keeps the old page.

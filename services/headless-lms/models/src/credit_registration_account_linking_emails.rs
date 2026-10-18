@@ -23,7 +23,8 @@ pub struct CreditRegistrationAccountLinkingEmail {
     pub deleted_at: Option<DateTime<Utc>>,
     pub student_number: DbSecret,
     pub sisu_person_id: DbSecret,
-    pub course_id: Uuid,
+    /// The course whose registration flow sent the mail; `None` when a mooc.fi target's did.
+    pub course_id: Option<Uuid>,
     pub emailed_to: DbSecret,
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
@@ -31,21 +32,66 @@ pub struct CreditRegistrationAccountLinkingEmail {
     /// Set once this row gave up its place in the dedup key: to a later mail to the same address,
     /// or when the person was unlinked.
     pub replaced_at: Option<DateTime<Utc>>,
+    /// The mooc.fi target whose registration flow sent the mail, in place of `course_id`.
+    pub external_credit_target_id: Option<Uuid>,
+}
+
+/// The course or mooc.fi target whose registration flow a linking mail is sent for: what the dedup
+/// guard and the per-course caps count by.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum LinkingMailSource {
+    Course(Uuid),
+    ExternalCreditTarget(Uuid),
+}
+
+impl LinkingMailSource {
+    /// The course's or target's id, which is what the dedup key holds.
+    pub fn id(self) -> Uuid {
+        match self {
+            Self::Course(id) | Self::ExternalCreditTarget(id) => id,
+        }
+    }
+
+    /// The id for the mail's `course_id` column.
+    pub fn course_id(self) -> Option<Uuid> {
+        match self {
+            Self::Course(id) => Some(id),
+            Self::ExternalCreditTarget(_) => None,
+        }
+    }
+
+    /// The id for the mail's `external_credit_target_id` column.
+    pub fn external_credit_target_id(self) -> Option<Uuid> {
+        match self {
+            Self::Course(_) => None,
+            Self::ExternalCreditTarget(id) => Some(id),
+        }
+    }
+
+    /// Whether a row's `course_id` and `external_credit_target_id` columns name this source.
+    pub fn is_named_by(
+        self,
+        course_id: Option<Uuid>,
+        external_credit_target_id: Option<Uuid>,
+    ) -> bool {
+        self.course_id() == course_id
+            && self.external_credit_target_id() == external_credit_target_id
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct NewAccountLinkingEmail {
     pub student_number: DbSecret,
     pub sisu_person_id: DbSecret,
-    pub course_id: Uuid,
+    pub source: LinkingMailSource,
     pub emailed_to: DbSecret,
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
 }
 
-/// Claims the right to mail this (person, course, address); `None` means another row holds the
-/// address and the caller must not send. Call in the transaction that mints the token, so a refused
-/// claim leaves no usable link.
+/// Claims the right to mail this (person, course or target, address); `None` means another row
+/// holds the address and the caller must not send. Call in the transaction that mints the token, so
+/// a refused claim leaves no usable link.
 pub async fn claim_send_slot(
     conn: &mut PgConnection,
     new: &NewAccountLinkingEmail,
@@ -56,19 +102,21 @@ INSERT INTO credit_registration_account_linking_emails (
     student_number,
     sisu_person_id,
     course_id,
+    external_credit_target_id,
     emailed_to,
     student_number_verification_token_id,
     email_delivery_id
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT DO NOTHING
+VALUES ($1, $2, $3, $7, $4, $5, $6) ON CONFLICT DO NOTHING
 RETURNING id
         "#,
         new.student_number.expose_secret(),
         new.sisu_person_id.expose_secret(),
-        new.course_id,
+        new.source.course_id(),
         new.emailed_to.expose_secret(),
         new.student_number_verification_token_id,
         new.email_delivery_id,
+        new.source.external_credit_target_id(),
     )
     .fetch_optional(conn)
     .await?;
@@ -93,7 +141,8 @@ pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: chrono::Duration) 
 #[derive(Debug, Clone)]
 pub struct ExistingLinkingMailFact {
     pub sisu_person_id: DbSecret,
-    pub course_id: Uuid,
+    /// The [`LinkingMailSource::id`] of the mail.
+    pub source_id: Uuid,
     pub emailed_to: DbSecret,
     pub sent_at: DateTime<Utc>,
     /// Whether the row still holds its address: not replaced, and its link can still be used. A row
@@ -101,8 +150,8 @@ pub struct ExistingLinkingMailFact {
     pub holds_address: bool,
 }
 
-/// Every live mail these people have ever been sent, any course: one query stands in for the
-/// quiet-period count, the per-course count and the dedup check of a whole batch of candidates.
+/// Every live mail these people have ever been sent, any course or target: one query stands in for
+/// the quiet-period count, the per-course count and the dedup check of a whole batch of candidates.
 pub async fn get_existing_facts_for_persons(
     conn: &mut PgConnection,
     sisu_person_ids: &[String],
@@ -111,7 +160,7 @@ pub async fn get_existing_facts_for_persons(
         ExistingLinkingMailFact,
         r#"
 SELECT e.sisu_person_id AS "sisu_person_id!",
-  e.course_id AS "course_id!",
+  COALESCE(e.course_id, e.external_credit_target_id) AS "source_id!",
   e.emailed_to AS "emailed_to!",
   e.sent_at AS "sent_at!",
   (
@@ -133,11 +182,12 @@ WHERE e.sisu_person_id = ANY($1::text [])
     Ok(res)
 }
 
-/// How many linking mails one course has sent each of these people, replaced ones included.
-pub async fn count_mails_per_person_for_course(
+/// How many linking mails one course or mooc.fi target has sent each of these people, replaced ones
+/// included.
+pub async fn count_mails_per_person_for_source(
     conn: &mut PgConnection,
     sisu_person_ids: &[String],
-    course_id: Uuid,
+    source_id: Uuid,
 ) -> ModelResult<HashMap<String, i64>> {
     let res = sqlx::query!(
         r#"
@@ -145,12 +195,15 @@ SELECT sisu_person_id AS "sisu_person_id!",
   COUNT(*) AS "mail_count!"
 FROM credit_registration_account_linking_emails
 WHERE sisu_person_id = ANY($1::text [])
-  AND course_id = $2
+  AND (
+    course_id = $2
+    OR external_credit_target_id = $2
+  )
   AND deleted_at IS NULL
 GROUP BY sisu_person_id
         "#,
         sisu_person_ids,
-        course_id
+        source_id
     )
     .fetch_all(conn)
     .await?;
@@ -178,7 +231,7 @@ pub async fn replace_lapsed_slots(
         .iter()
         .map(|n| n.sisu_person_id.expose_secret().to_owned())
         .collect();
-    let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
+    let source_ids: Vec<Uuid> = new.iter().map(|n| n.source.id()).collect();
     let emailed_tos: Vec<String> = new
         .iter()
         .map(|n| n.emailed_to.expose_secret().to_owned())
@@ -187,9 +240,9 @@ pub async fn replace_lapsed_slots(
         r#"
 UPDATE credit_registration_account_linking_emails e
 SET replaced_at = now()
-FROM UNNEST($1::text [], $2::uuid [], $3::text []) AS slot(sisu_person_id, course_id, emailed_to)
+FROM UNNEST($1::text [], $2::uuid [], $3::text []) AS slot(sisu_person_id, source_id, emailed_to)
 WHERE e.sisu_person_id = slot.sisu_person_id
-  AND e.course_id = slot.course_id
+  AND COALESCE(e.course_id, e.external_credit_target_id) = slot.source_id
   AND LOWER(e.emailed_to) = LOWER(slot.emailed_to)
   AND e.deleted_at IS NULL
   AND e.replaced_at IS NULL
@@ -202,7 +255,7 @@ WHERE e.sisu_person_id = slot.sisu_person_id
   )
         "#,
         &sisu_person_ids,
-        &course_ids,
+        &source_ids,
         &emailed_tos,
     )
     .execute(conn)
@@ -233,7 +286,11 @@ pub async fn claim_send_slots(
         .iter()
         .map(|n| n.sisu_person_id.expose_secret().to_owned())
         .collect();
-    let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
+    let course_ids: Vec<Option<Uuid>> = new.iter().map(|n| n.source.course_id()).collect();
+    let external_credit_target_ids: Vec<Option<Uuid>> = new
+        .iter()
+        .map(|n| n.source.external_credit_target_id())
+        .collect();
     let emailed_tos: Vec<String> = new
         .iter()
         .map(|n| n.emailed_to.expose_secret().to_owned())
@@ -245,21 +302,50 @@ INSERT INTO credit_registration_account_linking_emails (
     student_number,
     sisu_person_id,
     course_id,
+    external_credit_target_id,
     emailed_to,
     student_number_verification_token_id
   )
-SELECT * FROM UNNEST($1::text [], $2::text [], $3::uuid [], $4::text [], $5::uuid []) ON CONFLICT DO NOTHING
+SELECT * FROM UNNEST($1::text [], $2::text [], $3::uuid [], $6::uuid [], $4::text [], $5::uuid []) ON CONFLICT DO NOTHING
 RETURNING student_number_verification_token_id AS "token_id!"
         "#,
         &student_numbers,
         &sisu_person_ids,
-        &course_ids,
+        &course_ids as &[Option<Uuid>],
         &emailed_tos,
         token_ids,
+        &external_credit_target_ids as &[Option<Uuid>],
     )
     .fetch_all(conn)
     .await?;
     Ok(claimed.into_iter().collect())
+}
+
+/// What the mail carrying this token was sent for; `None` for a token no mail carries.
+pub async fn get_source_by_token_id(
+    conn: &mut PgConnection,
+    student_number_verification_token_id: Uuid,
+) -> ModelResult<Option<LinkingMailSource>> {
+    let row = sqlx::query!(
+        r#"
+SELECT course_id,
+  external_credit_target_id
+FROM credit_registration_account_linking_emails
+WHERE student_number_verification_token_id = $1
+ORDER BY sent_at DESC
+LIMIT 1
+        "#,
+        student_number_verification_token_id,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(
+        row.and_then(|row| match (row.course_id, row.external_credit_target_id) {
+            (Some(course_id), _) => Some(LinkingMailSource::Course(course_id)),
+            (None, Some(target_id)) => Some(LinkingMailSource::ExternalCreditTarget(target_id)),
+            (None, None) => None,
+        }),
+    )
 }
 
 /// This course's newest linking mail for each of these Sisu people, keyed by person id.
@@ -290,13 +376,13 @@ ORDER BY sisu_person_id,
         .collect())
 }
 
-/// This course's linking mails for one student number, newest first.
+/// The linking mails for one student number sent for this course or mooc.fi target, newest first.
 ///
 /// Keyed on the number the study registry gave us, not on a verified link: the recipients of a
 /// linking mail are exactly the population that has none.
-pub async fn get_by_course_id_and_student_number(
+pub async fn get_by_source_and_student_number(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &str,
 ) -> ModelResult<Vec<CreditRegistrationAccountLinkingEmail>> {
     let res = sqlx::query_as!(
@@ -304,12 +390,15 @@ pub async fn get_by_course_id_and_student_number(
         r#"
 SELECT *
 FROM credit_registration_account_linking_emails
-WHERE course_id = $1
+WHERE (
+    course_id = $1
+    OR external_credit_target_id = $1
+  )
   AND student_number = $2
   AND deleted_at IS NULL
 ORDER BY sent_at DESC
         "#,
-        course_id,
+        source.id(),
         student_number,
     )
     .fetch_all(conn)
@@ -369,6 +458,7 @@ pub struct LinkingMailToQueue {
     pub first_names: Option<DbSecret>,
     /// Mailed as part of the link, so the recipient can prove the address is theirs.
     pub token: DbSecret,
+    /// The course's name, or the mooc.fi target's.
     pub course_name: String,
     pub course_language_code: String,
 }
@@ -380,10 +470,13 @@ pub struct LinkingMailToQueue {
 ///
 /// A retired, used or expired token is skipped rather than mailed — a dead link would spend one of
 /// the recipient's mails for this course on nothing — but its slot stays, counting against the caps.
+///
+/// `course_id` or `external_credit_target_id` narrows the claim to mails of that course or target.
 pub async fn claim_unqueued(
     conn: &mut PgConnection,
     limit: i64,
     course_id: Option<Uuid>,
+    external_credit_target_id: Option<Uuid>,
 ) -> ModelResult<Vec<LinkingMailToQueue>> {
     let res = sqlx::query_as!(
         LinkingMailToQueue,
@@ -393,21 +486,26 @@ SELECT e.id AS "id!",
   e.student_number AS "student_number!",
   t.first_names AS "first_names?",
   t.token AS "token!: DbSecret",
-  c.name AS "course_name!",
-  c.language_code AS "course_language_code!"
+  COALESCE(c.name, target.name) AS "course_name!",
+  COALESCE(c.language_code, target.language_code) AS "course_language_code!"
 FROM credit_registration_account_linking_emails e
   JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
-  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
+  LEFT JOIN courses c ON c.id = e.course_id
+  LEFT JOIN external_credit_targets target ON target.id = e.external_credit_target_id
 WHERE e.email_delivery_id IS NULL
   AND e.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND target.deleted_at IS NULL
   AND is_usable_verification_token(t)
   AND ($2::uuid IS NULL OR e.course_id = $2)
+  AND ($3::uuid IS NULL OR e.external_credit_target_id = $3)
 ORDER BY e.sent_at
 FOR UPDATE OF e SKIP LOCKED
 LIMIT $1
         "#,
         limit,
         course_id,
+        external_credit_target_id,
     )
     .fetch_all(conn)
     .await?;
@@ -695,11 +793,11 @@ WHERE e.sent_at >= $1
     Ok(domains)
 }
 
-/// Hard send failures for one course, all time. Same predicate as [`get_send_status_totals_since`],
-/// narrowed to a course instead of a time window.
-pub async fn count_send_failed_for_course(
+/// Hard send failures for one course or mooc.fi target, all time. Same predicate as
+/// [`get_send_status_totals_since`], narrowed to a source instead of a time window.
+pub async fn count_send_failed_for_source(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    source: LinkingMailSource,
     now: DateTime<Utc>,
 ) -> ModelResult<i64> {
     struct Row {
@@ -712,11 +810,14 @@ pub async fn count_send_failed_for_course(
 SELECT ed.retryable, ed.first_failed_at
 FROM credit_registration_account_linking_emails e
   JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL
-WHERE e.course_id = $1
+WHERE (
+    e.course_id = $1
+    OR e.external_credit_target_id = $1
+  )
   AND e.deleted_at IS NULL
   AND NOT ed.sent
         "#,
-        course_id,
+        source.id(),
     )
     .fetch_all(conn)
     .await?;
@@ -726,13 +827,16 @@ WHERE e.course_id = $1
         .count() as i64)
 }
 
-/// One person and course mailed to the cap without a single claim: the stale-address population,
-/// which is how "the student is ignoring us" is told from "the address Sisu holds is dead".
+/// One person and course or mooc.fi target mailed to the cap without a single claim: the
+/// stale-address population, which is how "the student is ignoring us" is told from "the address
+/// Sisu holds is dead".
 #[derive(Debug, Clone)]
 pub struct StaleUnclaimedLinkingMails {
     pub student_number: DbSecret,
     pub sisu_person_id: DbSecret,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target the mails were sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub mail_count: i64,
     pub first_sent_at: DateTime<Utc>,
@@ -752,8 +856,8 @@ pub async fn get_stale_unclaimed(
         r#"
 SELECT e.student_number AS "student_number!",
   e.sisu_person_id AS "sisu_person_id!",
-  e.course_id AS "course_id!",
-  c.name AS "course_name!",
+  COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
+  COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
   COUNT(*) AS "mail_count!",
   MIN(e.sent_at) AS "first_sent_at!",
   MAX(e.sent_at) AS "last_sent_at!",
@@ -766,8 +870,11 @@ SELECT e.student_number AS "student_number!",
     ORDER BY e.sent_at
   ) AS "addresses!: Vec<DbSecret>"
 FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
+  LEFT JOIN courses c ON c.id = e.course_id
+  LEFT JOIN external_credit_targets target ON target.id = e.external_credit_target_id
 WHERE e.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND target.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1
     FROM verified_student_numbers vsn
@@ -777,7 +884,9 @@ WHERE e.deleted_at IS NULL
 GROUP BY e.student_number,
   e.sisu_person_id,
   e.course_id,
-  c.name
+  e.external_credit_target_id,
+  c.name,
+  target.name
 HAVING COUNT(*) >= $1
 ORDER BY MAX(e.sent_at) DESC
 LIMIT $2
@@ -873,7 +982,7 @@ mod tests {
                 student_number: "012345678".to_string().into(),
                 first_names: Some("Aada".to_string().into()),
                 last_name: Some("Virtanen".to_string().into()),
-                course_id,
+                source: LinkingMailSource::Course(course_id),
                 address: Some(DbSecret::new("aada@example.com")),
             },
         )
@@ -912,7 +1021,7 @@ mod tests {
         let slot = claim_a_mail(tx.as_mut(), course).await;
         let template = seed_template(tx.as_mut()).await;
 
-        let claimed = claim_unqueued(tx.as_mut(), 10, None).await.unwrap();
+        let claimed = claim_unqueued(tx.as_mut(), 10, None, None).await.unwrap();
         assert_eq!(claimed.len(), 1);
         assert_eq!(claimed[0].id, slot);
         assert_eq!(claimed[0].emailed_to.expose_secret(), "aada@example.com");
@@ -930,7 +1039,7 @@ mod tests {
             .unwrap();
 
         assert!(
-            claim_unqueued(tx.as_mut(), 10, None)
+            claim_unqueued(tx.as_mut(), 10, None, None)
                 .await
                 .unwrap()
                 .is_empty()
@@ -953,7 +1062,9 @@ mod tests {
 #[derive(Debug, Clone)]
 pub struct RecentLinkingMail {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target the mail was sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub emailed_to: DbSecret,
     pub claimed_at: DateTime<Utc>,
@@ -973,8 +1084,8 @@ pub async fn get_recent(
     let rows = sqlx::query!(
         r#"
 SELECT e.id,
-  e.course_id,
-  c.name AS course_name,
+  COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
+  COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
   e.emailed_to,
   e.sent_at AS claimed_at,
   ed.created_at AS "queued_at?",
@@ -988,8 +1099,8 @@ SELECT e.id,
   latest_error.error_message AS "error_message?",
   latest_error.is_transient AS "is_transient?"
 FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id
-  AND c.deleted_at IS NULL
+  LEFT JOIN courses c ON c.id = e.course_id
+  LEFT JOIN external_credit_targets target ON target.id = e.external_credit_target_id
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
   AND ed.deleted_at IS NULL
   LEFT JOIN LATERAL (
@@ -1004,6 +1115,8 @@ FROM credit_registration_account_linking_emails e
     LIMIT 1
   ) latest_error ON TRUE
 WHERE e.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND target.deleted_at IS NULL
 ORDER BY e.sent_at DESC,
   e.id
 LIMIT $1
@@ -1033,7 +1146,7 @@ LIMIT $1
             });
             RecentLinkingMail {
                 id: row.id,
-                course_id: row.course_id,
+                course_or_target_id: row.course_or_target_id,
                 course_name: row.course_name,
                 emailed_to: row.emailed_to,
                 claimed_at: row.claimed_at,
@@ -1049,9 +1162,11 @@ LIMIT $1
 #[derive(Debug, Clone)]
 pub struct UnusedLinkingLink {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// The course or mooc.fi target the mail was sent for.
+    pub course_or_target_id: Uuid,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    /// The course code of the email's course, where its modules agree on one.
+    /// The target's course code, or the email's course's, where its modules agree on one.
     pub uh_course_code: Option<String>,
     pub emailed_to: DbSecret,
     pub claimed_at: DateTime<Utc>,
@@ -1067,20 +1182,24 @@ pub async fn get_unused_links(
         UnusedLinkingLink,
         r#"
 SELECT e.id,
-  e.course_id,
-  c.name AS course_name,
-  (
-    SELECT MIN(TRIM(cm.uh_course_code))
-    FROM course_modules cm
-    WHERE cm.course_id = e.course_id
-      AND cm.deleted_at IS NULL
-      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+  COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
+  COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
+  COALESCE(
+    TRIM(target.uh_course_code),
+    (
+      SELECT MIN(TRIM(cm.uh_course_code))
+      FROM course_modules cm
+      WHERE cm.course_id = e.course_id
+        AND cm.deleted_at IS NULL
+        AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+    )
   ) AS "uh_course_code?",
   e.emailed_to,
   e.sent_at AS claimed_at,
   t.expires_at
 FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id
+  LEFT JOIN courses c ON c.id = e.course_id
+  LEFT JOIN external_credit_targets target ON target.id = e.external_credit_target_id
   JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
 WHERE e.deleted_at IS NULL
   AND e.replaced_at IS NULL
@@ -1096,23 +1215,36 @@ LIMIT $1
     Ok(res)
 }
 
-/// How many links can still be used per course code, over every course with a module on the code.
+/// How many links can still be used per course code, over every course with a module on the code
+/// and every mooc.fi target on it.
 pub async fn count_unused_links_by_course_code(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<(String, i64)>> {
     let rows = sqlx::query!(
         r#"
-SELECT TRIM(cm.uh_course_code) AS "course_code!",
+SELECT code.course_code AS "course_code!",
   COUNT(DISTINCT e.id) AS "count!"
 FROM credit_registration_account_linking_emails e
   JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
-  JOIN course_modules cm ON cm.course_id = e.course_id
-  AND cm.deleted_at IS NULL
-  AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+  JOIN (
+    SELECT cm.course_id,
+      NULL::uuid AS external_credit_target_id,
+      TRIM(cm.uh_course_code) AS course_code
+    FROM course_modules cm
+    WHERE cm.deleted_at IS NULL
+      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+    UNION ALL
+    SELECT NULL::uuid,
+      target.id,
+      TRIM(target.uh_course_code)
+    FROM external_credit_targets target
+    WHERE target.deleted_at IS NULL
+  ) code ON code.course_id = e.course_id
+  OR code.external_credit_target_id = e.external_credit_target_id
 WHERE e.deleted_at IS NULL
   AND e.replaced_at IS NULL
   AND is_usable_verification_token(t)
-GROUP BY TRIM(cm.uh_course_code)
+GROUP BY code.course_code
         "#,
     )
     .fetch_all(conn)

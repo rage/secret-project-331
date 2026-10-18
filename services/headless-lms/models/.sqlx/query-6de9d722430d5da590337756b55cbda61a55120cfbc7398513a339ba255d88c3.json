@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.sisu_person_id AS \"sisu_person_id!\",\n  COALESCE(e.course_id, e.external_credit_target_id) AS \"source_id!\",\n  e.emailed_to AS \"emailed_to!\",\n  e.sent_at AS \"sent_at!\",\n  (\n    e.replaced_at IS NULL\n    AND (\n      e.student_number_verification_token_id IS NULL\n      OR is_usable_verification_token(t)\n    )\n  ) AS \"holds_address!\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.sisu_person_id = ANY($1::text [])\n  AND e.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sisu_person_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "source_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "emailed_to!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "sent_at!",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "holds_address!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "6de9d722430d5da590337756b55cbda61a55120cfbc7398513a339ba255d88c3"
+}

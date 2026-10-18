@@ -6,19 +6,29 @@ use crate::library::credit_registration::PendingPreconditions;
 use crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use crate::prelude::*;
 
-/// One ledger row with the course, module and enrolment facts every student view needs, so a status
-/// page is one query rather than a fan-out per row.
+/// One ledger row with the course, module or mooc.fi target, and enrolment facts every student view
+/// needs, so a status page is one query rather than a fan-out per row.
 #[derive(Debug, Clone)]
 pub struct StudentCreditRegistration {
     pub id: Uuid,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row, as are the slug, module and course module completion.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_slug: String,
-    pub course_module_id: Uuid,
+    pub course_slug: Option<String>,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
+    /// The module's or target's code now.
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
-    pub course_module_completion_id: Uuid,
+    pub course_module_completion_id: Option<Uuid>,
+    /// Set on a mooc.fi row only, as are `external_credit_target_id` and `moocfi_course_id`.
+    pub external_completion_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
+    /// The mooc.fi course the student's status page for the row is under.
+    pub moocfi_course_id: Option<Uuid>,
+    /// The completion, whichever kind it is.
+    pub subject_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
@@ -102,6 +112,8 @@ impl StudentCreditRegistration {
 pub struct StudentRegistrationFilter {
     pub course_module_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
+    pub moocfi_course_id: Option<Uuid>,
     /// Only rows the in-course re-enrol banner is owed: parked on a missing enrolment and not yet
     /// dismissed.
     pub enrolment_banner_due: bool,
@@ -119,15 +131,19 @@ pub async fn get_student_facing_by_user_id(
         r#"
 SELECT cr.id,
   cr.course_id,
-  c.name AS course_name,
-  c.slug AS course_slug,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
+  c.slug AS "course_slug?",
   cr.course_module_id,
-  cm.name AS course_module_name,
-  cm.uh_course_code,
-  cm.ects_credits,
+  cm.name AS "course_module_name?",
+  subj.uh_course_code,
+  subj.ects_credits,
   cr.course_module_completion_id,
+  cr.external_completion_id,
+  cr.external_credit_target_id,
+  t.moocfi_course_id AS "moocfi_course_id?",
+  cr.subject_id,
   cr.created_at,
-  cmc.completion_date,
+  subj.completion_date AS "completion_date!",
   cr.state,
   cr.error_code AS "error_code?",
   cr.next_attempt_at,
@@ -153,19 +169,29 @@ SELECT cr.id,
   ) AS "enrolment_realisation_name?",
   cr.submitted_at,
   cr.partially_registered_at IS NOT NULL AS "is_partially_registered!",
-  NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
+  subj.enrolment_link AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
   p.course_code_allowed AS "course_code_allowed!"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL
-  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL
+  JOIN credit_registration_subjects subj ON subj.subject_id = cr.subject_id
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
+  LEFT JOIN external_completions ec ON ec.id = cr.external_completion_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
 WHERE cr.user_id = $1
   AND cr.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
+  AND cmc.deleted_at IS NULL
+  AND t.deleted_at IS NULL
+  AND ec.deleted_at IS NULL
   AND ($2::uuid IS NULL OR cr.course_module_id = $2)
   AND ($3::uuid IS NULL OR cr.course_id = $3)
+  AND ($5::uuid IS NULL OR cr.external_completion_id = $5)
+  AND ($6::uuid IS NULL OR t.moocfi_course_id = $6)
   AND (
     NOT $4::boolean
     OR (
@@ -173,13 +199,15 @@ WHERE cr.user_id = $1
       AND cr.enrolment_banner_dismissed_at IS NULL
     )
   )
-ORDER BY cmc.completion_date DESC,
+ORDER BY subj.completion_date DESC,
   cr.attempt_number DESC
         "#,
         user_id,
         filter.course_module_id,
         filter.course_id,
         filter.enrolment_banner_due,
+        filter.external_completion_id,
+        filter.moocfi_course_id,
     )
     .fetch_all(conn)
     .await?;

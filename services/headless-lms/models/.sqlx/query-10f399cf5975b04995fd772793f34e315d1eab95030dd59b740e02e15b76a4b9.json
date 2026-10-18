@@ -1,0 +1,127 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  cr.attempt_number,\n  cr.course_module_completion_id,\n  cr.user_id,\n  cr.course_id,\n  cr.course_module_id,\n  cr.course_instance_id,\n  cr.external_completion_id,\n  cr.external_credit_target_id\nFROM credit_registrations cr\n  JOIN credit_registration_eligible_completions e ON e.subject_id = cr.subject_id\n  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id\nWHERE cr.deleted_at IS NULL\n  AND cr.superseded_by_id IS NULL\n  AND cr.state = 'cancelled'\n  AND (\n    cr.external_credit_target_id IS NULL\n    OR t.enabled_at IS NOT NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM credit_registrations later\n    WHERE later.subject_id = cr.subject_id\n      AND later.attempt_number > cr.attempt_number\n      AND later.deleted_at IS NULL\n  )\n  -- Only withdrawal cancels without an actor; a hand cancellation names the admin.\n  AND (\n    SELECT ev.actor_user_id IS NULL\n    FROM credit_registration_events ev\n    WHERE ev.credit_registration_id = cr.id\n      AND ev.to_state = 'cancelled'\n      AND ev.deleted_at IS NULL\n    ORDER BY ev.created_at DESC\n    LIMIT 1\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM course_module_completion_registered_to_study_registries r\n    WHERE r.course_module_completion_id = cr.course_module_completion_id\n      AND r.deleted_at IS NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM external_completions ec\n    WHERE ec.id = cr.external_completion_id\n      AND ec.reported_at IS NOT NULL\n  )\n  AND ($2::uuid IS NULL OR cr.course_id = $2)\n  AND ($4::uuid IS NULL OR cr.external_credit_target_id = $4)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\nORDER BY cr.state_entered_at FOR\nUPDATE OF cr SKIP LOCKED\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "attempt_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "attempt_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "course_instance_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "external_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_credit_target_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "10f399cf5975b04995fd772793f34e315d1eab95030dd59b740e02e15b76a4b9"
+}

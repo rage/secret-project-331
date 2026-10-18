@@ -55,12 +55,15 @@ const AdminRequeueRetryableDialog: React.FC = () => {
             label={t("credit-registration-admin-requeue-scope")}
             options={[
               { value: EVERY_MODULE, label: t("credit-registration-admin-requeue-every-module") },
-              ...(courseStatsQuery.data?.modules ?? []).map((module) => ({
-                value: module.course_module_id,
-                label: t("credit-registration-course-and-module", {
-                  course: module.course_name,
-                  module: module.course_module_name ?? module.course_module_id,
-                }),
+              ...(courseStatsQuery.data?.credit_units ?? []).map((unit) => ({
+                value: unit.credit_unit_id,
+                label:
+                  unit.course_module_id === null
+                    ? unit.course_name
+                    : t("credit-registration-course-and-module", {
+                        course: unit.course_name,
+                        module: unit.course_module_name ?? unit.course_module_id,
+                      }),
               })),
             ]}
           />

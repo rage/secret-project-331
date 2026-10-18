@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT code.course_code AS \"course_code!\",\n  COUNT(DISTINCT e.id) AS \"count!\"\nFROM credit_registration_account_linking_emails e\n  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\n  JOIN (\n    SELECT cm.course_id,\n      NULL::uuid AS external_credit_target_id,\n      TRIM(cm.uh_course_code) AS course_code\n    FROM course_modules cm\n    WHERE cm.deleted_at IS NULL\n      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n    UNION ALL\n    SELECT NULL::uuid,\n      target.id,\n      TRIM(target.uh_course_code)\n    FROM external_credit_targets target\n    WHERE target.deleted_at IS NULL\n  ) code ON code.course_id = e.course_id\n  OR code.external_credit_target_id = e.external_credit_target_id\nWHERE e.deleted_at IS NULL\n  AND e.replaced_at IS NULL\n  AND is_usable_verification_token(t)\nGROUP BY code.course_code\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_code!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "9b09a62f6d36a0bcbdda1e1c49449cba86c1cca686fd8ebbc9ce56de33838242"
+}

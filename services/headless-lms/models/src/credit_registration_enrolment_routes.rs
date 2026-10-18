@@ -6,6 +6,7 @@
 
 use utoipa::ToSchema;
 
+use crate::credit_registrations::SubjectId;
 use crate::prelude::*;
 
 /// Which university relationship a student picked, which decides only where they are told to enrol.
@@ -22,27 +23,28 @@ pub enum CreditRegistrationEnrolmentRoute {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct EnrolmentRouteAnswer {
-    pub course_module_completion_id: Uuid,
+    /// The completion answered about, whichever kind it is.
+    pub subject_id: Uuid,
     pub route: CreditRegistrationEnrolmentRoute,
     /// When the student pressed Done. `None` until they do, and cleared again if they take it back.
     pub enrolment_confirmed_at: Option<DateTime<Utc>>,
 }
 
-pub async fn get_by_completion_id(
+pub async fn get_by_subject(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
 ) -> ModelResult<Option<EnrolmentRouteAnswer>> {
     let res = sqlx::query_as!(
         EnrolmentRouteAnswer,
         r#"
-SELECT course_module_completion_id,
+SELECT COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   enrolment_confirmed_at
 FROM credit_registration_enrolment_routes
-WHERE course_module_completion_id = $1
+WHERE COALESCE(course_module_completion_id, external_completion_id) = $1
   AND deleted_at IS NULL
         "#,
-        course_module_completion_id,
+        subject.id(),
     )
     .fetch_optional(conn)
     .await?;
@@ -55,7 +57,7 @@ WHERE course_module_completion_id = $1
 /// way the old answer described, and it says nothing about the new one.
 pub async fn set_route(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
     user_id: Uuid,
     route: CreditRegistrationEnrolmentRoute,
 ) -> ModelResult<EnrolmentRouteAnswer> {
@@ -64,24 +66,29 @@ pub async fn set_route(
         r#"
 INSERT INTO credit_registration_enrolment_routes (
     course_module_completion_id,
+    external_completion_id,
     user_id,
     route
   )
-VALUES ($1, $2, $3)
-ON CONFLICT (course_module_completion_id, deleted_at) DO
+VALUES ($1, $4, $2, $3)
+ON CONFLICT (
+    (COALESCE(course_module_completion_id, external_completion_id)),
+    deleted_at
+  ) DO
 UPDATE
 SET route = EXCLUDED.route,
   enrolment_confirmed_at = CASE
     WHEN credit_registration_enrolment_routes.route = EXCLUDED.route THEN credit_registration_enrolment_routes.enrolment_confirmed_at
     ELSE NULL
   END
-RETURNING course_module_completion_id,
+RETURNING COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   enrolment_confirmed_at
         "#,
-        course_module_completion_id,
+        subject.course_module_completion_id(),
         user_id,
         route as CreditRegistrationEnrolmentRoute,
+        subject.external_completion_id(),
     )
     .fetch_one(conn)
     .await?;
@@ -91,7 +98,7 @@ RETURNING course_module_completion_id,
 /// Sets or clears the Done the student pressed to say they had enrolled.
 pub async fn set_enrolment_confirmed(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
     confirmed: bool,
 ) -> ModelResult<EnrolmentRouteAnswer> {
     let res = sqlx::query_as!(
@@ -102,13 +109,13 @@ SET enrolment_confirmed_at = CASE
     WHEN $2 THEN COALESCE(enrolment_confirmed_at, now())
     ELSE NULL
   END
-WHERE course_module_completion_id = $1
+WHERE COALESCE(course_module_completion_id, external_completion_id) = $1
   AND deleted_at IS NULL
-RETURNING course_module_completion_id,
+RETURNING COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   enrolment_confirmed_at
         "#,
-        course_module_completion_id,
+        subject.id(),
         confirmed,
     )
     .fetch_one(conn)

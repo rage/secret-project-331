@@ -7,7 +7,6 @@ pub mod consent_response;
 pub mod dpop;
 pub mod errors;
 pub mod helpers;
-pub mod hmac_sha256;
 pub mod introspect_query;
 pub mod introspect_response;
 pub mod jwks;

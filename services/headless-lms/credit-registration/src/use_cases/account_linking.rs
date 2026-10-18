@@ -1,6 +1,6 @@
 //! The account-linking action an admin or a teacher sets off by hand: re-running the linking mail
-//! send path for one person on one course. Not a phase: no schedule and no allowance, and no
-//! breaker learns from its calls, so one click cannot trip the workers'.
+//! send path for one person on one course or mooc.fi target. Not a phase: no schedule and no
+//! allowance, and no breaker learns from its calls, so one click cannot trip the workers'.
 //!
 //! The addresses come from the study registry rather than the ledger, and the claim goes through
 //! [`claim_linking_mail`], so the caps and dedup guard apply exactly as they do to the worker.
@@ -8,6 +8,8 @@
 use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
+use headless_lms_models::external_credit_targets;
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, LinkingMailClaim, RetiredMails, claim_linking_mail, retire_capped_mails,
 };
@@ -63,7 +65,7 @@ pub struct RateCapOverride<'a> {
 pub(crate) async fn resend_for_target<R: InteractiveStudyRegistry>(
     pool: &PgPool,
     registry: &R,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &SecretString,
     rate_cap_override: Option<RateCapOverride<'_>>,
 ) -> CreditRegistrationResult<ResendAttempt> {
@@ -83,21 +85,22 @@ pub(crate) async fn resend_for_target<R: InteractiveStudyRegistry>(
     resend_linking_mail(
         pool,
         registry,
-        course_id,
+        source,
         student_number,
         rate_cap_override.as_ref(),
     )
     .await
 }
 
-/// Claims a linking mail for the one person on the course's roster with this student number.
+/// Claims a linking mail for the one person on the course's or target's roster with this student
+/// number.
 ///
 /// The override retires the capped mails only once the registry has named an address to mail, in
 /// the claim's transaction, so a lookup that decides nothing leaves the caps in place.
 async fn resend_linking_mail<R: InteractiveStudyRegistry>(
     pool: &PgPool,
     registry: &R,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &SecretString,
     rate_cap_override: Option<&RateCapOverride<'_>>,
 ) -> CreditRegistrationResult<ResendAttempt> {
@@ -106,7 +109,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         retired_mail_count: 0,
         emailed_to: None,
     };
-    let course_codes = active_course_codes(pool, course_id).await?;
+    let course_codes = source_course_codes(pool, source).await?;
     if course_codes.is_empty() {
         return Ok(not_retired(ResendOutcome::NotOnTheCourseRoster));
     }
@@ -122,7 +125,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
         }));
     };
 
-    let discovered = DiscoveredPerson::listed(&person, course_id);
+    let discovered = DiscoveredPerson::listed(&person, source);
     if discovered.address.is_none() {
         return Ok(not_retired(ResendOutcome::NoAddressInStudyRegistry));
     }
@@ -135,7 +138,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
                 &mut tx,
                 rate_cap_override.actor_user_id,
                 rate_cap_override.actor_role,
-                course_id,
+                source,
                 student_number.expose_secret(),
                 rate_cap_override.reason,
             )
@@ -148,7 +151,7 @@ async fn resend_linking_mail<R: InteractiveStudyRegistry>(
     };
     let claim = claim_linking_mail(&mut tx, &discovered).await?;
     tx.commit().await?;
-    debug!(course_id = %course_id, ?claim, "Linking mail resend claim result");
+    debug!(source_id = %source.id(), ?claim, "Linking mail resend claim result");
     let outcome = match claim {
         LinkingMailClaim::Claimed => ResendOutcome::Queued,
         _ if retired.kept_just_claimed => ResendOutcome::JustSent,
@@ -179,6 +182,25 @@ async fn active_course_codes(
         .collect::<BTreeSet<_>>()
         .into_iter()
         .collect())
+}
+
+/// The distinct course codes `source` mails about; none for a paused or disabled target.
+async fn source_course_codes(
+    pool: &PgPool,
+    source: LinkingMailSource,
+) -> CreditRegistrationResult<Vec<CourseCode>> {
+    match source {
+        LinkingMailSource::Course(course_id) => active_course_codes(pool, course_id).await,
+        LinkingMailSource::ExternalCreditTarget(id) => {
+            let mut conn = pool.acquire().await?;
+            let target = external_credit_targets::get_by_id(&mut conn, id).await?;
+            let is_active = target.enabled_at.is_some() && target.paused_at.is_none();
+            Ok(CourseCode::parse(&target.uh_course_code)
+                .into_iter()
+                .filter(|_| is_active)
+                .collect())
+        }
+    }
 }
 
 /// [`crate::account_linking::list_unlinked_on_course_rosters`] through `registry`.

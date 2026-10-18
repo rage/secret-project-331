@@ -5,12 +5,6 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { getMyEnrolmentRouteQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  confirmMyEnrolment,
-  setMyEnrolmentRoute,
-  withdrawMyEnrolmentConfirmation,
-} from "@/generated/api/sdk.generated"
 import type {
   CreditRegistrationEnrolmentRoute,
   MyEnrolmentRoute,
@@ -33,6 +27,13 @@ import {
   UNIVERSITY_OF_HELSINKI,
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
+import {
+  confirmEnrolment,
+  type CreditRegistrationSubject,
+  myEnrolmentRouteQueryKey,
+  setEnrolmentRoute,
+  withdrawEnrolmentConfirmation,
+} from "./creditRegistrationSubject"
 import { invalidateRegistrationViews } from "./enrolmentActions"
 import { bandCss, rowCss } from "./styles"
 
@@ -41,10 +42,11 @@ interface RouteForm {
 }
 
 export interface EnrolmentRouteStepProps {
-  courseId: string
-  courseModuleId: string
+  /** `null` for a mooc.fi completion. */
+  courseId: string | null | undefined
+  subject: CreditRegistrationSubject
   enrolmentRoute: MyEnrolmentRoute
-  /** Where a student who is not at the University is sent to enrol, when the module names one. */
+  /** Where a student who is not at the University is sent to enrol, when one is configured. */
   openUniversityEnrolmentLink: string | null | undefined
 }
 
@@ -57,7 +59,7 @@ export interface EnrolmentRouteStepProps {
  */
 export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   courseId,
-  courseModuleId,
+  subject,
   enrolmentRoute,
   openUniversityEnrolmentLink,
 }) => {
@@ -70,9 +72,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   const enrolmentLink = httpsUrlOrNull(openUniversityEnrolmentLink)
 
   const invalidate = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: getMyEnrolmentRouteQueryKey({ path: { course_module_id: courseModuleId } }),
-    })
+    await queryClient.invalidateQueries({ queryKey: myEnrolmentRouteQueryKey(subject) })
   }
 
   // Destructured because react-query keeps `mutate` stable while the mutation object is not, and
@@ -83,7 +83,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
     CreditRegistrationEnrolmentRoute
   >(
     async (route) => {
-      await setMyEnrolmentRoute({ path: { course_module_id: courseModuleId }, body: { route } })
+      await setEnrolmentRoute(subject, route)
     },
     { notify: false },
     { onSuccess: invalidate },
@@ -91,7 +91,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
 
   const confirm = useToastMutation<void, unknown, void>(
     async () => {
-      await confirmMyEnrolment({ path: { course_module_id: courseModuleId } })
+      await confirmEnrolment(subject)
     },
     { notify: false },
     {
@@ -105,7 +105,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
 
   const withdraw = useToastMutation<void, unknown, void>(
     async () => {
-      await withdrawMyEnrolmentConfirmation({ path: { course_module_id: courseModuleId } })
+      await withdrawEnrolmentConfirmation(subject)
     },
     { notify: false },
     { onSuccess: invalidate },

@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_completions\nSET report_attempt_count = report_attempt_count + 1,\n  report_next_attempt_at = now() + $2::interval,\n  report_last_error = $3,\n  report_claimed_until = NULL\nWHERE moocfi_completion_id = $1\n  AND deleted_at IS NULL\n  AND reported_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "609361d0ee6e78e4e92ed1e5ec6116b7d2ff83ce0d88c06947454d2798fe48a5"
+}

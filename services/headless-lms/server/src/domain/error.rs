@@ -114,8 +114,9 @@ pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> Con
     controller_err!(BadRequestWithReason(reason), message)
 }
 
-/// Bad request reasons a client can branch on. Only `CourseSlugAlreadyTaken` has a web-frontend
-/// translation; the rest are consumed by the VSCode client, which renders its own message.
+/// Bad request reasons a client can branch on. `CourseSlugAlreadyTaken` has a web-frontend
+/// translation, the mooc.fi target ones become field errors on the admin form, and the rest are
+/// consumed by the VSCode client, which renders its own message.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BadRequestReason {
@@ -135,6 +136,15 @@ pub enum BadRequestReason {
     /// A submission named the same uploaded file more than once.
     #[display("Duplicate upload")]
     DuplicateUpload,
+    /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
+    #[display("Tiers overlap")]
+    ExternalCreditTargetTiersOverlap,
+    /// The mooc.fi course already has a live target with this course code.
+    #[display("Course code taken")]
+    ExternalCreditTargetCourseCodeTaken,
+    /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
+    #[display("mooc.fi course fixed")]
+    ExternalCreditTargetMoocfiCourseFixed,
 }
 
 impl BadRequestReason {
@@ -147,6 +157,11 @@ impl BadRequestReason {
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
+            Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
+            Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
+            Self::ExternalCreditTargetMoocfiCourseFixed => {
+                "external_credit_target_moocfi_course_fixed"
+            }
         }
     }
 
@@ -156,6 +171,10 @@ impl BadRequestReason {
             "courses_slug_key_when_not_deleted"
             | "course_language_groups_slug_unique_non_deleted" => {
                 Some(Self::CourseSlugAlreadyTaken)
+            }
+            "external_credit_targets_tier_overlap" => Some(Self::ExternalCreditTargetTiersOverlap),
+            "uq_external_credit_targets_course_code" => {
+                Some(Self::ExternalCreditTargetCourseCodeTaken)
             }
             _ => None,
         }

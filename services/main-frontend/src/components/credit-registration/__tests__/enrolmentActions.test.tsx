@@ -14,6 +14,8 @@ const { recordMyEnrolmentPageVisit } = jest.requireMock("@/generated/api/sdk.gen
   recordMyEnrolmentPageVisit: jest.Mock
 }
 
+const SUBJECT = { kind: "course_module", courseModuleId: "module-1" } as const
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
 })
@@ -29,7 +31,7 @@ describe("useRecordEnrolmentPageVisitOnce", () => {
   })
 
   test("sends the visit once the instructions are showing", async () => {
-    renderHook(({ shouldRecord }) => useRecordEnrolmentPageVisitOnce("module-1", shouldRecord), {
+    renderHook(({ shouldRecord }) => useRecordEnrolmentPageVisitOnce(SUBJECT, shouldRecord), {
       wrapper,
       initialProps: { shouldRecord: true },
     })
@@ -43,7 +45,7 @@ describe("useRecordEnrolmentPageVisitOnce", () => {
   })
 
   test("never sends it before the instructions are showing", async () => {
-    renderHook(({ shouldRecord }) => useRecordEnrolmentPageVisitOnce("module-1", shouldRecord), {
+    renderHook(({ shouldRecord }) => useRecordEnrolmentPageVisitOnce(SUBJECT, shouldRecord), {
       wrapper,
       initialProps: { shouldRecord: false },
     })
@@ -56,7 +58,7 @@ describe("useRecordEnrolmentPageVisitOnce", () => {
 
   test("does not repeat the call on a later poll of the same page", async () => {
     const { rerender } = renderHook(
-      ({ shouldRecord }) => useRecordEnrolmentPageVisitOnce("module-1", shouldRecord),
+      ({ shouldRecord }) => useRecordEnrolmentPageVisitOnce(SUBJECT, shouldRecord),
       { wrapper, initialProps: { shouldRecord: true } },
     )
 

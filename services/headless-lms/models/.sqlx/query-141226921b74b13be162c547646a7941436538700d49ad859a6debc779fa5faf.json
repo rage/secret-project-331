@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH due AS (\n  SELECT id\n  FROM credit_registrations\n  WHERE state = 'failed_retryable'\n    AND next_attempt_at > now()\n    AND superseded_by_id IS NULL\n    AND deleted_at IS NULL\n    AND ($2::uuid IS NULL OR course_id = $2)\n    AND ($4::uuid IS NULL OR external_credit_target_id = $4)\n    AND ($3::uuid IS NULL OR credit_unit_id = $3)\n  ORDER BY next_attempt_at\n  LIMIT $1\n),\nupdated AS (\n  UPDATE credit_registrations cr\n  SET next_attempt_at = now()\n  FROM due\n  WHERE cr.id = due.id\n  RETURNING cr.id\n)\nSELECT COUNT(*) AS \"count!\"\nFROM updated\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "141226921b74b13be162c547646a7941436538700d49ad859a6debc779fa5faf"
+}

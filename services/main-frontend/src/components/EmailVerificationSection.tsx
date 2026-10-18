@@ -15,10 +15,8 @@ import type {
   VerifyEmailOwnershipResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Badge, Button, DescriptionList, Dialog } from "@/shared-module/components"
+import { Badge, Button, DescriptionList, Dialog, OneTimeCodeForm } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
-
-import OneTimeCodeForm from "./forms/OneTimeCodeForm"
 
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
@@ -74,7 +72,6 @@ const bodyCss = css`
 `
 
 const codeFormCss = css`
-  padding: 0;
   align-self: stretch;
 `
 

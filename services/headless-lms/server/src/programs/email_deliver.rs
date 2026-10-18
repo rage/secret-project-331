@@ -407,6 +407,24 @@ async fn template_replacements(
                 return Ok(TemplateReplacements::Abandoned);
             }
         }
+        EmailTemplateType::VerifyNetwork => {
+            if let Some(code) =
+                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                    conn,
+                    user_id,
+                    UserEmailCodePurpose::NetworkVerification,
+                )
+                .await?
+            {
+                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
+            } else {
+                let msg =
+                    anyhow::anyhow!("No network verification code found for user {}", user_id);
+                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
+                    .await?;
+                return Ok(TemplateReplacements::Abandoned);
+            }
+        }
         // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking

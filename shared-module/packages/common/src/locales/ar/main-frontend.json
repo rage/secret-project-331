@@ -1676,7 +1676,6 @@
   "users-with-unregistered": "المستخدمون مع غير المسجلين",
   "valid-service-info": "معلومات خدمة صالحة",
   "validation-required": "هذا الحقل مطلوب",
-  "verification-code-label": "رمز التحقق",
   "verification-code-placeholder": "أدخل رمزًا مكونًا من 6 أرقام",
   "verification-failed": "رمز التحقق غير صالح أو منتهي الصلاحية",
   "verification-url": "رابط التحقق",

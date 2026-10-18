@@ -9361,8 +9361,21 @@
     "/api/v0/main-frontend/email-verification/test-mode-code": {
       "get": {
         "tags": ["email-verification"],
-        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending\nverification code.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own code.",
+        "summary": "\nGET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending\ncode for `purpose`, email ownership verification by default.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own code.",
         "operationId": "getEmailVerificationCodeForTestMode",
+        "parameters": [
+          {
+            "name": "purpose",
+            "in": "query",
+            "description": "Which of the caller's codes to return. Email ownership verification when left out.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The kinds of code the test-mode endpoint hands out.",
+              "enum": ["email_ownership_verification", "network_verification"]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The caller's pending verification code",
@@ -22858,7 +22871,8 @@
           "credit_registration_account_linking",
           "verify_email_address",
           "credit_registration_action_needed",
-          "credit_registration_registered"
+          "credit_registration_registered",
+          "verify_network"
         ]
       },
       "EmailVerificationEmailInfo": {

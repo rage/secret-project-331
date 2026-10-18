@@ -1,6 +1,7 @@
+use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
-use headless_lms_utils::services::tmc::TmcClient;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
     course_module_completions::CourseModuleCompletion, courses::Course,
@@ -1007,7 +1008,7 @@ pub struct ChangePasswordData {
     pub new_password: SecretString,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
 #[utoipa::path(
     post,
     path = "/change-password",
@@ -1019,24 +1020,43 @@ pub struct ChangePasswordData {
     )
 )]
 pub async fn change_user_password(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<ChangePasswordData>,
     user: AuthUser,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let password_hash = models::user_passwords::hash_password(&payload.new_password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
+    let mut tx = conn.begin().await?;
+    let recognition = session_verification::check_session(
+        &mut tx,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_recognition();
     let res = models::user_passwords::change_user_password_with_old_password(
-        &mut conn,
+        &mut tx,
         user.id,
         &payload.old_password,
         &password_hash,
     )
     .await?;
+    if res {
+        session_verification::forget_after_password_change(&mut tx, user.id, recognition.as_ref())
+            .await?;
+    }
+    tx.commit().await?;
 
-    token.authorized_ok(web::Json(res))
+    let renewed_cookie = recognition.and_then(|r| r.renewed_cookie);
+    token.authorized_ok(session_verification::ok_with_renewed_cookie(renewed_cookie).json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

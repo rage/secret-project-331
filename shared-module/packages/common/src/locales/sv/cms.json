@@ -138,6 +138,7 @@
   "email-template-type-generic": "Generisk",
   "email-template-type-reset-password-email": "E-post för återställning av lösenord",
   "email-template-type-verify-email-address": "Verifiera e-postadress",
+  "email-template-type-verify-network": "Nätverksverifieringskod",
   "error": "Fel",
   "error-cannot-render-editor-for-exercise-service-x": "Kan inte rendera redigerare för övningstjänst {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Kan inte rendera övningsuppgift, saknar URL.",

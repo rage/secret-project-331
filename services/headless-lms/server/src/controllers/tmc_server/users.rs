@@ -12,8 +12,9 @@ shared-secret authorization header:
   first.
 */
 
-use crate::domain::authentication::{
-    authenticate_tmc_server, get_or_create_user_from_tmc_mooc_fi_response,
+use crate::domain::{
+    authentication::{authenticate_tmc_server, get_or_create_user_from_tmc_mooc_fi_response},
+    session_verification,
 };
 use crate::prelude::*;
 use headless_lms_utils::services::tmc::TmcClient;
@@ -193,13 +194,18 @@ pub async fn courses_moocfi_password_change(
         }
     };
 
+    let mut tx = conn.begin().await?;
     let update_ok =
-        models::user_passwords::upsert_user_password(&mut conn, user_id, &new_password_hash)
+        models::user_passwords::upsert_user_password(&mut tx, user_id, &new_password_hash)
             .await
             .unwrap_or_else(|e| {
                 warn!("Failed to store new password for user {user_id}: {e}");
                 false
             });
+    if update_ok {
+        session_verification::forget_after_password_change(&mut tx, user_id, None).await?;
+    }
+    tx.commit().await?;
 
     token.authorized_ok(web::Json(update_ok))
 }

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM staff_security_verified_networks\nWHERE expires_at <= now()\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "8a4682ab57b7a0beaab5a5ea182bd2dc42a6ba9d0881bec908e28b99c737a7af"
+}

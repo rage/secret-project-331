@@ -133,6 +133,8 @@ pub mod repository_exercises;
 pub mod research_forms;
 pub mod roles;
 pub mod secret;
+pub mod staff_security_verified_browsers;
+pub mod staff_security_verified_networks;
 pub mod student_countries;
 pub mod student_number_verification_tokens;
 pub mod study_registry_registrars;

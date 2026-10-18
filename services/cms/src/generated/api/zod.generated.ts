@@ -214,6 +214,7 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "verify_network",
 ])
 
 export const zEmailTemplate = z.object({

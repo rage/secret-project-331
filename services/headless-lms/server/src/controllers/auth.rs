@@ -9,21 +9,26 @@ use crate::{
         authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
-        rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
+        rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
+        session_verification::{self, EmailCodeOutcome},
     },
     prelude::*,
 };
 use actix_session::Session;
+use actix_web::http::header::{CacheControl, CacheDirective};
 use anyhow::Error;
 use anyhow::anyhow;
 use chrono::Duration;
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
-    email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
-    user_email_codes::UserEmailCodePurpose, users,
+    email_templates::EmailTemplateType,
+    email_verification_tokens, user_email_codes,
+    user_email_codes::{CodeCheck, UserEmailCodePurpose},
+    users,
 };
 use headless_lms_utils::{
     cache::Cache,
+    ip_to_country::IpToCountryMapper,
     prelude::{UtilError, UtilErrorType},
     services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
 };
@@ -147,7 +152,7 @@ pub async fn signup(
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<web::Json<SignupResponse>> {
+) -> ControllerResult<HttpResponse> {
     let user_details = payload.0;
     let mut conn = pool.acquire().await?;
 
@@ -158,7 +163,8 @@ pub async fn signup(
         match models::users::get_by_email(&mut conn, &user_details.email).await {
             Ok(_) => {
                 let token = skip_authorize();
-                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                return token
+                    .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
             }
             Err(error)
                 if matches!(
@@ -189,7 +195,9 @@ pub async fn signup(
                     && is_duplicate_email_error_message(&error_message)
                 {
                     let token = skip_authorize();
-                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                    return token.authorized_ok(
+                        HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists),
+                    );
                 }
                 return match error.error_type() {
                     UtilErrorType::TmcErrorResponse => {
@@ -229,7 +237,8 @@ pub async fn signup(
                 ) =>
             {
                 let token = skip_authorize();
-                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                return token
+                    .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
             }
             // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
             // while post_new_user_to_tmc is still in flight, so that callback has usually
@@ -297,7 +306,7 @@ pub async fn signup(
 
         let token = skip_authorize();
         authentication::remember(&session, user)?;
-        token.authorized_ok(web::Json(SignupResponse::Success))
+        token.authorized_ok(HttpResponse::Ok().json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -312,7 +321,7 @@ async fn handle_test_mode_signup(
     session: &Session,
     user_details: &CreateAccountDetails,
     app_conf: &ApplicationConfiguration,
-) -> ControllerResult<web::Json<SignupResponse>> {
+) -> ControllerResult<HttpResponse> {
     assert!(
         app_conf.test_mode,
         "handle_test_mode_signup called outside test mode"
@@ -323,7 +332,8 @@ async fn handle_test_mode_signup(
     match models::users::get_by_email(conn, &user_details.email).await {
         Ok(_) => {
             let token = skip_authorize();
-            return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            return token
+                .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
         }
         Err(error)
             if matches!(
@@ -348,7 +358,8 @@ async fn handle_test_mode_signup(
                 if constraint == "users_email" =>
             {
                 let token = skip_authorize();
-                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                return token
+                    .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
             }
             _ => {
                 return Err(controller_err!(
@@ -389,10 +400,20 @@ async fn handle_test_mode_signup(
     )
     .await;
 
-    authentication::remember(session, user)?;
+    sign_in_test_mode(conn, session, user, SignupResponse::Success).await
+}
 
-    let token = skip_authorize();
-    token.authorized_ok(web::Json(SignupResponse::Success))
+/// Signs `user` in for a test-mode or UUID login, remembering the browser so that the session
+/// check passes without a mailed code.
+async fn sign_in_test_mode(
+    conn: &mut PgConnection,
+    session: &Session,
+    user: headless_lms_models::users::User,
+    body: impl Serialize,
+) -> ControllerResult<HttpResponse> {
+    let cookie = session_verification::remember_test_mode_browser(conn, user.id).await?;
+    authentication::remember(session, user)?;
+    skip_authorize().authorized_ok(HttpResponse::Ok().cookie(cookie).json(body))
 }
 
 fn is_duplicate_email_error_message(message: &str) -> bool {
@@ -482,7 +503,7 @@ pub async fn login(
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
 
@@ -494,27 +515,24 @@ pub async fn login(
     // Test mode: authenticate using seeded test credentials or stored password
     if app_conf.test_mode {
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
-    };
+    }
 
-    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
-        .await;
+    handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password).await
 }
 
 async fn handle_uuid_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     warn!("Trying development mode UUID login");
-    let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
-        let user = { models::users::get_by_id(conn, id).await? };
-        authentication::remember(session, user)?;
-        token.authorized_ok(web::Json(LoginResponse::Success))
+        let user = models::users::get_by_id(conn, id).await?;
+        sign_in_test_mode(conn, session, user, LoginResponse::Success).await
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(LoginResponse::Failed))
+        skip_authorize().authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -554,7 +572,7 @@ async fn handle_test_mode_login(
     email: &str,
     password: &SecretString,
     app_conf: &ApplicationConfiguration,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     warn!("Using test credentials. Normal accounts won't work.");
 
     let user = match models::users::get_by_email(conn, email).await {
@@ -562,7 +580,7 @@ async fn handle_test_mode_login(
         Err(_) => {
             warn!("Test user not found for {}", email);
             let token = skip_authorize();
-            return token.authorized_ok(web::Json(LoginResponse::Failed));
+            return token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed));
         }
     };
 
@@ -571,16 +589,10 @@ async fn handle_test_mode_login(
 
     if is_authenticated {
         info!("Authentication successful");
-        authentication::remember(session, user)?;
+        sign_in_test_mode(conn, session, user, LoginResponse::Success).await
     } else {
         warn!("Authentication failed");
-    }
-
-    let token = skip_authorize();
-    if is_authenticated {
-        token.authorized_ok(web::Json(LoginResponse::Success))
-    } else {
-        token.authorized_ok(web::Json(LoginResponse::Failed))
+        skip_authorize().authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -591,7 +603,7 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &SecretString,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
     // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
     let email = email.trim();
@@ -661,16 +673,18 @@ async fn handle_production_login(
     let token = skip_authorize();
     if is_authenticated {
         if let Some(user) = authenticated_user {
-            if requires_login_code(conn, user.id).await? {
+            // Test-mode and UUID logins skip the code and remember the browser instead: neither
+            // development nor the system tests have mail capture.
+            if session_verification::applies_to(conn, user.id).await? {
                 return handle_email_verification(conn, &user).await;
             }
 
             authentication::remember(session, user)?;
         }
-        token.authorized_ok(web::Json(LoginResponse::Success))
+        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(LoginResponse::Failed))
+        token.authorized_ok(HttpResponse::Ok().json(LoginResponse::Failed))
     }
 }
 
@@ -1111,20 +1125,10 @@ pub async fn update_user_information_to_tmc(
     Ok(())
 }
 
-/// Whether a production login must also be confirmed with an emailed code. Any role at any scope
-/// counts: a teacher's account is as worth stealing as an admin's. Test-mode and UUID logins skip
-/// it, since the system tests have no mail capture.
-async fn requires_login_code(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> Result<bool, ControllerError> {
-    Ok(!models::roles::get_roles(conn, user_id).await?.is_empty())
-}
-
 async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
-) -> ControllerResult<web::Json<LoginResponse>> {
+) -> ControllerResult<HttpResponse> {
     let code = user_email_codes::generate_code();
 
     let email_verification_token =
@@ -1188,12 +1192,14 @@ async fn handle_email_verification(
         })?;
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(LoginResponse::RequiresEmailVerification {
-        // Re-wrap for the wire boundary: redacted in Debug/logs, serialized once in the response.
-        email_verification_token: OutboundSecret::new(
-            email_verification_token.expose_secret().to_string(),
-        ),
-    }))
+    token.authorized_ok(
+        HttpResponse::Ok().json(LoginResponse::RequiresEmailVerification {
+            // Re-wrap for the wire boundary: redacted in Debug/logs, serialized once in the response.
+            email_verification_token: OutboundSecret::new(
+                email_verification_token.expose_secret().to_string(),
+            ),
+        }),
+    )
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -1217,12 +1223,14 @@ POST `/api/v0/auth/verify-email` Verifies email verification code and completes 
         (status = 200, description = "Whether verification succeeded", body = bool)
     )
 )]
-#[instrument(skip(session, pool, payload))]
+#[instrument(skip(req, session, pool, ip_to_country_mapper, payload))]
 pub async fn verify_email(
+    req: HttpRequest,
     session: Session,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     payload: web::Json<VerifyEmailRequest>,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let payload = payload.into_inner();
 
@@ -1241,7 +1249,7 @@ pub async fn verify_email(
 
     let Some(token_value) = token else {
         let skip_token = skip_authorize();
-        return skip_token.authorized_ok(web::Json(false));
+        return skip_token.authorized_ok(HttpResponse::Ok().json(false));
     };
 
     let is_valid = email_verification_tokens::verify_code(
@@ -1260,7 +1268,7 @@ pub async fn verify_email(
 
     if !is_valid {
         let skip_token = skip_authorize();
-        return skip_token.authorized_ok(web::Json(false));
+        return skip_token.authorized_ok(HttpResponse::Ok().json(false));
     }
 
     let user_id = token_value.user_id;
@@ -1300,10 +1308,243 @@ pub async fn verify_email(
             )
         })?;
 
+    let cookie =
+        session_verification::record_verification(&mut conn, &ip_to_country_mapper, user.id, &req)
+            .await?;
     authentication::remember(&session, user)?;
 
     let skip_token = skip_authorize();
-    skip_token.authorized_ok(web::Json(true))
+    skip_token.authorized_ok(HttpResponse::Ok().cookie(cookie).json(true))
+}
+
+/// How the user can confirm the session.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum SessionChallengeMethod {
+    EmailCode,
+}
+
+/// Why the session needs confirming.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum SessionChallengeReason {
+    UnrecognizedNetwork,
+}
+
+/// One way for the user to prove the session is theirs, and why it is asked for.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct SessionChallenge {
+    pub method: SessionChallengeMethod,
+    pub reasons: Vec<SessionChallengeReason>,
+}
+
+/// Whether the current session must be confirmed before the UI lets the user on.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct SessionStatus {
+    pub verification_required: bool,
+    pub challenges: Vec<SessionChallenge>,
+}
+
+/**
+GET `/api/v0/auth/session-status` Whether the signed-in user must confirm this session with an
+emailed code: a user with a role on a browser or network they have not confirmed. Only the UI
+enforces it.
+*/
+#[utoipa::path(
+    get,
+    path = "/session-status",
+    tag = "auth",
+    operation_id = "getAuthSessionStatus",
+    responses(
+        (status = 200, description = "Whether the session needs confirming", body = SessionStatus)
+    )
+)]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf))]
+pub async fn session_status(
+    req: HttpRequest,
+    user: Option<AuthUser>,
+    pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<HttpResponse> {
+    let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
+    session_verification::delete_expired_occasionally(&mut conn).await?;
+
+    let ok_response = match user {
+        Some(user) => session_verification::check_session(
+            &mut conn,
+            &ip_to_country_mapper,
+            &app_conf,
+            user.id,
+            &req,
+        )
+        .await?
+        .into_ok_response(),
+        None => Some(HttpResponse::Ok()),
+    };
+    let verification_required = ok_response.is_none();
+    let mut response = ok_response.unwrap_or_else(HttpResponse::Ok);
+    response.insert_header(CacheControl(vec![CacheDirective::NoStore]));
+    let challenges = if verification_required {
+        vec![SessionChallenge {
+            method: SessionChallengeMethod::EmailCode,
+            reasons: vec![SessionChallengeReason::UnrecognizedNetwork],
+        }]
+    } else {
+        Vec::new()
+    };
+    token.authorized_ok(response.json(SessionStatus {
+        verification_required,
+        challenges,
+    }))
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct SessionEmailCodeRequest {
+    /// The user asked for another mail. Without it, a code that is still usable is not replaced.
+    pub resend: bool,
+}
+
+/// What asking for a session confirmation code did.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SessionEmailCodeResult {
+    Required {
+        /// Where the code goes.
+        masked_email: String,
+        outcome: EmailCodeOutcome,
+    },
+    NotRequired,
+}
+
+/**
+POST `/api/v0/auth/session-status/email-code` Mails the signed-in user a code for confirming the
+session, when [`session_status`] asks for one and no usable code is out already.
+*/
+#[utoipa::path(
+    post,
+    path = "/session-status/email-code",
+    tag = "auth",
+    operation_id = "postAuthSessionStatusEmailCode",
+    request_body = SessionEmailCodeRequest,
+    responses(
+        (status = 200, description = "What the request did", body = SessionEmailCodeResult)
+    )
+)]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
+pub async fn send_session_email_code(
+    req: HttpRequest,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    payload: web::Json<SessionEmailCodeRequest>,
+) -> ControllerResult<HttpResponse> {
+    let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
+    if let Some(mut response) = session_verification::check_session(
+        &mut conn,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_ok_response()
+    {
+        return token.authorized_ok(response.json(SessionEmailCodeResult::NotRequired));
+    }
+
+    let email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
+        .await?
+        .email;
+    let outcome = session_verification::send_email_code(&mut conn, user.id, payload.resend).await?;
+    token.authorized_ok(HttpResponse::Ok().json(SessionEmailCodeResult::Required {
+        masked_email: session_verification::mask_email(&email),
+        outcome,
+    }))
+}
+
+/// The emailed code the user typed to confirm the session.
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct SessionVerifyRequest {
+    #[schema(value_type = String)]
+    pub code: DbSecret,
+}
+
+/// Outcome of submitting a session confirmation code.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SessionVerifyResult {
+    Verified,
+    /// Wrong, superseded and spent are one value: telling them apart only helps a guesser.
+    InvalidCode,
+    ExpiredCode,
+    /// The code was retired after too many wrong guesses; only a new code can get past this.
+    TooManyAttempts,
+    NotRequired,
+}
+
+/**
+POST `/api/v0/auth/session-status/verify` Confirms the session with the emailed code, remembering
+this browser and network for the signed-in user.
+*/
+#[utoipa::path(
+    post,
+    path = "/session-status/verify",
+    tag = "auth",
+    operation_id = "postAuthSessionStatusVerify",
+    request_body = SessionVerifyRequest,
+    responses(
+        (status = 200, description = "Outcome of submitting the code", body = SessionVerifyResult)
+    )
+)]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
+pub async fn verify_session(
+    req: HttpRequest,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    payload: web::Json<SessionVerifyRequest>,
+) -> ControllerResult<HttpResponse> {
+    let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
+    if let Some(mut response) = session_verification::check_session(
+        &mut conn,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_ok_response()
+    {
+        return token.authorized_ok(response.json(SessionVerifyResult::NotRequired));
+    }
+
+    let mut tx = conn.begin().await?;
+    let check = session_verification::check_email_code(&mut tx, user.id, &payload.code).await?;
+    let mut response = HttpResponse::Ok();
+    let result = match check {
+        CodeCheck::Valid => {
+            let cookie = session_verification::record_verification(
+                &mut tx,
+                &ip_to_country_mapper,
+                user.id,
+                &req,
+            )
+            .await?;
+            response.cookie(cookie);
+            SessionVerifyResult::Verified
+        }
+        CodeCheck::Invalid => SessionVerifyResult::InvalidCode,
+        CodeCheck::Expired => SessionVerifyResult::ExpiredCode,
+        CodeCheck::TooManyAttempts => SessionVerifyResult::TooManyAttempts,
+    };
+    tx.commit().await?;
+    token.authorized_ok(response.json(result))
 }
 
 #[derive(OpenApi)]
@@ -1319,6 +1560,9 @@ pub async fn verify_email(
         send_delete_user_email_code,
         delete_user_account,
         verify_email,
+        session_status,
+        send_session_email_code,
+        verify_session,
     ),
     components(schemas(
         Login,
@@ -1334,6 +1578,15 @@ pub async fn verify_email(
         EmailCode,
         DeleteUserAccountResult,
         VerifyEmailRequest,
+        SessionStatus,
+        SessionChallenge,
+        SessionChallengeMethod,
+        SessionChallengeReason,
+        SessionEmailCodeRequest,
+        SessionEmailCodeResult,
+        EmailCodeOutcome,
+        SessionVerifyRequest,
+        SessionVerifyResult,
         headless_lms_models::roles::UserRole,
     ))
 )]
@@ -1402,5 +1655,34 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 ..Default::default()
             }))
             .to(verify_email),
+    )
+    .route("/session-status", web::get().to(session_status))
+    .service(
+        web::resource("/session-status/email-code")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(5),
+                    per_hour: Some(20),
+                    per_day: Some(50),
+                    per_month: None,
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .to(send_session_email_code),
+    )
+    .service(
+        web::resource("/session-status/verify")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(50),
+                    per_day: None,
+                    per_month: None,
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .to(verify_session),
     );
 }

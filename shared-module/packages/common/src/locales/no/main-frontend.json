@@ -1651,7 +1651,6 @@
   "users-with-unregistered": "Brukere med uregistrert",
   "valid-service-info": "Gyldig tjenesteinformasjon",
   "validation-required": "Dette feltet er obligatorisk",
-  "verification-code-label": "Verifikasjonskode",
   "verification-code-placeholder": "Skriv inn 6-sifret kode",
   "verification-failed": "Ugyldig eller utløpt verifikasjonskode",
   "verification-url": "Verifikasjons-URL",

@@ -184,6 +184,9 @@ pub struct UnlinkMyStudentNumberResult {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct StudentNumberVerificationTokenPreview {
     pub student_number: String,
+    /// The name Sisu holds for the student number. Sisu does not verify the address the link was
+    /// mailed to, so the name is what tells someone they are about to link someone else's number.
+    pub sisu_full_name: Option<String>,
     pub course_name: Option<String>,
     pub emailed_to_masked: String,
     pub expires_at: DateTime<Utc>,
@@ -578,6 +581,7 @@ pub async fn preview_student_number_verification_token(
 
     auth_token.authorized_ok(web::Json(StudentNumberVerificationTokenPreview {
         student_number: verification_token.student_number.expose_secret().to_owned(),
+        sisu_full_name: full_name(&verification_token),
         course_name,
         emailed_to_masked: mask_email(verification_token.emailed_to.expose_secret()),
         expires_at: verification_token.expires_at,
@@ -921,6 +925,17 @@ async fn course_name_of_token(
     };
     let course = models::courses::get_course(conn, course_id).await?;
     Ok(Some(course.name))
+}
+
+/// The first names and last name Sisu held when the token was minted, or `None` when it held neither.
+fn full_name(token: &StudentNumberVerificationToken) -> Option<String> {
+    let parts: Vec<&str> = [&token.first_names, &token.last_name]
+        .into_iter()
+        .filter_map(expose_option)
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect();
+    (!parts.is_empty()).then(|| parts.join(" "))
 }
 
 /// The caller's answer about where they enrol one module, and whether it can still be changed.

@@ -206,7 +206,12 @@ const Confirmation: React.FC<{
     return <DeadEnd reason={unusableLinkReason(preview)} />
   }
 
-  const items = [{ label: t("label-mooc-fi-account"), value: preview.target_account_email }]
+  const items = [
+    ...(preview.sisu_full_name
+      ? [{ label: t("label-name-in-sisu"), value: preview.sisu_full_name }]
+      : []),
+    { label: t("label-mooc-fi-account"), value: preview.target_account_email },
+  ]
   // Opening the mail while logged in to the wrong account is the common mistake.
   const logoutLink = (
     // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
@@ -236,7 +241,10 @@ const Confirmation: React.FC<{
         </div>
         <DescriptionList items={items} />
       </div>
-      <p>{t("link-student-number-confirm-question")}</p>
+      <p>
+        {preview.sisu_full_name ? `${t("link-student-number-check-name")} ` : null}
+        {t("link-student-number-confirm-question")}
+      </p>
       {preview.current_student_number ? (
         <Infobox tone={TONE.WARNING}>
           {t("link-student-number-replaces-current", {

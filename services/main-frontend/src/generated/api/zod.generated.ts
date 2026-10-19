@@ -5225,6 +5225,7 @@ export const zStudentNumberVerificationTokenPreview = z.object({
   emailed_to_masked: z.string(),
   expired: z.boolean(),
   expires_at: z.iso.datetime(),
+  sisu_full_name: z.string().nullish(),
   student_number: z.string(),
   target_account_email: z.string(),
 })

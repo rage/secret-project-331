@@ -5600,6 +5600,11 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
+  /**
+   * The name Sisu holds for the student number. Sisu does not verify the address the link was
+   * mailed to, so the name is what tells someone they are about to link someone else's number.
+   */
+  sisu_full_name?: string | null
   student_number: string
   /**
    * Shown in the confirmation: being signed in to the wrong account is the common mistake.

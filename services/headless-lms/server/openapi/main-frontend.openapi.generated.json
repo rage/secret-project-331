@@ -28716,6 +28716,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "sisu_full_name": {
+            "type": ["string", "null"],
+            "description": "The name Sisu holds for the student number. Sisu does not verify the address the link was\nmailed to, so the name is what tells someone they are about to link someone else's number."
+          },
           "student_number": {
             "type": "string"
           },

@@ -7269,6 +7269,67 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/emails": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every\nlinking email, newest first.\n\nAn `address` search covers every status, so a mail is found whatever became of it.",
+        "operationId": "listAccountLinkingEmails",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number, from 1",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Rows per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "What became of the link or the send; ignored with `address`",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LinkingEmailListStatus"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Part of the recipient address, ignoring case",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of linking emails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AccountLinkingEmailRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list": {
       "post": {
         "tags": ["credit-registration-admin"],
@@ -14580,6 +14641,79 @@
             "type": "integer",
             "format": "int64",
             "description": "People on the code's modules waiting for a student number."
+          }
+        }
+      },
+      "AccountLinkingEmailRow": {
+        "type": "object",
+        "description": "One linking email in the searchable list of every linking email.",
+        "required": [
+          "id",
+          "course_id",
+          "course_name",
+          "emailed_to",
+          "student_number",
+          "claimed_at",
+          "link_state"
+        ],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "claimed_by_email": {
+            "type": ["string", "null"]
+          },
+          "claimed_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "emailed_to": {
+            "type": "string",
+            "description": "In full: support finds a student's mail by it."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_error_message": {
+            "type": ["string", "null"]
+          },
+          "link_expires_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "link_state": {
+            "$ref": "#/components/schemas/LinkingMailLinkState"
+          },
+          "link_used_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "send_status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailSendStatusReport",
+                "description": "`None` until queued."
+              }
+            ]
+          },
+          "sisu_full_name": {
+            "type": ["string", "null"],
+            "description": "The name Sisu held for the student number when the mail went out."
+          },
+          "student_number": {
+            "type": "string"
           }
         }
       },
@@ -24814,6 +24948,11 @@
         "description": "Whether the link in a linking mail can still be opened, and if not, whether a new mail can\nreplace it.",
         "enum": ["usable", "expired_can_resend", "expired_no_resend", "used"]
       },
+      "LinkingEmailListStatus": {
+        "type": "string",
+        "description": "Which linking emails a [`get_page`] lists, by what became of their link and their send.",
+        "enum": ["unused", "used", "expired", "not_sent"]
+      },
       "LinkingEmailStatus": {
         "type": "object",
         "description": "What we can honestly say about the linking mail: our send status, never a delivery.",
@@ -24833,6 +24972,11 @@
             "format": "date-time"
           }
         }
+      },
+      "LinkingMailLinkState": {
+        "type": "string",
+        "description": "Whether the link a linking mail carries can still be opened.",
+        "enum": ["usable", "used", "lapsed"]
       },
       "ManualCompletionPreview": {
         "type": "object",
@@ -26647,6 +26791,97 @@
           "visit_date": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "Page_AccountLinkingEmailRow": {
+        "type": "object",
+        "required": ["data", "total_count", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "One linking email in the searchable list of every linking email.",
+              "required": [
+                "id",
+                "course_id",
+                "course_name",
+                "emailed_to",
+                "student_number",
+                "claimed_at",
+                "link_state"
+              ],
+              "properties": {
+                "claimed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "claimed_by_email": {
+                  "type": ["string", "null"]
+                },
+                "claimed_by_user_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid"
+                },
+                "course_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "course_name": {
+                  "type": "string"
+                },
+                "emailed_to": {
+                  "type": "string",
+                  "description": "In full: support finds a student's mail by it."
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "last_error_message": {
+                  "type": ["string", "null"]
+                },
+                "link_expires_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "link_state": {
+                  "$ref": "#/components/schemas/LinkingMailLinkState"
+                },
+                "link_used_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "send_status": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EmailSendStatusReport",
+                      "description": "`None` until queued."
+                    }
+                  ]
+                },
+                "sisu_full_name": {
+                  "type": ["string", "null"],
+                  "description": "The name Sisu held for the student number when the mail went out."
+                },
+                "student_number": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },

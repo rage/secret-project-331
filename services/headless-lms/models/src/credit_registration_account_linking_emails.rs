@@ -8,6 +8,7 @@
 use std::collections::{HashMap, HashSet};
 
 use secrecy::ExposeSecret;
+use utoipa::ToSchema;
 
 use crate::email_deliveries::{
     EmailSendStatus, EmailSendStatusFacts, EmailSendStatusReport, derive_email_send_status,
@@ -436,7 +437,8 @@ WHERE id = $1
 }
 
 /// Whether the link a linking mail carries can still be opened.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
 pub enum LinkingMailLinkState {
     /// Also a mail with no token, which has no link to lapse.
     Usable,
@@ -1120,5 +1122,199 @@ GROUP BY TRIM(cm.uh_course_code)
     Ok(rows
         .into_iter()
         .map(|row| (row.course_code, row.count))
+        .collect())
+}
+
+/// Which linking emails a [`get_page`] lists, by what became of their link and their send.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LinkingEmailListStatus {
+    /// Carries a link that can still be used.
+    Unused,
+    Used,
+    /// The link expired or was retired before anyone used it.
+    Expired,
+    /// Not handed to the mail server yet, or the send failed.
+    NotSent,
+}
+
+impl LinkingEmailListStatus {
+    fn as_sql(self) -> &'static str {
+        match self {
+            Self::Unused => "unused",
+            Self::Used => "used",
+            Self::Expired => "expired",
+            Self::NotSent => "not_sent",
+        }
+    }
+}
+
+/// One linking email as the admin's searchable list shows it.
+#[derive(Debug, Clone)]
+pub struct LinkingEmailListRow {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub emailed_to: DbSecret,
+    pub student_number: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
+    pub claimed_at: DateTime<Utc>,
+    /// `None` until the `link-emails` phase queues it.
+    pub send_status: Option<EmailSendStatusReport>,
+    /// The newest delivery error's message, however transient.
+    pub last_error_message: Option<String>,
+    pub link_state: LinkingMailLinkState,
+    /// `None` for a mail sent without a link.
+    pub link_expires_at: Option<DateTime<Utc>>,
+    pub link_used_at: Option<DateTime<Utc>>,
+    pub claimed_by_user_id: Option<Uuid>,
+    pub claimed_by_email: Option<String>,
+    pub total_count: i64,
+}
+
+/// A page of linking emails, newest first, including ones a later mail replaced.
+///
+/// `address` matches any part of the recipient address, ignoring case.
+pub async fn get_page(
+    conn: &mut PgConnection,
+    status: Option<LinkingEmailListStatus>,
+    address: Option<&str>,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<LinkingEmailListRow>> {
+    let address_pattern = address.map(|address| {
+        format!(
+            "%{}%",
+            crate::library::students_view::escape_like_pattern(address)
+        )
+    });
+    let rows = sqlx::query!(
+        r#"
+SELECT e.id,
+  e.course_id,
+  c.name AS course_name,
+  e.emailed_to,
+  e.student_number,
+  t.first_names AS "first_names?",
+  t.last_name AS "last_name?",
+  e.sent_at AS claimed_at,
+  ed.sent AS "delivery_sent?",
+  ed.retryable AS "retryable?",
+  ed.retry_count AS "retry_count?",
+  ed.next_retry_at AS "next_retry_at?",
+  ed.first_failed_at AS "first_failed_at?",
+  ed.last_attempt_at AS "last_attempt_at?",
+  latest_error.error_code AS "error_code?",
+  latest_error.error_message AS "error_message?",
+  latest_error.is_transient AS "is_transient?",
+  (
+    e.student_number_verification_token_id IS NULL
+    OR is_usable_verification_token(t)
+  ) AS "is_usable!",
+  t.expires_at AS "link_expires_at?",
+  t.used_at AS "link_used_at?",
+  t.claimed_by_user_id AS "claimed_by_user_id?",
+  claimer.email AS "claimed_by_email?",
+  COUNT(*) OVER () AS "total_count!"
+FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+  LEFT JOIN user_details claimer ON claimer.user_id = t.claimed_by_user_id
+  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  AND ed.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT ede.error_code,
+      ede.error_message,
+      ede.is_transient
+    FROM email_delivery_errors ede
+    WHERE ede.email_delivery_id = ed.id
+      AND ede.deleted_at IS NULL
+    ORDER BY ede.attempt DESC,
+      ede.created_at DESC
+    LIMIT 1
+  ) latest_error ON TRUE
+WHERE e.deleted_at IS NULL
+  AND (
+    $2::text IS NULL
+    OR e.emailed_to ILIKE $2 ESCAPE '\'
+  )
+  AND (
+    $1::text IS NULL
+    OR (
+      $1 = 'unused'
+      AND is_usable_verification_token(t)
+    )
+    OR (
+      $1 = 'used'
+      AND t.used_at IS NOT NULL
+    )
+    OR (
+      $1 = 'expired'
+      AND e.student_number_verification_token_id IS NOT NULL
+      AND t.used_at IS NULL
+      AND NOT is_usable_verification_token(t)
+    )
+    OR (
+      $1 = 'not_sent'
+      AND ed.sent IS DISTINCT FROM TRUE
+    )
+  )
+ORDER BY e.sent_at DESC,
+  e.id
+LIMIT $3 OFFSET $4
+        "#,
+        status.map(LinkingEmailListStatus::as_sql),
+        address_pattern,
+        limit,
+        offset,
+    )
+    .fetch_all(conn)
+    .await?;
+    let now = Utc::now();
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            let send_status = row.delivery_sent.map(|sent| {
+                derive_email_send_status(
+                    &EmailSendStatusFacts {
+                        sent,
+                        retryable: row.retryable.unwrap_or(false),
+                        retry_count: row.retry_count.unwrap_or(0),
+                        next_retry_at: row.next_retry_at,
+                        first_failed_at: row.first_failed_at,
+                        last_attempt_at: row.last_attempt_at,
+                        failure_code: row.error_code,
+                        failure_is_transient: row.is_transient,
+                    },
+                    now,
+                )
+            });
+            let link_state = if row.is_usable {
+                LinkingMailLinkState::Usable
+            } else if row.link_used_at.is_some() {
+                LinkingMailLinkState::Used
+            } else {
+                LinkingMailLinkState::Lapsed
+            };
+            LinkingEmailListRow {
+                id: row.id,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                emailed_to: row.emailed_to,
+                student_number: row.student_number,
+                first_names: row.first_names,
+                last_name: row.last_name,
+                claimed_at: row.claimed_at,
+                send_status,
+                last_error_message: row.error_message,
+                link_state,
+                link_expires_at: row.link_expires_at,
+                link_used_at: row.link_used_at,
+                claimed_by_user_id: row.claimed_by_user_id,
+                claimed_by_email: row.claimed_by_email,
+                total_count: row.total_count,
+            }
+        })
         .collect())
 }

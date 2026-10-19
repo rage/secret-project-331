@@ -63,6 +63,7 @@ use secrecy::ExposeSecret;
     history::get_credit_registration_pipeline_history,
     enrolment_checks::get_credit_registration_enrolment_checks,
     account_linking::get_account_linking_stats,
+    account_linking::list_account_linking_emails,
     account_linking::admin_resend_account_linking_email,
     account_linking::admin_resolve_student_number_for_linking,
     account_linking::admin_manually_link_student_number,
@@ -74,7 +75,10 @@ use secrecy::ExposeSecret;
     student_numbers::list_verified_student_numbers_for_admin,
     student_numbers::admin_unlink_student_number,
     materialize::admin_materialize_credit_registrations
-))]
+), components(schemas(
+    // Only a query parameter names it, and utoipa takes schemas from bodies alone.
+    headless_lms_models::credit_registration_account_linking_emails::LinkingEmailListStatus
+)))]
 pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
 
 /// The rules every Needs attention count on these tabs is taken under.

@@ -19,6 +19,7 @@ import {
   getCreditRegistrationStatsByCourseOptions,
   getCreditRegistrationStatsByCourseQueryKey,
   getSuotarHealthOptions,
+  listAccountLinkingEmailsOptions,
   listCreditRegistrationAdminActionsOptions,
   listCreditRegistrationPhasesOptions,
   listCreditRegistrationsForAdminOptions,
@@ -32,6 +33,7 @@ import type {
   CreditRegistrationOverview,
   CreditRegistrationStatsByCourse,
   GetCreditRegistrationAttentionItemsData,
+  ListAccountLinkingEmailsData,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationsForAdminData,
   ListSuotarApiCallsData,
@@ -148,6 +150,14 @@ export const useUnlinkedEnrolees = (courseId: string | null, isEnabled: boolean)
 export const useAccountLinkingStats = (windowDays: number) =>
   useQuery({
     ...getAccountLinkingStatsOptions({ query: { window_days: windowDays } }),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
+
+export const useAccountLinkingEmails = (
+  query: NonNullable<ListAccountLinkingEmailsData["query"]>,
+) =>
+  useQuery({
+    ...listAccountLinkingEmailsOptions({ query }),
     ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 

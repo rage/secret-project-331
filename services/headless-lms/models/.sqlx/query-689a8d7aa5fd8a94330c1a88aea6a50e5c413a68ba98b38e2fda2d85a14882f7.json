@@ -1,0 +1,285 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  e.emailed_to,\n  e.student_number,\n  t.first_names AS \"first_names?\",\n  t.last_name AS \"last_name?\",\n  e.sent_at AS claimed_at,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.error_message AS \"error_message?\",\n  latest_error.is_transient AS \"is_transient?\",\n  (\n    e.student_number_verification_token_id IS NULL\n    OR is_usable_verification_token(t)\n  ) AS \"is_usable!\",\n  t.expires_at AS \"link_expires_at?\",\n  t.used_at AS \"link_used_at?\",\n  t.claimed_by_user_id AS \"claimed_by_user_id?\",\n  claimer.email AS \"claimed_by_email?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\n  LEFT JOIN user_details claimer ON claimer.user_id = t.claimed_by_user_id\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.error_message,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE e.deleted_at IS NULL\n  AND (\n    $2::text IS NULL\n    OR e.emailed_to ILIKE $2 ESCAPE '\\'\n  )\n  AND (\n    $1::text IS NULL\n    OR (\n      $1 = 'unused'\n      AND is_usable_verification_token(t)\n    )\n    OR (\n      $1 = 'used'\n      AND t.used_at IS NOT NULL\n    )\n    OR (\n      $1 = 'expired'\n      AND e.student_number_verification_token_id IS NOT NULL\n      AND t.used_at IS NULL\n      AND NOT is_usable_verification_token(t)\n    )\n    OR (\n      $1 = 'not_sent'\n      AND ed.sent IS DISTINCT FROM TRUE\n    )\n  )\nORDER BY e.sent_at DESC,\n  e.id\nLIMIT $3 OFFSET $4\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "emailed_to",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "emailed_to"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "first_names?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "first_names"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "last_name?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "claimed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "delivery_sent?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "sent"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "retryable?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "retry_count?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "next_retry_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "next_retry_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "first_failed_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "last_attempt_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "last_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "error_code?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "error_message?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "error_message"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "is_transient?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "is_transient"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "is_usable!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 18,
+        "name": "link_expires_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "link_used_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "used_at"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "claimed_by_user_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "student_number_verification_tokens",
+            "name": "claimed_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "claimed_by_email?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "total_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      null,
+      false,
+      true,
+      true,
+      false,
+      null
+    ]
+  },
+  "hash": "689a8d7aa5fd8a94330c1a88aea6a50e5c413a68ba98b38e2fda2d85a14882f7"
+}

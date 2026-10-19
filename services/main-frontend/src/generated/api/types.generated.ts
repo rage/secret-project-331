@@ -90,6 +90,32 @@ export type AccountLinkingCourseCode = {
 }
 
 /**
+ * One linking email in the searchable list of every linking email.
+ */
+export type AccountLinkingEmailRow = {
+  claimed_at: string
+  claimed_by_email?: string | null
+  claimed_by_user_id?: string | null
+  course_id: string
+  course_name: string
+  /**
+   * In full: support finds a student's mail by it.
+   */
+  emailed_to: string
+  id: string
+  last_error_message?: string | null
+  link_expires_at?: string | null
+  link_state: LinkingMailLinkState
+  link_used_at?: string | null
+  send_status?: null | EmailSendStatusReport
+  /**
+   * The name Sisu held for the student number when the mail went out.
+   */
+  sisu_full_name?: string | null
+  student_number: string
+}
+
+/**
  * Students waiting for a student number since the cutoff, by what they have done. Mutually
  * exclusive, uncapped, and equal to the overview's counts for the same step.
  */
@@ -4131,6 +4157,11 @@ export type LinkingCandidateSimilarity = "email" | "email_username" | "last_name
 export type LinkingEmailLinkState = "usable" | "expired_can_resend" | "expired_no_resend" | "used"
 
 /**
+ * Which linking emails a [`get_page`] lists, by what became of their link and their send.
+ */
+export type LinkingEmailListStatus = "unused" | "used" | "expired" | "not_sent"
+
+/**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export type LinkingEmailStatus = {
@@ -4139,6 +4170,11 @@ export type LinkingEmailStatus = {
   link_state: LinkingEmailLinkState
   sent_at?: string | null
 }
+
+/**
+ * Whether the link a linking mail carries can still be opened.
+ */
+export type LinkingMailLinkState = "usable" | "used" | "lapsed"
 
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>
@@ -4827,6 +4863,33 @@ export type PageVisitDatumSummaryByPages = {
   page_id: string
   updated_at: string
   visit_date: string
+}
+
+export type PageAccountLinkingEmailRow = {
+  data: Array<{
+    claimed_at: string
+    claimed_by_email?: string | null
+    claimed_by_user_id?: string | null
+    course_id: string
+    course_name: string
+    /**
+     * In full: support finds a student's mail by it.
+     */
+    emailed_to: string
+    id: string
+    last_error_message?: string | null
+    link_expires_at?: string | null
+    link_state: LinkingMailLinkState
+    link_used_at?: string | null
+    send_status?: null | EmailSendStatusReport
+    /**
+     * The name Sisu held for the student number when the mail went out.
+     */
+    sisu_full_name?: string | null
+    student_number: string
+  }>
+  total_count: number
+  total_pages: number
 }
 
 export type PageAdminCreditRegistrationRow = {
@@ -10699,6 +10762,40 @@ export type GetAccountLinkingUnlinkedEnroleesResponses = {
 
 export type GetAccountLinkingUnlinkedEnroleesResponse =
   GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
+
+export type ListAccountLinkingEmailsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+     * Page number, from 1
+     */
+    page?: number
+    /**
+     * Rows per page
+     */
+    limit?: number
+    /**
+     * What became of the link or the send; ignored with `address`
+     */
+    status?: LinkingEmailListStatus
+    /**
+     * Part of the recipient address, ignoring case
+     */
+    address?: string
+  }
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails"
+}
+
+export type ListAccountLinkingEmailsResponses = {
+  /**
+   * A page of linking emails
+   */
+  200: PageAccountLinkingEmailRow
+}
+
+export type ListAccountLinkingEmailsResponse =
+  ListAccountLinkingEmailsResponses[keyof ListAccountLinkingEmailsResponses]
 
 export type AdminRequestEnrolmentListFetchData = {
   body: AdminRequestEnrolmentListFetchPayload

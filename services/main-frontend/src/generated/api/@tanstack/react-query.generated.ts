@@ -332,6 +332,7 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listAccountLinkingEmails,
   listCreditRegistrationAdminActions,
   listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
@@ -1011,6 +1012,8 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponse,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponse,
   ListCreditRegistrationPhasesData,
@@ -6316,6 +6319,88 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
       }),
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
+
+export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
+  createQueryKey("listAccountLinkingEmails", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsOptions = (options?: Options<ListAccountLinkingEmailsData>) =>
+  queryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    ListAccountLinkingEmailsResponse,
+    ReturnType<typeof listAccountLinkingEmailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listAccountLinkingEmails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listAccountLinkingEmailsQueryKey(options),
+  })
+
+export const listAccountLinkingEmailsInfiniteQueryKey = (
+  options?: Options<ListAccountLinkingEmailsData>,
+): QueryKey<Options<ListAccountLinkingEmailsData>> =>
+  createQueryKey("listAccountLinkingEmails", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsInfiniteOptions = (
+  options?: Options<ListAccountLinkingEmailsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    InfiniteData<ListAccountLinkingEmailsResponse>,
+    QueryKey<Options<ListAccountLinkingEmailsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listAccountLinkingEmails({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listAccountLinkingEmailsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 /**
  *

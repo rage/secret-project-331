@@ -148,7 +148,9 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
   const activeTab = resolveActiveTab(tabs, pathname ?? "")
   // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
   // heading of its own (the student's name) — the tab title above it would only contradict it.
-  const isTabOwnPage = activeTab !== undefined && pathname === activeTab.href
+  // Linking's deeper routes are its sub-tabs, which sit under the tab's heading.
+  const isTabOwnPage =
+    activeTab !== undefined && (pathname === activeTab.href || activeTab.key === KEY_LINKING)
 
   return (
     <BreakFromCentered sidebar={false}>

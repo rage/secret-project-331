@@ -98,6 +98,12 @@ export const EnrolmentCheck: React.FC<EnrolmentCheckProps> = ({
               bodyLines={supportMail.bodyLines}
             />
           </p>
+          <SupportMailLink
+            referenceOnly
+            reference={supportMail.reference ?? null}
+            subject={supportMail.subject}
+            bodyLines={supportMail.bodyLines}
+          />
         </div>
       </Infobox>
     </section>

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
-import { useQuery } from "@tanstack/react-query"
+import { type UseQueryResult, useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
@@ -62,7 +62,13 @@ import type {
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
-import { DescriptionList, Link, QueryResults, RelativeTime } from "@/shared-module/components"
+import {
+  DescriptionList,
+  Link,
+  DefaultBlockingError,
+  QueryResults,
+  RelativeTime,
+} from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
   courseModuleId: string
@@ -133,7 +139,6 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
 
   const data = query.data ?? null
   const enrolmentRoute = routeQuery.data ?? null
-  const verifiedNumber = numberQuery.data ?? null
   const checkedAt = query.dataUpdatedAt === 0 ? null : new Date(query.dataUpdatedAt).toISOString()
   const heading = (
     <CardHeading courseName={courseName} moduleName={moduleName} ectsCredits={ectsCredits} />
@@ -146,8 +151,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
       ectsCredits={ectsCredits}
       registration={data.registration}
       enrolmentRoute={enrolmentRoute}
-      verifiedNumber={verifiedNumber}
-      hasLinkedStudentNumber={numberQuery.isSuccess ? verifiedNumber !== null : null}
+      numberQuery={numberQuery}
       checkedAt={checkedAt}
       earlierAttempts={data.earlier_attempts}
     />
@@ -248,9 +252,7 @@ interface TrackerProps {
   ectsCredits: number | null | undefined
   registration: MyCreditRegistration
   enrolmentRoute: MyEnrolmentRoute | null
-  verifiedNumber: MyVerifiedStudentNumber | null
-  /** `null` until known: which of the two enrolment checks applies depends on it. */
-  hasLinkedStudentNumber: boolean | null
+  numberQuery: UseQueryResult<MyVerifiedStudentNumber | null>
   checkedAt: string | null
   earlierAttempts: MyCreditRegistration[]
 }
@@ -269,8 +271,7 @@ const Tracker: React.FC<TrackerProps> = ({
   ectsCredits,
   registration,
   enrolmentRoute,
-  verifiedNumber,
-  hasLinkedStudentNumber,
+  numberQuery,
   checkedAt,
   earlierAttempts,
 }) => {
@@ -287,6 +288,7 @@ const Tracker: React.FC<TrackerProps> = ({
     }
   }, [statusLabel, t])
 
+  const verifiedNumber = numberQuery.data ?? null
   const view = { registration, enrolmentRoute }
   const recheckAction =
     [primaryAction, ...secondaryActions].find(
@@ -319,11 +321,17 @@ const Tracker: React.FC<TrackerProps> = ({
           />
         ) : null}
 
-        {hasLinkedStudentNumber !== null ? (
+        {/* Which of the two enrolment checks applies depends on the number. */}
+        {numberQuery.data !== undefined ? (
           <EnrolmentCheck
             registration={registration}
             enrolmentRoute={enrolmentRoute}
-            hasLinkedStudentNumber={hasLinkedStudentNumber}
+            hasLinkedStudentNumber={numberQuery.data !== null}
+          />
+        ) : numberQuery.isError ? (
+          <DefaultBlockingError
+            error={numberQuery.error}
+            retry={() => void numberQuery.refetch()}
           />
         ) : null}
 

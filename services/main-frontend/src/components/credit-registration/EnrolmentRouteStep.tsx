@@ -231,15 +231,23 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
               </div>
             </>
           ) : (
-            <p>
-              {t("credit-registration-sisu-course-code-missing")}{" "}
+            <>
+              <p>
+                {t("credit-registration-sisu-course-code-missing")}{" "}
+                <SupportMailLink
+                  appearance={SUPPORT_MAIL_INLINE}
+                  label={SUPPORT_EMAIL}
+                  subject={supportMail.subject}
+                  bodyLines={supportMail.bodyLines}
+                />
+              </p>
               <SupportMailLink
-                appearance={SUPPORT_MAIL_INLINE}
-                label={SUPPORT_EMAIL}
+                referenceOnly
+                reference={supportMail.reference ?? null}
                 subject={supportMail.subject}
                 bodyLines={supportMail.bodyLines}
               />
-            </p>
+            </>
           )}
         </section>
       ) : null}

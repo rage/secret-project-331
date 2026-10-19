@@ -207,6 +207,21 @@ describe("headingAnchors", () => {
       expect(ids.size).toBe(0)
     })
 
+    it("skips malformed entries and inner blocks that are not arrays", () => {
+      const malformed = [
+        null,
+        "not a block",
+        { name: "core/group", clientId: "group", attributes: {} },
+        { name: "core/group", clientId: "group2", attributes: {}, innerBlocks: null },
+        columns("cols", [null as unknown as HeadingAnchorBlock, heading(CLIENT_ID_B, "Nested")]),
+        heading(CLIENT_ID_A, "Top level"),
+      ] as unknown as HeadingAnchorBlock[]
+      const ids = buildHeadingAnchorIds(malformed)
+      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-top-level")
+      expect(ids.get(CLIENT_ID_B)).toBe("9a7d4e2b-nested")
+      expect(ids.size).toBe(2)
+    })
+
     it("keeps the id fragment when the heading is reworded, so old links still resolve", () => {
       const before = buildHeadingAnchorIds([heading(CLIENT_ID_A, "Old title")])
       const after = buildHeadingAnchorIds([heading(CLIENT_ID_A, "New title")])

@@ -145,8 +145,13 @@ interface CollectedHeading {
   explicitAnchor: string | undefined
 }
 
-function collectHeadings(blocks: HeadingAnchorBlock[], collected: CollectedHeading[]): void {
-  for (const block of blocks) {
+/** Page content is stored JSON, so entries that are not block objects are skipped. */
+function collectHeadings(blocks: readonly unknown[], collected: CollectedHeading[]): void {
+  for (const entry of blocks) {
+    if (typeof entry !== "object" || entry === null) {
+      continue
+    }
+    const block = entry as HeadingAnchorBlock
     if (block.name === HEADING_BLOCK_NAME) {
       const attributes = block.attributes as HeadingBlockAttributes | undefined
       const explicitAnchor = attributes?.anchor?.trim()
@@ -156,7 +161,9 @@ function collectHeadings(blocks: HeadingAnchorBlock[], collected: CollectedHeadi
         explicitAnchor: explicitAnchor === "" ? undefined : explicitAnchor,
       })
     }
-    collectHeadings(block.innerBlocks, collected)
+    if (Array.isArray(block.innerBlocks)) {
+      collectHeadings(block.innerBlocks, collected)
+    }
   }
 }
 

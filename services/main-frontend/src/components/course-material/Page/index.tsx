@@ -219,7 +219,11 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const pageContent =
     (courseMaterialState.page?.content as Block<unknown>[] | undefined) ?? NO_BLOCKS
   const headingAnchorIds = useMemo(
-    () => (isMaterialPage ? buildHeadingAnchorIds(pageContent) : new Map<string, string>()),
+    () =>
+      // Malformed content is left for ContentRenderer to report.
+      isMaterialPage && Array.isArray(pageContent)
+        ? buildHeadingAnchorIds(pageContent)
+        : new Map<string, string>(),
     [isMaterialPage, pageContent],
   )
 

@@ -32,6 +32,7 @@ import {
   useStudentRegistrationActions,
 } from "@/components/credit-registration/studentRegistrationActions"
 import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
+import { missingSisuCourseCodeSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
   bandCss,
   bandedCardCss,
@@ -311,6 +312,8 @@ const Tracker: React.FC<TrackerProps> = ({
             courseModuleId={courseModuleId}
             enrolmentRoute={enrolmentRoute}
             openUniversityEnrolmentLink={registration.enrolment_link}
+            uhCourseCode={registration.uh_course_code}
+            supportMail={missingSisuCourseCodeSupportMail(t, registration)}
           />
         ) : null}
 

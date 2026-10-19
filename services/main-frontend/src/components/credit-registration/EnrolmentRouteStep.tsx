@@ -17,7 +17,15 @@ import type {
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Button, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+import {
+  Button,
+  CopyButton,
+  Infobox,
+  Link,
+  Radio,
+  RadioGroup,
+  TransLink,
+} from "@/shared-module/components"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import {
@@ -29,15 +37,30 @@ import {
   ROUTE_FIELD,
   SEGMENTED,
   SISU_URL,
+  SUPPORT_EMAIL,
+  SUPPORT_MAIL_INLINE,
   TONE,
   UNIVERSITY_OF_HELSINKI,
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
 import { invalidateRegistrationViews } from "./enrolmentActions"
-import { bandCss, rowCss } from "./styles"
+import type { SupportMailContents } from "./studentSupportMail"
+import { bandCss, codeValueCss, rowCss } from "./styles"
+import SupportMailLink from "./SupportMailLink"
 
 interface RouteForm {
   [ROUTE_FIELD]: string
+}
+
+/** A component rather than inline markup, so `Trans` keeps the copy button when it fills the tag. */
+const SisuCourseCode: React.FC<{ code: string }> = ({ code }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <>
+      <span className={codeValueCss}>{code}</span>{" "}
+      <CopyButton value={code} label={t("button-text-copy-sisu-course-code")} />
+    </>
+  )
 }
 
 export interface EnrolmentRouteStepProps {
@@ -46,6 +69,10 @@ export interface EnrolmentRouteStepProps {
   enrolmentRoute: MyEnrolmentRoute
   /** Where a student who is not at the University is sent to enrol, when the module names one. */
   openUniversityEnrolmentLink: string | null | undefined
+  /** The Sisu course to enrol on. Without one the Sisu route is replaced by a support contact. */
+  uhCourseCode: string | null | undefined
+  /** What the support mail says when there is no course code to enrol on. */
+  supportMail: SupportMailContents
 }
 
 /**
@@ -60,6 +87,8 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   courseModuleId,
   enrolmentRoute,
   openUniversityEnrolmentLink,
+  uhCourseCode,
+  supportMail,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
@@ -68,6 +97,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   })
   const picked = watch(ROUTE_FIELD)
   const enrolmentLink = httpsUrlOrNull(openUniversityEnrolmentLink)
+  const sisuCourseCode = uhCourseCode?.trim() ? uhCourseCode : null
 
   const invalidate = async () => {
     await queryClient.invalidateQueries({
@@ -188,9 +218,31 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
         </RadioGroup>
       </section>
 
-      {picked === UNIVERSITY_OF_HELSINKI ? (
+      {picked === UNIVERSITY_OF_HELSINKI && !sisuCourseCode ? (
         <section className={bandCss}>
-          <p>{t("enroll-through-sisu-to-register-credits")}</p>
+          <p>
+            {t("credit-registration-sisu-course-code-missing")}{" "}
+            <SupportMailLink
+              appearance={SUPPORT_MAIL_INLINE}
+              label={SUPPORT_EMAIL}
+              subject={supportMail.subject}
+              bodyLines={supportMail.bodyLines}
+            />
+          </p>
+        </section>
+      ) : null}
+
+      {picked === UNIVERSITY_OF_HELSINKI && sisuCourseCode ? (
+        <section className={bandCss}>
+          <p>
+            <Trans
+              t={t}
+              i18nKey="credit-registration-enrol-in-sisu-on-course"
+              components={{
+                courseCode: <SisuCourseCode code={sisuCourseCode} />,
+              }}
+            />
+          </p>
           <div className={rowCss}>
             <Link
               href={SISU_URL}

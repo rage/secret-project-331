@@ -42,6 +42,15 @@ export const registrationSupportMail = (
   }
 }
 
+/** A support mail from a student told to enrol in Sisu on a module that names no course code. */
+export const missingSisuCourseCodeSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): SupportMailContents => {
+  const mail = registrationSupportMail(t, registration)
+  return { ...mail, bodyLines: [t("support-mail-line-no-sisu-course-code"), ...mail.bodyLines] }
+}
+
 /** What an account linking email can leave a student stuck on, and so what the mail has to ask for. */
 export type StudentNumberLinkProblem =
   | "need_a_new_link"

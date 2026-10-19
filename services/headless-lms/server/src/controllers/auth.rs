@@ -1111,7 +1111,7 @@ pub async fn update_user_information_to_tmc(
             controller_err!(
                 InternalServerError,
                 "Failed to update user info to tmc".to_string(),
-                anyhow::anyhow!("TMC user update failed: {}", e)
+                e
             )
         })
 }

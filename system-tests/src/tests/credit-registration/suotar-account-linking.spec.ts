@@ -1,6 +1,7 @@
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
+  MAIN_FRONTEND_API,
   linkStudentNumberUrl,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
@@ -61,6 +62,10 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   })
   expect(link).not.toHaveProperty("first_names")
   expect(link).not.toHaveProperty("last_name")
+
+  const details = await page.request.get(`${MAIN_FRONTEND_API}/user-details/user-details-for-user`)
+  await expect(details).toBeOK()
+  expect(await details.json()).toMatchObject({ first_name: "Zzyzx", last_name: "Linkvalid" })
 })
 
 test("An expired link and an already-used link say different things", async ({ page }) => {

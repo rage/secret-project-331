@@ -1090,7 +1090,8 @@ pub async fn delete_user_account(
 }
 
 /// Copies a changed name, and `email` when it changed too, to TMC, which keeps its own copy of
-/// both. Callers run it inside their transaction so a TMC failure rolls the change back.
+/// both; a no-op for an account without a TMC `upstream_id`. Callers run it inside their
+/// transaction so a TMC failure rolls the change back.
 pub async fn update_user_information_to_tmc(
     upstream_id: Option<i32>,
     first_name: String,
@@ -1099,25 +1100,18 @@ pub async fn update_user_information_to_tmc(
     tmc_client: &TmcClient,
     app_conf: &ApplicationConfiguration,
 ) -> Result<(), ControllerError> {
-    if app_conf.test_mode {
+    let Some(upstream_id) = upstream_id.filter(|_| !app_conf.test_mode) else {
         return Ok(());
-    }
-    let upstream_id = upstream_id.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Missing upstream_id",
-            None,
-        )
-    })?;
+    };
     tmc_client
         .update_user_information(first_name, last_name, email, upstream_id.to_string())
         .await
         .map_err(|e| {
             log::warn!("TMC user update failed: {:?}", e);
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to update user info to tmc",
-                anyhow::anyhow!("TMC user update failed: {}", e),
+            controller_err!(
+                InternalServerError,
+                "Failed to update user info to tmc".to_string(),
+                anyhow::anyhow!("TMC user update failed: {}", e)
             )
         })
 }

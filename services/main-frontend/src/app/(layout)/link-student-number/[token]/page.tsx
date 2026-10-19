@@ -33,6 +33,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useLogout from "@/shared-module/common/hooks/useLogout"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   linkStudentNumberRoute,
   loginRoute,
@@ -106,12 +107,12 @@ const recordTitleCss = css`
 
 const sisuFactsCss = css`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: var(--space-3) var(--space-5);
   margin: 0;
 
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
+  ${respondToOrLarger.xs} {
+    grid-template-columns: 1fr 1fr;
   }
 
   dd {

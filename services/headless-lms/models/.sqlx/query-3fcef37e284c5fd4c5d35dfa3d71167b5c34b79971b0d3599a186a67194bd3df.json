@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  (\n    SELECT MIN(TRIM(cm.uh_course_code))\n    FROM course_modules cm\n    WHERE cm.course_id = e.course_id\n      AND cm.deleted_at IS NULL\n      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n  ) AS \"uh_course_code?\",\n  e.emailed_to,\n  e.sent_at AS claimed_at,\n  t.expires_at\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\n  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.deleted_at IS NULL\n  AND e.replaced_at IS NULL\n  AND is_usable_verification_token(t)\nORDER BY e.sent_at,\n  e.id\nLIMIT $1\n        ",
+  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  (\n    SELECT MIN(TRIM(cm.uh_course_code))\n    FROM course_modules cm\n    WHERE cm.course_id = e.course_id\n      AND cm.deleted_at IS NULL\n      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''\n  ) AS \"uh_course_code?\",\n  e.emailed_to,\n  e.sent_at AS claimed_at,\n  t.expires_at\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL\n  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\nWHERE e.deleted_at IS NULL\n  AND e.replaced_at IS NULL\n  AND is_usable_verification_token(t)\nORDER BY e.sent_at,\n  e.id\nLIMIT $1\n        ",
   "describe": {
     "columns": [
       {
@@ -91,5 +91,5 @@
       false
     ]
   },
-  "hash": "101f5e31fc964fa9441eebb46d1e9e6483591fd6c0a75447db063d17ba298ddf"
+  "hash": "3fcef37e284c5fd4c5d35dfa3d71167b5c34b79971b0d3599a186a67194bd3df"
 }

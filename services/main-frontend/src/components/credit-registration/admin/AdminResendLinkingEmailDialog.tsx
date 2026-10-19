@@ -8,6 +8,7 @@ import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getAccountLinkingStatsQueryKey,
+  listAccountLinkingEmailsQueryKey,
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
@@ -83,6 +84,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
         queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+        queryClient.invalidateQueries({ queryKey: listAccountLinkingEmailsQueryKey() }),
       ])
     }
   }

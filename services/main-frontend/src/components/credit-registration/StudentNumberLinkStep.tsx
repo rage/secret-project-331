@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -14,7 +14,7 @@ import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL } from "./constants"
 import { missingLinkingEmailSupportMail } from "./studentSupportMail"
 import { bandCss, noteCss, stepsCss, subheadingCss } from "./styles"
 import SupportMailLink from "./SupportMailLink"
-import { isLinkingEmailOverdue, studentNumberLinkBand } from "./trackerView"
+import { studentNumberLinkBand } from "./trackerView"
 import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
 const SUPPORT_LINK_IN_TEXT = "link"
@@ -54,7 +54,6 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
-  const [nowMs] = useState(() => Date.now())
   const band = studentNumberLinkBand(registration, verifiedNumber, {
     isAccountLinkingEnabled,
     enrolmentRoute,
@@ -119,14 +118,7 @@ export const StudentNumberLinkStep: React.FC<StudentNumberLinkStepProps> = ({
             ? t("credit-registration-link-awaiting-email-body-open-university")
             : t("credit-registration-link-awaiting-email-body")}
         </p>
-        {isLinkingEmailOverdue(band.waitingSince, nowMs) ? (
-          <p>
-            {t("credit-registration-link-awaiting-email-overdue")}{" "}
-            <MissingEmailSupportLink courseName={registration.course_name} />
-          </p>
-        ) : (
-          <p className={noteCss}>{t("credit-registration-link-only-once")}</p>
-        )}
+        <p className={noteCss}>{t("credit-registration-link-only-once")}</p>
       </section>
     )
   }

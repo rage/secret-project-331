@@ -2615,20 +2615,6 @@ export const zEmailSendStatusReport = z.object({
   sent_at: z.iso.datetime().nullish(),
 })
 
-/**
- * One linking email, newest first in the recent list.
- */
-export const zAccountLinkingRecentEmail = z.object({
-  claimed_at: z.iso.datetime(),
-  course_id: z.uuid(),
-  course_name: z.string(),
-  emailed_to: z.string(),
-  id: z.uuid(),
-  last_error_message: z.string().nullish(),
-  queued_at: z.iso.datetime().nullish(),
-  send_status: zEmailSendStatusReport.nullish(),
-})
-
 export const zAdminLinkingEmail = z.object({
   claimed_at: z.iso.datetime(),
   course_id: z.uuid(),
@@ -3531,6 +3517,11 @@ export const zLinkingEmailLinkState = z.enum([
 ])
 
 /**
+ * Which linking emails a [`get_page`] lists, by what became of their link and their send.
+ */
+export const zLinkingEmailListStatus = z.enum(["unused", "used", "expired", "not_sent"])
+
+/**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export const zLinkingEmailStatus = z.object({
@@ -3538,6 +3529,32 @@ export const zLinkingEmailStatus = z.object({
   emailed_to_masked: z.string(),
   link_state: zLinkingEmailLinkState,
   sent_at: z.iso.datetime().nullish(),
+})
+
+/**
+ * Whether the link a linking mail carries can still be opened.
+ */
+export const zLinkingMailLinkState = z.enum(["usable", "used", "lapsed"])
+
+/**
+ * One linking email, in the full list or the dashboard's recent ones.
+ */
+export const zAccountLinkingEmailRow = z.object({
+  claimed_at: z.iso.datetime(),
+  claimed_by_email: z.string().nullish(),
+  claimed_by_user_id: z.uuid().nullish(),
+  course_id: z.uuid(),
+  course_name: z.string(),
+  emailed_to: z.string(),
+  id: z.uuid(),
+  last_error_message: z.string().nullish(),
+  link_expires_at: z.iso.datetime().nullish(),
+  link_state: zLinkingMailLinkState,
+  link_used_at: z.iso.datetime().nullish(),
+  queued_at: z.iso.datetime().nullish(),
+  send_status: zEmailSendStatusReport.nullish(),
+  sisu_full_name: z.string().nullish(),
+  student_number: z.string(),
 })
 
 export const zManualCompletionPreviewUser = z.object({
@@ -4072,6 +4089,40 @@ export const zPageVisitDatumSummaryByPages = z.object({
   page_id: z.uuid(),
   updated_at: z.iso.datetime(),
   visit_date: z.iso.date(),
+})
+
+export const zPageAccountLinkingEmailRow = z.object({
+  data: z.array(
+    z.object({
+      claimed_at: z.iso.datetime(),
+      claimed_by_email: z.string().nullish(),
+      claimed_by_user_id: z.uuid().nullish(),
+      course_id: z.uuid(),
+      course_name: z.string(),
+      emailed_to: z.string(),
+      id: z.uuid(),
+      last_error_message: z.string().nullish(),
+      link_expires_at: z.iso.datetime().nullish(),
+      link_state: zLinkingMailLinkState,
+      link_used_at: z.iso.datetime().nullish(),
+      queued_at: z.iso.datetime().nullish(),
+      send_status: zEmailSendStatusReport.nullish(),
+      sisu_full_name: z.string().nullish(),
+      student_number: z.string(),
+    }),
+  ),
+  total_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  total_pages: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zPageCreditRegistrationAdminActionRow = z.object({
@@ -6737,7 +6788,7 @@ export const zAccountLinkingStats = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-  recent_linking_emails: z.array(zAccountLinkingRecentEmail),
+  recent_linking_emails: z.array(zAccountLinkingEmailRow),
   recent_links: z.array(zAccountLinkingRecentLink),
   send_status_totals: zAccountLinkingSendStatusTotals,
   stale_addresses: z.array(zAccountLinkingStaleAddress),
@@ -8934,6 +8985,26 @@ export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
  * The unlinked people
  */
 export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
+
+export const zListAccountLinkingEmailsQuery = z.object({
+  page: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  limit: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  status: zLinkingEmailListStatus.optional(),
+  address: z.string().optional(),
+})
+
+/**
+ * A page of linking emails
+ */
+export const zListAccountLinkingEmailsResponse = zPageAccountLinkingEmailRow
 
 export const zAdminRequestEnrolmentListFetchBody = zAdminRequestEnrolmentListFetchPayload
 

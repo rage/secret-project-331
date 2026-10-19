@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT (\n    CASE\n      WHEN slot.local_now < slot.morning THEN slot.morning\n      WHEN slot.local_now < slot.catch_up\n      AND slot.local_first_seen < slot.morning THEN slot.catch_up\n      ELSE slot.morning + INTERVAL '1 day'\n    END\n  ) AT TIME ZONE 'Europe/Helsinki' AS \"slot!: DateTime<Utc>\"\nFROM UNNEST($2::timestamptz []) WITH ORDINALITY AS seen(first_seen_at, position)\n  CROSS JOIN LATERAL (\n    SELECT $1::timestamptz AT TIME ZONE 'Europe/Helsinki' AS local_now,\n      seen.first_seen_at AT TIME ZONE 'Europe/Helsinki' AS local_first_seen,\n      ($1::timestamptz AT TIME ZONE 'Europe/Helsinki')::date + $3::interval AS morning,\n      ($1::timestamptz AT TIME ZONE 'Europe/Helsinki')::date + $4::interval AS catch_up\n  ) slot\nORDER BY seen.position\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "slot!: DateTime<Utc>",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "TimestamptzArray",
+        "Interval",
+        "Interval"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "faef360b2984ee1e9219432056b91fe424adf7ccecb93ff47d78aab7acae06ca"
+}

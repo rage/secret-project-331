@@ -684,6 +684,8 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponses,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponses,
   ListCreditRegistrationPhasesData,
@@ -1132,6 +1134,7 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListAccountLinkingEmailsResponse,
   zListCreditRegistrationAdminActionsResponse,
   zListCreditRegistrationPhasesResponse,
   zListCreditRegistrationsForAdminResponse,
@@ -4997,6 +5000,25 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees",
     ...options,
   })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmails = <ThrowOnError extends boolean = true>(
+  options?: Options<ListAccountLinkingEmailsData, ThrowOnError>,
+): RequestResult<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zListAccountLinkingEmailsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails",
+      ...options,
+    },
+  )
 
 /**
  *

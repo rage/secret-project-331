@@ -447,6 +447,18 @@ pub enum LinkingMailLinkState {
     Lapsed,
 }
 
+impl LinkingMailLinkState {
+    fn of(is_usable: bool, is_used: bool) -> Self {
+        if is_usable {
+            Self::Usable
+        } else if is_used {
+            Self::Used
+        } else {
+            Self::Lapsed
+        }
+    }
+}
+
 /// The state of each mail's link, by mail id.
 pub async fn get_link_states(
     conn: &mut PgConnection,
@@ -470,16 +482,7 @@ WHERE e.id = ANY($1::uuid [])
     .await?;
     Ok(rows
         .into_iter()
-        .map(|row| {
-            let state = if row.is_usable {
-                LinkingMailLinkState::Usable
-            } else if row.is_used {
-                LinkingMailLinkState::Used
-            } else {
-                LinkingMailLinkState::Lapsed
-            };
-            (row.id, state)
-        })
+        .map(|row| (row.id, LinkingMailLinkState::of(row.is_usable, row.is_used)))
         .collect())
 }
 
@@ -951,102 +954,6 @@ mod tests {
     }
 }
 
-/// One linking email as the admin's recent list shows it.
-#[derive(Debug, Clone)]
-pub struct RecentLinkingMail {
-    pub id: Uuid,
-    pub course_id: Uuid,
-    pub course_name: String,
-    pub emailed_to: DbSecret,
-    pub claimed_at: DateTime<Utc>,
-    /// When the `link-emails` phase queued it for the email worker; `None` until then.
-    pub queued_at: Option<DateTime<Utc>>,
-    /// `None` until queued.
-    pub send_status: Option<EmailSendStatusReport>,
-    /// The newest delivery error's message, however transient.
-    pub last_error_message: Option<String>,
-}
-
-/// The newest `limit` linking emails, newest first.
-pub async fn get_recent(
-    conn: &mut PgConnection,
-    limit: i64,
-) -> ModelResult<Vec<RecentLinkingMail>> {
-    let rows = sqlx::query!(
-        r#"
-SELECT e.id,
-  e.course_id,
-  c.name AS course_name,
-  e.emailed_to,
-  e.sent_at AS claimed_at,
-  ed.created_at AS "queued_at?",
-  ed.sent AS "delivery_sent?",
-  ed.retryable AS "retryable?",
-  ed.retry_count AS "retry_count?",
-  ed.next_retry_at AS "next_retry_at?",
-  ed.first_failed_at AS "first_failed_at?",
-  ed.last_attempt_at AS "last_attempt_at?",
-  latest_error.error_code AS "error_code?",
-  latest_error.error_message AS "error_message?",
-  latest_error.is_transient AS "is_transient?"
-FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id
-  AND c.deleted_at IS NULL
-  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
-  AND ed.deleted_at IS NULL
-  LEFT JOIN LATERAL (
-    SELECT ede.error_code,
-      ede.error_message,
-      ede.is_transient
-    FROM email_delivery_errors ede
-    WHERE ede.email_delivery_id = ed.id
-      AND ede.deleted_at IS NULL
-    ORDER BY ede.attempt DESC,
-      ede.created_at DESC
-    LIMIT 1
-  ) latest_error ON TRUE
-WHERE e.deleted_at IS NULL
-ORDER BY e.sent_at DESC,
-  e.id
-LIMIT $1
-        "#,
-        limit,
-    )
-    .fetch_all(conn)
-    .await?;
-    let now = Utc::now();
-    Ok(rows
-        .into_iter()
-        .map(|row| {
-            let send_status = row.delivery_sent.map(|sent| {
-                derive_email_send_status(
-                    &EmailSendStatusFacts {
-                        sent,
-                        retryable: row.retryable.unwrap_or(false),
-                        retry_count: row.retry_count.unwrap_or(0),
-                        next_retry_at: row.next_retry_at,
-                        first_failed_at: row.first_failed_at,
-                        last_attempt_at: row.last_attempt_at,
-                        failure_code: row.error_code,
-                        failure_is_transient: row.is_transient,
-                    },
-                    now,
-                )
-            });
-            RecentLinkingMail {
-                id: row.id,
-                course_id: row.course_id,
-                course_name: row.course_name,
-                emailed_to: row.emailed_to,
-                claimed_at: row.claimed_at,
-                queued_at: row.queued_at,
-                send_status,
-                last_error_message: row.error_message,
-            }
-        })
-        .collect())
-}
-
 /// A linking email whose link can still be used.
 #[derive(Debug, Clone)]
 pub struct UnusedLinkingLink {
@@ -1160,7 +1067,9 @@ pub struct LinkingEmailListRow {
     pub first_names: Option<DbSecret>,
     pub last_name: Option<DbSecret>,
     pub claimed_at: DateTime<Utc>,
-    /// `None` until the `link-emails` phase queues it.
+    /// When the `link-emails` phase queued it for the email worker; `None` until then.
+    pub queued_at: Option<DateTime<Utc>>,
+    /// `None` until queued.
     pub send_status: Option<EmailSendStatusReport>,
     /// The newest delivery error's message, however transient.
     pub last_error_message: Option<String>,
@@ -1173,7 +1082,7 @@ pub struct LinkingEmailListRow {
     pub total_count: i64,
 }
 
-/// A page of linking emails, newest first, including ones a later mail replaced.
+/// A page of linking emails on live courses, newest first, including ones a later mail replaced.
 ///
 /// `address` matches any part of the recipient address, ignoring case.
 pub async fn get_page(
@@ -1191,14 +1100,56 @@ pub async fn get_page(
     });
     let rows = sqlx::query!(
         r#"
+WITH page AS (
+  SELECT e.id,
+    e.sent_at,
+    c.name AS course_name,
+    COUNT(*) OVER () AS total_count
+  FROM credit_registration_account_linking_emails e
+    JOIN courses c ON c.id = e.course_id
+    AND c.deleted_at IS NULL
+    LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+    LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+    AND ed.deleted_at IS NULL
+  WHERE e.deleted_at IS NULL
+    AND (
+      $2::text IS NULL
+      OR e.emailed_to ILIKE $2 ESCAPE '\'
+    )
+    AND (
+      $1::text IS NULL
+      OR (
+        $1 = 'unused'
+        AND is_usable_verification_token(t)
+      )
+      OR (
+        $1 = 'used'
+        AND t.used_at IS NOT NULL
+      )
+      OR (
+        $1 = 'expired'
+        AND e.student_number_verification_token_id IS NOT NULL
+        AND t.used_at IS NULL
+        AND NOT is_usable_verification_token(t)
+      )
+      OR (
+        $1 = 'not_sent'
+        AND ed.sent IS DISTINCT FROM TRUE
+      )
+    )
+  ORDER BY e.sent_at DESC,
+    e.id
+  LIMIT $3 OFFSET $4
+)
 SELECT e.id,
   e.course_id,
-  c.name AS course_name,
+  page.course_name AS "course_name!",
   e.emailed_to,
   e.student_number,
   t.first_names AS "first_names?",
   t.last_name AS "last_name?",
   e.sent_at AS claimed_at,
+  ed.created_at AS "queued_at?",
   ed.sent AS "delivery_sent?",
   ed.retryable AS "retryable?",
   ed.retry_count AS "retry_count?",
@@ -1216,9 +1167,9 @@ SELECT e.id,
   t.used_at AS "link_used_at?",
   t.claimed_by_user_id AS "claimed_by_user_id?",
   claimer.email AS "claimed_by_email?",
-  COUNT(*) OVER () AS "total_count!"
-FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id
+  page.total_count AS "total_count!"
+FROM page
+  JOIN credit_registration_account_linking_emails e ON e.id = page.id
   LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
   LEFT JOIN user_details claimer ON claimer.user_id = t.claimed_by_user_id
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
@@ -1234,35 +1185,8 @@ FROM credit_registration_account_linking_emails e
       ede.created_at DESC
     LIMIT 1
   ) latest_error ON TRUE
-WHERE e.deleted_at IS NULL
-  AND (
-    $2::text IS NULL
-    OR e.emailed_to ILIKE $2 ESCAPE '\'
-  )
-  AND (
-    $1::text IS NULL
-    OR (
-      $1 = 'unused'
-      AND is_usable_verification_token(t)
-    )
-    OR (
-      $1 = 'used'
-      AND t.used_at IS NOT NULL
-    )
-    OR (
-      $1 = 'expired'
-      AND e.student_number_verification_token_id IS NOT NULL
-      AND t.used_at IS NULL
-      AND NOT is_usable_verification_token(t)
-    )
-    OR (
-      $1 = 'not_sent'
-      AND ed.sent IS DISTINCT FROM TRUE
-    )
-  )
-ORDER BY e.sent_at DESC,
-  e.id
-LIMIT $3 OFFSET $4
+ORDER BY page.sent_at DESC,
+  page.id
         "#,
         status.map(LinkingEmailListStatus::as_sql),
         address_pattern,
@@ -1290,13 +1214,6 @@ LIMIT $3 OFFSET $4
                     now,
                 )
             });
-            let link_state = if row.is_usable {
-                LinkingMailLinkState::Usable
-            } else if row.link_used_at.is_some() {
-                LinkingMailLinkState::Used
-            } else {
-                LinkingMailLinkState::Lapsed
-            };
             LinkingEmailListRow {
                 id: row.id,
                 course_id: row.course_id,
@@ -1306,9 +1223,10 @@ LIMIT $3 OFFSET $4
                 first_names: row.first_names,
                 last_name: row.last_name,
                 claimed_at: row.claimed_at,
+                queued_at: row.queued_at,
                 send_status,
                 last_error_message: row.error_message,
-                link_state,
+                link_state: LinkingMailLinkState::of(row.is_usable, row.link_used_at.is_some()),
                 link_expires_at: row.link_expires_at,
                 link_used_at: row.link_used_at,
                 claimed_by_user_id: row.claimed_by_user_id,

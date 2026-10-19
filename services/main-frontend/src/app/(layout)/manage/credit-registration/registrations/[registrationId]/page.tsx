@@ -78,6 +78,7 @@ import type {
   CreditRegistrationAdminActionRow,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   creditRegistrationItemRoute,
@@ -746,7 +747,10 @@ const RegistrationDetailPage: React.FC = () => {
   )
 
   const studentName = row ? formatUserName(row) || t("missing-name") : null
-  useRegistrationPageTitle(details, detailsQuery.isError)
+  useRegistrationPageTitle(
+    details,
+    isAppApiError(detailsQuery.error) && detailsQuery.error.status === 404,
+  )
   const crumbs = useMemo(
     () => [
       {

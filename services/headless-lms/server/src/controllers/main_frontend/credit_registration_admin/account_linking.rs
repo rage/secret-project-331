@@ -257,6 +257,8 @@ pub struct AccountLinkingEmailRow {
     pub claimed_by_email: Option<String>,
 }
 
+/// Filters and paging for the list of every linking email. `status` is ignored when `address` is
+/// set, so a search for a student finds their mail whatever became of it.
 #[derive(Debug, Deserialize)]
 pub struct ListAccountLinkingEmailsQuery {
     page: Option<u32>,
@@ -675,9 +677,12 @@ pub async fn get_account_linking_stats(
             last_check_requested_at: row.last_check_requested_at,
         })
         .collect();
-    let recent_linking_emails = credit_registration_account_linking_emails::get_recent(
+    let recent_linking_emails = credit_registration_account_linking_emails::get_page(
         &mut conn,
+        None,
+        None,
         RECENT_LINKING_EMAIL_LIMIT,
+        0,
     )
     .await?
     .into_iter()

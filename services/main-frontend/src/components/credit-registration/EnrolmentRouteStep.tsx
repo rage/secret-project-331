@@ -97,7 +97,7 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   })
   const picked = watch(ROUTE_FIELD)
   const enrolmentLink = httpsUrlOrNull(openUniversityEnrolmentLink)
-  const sisuCourseCode = uhCourseCode?.trim() ? uhCourseCode : null
+  const sisuCourseCode = uhCourseCode?.trim() || null
 
   const invalidate = async () => {
     await queryClient.invalidateQueries({

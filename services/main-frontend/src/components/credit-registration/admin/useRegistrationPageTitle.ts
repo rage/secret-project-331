@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 import type {
   AdminCreditRegistrationDetails,
   AdminCreditRegistrationRow,
+  CreditRegistrationEventKind,
 } from "@/generated/api/types.generated"
 import { useIsDocumentHidden } from "@/shared-module/common/hooks/useIsDocumentHidden"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -29,12 +30,17 @@ const shortStudentName = (row: AdminCreditRegistrationRow): string | null => {
   return firstName || lastName || row.email?.split("@")[0]?.trim() || null
 }
 
+/** Every same-state Suotar check and retry writes one of these, so they are routine, not news. */
+const ROUTINE_EVENT_KINDS: ReadonlySet<CreditRegistrationEventKind> = new Set([
+  "suotar_response",
+  "retry_scheduled",
+])
+
 /** What counts as the registration changing. Not `state_entered_at`: every same-state check bumps it. */
 const changeFingerprint = (details: AdminCreditRegistrationDetails): string => {
   const row = details.registration
   return JSON.stringify([
-    details.events.length,
-    details.events.at(-1)?.id ?? null,
+    details.events.filter((event) => !ROUTINE_EVENT_KINDS.has(event.kind)).length,
     row.state,
     row.state_changed_at,
     row.phase,

@@ -22,7 +22,8 @@ pub(super) type Leased = Claimed<VerifyAttempt>;
 /// makes one, so it is always what the lease wrote.
 pub(super) struct VerifyAttempt {
     count: i32,
-    course_unit_poll_at: DateTime<Utc>,
+    /// `None` in a flow whose rows cannot become partially registered.
+    course_unit_poll_at: Option<DateTime<Utc>>,
 }
 
 /// The row's facts under the attempt the lease counted, not the count the row was claimed with, so
@@ -30,7 +31,7 @@ pub(super) struct VerifyAttempt {
 pub(super) fn attempt_facts(leased: &Leased, now: DateTime<Utc>) -> RowFacts {
     RowFacts {
         verify_attempt_count: leased.extra.count,
-        course_unit_poll_at: Some(leased.extra.course_unit_poll_at),
+        course_unit_poll_at: leased.extra.course_unit_poll_at,
         ..leased.claim.facts(now)
     }
 }
@@ -57,22 +58,30 @@ pub(super) async fn claim_and_lease(
     )
     .await?;
     let now = Utc::now();
-    let course_unit_polls = next_course_unit_polls(
-        conn,
-        now,
-        &claimed
-            .iter()
-            .map(|row| row.partially_registered_at.unwrap_or(now))
-            .collect::<Vec<_>>(),
-    )
-    .await?;
+    let course_unit_polls: Vec<Option<DateTime<Utc>>> =
+        if flow == VerifyFlow::Poll && !claimed.is_empty() {
+            next_course_unit_polls(
+                conn,
+                now,
+                &claimed
+                    .iter()
+                    .map(|row| row.partially_registered_at.unwrap_or(now))
+                    .collect::<Vec<_>>(),
+            )
+            .await?
+            .into_iter()
+            .map(Some)
+            .collect()
+        } else {
+            vec![None; claimed.len()]
+        };
     let scheduled: Vec<_> = claimed
         .iter()
         .zip(&course_unit_polls)
         .filter(|(row, _)| attempts.contains_key(&row.id))
         .map(|(row, &course_unit_poll_at)| {
             let facts = RowFacts {
-                course_unit_poll_at: Some(course_unit_poll_at),
+                course_unit_poll_at,
                 ..RowFacts::of(row, now)
             };
             (

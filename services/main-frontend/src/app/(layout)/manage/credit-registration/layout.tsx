@@ -45,6 +45,8 @@ const KEY_LINKING = "linking"
 const KEY_SYSTEM = "system"
 const KEY_ENROLMENT_CHECKS = "enrolment-checks"
 const KEY_AUDIT = "audit"
+/** Tabs whose deeper routes are sub-tabs, so they keep the tab's heading. */
+const TAB_KEYS_WITH_SUB_TABS: ReadonlySet<string> = new Set([KEY_LINKING])
 
 // The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
 const flushTabListCss = css`
@@ -148,9 +150,9 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
   const activeTab = resolveActiveTab(tabs, pathname ?? "")
   // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
   // heading of its own (the student's name) — the tab title above it would only contradict it.
-  // Linking's deeper routes are its sub-tabs, which sit under the tab's heading.
-  const isTabOwnPage =
-    activeTab !== undefined && (pathname === activeTab.href || activeTab.key === KEY_LINKING)
+  const showsTabHeading =
+    activeTab !== undefined &&
+    (pathname === activeTab.href || TAB_KEYS_WITH_SUB_TABS.has(activeTab.key))
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -158,7 +160,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         <BreadcrumbRenderer inPage />
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
         <RouteTabList tabs={tabs} className={flushTabListCss} />
-        {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
+        {showsTabHeading && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
         {children}
       </div>
     </BreakFromCentered>

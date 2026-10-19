@@ -127,11 +127,9 @@ const LinkCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => {
       row.claimed_by_email ?? row.claimed_by_user_id?.slice(0, ID_PREFIX_LENGTH) ?? null
     return (
       <span className={stackedCellCss}>
-        <span>
-          {row.link_used_at
-            ? sentenceWithTimestamp(t, LINK_USED_AT, row.link_used_at)
-            : t("credit-registration-admin-linking-email-status-used")}
-        </span>
+        {row.link_used_at && (
+          <span>{sentenceWithTimestamp(t, LINK_USED_AT, row.link_used_at)}</span>
+        )}
         {account && row.claimed_by_user_id && (
           <span className={noteCss}>
             <Link

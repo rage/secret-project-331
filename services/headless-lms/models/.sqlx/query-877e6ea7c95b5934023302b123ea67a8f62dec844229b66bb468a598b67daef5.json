@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT e.id,\n  e.course_id,\n  c.name AS course_name,\n  e.emailed_to,\n  e.student_number,\n  t.first_names AS \"first_names?\",\n  t.last_name AS \"last_name?\",\n  e.sent_at AS claimed_at,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.error_message AS \"error_message?\",\n  latest_error.is_transient AS \"is_transient?\",\n  (\n    e.student_number_verification_token_id IS NULL\n    OR is_usable_verification_token(t)\n  ) AS \"is_usable!\",\n  t.expires_at AS \"link_expires_at?\",\n  t.used_at AS \"link_used_at?\",\n  t.claimed_by_user_id AS \"claimed_by_user_id?\",\n  claimer.email AS \"claimed_by_email?\",\n  COUNT(*) OVER () AS \"total_count!\"\nFROM credit_registration_account_linking_emails e\n  JOIN courses c ON c.id = e.course_id\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\n  LEFT JOIN user_details claimer ON claimer.user_id = t.claimed_by_user_id\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.error_message,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE e.deleted_at IS NULL\n  AND (\n    $2::text IS NULL\n    OR e.emailed_to ILIKE $2 ESCAPE '\\'\n  )\n  AND (\n    $1::text IS NULL\n    OR (\n      $1 = 'unused'\n      AND is_usable_verification_token(t)\n    )\n    OR (\n      $1 = 'used'\n      AND t.used_at IS NOT NULL\n    )\n    OR (\n      $1 = 'expired'\n      AND e.student_number_verification_token_id IS NOT NULL\n      AND t.used_at IS NULL\n      AND NOT is_usable_verification_token(t)\n    )\n    OR (\n      $1 = 'not_sent'\n      AND ed.sent IS DISTINCT FROM TRUE\n    )\n  )\nORDER BY e.sent_at DESC,\n  e.id\nLIMIT $3 OFFSET $4\n        ",
+  "query": "\nWITH page AS (\n  SELECT e.id,\n    e.sent_at,\n    c.name AS course_name,\n    COUNT(*) OVER () AS total_count\n  FROM credit_registration_account_linking_emails e\n    JOIN courses c ON c.id = e.course_id\n    AND c.deleted_at IS NULL\n    LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\n    LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n    AND ed.deleted_at IS NULL\n  WHERE e.deleted_at IS NULL\n    AND (\n      $2::text IS NULL\n      OR e.emailed_to ILIKE $2 ESCAPE '\\'\n    )\n    AND (\n      $1::text IS NULL\n      OR (\n        $1 = 'unused'\n        AND is_usable_verification_token(t)\n      )\n      OR (\n        $1 = 'used'\n        AND t.used_at IS NOT NULL\n      )\n      OR (\n        $1 = 'expired'\n        AND e.student_number_verification_token_id IS NOT NULL\n        AND t.used_at IS NULL\n        AND NOT is_usable_verification_token(t)\n      )\n      OR (\n        $1 = 'not_sent'\n        AND ed.sent IS DISTINCT FROM TRUE\n      )\n    )\n  ORDER BY e.sent_at DESC,\n    e.id\n  LIMIT $3 OFFSET $4\n)\nSELECT e.id,\n  e.course_id,\n  page.course_name AS \"course_name!\",\n  e.emailed_to,\n  e.student_number,\n  t.first_names AS \"first_names?\",\n  t.last_name AS \"last_name?\",\n  e.sent_at AS claimed_at,\n  ed.created_at AS \"queued_at?\",\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.error_message AS \"error_message?\",\n  latest_error.is_transient AS \"is_transient?\",\n  (\n    e.student_number_verification_token_id IS NULL\n    OR is_usable_verification_token(t)\n  ) AS \"is_usable!\",\n  t.expires_at AS \"link_expires_at?\",\n  t.used_at AS \"link_used_at?\",\n  t.claimed_by_user_id AS \"claimed_by_user_id?\",\n  claimer.email AS \"claimed_by_email?\",\n  page.total_count AS \"total_count!\"\nFROM page\n  JOIN credit_registration_account_linking_emails e ON e.id = page.id\n  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id\n  LEFT JOIN user_details claimer ON claimer.user_id = t.claimed_by_user_id\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.error_message,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nORDER BY page.sent_at DESC,\n  page.id\n        ",
   "describe": {
     "columns": [
       {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "course_name",
+        "name": "course_name!",
         "type_info": "Varchar",
         "origin": {
           "Table": {
@@ -93,6 +93,17 @@
       },
       {
         "ordinal": 8,
+        "name": "queued_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
         "name": "delivery_sent?",
         "type_info": "Bool",
         "origin": {
@@ -103,7 +114,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "retryable?",
         "type_info": "Bool",
         "origin": {
@@ -114,7 +125,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "retry_count?",
         "type_info": "Int4",
         "origin": {
@@ -125,7 +136,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "next_retry_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -136,7 +147,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "first_failed_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -147,7 +158,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "last_attempt_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -158,7 +169,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "error_code?",
         "type_info": "Text",
         "origin": {
@@ -169,7 +180,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "error_message?",
         "type_info": "Text",
         "origin": {
@@ -180,7 +191,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "is_transient?",
         "type_info": "Bool",
         "origin": {
@@ -191,13 +202,13 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 18,
         "name": "is_usable!",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "link_expires_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -208,7 +219,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 20,
         "name": "link_used_at?",
         "type_info": "Timestamptz",
         "origin": {
@@ -219,7 +230,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 21,
         "name": "claimed_by_user_id?",
         "type_info": "Uuid",
         "origin": {
@@ -230,7 +241,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 22,
         "name": "claimed_by_email?",
         "type_info": "Varchar",
         "origin": {
@@ -241,7 +252,7 @@
         }
       },
       {
-        "ordinal": 22,
+        "ordinal": 23,
         "name": "total_count!",
         "type_info": "Int8",
         "origin": "Expression"
@@ -264,22 +275,23 @@
       true,
       true,
       false,
-      false,
-      false,
-      false,
       true,
       true,
       true,
       true,
-      false,
-      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       null,
-      false,
       true,
       true,
-      false,
+      true,
+      true,
       null
     ]
   },
-  "hash": "689a8d7aa5fd8a94330c1a88aea6a50e5c413a68ba98b38e2fda2d85a14882f7"
+  "hash": "877e6ea7c95b5934023302b123ea67a8f62dec844229b66bb468a598b67daef5"
 }

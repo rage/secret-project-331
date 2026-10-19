@@ -1,5 +1,4 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useRef } from "react"
 
 import {
   getAccountLinkingCoursesOptions,
@@ -114,7 +113,7 @@ export const useAdminCreditRegistrations = (
  */
 export const useAdminCreditRegistration = (creditRegistrationId: string) => {
   const isHidden = useIsDocumentHidden()
-  const query = useQuery({
+  return useQuery({
     ...getCreditRegistrationForAdminOptions({
       path: { credit_registration_id: creditRegistrationId },
     }),
@@ -126,20 +125,10 @@ export const useAdminCreditRegistration = (creditRegistrationId: string) => {
     },
     // The detail page marks its title when the registration changes in a hidden tab.
     refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
     staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
   })
-
-  const { refetch } = query
-  const wasHiddenRef = useRef(isHidden)
-  useEffect(() => {
-    if (wasHiddenRef.current && !isHidden) {
-      void refetch()
-    }
-    wasHiddenRef.current = isHidden
-  }, [isHidden, refetch])
-
-  return query
 }
 
 /**
@@ -179,6 +168,7 @@ export const useAccountLinkingStats = (windowDays: number) =>
     ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
+/** One page of every linking email; `status` is ignored when `address` is set. */
 export const useAccountLinkingEmails = (
   query: NonNullable<ListAccountLinkingEmailsData["query"]>,
 ) =>

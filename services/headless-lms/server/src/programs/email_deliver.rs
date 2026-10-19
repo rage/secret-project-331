@@ -359,8 +359,20 @@ async fn template_replacements(
                 headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id)
                     .await?;
 
-            if let Some(course) = courses.first() {
-                replacements.insert("COURSE_NAME".to_string(), course.name.to_string());
+            if !courses.is_empty() {
+                let mut course_html = Vec::new();
+
+                for course in &courses {
+                    let summary_html = format!(
+                        r#"<h2 style="font-family: sans-serif; font-size: 18px; margin: 24px 0 12px; color: #1a2333;">{}</h2><ul style="font-family: sans-serif; font-size: 14px; line-height: 20px; color: #4a5568; margin: 0 0 16px; padding-left: 20px;"><li>lorem ipsum</li><li>lorem ipsum</li></ul><hr>"#,
+                        course.name
+                    );
+                    course_html.push(summary_html);
+                }
+
+                let html_final = course_html.join("\n");
+                dbg!(&html_final);
+                replacements.insert("SUMMARY".to_string(), html_final);
             } else {
                 let msg = anyhow::anyhow!("No courses found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
@@ -368,7 +380,6 @@ async fn template_replacements(
                 return Ok(TemplateReplacements::Abandoned);
             }
         }
-
         EmailTemplateType::DeleteUserEmail => {
             if let Some(code) =
                 headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(

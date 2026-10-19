@@ -658,12 +658,11 @@ pub async fn seed_teacher_newsletter_email(conn: &mut sqlx::PgConnection) -> any
             "innerBlocks": []
         },
         {
-            "name": "core/heading",
+            "name": "moocfi/email-teacher-newsletter",
             "isValid": true,
             "clientId": "ac294325-1cb6-40b5-816e-4ac0e2e2b1f7",
             "attributes": {
-                "content": "{{COURSE_NAME}}",
-                "dropCap": false
+                "summary": "{{SUMMARY}}"
             },
             "innerBlocks": []
         },

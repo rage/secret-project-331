@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_modules\nSET enable_registering_completion_to_uh_open_university = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar,\n  ending_questions_required\nFROM course_modules\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -200,11 +200,21 @@
             "name": "enable_credit_registration_via_suotar"
           }
         }
+      },
+      {
+        "ordinal": 18,
+        "name": "ending_questions_required",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "ending_questions_required"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Bool",
         "Uuid"
       ]
     },
@@ -226,8 +236,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "93a01c287fe4da99e6b4792cf102cc596a6aadde93133a1e708785abce56eecb"
+  "hash": "f2886166c570f08eff066b95bcf382472d52d94719fe3e132bec4b5135f346d8"
 }

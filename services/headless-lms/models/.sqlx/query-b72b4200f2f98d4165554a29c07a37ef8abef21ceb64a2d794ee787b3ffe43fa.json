@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\nFROM course_modules\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar,\n  ending_questions_required\nFROM course_modules\nWHERE course_id = ANY($1)\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -200,11 +200,22 @@
             "name": "enable_credit_registration_via_suotar"
           }
         }
+      },
+      {
+        "ordinal": 18,
+        "name": "ending_questions_required",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "ending_questions_required"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -225,8 +236,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "89084a7518d27cd2606af726fbc6b2e0a323c428e23274498116c1ad4558d17d"
+  "hash": "b72b4200f2f98d4165554a29c07a37ef8abef21ceb64a2d794ee787b3ffe43fa"
 }

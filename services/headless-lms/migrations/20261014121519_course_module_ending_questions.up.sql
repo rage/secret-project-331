@@ -11,15 +11,15 @@ CREATE TABLE course_module_ending_questions (
   question_text VARCHAR(255) NOT NULL,
   question_type end_question_type NOT NULL,
   rating_options_n INTEGER,
-  rating_labels ARRAY TEXT,
+  rating_labels TEXT ARRAY,
   CONSTRAINT question_type_rating_correct_columns CHECK (
-    question_type = end_question_type::numeric_rating
+    question_type = 'numeric-rating'::end_question_type
     AND rating_options_n IS NOT NULL
   ),
   UNIQUE (course_module_id, question_serial_number)
 );
 
-ADD CONSTRAINT ON course_module_ending_questions CREATE TRIGGER set_timestamp BEFORE
+CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON course_module_ending_questions FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE course_module_ending_questions IS 'An example';
 COMMENT ON COLUMN course_module_ending_questions.id IS 'A unique, stable identifier for the record.';
@@ -55,3 +55,6 @@ COMMENT ON COLUMN course_module_ending_questions_answers.id IS 'A unique, stable
 COMMENT ON COLUMN course_module_ending_questions_answers.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN course_module_ending_questions_answers.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN course_module_ending_questions_answers.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+
+ALTER TABLE course_modules
+ADD COLUMN ending_questions_required BOOLEAN NOT NULL DEFAULT FALSE;

@@ -25,6 +25,7 @@ struct CourseModulesSchema {
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
     enable_credit_registration_via_suotar: bool,
+    ending_questions_required: bool,
 }
 /// Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
 /// `completion_policy`.
@@ -46,6 +47,7 @@ pub struct CourseModule {
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
     pub enable_credit_registration_via_suotar: bool,
+    pub ending_questions_required: bool,
 }
 
 impl CourseModule {
@@ -66,6 +68,7 @@ impl CourseModule {
             enable_registering_completion_to_uh_open_university: false,
             certification_enabled: false,
             enable_credit_registration_via_suotar: false,
+            ending_questions_required: false,
         }
     }
     pub fn set_timestamps(
@@ -114,6 +117,11 @@ impl CourseModule {
         self
     }
 
+    pub fn set_ending_questions_required(mut self, required: bool) -> Self {
+        self.ending_questions_required = required;
+        self
+    }
+
     pub fn is_default_module(&self) -> bool {
         self.name.is_none()
     }
@@ -149,6 +157,7 @@ impl From<CourseModulesSchema> for CourseModule {
                 .enable_registering_completion_to_uh_open_university,
             certification_enabled: schema.certification_enabled,
             enable_credit_registration_via_suotar: schema.enable_credit_registration_via_suotar,
+            ending_questions_required: schema.ending_questions_required,
         }
     }
 }
@@ -164,6 +173,7 @@ pub struct NewCourseModule {
     uh_course_code: Option<String>,
     enable_registering_completion_to_uh_open_university: bool,
     enable_credit_registration_via_suotar: bool,
+    ending_questions_required: bool,
 }
 
 impl NewCourseModule {
@@ -178,6 +188,7 @@ impl NewCourseModule {
             uh_course_code: None,
             enable_registering_completion_to_uh_open_university: false,
             enable_credit_registration_via_suotar: false,
+            ending_questions_required: false,
         }
     }
 
@@ -390,9 +401,10 @@ INSERT INTO course_modules (
     enable_registering_completion_to_uh_open_university,
     uh_course_code,
     enable_credit_registration_via_suotar,
-    completion_registration_link_override
+    completion_registration_link_override,
+    ending_questions_required
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING id,
   created_at,
   updated_at,
@@ -410,7 +422,8 @@ RETURNING id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
         ",
         pkey_policy.into_uuid(),
         new_course_module.course_id,
@@ -425,6 +438,7 @@ RETURNING id,
         new_course_module.uh_course_code,
         new_course_module.enable_credit_registration_via_suotar,
         new_course_module.completion_registration_link_override,
+        new_course_module.ending_questions_required
     )
     .fetch_one(conn)
     .await?;
@@ -493,7 +507,8 @@ SELECT id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
 FROM course_modules
 WHERE deleted_at IS NULL
         ",
@@ -525,7 +540,8 @@ SELECT id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
@@ -558,7 +574,8 @@ SELECT id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
 FROM course_modules
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -595,7 +612,8 @@ SELECT id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -634,7 +652,8 @@ SELECT id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
 FROM course_modules
 WHERE course_id = ANY($1)
 AND deleted_at IS NULL
@@ -671,6 +690,7 @@ SELECT cm.id,
   cm.ects_credits,
   cm.enable_registering_completion_to_uh_open_university,
   cm.certification_enabled,
+  cm.ending_questions_required,
   enable_credit_registration_via_suotar
 FROM course_modules as cm
 WHERE EXISTS (
@@ -717,7 +737,8 @@ SELECT course_modules.id AS "id!",
   course_modules.ects_credits,
   course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
   course_modules.certification_enabled AS "certification_enabled!",
-  course_modules.enable_credit_registration_via_suotar AS "enable_credit_registration_via_suotar!"
+  course_modules.enable_credit_registration_via_suotar AS "enable_credit_registration_via_suotar!",
+  course_modules.ending_questions_required AS "ending_questions_required!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
@@ -797,7 +818,8 @@ SELECT id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
@@ -1065,7 +1087,8 @@ RETURNING id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
         ",
         automatic_completion,
         exercises_treshold,
@@ -1107,7 +1130,8 @@ RETURNING id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
         ",
         uh_course_code,
         id,
@@ -1146,7 +1170,8 @@ RETURNING id,
   ects_credits,
   enable_registering_completion_to_uh_open_university,
   certification_enabled,
-  enable_credit_registration_via_suotar
+  enable_credit_registration_via_suotar,
+  ending_questions_required
         ",
         enable_registering_completion_to_uh_open_university,
         id,
@@ -1194,6 +1219,7 @@ pub async fn update(
         completion_registration_link_override,
         enable_registering_completion_to_uh_open_university,
         enable_credit_registration_via_suotar,
+        ending_questions_required,
     } = updated_course_module;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
@@ -1212,7 +1238,8 @@ SET name = COALESCE($2, name),
   enable_registering_completion_to_uh_open_university = $11,
   enable_credit_registration_via_suotar = $12,
   register_eligible_new_completions_via_suotar = register_eligible_new_completions_via_suotar
-  AND $12
+  AND $12,
+  ending_questions_required = $13
 WHERE id = $1
         ",
         id,
@@ -1226,7 +1253,8 @@ WHERE id = $1
         requires_exam,
         completion_registration_link_override.as_ref(),
         enable_registering_completion_to_uh_open_university,
-        enable_credit_registration_via_suotar
+        enable_credit_registration_via_suotar,
+        ending_questions_required
     )
     .execute(conn)
     .await?;

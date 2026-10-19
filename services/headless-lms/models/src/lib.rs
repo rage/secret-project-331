@@ -41,6 +41,8 @@ pub mod course_instances;
 pub mod course_language_groups;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
+pub mod course_module_ending_questions;
+pub mod course_module_ending_questions_answers;
 pub mod course_module_suotar_configurations;
 pub mod course_modules;
 pub mod course_page_markdown_content;

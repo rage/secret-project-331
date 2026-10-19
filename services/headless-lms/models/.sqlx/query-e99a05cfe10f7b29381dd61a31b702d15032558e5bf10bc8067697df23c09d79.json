@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_modules\nSET automatic_completion = $1,\n  automatic_completion_number_of_exercises_attempted_treshold = $2,\n  automatic_completion_number_of_points_treshold = $3,\n  automatic_completion_requires_exam = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  enable_registering_completion_to_uh_open_university,\n  certification_enabled,\n  enable_credit_registration_via_suotar\n        ",
+  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.automatic_completion,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_requires_exam,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.enable_registering_completion_to_uh_open_university,\n  cm.certification_enabled,\n  cm.ending_questions_required,\n  enable_credit_registration_via_suotar\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -192,6 +192,17 @@
       },
       {
         "ordinal": 17,
+        "name": "ending_questions_required",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "ending_questions_required"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
         "name": "enable_credit_registration_via_suotar",
         "type_info": "Bool",
         "origin": {
@@ -204,10 +215,6 @@
     ],
     "parameters": {
       "Left": [
-        "Bool",
-        "Int4",
-        "Int4",
-        "Bool",
         "Uuid"
       ]
     },
@@ -229,8 +236,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "c5fe96522fb3f182b78e18e0beedbcc6b7537b74780c790e1db720c2bf3e6ae2"
+  "hash": "e99a05cfe10f7b29381dd61a31b702d15032558e5bf10bc8067697df23c09d79"
 }

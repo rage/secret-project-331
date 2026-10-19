@@ -1,0 +1,115 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_ending_questions_answers (\n    question_id,\n    user_id,\n    answer_text_value,\n    answer_numeric_value\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "question_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "question_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "answer_text_value",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "answer_text_value"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "answer_numeric_value",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "answer_numeric_value"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "264ba67e24c7fa10fa85924855ee560ff399c1160918cefbf865cf13427f5da9"
+}

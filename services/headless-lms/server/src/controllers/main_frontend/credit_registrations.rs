@@ -26,6 +26,7 @@ use headless_lms_models::{
     library::credit_registration::StudentFacingCreditRegistrationStatus,
     library::credit_registration::student_notifications,
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
+    user_details::UserDetail,
     verified_student_numbers::{
         self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
         VerifiedStudentNumber,
@@ -38,6 +39,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::secret_string::expose_option;
 use models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
+use models::library::credit_registration::sisu_name::{self, NameAlignment, NameReplacement};
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -49,6 +51,7 @@ use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, m
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::services::tmc::TmcClient;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -180,7 +183,7 @@ pub struct UnlinkMyStudentNumberResult {
 }
 
 /// What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
-/// able to spend the token. Deliberately carries no Sisu-held names.
+/// able to spend the token.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct StudentNumberVerificationTokenPreview {
     pub student_number: String,
@@ -201,7 +204,41 @@ pub struct StudentNumberVerificationTokenPreview {
     pub current_student_number: Option<String>,
     /// Shown in the confirmation: being signed in to the wrong account is the common mistake.
     pub target_account_email: String,
+    /// The signed-in account's name, `None` when it has none.
+    pub target_account_name: Option<String>,
+    /// The name the account must take on claiming; `None` when it already uses Sisu's.
+    pub name_change: Option<SisuNameChange>,
     pub claimable: bool,
+}
+
+/// The name linking gives the account. The student picks the first name; the last name is Sisu's.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+pub struct SisuNameChange {
+    /// The first names the claim accepts, in display order.
+    pub first_name_options: Vec<String>,
+    /// The option to preselect.
+    pub suggested_first_name: String,
+    pub last_name: String,
+    /// Nothing in the account's name resembles Sisu's, so the account may be someone else's.
+    pub resembles_nothing: bool,
+}
+
+impl From<NameReplacement> for SisuNameChange {
+    fn from(replacement: NameReplacement) -> Self {
+        Self {
+            first_name_options: replacement.first_name_options,
+            suggested_first_name: replacement.suggested_first_name,
+            last_name: replacement.last_name,
+            resembles_nothing: replacement.resembles_nothing,
+        }
+    }
+}
+
+/// The answer to the confirmation page's name question.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+pub struct ClaimStudentNumberVerificationTokenRequest {
+    /// One of the preview's `name_change.first_name_options`; required when it has a `name_change`.
+    pub first_name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
@@ -574,6 +611,10 @@ pub async fn preview_student_number_verification_token(
     let conflict = find_conflicting_account(&mut conn, &verification_token, user.id).await?;
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
+    let name_change = match name_alignment(&verification_token, &details) {
+        NameAlignment::Keep => None,
+        NameAlignment::Replace(replacement) => Some(SisuNameChange::from(replacement)),
+    };
 
     let expired =
         verification_token.expires_at <= Utc::now() || verification_token.deleted_at.is_some();
@@ -591,7 +632,12 @@ pub async fn preview_student_number_verification_token(
         conflicts_with_other_account: conflict,
         current_student_number: current_link
             .map(|link| link.student_number.expose_secret().to_owned()),
+        target_account_name: joined_name(
+            details.first_name.as_deref(),
+            details.last_name.as_deref(),
+        ),
         target_account_email: details.email,
+        name_change,
         claimable: !expired && !already_used && !conflict,
     }))
 }
@@ -601,17 +647,20 @@ POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{t
 a mailed link and links the student number to the signed-in account.
 
 Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
-and the session says which of our accounts the person wants to use.
+and the session says which of our accounts the person wants to use. The account's name is set to
+Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
 */
-#[instrument(skip(pool, path))]
+#[instrument(skip(pool, path, payload, tmc_client, app_conf))]
 #[utoipa::path(
     post,
     path = "/student-number-verifications/{token}/claim",
     operation_id = "claimStudentNumberVerificationToken",
     tag = "credit-registrations",
     params(("token" = String, Path, description = "The mailed verification token")),
+    request_body = ClaimStudentNumberVerificationTokenRequest,
     responses(
         (status = 200, description = "What the claim did", body = ClaimStudentNumberVerificationTokenResult),
+        (status = 400, description = "The first name is not one the preview offered"),
         (status = 404, description = "No such token")
     )
 )]
@@ -619,6 +668,9 @@ pub async fn claim_student_number_verification_token(
     user: AuthUser,
     pool: web::Data<PgPool>,
     path: web::Path<String>,
+    payload: web::Json<ClaimStudentNumberVerificationTokenRequest>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ClaimStudentNumberVerificationTokenResult>> {
     let mut conn = pool.acquire().await?;
     let auth_token = skip_authorize();
@@ -647,6 +699,26 @@ pub async fn claim_student_number_verification_token(
         )));
     }
 
+    let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
+    let new_name = match name_alignment(&verification_token, &details) {
+        NameAlignment::Keep => None,
+        NameAlignment::Replace(replacement) => {
+            let first_name = payload
+                .first_name
+                .as_deref()
+                .filter(|first_name| replacement.allows(first_name))
+                .ok_or_else(|| {
+                    ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        "The first name must be one of those the preview offered.",
+                        None,
+                    )
+                })?
+                .to_owned();
+            Some((first_name, replacement.last_name))
+        }
+    };
+
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let current_link = verified_student_numbers::get_by_user_id(&mut conn, user.id).await?;
     let already_ours = current_link.as_ref().is_some_and(|link| {
@@ -662,6 +734,18 @@ pub async fn claim_student_number_verification_token(
         return auth_token.authorized_ok(web::Json(refused(
             ClaimStudentNumberVerificationTokenOutcome::AlreadyUsed,
         )));
+    }
+    if let Some((first_name, last_name)) = &new_name {
+        models::user_details::update_user_name(&mut tx, user.id, first_name, last_name).await?;
+        push_name_to_tmc(
+            &mut tx,
+            user.id,
+            first_name,
+            last_name,
+            &tmc_client,
+            &app_conf,
+        )
+        .await?;
     }
     if already_ours {
         tx.commit().await?;
@@ -929,13 +1013,72 @@ async fn course_name_of_token(
 
 /// The first names and last name Sisu held when the token was minted, or `None` when it held neither.
 fn full_name(token: &StudentNumberVerificationToken) -> Option<String> {
-    let parts: Vec<&str> = [&token.first_names, &token.last_name]
+    joined_name(
+        expose_option(&token.first_names),
+        expose_option(&token.last_name),
+    )
+}
+
+/// Keeps TMC's copy of the name in step with ours, as the profile form does; a failure rolls the claim
+/// back rather than leave the two disagreeing.
+async fn push_name_to_tmc(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    first_name: &str,
+    last_name: &str,
+    tmc_client: &web::Data<TmcClient>,
+    app_conf: &web::Data<ApplicationConfiguration>,
+) -> Result<(), ControllerError> {
+    if app_conf.test_mode {
+        return Ok(());
+    }
+    let upstream_id = models::users::get_by_id(conn, user_id)
+        .await?
+        .upstream_id
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Missing upstream_id",
+                None,
+            )
+        })?;
+    crate::controllers::auth::update_user_information_to_tmc(
+        first_name.to_owned(),
+        last_name.to_owned(),
+        None,
+        upstream_id.to_string(),
+        tmc_client.clone(),
+        app_conf.clone(),
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to update user info to tmc",
+            e,
+        )
+    })
+}
+
+/// `first` and `last` as one display name, or `None` when both are blank.
+fn joined_name(first: Option<&str>, last: Option<&str>) -> Option<String> {
+    let parts: Vec<&str> = [first, last]
         .into_iter()
-        .filter_map(expose_option)
+        .flatten()
         .map(str::trim)
         .filter(|part| !part.is_empty())
         .collect();
     (!parts.is_empty()).then(|| parts.join(" "))
+}
+
+/// What claiming `token` does to the name of the account described by `details`.
+fn name_alignment(token: &StudentNumberVerificationToken, details: &UserDetail) -> NameAlignment {
+    sisu_name::align(
+        expose_option(&token.first_names),
+        expose_option(&token.last_name),
+        details.first_name.as_deref(),
+        details.last_name.as_deref(),
+    )
 }
 
 /// The caller's answer about where they enrol one module, and whether it can still be changed.

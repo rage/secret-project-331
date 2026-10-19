@@ -1,22 +1,22 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useContext, useEffect, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
+import type { Control } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
 import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
 import {
-  cardCss,
   narrowPageCss,
   noteCss,
   pageTitleCss,
   rowCss,
   sectionsCss,
-  studentNumberCss,
 } from "@/components/credit-registration/styles"
-import { useIsAccountLinkingEnabled } from "@/components/credit-registration/useIsAccountLinkingEnabled"
 import {
   getMyCreditRegistrationsQueryKey,
   getMyVerifiedStudentNumberQueryKey,
@@ -25,6 +25,7 @@ import {
 import { claimStudentNumberVerificationToken } from "@/generated/api/sdk.generated"
 import type {
   ClaimStudentNumberVerificationTokenResult,
+  SisuNameChange,
   StudentNumberVerificationTokenPreview,
 } from "@/generated/api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -40,7 +41,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { InfoboxTone } from "@/shared-module/components"
-import { Button, DescriptionList, Infobox, Link, QueryResult } from "@/shared-module/components"
+import { Button, Infobox, Link, QueryResult, Radio, RadioGroup } from "@/shared-module/components"
 
 const wrongAccountActionCss = css`
   color: var(--color-green-700);
@@ -60,6 +61,105 @@ const wrongAccountActionCss = css`
     outline-offset: var(--focus-ring-offset);
     border-radius: var(--space-1);
   }
+`
+
+const eyebrowCss = css`
+  margin: 0 0 var(--space-3);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-1);
+  font-weight: 500;
+`
+
+const confirmationCss = css`
+  display: grid;
+  gap: var(--space-5);
+`
+
+const introCss = css`
+  display: grid;
+  gap: var(--space-3);
+  font-size: var(--font-size-3);
+`
+
+const recordsCss = css`
+  display: grid;
+  gap: var(--space-3);
+`
+
+const recordCss = css`
+  display: grid;
+  padding: var(--space-4);
+  border: 1px solid var(--color-clear-300);
+  border-radius: var(--surface-radius);
+`
+
+// The record the student checks first, so the only border on the page that reads as a boundary.
+const sisuRecordCss = css`
+  border-color: var(--color-gray-400);
+`
+
+const recordTitleCss = css`
+  margin: 0 0 var(--space-2);
+  color: var(--color-gray-700);
+  font-size: 15px;
+  font-weight: 500;
+`
+
+const sisuFactsCss = css`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-gray-700);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+`
+
+const factLabelCss = css`
+  color: var(--color-gray-500);
+  font-size: var(--font-size-1);
+`
+
+const studentNumberValueCss = css`
+  font-variant-numeric: tabular-nums;
+`
+
+const accountEmailCss = css`
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-gray-700);
+  font-size: var(--font-size-3);
+  font-weight: 600;
+`
+
+const accountNameCss = css`
+  margin: var(--space-3) 0 0;
+  color: var(--color-gray-700);
+  font-size: 15px;
+
+  span:first-child {
+    margin-right: var(--space-2);
+    color: var(--color-gray-500);
+  }
+`
+
+// Colour alone would not carry the mismatch to everyone, hence the underline.
+const mismatchCss = css`
+  text-decoration: underline 2px;
+  text-underline-offset: 3px;
+`
+
+const mismatchHighlightCss = css`
+  background: var(--color-yellow-300);
 `
 
 const outcomeCss = css`
@@ -98,6 +198,17 @@ const DEAD_ENDS = {
 
 type DeadEndReason = (typeof DEAD_ENDS)[keyof typeof DEAD_ENDS]
 
+/** The heading of every state of the page, under the course the link was sent for when it is known. */
+const PageHeading: React.FC<{ courseName?: string | null | undefined }> = ({ courseName }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <div>
+      {courseName ? <p className={eyebrowCss}>{courseName}</p> : null}
+      <h1 className={pageTitleCss}>{t("heading-link-student-number")}</h1>
+    </div>
+  )
+}
+
 const LinkStudentNumberPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   usePageTitle(t("heading-link-student-number"))
@@ -106,7 +217,6 @@ const LinkStudentNumberPage: React.FC = () => {
 
   return (
     <div className={narrowPageCss}>
-      <h1 className={pageTitleCss}>{t("heading-link-student-number")}</h1>
       {loginState.signedIn === true ? (
         <SignedIn token={token} />
       ) : loginState.signedIn === false ? (
@@ -122,6 +232,7 @@ const SignInOrSignUp: React.FC<{ token: string }> = ({ token }) => {
   const returnTo = linkStudentNumberRoute(token)
   return (
     <>
+      <PageHeading />
       <p>{t("link-student-number-sign-in-required")}</p>
       <div className={rowCss}>
         <Link href={loginRoute(returnTo)} styledAsButton variant="primary" size="medium">
@@ -144,16 +255,24 @@ const SignedIn: React.FC<{ token: string }> = ({ token }) => {
   })
 
   if (result) {
-    return <ClaimOutcome result={result} />
+    return (
+      <>
+        <PageHeading courseName={result.linked_course_name} />
+        <ClaimOutcome result={result} />
+      </>
+    )
   }
   return (
-    <QueryResult
-      query={preview}
-      contentClassName={sectionsCss}
-      renderBlockingError={() => <DeadEnd reason={DEAD_ENDS.not_found} />}
-    >
-      {(data) => <Confirmation token={token} preview={data} onClaimed={setResult} />}
-    </QueryResult>
+    <>
+      <PageHeading courseName={preview.data?.course_name} />
+      <QueryResult
+        query={preview}
+        contentClassName={sectionsCss}
+        renderBlockingError={() => <DeadEnd reason={DEAD_ENDS.not_found} />}
+      >
+        {(data) => <Confirmation token={token} preview={data} onClaimed={setResult} />}
+      </QueryResult>
+    </>
   )
 }
 
@@ -178,6 +297,10 @@ const DeadEnd: React.FC<{ reason: DeadEndReason }> = ({ reason }) => {
   )
 }
 
+interface NameForm {
+  firstName: string
+}
+
 const Confirmation: React.FC<{
   token: string
   preview: StudentNumberVerificationTokenPreview
@@ -186,10 +309,17 @@ const Confirmation: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { logout } = useLogout()
-  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  const nameChange = preview.name_change ?? null
+  const { control, getValues } = useForm<NameForm>({
+    defaultValues: { firstName: nameChange?.suggested_first_name ?? "" },
+  })
 
   const claim = useToastMutation<ClaimStudentNumberVerificationTokenResult, unknown, void>(
-    async () => await claimStudentNumberVerificationToken({ path: { token } }),
+    async () =>
+      await claimStudentNumberVerificationToken({
+        path: { token },
+        body: { first_name: nameChange ? getValues("firstName") : null },
+      }),
     { notify: false },
     {
       onSuccess: async (claimResult) => {
@@ -206,45 +336,88 @@ const Confirmation: React.FC<{
     return <DeadEnd reason={unusableLinkReason(preview)} />
   }
 
-  const items = [
-    ...(preview.sisu_full_name
-      ? [{ label: t("label-name-in-sisu"), value: preview.sisu_full_name }]
-      : []),
-    { label: t("label-mooc-fi-account"), value: preview.target_account_email },
-  ]
+  const namesDiffer = nameChange?.resembles_nothing ?? false
   // Opening the mail while logged in to the wrong account is the common mistake.
   const logoutLink = (
     // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
     <button type="button" className={wrongAccountActionCss} onClick={() => void logout()} />
   )
+  const mismatchNote = namesDiffer ? (
+    <VisuallyHidden> {t("link-student-number-names-differ-note")}</VisuallyHidden>
+  ) : null
 
   return (
-    <>
-      {claim.isError && (
-        <Infobox tone={TONE.WARNING} announce>
-          {t("link-student-number-could-not-link")}
-        </Infobox>
-      )}
-      {preview.course_name ? (
-        <p>{t("link-student-number-why-you-got-this", { course: preview.course_name })}</p>
-      ) : null}
-      {/* The one moment of consent in the flow, so it says what the number will be used for. */}
-      <p>
-        {isAccountLinkingEnabled
-          ? t("link-student-number-what-linking-means")
-          : t("link-student-number-what-linking-means-ask-staff-to-remove")}
-      </p>
-      <div className={cardCss}>
-        <div>
-          <p className={noteCss}>{t("label-student-number")}</p>
-          <p className={studentNumberCss}>{preview.student_number}</p>
-        </div>
-        <DescriptionList items={items} />
+    <div className={confirmationCss}>
+      <div className={introCss}>
+        <p>{t("link-student-number-lead")}</p>
       </div>
-      <p>
-        {preview.sisu_full_name ? `${t("link-student-number-check-name")} ` : null}
-        {t("link-student-number-confirm-question")}
-      </p>
+
+      <div className={recordsCss}>
+        <section className={cx(recordCss, sisuRecordCss)} aria-labelledby="link-sisu-record">
+          <h2 id="link-sisu-record" className={recordTitleCss}>
+            {t("link-student-number-in-sisu")}
+          </h2>
+          <dl className={sisuFactsCss}>
+            {preview.sisu_full_name ? (
+              <div>
+                <dt className={factLabelCss}>{t("label-name")}</dt>
+                <dd>
+                  <span className={cx(namesDiffer && mismatchCss)}>{preview.sisu_full_name}</span>
+                  {mismatchNote}
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className={factLabelCss}>{t("label-student-number")}</dt>
+              <dd className={studentNumberValueCss}>{preview.student_number}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className={recordCss} aria-labelledby="link-account-record">
+          <h2 id="link-account-record" className={recordTitleCss}>
+            {t("link-student-number-logged-in-as")}
+          </h2>
+          <p className={accountEmailCss}>{preview.target_account_email}</p>
+          <p className={noteCss}>
+            <Trans t={t} i18nKey="link-student-number-wrong-account" components={{ logoutLink }} />
+          </p>
+          {preview.target_account_name ? (
+            <p className={accountNameCss}>
+              <span>{t("link-student-number-name-on-mooc-fi")}</span>
+              <span className={cx(namesDiffer && mismatchCss, namesDiffer && mismatchHighlightCss)}>
+                {preview.target_account_name}
+              </span>
+              {mismatchNote}
+            </p>
+          ) : null}
+        </section>
+      </div>
+
+      {namesDiffer ? (
+        <Infobox tone={TONE.WARNING} heading={t("link-student-number-names-differ-heading")}>
+          <Trans
+            t={t}
+            i18nKey="link-student-number-names-differ"
+            values={{ notMine: t("link-student-number-not-mine") }}
+            components={{ logoutLink }}
+          />
+        </Infobox>
+      ) : null}
+
+      {nameChange ? (
+        <NameChoice control={control} nameChange={nameChange} />
+      ) : preview.target_account_name ? (
+        <p>
+          <Trans
+            t={t}
+            i18nKey="link-student-number-name-stays"
+            values={{ name: preview.target_account_name }}
+            components={{ name: <strong /> }}
+          />
+        </p>
+      ) : null}
+
       {preview.current_student_number ? (
         <Infobox tone={TONE.WARNING}>
           {t("link-student-number-replaces-current", {
@@ -252,6 +425,11 @@ const Confirmation: React.FC<{
           })}
         </Infobox>
       ) : null}
+      {claim.isError && (
+        <Infobox tone={TONE.WARNING} announce>
+          {t("link-student-number-could-not-link")}
+        </Infobox>
+      )}
       <div className={rowCss}>
         <Button
           variant="primary"
@@ -260,14 +438,50 @@ const Confirmation: React.FC<{
           onClick={() => claim.mutate()}
           data-testid="link-student-number-confirm-button"
         >
-          {t("link-student-number-confirm")}
+          {namesDiffer
+            ? t("link-student-number-confirm-names-differ")
+            : t("link-student-number-confirm")}
         </Button>
-        <Link href={profileStudiesRoute()}>{t("button-text-cancel")}</Link>
+        <Link href={profileStudiesRoute()} styledAsButton variant="secondary" size="medium">
+          {t("link-student-number-not-mine")}
+        </Link>
       </div>
-      <p className={noteCss}>
-        <Trans t={t} i18nKey="link-student-number-wrong-account" components={{ logoutLink }} />
+    </div>
+  )
+}
+
+/** The question linking has to ask, kept quiet: the records above are what the student checks. */
+const NameChoice: React.FC<{
+  control: Control<NameForm>
+  nameChange: SisuNameChange
+}> = ({ control, nameChange }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const fullName = (firstName: string) => `${firstName} ${nameChange.last_name}`
+
+  const [onlyOption, ...otherOptions] = nameChange.first_name_options
+  if (onlyOption !== undefined && otherOptions.length === 0) {
+    return (
+      <p>
+        <Trans
+          t={t}
+          i18nKey="link-student-number-name-will-be"
+          values={{ name: fullName(onlyOption) }}
+          components={{ name: <strong /> }}
+        />
       </p>
-    </>
+    )
+  }
+  return (
+    <RadioGroup
+      name="firstName"
+      control={control}
+      label={t("link-student-number-name-question")}
+      description={t("link-student-number-name-hint")}
+    >
+      {nameChange.first_name_options.map((firstName) => (
+        <Radio key={firstName} value={firstName} label={fullName(firstName)} />
+      ))}
+    </RadioGroup>
   )
 }
 

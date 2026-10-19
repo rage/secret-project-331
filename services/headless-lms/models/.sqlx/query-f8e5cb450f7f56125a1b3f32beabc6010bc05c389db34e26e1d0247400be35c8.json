@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_details\nSET first_name = $1,\n  last_name = $2\nWHERE user_id = $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f8e5cb450f7f56125a1b3f32beabc6010bc05c389db34e26e1d0247400be35c8"
+}

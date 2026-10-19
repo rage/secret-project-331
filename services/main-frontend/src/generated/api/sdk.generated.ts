@@ -6203,7 +6203,8 @@ export const previewStudentNumberVerificationToken = <ThrowOnError extends boole
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
   options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
@@ -6224,6 +6225,10 @@ export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

@@ -791,6 +791,13 @@ export const zClaimStudentNumberVerificationTokenOutcome = z.enum([
   "student_number_already_linked_to_another_account",
 ])
 
+/**
+ * The answer to the confirmation page's name question.
+ */
+export const zClaimStudentNumberVerificationTokenRequest = z.object({
+  first_name: z.string().nullish(),
+})
+
 export const zClaimStudentNumberVerificationTokenResult = z.object({
   linked_course_name: z.string().nullish(),
   newly_unblocked_registration_count: z.coerce
@@ -4987,6 +4994,16 @@ export const zSisuDescriptionResponse = z.object({
 })
 
 /**
+ * The name linking gives the account. The student picks the first name; the last name is Sisu's.
+ */
+export const zSisuNameChange = z.object({
+  first_name_options: z.array(z.string()),
+  last_name: z.string(),
+  resembles_nothing: z.boolean(),
+  suggested_first_name: z.string(),
+})
+
+/**
  * How long a row may sit in one state before it counts as stuck. Seconds, per state.
  *
  * Also the wire payload the health endpoint reports as thresholds: field names are the
@@ -5213,7 +5230,7 @@ export const zPageAdminVerifiedStudentNumberRow = z.object({
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token. Deliberately carries no Sisu-held names.
+ * able to spend the token.
  */
 export const zStudentNumberVerificationTokenPreview = z.object({
   already_used: z.boolean(),
@@ -5225,9 +5242,11 @@ export const zStudentNumberVerificationTokenPreview = z.object({
   emailed_to_masked: z.string(),
   expired: z.boolean(),
   expires_at: z.iso.datetime(),
+  name_change: zSisuNameChange.nullish(),
   sisu_full_name: z.string().nullish(),
   student_number: z.string(),
   target_account_email: z.string(),
+  target_account_name: z.string().nullish(),
 })
 
 export const zStudentsByCountryTotalsResult = z.object({
@@ -9392,6 +9411,8 @@ export const zPreviewStudentNumberVerificationTokenPath = z.object({
  * What the token would link
  */
 export const zPreviewStudentNumberVerificationTokenResponse = zStudentNumberVerificationTokenPreview
+
+export const zClaimStudentNumberVerificationTokenBody = zClaimStudentNumberVerificationTokenRequest
 
 export const zClaimStudentNumberVerificationTokenPath = z.object({
   token: z.string(),

@@ -1416,6 +1416,16 @@ export type ClaimStudentNumberVerificationTokenOutcome =
   | "already_used"
   | "student_number_already_linked_to_another_account"
 
+/**
+ * The answer to the confirmation page's name question.
+ */
+export type ClaimStudentNumberVerificationTokenRequest = {
+  /**
+   * One of the preview's `name_change.first_name_options`; required when it has a `name_change`.
+   */
+  first_name?: string | null
+}
+
 export type ClaimStudentNumberVerificationTokenResult = {
   linked_course_name?: string | null
   /**
@@ -5544,6 +5554,25 @@ export type SisuDescriptionResponse = {
 }
 
 /**
+ * The name linking gives the account. The student picks the first name; the last name is Sisu's.
+ */
+export type SisuNameChange = {
+  /**
+   * The first names the claim accepts, in display order.
+   */
+  first_name_options: Array<string>
+  last_name: string
+  /**
+   * Nothing in the account's name resembles Sisu's, so the account may be someone else's.
+   */
+  resembles_nothing: boolean
+  /**
+   * The option to preselect.
+   */
+  suggested_first_name: string
+}
+
+/**
  * How long a row may sit in one state before it counts as stuck. Seconds, per state.
  *
  * Also the wire payload the health endpoint reports as thresholds: field names are the
@@ -5578,7 +5607,7 @@ export type StudentNumberVerificationMethod = "emailed_link" | "admin_manual" | 
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token. Deliberately carries no Sisu-held names.
+ * able to spend the token.
  */
 export type StudentNumberVerificationTokenPreview = {
   already_used: boolean
@@ -5600,6 +5629,7 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
+  name_change?: null | SisuNameChange
   /**
    * The name Sisu holds for the student number. Sisu does not verify the address the link was
    * mailed to, so the name is what tells someone they are about to link someone else's number.
@@ -5610,6 +5640,10 @@ export type StudentNumberVerificationTokenPreview = {
    * Shown in the confirmation: being signed in to the wrong account is the common mistake.
    */
   target_account_email: string
+  /**
+   * The signed-in account's name, `None` when it has none.
+   */
+  target_account_name?: string | null
 }
 
 export type StudentsByCountryTotalsResult = {
@@ -11987,7 +12021,7 @@ export type PreviewStudentNumberVerificationTokenResponse =
   PreviewStudentNumberVerificationTokenResponses[keyof PreviewStudentNumberVerificationTokenResponses]
 
 export type ClaimStudentNumberVerificationTokenData = {
-  body?: never
+  body: ClaimStudentNumberVerificationTokenRequest
   path: {
     /**
      * The mailed verification token
@@ -11999,6 +12033,10 @@ export type ClaimStudentNumberVerificationTokenData = {
 }
 
 export type ClaimStudentNumberVerificationTokenErrors = {
+  /**
+   * The first name is not one the preview offered
+   */
+  400: unknown
   /**
    * No such token
    */

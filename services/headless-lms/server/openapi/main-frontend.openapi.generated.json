@@ -9197,7 +9197,7 @@
     "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nAny signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,\nand the session says which of our accounts the person wants to use.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nAny signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,\nand the session says which of our accounts the person wants to use. The account's name is set to\nSisu's in the same transaction, with the first name the student picked, and pushed to TMC.",
         "operationId": "claimStudentNumberVerificationToken",
         "parameters": [
           {
@@ -9210,6 +9210,16 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimStudentNumberVerificationTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "What the claim did",
@@ -9220,6 +9230,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "The first name is not one the preview offered"
           },
           "404": {
             "description": "No such token"
@@ -17911,6 +17924,16 @@
           "student_number_already_linked_to_another_account"
         ]
       },
+      "ClaimStudentNumberVerificationTokenRequest": {
+        "type": "object",
+        "description": "The answer to the confirmation page's name question.",
+        "properties": {
+          "first_name": {
+            "type": ["string", "null"],
+            "description": "One of the preview's `name_change.first_name_options`; required when it has a `name_change`."
+          }
+        }
+      },
       "ClaimStudentNumberVerificationTokenResult": {
         "type": "object",
         "required": ["outcome", "newly_unblocked_registration_count"],
@@ -25516,6 +25539,36 @@
           }
         }
       },
+      "NameReplacement": {
+        "type": "object",
+        "description": "The names the account may take on linking; the student picks the first name.",
+        "required": [
+          "first_name_options",
+          "suggested_first_name",
+          "last_name",
+          "resembles_nothing"
+        ],
+        "properties": {
+          "first_name_options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling."
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "resembles_nothing": {
+            "type": "boolean",
+            "description": "Neither the account's first name nor its last name resembles Sisu's, so the account may belong\nto someone other than the person Sisu names."
+          },
+          "suggested_first_name": {
+            "type": "string",
+            "description": "One of `first_name_options`: what the account already uses, else Sisu's first first name."
+          }
+        }
+      },
       "NeverEnteredCompletion": {
         "type": "object",
         "description": "A completion that satisfies the materialise predicate and has no ledger row.",
@@ -28672,7 +28725,7 @@
       },
       "StudentNumberVerificationTokenPreview": {
         "type": "object",
-        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token. Deliberately carries no Sisu-held names.",
+        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token.",
         "required": [
           "student_number",
           "emailed_to_masked",
@@ -28716,12 +28769,31 @@
             "type": "string",
             "format": "date-time"
           },
+          "name_change": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NameReplacement",
+                "description": "The name the account must take on claiming; `None` when it already uses Sisu's or the link is\nnot `claimable`."
+              }
+            ]
+          },
+          "sisu_full_name": {
+            "type": ["string", "null"],
+            "description": "The name Sisu holds for the student number. Sisu does not verify the address the link was\nmailed to, so the name is what tells someone they are about to link someone else's number.\n`None` unless `claimable`."
+          },
           "student_number": {
             "type": "string"
           },
           "target_account_email": {
             "type": "string",
             "description": "Shown in the confirmation: being signed in to the wrong account is the common mistake."
+          },
+          "target_account_name": {
+            "type": ["string", "null"],
+            "description": "The signed-in account's name, `None` when it has none."
           }
         }
       },

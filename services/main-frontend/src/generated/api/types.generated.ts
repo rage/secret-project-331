@@ -1416,6 +1416,16 @@ export type ClaimStudentNumberVerificationTokenOutcome =
   | "already_used"
   | "student_number_already_linked_to_another_account"
 
+/**
+ * The answer to the confirmation page's name question.
+ */
+export type ClaimStudentNumberVerificationTokenRequest = {
+  /**
+   * One of the preview's `name_change.first_name_options`; required when it has a `name_change`.
+   */
+  first_name?: string | null
+}
+
 export type ClaimStudentNumberVerificationTokenResult = {
   linked_course_name?: string | null
   /**
@@ -4452,6 +4462,26 @@ export type MyVerifiedStudentNumber = {
 }
 
 /**
+ * The names the account may take on linking; the student picks the first name.
+ */
+export type NameReplacement = {
+  /**
+   * Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling.
+   */
+  first_name_options: Array<string>
+  last_name: string
+  /**
+   * Neither the account's first name nor its last name resembles Sisu's, so the account may belong
+   * to someone other than the person Sisu names.
+   */
+  resembles_nothing: boolean
+  /**
+   * One of `first_name_options`: what the account already uses, else Sisu's first first name.
+   */
+  suggested_first_name: string
+}
+
+/**
  * A completion that satisfies the materialise predicate and has no ledger row.
  */
 export type NeverEnteredCompletion = {
@@ -5578,7 +5608,7 @@ export type StudentNumberVerificationMethod = "emailed_link" | "admin_manual" | 
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token. Deliberately carries no Sisu-held names.
+ * able to spend the token.
  */
 export type StudentNumberVerificationTokenPreview = {
   already_used: boolean
@@ -5600,11 +5630,22 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
+  name_change?: null | NameReplacement
+  /**
+   * The name Sisu holds for the student number. Sisu does not verify the address the link was
+   * mailed to, so the name is what tells someone they are about to link someone else's number.
+   * `None` unless `claimable`.
+   */
+  sisu_full_name?: string | null
   student_number: string
   /**
    * Shown in the confirmation: being signed in to the wrong account is the common mistake.
    */
   target_account_email: string
+  /**
+   * The signed-in account's name, `None` when it has none.
+   */
+  target_account_name?: string | null
 }
 
 export type StudentsByCountryTotalsResult = {
@@ -11982,7 +12023,7 @@ export type PreviewStudentNumberVerificationTokenResponse =
   PreviewStudentNumberVerificationTokenResponses[keyof PreviewStudentNumberVerificationTokenResponses]
 
 export type ClaimStudentNumberVerificationTokenData = {
-  body?: never
+  body: ClaimStudentNumberVerificationTokenRequest
   path: {
     /**
      * The mailed verification token
@@ -11994,6 +12035,10 @@ export type ClaimStudentNumberVerificationTokenData = {
 }
 
 export type ClaimStudentNumberVerificationTokenErrors = {
+  /**
+   * The first name is not one the preview offered
+   */
+  400: unknown
   /**
    * No such token
    */

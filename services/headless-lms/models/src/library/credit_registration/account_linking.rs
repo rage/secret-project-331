@@ -67,8 +67,8 @@ pub struct DiscoveredPerson {
     pub first_names: Option<DbSecret>,
     pub last_name: Option<DbSecret>,
     pub course_id: Uuid,
-    /// Their primary address in Sisu, trimmed: the one students are told to check, and each address
-    /// mailed would spend one of the person's mails for the course. See [`mail_address`].
+    /// The one address in Sisu we mail, trimmed: each address mailed would spend one of the
+    /// person's mails for the course. See [`mail_address`].
     pub address: Option<DbSecret>,
 }
 
@@ -87,13 +87,18 @@ impl DiscoveredPerson {
     }
 }
 
-/// The address a linking mail to `person` goes to, if Sisu holds one.
+/// The address a linking mail to `person` goes to, if Sisu holds one: the primary, else the
+/// secondary.
+///
+/// Sisu verifies neither, so the confirmation page shows the Sisu name to make a planted address
+/// harder to exploit. Open University students without a University account often have only a
+/// secondary address, and Sisu clears old primaries.
 pub fn mail_address(person: &RosterPerson) -> Option<DbSecret> {
-    person
-        .primary_email
-        .as_ref()
+    [&person.primary_email, &person.secondary_email]
+        .into_iter()
+        .flatten()
         .map(|address| address.expose_secret().trim())
-        .filter(|address| !address.is_empty())
+        .find(|address| !address.is_empty())
         .map(DbSecret::new)
 }
 

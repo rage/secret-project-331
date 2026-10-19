@@ -189,6 +189,7 @@ pub struct StudentNumberVerificationTokenPreview {
     pub student_number: String,
     /// The name Sisu holds for the student number. Sisu does not verify the address the link was
     /// mailed to, so the name is what tells someone they are about to link someone else's number.
+    /// `None` unless `claimable`.
     pub sisu_full_name: Option<String>,
     pub course_name: Option<String>,
     pub emailed_to_masked: String,
@@ -206,32 +207,10 @@ pub struct StudentNumberVerificationTokenPreview {
     pub target_account_email: String,
     /// The signed-in account's name, `None` when it has none.
     pub target_account_name: Option<String>,
-    /// The name the account must take on claiming; `None` when it already uses Sisu's.
-    pub name_change: Option<SisuNameChange>,
+    /// The name the account must take on claiming; `None` when it already uses Sisu's or the link is
+    /// not `claimable`.
+    pub name_change: Option<NameReplacement>,
     pub claimable: bool,
-}
-
-/// The name linking gives the account. The student picks the first name; the last name is Sisu's.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
-pub struct SisuNameChange {
-    /// The first names the claim accepts, in display order.
-    pub first_name_options: Vec<String>,
-    /// The option to preselect.
-    pub suggested_first_name: String,
-    pub last_name: String,
-    /// Nothing in the account's name resembles Sisu's, so the account may be someone else's.
-    pub resembles_nothing: bool,
-}
-
-impl From<NameReplacement> for SisuNameChange {
-    fn from(replacement: NameReplacement) -> Self {
-        Self {
-            first_name_options: replacement.first_name_options,
-            suggested_first_name: replacement.suggested_first_name,
-            last_name: replacement.last_name,
-            resembles_nothing: replacement.resembles_nothing,
-        }
-    }
 }
 
 /// The answer to the confirmation page's name question.
@@ -611,18 +590,19 @@ pub async fn preview_student_number_verification_token(
     let conflict = find_conflicting_account(&mut conn, &verification_token, user.id).await?;
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
-    let name_change = match name_alignment(&verification_token, &details) {
-        NameAlignment::Keep => None,
-        NameAlignment::Replace(replacement) => Some(SisuNameChange::from(replacement)),
-    };
-
     let expired =
         verification_token.expires_at <= Utc::now() || verification_token.deleted_at.is_some();
     let already_used = verification_token.used_at.is_some();
+    let claimable = !expired && !already_used && !conflict;
+    // A dead link may have been forwarded, so it no longer shows whose number it is.
+    let name_change = match name_alignment(&verification_token, &details) {
+        NameAlignment::Replace(replacement) if claimable => Some(replacement),
+        _ => None,
+    };
 
     auth_token.authorized_ok(web::Json(StudentNumberVerificationTokenPreview {
         student_number: verification_token.student_number.expose_secret().to_owned(),
-        sisu_full_name: full_name(&verification_token),
+        sisu_full_name: full_name(&verification_token).filter(|_| claimable),
         course_name,
         emailed_to_masked: mask_email(verification_token.emailed_to.expose_secret()),
         expires_at: verification_token.expires_at,
@@ -638,7 +618,7 @@ pub async fn preview_student_number_verification_token(
         ),
         target_account_email: details.email,
         name_change,
-        claimable: !expired && !already_used && !conflict,
+        claimable,
     }))
 }
 
@@ -735,8 +715,14 @@ pub async fn claim_student_number_verification_token(
             ClaimStudentNumberVerificationTokenOutcome::AlreadyUsed,
         )));
     }
+    let newly_unblocked_registration_count = if already_ours {
+        None
+    } else {
+        Some(link_token_student_number(&mut tx, &verification_token, current_link, user.id).await?)
+    };
     if let Some((first_name, last_name)) = &new_name {
         models::user_details::update_user_name(&mut tx, user.id, first_name, last_name).await?;
+        // Last before the commit: TMC cannot be rolled back, so nothing that may fail comes after it.
         push_name_to_tmc(
             &mut tx,
             user.id,
@@ -747,24 +733,41 @@ pub async fn claim_student_number_verification_token(
         )
         .await?;
     }
-    if already_ours {
-        tx.commit().await?;
-        return auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
+    tx.commit().await?;
+
+    let student_number = Some(verification_token.student_number.expose_secret().to_owned());
+    auth_token.authorized_ok(web::Json(match newly_unblocked_registration_count {
+        None => ClaimStudentNumberVerificationTokenResult {
             outcome: ClaimStudentNumberVerificationTokenOutcome::AlreadyLinkedToThisAccount,
-            student_number: Some(verification_token.student_number.expose_secret().to_owned()),
+            student_number,
             linked_course_name: course_name,
             newly_unblocked_registration_count: 0,
-        }));
-    }
+        },
+        Some(newly_unblocked_registration_count) => ClaimStudentNumberVerificationTokenResult {
+            outcome: ClaimStudentNumberVerificationTokenOutcome::Linked,
+            student_number,
+            linked_course_name: course_name,
+            newly_unblocked_registration_count,
+        },
+    }))
+}
 
+/// Links the token's student number to `user_id`, replacing `current_link`, and returns how many
+/// registrations that unblocked.
+async fn link_token_student_number(
+    conn: &mut PgConnection,
+    verification_token: &StudentNumberVerificationToken,
+    current_link: Option<VerifiedStudentNumber>,
+    user_id: Uuid,
+) -> Result<i64, ControllerError> {
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
     // audit trail survives.
     let (_, newly_unblocked_registration_count) =
         verified_student_numbers::replace_verified_student_number(
-            &mut tx,
+            conn,
             current_link.map(|link| link.id),
             &NewVerifiedStudentNumber {
-                user_id: user.id,
+                user_id,
                 student_number: verification_token.student_number.clone(),
                 sisu_person_id: verification_token.sisu_person_id.clone(),
                 first_names: verification_token.first_names.clone(),
@@ -775,7 +778,7 @@ pub async fn claim_student_number_verification_token(
                 link_reason: None,
                 verified_from_course_id: verification_token.course_id,
             },
-            Some(user.id),
+            Some(user_id),
             CreditRegistrationEventKind::StudentAction,
             "The student linked a student number.",
         )
@@ -783,18 +786,11 @@ pub async fn claim_student_number_verification_token(
     // The mail went out because the course roster lists them, which proves an enrolment.
     if let Some(course_id) = verification_token.course_id {
         credit_registration_enrolment_check_signals::record_account_link_for_course(
-            &mut tx, user.id, course_id,
+            conn, user_id, course_id,
         )
         .await?;
     }
-    tx.commit().await?;
-
-    auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
-        outcome: ClaimStudentNumberVerificationTokenOutcome::Linked,
-        student_number: Some(verification_token.student_number.expose_secret().to_owned()),
-        linked_course_name: course_name,
-        newly_unblocked_registration_count,
-    }))
+    Ok(newly_unblocked_registration_count)
 }
 
 /// Assembles the wire rows for one account, adding the linking-mail status the ledger does not carry.

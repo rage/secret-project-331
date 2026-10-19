@@ -3735,6 +3735,16 @@ export const zMyStudies = z.object({
 })
 
 /**
+ * The names the account may take on linking; the student picks the first name.
+ */
+export const zNameReplacement = z.object({
+  first_name_options: z.array(z.string()),
+  last_name: z.string(),
+  resembles_nothing: z.boolean(),
+  suggested_first_name: z.string(),
+})
+
+/**
  * A completion that satisfies the materialise predicate and has no ledger row.
  */
 export const zNeverEnteredCompletion = z.object({
@@ -4994,16 +5004,6 @@ export const zSisuDescriptionResponse = z.object({
 })
 
 /**
- * The name linking gives the account. The student picks the first name; the last name is Sisu's.
- */
-export const zSisuNameChange = z.object({
-  first_name_options: z.array(z.string()),
-  last_name: z.string(),
-  resembles_nothing: z.boolean(),
-  suggested_first_name: z.string(),
-})
-
-/**
  * How long a row may sit in one state before it counts as stuck. Seconds, per state.
  *
  * Also the wire payload the health endpoint reports as thresholds: field names are the
@@ -5242,7 +5242,7 @@ export const zStudentNumberVerificationTokenPreview = z.object({
   emailed_to_masked: z.string(),
   expired: z.boolean(),
   expires_at: z.iso.datetime(),
-  name_change: zSisuNameChange.nullish(),
+  name_change: zNameReplacement.nullish(),
   sisu_full_name: z.string().nullish(),
   student_number: z.string(),
   target_account_email: z.string(),

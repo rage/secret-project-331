@@ -3,6 +3,9 @@
 
 use unicode_normalization::UnicodeNormalization;
 use unicode_normalization::char::is_combining_mark;
+use utoipa::ToSchema;
+
+use crate::prelude::*;
 
 /// What linking must do to the account's name. See [`align`].
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -13,7 +16,7 @@ pub enum NameAlignment {
 }
 
 /// The names the account may take on linking; the student picks the first name.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
 pub struct NameReplacement {
     /// Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling.
     pub first_name_options: Vec<String>,

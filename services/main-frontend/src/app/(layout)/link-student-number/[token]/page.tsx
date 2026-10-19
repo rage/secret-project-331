@@ -21,11 +21,12 @@ import {
   getMyCreditRegistrationsQueryKey,
   getMyVerifiedStudentNumberQueryKey,
   previewStudentNumberVerificationTokenOptions,
+  previewStudentNumberVerificationTokenQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { claimStudentNumberVerificationToken } from "@/generated/api/sdk.generated"
 import type {
   ClaimStudentNumberVerificationTokenResult,
-  SisuNameChange,
+  NameReplacement,
   StudentNumberVerificationTokenPreview,
 } from "@/generated/api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -310,9 +311,13 @@ const Confirmation: React.FC<{
   const queryClient = useQueryClient()
   const { logout } = useLogout()
   const nameChange = preview.name_change ?? null
-  const { control, getValues } = useForm<NameForm>({
+  const { control, getValues, reset } = useForm<NameForm>({
     defaultValues: { firstName: nameChange?.suggested_first_name ?? "" },
   })
+  // A refetched preview may offer other names: the claim rejects any the server no longer offers.
+  useEffect(() => {
+    reset({ firstName: nameChange?.suggested_first_name ?? "" })
+  }, [nameChange, reset])
 
   const claim = useToastMutation<ClaimStudentNumberVerificationTokenResult, unknown, void>(
     async () =>
@@ -328,6 +333,12 @@ const Confirmation: React.FC<{
           queryClient.invalidateQueries({ queryKey: getMyVerifiedStudentNumberQueryKey() }),
           queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),
         ])
+      },
+      // The account's name may have changed since the preview, which makes the claim refuse it.
+      onError: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: previewStudentNumberVerificationTokenQueryKey({ path: { token } }),
+        })
       },
     },
   )
@@ -453,7 +464,7 @@ const Confirmation: React.FC<{
 /** The question linking has to ask, kept quiet: the records above are what the student checks. */
 const NameChoice: React.FC<{
   control: Control<NameForm>
-  nameChange: SisuNameChange
+  nameChange: NameReplacement
 }> = ({ control, nameChange }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const fullName = (firstName: string) => `${firstName} ${nameChange.last_name}`

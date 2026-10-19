@@ -4462,6 +4462,26 @@ export type MyVerifiedStudentNumber = {
 }
 
 /**
+ * The names the account may take on linking; the student picks the first name.
+ */
+export type NameReplacement = {
+  /**
+   * Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling.
+   */
+  first_name_options: Array<string>
+  last_name: string
+  /**
+   * Neither the account's first name nor its last name resembles Sisu's, so the account may belong
+   * to someone other than the person Sisu names.
+   */
+  resembles_nothing: boolean
+  /**
+   * One of `first_name_options`: what the account already uses, else Sisu's first first name.
+   */
+  suggested_first_name: string
+}
+
+/**
  * A completion that satisfies the materialise predicate and has no ledger row.
  */
 export type NeverEnteredCompletion = {
@@ -5554,25 +5574,6 @@ export type SisuDescriptionResponse = {
 }
 
 /**
- * The name linking gives the account. The student picks the first name; the last name is Sisu's.
- */
-export type SisuNameChange = {
-  /**
-   * The first names the claim accepts, in display order.
-   */
-  first_name_options: Array<string>
-  last_name: string
-  /**
-   * Nothing in the account's name resembles Sisu's, so the account may be someone else's.
-   */
-  resembles_nothing: boolean
-  /**
-   * The option to preselect.
-   */
-  suggested_first_name: string
-}
-
-/**
  * How long a row may sit in one state before it counts as stuck. Seconds, per state.
  *
  * Also the wire payload the health endpoint reports as thresholds: field names are the
@@ -5629,10 +5630,11 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
-  name_change?: null | SisuNameChange
+  name_change?: null | NameReplacement
   /**
    * The name Sisu holds for the student number. Sisu does not verify the address the link was
    * mailed to, so the name is what tells someone they are about to link someone else's number.
+   * `None` unless `claimable`.
    */
   sisu_full_name?: string | null
   student_number: string

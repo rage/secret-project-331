@@ -25539,6 +25539,36 @@
           }
         }
       },
+      "NameReplacement": {
+        "type": "object",
+        "description": "The names the account may take on linking; the student picks the first name.",
+        "required": [
+          "first_name_options",
+          "suggested_first_name",
+          "last_name",
+          "resembles_nothing"
+        ],
+        "properties": {
+          "first_name_options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling."
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "resembles_nothing": {
+            "type": "boolean",
+            "description": "Neither the account's first name nor its last name resembles Sisu's, so the account may belong\nto someone other than the person Sisu names."
+          },
+          "suggested_first_name": {
+            "type": "string",
+            "description": "One of `first_name_options`: what the account already uses, else Sisu's first first name."
+          }
+        }
+      },
       "NeverEnteredCompletion": {
         "type": "object",
         "description": "A completion that satisfies the materialise predicate and has no ledger row.",
@@ -28644,36 +28674,6 @@
           }
         }
       },
-      "SisuNameChange": {
-        "type": "object",
-        "description": "The name linking gives the account. The student picks the first name; the last name is Sisu's.",
-        "required": [
-          "first_name_options",
-          "suggested_first_name",
-          "last_name",
-          "resembles_nothing"
-        ],
-        "properties": {
-          "first_name_options": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "The first names the claim accepts, in display order."
-          },
-          "last_name": {
-            "type": "string"
-          },
-          "resembles_nothing": {
-            "type": "boolean",
-            "description": "Nothing in the account's name resembles Sisu's, so the account may be someone else's."
-          },
-          "suggested_first_name": {
-            "type": "string",
-            "description": "The option to preselect."
-          }
-        }
-      },
       "StuckThresholds": {
         "type": "object",
         "description": "How long a row may sit in one state before it counts as stuck. Seconds, per state.\n\nAlso the wire payload the health endpoint reports as thresholds: field names are the\n`stuck_*_secs` keys the frontend reads, so do not rename without updating it.",
@@ -28775,14 +28775,14 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/SisuNameChange",
-                "description": "The name the account must take on claiming; `None` when it already uses Sisu's."
+                "$ref": "#/components/schemas/NameReplacement",
+                "description": "The name the account must take on claiming; `None` when it already uses Sisu's or the link is\nnot `claimable`."
               }
             ]
           },
           "sisu_full_name": {
             "type": ["string", "null"],
-            "description": "The name Sisu holds for the student number. Sisu does not verify the address the link was\nmailed to, so the name is what tells someone they are about to link someone else's number."
+            "description": "The name Sisu holds for the student number. Sisu does not verify the address the link was\nmailed to, so the name is what tells someone they are about to link someone else's number.\n`None` unless `claimable`."
           },
           "student_number": {
             "type": "string"

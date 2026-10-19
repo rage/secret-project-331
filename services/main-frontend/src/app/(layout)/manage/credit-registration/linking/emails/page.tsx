@@ -82,6 +82,7 @@ const STATUS_LABEL_KEYS = {
   all: "credit-registration-admin-linking-email-status-all",
 } as const satisfies Record<StatusChoice, string>
 
+/** The status a URL param names; anything unrecognised falls back to the default. */
 const statusFromParam = (raw: string | undefined): StatusChoice =>
   STATUS_CHOICES.find((choice) => choice === raw) ?? DEFAULT_STATUS
 
@@ -110,6 +111,7 @@ const STATUS_FIELD: FilterFieldDescriptor<FilterFields> = {
   },
 }
 
+/** The student number, with the Sisu name under it when known. */
 const StudentCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
   <span className={stackedCellCss}>
     <span className={codeValueCss}>{row.student_number}</span>
@@ -117,6 +119,7 @@ const StudentCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
   </span>
 )
 
+/** The send status, with the last error under it when the send failed. */
 const SendCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
   <span className={stackedCellCss}>
     <LinkingEmailSendStatus report={row.send_status} />

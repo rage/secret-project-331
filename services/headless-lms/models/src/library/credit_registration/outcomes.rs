@@ -235,6 +235,7 @@ fn still_verifying(state: CreditRegistrationState, facts: &RowFacts) -> Outcome 
     }
 }
 
+/// The next course unit slot, only for a row that has nothing left to verify but the course unit.
 fn course_unit_poll_at(state: CreditRegistrationState, facts: &RowFacts) -> Option<DateTime<Utc>> {
     facts
         .course_unit_poll_at

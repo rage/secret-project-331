@@ -1886,6 +1886,7 @@ pub async fn list_account_linking_emails(
     )))
 }
 
+/// The admin list row for a mail, with the Sisu name joined and the student's secrets exposed.
 fn to_linking_email_row(row: LinkingEmailListRow) -> AccountLinkingEmailRow {
     let sisu_full_name = [
         expose_option(&row.first_names),

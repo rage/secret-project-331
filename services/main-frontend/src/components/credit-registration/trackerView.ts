@@ -193,6 +193,7 @@ export type EnrolmentCheckOpening =
   | { kind: "registry-verdict"; errorCode: EnrolmentCheckErrorCode }
   | { kind: "still-not-seen" }
 
+/** Whether the error code is one the enrolment check box explains. */
 const isEnrolmentCheckError = (
   errorCode: CreditRegistrationErrorCode | null | undefined,
 ): errorCode is EnrolmentCheckErrorCode => ENROLMENT_CHECK_ERRORS.some((code) => code === errorCode)

@@ -448,6 +448,7 @@ pub enum LinkingMailLinkState {
 }
 
 impl LinkingMailLinkState {
+    /// The state a mail's link is in, given whether it can still be used and whether it was used.
     fn of(is_usable: bool, is_used: bool) -> Self {
         if is_usable {
             Self::Usable
@@ -1047,6 +1048,7 @@ pub enum LinkingEmailListStatus {
 }
 
 impl LinkingEmailListStatus {
+    /// The status name the `get_page` query matches on.
     fn as_sql(self) -> &'static str {
         match self {
             Self::Unused => "unused",

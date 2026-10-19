@@ -4,6 +4,7 @@ use chrono::{DateTime, Utc};
 use headless_lms_models::credit_registrations::{
     VerifyFlow, claim_due_for_verify, increment_verify_attempt_counts, schedule_next_attempts,
 };
+use headless_lms_models::library::credit_registration::course_unit_poll_slots::next_course_unit_polls;
 use headless_lms_models::library::credit_registration::outcomes::{
     RowFacts, verify_poll_lease_until,
 };
@@ -17,14 +18,19 @@ use crate::workflow::{Claimed, ClaimedRegistration};
 pub(super) type Leased = Claimed<VerifyAttempt>;
 
 /// The verify attempt a lease counted for its row, which sets the backoff an uncertain row's answer
-/// is scheduled by. Only [`claim_and_lease`] makes one, so it is always the count the lease wrote.
-pub(super) struct VerifyAttempt(i32);
+/// is scheduled by, and the course unit poll the lease chose for the row. Only [`claim_and_lease`]
+/// makes one, so it is always what the lease wrote.
+pub(super) struct VerifyAttempt {
+    count: i32,
+    course_unit_poll_at: DateTime<Utc>,
+}
 
 /// The row's facts under the attempt the lease counted, not the count the row was claimed with, so
 /// the backoff advances once per attempt.
 pub(super) fn attempt_facts(leased: &Leased, now: DateTime<Utc>) -> RowFacts {
     RowFacts {
-        verify_attempt_count: leased.extra.0,
+        verify_attempt_count: leased.extra.count,
+        course_unit_poll_at: Some(leased.extra.course_unit_poll_at),
         ..leased.claim.facts(now)
     }
 }
@@ -51,20 +57,35 @@ pub(super) async fn claim_and_lease(
     )
     .await?;
     let now = Utc::now();
+    let course_unit_polls = next_course_unit_polls(
+        conn,
+        now,
+        &claimed
+            .iter()
+            .map(|row| row.partially_registered_at.unwrap_or(now))
+            .collect::<Vec<_>>(),
+    )
+    .await?;
     let scheduled: Vec<_> = claimed
         .iter()
-        .filter(|row| attempts.contains_key(&row.id))
-        .map(|row| {
+        .zip(&course_unit_polls)
+        .filter(|(row, _)| attempts.contains_key(&row.id))
+        .map(|(row, &course_unit_poll_at)| {
+            let facts = RowFacts {
+                course_unit_poll_at: Some(course_unit_poll_at),
+                ..RowFacts::of(row, now)
+            };
             (
                 row.id,
-                verify_poll_lease_until(now, row.submitted_at, ctx.study_registry_wait),
+                verify_poll_lease_until(row.state, &facts, ctx.study_registry_wait),
             )
         })
         .collect();
     schedule_next_attempts(conn, &scheduled).await?;
     Ok(claimed
         .into_iter()
-        .filter_map(|row| {
+        .zip(course_unit_polls)
+        .filter_map(|(row, course_unit_poll_at)| {
             // Not expected while the claim holds the row's lock; if it happens anyway, the row is
             // left unpolled rather than polled under an attempt the lease never wrote.
             let Some(attempt) = attempts.get(&row.id).copied() else {
@@ -76,7 +97,10 @@ pub(super) async fn claim_and_lease(
             };
             Some(Claimed {
                 claim: ClaimedRegistration::left_in_place(row),
-                extra: VerifyAttempt(attempt),
+                extra: VerifyAttempt {
+                    count: attempt,
+                    course_unit_poll_at,
+                },
             })
         })
         .collect())

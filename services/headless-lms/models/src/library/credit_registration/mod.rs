@@ -10,6 +10,7 @@ pub mod account_linking;
 pub mod backoff;
 pub mod classification;
 pub mod config_validation;
+pub mod course_unit_poll_slots;
 pub mod enrolment_check_schedule;
 pub mod enrolment_checks;
 pub mod enrolment_selection;

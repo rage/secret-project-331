@@ -7,14 +7,6 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-/// What linking must do to the account's name. See [`align`].
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum NameAlignment {
-    /// The account already uses Sisu's name, or Sisu holds no name to align to.
-    Keep,
-    Replace(NameReplacement),
-}
-
 /// The names the account may take on linking; the student picks the first name.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
 pub struct NameReplacement {
@@ -37,7 +29,8 @@ impl NameReplacement {
     }
 }
 
-/// Compares the account's name with Sisu's.
+/// The name linking gives the account, or `None` when it keeps its own: it already uses Sisu's
+/// name, or Sisu holds none.
 ///
 /// The name is kept when every name in the account's first name is one of Sisu's first names and the
 /// last names are the same, ignoring case. Otherwise it is replaced, with any first names that are
@@ -47,11 +40,11 @@ pub fn align(
     sisu_last_name: Option<&str>,
     account_first_name: Option<&str>,
     account_last_name: Option<&str>,
-) -> NameAlignment {
+) -> Option<NameReplacement> {
     let sisu_given = words(sisu_first_names.unwrap_or_default());
     let sisu_last = normalized(sisu_last_name.unwrap_or_default());
     if sisu_given.is_empty() || sisu_last.is_empty() {
-        return NameAlignment::Keep;
+        return None;
     }
     let account_given = words(account_first_name.unwrap_or_default());
     let account_last = normalized(account_last_name.unwrap_or_default());
@@ -74,7 +67,7 @@ pub fn align(
             .all(|found| found.resemblance == Resemblance::Same)
         && last_name_resemblance == Some(Resemblance::Same)
     {
-        return NameAlignment::Keep;
+        return None;
     }
 
     let mut first_name_options = Vec::new();
@@ -102,7 +95,7 @@ pub fn align(
             .any(|name| resemblance(word, name).is_some())
     });
     let is_account_name_empty = account_given.is_empty() && account_last.is_empty();
-    NameAlignment::Replace(NameReplacement {
+    Some(NameReplacement {
         first_name_options,
         suggested_first_name,
         last_name: sisu_last,

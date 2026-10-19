@@ -14,7 +14,6 @@ use crate::{
     prelude::*,
 };
 use actix_session::Session;
-use anyhow::Error;
 use anyhow::anyhow;
 use chrono::Duration;
 use headless_lms_models::ModelErrorType;
@@ -1090,25 +1089,37 @@ pub async fn delete_user_account(
     token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
 }
 
+/// Copies a changed name, and `email` when it changed too, to TMC, which keeps its own copy of
+/// both. Callers run it inside their transaction so a TMC failure rolls the change back.
 pub async fn update_user_information_to_tmc(
+    upstream_id: Option<i32>,
     first_name: String,
     last_name: String,
     email: Option<String>,
-    user_upstream_id: String,
-    tmc_client: web::Data<TmcClient>,
-    app_conf: web::Data<ApplicationConfiguration>,
-) -> Result<(), Error> {
+    tmc_client: &TmcClient,
+    app_conf: &ApplicationConfiguration,
+) -> Result<(), ControllerError> {
     if app_conf.test_mode {
         return Ok(());
     }
+    let upstream_id = upstream_id.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Missing upstream_id",
+            None,
+        )
+    })?;
     tmc_client
-        .update_user_information(first_name, last_name, email, user_upstream_id)
+        .update_user_information(first_name, last_name, email, upstream_id.to_string())
         .await
         .map_err(|e| {
             log::warn!("TMC user update failed: {:?}", e);
-            anyhow::anyhow!("TMC user update failed: {}", e)
-        })?;
-    Ok(())
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Failed to update user info to tmc",
+                anyhow::anyhow!("TMC user update failed: {}", e),
+            )
+        })
 }
 
 /// Whether a production login must also be confirmed with an emailed code. Any role at any scope

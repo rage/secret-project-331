@@ -39,7 +39,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::secret_string::expose_option;
 use models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
-use models::library::credit_registration::sisu_name::{self, NameAlignment, NameReplacement};
+use models::library::credit_registration::sisu_name::{self, NameReplacement};
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -595,10 +595,7 @@ pub async fn preview_student_number_verification_token(
     let already_used = verification_token.used_at.is_some();
     let claimable = !expired && !already_used && !conflict;
     // A dead link may have been forwarded, so it no longer shows whose number it is.
-    let name_change = match name_alignment(&verification_token, &details) {
-        NameAlignment::Replace(replacement) if claimable => Some(replacement),
-        _ => None,
-    };
+    let name_change = name_replacement(&verification_token, &details).filter(|_| claimable);
 
     auth_token.authorized_ok(web::Json(StudentNumberVerificationTokenPreview {
         student_number: verification_token.student_number.expose_secret().to_owned(),
@@ -680,12 +677,11 @@ pub async fn claim_student_number_verification_token(
     }
 
     let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
-    let new_name = match name_alignment(&verification_token, &details) {
-        NameAlignment::Keep => None,
-        NameAlignment::Replace(replacement) => {
+    let new_name = name_replacement(&verification_token, &details)
+        .map(|replacement| {
             let first_name = payload
                 .first_name
-                .as_deref()
+                .clone()
                 .filter(|first_name| replacement.allows(first_name))
                 .ok_or_else(|| {
                     ControllerError::new(
@@ -693,11 +689,10 @@ pub async fn claim_student_number_verification_token(
                         "The first name must be one of those the preview offered.",
                         None,
                     )
-                })?
-                .to_owned();
-            Some((first_name, replacement.last_name))
-        }
-    };
+                })?;
+            Ok::<_, ControllerError>((first_name, replacement.last_name))
+        })
+        .transpose()?;
 
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let current_link = verified_student_numbers::get_by_user_id(&mut conn, user.id).await?;
@@ -716,18 +711,18 @@ pub async fn claim_student_number_verification_token(
         )));
     }
     let newly_unblocked_registration_count = if already_ours {
-        None
+        0
     } else {
-        Some(link_token_student_number(&mut tx, &verification_token, current_link, user.id).await?)
+        link_token_student_number(&mut tx, &verification_token, current_link, user.id).await?
     };
     if let Some((first_name, last_name)) = &new_name {
         models::user_details::update_user_name(&mut tx, user.id, first_name, last_name).await?;
         // Last before the commit: TMC cannot be rolled back, so nothing that may fail comes after it.
-        push_name_to_tmc(
-            &mut tx,
-            user.id,
-            first_name,
-            last_name,
+        crate::controllers::auth::update_user_information_to_tmc(
+            user.upstream_id(),
+            first_name.clone(),
+            last_name.clone(),
+            None,
             &tmc_client,
             &app_conf,
         )
@@ -735,20 +730,15 @@ pub async fn claim_student_number_verification_token(
     }
     tx.commit().await?;
 
-    let student_number = Some(verification_token.student_number.expose_secret().to_owned());
-    auth_token.authorized_ok(web::Json(match newly_unblocked_registration_count {
-        None => ClaimStudentNumberVerificationTokenResult {
-            outcome: ClaimStudentNumberVerificationTokenOutcome::AlreadyLinkedToThisAccount,
-            student_number,
-            linked_course_name: course_name,
-            newly_unblocked_registration_count: 0,
+    auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
+        outcome: if already_ours {
+            ClaimStudentNumberVerificationTokenOutcome::AlreadyLinkedToThisAccount
+        } else {
+            ClaimStudentNumberVerificationTokenOutcome::Linked
         },
-        Some(newly_unblocked_registration_count) => ClaimStudentNumberVerificationTokenResult {
-            outcome: ClaimStudentNumberVerificationTokenOutcome::Linked,
-            student_number,
-            linked_course_name: course_name,
-            newly_unblocked_registration_count,
-        },
+        student_number: Some(verification_token.student_number.expose_secret().to_owned()),
+        linked_course_name: course_name,
+        newly_unblocked_registration_count,
     }))
 }
 
@@ -1015,47 +1005,6 @@ fn full_name(token: &StudentNumberVerificationToken) -> Option<String> {
     )
 }
 
-/// Keeps TMC's copy of the name in step with ours, as the profile form does; a failure rolls the claim
-/// back rather than leave the two disagreeing.
-async fn push_name_to_tmc(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    first_name: &str,
-    last_name: &str,
-    tmc_client: &web::Data<TmcClient>,
-    app_conf: &web::Data<ApplicationConfiguration>,
-) -> Result<(), ControllerError> {
-    if app_conf.test_mode {
-        return Ok(());
-    }
-    let upstream_id = models::users::get_by_id(conn, user_id)
-        .await?
-        .upstream_id
-        .ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Missing upstream_id",
-                None,
-            )
-        })?;
-    crate::controllers::auth::update_user_information_to_tmc(
-        first_name.to_owned(),
-        last_name.to_owned(),
-        None,
-        upstream_id.to_string(),
-        tmc_client.clone(),
-        app_conf.clone(),
-    )
-    .await
-    .map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Failed to update user info to tmc",
-            e,
-        )
-    })
-}
-
 /// `first` and `last` as one display name, or `None` when both are blank.
 fn joined_name(first: Option<&str>, last: Option<&str>) -> Option<String> {
     let parts: Vec<&str> = [first, last]
@@ -1067,8 +1016,11 @@ fn joined_name(first: Option<&str>, last: Option<&str>) -> Option<String> {
     (!parts.is_empty()).then(|| parts.join(" "))
 }
 
-/// What claiming `token` does to the name of the account described by `details`.
-fn name_alignment(token: &StudentNumberVerificationToken, details: &UserDetail) -> NameAlignment {
+/// The name claiming `token` gives the account described by `details`; `None` keeps its name.
+fn name_replacement(
+    token: &StudentNumberVerificationToken,
+    details: &UserDetail,
+) -> Option<NameReplacement> {
     sisu_name::align(
         expose_option(&token.first_names),
         expose_option(&token.last_name),

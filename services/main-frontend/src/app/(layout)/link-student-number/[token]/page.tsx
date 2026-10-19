@@ -76,9 +76,7 @@ const confirmationCss = css`
   gap: var(--space-5);
 `
 
-const introCss = css`
-  display: grid;
-  gap: var(--space-3);
+const leadCss = css`
   font-size: var(--font-size-3);
 `
 
@@ -359,9 +357,7 @@ const Confirmation: React.FC<{
 
   return (
     <div className={confirmationCss}>
-      <div className={introCss}>
-        <p>{t("link-student-number-lead")}</p>
-      </div>
+      <p className={leadCss}>{t("link-student-number-lead")}</p>
 
       <div className={recordsCss}>
         <section className={cx(recordCss, sisuRecordCss)} aria-labelledby="link-sisu-record">
@@ -461,7 +457,7 @@ const Confirmation: React.FC<{
   )
 }
 
-/** The question linking has to ask, kept quiet: the records above are what the student checks. */
+/** Asks which first name the account takes from Sisu, or states it when Sisu offers one. */
 const NameChoice: React.FC<{
   control: Control<NameForm>
   nameChange: NameReplacement

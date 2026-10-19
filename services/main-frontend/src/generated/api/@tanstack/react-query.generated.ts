@@ -7995,7 +7995,8 @@ export const previewStudentNumberVerificationTokenOptions = (
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationTokenMutation = (
   options?: Partial<Options<ClaimStudentNumberVerificationTokenData>>,

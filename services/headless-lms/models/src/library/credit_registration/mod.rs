@@ -23,6 +23,7 @@ pub mod pending_reason;
 pub mod preconditions;
 pub mod scrub;
 pub mod sisu_day_gap;
+pub mod sisu_name;
 pub mod student_facing_status;
 pub mod student_notifications;
 pub mod student_number;

@@ -587,7 +587,7 @@ async fn seed_credit_registration_status_templates(
             &[
                 "Hello, congratulations on completing {{COURSE_NAME}}! You have earned {{CREDITS}} credits.",
                 "To get your completion registered in Sisu, enrol on the course. The button below shows how. If you have already enrolled, you do not need to enrol again.",
-                "After you enrol, we register your completion automatically. If your University of Helsinki student number is not linked yet, we first send a linking email to your primary email address in Sisu.",
+                "After you enrol, we register your completion automatically. If your University of Helsinki student number is not linked yet, we first send a linking email to your email address in Sisu.",
                 "Best regards,<br>MOOC.fi",
             ],
         ),
@@ -599,7 +599,7 @@ async fn seed_credit_registration_status_templates(
             &[
                 "Hei, onnittelut kurssin {{COURSE_NAME}} suorittamisesta! Olet ansainnut {{CREDITS}} op.",
                 "Jotta suorituksesi voidaan kirjata Sisuun, ilmoittaudu kurssille. Alla olevasta painikkeesta näet, miten. Jos olet jo ilmoittautunut, sinun ei tarvitse ilmoittautua uudelleen.",
-                "Ilmoittautumisen jälkeen kirjaamme suorituksesi automaattisesti. Jos Helsingin yliopiston opiskelijanumeroasi ei ole vielä liitetty, lähetämme ensin liitosviestin Sisussa olevaan ensisijaiseen sähköpostiosoitteeseesi.",
+                "Ilmoittautumisen jälkeen kirjaamme suorituksesi automaattisesti. Jos Helsingin yliopiston opiskelijanumeroasi ei ole vielä liitetty, lähetämme ensin liitosviestin Sisussa olevaan sähköpostiosoitteeseesi.",
                 "Terveisin,<br>MOOC.fi",
             ],
         ),

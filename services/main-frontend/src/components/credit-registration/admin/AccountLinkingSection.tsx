@@ -25,7 +25,6 @@ import type {
   AccountLinkingStaleAddress,
   AccountLinkingStats,
   CreditRegistrationAttentionReason,
-  EmailSendStatus,
   StudentNumberVerificationMethod,
   StudyRegistryStudentNumberConflict,
   TimelinePhase,
@@ -59,6 +58,7 @@ import {
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
+  SEND_FAILED,
   TABLE_STACK,
   TONE,
 } from "../constants"
@@ -118,7 +118,6 @@ const CLAIMS_PER_PAGE = 25
 const DAY_SECS = 86_400
 const ARROW_SIZE = 14
 
-const SEND_FAILED: EmailSendStatus = "send_failed"
 const RESEND_ITEM = "resend"
 const LINK_BY_HAND_ITEM = "link-by-hand"
 

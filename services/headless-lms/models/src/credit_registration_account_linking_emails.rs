@@ -1084,7 +1084,8 @@ pub struct LinkingEmailListRow {
 
 /// A page of linking emails on live courses, newest first, including ones a later mail replaced.
 ///
-/// `address` matches any part of the recipient address, ignoring case.
+/// `address` matches any part of the recipient address, ignoring case, and overrides `status`, so a
+/// search for a student finds their mail whatever became of it.
 pub async fn get_page(
     conn: &mut PgConnection,
     status: Option<LinkingEmailListStatus>,
@@ -1188,7 +1189,9 @@ FROM page
 ORDER BY page.sent_at DESC,
   page.id
         "#,
-        status.map(LinkingEmailListStatus::as_sql),
+        status
+            .filter(|_| address.is_none())
+            .map(LinkingEmailListStatus::as_sql),
         address_pattern,
         limit,
         offset,

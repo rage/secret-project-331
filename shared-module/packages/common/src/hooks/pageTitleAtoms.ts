@@ -38,7 +38,7 @@ export const resolvedPageTitleAtom = atom<string | null>((get) => {
   return best?.title ?? null
 })
 
-/** Whether the title carries the changed-in-background marker. Written by `usePageTitleChangeMarker`. */
+/** Whether the title carries the changed-in-background marker. */
 export const pageTitleChangeMarkerAtom = atom(false)
 
 let seqCounter = 0

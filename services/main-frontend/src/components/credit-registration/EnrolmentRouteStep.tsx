@@ -218,44 +218,44 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
         </RadioGroup>
       </section>
 
-      {picked === UNIVERSITY_OF_HELSINKI && !sisuCourseCode ? (
+      {picked === UNIVERSITY_OF_HELSINKI ? (
         <section className={bandCss}>
-          <p>
-            {t("credit-registration-sisu-course-code-missing")}{" "}
-            <SupportMailLink
-              appearance={SUPPORT_MAIL_INLINE}
-              label={SUPPORT_EMAIL}
-              subject={supportMail.subject}
-              bodyLines={supportMail.bodyLines}
-            />
-          </p>
-        </section>
-      ) : null}
-
-      {picked === UNIVERSITY_OF_HELSINKI && sisuCourseCode ? (
-        <section className={bandCss}>
-          <p>
-            <Trans
-              t={t}
-              i18nKey="credit-registration-enrol-in-sisu-on-course"
-              components={{
-                courseCode: <SisuCourseCode code={sisuCourseCode} />,
-              }}
-            />
-          </p>
-          <div className={rowCss}>
-            <Link
-              href={SISU_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              styledAsButton
-              variant={BUTTON_PRIMARY}
-              size="medium"
-            >
-              {t("go-to-sisu")}
-            </Link>
-            {iHaveEnrolled}
-          </div>
+          {sisuCourseCode ? (
+            <>
+              <p>
+                <Trans
+                  t={t}
+                  i18nKey="credit-registration-enrol-in-sisu-on-course"
+                  components={{
+                    courseCode: <SisuCourseCode code={sisuCourseCode} />,
+                  }}
+                />
+              </p>
+              <div className={rowCss}>
+                <Link
+                  href={SISU_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  styledAsButton
+                  variant={BUTTON_PRIMARY}
+                  size="medium"
+                >
+                  {t("go-to-sisu")}
+                </Link>
+                {iHaveEnrolled}
+              </div>
+            </>
+          ) : (
+            <p>
+              {t("credit-registration-sisu-course-code-missing")}{" "}
+              <SupportMailLink
+                appearance={SUPPORT_MAIL_INLINE}
+                label={SUPPORT_EMAIL}
+                subject={supportMail.subject}
+                bodyLines={supportMail.bodyLines}
+              />
+            </p>
+          )}
         </section>
       ) : null}
 

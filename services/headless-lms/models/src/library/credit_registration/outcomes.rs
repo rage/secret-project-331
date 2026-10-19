@@ -220,19 +220,19 @@ pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFa
             .after(VERIFY_GIVE_UP_POLL)
             .needing_admin();
     }
-    Outcome {
-        next: next_verify_poll(state, facts),
-        ..Outcome::to(state)
-    }
+    still_verifying(state, facts)
 }
 
-/// The next verify poll of a row in `state`: the next course unit slot once only the course unit
-/// attainment is missing, else timed from the submission.
-fn next_verify_poll(state: CreditRegistrationState, facts: &RowFacts) -> NextAttempt {
-    course_unit_poll_at(state, facts).map_or_else(
-        || NextAttempt::After(verify_delay(facts.submitted_at, facts.now)),
-        NextAttempt::At,
-    )
+/// The row stays in `state` until its next verify poll: the next course unit slot once only the
+/// course unit attainment is missing, else timed from the submission.
+fn still_verifying(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
+    Outcome {
+        next: course_unit_poll_at(state, facts).map_or_else(
+            || NextAttempt::After(verify_delay(facts.submitted_at, facts.now)),
+            NextAttempt::At,
+        ),
+        ..Outcome::to(state)
+    }
 }
 
 fn course_unit_poll_at(state: CreditRegistrationState, facts: &RowFacts) -> Option<DateTime<Utc>> {
@@ -245,11 +245,7 @@ fn course_unit_poll_at(state: CreditRegistrationState, facts: &RowFacts) -> Opti
 /// uncertain row stops being uncertain, but the row is not registered until the course unit
 /// attainment appears. `partially_registered_at` is when a poll first saw this.
 pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
-    let state = CreditRegistrationState::PartiallyRegistered;
-    let outcome = Outcome {
-        next: next_verify_poll(state, facts),
-        ..Outcome::to(state)
-    };
+    let outcome = still_verifying(CreditRegistrationState::PartiallyRegistered, facts);
     if facts.now - partially_registered_at >= PARTIAL_REGISTRATION_ADMIN_AFTER {
         outcome.needing_admin()
     } else {

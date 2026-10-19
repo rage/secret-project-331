@@ -94,7 +94,10 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
   const state = registrationStatusState(status)
-  const isFailed = state === STATE_FAILED
+  const [explanation, detailsLabel] =
+    state === STATE_FAILED
+      ? [t("credit-registration-attention-failed"), t("link-text-see-what-happened")]
+      : [t("credit-registration-attention-action-needed"), t("link-text-what-to-do")]
 
   const subject = registration.course_module_name
     ? t("credit-registration-course-and-module", {
@@ -109,16 +112,10 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
       state={state}
       headline={registrationStatusLabel(t, status)}
       subject={subject}
-      explanation={
-        <p>
-          {isFailed
-            ? t("credit-registration-attention-failed")
-            : t("credit-registration-attention-action-needed")}
-        </p>
-      }
+      explanation={<p>{explanation}</p>}
       primaryAction={{
         key: DETAILS_ACTION_KEY,
-        label: isFailed ? t("link-text-see-what-happened") : t("link-text-what-to-do"),
+        label: detailsLabel,
         href: completionRegistrationRoute(registration.course_module_id),
       }}
       meta={

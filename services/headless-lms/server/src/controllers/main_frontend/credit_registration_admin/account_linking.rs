@@ -219,23 +219,7 @@ pub struct AccountLinkingRecentLink {
     pub verified_from_course_name: Option<String>,
 }
 
-/// One linking email, newest first in the recent list.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AccountLinkingRecentEmail {
-    pub id: Uuid,
-    pub course_id: Uuid,
-    pub course_name: String,
-    /// In full: support tells the recipients apart by it.
-    pub emailed_to: String,
-    pub claimed_at: DateTime<Utc>,
-    /// When the `link-emails` phase handed it to the email worker.
-    pub queued_at: Option<DateTime<Utc>>,
-    /// `None` until queued.
-    pub send_status: Option<EmailSendStatusReport>,
-    pub last_error_message: Option<String>,
-}
-
-/// One linking email in the searchable list of every linking email.
+/// One linking email, in the full list or the dashboard's recent ones.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingEmailRow {
     pub id: Uuid,
@@ -247,6 +231,8 @@ pub struct AccountLinkingEmailRow {
     /// The name Sisu held for the student number when the mail went out.
     pub sisu_full_name: Option<String>,
     pub claimed_at: DateTime<Utc>,
+    /// When the `link-emails` phase handed it to the email worker.
+    pub queued_at: Option<DateTime<Utc>>,
     /// `None` until queued.
     pub send_status: Option<EmailSendStatusReport>,
     pub last_error_message: Option<String>,
@@ -257,8 +243,8 @@ pub struct AccountLinkingEmailRow {
     pub claimed_by_email: Option<String>,
 }
 
-/// Filters and paging for the list of every linking email. `status` is ignored when `address` is
-/// set, so a search for a student finds their mail whatever became of it.
+/// Filters and paging for the list of every linking email; see
+/// [`credit_registration_account_linking_emails::get_page`].
 #[derive(Debug, Deserialize)]
 pub struct ListAccountLinkingEmailsQuery {
     page: Option<u32>,
@@ -348,7 +334,7 @@ pub struct AccountLinkingStats {
     pub hard_failure_domains: Vec<AccountLinkingFailureDomain>,
     pub course_codes: Vec<AccountLinkingCourseCode>,
     /// Newest first, capped.
-    pub recent_linking_emails: Vec<AccountLinkingRecentEmail>,
+    pub recent_linking_emails: Vec<AccountLinkingEmailRow>,
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
@@ -686,16 +672,7 @@ pub async fn get_account_linking_stats(
     )
     .await?
     .into_iter()
-    .map(|row| AccountLinkingRecentEmail {
-        id: row.id,
-        course_id: row.course_id,
-        course_name: row.course_name,
-        emailed_to: row.emailed_to.expose_secret().to_owned(),
-        claimed_at: row.claimed_at,
-        queued_at: row.queued_at,
-        send_status: row.send_status,
-        last_error_message: row.last_error_message,
-    })
+    .map(to_linking_email_row)
     .collect();
 
     let funnel = AccountLinkingFunnel {
@@ -1892,14 +1869,9 @@ pub async fn list_account_linking_emails(
         .as_deref()
         .map(str::trim)
         .filter(|address| !address.is_empty());
-    let status = if address.is_some() {
-        None
-    } else {
-        query.status
-    };
     let rows = credit_registration_account_linking_emails::get_page(
         &mut conn,
-        status,
+        query.status,
         address,
         pagination.limit(),
         pagination.offset(),
@@ -1933,6 +1905,7 @@ fn to_linking_email_row(row: LinkingEmailListRow) -> AccountLinkingEmailRow {
         student_number: row.student_number.expose_secret().to_owned(),
         sisu_full_name: (!sisu_full_name.is_empty()).then_some(sisu_full_name),
         claimed_at: row.claimed_at,
+        queued_at: row.queued_at,
         send_status: row.send_status,
         last_error_message: row.last_error_message,
         link_state: row.link_state,

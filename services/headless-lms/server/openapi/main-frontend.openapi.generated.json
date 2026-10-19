@@ -14646,7 +14646,7 @@
       },
       "AccountLinkingEmailRow": {
         "type": "object",
-        "description": "One linking email in the searchable list of every linking email.",
+        "description": "One linking email, in the full list or the dashboard's recent ones.",
         "required": [
           "id",
           "course_id",
@@ -14696,6 +14696,11 @@
           "link_used_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "queued_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the `link-emails` phase handed it to the email worker."
           },
           "send_status": {
             "oneOf": [
@@ -14904,51 +14909,6 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
-          }
-        }
-      },
-      "AccountLinkingRecentEmail": {
-        "type": "object",
-        "description": "One linking email, newest first in the recent list.",
-        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at"],
-        "properties": {
-          "claimed_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_name": {
-            "type": "string"
-          },
-          "emailed_to": {
-            "type": "string",
-            "description": "In full: support tells the recipients apart by it."
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "last_error_message": {
-            "type": ["string", "null"]
-          },
-          "queued_at": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "When the `link-emails` phase handed it to the email worker."
-          },
-          "send_status": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/EmailSendStatusReport",
-                "description": "`None` until queued."
-              }
-            ]
           }
         }
       },
@@ -15177,7 +15137,7 @@
           "recent_linking_emails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AccountLinkingRecentEmail"
+              "$ref": "#/components/schemas/AccountLinkingEmailRow"
             },
             "description": "Newest first, capped."
           },
@@ -26802,7 +26762,7 @@
             "type": "array",
             "items": {
               "type": "object",
-              "description": "One linking email in the searchable list of every linking email.",
+              "description": "One linking email, in the full list or the dashboard's recent ones.",
               "required": [
                 "id",
                 "course_id",
@@ -26852,6 +26812,11 @@
                 "link_used_at": {
                   "type": ["string", "null"],
                   "format": "date-time"
+                },
+                "queued_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "When the `link-emails` phase handed it to the email worker."
                 },
                 "send_status": {
                   "oneOf": [

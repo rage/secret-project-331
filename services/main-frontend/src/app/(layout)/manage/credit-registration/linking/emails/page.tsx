@@ -2,19 +2,21 @@
 
 import { css, cx } from "@emotion/css"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useId, useState } from "react"
+import React, { useId, useState } from "react"
 import type { Key } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { useAccountLinkingEmails } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "@/components/credit-registration/admin/AdminResendLinkingEmailDialog"
 import LinkingEmailSendStatus from "@/components/credit-registration/admin/LinkingEmailSendStatus"
-import { useFilteredAdminQuery } from "@/components/credit-registration/admin/useFilteredAdminQuery"
+import {
+  type FilterFieldDescriptor,
+  useFilteredAdminQuery,
+} from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   ADMIN_PAGE_SIZE_OPTIONS,
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
-  type CreditRegistrationTFunction,
   DENSITY_COMPACT,
   ID_PREFIX_LENGTH,
   LINK_QUIET,
@@ -42,7 +44,6 @@ import type {
   AccountLinkingEmailRow,
   LinkingEmailListStatus,
 } from "@/generated/api/types.generated"
-import { includeIf } from "@/shared-module/common/utils/nullability"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
@@ -80,9 +81,6 @@ const STATUS_LABEL_KEYS = {
   all: "credit-registration-admin-linking-email-status-all",
 } as const satisfies Record<StatusChoice, string>
 
-const statusLabel = (t: CreditRegistrationTFunction, status: StatusChoice): string =>
-  t(STATUS_LABEL_KEYS[status])
-
 const statusFromParam = (raw: string | undefined): StatusChoice =>
   STATUS_CHOICES.find((choice) => choice === raw) ?? DEFAULT_STATUS
 
@@ -101,7 +99,16 @@ interface FilterFields {
   status: Set<Key>
 }
 
-/** The student number over the name Sisu gave for it. */
+const STATUS_FIELD: FilterFieldDescriptor<FilterFields> = {
+  param: PARAM_STATUS,
+  field: "status",
+  fromParam: (raw) => new Set<Key>([statusFromParam(raw)]),
+  toParam: (value) => {
+    const status = statusFromParam([...(value as Set<Key>)][0]?.toString())
+    return status === DEFAULT_STATUS ? undefined : status
+  },
+}
+
 const StudentCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
   <span className={stackedCellCss}>
     <span className={codeValueCss}>{row.student_number}</span>
@@ -109,7 +116,6 @@ const StudentCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
   </span>
 )
 
-/** Where the send stands, with the newest delivery error under it. */
 const SendCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
   <span className={stackedCellCss}>
     <LinkingEmailSendStatus report={row.send_status} />
@@ -123,21 +129,21 @@ const SendCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => (
 const LinkCell: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (row.link_state === "used") {
-    const account =
-      row.claimed_by_email ?? row.claimed_by_user_id?.slice(0, ID_PREFIX_LENGTH) ?? null
     return (
       <span className={stackedCellCss}>
         {row.link_used_at && (
           <span>{sentenceWithTimestamp(t, LINK_USED_AT, row.link_used_at)}</span>
         )}
-        {account && row.claimed_by_user_id && (
+        {row.claimed_by_user_id && (
           <span className={noteCss}>
             <Link
               href={manageUserRoute(row.claimed_by_user_id)}
               appearance={LINK_QUIET}
               prefetch={false}
             >
-              {t("credit-registration-admin-link-used-by", { account })}
+              {t("credit-registration-admin-link-used-by", {
+                account: row.claimed_by_email ?? row.claimed_by_user_id.slice(0, ID_PREFIX_LENGTH),
+              })}
             </Link>
           </span>
         )}
@@ -190,45 +196,25 @@ const LinkingEmailsPage: React.FC = () => {
   const statusLabelId = useId()
   const canResend = useIsAccountLinkingEnabled()
 
-  const { control, watch, setValue, handleSubmit, param, applyParams, paginationInfo, query } =
+  const { control, setValue, handleSubmit, param, applyParams, paginationInfo, query } =
     useFilteredAdminQuery<FilterFields, NonNullable<Parameters<typeof useAccountLinkingEmails>[0]>>(
-      [],
+      [STATUS_FIELD],
       (filters, pagination) => {
         const address = filters.param(PARAM_ADDRESS)
         const status = statusFromParam(filters.param(PARAM_STATUS))
         return {
           page: pagination.page,
           limit: pagination.limit,
-          ...(address
-            ? { address }
-            : includeIf(status !== STATUS_ALL, { status: status as LinkingEmailListStatus })),
+          ...(address ? { address } : status === STATUS_ALL ? {} : { status }),
         }
       },
       {
         rowsPerPage: ROWS_PER_PAGE,
-        manualDefaults: (filters) => ({
-          address: filters.param(PARAM_ADDRESS) ?? "",
-          status: new Set<Key>([statusFromParam(filters.param(PARAM_STATUS))]),
-        }),
+        manualDefaults: (filters) => ({ address: filters.param(PARAM_ADDRESS) ?? "" }),
       },
     )
 
   const searchedAddress = param(PARAM_ADDRESS)
-  const urlStatus = statusFromParam(param(PARAM_STATUS))
-  const pickedStatus = statusFromParam([...watch("status")][0]?.toString())
-
-  // Back, or a pasted link, moves the toggle.
-  useEffect(() => {
-    setValue("status", new Set<Key>([urlStatus]))
-  }, [setValue, urlStatus])
-
-  // Keyed on the pick alone: also reacting to the URL would push the old pick back over a Back.
-  useEffect(() => {
-    if (pickedStatus !== urlStatus) {
-      applyParams({ [PARAM_STATUS]: pickedStatus === DEFAULT_STATUS ? undefined : pickedStatus })
-    }
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickedStatus])
 
   const clearSearch = () => {
     setValue("address", "")
@@ -269,7 +255,7 @@ const LinkingEmailsPage: React.FC = () => {
         >
           {STATUS_CHOICES.map((choice) => (
             <ToggleButtonGroupButton key={choice} id={choice}>
-              {statusLabel(t, choice)}
+              {t(STATUS_LABEL_KEYS[choice])}
             </ToggleButtonGroupButton>
           ))}
         </ToggleButtonGroup>
@@ -301,13 +287,13 @@ const LinkingEmailsPage: React.FC = () => {
               emptyState={
                 <EmptyState
                   title={t("credit-registration-admin-no-matching-linking-emails")}
-                  {...includeIf(searchedAddress !== undefined, {
-                    action: (
+                  action={
+                    searchedAddress !== undefined && (
                       <Button variant={BUTTON_TERTIARY} size="small" onClick={clearSearch}>
                         {t("credit-registration-admin-clear-search")}
                       </Button>
-                    ),
-                  })}
+                    )
+                  }
                 />
               }
               columns={[

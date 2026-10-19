@@ -1,10 +1,10 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
+import { flushTabListCss } from "@/components/credit-registration/styles"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
@@ -15,11 +15,6 @@ import {
 
 const KEY_OVERVIEW = "overview"
 const KEY_EMAILS = "emails"
-
-// The parent shell's grid owns the gaps, as it does for the tab list above this one.
-const flushTabListCss = css`
-  margin-bottom: 0;
-`
 
 /** The Linking tab's sub-tabs: the overview, and the list of every linking email. */
 const LinkingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {

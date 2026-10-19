@@ -11,10 +11,8 @@ pub const SUBMIT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
 pub const SUBMIT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 /// After this long in failure a row stops being retried and becomes a support case.
 pub const SUBMIT_MAX_RETRY_AGE: TimeDelta = TimeDelta::days(7);
-/// The assessment item attainment usually shows within a couple of hours of the submission: polls
-/// start then and are close together through the dense part. A row that has not shown it by then
-/// polls hourly through the next night's course unit batch, and backs off after. Once it has, the
-/// row waits on [`super::course_unit_poll_slots`] instead.
+/// When the first verify poll comes after the submission: about when the assessment item
+/// attainment usually shows.
 const VERIFY_WINDOW_START: TimeDelta = TimeDelta::hours(2);
 const VERIFY_DENSE_WINDOW_END: TimeDelta = TimeDelta::minutes(630);
 const VERIFY_WINDOW_END: TimeDelta = TimeDelta::hours(29);
@@ -76,9 +74,8 @@ pub fn submit_backoff(retry_count: i32) -> TimeDelta {
     doubling(SUBMIT_BASE_BACKOFF, SUBMIT_MAX_BACKOFF, retry_count)
 }
 
-/// The wait from `now` until the next verify poll of a row submitted at `submitted_at` that has not
-/// shown its assessment item attainment yet. Timed from the submission rather than by counting
-/// polls, so a resumed or delayed row still polls when the attainment is likely to land.
+/// The wait until the next verify poll while the assessment item attainment is not seen yet. Timed
+/// from the submission rather than by counting polls, so a delayed row still polls when it is due.
 pub fn verify_delay(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> TimeDelta {
     let Some(submitted_at) = submitted_at else {
         return VERIFY_WINDOW_INTERVAL;

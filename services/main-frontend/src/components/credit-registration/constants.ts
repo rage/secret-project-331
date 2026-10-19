@@ -2,6 +2,8 @@
 
 import type { TFunction } from "i18next"
 
+import type { EmailSendStatus } from "@/generated/api/types.generated"
+
 export { TONE } from "@/shared-module/components"
 
 /**
@@ -65,6 +67,9 @@ export const STATE_SUPERSEDED = "superseded" as const
 
 /** `Badge.size` for a badge that is a dense table cell's content rather than a chip in a row. */
 export const BADGE_COMPACT = "compact" as const
+
+/** The `EmailSendStatus` a send cell badges as a danger. */
+export const SEND_FAILED: EmailSendStatus = "send_failed"
 
 /** `Button.variant` for the one action a surface leads with, and for the rest beside it. */
 export const BUTTON_PRIMARY = "primary" as const

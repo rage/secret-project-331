@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -67,32 +67,29 @@ export function useRegistrationPageTitle(
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const row = details?.registration
 
-  let title: string | null = null
-  if (row) {
-    title = joinTitleSegments(
-      [
-        shortStudentName(row) ?? t("credit-registration-admin-title-registration"),
-        row.uh_course_code,
-        adminLedgerStateLabel(t, row.state, row.pending_reason),
-      ],
-      PART_SEPARATOR,
-    )
-  } else if (isNotFound) {
-    title = t("credit-registration-admin-title-registration-not-found")
-  }
+  const title = row
+    ? joinTitleSegments(
+        [
+          shortStudentName(row) ?? t("credit-registration-admin-title-registration"),
+          row.uh_course_code,
+          adminLedgerStateLabel(t, row.state, row.pending_reason),
+        ],
+        PART_SEPARATOR,
+      )
+    : isNotFound
+      ? t("credit-registration-admin-title-registration-not-found")
+      : null
   usePageTitle(title && joinTitleSegments([title, t("credit-registration-tab-registrations")]), {
     order: TITLE_ORDER,
   })
 
   const isHidden = useIsDocumentHidden()
-  const fingerprint = details ? changeFingerprint(details) : null
-  const [visibleFingerprint, setVisibleFingerprint] = useState<string | null>(null)
-  useEffect(() => {
-    if (!isHidden) {
-      setVisibleFingerprint(fingerprint)
-    }
-  }, [isHidden, fingerprint])
+  const fingerprint = useMemo(() => (details ? changeFingerprint(details) : null), [details])
+  const visibleFingerprint = useRef<string | null>(null)
+  if (!isHidden) {
+    visibleFingerprint.current = fingerprint
+  }
   usePageTitleChangeMarker(
-    isHidden && visibleFingerprint !== null && fingerprint !== visibleFingerprint,
+    isHidden && visibleFingerprint.current !== null && fingerprint !== visibleFingerprint.current,
   )
 }

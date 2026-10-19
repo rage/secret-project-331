@@ -6,12 +6,11 @@ import { useTranslation } from "react-i18next"
 import type { EmailSendStatus, EmailSendStatusReport } from "@/generated/api/types.generated"
 import { Badge } from "@/shared-module/components"
 
-import { BADGE_COMPACT, CREDIT_REGISTRATION_NS, TONE } from "../constants"
+import { BADGE_COMPACT, CREDIT_REGISTRATION_NS, SEND_FAILED, TONE } from "../constants"
 import { noteCss, stackedCellCss } from "../styles"
 import { ZonedTimestamp } from "../ZonedTimestamp"
 import { sendStatusLabel } from "./adminCreditRegistrationCopy"
 
-const SEND_FAILED: EmailSendStatus = "send_failed"
 const QUEUED: EmailSendStatus = "queued"
 
 /**

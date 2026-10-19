@@ -2608,20 +2608,6 @@ export const zEmailSendStatusReport = z.object({
   sent_at: z.iso.datetime().nullish(),
 })
 
-/**
- * One linking email, newest first in the recent list.
- */
-export const zAccountLinkingRecentEmail = z.object({
-  claimed_at: z.iso.datetime(),
-  course_id: z.uuid(),
-  course_name: z.string(),
-  emailed_to: z.string(),
-  id: z.uuid(),
-  last_error_message: z.string().nullish(),
-  queued_at: z.iso.datetime().nullish(),
-  send_status: zEmailSendStatusReport.nullish(),
-})
-
 export const zAdminLinkingEmail = z.object({
   claimed_at: z.iso.datetime(),
   course_id: z.uuid(),
@@ -3544,7 +3530,7 @@ export const zLinkingEmailStatus = z.object({
 export const zLinkingMailLinkState = z.enum(["usable", "used", "lapsed"])
 
 /**
- * One linking email in the searchable list of every linking email.
+ * One linking email, in the full list or the dashboard's recent ones.
  */
 export const zAccountLinkingEmailRow = z.object({
   claimed_at: z.iso.datetime(),
@@ -3558,6 +3544,7 @@ export const zAccountLinkingEmailRow = z.object({
   link_expires_at: z.iso.datetime().nullish(),
   link_state: zLinkingMailLinkState,
   link_used_at: z.iso.datetime().nullish(),
+  queued_at: z.iso.datetime().nullish(),
   send_status: zEmailSendStatusReport.nullish(),
   sisu_full_name: z.string().nullish(),
   student_number: z.string(),
@@ -4101,6 +4088,7 @@ export const zPageAccountLinkingEmailRow = z.object({
       link_expires_at: z.iso.datetime().nullish(),
       link_state: zLinkingMailLinkState,
       link_used_at: z.iso.datetime().nullish(),
+      queued_at: z.iso.datetime().nullish(),
       send_status: zEmailSendStatusReport.nullish(),
       sisu_full_name: z.string().nullish(),
       student_number: z.string(),
@@ -6780,7 +6768,7 @@ export const zAccountLinkingStats = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-  recent_linking_emails: z.array(zAccountLinkingRecentEmail),
+  recent_linking_emails: z.array(zAccountLinkingEmailRow),
   recent_links: z.array(zAccountLinkingRecentLink),
   send_status_totals: zAccountLinkingSendStatusTotals,
   stale_addresses: z.array(zAccountLinkingStaleAddress),

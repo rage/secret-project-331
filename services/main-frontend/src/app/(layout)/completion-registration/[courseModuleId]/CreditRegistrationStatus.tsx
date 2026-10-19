@@ -271,9 +271,7 @@ const Tracker: React.FC<TrackerProps> = ({
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statusLabel = myRegistrationStatusLabel(t, registration)
-  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
-    registration,
-  })
+  const { primaryAction, secondaryActions } = useStudentRegistrationActions(registration)
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
   const announcedStatusLabel = useRef(statusLabel)

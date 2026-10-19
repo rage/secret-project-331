@@ -13,10 +13,6 @@ import type { FailureAction } from "./registrationFailures"
 import { failureActionLabel, failureActions } from "./registrationFailures"
 import type { RegistrationCardAction } from "./RegistrationStatusCard"
 
-export interface StudentRegistrationActionsOptions {
-  registration: MyCreditRegistration
-}
-
 export interface StudentRegistrationActions {
   /** Null when nothing this student does helps; the explanation then says who is on it. */
   primaryAction: RegistrationCardAction | null
@@ -36,9 +32,9 @@ const ACTION_KEY = {
  * The levers one student may pull on one registration on its status page, in the order they
  * should be offered. Pair it with `StudentRegistrationExplanation`, which says the matching sentence.
  */
-export const useStudentRegistrationActions = ({
-  registration,
-}: StudentRegistrationActionsOptions): StudentRegistrationActions => {
+export const useStudentRegistrationActions = (
+  registration: MyCreditRegistration,
+): StudentRegistrationActions => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const recheckEnrolment = useRequestEnrolmentRecheck()
 

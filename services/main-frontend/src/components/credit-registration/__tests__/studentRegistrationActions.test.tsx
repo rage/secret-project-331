@@ -33,7 +33,7 @@ const registration = (
   }) as MyCreditRegistration
 
 const actionsFor = (reg: MyCreditRegistration) =>
-  renderHook(() => useStudentRegistrationActions({ registration: reg }), { wrapper }).result.current
+  renderHook(() => useStudentRegistrationActions(reg), { wrapper }).result.current
 
 describe("useStudentRegistrationActions", () => {
   test("leads a missing enrolment with the enrolment page and offers a recheck beside it", () => {

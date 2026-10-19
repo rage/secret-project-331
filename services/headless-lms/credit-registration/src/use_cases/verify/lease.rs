@@ -1,5 +1,7 @@
 //! Leasing the rows a verify iteration asks about, so no concurrent iteration asks about them too.
 
+use std::collections::HashMap;
+
 use chrono::{DateTime, Utc};
 use headless_lms_models::credit_registrations::{
     VerifyFlow, claim_due_for_verify, increment_verify_attempt_counts, schedule_next_attempts,
@@ -9,6 +11,7 @@ use headless_lms_models::library::credit_registration::outcomes::{
     RowFacts, verify_poll_lease_until,
 };
 use sqlx::PgConnection;
+use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::use_cases::batch_flow::BatchFlowContext;
@@ -17,12 +20,10 @@ use crate::workflow::{Claimed, ClaimedRegistration};
 /// A claimed row, leased where it stands, with the verify attempt the lease counted for it.
 pub(super) type Leased = Claimed<VerifyAttempt>;
 
-/// The verify attempt a lease counted for its row, which sets the backoff an uncertain row's answer
-/// is scheduled by, and the course unit poll the lease chose for the row. Only [`claim_and_lease`]
-/// makes one, so it is always what the lease wrote.
+/// What the lease wrote for its row: the attempt count that sets an uncertain row's backoff, and
+/// the next course unit poll. Only [`claim_and_lease`] makes one.
 pub(super) struct VerifyAttempt {
     count: i32,
-    /// `None` in a flow whose rows cannot become partially registered.
     course_unit_poll_at: Option<DateTime<Utc>>,
 }
 
@@ -58,43 +59,23 @@ pub(super) async fn claim_and_lease(
     )
     .await?;
     let now = Utc::now();
-    let course_unit_polls: Vec<Option<DateTime<Utc>>> =
+    let course_unit_polls: HashMap<Uuid, DateTime<Utc>> =
         if flow == VerifyFlow::Poll && !claimed.is_empty() {
-            next_course_unit_polls(
-                conn,
-                now,
-                &claimed
-                    .iter()
-                    .map(|row| row.partially_registered_at.unwrap_or(now))
-                    .collect::<Vec<_>>(),
-            )
-            .await?
-            .into_iter()
-            .map(Some)
-            .collect()
+            let first_seen_at: Vec<_> = claimed
+                .iter()
+                .map(|row| row.partially_registered_at.unwrap_or(now))
+                .collect();
+            claimed
+                .iter()
+                .map(|row| row.id)
+                .zip(next_course_unit_polls(conn, now, &first_seen_at).await?)
+                .collect()
         } else {
-            vec![None; claimed.len()]
+            HashMap::new()
         };
-    let scheduled: Vec<_> = claimed
-        .iter()
-        .zip(&course_unit_polls)
-        .filter(|(row, _)| attempts.contains_key(&row.id))
-        .map(|(row, &course_unit_poll_at)| {
-            let facts = RowFacts {
-                course_unit_poll_at,
-                ..RowFacts::of(row, now)
-            };
-            (
-                row.id,
-                verify_poll_lease_until(row.state, &facts, ctx.study_registry_wait),
-            )
-        })
-        .collect();
-    schedule_next_attempts(conn, &scheduled).await?;
-    Ok(claimed
+    let leased: Vec<Leased> = claimed
         .into_iter()
-        .zip(course_unit_polls)
-        .filter_map(|(row, course_unit_poll_at)| {
+        .filter_map(|row| {
             // Not expected while the claim holds the row's lock; if it happens anyway, the row is
             // left unpolled rather than polled under an attempt the lease never wrote.
             let Some(attempt) = attempts.get(&row.id).copied() else {
@@ -104,6 +85,7 @@ pub(super) async fn claim_and_lease(
                 );
                 return None;
             };
+            let course_unit_poll_at = course_unit_polls.get(&row.id).copied();
             Some(Claimed {
                 claim: ClaimedRegistration::left_in_place(row),
                 extra: VerifyAttempt {
@@ -112,5 +94,21 @@ pub(super) async fn claim_and_lease(
                 },
             })
         })
-        .collect())
+        .collect();
+    let scheduled: Vec<_> = leased
+        .iter()
+        .map(|leased| {
+            let row = leased.claim.registration();
+            (
+                row.id,
+                verify_poll_lease_until(
+                    row.state,
+                    &attempt_facts(leased, now),
+                    ctx.study_registry_wait,
+                ),
+            )
+        })
+        .collect();
+    schedule_next_attempts(conn, &scheduled).await?;
+    Ok(leased)
 }

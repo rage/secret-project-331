@@ -15,7 +15,7 @@ import {
   useHasBlockingProblem,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
-import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { flushTabListCss, pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
 import { cleanTimestampsOnCopy } from "@/components/credit-registration/ZonedTimestamp"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
@@ -47,11 +47,6 @@ const KEY_ENROLMENT_CHECKS = "enrolment-checks"
 const KEY_AUDIT = "audit"
 /** Tabs whose deeper routes are sub-tabs, so they keep the tab's heading. */
 const TAB_KEYS_WITH_SUB_TABS: ReadonlySet<string> = new Set([KEY_LINKING])
-
-// The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
-const flushTabListCss = css`
-  margin-bottom: 0;
-`
 
 /** Wider than the site's centred column: the tables here have more columns than it fits. */
 const wideCss = css`

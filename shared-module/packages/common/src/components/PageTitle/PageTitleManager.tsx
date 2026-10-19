@@ -8,7 +8,6 @@ import React, { useEffect, useRef } from "react"
 import { pageTitleChangeMarkerAtom, resolvedPageTitleAtom } from "../../hooks/pageTitleAtoms"
 import { DEFAULT_SITE_NAME, formatPageTitle } from "../../utils/pageTitle"
 
-/** A symbol, not copy: it reads the same in every language. */
 const CHANGE_MARKER = "● "
 
 interface PageTitleManagerProps {

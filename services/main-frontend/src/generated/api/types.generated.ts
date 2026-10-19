@@ -90,7 +90,7 @@ export type AccountLinkingCourseCode = {
 }
 
 /**
- * One linking email in the searchable list of every linking email.
+ * One linking email, in the full list or the dashboard's recent ones.
  */
 export type AccountLinkingEmailRow = {
   claimed_at: string
@@ -107,6 +107,10 @@ export type AccountLinkingEmailRow = {
   link_expires_at?: string | null
   link_state: LinkingMailLinkState
   link_used_at?: string | null
+  /**
+   * When the `link-emails` phase handed it to the email worker.
+   */
+  queued_at?: string | null
   send_status?: null | EmailSendStatusReport
   /**
    * The name Sisu held for the student number when the mail went out.
@@ -200,26 +204,6 @@ export type AccountLinkingPresser = {
 }
 
 /**
- * One linking email, newest first in the recent list.
- */
-export type AccountLinkingRecentEmail = {
-  claimed_at: string
-  course_id: string
-  course_name: string
-  /**
-   * In full: support tells the recipients apart by it.
-   */
-  emailed_to: string
-  id: string
-  last_error_message?: string | null
-  /**
-   * When the `link-emails` phase handed it to the email worker.
-   */
-  queued_at?: string | null
-  send_status?: null | EmailSendStatusReport
-}
-
-/**
  * A student number linked by a linking email or by hand.
  */
 export type AccountLinkingRecentLink = {
@@ -306,7 +290,7 @@ export type AccountLinkingStats = {
   /**
    * Newest first, capped.
    */
-  recent_linking_emails: Array<AccountLinkingRecentEmail>
+  recent_linking_emails: Array<AccountLinkingEmailRow>
   /**
    * Newest first, capped; study registry links only as `links_total_by_method`.
    */
@@ -4881,6 +4865,10 @@ export type PageAccountLinkingEmailRow = {
     link_expires_at?: string | null
     link_state: LinkingMailLinkState
     link_used_at?: string | null
+    /**
+     * When the `link-emails` phase handed it to the email worker.
+     */
+    queued_at?: string | null
     send_status?: null | EmailSendStatusReport
     /**
      * The name Sisu held for the student number when the mail went out.

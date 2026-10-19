@@ -989,7 +989,7 @@ SELECT e.id,
   e.sent_at AS claimed_at,
   t.expires_at
 FROM credit_registration_account_linking_emails e
-  JOIN courses c ON c.id = e.course_id
+  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
   JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
 WHERE e.deleted_at IS NULL
   AND e.replaced_at IS NULL
@@ -1014,6 +1014,7 @@ pub async fn count_unused_links_by_course_code(
 SELECT TRIM(cm.uh_course_code) AS "course_code!",
   COUNT(DISTINCT e.id) AS "count!"
 FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
   JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
   JOIN course_modules cm ON cm.course_id = e.course_id
   AND cm.deleted_at IS NULL

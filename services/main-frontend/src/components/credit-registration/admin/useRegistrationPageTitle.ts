@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -47,8 +47,8 @@ const changeFingerprint = (details: AdminCreditRegistrationDetails): string => {
     row.needs_admin_attention,
     row.attention_reasons,
     row.error_code ?? null,
-    details.notification_emails.length,
-    details.linking_emails.length,
+    details.notification_emails.map((email) => email.send_status.email_send_status),
+    details.linking_emails.map((email) => email.send_status.email_send_status),
     details.actions.length,
   ])
 }
@@ -86,9 +86,11 @@ export function useRegistrationPageTitle(
   const isHidden = useIsDocumentHidden()
   const fingerprint = useMemo(() => (details ? changeFingerprint(details) : null), [details])
   const visibleFingerprint = useRef<string | null>(null)
-  if (!isHidden) {
-    visibleFingerprint.current = fingerprint
-  }
+  useEffect(() => {
+    if (!isHidden) {
+      visibleFingerprint.current = fingerprint
+    }
+  }, [isHidden, fingerprint])
   usePageTitleChangeMarker(
     isHidden && visibleFingerprint.current !== null && fingerprint !== visibleFingerprint.current,
   )

@@ -44,6 +44,7 @@ import type {
   AccountLinkingEmailRow,
   LinkingEmailListStatus,
 } from "@/generated/api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
@@ -205,7 +206,10 @@ const LinkingEmailsPage: React.FC = () => {
         return {
           page: pagination.page,
           limit: pagination.limit,
-          ...(address ? { address } : status === STATUS_ALL ? {} : { status }),
+          ...omitUndefined({
+            address,
+            status: address || status === STATUS_ALL ? undefined : status,
+          }),
         }
       },
       {

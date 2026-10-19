@@ -1839,7 +1839,7 @@ linking email, newest first.
 
 An `address` search covers every status, so a mail is found whatever became of it.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, query))]
 #[utoipa::path(
     get,
     path = "/account-linking/emails",

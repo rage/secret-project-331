@@ -822,6 +822,8 @@
   "credit-registration-admin-timeline-unknown-actor": "opettaja tai ylläpitäjä",
   "credit-registration-admin-timeline-waited-for-confirmation_one": "Suoritusmerkintää haettiin Sisusta ({{count}} kerta)",
   "credit-registration-admin-timeline-waited-for-confirmation_other": "Suoritusmerkintää haettiin Sisusta ({{count}} kertaa)",
+  "credit-registration-admin-title-registration": "Kirjaus",
+  "credit-registration-admin-title-registration-not-found": "Kirjausta ei löytynyt",
   "credit-registration-admin-to": "Päättyen",
   "credit-registration-admin-token-unclaimed": "Käyttämättä",
   "credit-registration-admin-trend-needs-attention": "Vaatii huomiota, mikä tahansa vaihe",

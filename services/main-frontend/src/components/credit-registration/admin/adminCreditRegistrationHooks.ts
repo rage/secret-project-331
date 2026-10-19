@@ -1,4 +1,5 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useRef } from "react"
 
 import {
   getAccountLinkingCoursesOptions,
@@ -39,11 +40,13 @@ import type {
   ListSuotarApiCallsData,
   ListVerifiedStudentNumbersForAdminData,
 } from "@/generated/api/types.generated"
+import { useIsDocumentHidden } from "@/shared-module/common/hooks/useIsDocumentHidden"
 
 /** Group-bys over the ledger, so not a cheap read. */
 const OVERVIEW_REFETCH_INTERVAL_MS = 30_000
 const LIST_REFETCH_INTERVAL_MS = 60_000
 const LIVE_ITEM_REFETCH_INTERVAL_MS = 5_000
+const HIDDEN_ITEM_REFETCH_INTERVAL_MS = 60_000
 /** Matches the other pod views in the repo: a wedged phase should show within seconds. */
 const PHASE_REFETCH_INTERVAL_MS = 10_000
 const ATTENTION_REFETCH_INTERVAL_MS = 20_000
@@ -105,16 +108,39 @@ export const useAdminCreditRegistrations = (
     gcTime: GC_TIME_MS,
   })
 
-export const useAdminCreditRegistration = (creditRegistrationId: string) =>
-  useQuery({
+/**
+ * One registration, polled until it is terminal: often while the tab is in view, now and then
+ * while it is hidden, and at once when it is shown again.
+ */
+export const useAdminCreditRegistration = (creditRegistrationId: string) => {
+  const isHidden = useIsDocumentHidden()
+  const query = useQuery({
     ...getCreditRegistrationForAdminOptions({
       path: { credit_registration_id: creditRegistrationId },
     }),
-    refetchInterval: (query) =>
-      query.state.data?.registration.terminal_at ? false : LIVE_ITEM_REFETCH_INTERVAL_MS,
+    refetchInterval: (observed) => {
+      if (observed.state.data?.registration.terminal_at) {
+        return false
+      }
+      return isHidden ? HIDDEN_ITEM_REFETCH_INTERVAL_MS : LIVE_ITEM_REFETCH_INTERVAL_MS
+    },
+    // The detail page marks its title when the registration changes in a hidden tab.
+    refetchIntervalInBackground: true,
     staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
   })
+
+  const { refetch } = query
+  const wasHiddenRef = useRef(isHidden)
+  useEffect(() => {
+    if (wasHiddenRef.current && !isHidden) {
+      void refetch()
+    }
+    wasHiddenRef.current = isHidden
+  }, [isHidden, refetch])
+
+  return query
+}
 
 /**
  * Fetches the code's enrolment list live from Sisu on every open; nothing is cached past the dialog.

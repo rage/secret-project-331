@@ -5,8 +5,11 @@ import { useAtomValue } from "jotai"
 import { usePathname } from "next/navigation"
 import React, { useEffect, useRef } from "react"
 
-import { resolvedPageTitleAtom } from "../../hooks/pageTitleAtoms"
+import { pageTitleChangeMarkerAtom, resolvedPageTitleAtom } from "../../hooks/pageTitleAtoms"
 import { DEFAULT_SITE_NAME, formatPageTitle } from "../../utils/pageTitle"
+
+/** A symbol, not copy: it reads the same in every language. */
+const CHANGE_MARKER = "● "
 
 interface PageTitleManagerProps {
   /** Site/brand suffix. Defaults to {@link DEFAULT_SITE_NAME}. */
@@ -39,7 +42,9 @@ interface PageTitleManagerProps {
 const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_SITE_NAME }) => {
   const resolvedTitle = useAtomValue(resolvedPageTitleAtom)
   const pathname = usePathname()
-  const fullTitle = formatPageTitle(resolvedTitle, siteName)
+  const isMarked = useAtomValue(pageTitleChangeMarkerAtom)
+  // The marker stays out of `resolvedTitle`, so the announcement below never fires for it.
+  const fullTitle = `${isMarked ? CHANGE_MARKER : ""}${formatPageTitle(resolvedTitle, siteName)}`
 
   // Announce an async (data-derived) title change politely. The browser announces the initial
   // page load, and Next's built-in route announcer covers navigation-time title changes. To

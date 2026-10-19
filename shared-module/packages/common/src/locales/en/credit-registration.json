@@ -822,6 +822,8 @@
   "credit-registration-admin-timeline-unknown-actor": "a teacher or admin",
   "credit-registration-admin-timeline-waited-for-confirmation_one": "Checked Sisu for the attainment ({{count}} time)",
   "credit-registration-admin-timeline-waited-for-confirmation_other": "Checked Sisu for the attainment ({{count}} times)",
+  "credit-registration-admin-title-registration": "Registration",
+  "credit-registration-admin-title-registration-not-found": "Registration not found",
   "credit-registration-admin-to": "To",
   "credit-registration-admin-token-unclaimed": "Not used",
   "credit-registration-admin-trend-needs-attention": "Needs attention, any phase",

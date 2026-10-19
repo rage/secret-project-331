@@ -129,7 +129,7 @@
     "/api/v0/auth/login": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, or failure.\n*",
+        "summary": "\nPOST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, password reset required, or failure.\n*",
         "operationId": "postAuthLogin",
         "requestBody": {
           "content": {
@@ -666,6 +666,16 @@
               "type": {
                 "type": "string",
                 "enum": ["failed"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["must_change_password"]
               }
             }
           }

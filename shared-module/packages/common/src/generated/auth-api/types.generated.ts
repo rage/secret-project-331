@@ -130,6 +130,9 @@ export type LoginResponse =
   | {
       type: "failed"
     }
+  | {
+      type: "must_change_password"
+    }
 
 /**
  * The target of an action.

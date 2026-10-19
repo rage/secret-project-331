@@ -1,6 +1,5 @@
 //! Common functionality related to authenticating users.
 
-use crate::OAuthClient;
 use crate::config::server_runtime_config;
 use crate::domain::authorization::{AuthorizationToken, skip_authorize};
 use crate::prelude::*;
@@ -14,15 +13,6 @@ use futures::Future;
 use headless_lms_models::{self as models, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
 use headless_lms_utils::services::tmc::TMCUser;
-use headless_lms_utils::services::tmc::TmcClient;
-use oauth2::EmptyExtraTokenFields;
-use oauth2::HttpClientError;
-use oauth2::RequestTokenError;
-use oauth2::ResourceOwnerPassword;
-use oauth2::ResourceOwnerUsername;
-use oauth2::StandardTokenResponse;
-use oauth2::TokenResponse;
-use oauth2::basic::BasicTokenType;
 use secrecy::ExposeSecret;
 use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
@@ -30,7 +20,6 @@ use serde_json::json;
 use sqlx::PgConnection;
 use std::pin::Pin;
 use subtle::ConstantTimeEq;
-use tracing_log::log;
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
@@ -267,95 +256,6 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
     Ok(secret_key)
 }
 
-/// Authenticates the user with mooc.fi, returning the authenticated user and their oauth token.
-pub async fn authenticate_tmc_mooc_fi_user(
-    conn: &mut PgConnection,
-    client: &OAuthClient,
-    email: String,
-    password: SecretString,
-    tmc_client: &TmcClient,
-) -> anyhow::Result<Option<(User, SecretString)>> {
-    info!("Attempting to authenticate user with TMC");
-    let token = match exchange_password_with_tmc(client, email.clone(), password).await? {
-        Some(token) => token,
-        None => return Ok(None),
-    };
-    debug!("Successfully obtained OAuth token from TMC");
-
-    let tmc_user = tmc_client
-        .get_user_from_tmc_mooc_fi_by_tmc_access_token(&token.clone())
-        .await?;
-    debug!(
-        "Creating or fetching user with TMC id {} and mooc.fi UUID {}",
-        tmc_user.id,
-        tmc_user
-            .courses_mooc_fi_user_id
-            .map(|uuid| uuid.to_string())
-            .unwrap_or_else(|| "None (will fetch from mooc.fi or generate new UUID)".to_string())
-    );
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user, &token).await?;
-    info!(
-        "Successfully got user details from mooc.fi for user {}",
-        user.id
-    );
-    info!("Successfully authenticated user {} with mooc.fi", user.id);
-    Ok(Some((user, token)))
-}
-
-pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
-
-/// Exchanges user credentials with TMC for an OAuth token.
-///
-/// `Ok(None)` means the credentials were rejected; other failures (network, server errors) are
-/// `Err`.
-pub async fn exchange_password_with_tmc(
-    client: &OAuthClient,
-    email: String,
-    password: SecretString,
-) -> anyhow::Result<Option<SecretString>> {
-    let token_result = client
-        .exchange_password(
-            &ResourceOwnerUsername::new(email),
-            // Exposed only here, at the OAuth2 client boundary.
-            &ResourceOwnerPassword::new(password.expose_secret().to_string()),
-        )
-        .request_async(&async_http_client_with_headers)
-        .await;
-    match token_result {
-        Ok(token) => Ok(Some(SecretString::new(
-            token.access_token().secret().to_owned().into(),
-        ))),
-        Err(RequestTokenError::ServerResponse(server_response)) => {
-            let error = server_response.error();
-            let error_description = server_response.error_description();
-            let error_uri = server_response.error_uri();
-
-            // InvalidGrant means the email or password was wrong.
-            if let oauth2::basic::BasicErrorResponseType::InvalidGrant = error {
-                warn!(
-                    ?error_description,
-                    ?error_uri,
-                    "TMC did not accept the credentials: {}",
-                    error
-                );
-                Ok(None)
-            } else {
-                error!(
-                    ?error_description,
-                    ?error_uri,
-                    "TMC authentication error: {}",
-                    error
-                );
-                Err(anyhow::anyhow!("Authentication error: {}", error))
-            }
-        }
-        Err(e) => {
-            error!("Failed to exchange password with TMC: {}", e);
-            Err(e.into())
-        }
-    }
-}
-
 /// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token.
 async fn fetch_moocfi_id_by_upstream_id(
     tmc_access_token: &SecretString,
@@ -573,92 +473,4 @@ pub async fn authenticate_test_token(
     let user = models::users::get_by_email(conn, email).await?;
     info!("Test mode: mapped fixed test token to seeded user {email}");
     Ok(Some(user))
-}
-
-/// The rate-limit-bypass header value for requests to the TMC server.
-fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientError<reqwest::Error>>
-{
-    let key = server_runtime_config()
-        .ratelimit_protection_safe_api_key
-        .clone();
-    debug!("Using ratelimit API key from runtime config");
-
-    key.expose_secret()
-        .parse::<reqwest::header::HeaderValue>()
-        .map_err(|err| {
-            error!("Invalid RATELIMIT API key format: {}", err);
-            HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-        })
-}
-
-/// oauth2's HTTP transport, adapted to reqwest and tagged with the header that keeps TMC from
-/// rate-limiting the backend's own auth requests.
-async fn async_http_client_with_headers(
-    oauth_request: oauth2::HttpRequest,
-) -> Result<oauth2::HttpResponse, HttpClientError<reqwest::Error>> {
-    debug!("Making OAuth request to TMC server");
-
-    if log::log_enabled!(log::Level::Trace) {
-        // Only log the URL path, not query parameters which may contain credentials
-        if let Ok(url) = oauth_request.uri().to_string().parse::<reqwest::Url>() {
-            trace!("OAuth request path: {}", url.path());
-        }
-    }
-
-    let parsed_key = get_ratelimit_api_key()?;
-
-    debug!("Building request to TMC server");
-    let request = REQWEST_CLIENT
-        .request(
-            oauth_request.method().clone(),
-            oauth_request
-                .uri()
-                .to_string()
-                .parse::<reqwest::Url>()
-                .map_err(|e| HttpClientError::Other(format!("Invalid URL: {}", e)))?,
-        )
-        .headers(oauth_request.headers().clone())
-        .version(oauth_request.version())
-        .header("RATELIMIT-PROTECTION-SAFE-API-KEY", parsed_key)
-        .body(oauth_request.body().to_vec());
-
-    debug!("Sending request to TMC server");
-    let response = request
-        .send()
-        .await
-        .map_err(|e| HttpClientError::Other(format!("Failed to execute request: {}", e)))?;
-
-    // Log response status and version, but not headers or body which may contain tokens
-    debug!(
-        "Received response from TMC server - Status: {}, Version: {:?}",
-        response.status(),
-        response.version()
-    );
-
-    let status = response.status();
-    let version = response.version();
-    let headers = response.headers().clone();
-
-    debug!("Reading response body");
-    let body_bytes = response
-        .bytes()
-        .await
-        .map_err(|e| HttpClientError::Other(format!("Failed to read response body: {}", e)))?
-        .to_vec();
-
-    debug!("Building OAuth response");
-    let mut builder = oauth2::http::Response::builder()
-        .status(status)
-        .version(version);
-
-    if let Some(builder_headers) = builder.headers_mut() {
-        builder_headers.extend(headers.iter().map(|(k, v)| (k.clone(), v.clone())));
-    }
-
-    let oauth_response = builder
-        .body(body_bytes)
-        .map_err(|e| HttpClientError::Other(format!("Failed to construct response: {}", e)))?;
-
-    debug!("Successfully completed OAuth request");
-    Ok(oauth_response)
 }

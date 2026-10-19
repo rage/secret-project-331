@@ -61,6 +61,9 @@ export const zLoginResponse = z.union([
   z.object({
     type: z.enum(["failed"]),
   }),
+  z.object({
+    type: z.enum(["must_change_password"]),
+  }),
 ])
 
 /**

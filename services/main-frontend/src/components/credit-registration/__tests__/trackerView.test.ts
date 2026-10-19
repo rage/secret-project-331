@@ -2,7 +2,7 @@ import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/typ
 
 import {
   asksWhereYouEnrolled,
-  isLinkingEmailOverdue,
+  enrolmentCheckOpening,
   isWaitingForEnrolment,
   saysWhatIsHappening,
   showsRegistrationFacts,
@@ -308,11 +308,7 @@ describe("what the linking band says", () => {
           enrolment_confirmed_at: "2026-08-21T07:00:00Z",
         }),
       }),
-    ).toEqual({
-      kind: "awaiting-email",
-      isOpenUniversity: true,
-      waitingSince: "2026-08-21T07:00:00Z",
-    })
+    ).toEqual({ kind: "awaiting-email", isOpenUniversity: true })
   })
 
   test("stops telling them to enrol once a mail is queued", () => {
@@ -322,7 +318,7 @@ describe("what the linking band says", () => {
         null,
         linkingOn,
       ),
-    ).toEqual({ kind: "awaiting-email", isOpenUniversity: false, waitingSince: null })
+    ).toEqual({ kind: "awaiting-email", isOpenUniversity: false })
   })
 
   test("names the mailbox and the date once a mail has gone out", () => {
@@ -389,13 +385,69 @@ describe("what the linking band says", () => {
   })
 })
 
-describe("when a missing linking email is worth a mail to support", () => {
+describe("when the student is asked to check their enrolment", () => {
   const pressedAt = "2026-08-21T07:00:00Z"
-  const day = 24 * 60 * 60 * 1000
+  const hour = 60 * 60 * 1000
+  const confirmed = route({ enrolment_confirmed_at: pressedAt })
 
-  test("only two days after they said they enrolled", () => {
-    expect(isLinkingEmailOverdue(pressedAt, Date.parse(pressedAt) + day)).toBe(false)
-    expect(isLinkingEmailOverdue(pressedAt, Date.parse(pressedAt) + 2 * day)).toBe(true)
-    expect(isLinkingEmailOverdue(null, Date.parse(pressedAt) + 30 * day)).toBe(false)
+  test("without a linked number, only two hours after they said they enrolled", () => {
+    const input = { registration: registration(), enrolmentRoute: confirmed }
+    expect(enrolmentCheckOpening(input, false, Date.parse(pressedAt) + hour)).toBeNull()
+    expect(enrolmentCheckOpening(input, false, Date.parse(pressedAt) + 2 * hour)).toEqual({
+      kind: "still-not-seen",
+    })
+  })
+
+  test("with a linked number, as soon as the registry says why it cannot see the enrolment", () => {
+    const input = {
+      registration: registration({ error_code: "enrolment_not_accepted" }),
+      enrolmentRoute: confirmed,
+    }
+    expect(enrolmentCheckOpening(input, true, Date.parse(pressedAt))).toEqual({
+      kind: "registry-verdict",
+      errorCode: "enrolment_not_accepted",
+    })
+  })
+
+  test("with a linked number, not on time alone or on an unrelated error", () => {
+    const pastThreshold = Date.parse(pressedAt) + 30 * 24 * hour
+    expect(
+      enrolmentCheckOpening(
+        { registration: registration(), enrolmentRoute: confirmed },
+        true,
+        pastThreshold,
+      ),
+    ).toBeNull()
+    expect(
+      enrolmentCheckOpening(
+        {
+          registration: registration({ error_code: "sisu_timeout" }),
+          enrolmentRoute: confirmed,
+        },
+        true,
+        pastThreshold,
+      ),
+    ).toBeNull()
+  })
+
+  test("never before they say they enrolled, or once the enrolment is found", () => {
+    const pastThreshold = Date.parse(pressedAt) + 30 * 24 * hour
+    expect(
+      enrolmentCheckOpening(
+        {
+          registration: registration({ error_code: "enrolment_not_found" }),
+          enrolmentRoute: route(),
+        },
+        true,
+        pastThreshold,
+      ),
+    ).toBeNull()
+    expect(
+      enrolmentCheckOpening(
+        { registration: registration({ enrolment_found: true }), enrolmentRoute: confirmed },
+        false,
+        pastThreshold,
+      ),
+    ).toBeNull()
   })
 })

@@ -20,8 +20,9 @@ import {
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
+import { EnrolmentCheck } from "@/components/credit-registration/EnrolmentCheck"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
-import { LinkingEmailQuestions } from "@/components/credit-registration/LinkingEmailQuestions"
+import { RegistrationQuestions } from "@/components/credit-registration/RegistrationQuestions"
 import {
   RegistrationActions,
   type RegistrationCardAction,
@@ -146,6 +147,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
       registration={data.registration}
       enrolmentRoute={enrolmentRoute}
       verifiedNumber={verifiedNumber}
+      hasLinkedStudentNumber={numberQuery.isSuccess ? verifiedNumber !== null : null}
       checkedAt={checkedAt}
       earlierAttempts={data.earlier_attempts}
     />
@@ -247,6 +249,8 @@ interface TrackerProps {
   registration: MyCreditRegistration
   enrolmentRoute: MyEnrolmentRoute | null
   verifiedNumber: MyVerifiedStudentNumber | null
+  /** `null` until known: which of the two enrolment checks applies depends on it. */
+  hasLinkedStudentNumber: boolean | null
   checkedAt: string | null
   earlierAttempts: MyCreditRegistration[]
 }
@@ -266,6 +270,7 @@ const Tracker: React.FC<TrackerProps> = ({
   registration,
   enrolmentRoute,
   verifiedNumber,
+  hasLinkedStudentNumber,
   checkedAt,
   earlierAttempts,
 }) => {
@@ -311,6 +316,14 @@ const Tracker: React.FC<TrackerProps> = ({
             openUniversityEnrolmentLink={registration.enrolment_link}
             uhCourseCode={registration.uh_course_code}
             supportMail={missingSisuCourseCodeSupportMail(t, registration)}
+          />
+        ) : null}
+
+        {hasLinkedStudentNumber !== null ? (
+          <EnrolmentCheck
+            registration={registration}
+            enrolmentRoute={enrolmentRoute}
+            hasLinkedStudentNumber={hasLinkedStudentNumber}
           />
         ) : null}
 
@@ -364,7 +377,7 @@ const Tracker: React.FC<TrackerProps> = ({
         </section>
       ) : null}
 
-      <LinkingEmailQuestions
+      <RegistrationQuestions
         registration={registration}
         verifiedNumber={verifiedNumber}
         enrolmentRoute={enrolmentRoute}

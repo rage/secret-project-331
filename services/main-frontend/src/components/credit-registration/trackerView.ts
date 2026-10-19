@@ -1,4 +1,5 @@
 import type {
+  CreditRegistrationErrorCode,
   MyCreditRegistration,
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
@@ -111,15 +112,14 @@ export const showsRegistrationFacts = (registration: MyCreditRegistration | null
  * nobody is registering has no number to name.
  *
  * `awaiting-email` replaces the enrol step once the student has said they enrolled, or once a mail
- * is queued: either way enrolling is behind them. `waitingSince` is `null` when we only know of the
- * queued mail. `contact-support` is for when no mail can come any more: the latest link was used,
- * or it expired with the caps spent.
+ * is queued: either way enrolling is behind them. `contact-support` is for when no mail can come
+ * any more: the latest link was used, or it expired with the caps spent.
  */
 export type StudentNumberLinkBand =
   | { kind: "registering"; studentNumber: string }
   | { kind: "linked"; studentNumber: string }
   | { kind: "awaiting-enrolment" }
-  | { kind: "awaiting-email"; isOpenUniversity: boolean; waitingSince: string | null }
+  | { kind: "awaiting-email"; isOpenUniversity: boolean }
   | { kind: "staff-links" }
   | { kind: "mailed"; emailMasked: string; sentAt: string }
   | { kind: "link-expired"; emailMasked: string; sentAt: string }
@@ -170,20 +170,48 @@ export const studentNumberLinkBand = (
   if (mail?.link_state === "used" || mail?.link_state === "expired_no_resend") {
     return { kind: "contact-support" }
   }
-  const confirmedAt = enrolmentRoute?.enrolment_confirmed_at ?? null
-  if (confirmedAt !== null || usableMail !== null) {
-    return {
-      kind: "awaiting-email",
-      isOpenUniversity: enrolmentRoute?.route === OPEN_UNIVERSITY,
-      waitingSince: confirmedAt,
-    }
+  if (enrolmentRoute?.enrolment_confirmed_at || usableMail !== null) {
+    return { kind: "awaiting-email", isOpenUniversity: enrolmentRoute?.route === OPEN_UNIVERSITY }
   }
   return { kind: "awaiting-enrolment" }
 }
 
-/** How long after "I have enrolled" a missing linking email is worth a mail to support. */
-const LINKING_EMAIL_OVERDUE_AFTER_MS = 2 * 24 * 60 * 60 * 1000
+/** How long after "I have enrolled" a student without a linked number is asked to check. */
+const ENROLMENT_CHECK_WITHOUT_STUDENT_NUMBER_AFTER_MS = 2 * 60 * 60 * 1000
 
-export const isLinkingEmailOverdue = (waitingSince: string | null, nowMs: number): boolean =>
-  waitingSince !== null &&
-  nowMs - new Date(waitingSince).getTime() >= LINKING_EMAIL_OVERDUE_AFTER_MS
+/** The registry verdicts that say why a linked student's enrolment is still not seen. */
+const ENROLMENT_CHECK_ERRORS = [
+  "enrolment_not_found",
+  "enrolment_not_accepted",
+  "study_right_not_valid",
+] as const satisfies readonly CreditRegistrationErrorCode[]
+
+export type EnrolmentCheckErrorCode = (typeof ENROLMENT_CHECK_ERRORS)[number]
+
+/** Why the "Check your enrolment" box opens. */
+export type EnrolmentCheckOpening =
+  | { kind: "registry-verdict"; errorCode: EnrolmentCheckErrorCode }
+  | { kind: "still-not-seen" }
+
+const isEnrolmentCheckError = (
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+): errorCode is EnrolmentCheckErrorCode => ENROLMENT_CHECK_ERRORS.some((code) => code === errorCode)
+
+/** Why a student who said they enrolled is asked to check their enrolment; `null` hides the box. */
+export const enrolmentCheckOpening = (
+  input: TrackerViewInput,
+  hasLinkedStudentNumber: boolean,
+  nowMs: number,
+): EnrolmentCheckOpening | null => {
+  const confirmedAt = input.enrolmentRoute?.enrolment_confirmed_at
+  if (!asksWhereYouEnrolled(input) || !confirmedAt || input.registration === null) {
+    return null
+  }
+  if (hasLinkedStudentNumber) {
+    const errorCode = input.registration.error_code
+    return isEnrolmentCheckError(errorCode) ? { kind: "registry-verdict", errorCode } : null
+  }
+  return nowMs - new Date(confirmedAt).getTime() >= ENROLMENT_CHECK_WITHOUT_STUDENT_NUMBER_AFTER_MS
+    ? { kind: "still-not-seen" }
+    : null
+}

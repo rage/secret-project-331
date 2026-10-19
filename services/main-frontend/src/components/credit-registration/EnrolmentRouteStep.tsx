@@ -17,15 +17,7 @@ import type {
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { dateToString } from "@/shared-module/common/utils/time"
-import {
-  Button,
-  CopyButton,
-  Infobox,
-  Link,
-  Radio,
-  RadioGroup,
-  TransLink,
-} from "@/shared-module/components"
+import { Button, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import {
@@ -44,23 +36,13 @@ import {
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
 import { invalidateRegistrationViews } from "./enrolmentActions"
+import { SisuCourseCode } from "./SisuCourseCode"
 import type { SupportMailContents } from "./studentSupportMail"
-import { bandCss, codeValueCss, rowCss } from "./styles"
+import { bandCss, rowCss } from "./styles"
 import SupportMailLink from "./SupportMailLink"
 
 interface RouteForm {
   [ROUTE_FIELD]: string
-}
-
-/** A component rather than inline markup, so `Trans` keeps the copy button when it fills the tag. */
-const SisuCourseCode: React.FC<{ code: string }> = ({ code }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return (
-    <>
-      <span className={codeValueCss}>{code}</span>{" "}
-      <CopyButton value={code} label={t("button-text-copy-sisu-course-code")} />
-    </>
-  )
 }
 
 export interface EnrolmentRouteStepProps {
@@ -187,6 +169,9 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
               dateToString(enrolmentRoute.enrolment_confirmed_at),
             )}
           </p>
+          {enrolmentRoute.route === OPEN_UNIVERSITY ? (
+            <p>{t("credit-registration-open-university-acceptance-takes-days")}</p>
+          ) : null}
           <div>
             <Button
               variant={BUTTON_TERTIARY}

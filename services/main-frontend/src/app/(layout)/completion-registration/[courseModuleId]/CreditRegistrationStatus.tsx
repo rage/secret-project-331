@@ -273,7 +273,6 @@ const Tracker: React.FC<TrackerProps> = ({
   const statusLabel = myRegistrationStatusLabel(t, registration)
   const { primaryAction, secondaryActions } = useStudentRegistrationActions({
     registration,
-    linkToStatusPage: false,
   })
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.

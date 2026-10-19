@@ -231,8 +231,8 @@ const NotLinked: React.FC<{
         <>
           <p>
             {isAccountLinkingEnabled
-              ? t("student-number-linked-on-registration-by-email")
-              : t("student-number-linked-on-registration")}
+              ? t("student-number-linked-after-enrolment-by-email")
+              : t("student-number-linked-by-support")}
           </p>
           <LinkingEmailLine linkingEmail={linkingEmail} />
         </>

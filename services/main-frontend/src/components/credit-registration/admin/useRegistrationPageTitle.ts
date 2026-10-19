@@ -27,7 +27,7 @@ const shortStudentName = (row: AdminCreditRegistrationRow): string | null => {
   if (firstName && lastName) {
     return `${firstName} ${lastName.charAt(0)}.`
   }
-  return firstName || lastName || row.email?.split("@")[0]?.trim() || null
+  return firstName || lastName || null
 }
 
 /** Every same-state Suotar check and retry writes one of these, so they are routine, not news. */

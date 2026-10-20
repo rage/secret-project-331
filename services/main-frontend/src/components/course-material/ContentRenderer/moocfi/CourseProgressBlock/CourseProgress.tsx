@@ -14,11 +14,13 @@ export interface CourseProgressProps {
   userCourseProgress: UserCourseProgress[]
   /** `null` leaves out the buttons that list every exercise. */
   courseInstanceLocation: CourseInstanceLocation | null
+  courseId: string
 }
 
 const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = ({
   userCourseProgress,
   courseInstanceLocation,
+  courseId,
 }) => {
   const [openedModule, setOpenedModule] = useState(0)
   const { t } = useTranslation()
@@ -53,6 +55,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
             <CourseModuleProgressBars
               courseModuleProgress={courseModuleProgress}
               courseInstanceLocation={courseInstanceLocation}
+              courseId={courseId}
             />
           </TempAccordionItem>
         ))}

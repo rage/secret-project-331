@@ -68,6 +68,7 @@ import {
   getCourseMaterialUserCourseSettings,
   getCourseMaterialUserMarketingConsent,
   getCourseMaterialUserModuleCompletions,
+  getCourseModuleEndQuestionnaire,
   getCurrentConversationId,
   getCurrentCourseMaterialCourseInstance,
   getDefaultChatbotConfigurationForCourse,
@@ -215,6 +216,8 @@ import type {
   GetCourseMaterialUserMarketingConsentResponse,
   GetCourseMaterialUserModuleCompletionsData,
   GetCourseMaterialUserModuleCompletionsResponse,
+  GetCourseModuleEndQuestionnaireData,
+  GetCourseModuleEndQuestionnaireResponse,
   GetCurrentConversationIdData,
   GetCurrentConversationIdResponse,
   GetCurrentCourseMaterialCourseInstanceData,
@@ -1018,6 +1021,35 @@ export const getCourseMaterialDefaultModuleIdByCourseIdOptions = (
         throwOnError: true,
       }),
     queryKey: getCourseMaterialDefaultModuleIdByCourseIdQueryKey(options),
+  })
+
+export const getCourseModuleEndQuestionnaireQueryKey = (
+  options: Options<GetCourseModuleEndQuestionnaireData>,
+) => createQueryKey("getCourseModuleEndQuestionnaire", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
+ *
+ * Returns course module end questions.
+ */
+export const getCourseModuleEndQuestionnaireOptions = (
+  options: Options<GetCourseModuleEndQuestionnaireData>,
+) =>
+  queryOptions<
+    GetCourseModuleEndQuestionnaireResponse,
+    DefaultError,
+    GetCourseModuleEndQuestionnaireResponse,
+    ReturnType<typeof getCourseModuleEndQuestionnaireQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseModuleEndQuestionnaire({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseModuleEndQuestionnaireQueryKey(options),
   })
 
 export const getCourseMaterialExerciseTasksByModuleAndTypeQueryKey = (

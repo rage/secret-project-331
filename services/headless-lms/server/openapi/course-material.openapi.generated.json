@@ -7200,7 +7200,9 @@
           "course_module_order_number",
           "score_given",
           "automatic_completion",
-          "requires_exam"
+          "requires_exam",
+          "requires_ending_questionnaire",
+          "ending_questionnaire_answered"
         ],
         "properties": {
           "attempted_exercises": {
@@ -7225,6 +7227,12 @@
           "course_module_order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "ending_questionnaire_answered": {
+            "type": "boolean"
+          },
+          "requires_ending_questionnaire": {
+            "type": "boolean"
           },
           "requires_exam": {
             "type": "boolean",

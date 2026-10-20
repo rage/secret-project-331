@@ -58,7 +58,11 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
       }
     >
       {(data) => (
-        <CourseProgress userCourseProgress={data} courseInstanceLocation={courseInstanceLocation} />
+        <CourseProgress
+          userCourseProgress={data}
+          courseInstanceLocation={courseInstanceLocation}
+          courseId={courseMaterialState.course.id}
+        />
       )}
     </QueryResult>
   )

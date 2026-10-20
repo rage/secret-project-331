@@ -1374,6 +1374,8 @@ export type UserCourseProgress = {
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
+  ending_questionnaire_answered: boolean
+  requires_ending_questionnaire: boolean
   /**
    * When true, the thresholds only qualify the user to sit an exam that completion also needs.
    */

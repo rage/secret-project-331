@@ -1434,6 +1434,8 @@ export const zUserCourseProgress = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  ending_questionnaire_answered: z.boolean(),
+  requires_ending_questionnaire: z.boolean(),
   requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z

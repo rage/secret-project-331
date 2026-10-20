@@ -57,3 +57,29 @@ RETURNING *
 ) -> ModelResult<bool> {
 }
  */
+
+pub async fn user_has_answered_all_questions_for_course_indexed_by_module_id(
+    conn: &mut PgConnection,
+    course_id: &Uuid,
+    user_id: &Uuid,
+) -> ModelResult<HashMap<Uuid, bool>> {
+    // todo placeholder
+    let res = sqlx::query!(
+        r#"
+SELECT eq.id, eq.course_module_id FROM course_module_ending_questions AS eq
+JOIN course_module_ending_questions_answers AS eqa ON eqa.question_id = eq.id
+WHERE eq.course_id = $1 AND eq.deleted_at IS NULL AND eqa.deleted_at IS NULL AND eqa.user_id = $2
+GROUP BY eq.course_module_id, eq.id
+;
+
+        "#,
+        course_id,
+        user_id
+    )
+    .fetch_all(&mut *conn)
+    .await?
+    .iter()
+    .map(|x| (x.id, false))
+    .collect::<HashMap<Uuid, bool>>();
+    Ok(res)
+}

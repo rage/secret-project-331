@@ -7,6 +7,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::{
+    course_module_ending_questions_answers::user_has_answered_all_questions_for_course_indexed_by_module_id,
     course_modules::{self, CourseModule},
     courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
@@ -117,6 +118,8 @@ pub struct UserCourseProgress {
     pub automatic_completion: bool,
     /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
     pub requires_exam: bool,
+    pub requires_ending_questionnaire: bool,
+    pub ending_questionnaire_answered: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -401,7 +404,16 @@ pub async fn get_user_course_progress(
     } else {
         course_modules::get_by_course_id(conn, course_id).await?
     };
-    merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
+    let user_answered_module_end_questions =
+        user_has_answered_all_questions_for_course_indexed_by_module_id(conn, &course_id, &user_id)
+            .await?;
+    merge_modules_with_metrics(
+        course_modules,
+        &course_metrics,
+        &user_metrics,
+        &user_answered_module_end_questions,
+        &course_name,
+    )
 }
 
 /// One course module's exercise standing for one user, and the thresholds an automatic completion
@@ -552,6 +564,7 @@ fn merge_modules_with_metrics(
     course_modules: Vec<CourseModule>,
     course_metrics_by_course_module_id: &HashMap<Uuid, CourseExerciseMetrics>,
     user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseMetrics>,
+    end_questions_answered_by_course_module_id: &HashMap<Uuid, bool>,
     default_course_module_name_placeholder: &str,
 ) -> ModelResult<Vec<UserCourseProgress>> {
     course_modules
@@ -560,6 +573,9 @@ fn merge_modules_with_metrics(
             let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
             let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
             let requirements = course_module.completion_policy.automatic();
+            let answered_module_end_questions = end_questions_answered_by_course_module_id
+                .get(&course_module.id)
+                .unwrap_or(&false);
             let progress = UserCourseProgress {
                 course_module_id: course_module.id,
                 // Only default course module doesn't have a name.
@@ -587,6 +603,8 @@ fn merge_modules_with_metrics(
                     .and_then(|x| x.number_of_exercises_attempted_treshold),
                 automatic_completion: requirements.is_some(),
                 requires_exam: requirements.is_some_and(|x| x.requires_exam),
+                requires_ending_questionnaire: course_module.ending_questions_required,
+                ending_questionnaire_answered: *answered_module_end_questions,
             };
             Ok(progress)
         })
@@ -1586,10 +1604,12 @@ mod tests {
                 attempted_exercises: Some(3),
             },
         )]);
+        let end_questions_answered_by_course_module_id = HashMap::from([(module_id, false)]);
         let metrics = merge_modules_with_metrics(
             course_modules,
             &course_metrics_by_course_module_id,
             &user_metrics_by_course_module_id,
+            &end_questions_answered_by_course_module_id,
             "Default module",
         )
         .unwrap();

@@ -128,6 +128,8 @@ import type {
   GetCourseMaterialUserMarketingConsentResponses,
   GetCourseMaterialUserModuleCompletionsData,
   GetCourseMaterialUserModuleCompletionsResponses,
+  GetCourseModuleEndQuestionnaireData,
+  GetCourseModuleEndQuestionnaireResponses,
   GetCurrentConversationIdData,
   GetCurrentConversationIdResponses,
   GetCurrentCourseMaterialCourseInstanceData,

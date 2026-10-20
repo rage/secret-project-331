@@ -2,9 +2,11 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import EndQuestionnaireDialog from "@/components/course-material/modals/EndQuestionnaireDialog"
 import CircularProgress from "@/components/course-progress/CircularProgress"
 import PointsBreakdownButton from "@/components/course-progress/PointsBreakdownButton"
 import type { CourseInstanceLocation } from "@/components/course-progress/PointsBreakdownDialog"
@@ -15,8 +17,14 @@ import {
   type ProgressMeasure,
   withoutEmptyThreshold,
 } from "@/components/course-progress/progressText"
-import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseModuleEndQuestionnaire } from "@/generated/course-material-api/sdk.generated"
+import type {
+  UserCourseProgress,
+  CourseModuleEndingQuestion,
+} from "@/generated/course-material-api/types.generated"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 
@@ -24,6 +32,7 @@ export interface CourseModuleProgressBarsProps {
   courseModuleProgress: UserCourseProgress
   /** `null` leaves out the button that lists every exercise. */
   courseInstanceLocation: CourseInstanceLocation | null
+  courseId: string
 }
 
 const Wrapper = styled.div`
@@ -41,8 +50,20 @@ const TotalWrapper = styled.div`
 const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   courseModuleProgress,
   courseInstanceLocation,
+  courseId,
 }) => {
   const { t, i18n } = useTranslation()
+  const getEndQuestionnaire = useQuery({
+    queryKey: [`course-module-${courseId}-${courseModuleProgress.course_module_id}-questions`],
+    queryFn: (): Promise<CourseModuleEndingQuestion[]> =>
+      getCourseModuleEndQuestionnaire({
+        path: {
+          course_id: courseId,
+          course_module_id: assertNotNullOrUndefined(courseModuleProgress.course_module_id),
+        },
+      }),
+    enabled: true, //!!courseId && loginStateContext.signedIn === true,
+  })
   const requiresExam = courseModuleProgress.requires_exam
   const points: ProgressMeasure = withoutEmptyThreshold({
     given: courseModuleProgress.score_given,
@@ -62,6 +83,16 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
     i18n.language,
     requiresExam,
   )
+
+  const showEndQuestionnaire =
+    points.given !== null &&
+    points.required !== null &&
+    points.given >= points.required &&
+    exercises.given !== null &&
+    exercises.required !== null &&
+    exercises.given >= exercises.required &&
+    courseModuleProgress.requires_ending_questionnaire &&
+    !courseModuleProgress.ending_questionnaire_answered
 
   return (
     <>
@@ -106,6 +137,37 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
           )}
         </div>
       </TotalWrapper>
+      {showEndQuestionnaire && (
+        <Wrapper>
+          <div
+            className={css`
+              width: 100%;
+              margin: 0 auto;
+              text-align: center;
+              padding: 2em 0;
+              border: solid red 5px;
+
+              /** Make sure the visualization does not make the page wider on mobile */
+              max-width: 100%;
+              overflow: hidden;
+            `}
+          >
+            <p>
+              Congratulations! You meet all the requiremenents for passing the course. Give course
+              feedback to gain your completion (1-2 minutes)
+            </p>
+            <Button onClick={() => {}}>Give course feedback</Button>
+            <QueryResult query={getEndQuestionnaire} emptyFallback={<p></p>}>
+              {(data) => (
+                <CourseProgress
+                  userCourseProgress={data}
+                  courseInstanceLocation={courseInstanceLocation}
+                />
+              )}
+            </QueryResult>
+          </div>
+        </Wrapper>
+      )}
       <Wrapper>
         <CompletionRequirementsTabulation
           attemptedExercisesRequiredForCompletion={exercises.required}

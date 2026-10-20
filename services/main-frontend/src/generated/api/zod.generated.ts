@@ -265,6 +265,13 @@ export const zAddPlanMemberRequest = z.object({
 })
 
 /**
+ * The body of `POST /registrations/{credit_registration_id}/notes`.
+ */
+export const zAdminAddCreditRegistrationNotePayload = z.object({
+  note: z.string(),
+})
+
+/**
  * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
  */
 export const zAdminAttentionThresholds = z.object({
@@ -1570,6 +1577,7 @@ export const zCreditRegistrationAdminAction = z.enum([
   "request_enrolment_list_fetch",
   "dismiss_study_registry_conflict",
   "dismiss_attention",
+  "add_note",
 ])
 
 export const zCreditRegistrationAdminActionTarget = z.enum([
@@ -1636,6 +1644,29 @@ export const zCreditRegistrationAlert = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     })
     .nullish(),
+})
+
+/**
+ * How many listed rows someone has reacted to, over the problem groups, the phases and running
+ * late alike.
+ */
+export const zCreditRegistrationAttentionReactionCounts = z.object({
+  not_reacted_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  reacted_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 /**
@@ -1881,6 +1912,20 @@ export const zCreditRegistrationEventKind = z.enum([
   "student_action",
   "cancelled",
 ])
+
+/**
+ * A note an admin left on a registration for whoever handles it next.
+ */
+export const zCreditRegistrationNote = z.object({
+  created_at: z.iso.datetime(),
+  credit_registration_id: z.uuid(),
+  id: z.uuid(),
+  note: z.string(),
+  written_by_email: z.string().nullish(),
+  written_by_first_name: z.string().nullish(),
+  written_by_last_name: z.string().nullish(),
+  written_by_user_id: z.uuid(),
+})
 
 /**
  * Which of the two student mails a row is owed, or already holds.
@@ -6950,6 +6995,7 @@ export const zCreditRegistrationAttentionItem = z.object({
   manual_linking_email_sends: z.array(zAdminManualLinkingEmailSend),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
+  notes: z.array(zCreditRegistrationNote),
   phase: zTimelinePhase,
   phase_started_at: z.iso.datetime(),
   pressed_at: z.iso.datetime().nullish(),
@@ -6970,14 +7016,6 @@ export const zCreditRegistrationAttentionItem = z.object({
 export const zCreditRegistrationAttentionPhaseRows = z.object({
   items: z.array(zCreditRegistrationAttentionItem),
   phase: zTimelinePhase,
-  total_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
 })
 
 /**
@@ -6986,14 +7024,6 @@ export const zCreditRegistrationAttentionPhaseRows = z.object({
 export const zCreditRegistrationBlockingProblemRows = z.object({
   items: z.array(zCreditRegistrationAttentionItem),
   problem: zBlockingProblem,
-  total_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
 })
 
 export const zCreditRegistrationAttentionItems = z.object({
@@ -7001,15 +7031,8 @@ export const zCreditRegistrationAttentionItems = z.object({
   dismissed_recently: z.array(zCreditRegistrationAttentionDismissal),
   explained_by_problem: z.array(zCreditRegistrationBlockingProblemRows),
   phases: z.array(zCreditRegistrationAttentionPhaseRows),
+  reaction_counts: zCreditRegistrationAttentionReactionCounts,
   running_late: z.array(zCreditRegistrationAttentionItem),
-  running_late_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   total_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -9041,13 +9064,9 @@ export const zAdminDismissStudyRegistryConflictPath = z.object({
 })
 
 export const zGetCreditRegistrationAttentionItemsQuery = z.object({
-  limit: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .optional(),
   reason: z.array(zCreditRegistrationAttentionReason).optional(),
   sort: z.string().optional(),
+  reacted: z.boolean().optional(),
 })
 
 /**
@@ -9082,6 +9101,15 @@ export const zListCreditRegistrationAdminActionsQuery = z.object({
  * A page of the action log
  */
 export const zListCreditRegistrationAdminActionsResponse = zPageCreditRegistrationAdminActionRow
+
+export const zGetCreditRegistrationEarlierReasonsQuery = z.object({
+  action: zCreditRegistrationAdminAction,
+})
+
+/**
+ * Earlier reasons, most recently used first
+ */
+export const zGetCreditRegistrationEarlierReasonsResponse = z.array(z.string())
 
 /**
  * One row per course module with a course code
@@ -9282,6 +9310,12 @@ export const zGetCreditRegistrationLinkingCandidatesPath = z.object({
  * The candidates
  */
 export const zGetCreditRegistrationLinkingCandidatesResponse = zAdminLinkingCandidates
+
+export const zAdminAddCreditRegistrationNoteBody = zAdminAddCreditRegistrationNotePayload
+
+export const zAdminAddCreditRegistrationNotePath = z.object({
+  credit_registration_id: z.uuid(),
+})
 
 export const zAdminTransitionCreditRegistrationBody = zAdminTransitionCreditRegistrationPayload
 

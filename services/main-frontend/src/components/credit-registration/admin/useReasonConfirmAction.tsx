@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 
+import type { CreditRegistrationAdminAction } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { MenuItemDescriptor } from "@/shared-module/components"
@@ -13,6 +14,7 @@ const DESTRUCTIVE_TONE = "destructive" as const
 
 interface UseReasonConfirmActionOptions {
   mutationFn: (fields: { reason: string }) => Promise<unknown>
+  auditAction: CreditRegistrationAdminAction
   /** Runs after the mutation succeeds, e.g. to invalidate the queries the caller reads. */
   invalidate: () => void
   buttonLabel: string
@@ -34,6 +36,7 @@ interface ReasonConfirmAction {
 /** The button + reason-confirm dialog + mutation wiring shared by one-off admin actions like unlink and materialize. */
 export function useReasonConfirmAction({
   mutationFn,
+  auditAction,
   invalidate,
   buttonLabel,
   dialogTitle,
@@ -61,7 +64,7 @@ export function useReasonConfirmAction({
   )
 
   const item: MenuItemDescriptor = {
-    key: buttonLabel,
+    key: auditAction,
     label: buttonLabel,
     isDisabled: mutation.isPending,
     onAction: () => setOpen(true),
@@ -75,6 +78,7 @@ export function useReasonConfirmAction({
       title={dialogTitle}
       description={dialogMessage}
       confirmLabel={buttonLabel}
+      auditAction={auditAction}
       isDestructive={isDestructive}
       isPending={mutation.isPending}
       onConfirm={(reason) => mutation.mutate({ reason })}

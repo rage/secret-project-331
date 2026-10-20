@@ -56,6 +56,7 @@ import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { candidateFullName } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import StudentCell from "./StudentCell"
@@ -402,6 +403,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
           />
           <ReasonField
             control={control}
+            auditAction={AUDIT_ACTION.MANUAL_LINK_STUDENT_NUMBER}
             description={t("credit-registration-admin-manual-link-reason-description")}
           />
         </form>

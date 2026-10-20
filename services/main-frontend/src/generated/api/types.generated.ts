@@ -374,6 +374,13 @@ export type AddPlanMemberRequest = {
 }
 
 /**
+ * The body of `POST /registrations/{credit_registration_id}/notes`.
+ */
+export type AdminAddCreditRegistrationNotePayload = {
+  note: string
+}
+
+/**
  * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
  */
 export type AdminAttentionThresholds = {
@@ -2409,6 +2416,7 @@ export type CreditRegistrationAdminAction =
   | "request_enrolment_list_fetch"
   | "dismiss_study_registry_conflict"
   | "dismiss_attention"
+  | "add_note"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -2589,6 +2597,10 @@ export type CreditRegistrationAttentionItem = {
    */
   needs_admin_attention: boolean
   next_attempt_at: string
+  /**
+   * Newest first.
+   */
+  notes: Array<CreditRegistrationNote>
   phase: TimelinePhase
   phase_started_at: string
   /**
@@ -2631,14 +2643,13 @@ export type CreditRegistrationAttentionItems = {
    */
   phases: Array<CreditRegistrationAttentionPhaseRows>
   /**
-   * Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
-   * the count.
+   * Before `reacted` narrows the rows, so both stay usable as facets.
+   */
+  reaction_counts: CreditRegistrationAttentionReactionCounts
+  /**
+   * Over a timing threshold with no person-level cause, oldest first. Not in the count.
    */
   running_late: Array<CreditRegistrationAttentionItem>
-  /**
-   * Every running late row, however many `running_late` lists.
-   */
-  running_late_count: number
   /**
    * The Needs attention count, whatever this request filtered to: the tab badge, the same number
    * `/overview` reports.
@@ -2651,14 +2662,19 @@ export type CreditRegistrationAttentionItems = {
  */
 export type CreditRegistrationAttentionPhaseRows = {
   /**
-   * The first of them in the requested order, at most `limit`.
+   * Every row of the phase matching the filters, in the requested order.
    */
   items: Array<CreditRegistrationAttentionItem>
   phase: TimelinePhase
-  /**
-   * Every row of the phase matching `reason`, however many `items` lists.
-   */
-  total_count: number
+}
+
+/**
+ * How many listed rows someone has reacted to, over the problem groups, the phases and running
+ * late alike.
+ */
+export type CreditRegistrationAttentionReactionCounts = {
+  not_reacted_count: number
+  reacted_count: number
 }
 
 /**
@@ -2687,14 +2703,10 @@ export type CreditRegistrationAttentionReasonCount = {
  */
 export type CreditRegistrationBlockingProblemRows = {
   /**
-   * The oldest of them, at most `limit`.
+   * Every row the problem accounts for, oldest first.
    */
   items: Array<CreditRegistrationAttentionItem>
   problem: BlockingProblem
-  /**
-   * Every row the problem accounts for, however many `items` lists.
-   */
-  total_count: number
 }
 
 /**
@@ -2968,6 +2980,20 @@ export type CreditRegistrationHistoryStepPoint = {
   engagement?: null | Engagement
   phase: TimelinePhase
   step: TimelineStep
+}
+
+/**
+ * A note an admin left on a registration for whoever handles it next.
+ */
+export type CreditRegistrationNote = {
+  created_at: string
+  credit_registration_id: string
+  id: string
+  note: string
+  written_by_email?: string | null
+  written_by_first_name?: string | null
+  written_by_last_name?: string | null
+  written_by_user_id: string
 }
 
 /**
@@ -10957,10 +10983,6 @@ export type GetCreditRegistrationAttentionItemsData = {
   path?: never
   query?: {
     /**
-     * Rows listed per section; the counts cover every row
-     */
-    limit?: number
-    /**
      * Only rows carrying one of these reasons; repeat the parameter for several
      */
     reason?: Array<CreditRegistrationAttentionReason>
@@ -10968,6 +10990,10 @@ export type GetCreditRegistrationAttentionItemsData = {
      * time_in_phase, next_attempt or course
      */
     sort?: string
+    /**
+     * Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row
+     */
+    reacted?: boolean
   }
   url: "/api/v0/main-frontend/credit-registration-admin/attention"
 }
@@ -11047,6 +11073,28 @@ export type ListCreditRegistrationAdminActionsResponses = {
 
 export type ListCreditRegistrationAdminActionsResponse =
   ListCreditRegistrationAdminActionsResponses[keyof ListCreditRegistrationAdminActionsResponses]
+
+export type GetCreditRegistrationEarlierReasonsData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The action the reasons were given for
+     */
+    action: CreditRegistrationAdminAction
+  }
+  url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons"
+}
+
+export type GetCreditRegistrationEarlierReasonsResponses = {
+  /**
+   * Earlier reasons, most recently used first
+   */
+  200: Array<string>
+}
+
+export type GetCreditRegistrationEarlierReasonsResponse =
+  GetCreditRegistrationEarlierReasonsResponses[keyof GetCreditRegistrationEarlierReasonsResponses]
 
 export type GetCreditRegistrationStatsByCourseData = {
   body?: never
@@ -11559,6 +11607,32 @@ export type GetCreditRegistrationLinkingCandidatesResponses = {
 
 export type GetCreditRegistrationLinkingCandidatesResponse =
   GetCreditRegistrationLinkingCandidatesResponses[keyof GetCreditRegistrationLinkingCandidatesResponses]
+
+export type AdminAddCreditRegistrationNoteData = {
+  body: AdminAddCreditRegistrationNotePayload
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes"
+}
+
+export type AdminAddCreditRegistrationNoteErrors = {
+  /**
+   * The note is empty
+   */
+  400: unknown
+}
+
+export type AdminAddCreditRegistrationNoteResponses = {
+  /**
+   * The note was added
+   */
+  200: unknown
+}
 
 export type AdminTransitionCreditRegistrationData = {
   body: AdminTransitionCreditRegistrationPayload

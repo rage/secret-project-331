@@ -14,6 +14,7 @@ import { refusalSentence } from "../resubmissionRefusal"
 import { noteCss, proseCss } from "../styles"
 import { AdminActionDialog } from "./AdminActionDialog"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import type { BulkTransitionRow } from "./bulkTransitionActions"
 import {
   countResubmissionRisk,
@@ -212,7 +213,7 @@ const AdminBulkTransitionDialog: React.FC<Props> = ({ selectedRows, onApplied })
           />
           <p className={noteCss}>{selectionSummary(t, groups).join(", ")}</p>
           <BulkActionNotes control={control} selectedRows={selectedRows} />
-          <ReasonField control={control} />
+          <ReasonField control={control} auditAction={AUDIT_ACTION.TRANSITION_ITEM} />
         </>
       )}
       renderResult={(result) => (

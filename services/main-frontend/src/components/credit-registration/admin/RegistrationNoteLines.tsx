@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { AdminCreditRegistrationNote } from "@/generated/api/types.generated"
+import type { CreditRegistrationNote } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
@@ -18,7 +18,7 @@ const noteTextCss = css`
 `
 
 /** The notes left on a registration, newest first: who wrote each and when, then the note. */
-const RegistrationNoteLines: React.FC<{ notes: AdminCreditRegistrationNote[] }> = ({ notes }) => {
+const RegistrationNoteLines: React.FC<{ notes: CreditRegistrationNote[] }> = ({ notes }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   if (notes.length === 0) {
     return null

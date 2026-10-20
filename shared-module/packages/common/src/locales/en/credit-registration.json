@@ -554,6 +554,7 @@
   "credit-registration-admin-no-registration-item": "The call kept nothing for this registration.",
   "credit-registration-admin-no-registrations": "No registrations exist yet.",
   "credit-registration-admin-no-roster-codes": "No course code has an enrolment list schedule yet.",
+  "credit-registration-admin-no-rows-match-filter": "No rows match this filter.",
   "credit-registration-admin-no-snapshot-day": "No snapshot",
   "credit-registration-admin-no-snapshots": "No snapshot has been written for this range yet.",
   "credit-registration-admin-no-stale-addresses": "Nobody has had every email the caps allow without linking.",

@@ -259,8 +259,8 @@ ORDER BY a.created_at DESC,
     Ok(res)
 }
 
-/// A note an admin left on a registration.
-#[derive(Debug, Clone, PartialEq)]
+/// A note an admin left on a registration for whoever handles it next.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationNote {
     pub credit_registration_id: Uuid,
     pub created_at: DateTime<Utc>,

@@ -373,6 +373,9 @@ export type AddPlanMemberRequest = {
   email: string
 }
 
+/**
+ * The body of `POST /registrations/{credit_registration_id}/notes`.
+ */
 export type AdminAddCreditRegistrationNotePayload = {
   note: string
 }
@@ -530,18 +533,6 @@ export type AdminCreditRegistrationJourney = {
    * Sisu's own time for the enrolment we found, where Sisu gave one.
    */
   sisu_enrolled_at?: string | null
-}
-
-/**
- * A note an admin left on a registration for whoever handles it next.
- */
-export type AdminCreditRegistrationNote = {
-  created_at: string
-  note: string
-  written_by_email?: string | null
-  written_by_first_name?: string | null
-  written_by_last_name?: string | null
-  written_by_user_id: string
 }
 
 export type AdminCreditRegistrationRow = {
@@ -2609,7 +2600,7 @@ export type CreditRegistrationAttentionItem = {
   /**
    * Newest first.
    */
-  notes: Array<AdminCreditRegistrationNote>
+  notes: Array<CreditRegistrationNote>
   phase: TimelinePhase
   phase_started_at: string
   /**
@@ -2989,6 +2980,19 @@ export type CreditRegistrationHistoryStepPoint = {
   engagement?: null | Engagement
   phase: TimelinePhase
   step: TimelineStep
+}
+
+/**
+ * A note an admin left on a registration for whoever handles it next.
+ */
+export type CreditRegistrationNote = {
+  created_at: string
+  credit_registration_id: string
+  note: string
+  written_by_email?: string | null
+  written_by_first_name?: string | null
+  written_by_last_name?: string | null
+  written_by_user_id: string
 }
 
 /**

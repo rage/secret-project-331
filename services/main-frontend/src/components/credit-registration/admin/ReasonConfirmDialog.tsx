@@ -98,7 +98,10 @@ export function ReasonField<T extends FieldValues & WithReason>({
         label={label ?? t("label-reason")}
         description={description ?? t("credit-registration-admin-reason-audit-hint")}
         isRequired={isRequired}
-        {...includeIf(isRequired, { rules: { required: t("required-field") } })}
+        {...includeIf(isRequired, {
+          // Not `required`: a reason of only spaces passes it, and the server then refuses it.
+          rules: { validate: (value: string) => value.trim() !== "" || t("required-field") },
+        })}
       />
     </>
   )
@@ -139,7 +142,7 @@ export const ReasonConfirmDialog: React.FC<ReasonConfirmDialogProps> = ({
   onConfirm,
 }) => {
   const { control, handleSubmit, reset } = useReasonRequiredForm<WithReason>({ reason: "" })
-  // The dialog stays mounted between uses; a note added a moment ago must not be offered again.
+  // The dialog stays mounted between uses, so it would reopen with the text last sent.
   useEffect(() => {
     if (open) {
       reset()

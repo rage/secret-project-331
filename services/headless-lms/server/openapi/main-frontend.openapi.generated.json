@@ -15386,6 +15386,7 @@
       },
       "AdminAddCreditRegistrationNotePayload": {
         "type": "object",
+        "description": "The body of `POST /registrations/{credit_registration_id}/notes`.",
         "required": ["note"],
         "properties": {
           "note": {
@@ -15783,33 +15784,6 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "Sisu's own time for the enrolment we found, where Sisu gave one."
-          }
-        }
-      },
-      "AdminCreditRegistrationNote": {
-        "type": "object",
-        "description": "A note an admin left on a registration for whoever handles it next.",
-        "required": ["created_at", "note", "written_by_user_id"],
-        "properties": {
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "note": {
-            "type": "string"
-          },
-          "written_by_email": {
-            "type": ["string", "null"]
-          },
-          "written_by_first_name": {
-            "type": ["string", "null"]
-          },
-          "written_by_last_name": {
-            "type": ["string", "null"]
-          },
-          "written_by_user_id": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
@@ -21285,7 +21259,7 @@
           "notes": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AdminCreditRegistrationNote"
+              "$ref": "#/components/schemas/CreditRegistrationNote"
             },
             "description": "Newest first."
           },
@@ -21970,6 +21944,37 @@
           },
           "step": {
             "$ref": "#/components/schemas/TimelineStep"
+          }
+        }
+      },
+      "CreditRegistrationNote": {
+        "type": "object",
+        "description": "A note an admin left on a registration for whoever handles it next.",
+        "required": ["credit_registration_id", "created_at", "note", "written_by_user_id"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "note": {
+            "type": "string"
+          },
+          "written_by_email": {
+            "type": ["string", "null"]
+          },
+          "written_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "written_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "written_by_user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },

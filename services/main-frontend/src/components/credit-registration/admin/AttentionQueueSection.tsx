@@ -483,7 +483,13 @@ const AttentionQueueSection: React.FC = () => {
             )}
             {phases.length === 0 ? (
               <section className={sectionCardCss}>
-                <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
+                <EmptyState
+                  title={t(
+                    reacted === undefined
+                      ? "credit-registration-admin-nothing-needs-a-human"
+                      : "credit-registration-admin-no-rows-match-filter",
+                  )}
+                />
               </section>
             ) : (
               phases.map((rows) => <PhaseSection key={rows.phase} rows={rows} />)

@@ -166,6 +166,7 @@ fn to_action_row(row: CreditRegistrationAdminActionListRow) -> CreditRegistratio
 /// Distinct earlier reasons offered for one action.
 const EARLIER_REASON_LIMIT: i64 = 20;
 
+/// The query of `GET /audit/earlier-reasons`.
 #[derive(Debug, Deserialize)]
 pub struct EarlierReasonsQuery {
     action: CreditRegistrationAdminAction,

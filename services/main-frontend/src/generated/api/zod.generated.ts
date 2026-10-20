@@ -264,6 +264,9 @@ export const zAddPlanMemberRequest = z.object({
   email: z.email(),
 })
 
+/**
+ * The body of `POST /registrations/{credit_registration_id}/notes`.
+ */
 export const zAdminAddCreditRegistrationNotePayload = z.object({
   note: z.string(),
 })
@@ -300,18 +303,6 @@ export const zAdminAttentionThresholds = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
-})
-
-/**
- * A note an admin left on a registration for whoever handles it next.
- */
-export const zAdminCreditRegistrationNote = z.object({
-  created_at: z.iso.datetime(),
-  note: z.string(),
-  written_by_email: z.string().nullish(),
-  written_by_first_name: z.string().nullish(),
-  written_by_last_name: z.string().nullish(),
-  written_by_user_id: z.uuid(),
 })
 
 /**
@@ -1921,6 +1912,19 @@ export const zCreditRegistrationEventKind = z.enum([
   "student_action",
   "cancelled",
 ])
+
+/**
+ * A note an admin left on a registration for whoever handles it next.
+ */
+export const zCreditRegistrationNote = z.object({
+  created_at: z.iso.datetime(),
+  credit_registration_id: z.uuid(),
+  note: z.string(),
+  written_by_email: z.string().nullish(),
+  written_by_first_name: z.string().nullish(),
+  written_by_last_name: z.string().nullish(),
+  written_by_user_id: z.uuid(),
+})
 
 /**
  * Which of the two student mails a row is owed, or already holds.
@@ -7006,7 +7010,7 @@ export const zCreditRegistrationAttentionItem = z.object({
   manual_linking_email_sends: z.array(zAdminManualLinkingEmailSend),
   needs_admin_attention: z.boolean(),
   next_attempt_at: z.iso.datetime(),
-  notes: z.array(zAdminCreditRegistrationNote),
+  notes: z.array(zCreditRegistrationNote),
   phase: zTimelinePhase,
   phase_started_at: z.iso.datetime(),
   pressed_at: z.iso.datetime().nullish(),

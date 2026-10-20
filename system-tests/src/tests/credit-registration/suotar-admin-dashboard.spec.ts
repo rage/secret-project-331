@@ -408,7 +408,7 @@ test("Admin resend can pass the rate cap with a reason", async ({ page }) => {
   await test.step("With the override and a reason it goes out", async () => {
     await dialog.getByLabel("Send anyway, past the rate caps").check()
     await dialog
-      .getByLabel("Reason")
+      .getByRole("textbox", { name: "Reason" })
       .fill("System test: proving the override retires the capped mails.")
     await dialog.getByRole("button", { name: "Send the linking email again" }).click()
     await expect(dialog.getByText("An email is queued")).toBeVisible()

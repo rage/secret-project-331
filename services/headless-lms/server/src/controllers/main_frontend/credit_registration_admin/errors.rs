@@ -82,37 +82,13 @@ pub struct CreditRegistrationAttentionItem {
     /// Linking emails sent by hand as a guess for this row's student, newest first.
     pub manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
     /// Newest first.
-    pub notes: Vec<AdminCreditRegistrationNote>,
+    pub notes: Vec<CreditRegistrationNote>,
 }
 
 impl CreditRegistrationAttentionItem {
     /// Someone has already done something about the row that leaves it on the queue.
     fn is_reacted_to(&self) -> bool {
         !self.notes.is_empty() || !self.manual_linking_email_sends.is_empty()
-    }
-}
-
-/// A note an admin left on a registration for whoever handles it next.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AdminCreditRegistrationNote {
-    pub created_at: DateTime<Utc>,
-    pub note: String,
-    pub written_by_user_id: Uuid,
-    pub written_by_first_name: Option<String>,
-    pub written_by_last_name: Option<String>,
-    pub written_by_email: Option<String>,
-}
-
-impl From<CreditRegistrationNote> for AdminCreditRegistrationNote {
-    fn from(note: CreditRegistrationNote) -> Self {
-        Self {
-            created_at: note.created_at,
-            note: note.note,
-            written_by_user_id: note.written_by_user_id,
-            written_by_first_name: note.written_by_first_name,
-            written_by_last_name: note.written_by_last_name,
-            written_by_email: note.written_by_email,
-        }
     }
 }
 
@@ -189,6 +165,7 @@ pub struct AdminDismissAttentionPayload {
     pub reason: String,
 }
 
+/// The body of `POST /registrations/{credit_registration_id}/notes`.
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminAddCreditRegistrationNotePayload {
     pub note: String,
@@ -319,7 +296,7 @@ pub async fn get_credit_registration_attention_items(
         .collect();
     let mut sends = manual_linking_email_sends_by_registration(&mut conn, &course_ids).await?;
     let registration_ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
-    let mut notes: HashMap<Uuid, Vec<AdminCreditRegistrationNote>> = HashMap::new();
+    let mut notes: HashMap<Uuid, Vec<CreditRegistrationNote>> = HashMap::new();
     for note in
         credit_registration_admin_actions::get_notes_by_registrations(&mut conn, &registration_ids)
             .await?
@@ -327,7 +304,7 @@ pub async fn get_credit_registration_attention_items(
         notes
             .entry(note.credit_registration_id)
             .or_default()
-            .push(note.into());
+            .push(note);
     }
     let dismissed_recently = credit_registrations::get_dismissals_since(
         &mut conn,
@@ -636,7 +613,7 @@ pub(super) fn to_attention_item(
     row: AttentionRegistration,
     problems: &BlockingProblems,
     manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
-    notes: Vec<AdminCreditRegistrationNote>,
+    notes: Vec<CreditRegistrationNote>,
 ) -> CreditRegistrationAttentionItem {
     let position = row.position();
     let standing = row.standing(problems);

@@ -554,6 +554,7 @@
   "credit-registration-admin-no-registration-item": "Kutsusta ei tallennettu mitään tälle kirjaukselle.",
   "credit-registration-admin-no-registrations": "Kirjauksia ei ole vielä.",
   "credit-registration-admin-no-roster-codes": "Yhdelläkään kurssikoodilla ei ole vielä ilmoittautuneiden listan hakuaikataulua.",
+  "credit-registration-admin-no-rows-match-filter": "Suodattimeen sopivia rivejä ei ole.",
   "credit-registration-admin-no-snapshot-day": "Ei tilannekuvaa",
   "credit-registration-admin-no-snapshots": "Tälle aikavälille ei ole vielä kirjoitettu yhtään tilannekuvaa.",
   "credit-registration-admin-no-stale-addresses": "Kukaan ei ole saanut kaikkia rajojen sallimia viestejä liittämättä numeroaan.",

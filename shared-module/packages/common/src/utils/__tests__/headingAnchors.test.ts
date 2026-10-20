@@ -185,13 +185,13 @@ describe("headingAnchors", () => {
       expect(ids.get(CLIENT_ID_B)).toBe("9a7d4e2b-summary")
     })
 
-    it("suffixes a generated anchor that an author-set anchor already uses", () => {
+    it("lengthens the id fragment when an author-set anchor already starts with it", () => {
       const ids = buildHeadingAnchorIds([
         heading(CLIENT_ID_A, "Getting started"),
         heading(CLIENT_ID_B, "Copied link", "3f2b8c1a-getting-started"),
       ])
       expect(ids.get(CLIENT_ID_B)).toBe("3f2b8c1a-getting-started")
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-getting-started-2")
+      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a00004000-getting-started")
     })
 
     it("walks inner blocks", () => {

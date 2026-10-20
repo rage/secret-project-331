@@ -33,8 +33,6 @@ use super::{
     manual_linking_email_sends_by_registration, required_reason,
 };
 
-/// Rows listed per section of the Needs attention tab when the caller names no limit.
-const ATTENTION_SECTION_SIZE: u32 = 50;
 const RECENT_DISMISSAL_DAYS: i64 = 14;
 const RECENT_DISMISSAL_LIMIT: i64 = 200;
 const DEFAULT_ERROR_WINDOW_SECS: i64 = 24 * 60 * 60;
@@ -136,9 +134,7 @@ pub struct CreditRegistrationAttentionReasonCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationBlockingProblemRows {
     pub problem: BlockingProblem,
-    /// Every row the problem accounts for, however many `items` lists.
-    pub total_count: i64,
-    /// The oldest of them, at most `limit`.
+    /// Every row the problem accounts for, oldest first.
     pub items: Vec<CreditRegistrationAttentionItem>,
 }
 
@@ -146,9 +142,7 @@ pub struct CreditRegistrationBlockingProblemRows {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAttentionPhaseRows {
     pub phase: TimelinePhase,
-    /// Every row of the phase matching `reason`, however many `items` lists.
-    pub total_count: i64,
-    /// The first of them in the requested order, at most `limit`.
+    /// Every row of the phase matching the filters, in the requested order.
     pub items: Vec<CreditRegistrationAttentionItem>,
 }
 
@@ -180,11 +174,8 @@ pub struct CreditRegistrationAttentionItems {
     /// The rows needing attention that match `reason`, one entry per timeline phase that has any,
     /// in timeline order.
     pub phases: Vec<CreditRegistrationAttentionPhaseRows>,
-    /// Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
-    /// the count.
+    /// Over a timing threshold with no person-level cause, oldest first. Not in the count.
     pub running_late: Vec<CreditRegistrationAttentionItem>,
-    /// Every running late row, however many `running_late` lists.
-    pub running_late_count: i64,
     /// Rows a blocking problem accounts for, under that problem. Not in the count.
     pub explained_by_problem: Vec<CreditRegistrationBlockingProblemRows>,
     /// Dismissals of the last 14 days, newest first, whether or not the row has come back since.
@@ -279,7 +270,6 @@ pub async fn get_credit_registration_thresholds(
 
 #[derive(Debug, Deserialize)]
 pub struct AttentionQuery {
-    limit: Option<u32>,
     reason: Option<Vec<AttentionReason>>,
     sort: Option<String>,
     reacted: Option<bool>,
@@ -301,7 +291,6 @@ number.
     operation_id = "getCreditRegistrationAttentionItems",
     tag = "credit-registration-admin",
     params(
-        ("limit" = Option<u32>, Query, description = "Rows listed per section; the counts cover every row"),
         ("reason" = Option<Vec<AttentionReason>>, Query, description = "Only rows carrying one of these reasons; repeat the parameter for several"),
         ("sort" = Option<String>, Query, description = "time_in_phase, next_attempt or course"),
         ("reacted" = Option<bool>, Query, description = "Only rows someone has, or has not, left a note on or sent a linking email for by hand; the counts cover every row")
@@ -319,9 +308,6 @@ pub async fn get_credit_registration_attention_items(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let section_size =
-        usize::try_from(parse_pagination(None, query.limit, ATTENTION_SECTION_SIZE)?.limit())
-            .unwrap_or(usize::MAX);
     let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let rules = attention_rules(&mut conn, &app_conf).await?;
     let rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
@@ -391,7 +377,6 @@ pub async fn get_credit_registration_attention_items(
                     Some(group) => group.items.push(item),
                     None => explained_by_problem.push(CreditRegistrationBlockingProblemRows {
                         problem,
-                        total_count: 0,
                         items: vec![item],
                     }),
                 }
@@ -399,13 +384,6 @@ pub async fn get_credit_registration_attention_items(
             AttentionStanding::ExplainedByProblem | AttentionStanding::Dismissed => {}
         }
     }
-    for group in &mut explained_by_problem {
-        group.total_count = group.items.len() as i64;
-        group.items.truncate(section_size);
-    }
-    let running_late_count = running_late.len() as i64;
-    running_late.truncate(section_size);
-
     let mut reason_counts: BTreeMap<AttentionReason, i64> = BTreeMap::new();
     for reason in needing.iter().flat_map(|item| item.reasons.iter()) {
         *reason_counts.entry(*reason).or_insert(0) += 1;
@@ -434,13 +412,7 @@ pub async fn get_credit_registration_attention_items(
                 Some("course") => items.sort_by(|a, b| a.course_name.cmp(&b.course_name)),
                 _ => items.sort_by_key(|item| item.phase_started_at),
             }
-            let total_count = items.len() as i64;
-            items.truncate(section_size);
-            CreditRegistrationAttentionPhaseRows {
-                phase,
-                total_count,
-                items,
-            }
+            CreditRegistrationAttentionPhaseRows { phase, items }
         })
         .collect();
 
@@ -449,7 +421,6 @@ pub async fn get_credit_registration_attention_items(
         counts_by_reason,
         phases,
         running_late,
-        running_late_count,
         explained_by_problem,
         dismissed_recently,
         reaction_counts,

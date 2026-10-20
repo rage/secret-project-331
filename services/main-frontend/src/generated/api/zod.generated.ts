@@ -7027,14 +7027,6 @@ export const zCreditRegistrationAttentionItem = z.object({
 export const zCreditRegistrationAttentionPhaseRows = z.object({
   items: z.array(zCreditRegistrationAttentionItem),
   phase: zTimelinePhase,
-  total_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
 })
 
 /**
@@ -7043,14 +7035,6 @@ export const zCreditRegistrationAttentionPhaseRows = z.object({
 export const zCreditRegistrationBlockingProblemRows = z.object({
   items: z.array(zCreditRegistrationAttentionItem),
   problem: zBlockingProblem,
-  total_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
 })
 
 export const zCreditRegistrationAttentionItems = z.object({
@@ -7060,14 +7044,6 @@ export const zCreditRegistrationAttentionItems = z.object({
   phases: z.array(zCreditRegistrationAttentionPhaseRows),
   reaction_counts: zCreditRegistrationAttentionReactionCounts,
   running_late: z.array(zCreditRegistrationAttentionItem),
-  running_late_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
   total_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -9099,11 +9075,6 @@ export const zAdminDismissStudyRegistryConflictPath = z.object({
 })
 
 export const zGetCreditRegistrationAttentionItemsQuery = z.object({
-  limit: z
-    .int()
-    .gte(0)
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .optional(),
   reason: z.array(zCreditRegistrationAttentionReason).optional(),
   sort: z.string().optional(),
   reacted: z.boolean().optional(),

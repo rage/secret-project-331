@@ -60,24 +60,11 @@ import RegistrationNoteLines from "./RegistrationNoteLines"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
-import {
-  STEPS_BY_PHASE,
-  TIMELINE_PHASES,
-  timelinePhaseLabel,
-  timelineStepLabel,
-} from "./timelineSteps"
+import { TIMELINE_PHASES, timelinePhaseLabel, timelineStepLabel } from "./timelineSteps"
 import { useHashTarget, useOpenedByLink } from "./useHashTarget"
 import { useQueryParamFilters } from "./useQueryParamFilters"
 
 const ANSWER_UNCLEAR = "answer_unclear"
-
-/** Says how many of a section's rows are listed when the server capped them. */
-const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return shown < total ? (
-    <p className={noteCss}>{t("credit-registration-admin-oldest-shown", { shown, total })}</p>
-  ) : null
-}
 
 /**
  * What is wrong first, then what to do and whom it waits on. An unclear answer's next step is
@@ -237,15 +224,12 @@ const BlockingProblemGroup: React.FC<{ group: CreditRegistrationBlockingProblemR
       <Disclosure
         title={
           <span id={headingId}>
-            {t("credit-registration-admin-problem-holds-up", { count: group.total_count })}
+            {t("credit-registration-admin-problem-holds-up", { count: group.items.length })}
           </span>
         }
         variant={PLAIN_DISCLOSURE}
       >
-        <div className={sectionCss}>
-          <ShownOfTotal shown={group.items.length} total={group.total_count} />
-          <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
-        </div>
+        <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
       </Disclosure>
     </div>
   )
@@ -287,35 +271,14 @@ const PhaseSection: React.FC<{ rows: CreditRegistrationAttentionPhaseRows }> = (
         <h2 id={headingId} className={headingCss}>
           {t("credit-registration-admin-phase-with-count", {
             phase: timelinePhaseLabel(t, rows.phase),
-            count: rows.total_count,
+            count: rows.items.length,
           })}
         </h2>
       </div>
       {rows.items.length === 0 ? (
         <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
       ) : (
-        <>
-          {rows.items.length < rows.total_count && (
-            <p className={noteCss}>
-              {t("credit-registration-admin-oldest-shown", {
-                shown: rows.items.length,
-                total: rows.total_count,
-              })}{" "}
-              <Link
-                href={registrationsListHref({
-                  needsAttention: true,
-                  steps: STEPS_BY_PHASE[rows.phase],
-                  includeNotStarted: true,
-                })}
-              >
-                {t("credit-registration-admin-needs-attention-in-list", {
-                  count: rows.total_count,
-                })}
-              </Link>
-            </p>
-          )}
-          <AttentionItemsTable items={rows.items} labelledBy={headingId} />
-        </>
+        <AttentionItemsTable items={rows.items} labelledBy={headingId} />
       )}
     </section>
   )
@@ -323,9 +286,8 @@ const PhaseSection: React.FC<{ rows: CreditRegistrationAttentionPhaseRows }> = (
 
 const RunningLateSection: React.FC<{
   items: CreditRegistrationAttentionItem[]
-  totalCount: number
   isOpen: boolean
-}> = ({ items, totalCount, isOpen }) => {
+}> = ({ items, isOpen }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   const expansion = useOpenedByLink(isOpen)
@@ -333,7 +295,7 @@ const RunningLateSection: React.FC<{
     <section id={RUNNING_LATE_ANCHOR} className={sectionCardCss}>
       <Disclosure
         title={<span id={headingId}>{t("credit-registration-heading-running-late")}</span>}
-        summary={<span className={noteCss}>{totalCount}</span>}
+        summary={<span className={noteCss}>{items.length}</span>}
         variant={PLAIN_DISCLOSURE}
         {...expansion}
       >
@@ -341,7 +303,6 @@ const RunningLateSection: React.FC<{
           <p className={cx(noteCss, proseCss)}>
             {t("credit-registration-admin-running-late-note")}
           </p>
-          <ShownOfTotal shown={items.length} total={totalCount} />
           <AttentionItemsTable items={items} labelledBy={headingId} />
         </div>
       </Disclosure>
@@ -497,9 +458,7 @@ const AttentionQueueSection: React.FC = () => {
           if (rows) {
             return [rows]
           }
-          return hash === attentionPhaseAnchorId(phase)
-            ? [{ phase, total_count: 0, items: [] }]
-            : []
+          return hash === attentionPhaseAnchorId(phase) ? [{ phase, items: [] }] : []
         })
         return (
           <>
@@ -529,10 +488,9 @@ const AttentionQueueSection: React.FC = () => {
             ) : (
               phases.map((rows) => <PhaseSection key={rows.phase} rows={rows} />)
             )}
-            {attention.running_late_count > 0 && (
+            {attention.running_late.length > 0 && (
               <RunningLateSection
                 items={attention.running_late}
-                totalCount={attention.running_late_count}
                 isOpen={hash === RUNNING_LATE_ANCHOR}
               />
             )}

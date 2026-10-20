@@ -2656,14 +2656,9 @@ export type CreditRegistrationAttentionItems = {
    */
   reaction_counts: CreditRegistrationAttentionReactionCounts
   /**
-   * Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
-   * the count.
+   * Over a timing threshold with no person-level cause, oldest first. Not in the count.
    */
   running_late: Array<CreditRegistrationAttentionItem>
-  /**
-   * Every running late row, however many `running_late` lists.
-   */
-  running_late_count: number
   /**
    * The Needs attention count, whatever this request filtered to: the tab badge, the same number
    * `/overview` reports.
@@ -2676,14 +2671,10 @@ export type CreditRegistrationAttentionItems = {
  */
 export type CreditRegistrationAttentionPhaseRows = {
   /**
-   * The first of them in the requested order, at most `limit`.
+   * Every row of the phase matching the filters, in the requested order.
    */
   items: Array<CreditRegistrationAttentionItem>
   phase: TimelinePhase
-  /**
-   * Every row of the phase matching `reason`, however many `items` lists.
-   */
-  total_count: number
 }
 
 /**
@@ -2721,14 +2712,10 @@ export type CreditRegistrationAttentionReasonCount = {
  */
 export type CreditRegistrationBlockingProblemRows = {
   /**
-   * The oldest of them, at most `limit`.
+   * Every row the problem accounts for, oldest first.
    */
   items: Array<CreditRegistrationAttentionItem>
   problem: BlockingProblem
-  /**
-   * Every row the problem accounts for, however many `items` lists.
-   */
-  total_count: number
 }
 
 /**
@@ -10999,10 +10986,6 @@ export type GetCreditRegistrationAttentionItemsData = {
   body?: never
   path?: never
   query?: {
-    /**
-     * Rows listed per section; the counts cover every row
-     */
-    limit?: number
     /**
      * Only rows carrying one of these reasons; repeat the parameter for several
      */

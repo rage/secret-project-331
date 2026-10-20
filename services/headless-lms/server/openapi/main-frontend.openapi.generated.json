@@ -7505,17 +7505,6 @@
         "operationId": "getCreditRegistrationAttentionItems",
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "Rows listed per section; the counts cover every row",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          },
-          {
             "name": "reason",
             "in": "query",
             "description": "Only rows carrying one of these reasons; repeat the parameter for several",
@@ -21355,7 +21344,6 @@
           "counts_by_reason",
           "phases",
           "running_late",
-          "running_late_count",
           "explained_by_problem",
           "dismissed_recently",
           "reaction_counts"
@@ -21398,12 +21386,7 @@
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in\nthe count."
-          },
-          "running_late_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Every running late row, however many `running_late` lists."
+            "description": "Over a timing threshold with no person-level cause, oldest first. Not in the count."
           },
           "total_count": {
             "type": "integer",
@@ -21415,22 +21398,17 @@
       "CreditRegistrationAttentionPhaseRows": {
         "type": "object",
         "description": "The rows of one timeline phase that need attention.",
-        "required": ["phase", "total_count", "items"],
+        "required": ["phase", "items"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "The first of them in the requested order, at most `limit`."
+            "description": "Every row of the phase matching the filters, in the requested order."
           },
           "phase": {
             "$ref": "#/components/schemas/TimelinePhase"
-          },
-          "total_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Every row of the phase matching `reason`, however many `items` lists."
           }
         }
       },
@@ -21482,22 +21460,17 @@
       "CreditRegistrationBlockingProblemRows": {
         "type": "object",
         "description": "One blocking problem and the rows it accounts for.",
-        "required": ["problem", "total_count", "items"],
+        "required": ["problem", "items"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "The oldest of them, at most `limit`."
+            "description": "Every row the problem accounts for, oldest first."
           },
           "problem": {
             "$ref": "#/components/schemas/BlockingProblem"
-          },
-          "total_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Every row the problem accounts for, however many `items` lists."
           }
         }
       },

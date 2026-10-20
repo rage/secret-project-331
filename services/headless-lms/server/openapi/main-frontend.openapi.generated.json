@@ -556,6 +556,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/chatbot-embed/{chatbot_id}": {
+      "get": {
+        "tags": ["chatbot-embed"],
+        "summary": "GET `/api/v0/main-frontend/chatbot-embed/{chatbot_configuration_id}`",
+        "operationId": "getChatbotEmbedConf",
+        "parameters": [
+          {
+            "name": "chatbot_id",
+            "in": "path",
+            "description": "Chatbot id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chatbot configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chatbot-models/": {
       "get": {
         "tags": ["chatbot-models"],
@@ -17740,7 +17771,8 @@
           "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
-          "publicly_accessible"
+          "publicly_accessible",
+          "embeddable"
         ],
         "properties": {
           "chatbot_name": {
@@ -17764,6 +17796,9 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "embeddable": {
+            "type": "boolean"
           },
           "enabled_to_students": {
             "type": "boolean"
@@ -25654,7 +25689,8 @@
           "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
-          "publicly_accessible"
+          "publicly_accessible",
+          "embeddable"
         ],
         "properties": {
           "chatbot_name": {
@@ -25673,6 +25709,9 @@
             "format": "int32"
           },
           "default_chatbot": {
+            "type": "boolean"
+          },
+          "embeddable": {
             "type": "boolean"
           },
           "enabled_to_students": {

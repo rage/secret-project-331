@@ -1364,6 +1364,7 @@ export type ChatbotConfiguration = {
   daily_tokens_per_user: number
   default_chatbot: boolean
   deleted_at?: string | null
+  embeddable: boolean
   enabled_to_students: boolean
   enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
@@ -4482,6 +4483,7 @@ export type NewChatbotConf = {
   course_id?: string | null
   daily_tokens_per_user: number
   default_chatbot: boolean
+  embeddable: boolean
   enabled_to_students: boolean
   enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
@@ -6539,6 +6541,28 @@ export type GetCourseChaptersResponses = {
 }
 
 export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCourseChaptersResponses]
+
+export type GetChatbotEmbedConfData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot id
+     */
+    chatbot_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/chatbot-embed/{chatbot_id}"
+}
+
+export type GetChatbotEmbedConfResponses = {
+  /**
+   * Chatbot configuration
+   */
+  200: ChatbotConfiguration
+}
+
+export type GetChatbotEmbedConfResponse =
+  GetChatbotEmbedConfResponses[keyof GetChatbotEmbedConfResponses]
 
 export type GetChatbotModelsData = {
   body?: never

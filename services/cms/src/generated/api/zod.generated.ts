@@ -590,6 +590,7 @@ export const zChatbotConfiguration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   default_chatbot: z.boolean(),
   deleted_at: z.iso.datetime().nullish(),
+  embeddable: z.boolean(),
   enabled_to_students: z.boolean(),
   enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),

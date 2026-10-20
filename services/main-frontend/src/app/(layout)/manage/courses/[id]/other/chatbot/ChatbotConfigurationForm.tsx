@@ -8,6 +8,7 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ContentDisplayBox from "@/app/(layout)/manage/course-auditing/CourseCard/ContentDisplayBox"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
@@ -159,6 +160,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       reasoning_effort: oldChatbotConf.reasoning_effort,
       use_azure_search: oldChatbotConf.use_azure_search,
       publicly_accessible: oldChatbotConf.publicly_accessible,
+      embeddable: oldChatbotConf.embeddable,
       tool_categories: Object.fromEntries(
         TOOL_CATEGORY_LEAVES.map((category) => [
           category,
@@ -197,6 +199,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const modelFieldValue = watch("model_id")
   const suggestMessagesFieldValue = watch("suggest_next_messages")
+  const embeddableFieldValue = watch("embeddable")
   const useAzureSearchFieldValue = watch("use_azure_search")
   const toolCategoriesFieldValue = watch("tool_categories")
   const noToolCategoriesEnabled = TOOL_CATEGORY_LEAVES.every(
@@ -281,6 +284,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
         publicly_accessible: data.publicly_accessible,
+        embeddable: data.embeddable,
         default_chatbot: oldChatbotConf.default_chatbot, // not editable in this form
         chatbotconf_id: null,
       },
@@ -598,6 +602,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                             label={t("publicly-accessible")}
                             name={"publicly_accessible"}
                           />
+                          <Checkbox control={control} label={t("embeddable")} name={"embeddable"} />
+                          <ContentDisplayBox
+                            label={t("iframe-embed-code-title")}
+                            content={
+                              '<iframe title="' +
+                              oldChatbotConf.chatbot_name +
+                              '" width="100%" height="600" src="https://courses.mooc.fi//chatbot-embed/' +
+                              oldChatbotConf.id +
+                              '"></iframe>'
+                            }
+                            isVisible={embeddableFieldValue}
+                          ></ContentDisplayBox>
                         </div>
                       </div>
                       {!selectedModelThinking && (

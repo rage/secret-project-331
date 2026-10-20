@@ -242,6 +242,7 @@ export type CourseModule = {
   ects_credits?: number | null
   enable_credit_registration_via_suotar: boolean
   enable_registering_completion_to_uh_open_university: boolean
+  ending_questions_required: boolean
   id: string
   name?: string | null
   order_number: number

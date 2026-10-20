@@ -1,4 +1,7 @@
-use headless_lms_models::{course_instances, user_course_exercise_service_variables};
+use headless_lms_models::{
+    course_instances, course_module_ending_questions::CourseModuleEndingQuestion,
+    user_course_exercise_service_variables,
+};
 use models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
 use utoipa::OpenApi;
 
@@ -8,7 +11,8 @@ use crate::{domain::authorization::authorize_access_to_course_material, prelude:
 #[openapi(paths(
     get_course_module_id_by_chapter_id,
     get_default_course_module_id_by_course_id,
-    get_user_course_module_exercises_by_exercise_type
+    get_user_course_module_exercises_by_exercise_type,
+    get_course_module_end_questionnaire
 ))]
 pub(crate) struct CourseMaterialCourseModulesApiDoc;
 
@@ -144,6 +148,44 @@ async fn get_user_course_module_exercises_by_exercise_type(
 }
 
 /**
+GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
+
+Returns course module end questions.
+*/
+#[utoipa::path(
+    get,
+    path = "/course/{course_id}/{course_module_id}",
+    operation_id = "getCourseModuleEndQuestionnaire",
+    tag = "course-material-course-modules",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "Course module end questionnaire", body = Vec<CourseModuleEndingQuestion>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_module_end_questionnaire(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    course_id: web::Path<Uuid>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<CourseModuleEndingQuestion>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+
+    // get questions if user has not answered yet
+    let res = models::course_module_ending_questions::get_by_course_module_id(
+        &mut conn,
+        &course_module_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -162,5 +204,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_module_id}/exercise-tasks/{exercise_type}/{course_instance_id}",
         web::get().to(get_user_course_module_exercises_by_exercise_type),
+    )
+    .route(
+        "/course/{course_id}/{module_id}",
+        web::get().to(get_course_module_end_questionnaire),
     );
 }

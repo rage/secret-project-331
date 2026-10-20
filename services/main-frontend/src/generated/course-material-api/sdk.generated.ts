@@ -238,6 +238,7 @@ import {
   zGetCourseMaterialUserCourseSettingsResponse,
   zGetCourseMaterialUserMarketingConsentResponse,
   zGetCourseMaterialUserModuleCompletionsResponse,
+  zGetCourseModuleEndQuestionnaireResponse,
   zGetCurrentConversationIdResponse,
   zGetCurrentCourseMaterialCourseInstanceResponse,
   zGetDefaultChatbotConfigurationForCourseResponse,
@@ -846,6 +847,28 @@ export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends 
       await zGetCourseMaterialDefaultModuleIdByCourseIdResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/course-modules/course/{course_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
+ *
+ * Returns course module end questions.
+ */
+export const getCourseModuleEndQuestionnaire = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseModuleEndQuestionnaireData, ThrowOnError>,
+): RequestResult<GetCourseModuleEndQuestionnaireResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseModuleEndQuestionnaireResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseModuleEndQuestionnaireResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}",
     ...options,
   })
 

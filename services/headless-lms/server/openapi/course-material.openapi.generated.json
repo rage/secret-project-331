@@ -977,6 +977,50 @@
         }
       }
     },
+    "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}": {
+      "get": {
+        "tags": ["course-material-course-modules"],
+        "summary": "\nGET `/api/v0/course-material/course-modules/chapter/:chapter_id`\n\nReturns course module end questions.",
+        "operationId": "getCourseModuleEndQuestionnaire",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course module end questionnaire",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleEndingQuestion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/course-material/course-modules/{course_module_id}/exercise-tasks/{exercise_type}/{course_instance_id}": {
       "get": {
         "tags": ["course-material-course-modules"],
@@ -4757,6 +4801,65 @@
           }
         }
       },
+      "CourseModuleEndingQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "course_module_id",
+          "question_text",
+          "question_type",
+          "question_serial_number"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question_serial_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question_text": {
+            "type": "string"
+          },
+          "question_type": {
+            "$ref": "#/components/schemas/EndQuestionType"
+          },
+          "rating_labels": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "rating_options_n": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "CoursePageWithUserData": {
         "type": "object",
         "required": ["page", "was_redirected", "is_test_mode"],
@@ -4963,6 +5066,10 @@
         "type": "string",
         "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
         "enum": ["emailed_code", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
+      },
+      "EndQuestionType": {
+        "type": "string",
+        "enum": ["FreeText", "NumericRating"]
       },
       "ExamData": {
         "type": "object",

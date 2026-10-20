@@ -1,12 +1,9 @@
+use std::collections::HashMap;
+use utoipa::ToSchema;
+
 use crate::prelude::*;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
-pub enum EndQuestionType {
-    FreeText,
-    NumericRating,
-}
-
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct CourseModuleEndingQuestionsAnswer {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -18,7 +15,7 @@ pub struct CourseModuleEndingQuestionsAnswer {
     pub answer_numeric_value: Option<i32>,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct NewCourseModuleEndingQuestionsAnswer {
     pub question_id: Uuid,
     pub user_id: Uuid,

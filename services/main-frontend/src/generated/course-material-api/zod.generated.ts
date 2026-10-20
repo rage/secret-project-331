@@ -453,6 +453,29 @@ export const zEmailVerificationMethod = z.enum([
   "admin_asserted",
 ])
 
+export const zEndQuestionType = z.enum(["FreeText", "NumericRating"])
+
+export const zCourseModuleEndingQuestion = z.object({
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  question_serial_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  question_text: z.string(),
+  question_type: zEndQuestionType,
+  rating_labels: z.array(z.string()).nullish(),
+  rating_options_n: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zExamEnrollment = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -1811,6 +1834,16 @@ export const zGetCourseMaterialDefaultModuleIdByCourseIdPath = z.object({
  * Default course module id
  */
 export const zGetCourseMaterialDefaultModuleIdByCourseIdResponse = z.uuid()
+
+export const zGetCourseModuleEndQuestionnairePath = z.object({
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+})
+
+/**
+ * Course module end questionnaire
+ */
+export const zGetCourseModuleEndQuestionnaireResponse = z.array(zCourseModuleEndingQuestion)
 
 export const zGetCourseMaterialExerciseTasksByModuleAndTypePath = z.object({
   course_module_id: z.uuid(),

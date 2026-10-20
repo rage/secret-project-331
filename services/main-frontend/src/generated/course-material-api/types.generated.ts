@@ -597,6 +597,20 @@ export type CourseModuleCompletion = {
   user_id: string
 }
 
+export type CourseModuleEndingQuestion = {
+  course_id: string
+  course_module_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  question_serial_number: number
+  question_text: string
+  question_type: EndQuestionType
+  rating_labels?: Array<string> | null
+  rating_options_n?: number | null
+  updated_at: string
+}
+
 export type CoursePageWithUserData = {
   course?: null | CourseMaterialCourse
   instance?: null | CourseInstance
@@ -666,6 +680,8 @@ export type EmailVerificationMethod =
   | "password_reset_backfill"
   | "tmc_confirmed"
   | "admin_asserted"
+
+export type EndQuestionType = "FreeText" | "NumericRating"
 
 export type ExamData = {
   ended: boolean
@@ -2065,6 +2081,32 @@ export type GetCourseMaterialDefaultModuleIdByCourseIdResponses = {
 
 export type GetCourseMaterialDefaultModuleIdByCourseIdResponse =
   GetCourseMaterialDefaultModuleIdByCourseIdResponses[keyof GetCourseMaterialDefaultModuleIdByCourseIdResponses]
+
+export type GetCourseModuleEndQuestionnaireData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}"
+}
+
+export type GetCourseModuleEndQuestionnaireResponses = {
+  /**
+   * Course module end questionnaire
+   */
+  200: Array<CourseModuleEndingQuestion>
+}
+
+export type GetCourseModuleEndQuestionnaireResponse =
+  GetCourseModuleEndQuestionnaireResponses[keyof GetCourseModuleEndQuestionnaireResponses]
 
 export type GetCourseMaterialExerciseTasksByModuleAndTypeData = {
   body?: never

@@ -160,6 +160,7 @@ export const zCourseModule = z.object({
   ects_credits: z.number().nullish(),
   enable_credit_registration_via_suotar: z.boolean(),
   enable_registering_completion_to_uh_open_university: z.boolean(),
+  ending_questions_required: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z

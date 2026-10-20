@@ -1,13 +1,14 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Type)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Type, ToSchema)]
 #[sqlx(type_name = "end_question_type", rename_all = "kebab-case")]
 pub enum EndQuestionType {
     FreeText,
     NumericRating,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct CourseModuleEndingQuestion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -19,6 +20,7 @@ pub struct CourseModuleEndingQuestion {
     pub question_type: EndQuestionType,
     pub rating_options_n: Option<i32>,
     pub rating_labels: Option<Vec<String>>,
+    pub question_serial_number: i32,
 }
 
 pub async fn get_by_course_module_id(
@@ -38,7 +40,8 @@ SELECT
     question_text,
     question_type as "question_type: EndQuestionType",
     rating_options_n,
-    rating_labels
+    rating_labels,
+    question_serial_number
 FROM course_module_ending_questions
 WHERE course_module_id = $1
     AND deleted_at IS NULL

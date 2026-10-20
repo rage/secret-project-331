@@ -2057,7 +2057,8 @@
           "completion_policy",
           "enable_registering_completion_to_uh_open_university",
           "certification_enabled",
-          "enable_credit_registration_via_suotar"
+          "enable_credit_registration_via_suotar",
+          "ending_questions_required"
         ],
         "properties": {
           "certification_enabled": {
@@ -2094,6 +2095,9 @@
             "type": "boolean"
           },
           "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "ending_questions_required": {
             "type": "boolean"
           },
           "id": {

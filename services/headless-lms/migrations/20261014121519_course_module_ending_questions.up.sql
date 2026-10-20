@@ -13,8 +13,14 @@ CREATE TABLE course_module_ending_questions (
   rating_options_n INTEGER,
   rating_labels TEXT ARRAY,
   CONSTRAINT question_type_rating_correct_columns CHECK (
-    question_type = 'numeric-rating'::end_question_type
-    AND rating_options_n IS NOT NULL
+    (
+      question_type = 'numeric-rating'::end_question_type
+      AND rating_options_n IS NOT NULL
+    )
+    OR (
+      question_type = 'free-text'::end_question_type
+      AND rating_options_n IS NULL
+    )
   ),
   UNIQUE (course_module_id, question_serial_number)
 );

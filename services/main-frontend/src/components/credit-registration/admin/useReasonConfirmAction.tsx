@@ -4,7 +4,7 @@ import React, { useState } from "react"
 
 import type { CreditRegistrationAdminAction } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { MenuItemDescriptor } from "@/shared-module/components"
 import { Button } from "@/shared-module/components"
 
@@ -15,8 +15,6 @@ const DESTRUCTIVE_TONE = "destructive" as const
 interface UseReasonConfirmActionOptions {
   mutationFn: (fields: { reason: string }) => Promise<unknown>
   auditAction: CreditRegistrationAdminAction
-  /** Replaces "Reason", where the text is something else, such as a note. */
-  reasonLabel?: string
   /** Runs after the mutation succeeds, e.g. to invalidate the queries the caller reads. */
   invalidate: () => void
   buttonLabel: string
@@ -39,7 +37,6 @@ interface ReasonConfirmAction {
 export function useReasonConfirmAction({
   mutationFn,
   auditAction,
-  reasonLabel,
   invalidate,
   buttonLabel,
   dialogTitle,
@@ -82,7 +79,6 @@ export function useReasonConfirmAction({
       description={dialogMessage}
       confirmLabel={buttonLabel}
       auditAction={auditAction}
-      {...omitUndefined({ reasonLabel })}
       isDestructive={isDestructive}
       isPending={mutation.isPending}
       onConfirm={(reason) => mutation.mutate({ reason })}

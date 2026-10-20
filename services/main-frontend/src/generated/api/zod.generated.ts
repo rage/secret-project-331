@@ -2541,22 +2541,6 @@ export const zDomainCompletionStats = z.object({
     }),
 })
 
-/**
- * A reason given before for an action, to offer again instead of retyping it.
- */
-export const zEarlierReason = z.object({
-  last_used_at: z.iso.datetime(),
-  reason: z.string(),
-  use_count: z.coerce
-    .bigint()
-    .min(BigInt("-9223372036854775808"), {
-      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-    })
-    .max(BigInt("9223372036854775807"), {
-      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
-})
-
 export const zEditCourseAudience = z.object({
   audience: z.string(),
   course_id: z.uuid(),
@@ -9124,7 +9108,7 @@ export const zGetCreditRegistrationEarlierReasonsQuery = z.object({
 /**
  * Earlier reasons, most recently used first
  */
-export const zGetCreditRegistrationEarlierReasonsResponse = z.array(zEarlierReason)
+export const zGetCreditRegistrationEarlierReasonsResponse = z.array(z.string())
 
 /**
  * One row per course module with a course code

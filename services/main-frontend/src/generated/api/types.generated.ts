@@ -3412,15 +3412,6 @@ export type DomainCompletionStats = {
   users_with_some_unregistered_completions: number
 }
 
-/**
- * A reason given before for an action, to offer again instead of retyping it.
- */
-export type EarlierReason = {
-  last_used_at: string
-  reason: string
-  use_count: number
-}
-
 export type EditCourseAudience = {
   audience: string
   course_id: string
@@ -11098,7 +11089,7 @@ export type GetCreditRegistrationEarlierReasonsResponses = {
   /**
    * Earlier reasons, most recently used first
    */
-  200: Array<EarlierReason>
+  200: Array<string>
 }
 
 export type GetCreditRegistrationEarlierReasonsResponse =

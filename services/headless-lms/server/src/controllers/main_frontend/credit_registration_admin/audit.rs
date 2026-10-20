@@ -6,7 +6,7 @@
 
 use headless_lms_models::credit_registration_admin_actions::{
     self, CreditRegistrationAdminAction, CreditRegistrationAdminActionFilters,
-    CreditRegistrationAdminActionListRow, CreditRegistrationAdminActionTarget, EarlierReason,
+    CreditRegistrationAdminActionListRow, CreditRegistrationAdminActionTarget,
 };
 use headless_lms_models::credit_registrations::CreditRegistrationState;
 use utoipa::ToSchema;
@@ -186,14 +186,14 @@ Distinct after trimming, most recently used first, at most 20.
     tag = "credit-registration-admin",
     params(("action" = CreditRegistrationAdminAction, Query, description = "The action the reasons were given for")),
     responses(
-        (status = 200, description = "Earlier reasons, most recently used first", body = Vec<EarlierReason>)
+        (status = 200, description = "Earlier reasons, most recently used first", body = Vec<String>)
     )
 )]
 pub async fn get_credit_registration_earlier_reasons(
     user: AuthUser,
     pool: web::Data<PgPool>,
     query: web::Query<EarlierReasonsQuery>,
-) -> ControllerResult<web::Json<Vec<EarlierReason>>> {
+) -> ControllerResult<web::Json<Vec<String>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
     let reasons = credit_registration_admin_actions::get_earlier_reasons(

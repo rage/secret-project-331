@@ -62,8 +62,8 @@ type RowAction = {
 
 /**
  * A Needs attention row's actions: its best remedy as a button, the others and Add a note in a
- * More menu, and Dismiss last. A stuck presser gets the linking actions; every other row its remedies, and
- * Cancel once Sisu has stopped accepting retries.
+ * More menu, and Dismiss last. A stuck presser gets the linking actions; every other row its
+ * remedies, and Cancel once Sisu has stopped accepting retries.
  */
 const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -84,7 +84,6 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
     buttonLabel: t("credit-registration-admin-add-note"),
     dialogTitle: t("credit-registration-admin-add-note"),
     dialogMessage: t("credit-registration-admin-add-note-description"),
-    reasonLabel: t("label-note"),
   })
   const isRunningLate = item.standing === "running_late"
   const isStudentNumberStuck = item.reasons.includes("student_number_stuck")

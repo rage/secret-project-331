@@ -6,9 +6,7 @@ use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationNote, GLOBAL_ADMIN_ROLE, NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
-use headless_lms_models::credit_registration_events::{
-    self, CreditRegistrationEventKind, ErrorCodeWindowCounts, NewCreditRegistrationEvent,
-};
+use headless_lms_models::credit_registration_events::{self, ErrorCodeWindowCounts};
 use headless_lms_models::credit_registrations::{
     self, AttentionDismissal, AttentionReason, AttentionRegistration, AttentionStanding,
     BlockingProblem, BlockingProblems, CreditRegistrationErrorCode, CreditRegistrationState,
@@ -30,7 +28,7 @@ use headless_lms_utils::secret_string::expose_option;
 
 use super::{
     AdminManualLinkingEmailSend, attention_rules, authorize_credit_registration_admin,
-    manual_linking_email_sends_by_registration, required_reason,
+    insert_admin_action_event, manual_linking_email_sends_by_registration, required_reason,
 };
 
 const RECENT_DISMISSAL_DAYS: i64 = 14;
@@ -319,6 +317,11 @@ pub async fn get_credit_registration_attention_items(
     let mut needing: Vec<CreditRegistrationAttentionItem> = Vec::new();
     let mut running_late = Vec::new();
     let mut explained_by_problem: Vec<CreditRegistrationBlockingProblemRows> = Vec::new();
+    let matches_reacted = |item: &CreditRegistrationAttentionItem| {
+        query
+            .reacted
+            .is_none_or(|reacted| reacted == item.is_reacted_to())
+    };
     let mut reaction_counts = CreditRegistrationAttentionReactionCounts {
         reacted_count: 0,
         not_reacted_count: 0,
@@ -335,15 +338,15 @@ pub async fn get_credit_registration_attention_items(
                 reaction_counts.not_reacted_count += 1;
             }
         }
-        // The tab badge and the reason facets count the whole queue, so only the rows narrow.
-        let is_listed = query
-            .reacted
-            .is_none_or(|reacted| reacted == item.is_reacted_to());
+        // The tab badge and the reason facets count the whole queue, so needing rows are narrowed
+        // only after counting.
+        if item.standing != AttentionStanding::NeedsAttention && !matches_reacted(&item) {
+            continue;
+        }
         match item.standing {
             AttentionStanding::NeedsAttention => needing.push(item),
-            AttentionStanding::RunningLate if is_listed => running_late.push(item),
-            AttentionStanding::RunningLate => {}
-            AttentionStanding::ExplainedByProblem if is_listed => {
+            AttentionStanding::RunningLate => running_late.push(item),
+            AttentionStanding::ExplainedByProblem => {
                 let Some(problem) = item.blocking_problem.clone() else {
                     continue;
                 };
@@ -358,7 +361,7 @@ pub async fn get_credit_registration_attention_items(
                     }),
                 }
             }
-            AttentionStanding::ExplainedByProblem | AttentionStanding::Dismissed => {}
+            AttentionStanding::Dismissed => {}
         }
     }
     let mut reason_counts: BTreeMap<AttentionReason, i64> = BTreeMap::new();
@@ -375,9 +378,7 @@ pub async fn get_credit_registration_attention_items(
         BTreeMap::new();
     for item in needing.into_iter().filter(|item| {
         (reasons.is_empty() || item.reasons.iter().any(|reason| reasons.contains(reason)))
-            && query
-                .reacted
-                .is_none_or(|reacted| reacted == item.is_reacted_to())
+            && matches_reacted(item)
     }) {
         by_phase.entry(item.phase).or_default().push(item);
     }
@@ -452,15 +453,7 @@ pub async fn admin_dismiss_credit_registration_attention(
 
     let mut tx = conn.begin().await?;
     credit_registrations::dismiss_attention(&mut tx, id, &reasons, user.id, reason).await?;
-    models::credit_registration_events::insert(
-        &mut tx,
-        &NewCreditRegistrationEvent {
-            actor_user_id: Some(user.id),
-            message: Some(reason.to_string()),
-            ..NewCreditRegistrationEvent::new(id, CreditRegistrationEventKind::AdminAction)
-        },
-    )
-    .await?;
+    insert_admin_action_event(&mut tx, id, user.id, reason).await?;
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {
@@ -518,15 +511,7 @@ pub async fn admin_add_credit_registration_note(
     credit_registrations::get_by_id(&mut conn, id).await?;
 
     let mut tx = conn.begin().await?;
-    models::credit_registration_events::insert(
-        &mut tx,
-        &NewCreditRegistrationEvent {
-            actor_user_id: Some(user.id),
-            message: Some(note.to_string()),
-            ..NewCreditRegistrationEvent::new(id, CreditRegistrationEventKind::AdminAction)
-        },
-    )
-    .await?;
+    insert_admin_action_event(&mut tx, id, user.id, note).await?;
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {

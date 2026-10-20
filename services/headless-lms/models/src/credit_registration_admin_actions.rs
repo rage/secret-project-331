@@ -303,26 +303,15 @@ ORDER BY a.created_at DESC,
     Ok(res)
 }
 
-/// A reason given before for an action, to offer again instead of retyping it.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct EarlierReason {
-    pub reason: String,
-    pub use_count: i64,
-    pub last_used_at: DateTime<Utc>,
-}
-
 /// The distinct reasons given for `action`, most recently used first.
 pub async fn get_earlier_reasons(
     conn: &mut PgConnection,
     action: CreditRegistrationAdminAction,
     limit: i64,
-) -> ModelResult<Vec<EarlierReason>> {
-    let res = sqlx::query_as!(
-        EarlierReason,
+) -> ModelResult<Vec<String>> {
+    let res = sqlx::query_scalar!(
         r#"
-SELECT TRIM(reason) AS "reason!",
-  COUNT(*) AS "use_count!",
-  MAX(created_at) AS "last_used_at!"
+SELECT TRIM(reason) AS "reason!"
 FROM credit_registration_admin_actions
 WHERE action = $1
   AND TRIM(reason) <> ''

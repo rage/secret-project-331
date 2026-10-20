@@ -27,6 +27,9 @@ use headless_lms_models::credit_registration_account_linking_emails::{
     self, CreditRegistrationAccountLinkingEmail,
 };
 use headless_lms_models::credit_registration_admin_actions::{self, ManualLinkingEmailSend};
+use headless_lms_models::credit_registration_events::{
+    self, CreditRegistrationEventKind, NewCreditRegistrationEvent,
+};
 use headless_lms_models::credit_registrations::AttentionRules;
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::student_number_verification_tokens;
@@ -122,6 +125,25 @@ fn required_reason(reason: &str) -> Result<&str, ControllerError> {
         ));
     }
     Ok(trimmed)
+}
+
+/// Records an admin action on the row's timeline without moving its state.
+async fn insert_admin_action_event(
+    tx: &mut PgConnection,
+    id: Uuid,
+    actor_user_id: Uuid,
+    reason: &str,
+) -> Result<(), ControllerError> {
+    credit_registration_events::insert(
+        tx,
+        &NewCreditRegistrationEvent {
+            actor_user_id: Some(actor_user_id),
+            message: Some(reason.to_string()),
+            ..NewCreditRegistrationEvent::new(id, CreditRegistrationEventKind::AdminAction)
+        },
+    )
+    .await?;
+    Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

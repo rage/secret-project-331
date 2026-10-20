@@ -7715,7 +7715,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/EarlierReason"
+                    "type": "string"
                   }
                 }
               }
@@ -22867,24 +22867,6 @@
             "format": "int64"
           },
           "users_with_some_unregistered_completions": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      },
-      "EarlierReason": {
-        "type": "object",
-        "description": "A reason given before for an action, to offer again instead of retyping it.",
-        "required": ["reason", "use_count", "last_used_at"],
-        "properties": {
-          "last_used_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "reason": {
-            "type": "string"
-          },
-          "use_count": {
             "type": "integer",
             "format": "int64"
           }

@@ -366,7 +366,7 @@
   "credit-registration-admin-fetch-requested": "Fetch requested",
   "credit-registration-admin-filter-not-reacted-to": "Not reacted to",
   "credit-registration-admin-filter-reacted-to": "Reacted to",
-  "credit-registration-admin-filter-reacted-to-note": "Reacted to means someone has left a note or sent a linking email by hand.",
+  "credit-registration-admin-filter-reacted-to-note": "Reacted to means someone has left a note or sent a linking email by hand since the registration entered its current phase.",
   "credit-registration-admin-filter-step": "Step",
   "credit-registration-admin-filter-to-these-modules": "Show only these",
   "credit-registration-admin-filtered-to": "Filtered to {{target}}",

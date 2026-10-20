@@ -7528,7 +7528,7 @@
           {
             "name": "reacted",
             "in": "query",
-            "description": "Only rows someone has, or has not, left a note on or sent a linking email for by hand; the counts cover every row",
+            "description": "Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row",
             "required": false,
             "schema": {
               "type": "boolean"
@@ -21950,13 +21950,17 @@
       "CreditRegistrationNote": {
         "type": "object",
         "description": "A note an admin left on a registration for whoever handles it next.",
-        "required": ["credit_registration_id", "created_at", "note", "written_by_user_id"],
+        "required": ["id", "credit_registration_id", "created_at", "note", "written_by_user_id"],
         "properties": {
           "created_at": {
             "type": "string",
             "format": "date-time"
           },
           "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
             "type": "string",
             "format": "uuid"
           },

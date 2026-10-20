@@ -26,7 +26,7 @@ const RegistrationNoteLines: React.FC<{ notes: CreditRegistrationNote[] }> = ({ 
   return (
     <span className={stackedCellCss}>
       {notes.map((note) => (
-        <span key={`${note.created_at}-${note.written_by_user_id}`} className={noteCss}>
+        <span key={note.id} className={noteCss}>
           {t("credit-registration-admin-note-by", {
             name: actorName(t, {
               firstName: note.written_by_first_name,

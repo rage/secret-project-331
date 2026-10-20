@@ -262,6 +262,7 @@ ORDER BY a.created_at DESC,
 /// A note an admin left on a registration for whoever handles it next.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationNote {
+    pub id: Uuid,
     pub credit_registration_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub note: String,
@@ -279,7 +280,8 @@ pub async fn get_notes_by_registrations(
     let res = sqlx::query_as!(
         CreditRegistrationNote,
         r#"
-SELECT a.target_id AS "credit_registration_id!",
+SELECT a.id,
+  a.target_id AS "credit_registration_id!",
   a.created_at,
   a.reason AS "note!",
   a.actor_user_id AS written_by_user_id,

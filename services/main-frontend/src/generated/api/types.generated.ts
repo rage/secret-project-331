@@ -2988,6 +2988,7 @@ export type CreditRegistrationHistoryStepPoint = {
 export type CreditRegistrationNote = {
   created_at: string
   credit_registration_id: string
+  id: string
   note: string
   written_by_email?: string | null
   written_by_first_name?: string | null
@@ -10990,7 +10991,7 @@ export type GetCreditRegistrationAttentionItemsData = {
      */
     sort?: string
     /**
-     * Only rows someone has, or has not, left a note on or sent a linking email for by hand; the counts cover every row
+     * Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row
      */
     reacted?: boolean
   }

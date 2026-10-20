@@ -366,7 +366,7 @@
   "credit-registration-admin-fetch-requested": "Haku pyydetty",
   "credit-registration-admin-filter-not-reacted-to": "Ei vielä reagoitu",
   "credit-registration-admin-filter-reacted-to": "Reagoitu",
-  "credit-registration-admin-filter-reacted-to-note": "Reagoitu tarkoittaa, että joku on kirjoittanut muistiinpanon tai lähettänyt liitosviestin käsin.",
+  "credit-registration-admin-filter-reacted-to-note": "Reagoitu tarkoittaa, että joku on kirjoittanut muistiinpanon tai lähettänyt liitosviestin käsin sen jälkeen, kun rekisteröinti siirtyi nykyiseen vaiheeseensa.",
   "credit-registration-admin-filter-step": "Kohta",
   "credit-registration-admin-filter-to-these-modules": "Näytä vain nämä",
   "credit-registration-admin-filtered-to": "Rajattu kohteeseen {{target}}",

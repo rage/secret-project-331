@@ -1,10 +1,21 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT a.target_id AS \"credit_registration_id!\",\n  a.created_at,\n  a.reason AS \"note!\",\n  a.actor_user_id AS written_by_user_id,\n  ud.first_name AS \"written_by_first_name?\",\n  ud.last_name AS \"written_by_last_name?\",\n  ud.email AS \"written_by_email?\"\nFROM credit_registration_admin_actions a\n  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id\nWHERE a.target_kind = 'credit_registration'\n  AND a.target_id = ANY($1)\n  AND a.action = 'add_note'\n  AND a.reason IS NOT NULL\n  AND a.deleted_at IS NULL\nORDER BY a.created_at DESC,\n  a.id\n        ",
+  "query": "\nSELECT a.id,\n  a.target_id AS \"credit_registration_id!\",\n  a.created_at,\n  a.reason AS \"note!\",\n  a.actor_user_id AS written_by_user_id,\n  ud.first_name AS \"written_by_first_name?\",\n  ud.last_name AS \"written_by_last_name?\",\n  ud.email AS \"written_by_email?\"\nFROM credit_registration_admin_actions a\n  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id\nWHERE a.target_kind = 'credit_registration'\n  AND a.target_id = ANY($1)\n  AND a.action = 'add_note'\n  AND a.reason IS NOT NULL\n  AND a.deleted_at IS NULL\nORDER BY a.created_at DESC,\n  a.id\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_admin_actions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
         "name": "credit_registration_id!",
         "type_info": "Uuid",
         "origin": {
@@ -15,7 +26,7 @@
         }
       },
       {
-        "ordinal": 1,
+        "ordinal": 2,
         "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -26,7 +37,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "note!",
         "type_info": "Text",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "written_by_user_id",
         "type_info": "Uuid",
         "origin": {
@@ -48,7 +59,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "written_by_first_name?",
         "type_info": "Varchar",
         "origin": {
@@ -59,7 +70,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "written_by_last_name?",
         "type_info": "Varchar",
         "origin": {
@@ -70,7 +81,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "written_by_email?",
         "type_info": "Varchar",
         "origin": {
@@ -87,6 +98,7 @@
       ]
     },
     "nullable": [
+      false,
       true,
       false,
       true,
@@ -96,5 +108,5 @@
       false
     ]
   },
-  "hash": "2b99400a368de99582d1244ca351cba782113ef24cda95d9260a5ee8eb45ab41"
+  "hash": "b782783269c5bfd1e26ac7332d4af1c4e685c0c0fe3f19599e521c088f624885"
 }

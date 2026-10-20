@@ -1919,6 +1919,7 @@ export const zCreditRegistrationEventKind = z.enum([
 export const zCreditRegistrationNote = z.object({
   created_at: z.iso.datetime(),
   credit_registration_id: z.uuid(),
+  id: z.uuid(),
   note: z.string(),
   written_by_email: z.string().nullish(),
   written_by_first_name: z.string().nullish(),

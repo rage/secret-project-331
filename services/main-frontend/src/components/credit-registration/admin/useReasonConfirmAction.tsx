@@ -64,7 +64,7 @@ export function useReasonConfirmAction({
   )
 
   const item: MenuItemDescriptor = {
-    key: buttonLabel,
+    key: auditAction,
     label: buttonLabel,
     isDisabled: mutation.isPending,
     onAction: () => setOpen(true),

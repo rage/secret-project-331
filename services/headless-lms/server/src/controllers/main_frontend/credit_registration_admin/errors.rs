@@ -84,9 +84,16 @@ pub struct CreditRegistrationAttentionItem {
 }
 
 impl CreditRegistrationAttentionItem {
-    /// Someone has already done something about the row that leaves it on the queue.
+    /// Someone has done something about the row since it entered its phase, without taking it off
+    /// the queue. An older reaction was to a problem the row may no longer have.
     fn is_reacted_to(&self) -> bool {
-        !self.notes.is_empty() || !self.manual_linking_email_sends.is_empty()
+        self.notes
+            .iter()
+            .any(|note| note.created_at >= self.phase_started_at)
+            || self
+                .manual_linking_email_sends
+                .iter()
+                .any(|send| send.sent_at >= self.phase_started_at)
     }
 }
 
@@ -268,7 +275,7 @@ number.
     params(
         ("reason" = Option<Vec<AttentionReason>>, Query, description = "Only rows carrying one of these reasons; repeat the parameter for several"),
         ("sort" = Option<String>, Query, description = "time_in_phase, next_attempt or course"),
-        ("reacted" = Option<bool>, Query, description = "Only rows someone has, or has not, left a note on or sent a linking email for by hand; the counts cover every row")
+        ("reacted" = Option<bool>, Query, description = "Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row")
     ),
     responses(
         (status = 200, description = "The Needs attention sections", body = CreditRegistrationAttentionItems)

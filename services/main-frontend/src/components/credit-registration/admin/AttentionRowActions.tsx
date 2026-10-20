@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { adminAddCreditRegistrationNote } from "@/generated/api/sdk.generated"
 import type { CreditRegistrationAttentionItem } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
 import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
@@ -15,12 +16,14 @@ import { failureActionLabel } from "../registrationFailures"
 import { noteCss, stackedCellCss } from "../styles"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import type { DialogOpenState } from "./AdminActionDialog"
+import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import AdminDismissAttentionButton from "./AdminDismissAttentionButton"
 import AdminLinkingCandidatesDialog from "./AdminLinkingCandidatesDialog"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import type { ActionResult } from "./AdminTransitionBlock"
 import { CHECK_NOW_COPY, TransitionAction } from "./AdminTransitionBlock"
+import { AUDIT_ACTION } from "./auditActions"
 import { useFetchEnrolmentListNow } from "./FetchEnrolmentListNowButton"
 import type { HandActionOffer, RemedyOffer } from "./handActionOffers"
 import { CHECK_NOW_OFFER, handActionOffers, renderableRemedies, RESUBMIT } from "./handActionOffers"
@@ -29,6 +32,7 @@ import {
   useStudentNumberStuckActions,
 } from "./studentNumberStuckActions"
 import { CANCELLED, CHECK_NOW, READY_TO_SUBMIT } from "./TransitionTargetSelect"
+import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
 const EMAIL_STUDENT: RemedyOffer = "email_student"
 const FETCH_NOW = "fetch_enrolment_list_now"
@@ -57,8 +61,8 @@ type RowAction = {
 )
 
 /**
- * A Needs attention row's actions: its best remedy as a button, the others in a More menu, and
- * Dismiss last. A stuck presser gets the linking actions; every other row its remedies, and
+ * A Needs attention row's actions: its best remedy as a button, the others and Add a note in a
+ * More menu, and Dismiss last. A stuck presser gets the linking actions; every other row its remedies, and
  * Cancel once Sisu has stopped accepting retries.
  */
 const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> = ({ item }) => {
@@ -68,6 +72,20 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
   const [lastResult, setLastResult] = useState<ActionResult | null>(null)
   const [openDialog, setOpenDialog] = useState<string | null>(null)
   const fetchNow = useFetchEnrolmentListNow(item.uh_course_code ?? "")
+  const invalidateAttentionItems = useInvalidateAttentionItems()
+  const addNote = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.ADD_NOTE,
+    mutationFn: ({ reason }) =>
+      adminAddCreditRegistrationNote({
+        path: { credit_registration_id: item.credit_registration_id },
+        body: { note: reason },
+      }),
+    invalidate: () => void invalidateAttentionItems(),
+    buttonLabel: t("credit-registration-admin-add-note"),
+    dialogTitle: t("credit-registration-admin-add-note"),
+    dialogMessage: t("credit-registration-admin-add-note-description"),
+    reasonLabel: t("label-note"),
+  })
   const isRunningLate = item.standing === "running_late"
   const isStudentNumberStuck = item.reasons.includes("student_number_stuck")
   const studentName = formatUserName(item)
@@ -257,12 +275,16 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
   const run = (action: RowAction) =>
     "onRun" in action ? action.onRun : () => setOpenDialog(action.key)
   const [main, ...rest] = actions
-  const menuItems = rest.map((action): MenuItemDescriptor => ({
-    key: action.key,
-    label: action.label,
-    ...("href" in action ? { href: action.href } : { onAction: run(action) }),
-    ...(action.isDestructive ? { tone: DESTRUCTIVE } : {}),
-  }))
+  const menuItems = [
+    ...rest.map((action): MenuItemDescriptor => ({
+      key: action.key,
+      label: action.label,
+      ...("href" in action ? { href: action.href } : { onAction: run(action) }),
+      ...(action.isDestructive ? { tone: DESTRUCTIVE } : {}),
+    })),
+    // Never the row's button: a note is beside the remedies, not one of them.
+    addNote.item,
+  ]
 
   return (
     <span className={stackedCellCss}>
@@ -277,19 +299,18 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
               {main.label}
             </Button>
           ))}
-        {menuItems.length > 0 && (
-          <Menu
-            label={t("credit-registration-admin-more-actions")}
-            size="medium"
-            aria-label={t("credit-registration-admin-more-actions-for", { student: studentName })}
-            items={menuItems}
-          />
-        )}
+        <Menu
+          label={t("credit-registration-admin-more-actions")}
+          size="medium"
+          aria-label={t("credit-registration-admin-more-actions-for", { student: studentName })}
+          items={menuItems}
+        />
         {!isRunningLate && (
           <AdminDismissAttentionButton registrationId={item.credit_registration_id} />
         )}
       </span>
       {lastResult && <span className={noteCss}>{lastResult.message}</span>}
+      {addNote.dialog}
       {actions.map(
         (action) =>
           "dialog" in action && (

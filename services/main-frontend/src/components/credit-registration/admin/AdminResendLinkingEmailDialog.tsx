@@ -21,6 +21,7 @@ import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { AUDIT_ACTION } from "./auditActions"
 import { ResendOutcomeNotice } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
@@ -137,6 +138,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           />
           <ReasonField
             control={control}
+            auditAction={AUDIT_ACTION.RESEND_LINK_EMAIL}
             description={t("credit-registration-admin-resend-reason-description")}
             isRequired={override}
           />

@@ -44,6 +44,7 @@ import { AdminActionDialog } from "./AdminActionDialog"
 import type { DialogOpenState } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
+import { AUDIT_ACTION } from "./auditActions"
 import type { HandActionOffer } from "./handActionOffers"
 import { CHECK_NOW_OFFER, handActionOffers, renderableRemedies, RESUBMIT } from "./handActionOffers"
 import { ReasonField } from "./ReasonConfirmDialog"
@@ -258,7 +259,7 @@ export const TransitionAction: React.FC<TransitionActionProps> = ({
               label={t(riskCopy.confirm)}
             />
           )}
-          <ReasonField control={control} />
+          <ReasonField control={control} auditAction={AUDIT_ACTION.TRANSITION_ITEM} />
         </>
       )}
     />

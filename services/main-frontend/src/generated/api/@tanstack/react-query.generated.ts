@@ -17,6 +17,7 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
@@ -207,6 +208,7 @@ import {
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
@@ -421,6 +423,7 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
   AdminDismissCreditRegistrationAttentionData,
@@ -768,6 +771,8 @@ import type {
   GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponse,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponse,
   GetCreditRegistrationErrorsByCodeData,
@@ -6668,6 +6673,36 @@ export const listCreditRegistrationAdminActionsInfiniteOptions = (
   return opts as Omit<typeof opts, "initialData">
 }
 
+export const getCreditRegistrationEarlierReasonsQueryKey = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) => createQueryKey("getCreditRegistrationEarlierReasons", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasonsOptions = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationEarlierReasonsResponse,
+    DefaultError,
+    GetCreditRegistrationEarlierReasonsResponse,
+    ReturnType<typeof getCreditRegistrationEarlierReasonsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationEarlierReasons({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationEarlierReasonsQueryKey(options),
+  })
+
 export const getCreditRegistrationStatsByCourseQueryKey = (
   options?: Options<GetCreditRegistrationStatsByCourseData>,
 ) => createQueryKey("getCreditRegistrationStatsByCourse", options)
@@ -7260,6 +7295,31 @@ export const getCreditRegistrationLinkingCandidatesOptions = (
       }),
     queryKey: getCreditRegistrationLinkingCandidatesQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNoteMutation = (
+  options?: Partial<Options<AdminAddCreditRegistrationNoteData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminAddCreditRegistrationNoteData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminAddCreditRegistrationNoteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminAddCreditRegistrationNote({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

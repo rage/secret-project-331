@@ -22,6 +22,9 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminAddCreditRegistrationNoteData,
+  AdminAddCreditRegistrationNoteErrors,
+  AdminAddCreditRegistrationNoteResponses,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
@@ -427,6 +430,8 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponses,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponses,
   GetCreditRegistrationErrorsByCodeData,
@@ -1015,6 +1020,7 @@ import {
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
@@ -5235,6 +5241,29 @@ export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean 
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasons = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationEarlierReasonsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEarlierReasonsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationEarlierReasonsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEarlierReasonsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
@@ -5722,6 +5751,36 @@ export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends bool
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNote = <ThrowOnError extends boolean = true>(
+  options: Options<AdminAddCreditRegistrationNoteData, ThrowOnError>,
+): RequestResult<
+  AdminAddCreditRegistrationNoteResponses,
+  AdminAddCreditRegistrationNoteErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminAddCreditRegistrationNoteResponses,
+    AdminAddCreditRegistrationNoteErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

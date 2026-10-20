@@ -11,9 +11,11 @@ import type {
   CreditRegistrationAttentionDismissal,
   CreditRegistrationAttentionItem,
   CreditRegistrationAttentionPhaseRows,
+  CreditRegistrationAttentionReactionCounts,
   CreditRegistrationBlockingProblemRows,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   creditRegistrationItemRoute,
   manageCourseModulesRoute,
@@ -32,6 +34,7 @@ import {
   headingCss,
   noteCss,
   proseCss,
+  rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCardsCss,
@@ -50,8 +53,10 @@ import {
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
 import AttentionRowActions from "./AttentionRowActions"
+import FacetChip from "./FacetChip"
 import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 import { moduleSubtitleParts } from "./moduleSubtitle"
+import RegistrationNoteLines from "./RegistrationNoteLines"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
@@ -62,6 +67,7 @@ import {
   timelineStepLabel,
 } from "./timelineSteps"
 import { useHashTarget, useOpenedByLink } from "./useHashTarget"
+import { useQueryParamFilters } from "./useQueryParamFilters"
 
 const ANSWER_UNCLEAR = "answer_unclear"
 
@@ -134,6 +140,7 @@ const AttentionItemsTable: React.FC<{
                 sends={row.manual_linking_email_sends}
                 variant="registration"
               />
+              <RegistrationNoteLines notes={row.notes} />
             </span>
           ),
         },
@@ -428,13 +435,53 @@ const DismissedRecentlySection: React.FC<{
   )
 }
 
+const REACTED_PARAM = "reacted"
+
+const reactedFilter = (value: string | undefined): boolean | undefined =>
+  value === "true" ? true : value === "false" ? false : undefined
+
+/** Narrows every list on the page to the rows someone has, or has not, reacted to. */
+const ReactedFilter: React.FC<{
+  counts: CreditRegistrationAttentionReactionCounts
+  selected: boolean | undefined
+  onSelect: (reacted: boolean | undefined) => void
+}> = ({ counts, selected, onSelect }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (counts.reacted_count + counts.not_reacted_count === 0) {
+    return null
+  }
+  const chip = (reacted: boolean, label: string, count: number) => (
+    <FacetChip
+      label={label}
+      count={count}
+      isSelected={selected === reacted}
+      onToggle={() => onSelect(selected === reacted ? undefined : reacted)}
+    />
+  )
+  return (
+    <div className={stackedCellCss}>
+      <div className={rowCss}>
+        {chip(
+          false,
+          t("credit-registration-admin-filter-not-reacted-to"),
+          counts.not_reacted_count,
+        )}
+        {chip(true, t("credit-registration-admin-filter-reacted-to"), counts.reacted_count)}
+      </div>
+      <p className={noteCss}>{t("credit-registration-admin-filter-reacted-to-note")}</p>
+    </div>
+  )
+}
+
 /**
  * Everything that needs a person, one section per timeline phase, after the problems that hold up
  * many rows at once. Running late and recent dismissals follow, collapsed and not counted.
  */
 const AttentionQueueSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const attentionQuery = useCreditRegistrationAttentionItems({})
+  const filters = useQueryParamFilters()
+  const reacted = reactedFilter(filters.param(REACTED_PARAM))
+  const attentionQuery = useCreditRegistrationAttentionItems(omitUndefined({ reacted }))
   const hash = useHashTarget(attentionQuery.isSuccess)
 
   return (
@@ -456,6 +503,11 @@ const AttentionQueueSection: React.FC = () => {
         })
         return (
           <>
+            <ReactedFilter
+              counts={attention.reaction_counts}
+              selected={reacted}
+              onSelect={(next) => filters.applyParams({ [REACTED_PARAM]: next?.toString() })}
+            />
             {attention.total_count > 0 && (
               <p className={noteCss}>
                 <Link

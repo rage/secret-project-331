@@ -7535,6 +7535,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "reacted",
+            "in": "query",
+            "description": "Only rows someone has, or has not, left a note on or sent a linking email for by hand; the counts cover every row",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -7686,6 +7695,39 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Page_CreditRegistrationAdminActionRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given\nbefore for an action, to pick from instead of typing the same one again.\n\nDistinct after trimming, most recently used first, at most 20.",
+        "operationId": "getCreditRegistrationEarlierReasons",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "description": "The action the reasons were given for",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/CreditRegistrationAdminAction"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Earlier reasons, most recently used first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EarlierReason"
+                  }
                 }
               }
             }
@@ -8473,6 +8515,43 @@
           },
           "400": {
             "description": "Account linking is off, or the row is not stuck waiting for a student number"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`\n- Leaves a note on a registration for whoever handles it next.\n\nChanges nothing else: the row stays on the Needs attention queue, counted as reacted to.",
+        "operationId": "adminAddCreditRegistrationNote",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminAddCreditRegistrationNotePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The note was added"
+          },
+          "400": {
+            "description": "The note is empty"
           }
         }
       }
@@ -15316,6 +15395,15 @@
           }
         }
       },
+      "AdminAddCreditRegistrationNotePayload": {
+        "type": "object",
+        "required": ["note"],
+        "properties": {
+          "note": {
+            "type": "string"
+          }
+        }
+      },
       "AdminAttentionThresholds": {
         "type": "object",
         "description": "The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.",
@@ -15706,6 +15794,33 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "Sisu's own time for the enrolment we found, where Sisu gave one."
+          }
+        }
+      },
+      "AdminCreditRegistrationNote": {
+        "type": "object",
+        "description": "A note an admin left on a registration for whoever handles it next.",
+        "required": ["created_at", "note", "written_by_user_id"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "note": {
+            "type": "string"
+          },
+          "written_by_email": {
+            "type": ["string", "null"]
+          },
+          "written_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "written_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "written_by_user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -20731,7 +20846,8 @@
           "override_rate_cap",
           "request_enrolment_list_fetch",
           "dismiss_study_registry_conflict",
-          "dismiss_attention"
+          "dismiss_attention",
+          "add_note"
         ]
       },
       "CreditRegistrationAdminActionRecord": {
@@ -21072,7 +21188,8 @@
           "is_enrolment_list_empty",
           "needs_admin_attention",
           "hand_actions",
-          "manual_linking_email_sends"
+          "manual_linking_email_sends",
+          "notes"
         ],
         "properties": {
           "attempt_count": {
@@ -21176,6 +21293,13 @@
             "type": "string",
             "format": "date-time"
           },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCreditRegistrationNote"
+            },
+            "description": "Newest first."
+          },
           "phase": {
             "$ref": "#/components/schemas/TimelinePhase"
           },
@@ -21233,7 +21357,8 @@
           "running_late",
           "running_late_count",
           "explained_by_problem",
-          "dismissed_recently"
+          "dismissed_recently",
+          "reaction_counts"
         ],
         "properties": {
           "counts_by_reason": {
@@ -21263,6 +21388,10 @@
               "$ref": "#/components/schemas/CreditRegistrationAttentionPhaseRows"
             },
             "description": "The rows needing attention that match `reason`, one entry per timeline phase that has any,\nin timeline order."
+          },
+          "reaction_counts": {
+            "$ref": "#/components/schemas/CreditRegistrationAttentionReactionCounts",
+            "description": "Before `reacted` narrows the rows, so both stay usable as facets."
           },
           "running_late": {
             "type": "array",
@@ -21302,6 +21431,21 @@
             "type": "integer",
             "format": "int64",
             "description": "Every row of the phase matching `reason`, however many `items` lists."
+          }
+        }
+      },
+      "CreditRegistrationAttentionReactionCounts": {
+        "type": "object",
+        "description": "How many listed rows someone has reacted to, over the problem groups, the phases and running\nlate alike.",
+        "required": ["reacted_count", "not_reacted_count"],
+        "properties": {
+          "not_reacted_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reacted_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -22745,6 +22889,24 @@
             "format": "int64"
           },
           "users_with_some_unregistered_completions": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "EarlierReason": {
+        "type": "object",
+        "description": "A reason given before for an action, to offer again instead of retyping it.",
+        "required": ["reason", "use_count", "last_used_at"],
+        "properties": {
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "use_count": {
             "type": "integer",
             "format": "int64"
           }

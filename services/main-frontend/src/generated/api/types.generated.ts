@@ -373,6 +373,10 @@ export type AddPlanMemberRequest = {
   email: string
 }
 
+export type AdminAddCreditRegistrationNotePayload = {
+  note: string
+}
+
 /**
  * The pipeline's own limits for asking an admin to look, from `library::credit_registration::backoff`.
  */
@@ -526,6 +530,18 @@ export type AdminCreditRegistrationJourney = {
    * Sisu's own time for the enrolment we found, where Sisu gave one.
    */
   sisu_enrolled_at?: string | null
+}
+
+/**
+ * A note an admin left on a registration for whoever handles it next.
+ */
+export type AdminCreditRegistrationNote = {
+  created_at: string
+  note: string
+  written_by_email?: string | null
+  written_by_first_name?: string | null
+  written_by_last_name?: string | null
+  written_by_user_id: string
 }
 
 export type AdminCreditRegistrationRow = {
@@ -2409,6 +2425,7 @@ export type CreditRegistrationAdminAction =
   | "request_enrolment_list_fetch"
   | "dismiss_study_registry_conflict"
   | "dismiss_attention"
+  | "add_note"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -2589,6 +2606,10 @@ export type CreditRegistrationAttentionItem = {
    */
   needs_admin_attention: boolean
   next_attempt_at: string
+  /**
+   * Newest first.
+   */
+  notes: Array<AdminCreditRegistrationNote>
   phase: TimelinePhase
   phase_started_at: string
   /**
@@ -2631,6 +2652,10 @@ export type CreditRegistrationAttentionItems = {
    */
   phases: Array<CreditRegistrationAttentionPhaseRows>
   /**
+   * Before `reacted` narrows the rows, so both stay usable as facets.
+   */
+  reaction_counts: CreditRegistrationAttentionReactionCounts
+  /**
    * Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
    * the count.
    */
@@ -2659,6 +2684,15 @@ export type CreditRegistrationAttentionPhaseRows = {
    * Every row of the phase matching `reason`, however many `items` lists.
    */
   total_count: number
+}
+
+/**
+ * How many listed rows someone has reacted to, over the problem groups, the phases and running
+ * late alike.
+ */
+export type CreditRegistrationAttentionReactionCounts = {
+  not_reacted_count: number
+  reacted_count: number
 }
 
 /**
@@ -3385,6 +3419,15 @@ export type DomainCompletionStats = {
   unique_users: number
   users_with_some_registered_completions: number
   users_with_some_unregistered_completions: number
+}
+
+/**
+ * A reason given before for an action, to offer again instead of retyping it.
+ */
+export type EarlierReason = {
+  last_used_at: string
+  reason: string
+  use_count: number
 }
 
 export type EditCourseAudience = {
@@ -10968,6 +11011,10 @@ export type GetCreditRegistrationAttentionItemsData = {
      * time_in_phase, next_attempt or course
      */
     sort?: string
+    /**
+     * Only rows someone has, or has not, left a note on or sent a linking email for by hand; the counts cover every row
+     */
+    reacted?: boolean
   }
   url: "/api/v0/main-frontend/credit-registration-admin/attention"
 }
@@ -11047,6 +11094,28 @@ export type ListCreditRegistrationAdminActionsResponses = {
 
 export type ListCreditRegistrationAdminActionsResponse =
   ListCreditRegistrationAdminActionsResponses[keyof ListCreditRegistrationAdminActionsResponses]
+
+export type GetCreditRegistrationEarlierReasonsData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The action the reasons were given for
+     */
+    action: CreditRegistrationAdminAction
+  }
+  url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons"
+}
+
+export type GetCreditRegistrationEarlierReasonsResponses = {
+  /**
+   * Earlier reasons, most recently used first
+   */
+  200: Array<EarlierReason>
+}
+
+export type GetCreditRegistrationEarlierReasonsResponse =
+  GetCreditRegistrationEarlierReasonsResponses[keyof GetCreditRegistrationEarlierReasonsResponses]
 
 export type GetCreditRegistrationStatsByCourseData = {
   body?: never
@@ -11559,6 +11628,32 @@ export type GetCreditRegistrationLinkingCandidatesResponses = {
 
 export type GetCreditRegistrationLinkingCandidatesResponse =
   GetCreditRegistrationLinkingCandidatesResponses[keyof GetCreditRegistrationLinkingCandidatesResponses]
+
+export type AdminAddCreditRegistrationNoteData = {
+  body: AdminAddCreditRegistrationNotePayload
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes"
+}
+
+export type AdminAddCreditRegistrationNoteErrors = {
+  /**
+   * The note is empty
+   */
+  400: unknown
+}
+
+export type AdminAddCreditRegistrationNoteResponses = {
+  /**
+   * The note was added
+   */
+  200: unknown
+}
 
 export type AdminTransitionCreditRegistrationData = {
   body: AdminTransitionCreditRegistrationPayload

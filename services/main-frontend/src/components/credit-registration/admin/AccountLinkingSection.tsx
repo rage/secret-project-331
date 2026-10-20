@@ -103,6 +103,7 @@ import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import AdminSendLinkingEmailButton from "./AdminSendLinkingEmailButton"
+import { AUDIT_ACTION } from "./auditActions"
 import FacetChip from "./FacetChip"
 import FetchEnrolmentListNowButton from "./FetchEnrolmentListNowButton"
 import LinkingEmailSendStatus from "./LinkingEmailSendStatus"
@@ -1080,6 +1081,7 @@ const DismissConflictAction: React.FC<{ row: StudyRegistryStudentNumberConflict 
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { item, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.DISMISS_STUDY_REGISTRY_CONFLICT,
     mutationFn: (fields) =>
       adminDismissStudyRegistryConflict({
         path: { conflict_id: row.id },
@@ -1181,6 +1183,7 @@ const UnlinkAction: React.FC<{ verifiedStudentNumberId: string; number: string }
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { item, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.UNLINK_STUDENT_NUMBER,
     mutationFn: (fields) =>
       adminUnlinkStudentNumber({
         path: { verified_student_number_id: verifiedStudentNumberId },

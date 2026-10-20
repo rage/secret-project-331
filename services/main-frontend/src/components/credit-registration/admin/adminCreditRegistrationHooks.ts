@@ -7,6 +7,7 @@ import {
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationAttentionItemsOptions,
   getCreditRegistrationAttentionItemsQueryKey,
+  getCreditRegistrationEarlierReasonsOptions,
   getCreditRegistrationEnrolmentChecksOptions,
   getCreditRegistrationErrorsByCodeOptions,
   getCreditRegistrationForAdminOptions,
@@ -29,6 +30,7 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
+  CreditRegistrationAdminAction,
   CreditRegistrationAlertId,
   CreditRegistrationOverview,
   CreditRegistrationStatsByCourse,
@@ -199,6 +201,10 @@ export const useCreditRegistrationAttentionItems = (
     ...getCreditRegistrationAttentionItemsOptions({ query }),
     ...polled(ATTENTION_REFETCH_INTERVAL_MS),
   })
+
+/** The reasons given before for one audited action, newest first, to pick from instead of retyping. */
+export const useEarlierReasons = (action: CreditRegistrationAdminAction) =>
+  useQuery(getCreditRegistrationEarlierReasonsOptions({ query: { action } }))
 
 export const useInvalidateAttentionItems = () => {
   const queryClient = useQueryClient()

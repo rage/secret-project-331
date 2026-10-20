@@ -194,6 +194,15 @@ describe("headingAnchors", () => {
       expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a00004000-getting-started")
     })
 
+    it("suffixes a generated anchor that an author-set anchor already uses", () => {
+      const ids = buildHeadingAnchorIds([
+        heading("heading1", "Intro"),
+        heading(CLIENT_ID_B, "Copied link", "heading1-intro"),
+      ])
+      expect(ids.get(CLIENT_ID_B)).toBe("heading1-intro")
+      expect(ids.get("heading1")).toBe("heading1-intro-2")
+    })
+
     it("walks inner blocks", () => {
       const ids = buildHeadingAnchorIds([
         heading(CLIENT_ID_A, "Top level"),

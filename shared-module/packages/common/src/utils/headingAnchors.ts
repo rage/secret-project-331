@@ -198,7 +198,9 @@ function uniqueIdPart(clientId: string, taken: Set<string>): string {
  * attribute along with the rest, so only the first block claiming an anchor keeps it; later ones
  * fall back to their generated anchor rather than rendering a second element with the same id. An
  * author-set anchor that starts with a client id fragment (such as a pasted link) reserves that
- * fragment, so the id part fallback in links cannot match two headings.
+ * fragment, so the id part fallback in links cannot match two headings. A generated anchor that
+ * still equals an author-set one, possible when the client id is not a lowercase UUID, gets a
+ * numeric suffix.
  *
  * @param blocks The page's block tree. Inner blocks are walked, so headings nested in columns or
  * expandable content are included.

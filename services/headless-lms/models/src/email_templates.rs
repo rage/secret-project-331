@@ -38,6 +38,7 @@ impl EmailTemplateType {
         let sample_id = Uuid::nil();
         let values: Vec<(&str, String)> = match self {
             Self::Generic => vec![],
+            Self::TeacherNewsletter => vec![],
             Self::ResetPasswordEmail => vec![(
                 "RESET_LINK",
                 format!("{base_url}/reset-user-password/{sample_id}"),
@@ -45,8 +46,6 @@ impl EmailTemplateType {
             Self::DeleteUserEmail | Self::ConfirmEmailCode | Self::VerifyEmailAddress => {
                 vec![("CODE", "123456".to_string())]
             }
-
-            Self::TeacherNewsletter => vec![("COURSE_NAME", "Your course".to_string())],
 
             Self::CreditRegistrationAccountLinking => vec![
                 (

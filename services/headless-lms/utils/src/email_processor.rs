@@ -859,6 +859,23 @@ pub struct EmailRenderInput<'a> {
     pub replacements: &'a HashMap<String, String>,
 }
 
+pub struct TeacherNewsletterContent {
+    pub html: String,
+}
+
+impl TeacherNewsletterContent {
+    pub fn as_html(&self) -> String {
+        format!(
+            r#"<table role="presentation" class="email-teacher-newsletter" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 0 0 18px;"><tr><td align="center" border: none; font-size: 22px; line-height: 30px; mso-line-height-rule: exactly; overflow-wrap: anywhere; word-break: break-word; user-select: all;">{}</td></tr></table>"#,
+            self.html
+        )
+    }
+
+    pub fn as_text(&self) -> String {
+        "Hello you knobhead".to_string()
+    }
+}
+
 /// A message ready to hand to the mail relay.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RenderedEmail {
@@ -897,6 +914,39 @@ pub fn render_email(input: EmailRenderInput) -> RenderedEmail {
     RenderedEmail {
         html: inline_css(html),
         plain_text: process_content_to_plaintext(&body),
+        subject,
+        unfilled_placeholders,
+    }
+}
+
+pub fn render_newsletter(
+    input: EmailRenderInput,
+    teacher_newsletter_content: TeacherNewsletterContent,
+) -> RenderedEmail {
+    let unfilled_placeholders = BTreeSet::new();
+    let EmailRenderInput {
+        layout_html,
+        theme: _,
+        subject,
+        body,
+        language,
+        replacements: _,
+    } = input;
+    let subject = subject.to_string();
+
+    let html = wrap_in_layout(
+        layout_html,
+        &EmailLayoutFields {
+            content_html: &teacher_newsletter_content.as_html(),
+            subject: &subject,
+            preheader: &preheader(&body),
+            language,
+        },
+    );
+
+    RenderedEmail {
+        html: inline_css(html),
+        plain_text: teacher_newsletter_content.as_text(),
         subject,
         unfilled_placeholders,
     }

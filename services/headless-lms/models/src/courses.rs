@@ -824,7 +824,7 @@ WHERE courses.deleted_at IS NULL
 
 pub async fn all_courses_with_role_teacher_for_user(
     conn: &mut PgConnection,
-    user_id: Uuid,
+    user_id: Option<Uuid>,
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,

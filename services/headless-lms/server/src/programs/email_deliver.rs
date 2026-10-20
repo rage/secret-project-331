@@ -17,7 +17,7 @@ use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::backoff;
 use headless_lms_utils::email_processor::{
-    self, EmailGutenbergBlock, EmailRenderInput, RenderedEmail,
+    self, EmailGutenbergBlock, EmailRenderInput, RenderedEmail, TeacherNewsletterContent,
 };
 use lettre::transport::smtp::Error as SmtpError;
 use lettre::transport::smtp::authentication::Credentials;
@@ -209,14 +209,32 @@ pub async fn send_message(
         HashMap::new()
     };
 
-    let rendered = email_processor::render_email(EmailRenderInput {
-        layout_html: layout.html,
-        theme: layout.theme,
-        subject,
-        body: blocks,
-        language: email.language.as_deref().unwrap_or_default(),
-        replacements: &replacements,
-    });
+    let rendered = match email.template_type {
+        Some(EmailTemplateType::TeacherNewsletter) => {
+            let teacher_newsletter_email_content =
+                build_teacher_newsletter_email_content(&mut conn, email.user_id).await?;
+            email_processor::render_newsletter(
+                EmailRenderInput {
+                    layout_html: layout.html,
+                    theme: layout.theme,
+                    subject,
+                    body: blocks,
+                    language: email.language.as_deref().unwrap_or_default(),
+                    replacements: &replacements,
+                },
+                teacher_newsletter_email_content,
+            )
+        }
+        _ => email_processor::render_email(EmailRenderInput {
+            layout_html: layout.html,
+            theme: layout.theme,
+            subject,
+            body: blocks,
+            language: email.language.as_deref().unwrap_or_default(),
+            replacements: &replacements,
+        }),
+    };
+
     if !rendered.unfilled_placeholders.is_empty() {
         tracing::warn!(
             "Email {} has placeholders with no value, sent as typed: {:?}",
@@ -319,6 +337,10 @@ async fn template_replacements(
         return Ok(TemplateReplacements::Ready(replacements));
     }
 
+    if template_type == EmailTemplateType::TeacherNewsletter {
+        return Ok(TemplateReplacements::Ready(replacements));
+    }
+
     if template_type.uses_placeholder_bag() {
         return Ok(TemplateReplacements::Ready(placeholder_bag_replacements(
             placeholders,
@@ -348,33 +370,6 @@ async fn template_replacements(
                 replacements.insert("RESET_LINK".to_string(), reset_url);
             } else {
                 let msg = anyhow::anyhow!("No reset token found for user {}", user_id);
-                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
-                    .await?;
-                return Ok(TemplateReplacements::Abandoned);
-            }
-        }
-
-        EmailTemplateType::TeacherNewsletter => {
-            let courses =
-                headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id)
-                    .await?;
-
-            if !courses.is_empty() {
-                let mut course_html = Vec::new();
-
-                for course in &courses {
-                    let summary_html = format!(
-                        r#"<h2 style="font-family: sans-serif; font-size: 18px; margin: 24px 0 12px; color: #1a2333;">{}</h2><ul style="font-family: sans-serif; font-size: 14px; line-height: 20px; color: #4a5568; margin: 0 0 16px; padding-left: 20px;"><li>lorem ipsum</li><li>lorem ipsum</li></ul><hr>"#,
-                        course.name
-                    );
-                    course_html.push(summary_html);
-                }
-
-                let html_final = course_html.join("\n");
-                dbg!(&html_final);
-                replacements.insert("SUMMARY".to_string(), html_final);
-            } else {
-                let msg = anyhow::anyhow!("No courses found for user {}", user_id);
                 record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
                     .await?;
                 return Ok(TemplateReplacements::Abandoned);
@@ -436,6 +431,7 @@ async fn template_replacements(
         }
         // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
         EmailTemplateType::Generic
+        | EmailTemplateType::TeacherNewsletter
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::CreditRegistrationActionNeeded
         | EmailTemplateType::CreditRegistrationRegistered => {}
@@ -463,6 +459,30 @@ fn placeholder_bag_replacements(
             Some((key.clone(), rendered))
         })
         .collect()
+}
+
+async fn build_teacher_newsletter_email_content(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+) -> Result<TeacherNewsletterContent> {
+    let courses =
+        headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
+    let mut course_html = Vec::new();
+    if !courses.is_empty() {
+        for course in &courses {
+            let summary_html = format!(
+                r#"<h2 style="font-family: sans-serif; font-size: 18px; margin: 24px 0 12px; color: #1a2333;">{}</h2><ul style="font-family: sans-serif; font-size: 14px; line-height: 20px; color: #4a5568; margin: 0 0 16px; padding-left: 20px;"><li>lorem ipsum</li><li>lorem ipsum</li></ul><hr>"#,
+                course.name
+            );
+            course_html.push(summary_html);
+        }
+        let html_final = course_html.join("\n");
+        Ok(TeacherNewsletterContent { html: html_final })
+    } else {
+        Ok(TeacherNewsletterContent {
+            html: "Hello world".to_string(),
+        })
+    }
 }
 
 fn build_email_message(email: &Email, attempt: i32, rendered: RenderedEmail) -> Result<Message> {

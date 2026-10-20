@@ -14,12 +14,7 @@ const EmailTeacherNewsletterConfiguration: BlockConfiguration = {
   category: "design",
   edit: EmailTeacherNewsletterEditor,
   save: EmailTeacherNewsletterSave,
-  attributes: {
-    summary: {
-      type: "string",
-      default: "{{SUMMARY}}",
-    },
-  },
+  attributes: {},
 }
 
 export default EmailTeacherNewsletterConfiguration

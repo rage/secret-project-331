@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { data } from "motion/react-client"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
@@ -728,10 +727,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           <ContentDisplayBox
                             label={t("iframe-embed-code-title")}
                             content={
+                              // oxlint-disable-next-line i18next/no-literal-string
                               '<iframe title="' +
                               oldChatbotConf.chatbot_name +
+                              // oxlint-disable-next-line i18next/no-literal-string
                               '" width="100%" height="600" src="https://courses.mooc.fi//chatbot-embed/' +
                               oldChatbotConf.id +
+                              // oxlint-disable-next-line i18next/no-literal-string
                               '"></iframe>'
                             }
                             isVisible={embeddableFieldValue}

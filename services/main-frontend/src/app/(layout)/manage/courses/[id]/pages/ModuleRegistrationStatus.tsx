@@ -33,7 +33,7 @@ const failedCss = css`
  */
 const ModuleRegistrationStatus: React.FC<Props> = ({ summary, rosterHrefOf }) => {
   const { t } = useTranslation()
-  if (!summary.enabled || summary.registration_count === 0) {
+  if (summary.registration_count === 0) {
     return null
   }
 

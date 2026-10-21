@@ -1498,8 +1498,6 @@ export const zUserModuleCompletionStatus = z.object({
   certification_enabled: z.boolean(),
   completed: z.boolean(),
   default: z.boolean(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   grade: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1514,6 +1512,7 @@ export const zUserModuleCompletionStatus = z.object({
   passed: z.boolean().nullish(),
   prerequisite_modules_completed: z.boolean(),
   register_credits_via_suotar: z.boolean(),
+  registers_credits: z.boolean(),
 })
 
 export const zUserPointsUpdateStrategy = z.enum([

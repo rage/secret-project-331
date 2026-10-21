@@ -6,7 +6,7 @@ import { Trans, useTranslation } from "react-i18next"
 import type { ExamData } from "@/generated/course-material-api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 export interface ExamInfoHeaderProps {
   examData: ExamData
@@ -18,7 +18,7 @@ const dateValueClass = css`
 
 /** Exam name and (when not started) start/end times and duration. */
 export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const showTimes =
     examData.enrollment_data.tag === "NotEnrolled" ||
     examData.enrollment_data.tag === "NotYetStarted"
@@ -63,7 +63,7 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
                   <Trans
                     i18nKey="exam-can-be-started-after"
                     values={{
-                      "starts-at": humanReadableDateTime(examData.starts_at, i18n.language),
+                      "starts-at": dateToString(examData.starts_at),
                     }}
                     components={{ 1: <span className={dateValueClass} /> }}
                   />
@@ -71,7 +71,7 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
                 testPlaceholder={
                   <Trans
                     i18nKey="exam-can-be-started-after"
-                    values={{ "starts-at": "1/1/1970, 0:00:00 AM" }}
+                    values={{ "starts-at": "1970-01-01 00:00:00 UTC+00:00" }}
                     components={{ 1: <span className={dateValueClass} /> }}
                   />
                 }
@@ -87,7 +87,7 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
                   <Trans
                     i18nKey="exam-submissions-not-accepted-after"
                     values={{
-                      "ends-at": humanReadableDateTime(examData.ends_at, i18n.language),
+                      "ends-at": dateToString(examData.ends_at),
                     }}
                     components={{ 1: <span className={dateValueClass} /> }}
                   />
@@ -95,7 +95,7 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
                 testPlaceholder={
                   <Trans
                     i18nKey="exam-submissions-not-accepted-after"
-                    values={{ "ends-at": "1/1/1970, 7:00:00 PM" }}
+                    values={{ "ends-at": "1970-01-01 19:00:00 UTC+00:00" }}
                     components={{ 1: <span className={dateValueClass} /> }}
                   />
                 }
@@ -110,7 +110,7 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
               font-weight: 600;
             `}
           >
-            {t("exam-time-to-complete", { "time-minutes": examData.time_minutes })}
+            {t("exam-time-to-complete", { count: examData.time_minutes })}
           </div>
         </div>
       )}

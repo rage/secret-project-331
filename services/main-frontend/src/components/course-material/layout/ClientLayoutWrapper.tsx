@@ -4,7 +4,6 @@ import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
-import { DialogProvider } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { DEFAULT_LANGUAGE, getDir } from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
@@ -12,6 +11,7 @@ import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import initI18n from "@/shared-module/common/utils/initI18n"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { DialogProvider } from "@/shared-module/components"
 
 const SERVICE_NAME = "main-frontend"
 

@@ -14,10 +14,9 @@ import type {
   FeedbackEditProposalCounts,
 } from "@/generated/api/types.generated"
 import useFeedbackCategoryToggleInfo from "@/hooks/useFeedbackCategoryToggleInfo"
-import Pagination from "@/shared-module/common/components/Pagination"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { QueryResult, ToggleGroup, type ToggleInfo } from "@/shared-module/components"
+import { Pagination, QueryResult, ToggleGroup, type ToggleInfo } from "@/shared-module/components"
 
 import FeedbackView from "./FeedbackView"
 
@@ -129,7 +128,13 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
                 </ul>
               )}
             </QueryResult>
-            <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
+            <Pagination
+              totalPages={pageCount}
+              page={paginationInfo.page}
+              onPageChange={paginationInfo.setPage}
+              itemsPerPage={paginationInfo.limit}
+              onItemsPerPageChange={paginationInfo.setLimit}
+            />
           </div>
         )
       }}

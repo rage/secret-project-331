@@ -28,6 +28,7 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
       submitLabel={t("verify-button")}
       error={error}
       isSubmitting={isSubmitting}
+      submitOnComplete
       containerClassName={css`
         padding: 0;
       `}

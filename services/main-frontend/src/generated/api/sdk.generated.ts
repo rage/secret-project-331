@@ -22,6 +22,9 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminAddCreditRegistrationNoteData,
+  AdminAddCreditRegistrationNoteErrors,
+  AdminAddCreditRegistrationNoteResponses,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
@@ -429,6 +432,8 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponses,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponses,
   GetCreditRegistrationErrorsByCodeData,
@@ -686,6 +691,8 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponses,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponses,
   ListCreditRegistrationPhasesData,
@@ -1016,6 +1023,7 @@ import {
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
@@ -1135,6 +1143,7 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListAccountLinkingEmailsResponse,
   zListCreditRegistrationAdminActionsResponse,
   zListCreditRegistrationPhasesResponse,
   zListCreditRegistrationsForAdminResponse,
@@ -5016,6 +5025,25 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmails = <ThrowOnError extends boolean = true>(
+  options?: Options<ListAccountLinkingEmailsData, ThrowOnError>,
+): RequestResult<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zListAccountLinkingEmailsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails",
+      ...options,
+    },
+  )
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
  * one course code's enrolment list due at its next grid point.
  *
@@ -5229,7 +5257,30 @@ export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean 
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasons = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationEarlierReasonsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEarlierReasonsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationEarlierReasonsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEarlierReasonsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
 export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean = true>(
@@ -5716,6 +5767,36 @@ export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends bool
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNote = <ThrowOnError extends boolean = true>(
+  options: Options<AdminAddCreditRegistrationNoteData, ThrowOnError>,
+): RequestResult<
+  AdminAddCreditRegistrationNoteResponses,
+  AdminAddCreditRegistrationNoteErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminAddCreditRegistrationNoteResponses,
+    AdminAddCreditRegistrationNoteErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -6219,7 +6300,8 @@ export const previewStudentNumberVerificationToken = <ThrowOnError extends boole
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
   options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
@@ -6240,6 +6322,10 @@ export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

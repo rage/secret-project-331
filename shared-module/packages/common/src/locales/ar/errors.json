@@ -24,6 +24,8 @@
   "error-status": "الحالة: {{status}}",
   "error-title": "خطأ",
   "error-type": "النوع: {{type}}",
+  "errorNotice.status": "الحالة",
+  "errorNotice.type": "النوع",
   "failed-to-send-message": "فشل في إرسال الرسالة",
   "go-to-error": "اذهب إلى الخطأ",
   "label-error-loading": "خطأ في تحميل البيانات.",

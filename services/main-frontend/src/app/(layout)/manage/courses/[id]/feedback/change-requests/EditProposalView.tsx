@@ -4,25 +4,24 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
 import { diffWords } from "diff"
-import React, { useState } from "react"
+import React, { useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type {
   BlockProposal,
-  BlockProposalAction,
   BlockProposalInfo,
   PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import Button from "@/shared-module/common/components/Button"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
-import { pageRoute } from "@/shared-module/common/utils/routes"
+import { manageUserRoute, pageRoute } from "@/shared-module/common/utils/routes"
+import { Button, Link, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;
@@ -63,6 +62,38 @@ const isProposedTextRedundant = (block: BlockProposal) => {
   return true
 }
 
+type ProposalDecision = "accept" | "edit" | "reject"
+
+interface ProposalFormFields {
+  decisions: Record<string, ProposalDecision | "">
+  editedTexts: Record<string, string>
+}
+
+/**
+ * Turns one block's radio choice into the payload the backend expects, or `null` while there
+ * is nothing valid to send yet (undecided, or "accept"/"edit" with no preview text to accept).
+ */
+function resolveBlockProposalInfo(
+  block: BlockProposal,
+  decision: ProposalDecision | "",
+  editedText: string,
+): BlockProposalInfo | null {
+  if (decision === "reject") {
+    // oxlint-disable-next-line i18next/no-literal-string
+    return { id: block.id, action: { tag: "Reject" } }
+  }
+  if (decision === "accept" || decision === "edit") {
+    const acceptPreview = isEditedBlockStillExistsData(block) ? block.accept_preview : undefined
+    const data = decision === "edit" ? editedText : acceptPreview
+    if (data === null || data === undefined) {
+      return null
+    }
+    // oxlint-disable-next-line i18next/no-literal-string
+    return { id: block.id, action: { tag: "Accept", data } }
+  }
+  return null
+}
+
 export interface Props {
   proposal: PageProposal
   handleProposal: (
@@ -77,18 +108,38 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   handleProposal,
 }) => {
   const { t } = useTranslation()
-  const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
-  const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
   const pageInfo = usePageInfo(proposal.page_id)
 
+  const defaultFormValues = useMemo<ProposalFormFields>(() => {
+    const decisions: Record<string, ProposalDecision | ""> = {}
+    const editedTexts: Record<string, string> = {}
+    for (const block of proposal.block_proposals) {
+      decisions[block.id] = ""
+      editedTexts[block.id] = isEditedBlockStillExistsData(block)
+        ? (block.accept_preview ?? "")
+        : ""
+    }
+    return { decisions, editedTexts }
+    // Seeded once from the proposal this view was mounted for; a resolved proposal never
+    // reappears with new block data under the same component instance.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const { control, watch } = useForm<ProposalFormFields>({ defaultValues: defaultFormValues })
+  const decisions = watch("decisions")
+  const editedTexts = watch("editedTexts")
+
+  // Not memoized: react-hook-form mutates the object `watch` returns in place, so a memo keyed on
+  // `decisions` would never see a new reference and would hold the empty first-render result,
+  // leaving the send button disabled however many blocks the user decides.
+  const resolvedBlocks = proposal.block_proposals
+    .map((block) =>
+      resolveBlockProposalInfo(block, decisions[block.id] ?? "", editedTexts[block.id] ?? ""),
+    )
+    .filter((info): info is BlockProposalInfo => info !== null)
+
   const sendMutation = useToastMutation(
-    () => {
-      const blockInfo: BlockProposalInfo[] = Array.from(blockActions).map(([id, action]) => {
-        return { id, action }
-      })
-      return handleProposal(proposal.page_id, proposal.id, blockInfo)
-    },
+    () => handleProposal(proposal.page_id, proposal.id, resolvedBlocks),
     {
       notify: true,
       method: "POST",
@@ -102,12 +153,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
     }
     return (
       <div>
-        <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
         {diffChanges ? (
           <div>
             <div>
@@ -147,89 +192,32 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           </div>
         )}
 
-        {editingBlocks.has(block.id) && isEditedBlockStillExistsData(block) && (
+        {decisions[block.id] === "edit" && isEditedBlockStillExistsData(block) && (
           <TextArea
             className={css`
               width: 100%;
             `}
             autoResize
+            name={`editedTexts.${block.id}`}
+            control={control}
             label={t(`change-request-edited-result-label`)}
-            defaultValue={block.accept_preview ?? undefined}
-            onChangeByValue={(newValue) =>
-              setBlockActions((ba) => {
-                if (block.accept_preview !== null && block.accept_preview !== undefined) {
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  ba.set(block.id, { tag: "Accept", data: newValue })
-                }
-                return new Map(ba)
-              })
-            }
           />
         )}
-        <div
-          className={css`
-            display: flex;
-            flex-direction: row;
-            gap: 4px;
-          `}
+        <RadioGroup
+          name={`decisions.${block.id}`}
+          control={control}
+          // oxlint-disable-next-line i18next/no-literal-string
+          orientation="horizontal"
+          label={<VisuallyHidden>{t("label-proposal-action")}</VisuallyHidden>}
         >
           {isEditedBlockStillExistsData(block) && (
-            <RadioButton
-              value="accept"
-              label={t("button-text-accept")}
-              name="accept-or-reject-proposal"
-              onChange={() => {
-                setEditingBlocks((eb) => {
-                  eb.delete(block.id)
-                  return new Set(eb)
-                })
-                setBlockActions((ba) => {
-                  if (block.accept_preview !== null && block.accept_preview !== undefined) {
-                    // oxlint-disable-next-line i18next/no-literal-string
-                    ba.set(block.id, { tag: "Accept", data: block.accept_preview })
-                  }
-                  return new Map(ba)
-                })
-              }}
-            />
+            <Radio value="accept" label={t("button-text-accept")} />
           )}
           {isEditedBlockStillExistsData(block) && (
-            <RadioButton
-              value="edit"
-              label={t("edit-and-accept")}
-              name="accept-or-reject-proposal"
-              onChange={() => {
-                setEditingBlocks((eb) => {
-                  eb.add(block.id)
-                  return new Set(eb)
-                })
-                setBlockActions((ba) => {
-                  if (block.accept_preview !== null && block.accept_preview !== undefined) {
-                    // oxlint-disable-next-line i18next/no-literal-string
-                    ba.set(block.id, { tag: "Accept", data: block.accept_preview })
-                  }
-                  return new Map(ba)
-                })
-              }}
-            />
+            <Radio value="edit" label={t("edit-and-accept")} />
           )}
-          <RadioButton
-            value="reject"
-            label={t("button-text-reject")}
-            name="accept-or-reject-proposal"
-            onChange={() => {
-              setEditingBlocks((eb) => {
-                eb.delete(block.id)
-                return new Set(eb)
-              })
-              setBlockActions((ba) => {
-                // oxlint-disable-next-line i18next/no-literal-string
-                ba.set(block.id, { tag: "Reject" })
-                return new Map(ba)
-              })
-            }}
-          />
-        </div>
+          <Radio value="reject" label={t("button-text-reject")} />
+        </RadioGroup>
       </div>
     )
   }
@@ -242,12 +230,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
     return isEditedBlockStillExistsData(block) && diffChanges !== null ? (
       <div>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-        <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
         <div>
           {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
         </div>
@@ -272,12 +254,6 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
     ) : (
       <div>
         {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-        <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
         <div>
           {t("label-original-text")}
           <ImportantText>{block.original_text}</ImportantText>
@@ -305,9 +281,8 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
       `}
     >
       {proposal.page_url_path && pageInfo.data && (
-        <a
+        <Link
           className={css`
-            display: block;
             float: right;
           `}
           href={`${pageRoute(
@@ -316,11 +291,12 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           )}?highlight-blocks=${proposal.block_proposals.map((bp) => bp.block_id).join(",")}`}
           target="_blank"
           rel="noreferrer noopener"
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button variant="secondary" size="medium">
-            {t("open-page-in-new-tab")}
-          </Button>
-        </a>
+          {t("open-page-in-new-tab")}
+        </Link>
       )}
       <h2
         className={css`
@@ -336,10 +312,17 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         </div>
       )}
       <div>
-        <HideTextInSystemTests
-          text={t("sent-by", { user: proposal.user_id })}
-          testPlaceholder="Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        />
+        {t("label-sent-by")}{" "}
+        {proposal.user_id ? (
+          <Link href={manageUserRoute(proposal.user_id)}>
+            <HideTextInSystemTests
+              text={proposal.user_id}
+              testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            />
+          </Link>
+        ) : (
+          t("guest")
+        )}
       </div>
       <div>
         <TimeComponent
@@ -368,7 +351,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         })}
       </ul>
 
-      {proposal.pending && blockActions.size < proposal.block_proposals.length && (
+      {proposal.pending && resolvedBlocks.length < proposal.block_proposals.length && (
         <div
           className={css`
             margin-bottom: 1rem;
@@ -384,7 +367,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           onClick={() => {
             sendMutation.mutate()
           }}
-          disabled={blockActions.size < proposal.block_proposals.length}
+          disabled={resolvedBlocks.length < proposal.block_proposals.length}
         >
           {t("button-text-send")}
         </Button>

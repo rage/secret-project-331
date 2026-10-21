@@ -72,8 +72,6 @@ struct ModuleInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     uh_course_code: Option<String>,
     certification_enabled: bool,
-    enable_registering_completion_to_uh_open_university: bool,
-    enable_credit_registration_via_suotar: bool,
 }
 
 #[derive(Serialize)]
@@ -605,13 +603,10 @@ impl ChatbotTool for CourseConfigurationTool {
                 );
             }
             notes.push(
-                "enable_registering_completion_to_uh_open_university is the \
-                 student-initiated credit-registration link; \
-                 enable_credit_registration_via_suotar means the module also takes part in the \
-                 system push, which only handles completions individually opted in to it, so \
-                 both can be on. Both false means the student cannot register credits at all. \
-                 certification_enabled alone is not sufficient for a certificate to exist — a \
-                 certificate_configuration must also reference the module."
+                "Credits are registered only for modules with a uh_course_code; without one \
+                 the student cannot register credits at all. certification_enabled alone is not \
+                 sufficient for a certificate to exist — a certificate_configuration must also \
+                 reference the module."
                     .to_string(),
             );
             notes.push(format!(
@@ -887,9 +882,6 @@ fn module_to_info(module: &headless_lms_models::course_modules::CourseModule) ->
         ects_credits: module.ects_credits,
         uh_course_code: module.uh_course_code.clone(),
         certification_enabled: module.certification_enabled,
-        enable_registering_completion_to_uh_open_university: module
-            .enable_registering_completion_to_uh_open_university,
-        enable_credit_registration_via_suotar: module.enable_credit_registration_via_suotar,
     }
 }
 

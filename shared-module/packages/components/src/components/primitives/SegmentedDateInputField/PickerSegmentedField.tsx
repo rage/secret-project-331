@@ -20,8 +20,9 @@ import {
   resolveSegmentedFloatingShellCss,
 } from "../fieldStyles"
 import { Popover } from "../popover"
-import { DatePickerTriggerButton } from "./DatePickerTriggerButton"
+import { CalendarIcon } from "./CalendarIcon"
 import { DateSegment } from "./DateSegment"
+import { PickerTriggerButton } from "./PickerTriggerButton"
 import { dataStateFalse, dataStateTrue } from "./segmentedDateInputFieldConstants"
 import {
   segmentedFieldDisabledCss,
@@ -31,8 +32,10 @@ import {
   segmentedPickerGroupCss,
   segmentedSegmentsRowCss,
   segmentedSegmentsRowRestHiddenCss,
+  segmentedZoneLabelCss,
 } from "./segmentedDateInputFieldStyles"
 import {
+  createPointerOpenHandler,
   emitSyntheticBlur,
   emitSyntheticFocus,
   shouldHideRestSegmentPlaceholders,
@@ -41,6 +44,7 @@ import {
 export interface PickerSegmentedFieldProps {
   canClear: boolean
   className?: string | undefined
+  dataTestId?: string | undefined
   dateFieldAria: DateFieldAria
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -70,6 +74,7 @@ export interface PickerSegmentedFieldProps {
   resolvedState: ReturnType<typeof resolveFieldState>
   setIsFocused: React.Dispatch<React.SetStateAction<boolean>>
   state: DateFieldState
+  zoneLabel?: string | undefined
   timeSelectorProps?:
     | {
         granularity: "hour" | "minute"
@@ -87,6 +92,7 @@ export interface PickerSegmentedFieldProps {
 export function PickerSegmentedField({
   canClear,
   className,
+  dataTestId,
   dateFieldAria,
   description,
   errorMessage,
@@ -117,7 +123,11 @@ export function PickerSegmentedField({
   setIsFocused,
   state,
   timeSelectorProps,
+  zoneLabel,
 }: PickerSegmentedFieldProps) {
+  const valueTestId = dataTestId ? `${dataTestId}-value` : undefined
+  const triggerTestId = dataTestId ? `${dataTestId}-trigger` : undefined
+
   const describedBy = joinAriaDescribedBy(
     typeof pickerAria.groupProps["aria-describedby"] === "string"
       ? pickerAria.groupProps["aria-describedby"]
@@ -161,6 +171,18 @@ export function PickerSegmentedField({
     },
   })
 
+  const onPointerOpen = createPointerOpenHandler({
+    isOpen: pickerState.isOpen,
+    isDisabled: resolvedState.isDisabled,
+    isReadOnly: resolvedState.isReadOnly,
+    open: () => pickerState.setOpen(true),
+  })
+  // A floating label sits inside the control slot, so only a stacked one needs its own handler.
+  const labelProps = mergeProps(
+    pickerAria.labelProps,
+    isFloatingLayout ? {} : { onClick: onPointerOpen },
+  ) as React.HTMLAttributes<HTMLElement>
+
   return (
     <FieldShell
       controlClassName={cx(
@@ -173,6 +195,7 @@ export function PickerSegmentedField({
         "data-invalid": pickerState.isInvalid ? dataStateTrue : dataStateFalse,
         "data-readonly": resolvedState.isReadOnly ? dataStateTrue : dataStateFalse,
         "data-has-icon-start": iconStart ? dataStateTrue : undefined,
+        onClickCapture: onPointerOpen,
       }}
       label={label}
       description={description}
@@ -181,9 +204,7 @@ export function PickerSegmentedField({
       errorMessageProps={pickerAria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
       {...omitUndefined({ className })}
-      {...includeIf(label, {
-        labelProps: pickerAria.labelProps as React.HTMLAttributes<HTMLElement>,
-      })}
+      {...includeIf(label, { labelProps })}
       {...includeIf(notice, { noticeId })}
       isDisabled={resolvedState.isDisabled}
       isRequired={resolvedState.isRequired}
@@ -199,6 +220,7 @@ export function PickerSegmentedField({
         {...mergeProps(pickerAria.groupProps, focusWithinProps)}
         ref={groupRef}
         className={segmentedPickerGroupCss}
+        data-testid={dataTestId}
         aria-describedby={describedBy}
         aria-disabled={resolvedState.isDisabled ? dataStateTrue : undefined}
         aria-invalid={pickerState.isInvalid ? dataStateTrue : undefined}
@@ -228,15 +250,23 @@ export function PickerSegmentedField({
                 <DateSegment key={`${segment.type}-${index}`} segment={segment} state={state} />
               ))}
             </div>
+            {zoneLabel && !hideRestSegmentPlaceholders ? (
+              <span className={segmentedZoneLabelCss}>{zoneLabel}</span>
+            ) : null}
           </div>
         </div>
         {iconEnd ? <span className={inlineAffixCss}>{iconEnd}</span> : null}
-        <DatePickerTriggerButton buttonProps={pickerAria.buttonProps} />
+        <PickerTriggerButton
+          buttonProps={pickerAria.buttonProps}
+          dataTestId={triggerTestId}
+          icon={<CalendarIcon />}
+        />
       </div>
       <input
         {...dateFieldAria.inputProps}
         ref={composeRefs(hiddenInputRef, inputRef)}
         type="hidden"
+        data-testid={valueTestId}
         aria-describedby={describedBy}
         value={hiddenInputValue}
         onChange={() => {}}

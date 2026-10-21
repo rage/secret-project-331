@@ -42,7 +42,7 @@ use secrecy::{ExposeSecret, SecretString};
 
 use super::{
     AdminLinkingEmail, AdminManualLinkingEmailSend, attention_rules,
-    authorize_credit_registration_admin, build_linking_emails,
+    authorize_credit_registration_admin, build_linking_emails, insert_admin_action_event,
     manual_linking_email_sends_by_registration, required_reason,
 };
 
@@ -1114,29 +1114,6 @@ async fn apply_transition(
             }
         }
     })
-}
-
-/// Records an admin action against the row's timeline without moving its state, for the two
-/// transitions that only clear a flag or reschedule the row.
-async fn insert_admin_action_event(
-    tx: &mut PgConnection,
-    id: Uuid,
-    actor_user_id: Uuid,
-    reason: &str,
-) -> Result<(), ControllerError> {
-    models::credit_registration_events::insert(
-        tx,
-        &models::credit_registration_events::NewCreditRegistrationEvent {
-            actor_user_id: Some(actor_user_id),
-            message: Some(reason.to_string()),
-            ..models::credit_registration_events::NewCreditRegistrationEvent::new(
-                id,
-                CreditRegistrationEventKind::AdminAction,
-            )
-        },
-    )
-    .await?;
-    Ok(())
 }
 
 async fn one_admin_row(

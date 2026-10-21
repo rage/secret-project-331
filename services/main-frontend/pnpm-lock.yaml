@@ -55,9 +55,6 @@ importers:
       '@fontsource/roboto-mono':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/space-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@internationalized/date':
         specifier: ^3.12.3
         version: 3.12.3
@@ -1238,9 +1235,6 @@ packages:
 
   '@fontsource/roboto-mono@5.3.0':
     resolution: {integrity: sha512-yhwplHMHW9dCk+1pZuERfcJe+K3rosGVZEoK0XktkxRSqQ9qsipSwwiuW2/8Qmtp9lzu3Ixa/ie4BMH3i8CkZQ==}
-
-  '@fontsource/space-mono@5.3.0':
-    resolution: {integrity: sha512-FrpBMOVWn3PRdRHlrZWC55X3kZG/2BTH7SM5ZyS/bky3iKya2BturI5lk+t0RoDQL2JyHzURsVq/EisCsxpI5A==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -4910,9 +4904,6 @@ packages:
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
 
-  react-is@19.2.7:
-    resolution: {integrity: sha512-kZFnouyVv7eP/Phmrlo9FK+zcAdriZJvzxXHF1Sl1P377WSGe2G/JxVolhTrB/jeV47lKImhNUsijjHAAbcl/A==}
-
   react-is@19.2.8:
     resolution: {integrity: sha512-s5un28nYxKJw5gvUHyW5PCC28CvBqLu9r3cWgzHT4Vo/5fqqkFcdRYsGcKf50WMPpjjFZS5d76fn3YCo2njKwQ==}
 
@@ -6920,8 +6911,6 @@ snapshots:
   '@fontsource/raleway@5.3.0': {}
 
   '@fontsource/roboto-mono@5.3.0': {}
-
-  '@fontsource/space-mono@5.3.0': {}
 
   '@img/colour@1.1.0':
     optional: true
@@ -10765,7 +10754,7 @@ snapshots:
       '@jest/schemas': 30.4.1
       ansi-styles: 5.2.0
       react-is-18: react-is@18.3.1
-      react-is-19: react-is@19.2.7
+      react-is-19: react-is@19.2.8
 
   promise@8.3.0:
     dependencies:
@@ -10906,8 +10895,6 @@ snapshots:
   react-is@17.0.2: {}
 
   react-is@18.3.1: {}
-
-  react-is@19.2.7: {}
 
   react-is@19.2.8: {}
 
@@ -12127,7 +12114,6 @@ time:
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
   '@fontsource/raleway@5.3.0': '2026-07-19T03:45:34.357Z'
   '@fontsource/roboto-mono@5.3.0': '2026-07-19T03:45:49.869Z'
-  '@fontsource/space-mono@5.3.0': '2026-07-19T03:46:52.213Z'
   '@internationalized/date@3.12.3': '2026-07-31T15:26:08.695Z'
   '@json2csv/plainjs@7.0.8': '2026-08-06T07:19:15.059Z'
   '@monaco-editor/react@4.7.0': '2025-02-13T16:13:41.390Z'

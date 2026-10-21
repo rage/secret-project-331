@@ -1,11 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { cardCss, headingCss, pageTitleCss } from "@/components/credit-registration/styles"
 import {
   getCourseInstanceDefaultCertificateConfigurationsOptions,
   getCourseInstanceOptions,
@@ -18,16 +19,11 @@ import {
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
-import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
@@ -76,8 +72,8 @@ const CertificationsPage: React.FC = () => {
   })
   const updateConfigurationMutation = useToastMutation(
     ({ courseModuleId, courseInstanceId: instanceId, fields }: UpdateMutationArgs) => {
-      const backgroundSvg = fields.backgroundSvg.item(0)
-      const overlaySvg = fields.overlaySvg.item(0)
+      const backgroundSvg = fields.backgroundSvg[0] ?? null
+      const overlaySvg = fields.overlaySvg[0] ?? null
       const metadata: UpdateCertificateConfigurationData["body"]["metadata"] = {
         course_module_id: courseModuleId,
         course_instance_id: instanceId,
@@ -166,16 +162,19 @@ const CertificationsPage: React.FC = () => {
 
   return (
     <>
-      <h1>
+      <h1 className={pageTitleCss}>
         {t("certificates")}: {courseInstanceId}
       </h1>
       {defaultCertificateConfigurationsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={defaultCertificateConfigurationsQuery.error} />
+        <ErrorNotice error={defaultCertificateConfigurationsQuery.error} />
       )}
-      {defaultCertificateConfigurationsQuery.isLoading && <Spinner variant="medium" />}
+      {defaultCertificateConfigurationsQuery.isLoading && <LoadingRegion />}
       {getCourse.isSuccess && defaultCertificateConfigurationsQuery.isSuccess && (
         <ul
           className={css`
+            display: grid;
+            gap: var(--space-4);
+            margin: var(--space-4) 0 0;
             padding-left: 0;
           `}
         >
@@ -195,16 +194,19 @@ const CertificationsPage: React.FC = () => {
             .map(({ module, configuration }) => (
               <li
                 key={module.id}
-                className={css`
-                  list-style-type: none;
-                  margin: 2rem 0;
-                  border: 1px solid ${baseTheme.colors.clear[500]};
-                  padding: 1rem;
-                `}
+                className={cx(
+                  cardCss,
+                  css`
+                    list-style-type: none;
+
+                    > button {
+                      justify-self: start;
+                    }
+                  `,
+                )}
               >
-                <h2>
-                  {module.name ? `${t("module")}: ${module.name}` : t("default-module")}{" "}
-                  <HideTextInSystemTests text={module.id} testPlaceholder="module-id" />
+                <h2 className={headingCss}>
+                  {module.name ? `${t("module")}: ${module.name}` : t("default-module")}
                 </h2>
                 {module.id === editingConfiguration && (
                   <CertificateForm
@@ -271,7 +273,12 @@ const CertificationsPage: React.FC = () => {
                           setEditingConfiguration(module.id)
                         }}
                         onClickDelete={async () => {
-                          if (await confirm(t("confirm-certification-configuration-deletion"))) {
+                          if (
+                            await confirm({
+                              message: t("confirm-certification-configuration-deletion"),
+                              isDestructive: true,
+                            })
+                          ) {
                             deleteConfigurationMutation.mutate({
                               moduleId: module.id,
                               configurationId: configuration.certificate_configuration.id,

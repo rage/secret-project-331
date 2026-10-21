@@ -42,6 +42,32 @@ export const registrationSupportMail = (
   }
 }
 
+/** A support mail from a student told to enrol in Sisu on a module that names no course code. */
+export const missingSisuCourseCodeSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): SupportMailContents => {
+  const mail = registrationSupportMail(t, registration)
+  return { ...mail, bodyLines: [t("support-mail-line-no-sisu-course-code"), ...mail.bodyLines] }
+}
+
+/** A support mail from a student whose enrolment we still cannot see days after "I have enrolled". */
+export const unseenEnrolmentSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+  enrolmentConfirmedDate: string,
+): SupportMailContents => {
+  const mail = registrationSupportMail(t, registration)
+  return {
+    ...mail,
+    subject: t("support-mail-subject-enrolment-not-seen", { course: registration.course_name }),
+    bodyLines: [
+      t("support-mail-line-enrolment-not-seen", { date: enrolmentConfirmedDate }),
+      ...mail.bodyLines,
+    ],
+  }
+}
+
 /** What an account linking email can leave a student stuck on, and so what the mail has to ask for. */
 export type StudentNumberLinkProblem =
   | "need_a_new_link"
@@ -75,7 +101,7 @@ export const missingLinkingEmailSupportMail = (
   t: CreditRegistrationTFunction,
   courseName: string,
 ): SupportMailContents => ({
-  subject: t("credit-registration-faq-no-email-support-subject", { course: courseName }),
+  subject: t("support-mail-subject-no-linking-email", { course: courseName }),
   bodyLines: [
     t("support-mail-line-course", { course: courseName }),
     t("support-mail-line-student-number", { studentNumber: "" }),

@@ -106,7 +106,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
     clearNotifications: true,
   })
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
 
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1" })

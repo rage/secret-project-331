@@ -4,8 +4,8 @@ import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { useDialog } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   CurrentStateMessage,

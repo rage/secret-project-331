@@ -757,14 +757,12 @@ pub struct UserCompletionInformation {
     pub course_name: String,
     /// The module's own name, `None` on a course's default module.
     pub course_module_name: Option<String>,
-    /// `None` only on a module registering through credit registration.
     pub uh_course_code: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
-    pub enable_registering_completion_to_uh_open_university: bool,
-    pub enable_credit_registration_via_suotar: bool,
-    /// Whether this completion in particular goes through the push path. Decides which flow the
-    /// page shows: the module flag above only says the module takes part.
+    /// Whether the module has a course code, without which its completions are never registered.
+    pub registers_credits: bool,
+    /// Whether this completion goes through the push path, which decides the flow the page shows.
     pub register_credits_via_suotar: bool,
     /// What the student is told while the completion has no credit registration: `sending` when
     /// the push path will create one, `not_registering` when it never will.
@@ -817,19 +815,6 @@ pub async fn get_user_completion_information(
             course_module.id,
         )
         .await?;
-    let credit_registration_config =
-        course_modules::get_credit_registration_config(conn, course_module.id).await?;
-    // The push path explains a missing course code on its own status page, so failing here would
-    // hide the error instead of showing it.
-    if course_module.uh_course_code.is_none()
-        && !course_module_completion.register_credits_via_suotar
-    {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Course module is missing uh_course_code.".to_string(),
-            None,
-        ));
-    }
     // A completion still awaiting review is treated as if it were not there, so a flagged student
     // cannot read their own flag off the certificate the page would otherwise offer them.
     let certificate_configuration_id = if course_module.certification_enabled
@@ -879,10 +864,9 @@ pub async fn get_user_completion_information(
         uh_course_code: course_module.uh_course_code.clone(),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
-        enable_registering_completion_to_uh_open_university: course_module
-            .enable_registering_completion_to_uh_open_university,
-        enable_credit_registration_via_suotar: credit_registration_config
-            .enable_credit_registration_via_suotar,
+        registers_credits: course_modules::registers_credits(
+            course_module.uh_course_code.as_deref(),
+        ),
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
         status_before_registration,
         certificate_configuration_id,
@@ -901,8 +885,8 @@ pub struct UserModuleCompletionStatus {
     pub prerequisite_modules_completed: bool,
     pub grade: Option<i32>,
     pub passed: Option<bool>,
-    pub enable_registering_completion_to_uh_open_university: bool,
-    pub enable_credit_registration_via_suotar: bool,
+    /// Whether the module has a course code, without which its completions are never registered.
+    pub registers_credits: bool,
     /// Whether the module's registration flow is the push path, decided by
     /// [`course_module_completions::select_registration_completion`] rather than by the shown
     /// completion. False when no completion is shown.
@@ -951,12 +935,6 @@ pub async fn get_user_module_completion_statuses_for_course(
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
 
-    let credit_registration_enabled_module_ids: HashSet<Uuid> =
-        course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
-            .await?
-            .into_iter()
-            .collect();
-
     let course_module_completion_statuses = course_modules
         .into_iter()
         .map(|module| {
@@ -981,10 +959,9 @@ pub async fn get_user_module_completion_statuses_for_course(
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .is_some_and(|x| x.prerequisite_modules_completed),
-                enable_registering_completion_to_uh_open_university: module
-                    .enable_registering_completion_to_uh_open_university,
-                enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
-                    .contains(&module.id),
+                registers_credits: course_modules::registers_credits(
+                    module.uh_course_code.as_deref(),
+                ),
                 register_credits_via_suotar: completion.is_some()
                     && registers_via_suotar_module_ids.contains(&module.id),
                 certification_enabled: module.certification_enabled,
@@ -1006,7 +983,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
     user_id: Uuid,
     course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
-    if !course_module.enable_registering_completion_to_uh_open_university {
+    if !course_modules::registers_credits(course_module.uh_course_code.as_deref()) {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
             "Completion registration is not enabled for this course module.".to_string(),
@@ -1023,9 +1000,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
         )
         .await?;
     // Same condition as the registration page's choice of flow.
-    if course_module.enable_credit_registration_via_suotar
-        && course_module_completion.register_credits_via_suotar
-    {
+    if course_module_completion.register_credits_via_suotar {
         return Err(model_err!(
             InvalidRequest,
             "This completion is registered through the study registry.".to_string()

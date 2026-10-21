@@ -17,6 +17,7 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
@@ -208,6 +209,7 @@ import {
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
@@ -333,6 +335,7 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listAccountLinkingEmails,
   listCreditRegistrationAdminActions,
   listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
@@ -421,6 +424,7 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
   AdminDismissCreditRegistrationAttentionData,
@@ -770,6 +774,8 @@ import type {
   GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponse,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponse,
   GetCreditRegistrationErrorsByCodeData,
@@ -1014,6 +1020,8 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponse,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponse,
   ListCreditRegistrationPhasesData,
@@ -6343,6 +6351,88 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
+export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
+  createQueryKey("listAccountLinkingEmails", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsOptions = (options?: Options<ListAccountLinkingEmailsData>) =>
+  queryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    ListAccountLinkingEmailsResponse,
+    ReturnType<typeof listAccountLinkingEmailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listAccountLinkingEmails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listAccountLinkingEmailsQueryKey(options),
+  })
+
+export const listAccountLinkingEmailsInfiniteQueryKey = (
+  options?: Options<ListAccountLinkingEmailsData>,
+): QueryKey<Options<ListAccountLinkingEmailsData>> =>
+  createQueryKey("listAccountLinkingEmails", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsInfiniteOptions = (
+  options?: Options<ListAccountLinkingEmailsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    InfiniteData<ListAccountLinkingEmailsResponse>,
+    QueryKey<Options<ListAccountLinkingEmailsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listAccountLinkingEmails({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listAccountLinkingEmailsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
 /**
  *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
@@ -6609,13 +6699,43 @@ export const listCreditRegistrationAdminActionsInfiniteOptions = (
   return opts as Omit<typeof opts, "initialData">
 }
 
+export const getCreditRegistrationEarlierReasonsQueryKey = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) => createQueryKey("getCreditRegistrationEarlierReasons", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasonsOptions = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationEarlierReasonsResponse,
+    DefaultError,
+    GetCreditRegistrationEarlierReasonsResponse,
+    ReturnType<typeof getCreditRegistrationEarlierReasonsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationEarlierReasons({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationEarlierReasonsQueryKey(options),
+  })
+
 export const getCreditRegistrationStatsByCourseQueryKey = (
   options?: Options<GetCreditRegistrationStatsByCourseData>,
 ) => createQueryKey("getCreditRegistrationStatsByCourse", options)
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
 export const getCreditRegistrationStatsByCourseOptions = (
@@ -7201,6 +7321,31 @@ export const getCreditRegistrationLinkingCandidatesOptions = (
       }),
     queryKey: getCreditRegistrationLinkingCandidatesQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNoteMutation = (
+  options?: Partial<Options<AdminAddCreditRegistrationNoteData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminAddCreditRegistrationNoteData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminAddCreditRegistrationNoteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminAddCreditRegistrationNote({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -7936,7 +8081,8 @@ export const previewStudentNumberVerificationTokenOptions = (
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationTokenMutation = (
   options?: Partial<Options<ClaimStudentNumberVerificationTokenData>>,

@@ -208,7 +208,7 @@ describe("ChartDataFileSection", () => {
       />,
     )
 
-    const link = screen.getByRole("link", { name: "view-data-file" })
+    const link = screen.getByRole("link", { name: /view-data-file/ })
     expect(link.getAttribute("href")).toBe("/uploads/chart-data.json")
     expect(link.getAttribute("rel")).toBe("noopener noreferrer")
     expect(screen.getByText(/chart-data-extracted-warning/)).toBeDefined()

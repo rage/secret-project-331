@@ -1,6 +1,6 @@
-/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { downloadToString } from "../../utils/download"
@@ -61,13 +61,17 @@ test("Managing course instances works", async ({ page }) => {
 
   await page.getByText("New course instance").waitFor()
 
-  await page.fill("#name", "some name")
-  await page.fill("#description", "some description")
-  await page.fill("#teacherName", "some teacher")
-  await page.fill("#teacherEmail", "teacher@example.com")
-  await page.fill("#supportEmail", "support@example.com")
-  await page.fill("text=Opening time", "2000-01-01T00:00")
-  await page.fill("text=Closing time", "2099-01-01T23:59")
+  await page.getByLabel("Name", { exact: true }).fill("some name")
+  await page.getByLabel("Description", { exact: true }).fill("some description")
+  await page.getByLabel("Teacher in charge name").fill("some teacher")
+  await page.getByLabel("Teacher in charge email").fill("teacher@example.com")
+  await page.getByLabel("Support email").fill("support@example.com")
+  await new DateTimeLocalField(page, "course-instance-opening-time-field").setValue(
+    "2000-01-01T00:00",
+  )
+  await new DateTimeLocalField(page, "course-instance-closing-time-field").setValue(
+    "2099-01-01T23:59",
+  )
 
   await showNextToastsInfinitely(page)
   await page.getByText("Submit").click()
@@ -93,13 +97,17 @@ test("Managing course instances works", async ({ page }) => {
 
   await page.getByText("Name").first().waitFor()
 
-  await page.fill("#name", "new name")
-  await page.fill("#description", "new description")
-  await page.fill("#supportEmail", "newsupport@example.com")
-  await page.fill("#teacherName", "new teacher")
-  await page.fill("#teacherEmail", "newteacher@example.com")
-  await page.fill("text=Opening time", "2000-01-01T00:00")
-  await page.fill("text=Closing time", "2098-01-01T23:59")
+  await page.getByLabel("Name", { exact: true }).fill("new name")
+  await page.getByLabel("Description", { exact: true }).fill("new description")
+  await page.getByLabel("Support email").fill("newsupport@example.com")
+  await page.getByLabel("Teacher in charge name").fill("new teacher")
+  await page.getByLabel("Teacher in charge email").fill("newteacher@example.com")
+  await new DateTimeLocalField(page, "course-instance-opening-time-field").setValue(
+    "2000-01-01T00:00",
+  )
+  await new DateTimeLocalField(page, "course-instance-closing-time-field").setValue(
+    "2098-01-01T23:59",
+  )
 
   await page.getByText("Submit").click()
 

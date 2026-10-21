@@ -5,7 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ChatbotConfiguration } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 import CreateChatbotForm from "./CreateChatbotForm"
 
@@ -27,13 +27,13 @@ const CreateChatbotDialog: React.FC<React.PropsWithChildren<CreateChatbotDialogP
   const { t } = useTranslation()
 
   return (
-    <StandardDialog open={open} onClose={close} title={t("create-chatbot")}>
+    <Dialog open={open} onClose={close} title={t("create-chatbot")}>
       <CreateChatbotForm
         courseId={courseId}
         getChatbotsList={getChatbotsList}
         closeEdit={closeEdit}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

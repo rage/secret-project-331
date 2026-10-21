@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
@@ -14,20 +15,23 @@ import {
   getExerciseSubmissionsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorNotice,
+  Link,
+  Pagination,
+  QueryResults,
+  Select,
+} from "@/shared-module/components"
 import {
   exerciseAnswerFilesHref,
   exerciseAnswersCsvHref,
@@ -38,14 +42,22 @@ import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
 
+interface ExportFormFields {
+  taskId: string
+  onlyLatestPerUser: boolean
+}
+
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
   const { id } = useParams<{ id: string }>()
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
-  const [selectedTaskId, setSelectedTaskId] = useState("")
   const [exportMode, setExportMode] = useState<ExportMode | null>(null)
-  const [onlyLatestPerUser, setOnlyLatestPerUser] = useState(false)
+  const { control, watch, reset, setValue } = useForm<ExportFormFields>({
+    defaultValues: { taskId: "", onlyLatestPerUser: false },
+  })
+  const selectedTaskId = watch("taskId")
+  const onlyLatestPerUser = watch("onlyLatestPerUser")
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("header-submissions") }], [t])
 
@@ -114,7 +126,7 @@ const SubmissionsPage: React.FC = () => {
   const closeExportDialog = () => {
     setIsExportDialogOpen(false)
     setExportMode(null)
-    setOnlyLatestPerUser(false)
+    reset()
   }
 
   const openExportDialog = (mode: ExportMode) => {
@@ -124,7 +136,7 @@ const SubmissionsPage: React.FC = () => {
       return
     }
     setExportMode(mode)
-    setSelectedTaskId(firstOption.exercise_task_id)
+    setValue("taskId", firstOption.exercise_task_id)
     setIsExportDialogOpen(true)
   }
 
@@ -221,9 +233,7 @@ const SubmissionsPage: React.FC = () => {
             {t("message-csv-export-not-supported-for-this-exercise-type")}
           </p>
         )}
-      {csvExportTaskOptionsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={csvExportTaskOptionsQuery.error} />
-      )}
+      {csvExportTaskOptionsQuery.isError && <ErrorNotice error={csvExportTaskOptionsQuery.error} />}
       <QueryResults
         queries={[exerciseQuery, exerciseSubmissionsQuery] as const}
         renderData={([exercise, exerciseSubmissions]) =>
@@ -235,33 +245,39 @@ const SubmissionsPage: React.FC = () => {
               />
               <Pagination
                 totalPages={exerciseSubmissions.total_pages}
-                paginationInfo={paginationInfo}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
               />
             </>
           ) : null
         }
       />
-      <Dialog open={isExportDialogOpen} onClose={closeExportDialog}>
-        <h1>
-          {exportMode === "definitions"
+      <Dialog
+        open={isExportDialogOpen}
+        onClose={closeExportDialog}
+        title={
+          exportMode === "definitions"
             ? t("title-export-definitions-csv")
-            : t("title-export-answers-csv")}
-        </h1>
-        <SelectField
+            : t("title-export-answers-csv")
+        }
+      >
+        <Select
           id="csv-export-task-select"
+          name="taskId"
+          control={control}
           label={t("label-csv-export-task")}
-          value={selectedTaskId}
-          onChangeByValue={(value) => setSelectedTaskId(value)}
           options={currentTaskOptions.map((task) => ({
             label: getTaskLabel(task),
             value: task.exercise_task_id,
           }))}
         />
         {exportMode === "answers" && (
-          <CheckBox
+          <Checkbox
+            name="onlyLatestPerUser"
+            control={control}
             label={t("label-csv-export-only-latest-per-user")}
-            checked={onlyLatestPerUser}
-            onChangeByValue={(checked) => setOnlyLatestPerUser(checked)}
           />
         )}
         <div
@@ -271,19 +287,21 @@ const SubmissionsPage: React.FC = () => {
             justify-content: flex-end;
           `}
         >
-          <Button variant="white" size="small" onClick={closeExportDialog}>
+          <Button variant="secondary" size="small" onClick={closeExportDialog}>
             {t("button-text-cancel")}
           </Button>
-          <a
+          <Link
             href={exportHref}
             onClick={closeExportDialog}
             aria-label={t("actions-export")}
             download
+            isDisabled={!selectedTaskId}
+            styledAsButton
+            variant="primary"
+            size="small"
           >
-            <Button variant="primary" size="small" disabled={!selectedTaskId} type="button">
-              {t("actions-export")}
-            </Button>
-          </a>
+            {t("actions-export")}
+          </Link>
         </div>
       </Dialog>
     </div>

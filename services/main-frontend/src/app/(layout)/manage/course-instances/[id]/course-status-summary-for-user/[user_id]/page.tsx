@@ -3,16 +3,16 @@
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, ErrorNotice, LoadingRegion } from "@/shared-module/components"
 
 const CourseInstanceStatusSummaryRedirect: React.FC = () => {
+  const { t } = useTranslation()
   const router = useRouter()
   const { id: courseInstanceId, user_id } = useParams<{ id: string; user_id: string }>()
   const courseInstanceQuery = useQuery({
@@ -30,21 +30,27 @@ const CourseInstanceStatusSummaryRedirect: React.FC = () => {
   }, [courseInstanceQuery.data?.course_id, user_id, router])
 
   if (courseInstanceQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={courseInstanceQuery.error} />
+    return <ErrorNotice error={courseInstanceQuery.error} />
   }
   if (courseInstanceQuery.isLoading) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
   if (!courseInstanceQuery.data) {
     return (
-      <DataLoadError
-        onRetry={() => {
-          void courseInstanceQuery.refetch()
-        }}
-      />
+      <div>
+        <ErrorNotice error={t("label-error-loading", { ns: "errors" })} />
+        <Button
+          variant="primary"
+          onClick={() => {
+            void courseInstanceQuery.refetch()
+          }}
+        >
+          {t("button-text-try-again")}
+        </Button>
+      </div>
     )
   }
-  return <Spinner variant="medium" />
+  return <LoadingRegion />
 }
 
 export default withErrorBoundary(withSignedIn(CourseInstanceStatusSummaryRedirect))

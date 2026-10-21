@@ -28,7 +28,7 @@ import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
 import {
-  BUTTON_DESTRUCTIVE,
+  BUTTON_DANGER,
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
@@ -44,6 +44,7 @@ import { AdminActionDialog } from "./AdminActionDialog"
 import type { DialogOpenState } from "./AdminActionDialog"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
+import { AUDIT_ACTION } from "./auditActions"
 import type { HandActionOffer } from "./handActionOffers"
 import { CHECK_NOW_OFFER, handActionOffers, renderableRemedies, RESUBMIT } from "./handActionOffers"
 import { ReasonField } from "./ReasonConfirmDialog"
@@ -258,7 +259,7 @@ export const TransitionAction: React.FC<TransitionActionProps> = ({
               label={t(riskCopy.confirm)}
             />
           )}
-          <ReasonField control={control} />
+          <ReasonField control={control} auditAction={AUDIT_ACTION.TRANSITION_ITEM} />
         </>
       )}
     />
@@ -518,7 +519,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             label={t("credit-registration-admin-target-cancel")}
             explanation={cancelExplanation}
             appliedMessage={t("credit-registration-admin-cancel-applied")}
-            triggerVariant={isCompact ? BUTTON_DESTRUCTIVE : BUTTON_TERTIARY}
+            triggerVariant={isCompact ? BUTTON_DANGER : BUTTON_TERTIARY}
             isDestructive
             onResult={setLastResult}
           />

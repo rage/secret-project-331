@@ -73,6 +73,8 @@ deploy:
       after:
         - host:
             command: ["bash", "-c", "bin/warm-routes &"]
+        - host:
+            command: ["bash", "-c", "bin/minikube-remove-old-images skaffold.yaml &"]
       before:
         - host:
             command:

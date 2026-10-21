@@ -6,17 +6,18 @@ import type { TimeValue } from "react-aria"
 import { useTimeField } from "react-aria"
 
 import { omitUndefined } from "../../../lib/utils/nullability"
-import { NonPickerSegmentedField } from "./NonPickerSegmentedField"
 import { minuteGranularity } from "./segmentedDateInputFieldConstants"
 import {
   emitSyntheticChange,
   parseTimeOnlyValue,
+  resolveMinuteStep,
   serializeTimeValue,
   useSegmentedFieldBase,
 } from "./segmentedDateInputFieldUtils"
 import type { TimeOnlyFieldProps } from "./segmentTypes"
+import { TimePickerSegmentedField } from "./TimePickerSegmentedField"
 
-/** Segmented control for `time` inputs (no calendar). */
+/** Segmented control for `time` inputs with a time selector popover. */
 export function TimeSegmentedInputField(
   props: TimeOnlyFieldProps,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -29,6 +30,12 @@ export function TimeSegmentedInputField(
   const parsedValue = React.useMemo(() => parseTimeOnlyValue(base.value), [base.value])
   const parsedMinValue = React.useMemo(() => parseTimeOnlyValue(base.min), [base.min])
   const parsedMaxValue = React.useMemo(() => parseTimeOnlyValue(base.max), [base.max])
+
+  const commitValue = (nextValue: TimeValue | null) => {
+    const serializedValue = serializeTimeValue(nextValue, granularity)
+    base.onValueChange?.(serializedValue)
+    emitSyntheticChange(base.hiddenInputRef.current, base.onChange, serializedValue)
+  }
 
   const fieldProps = {
     id: base.id,
@@ -48,24 +55,22 @@ export function TimeSegmentedInputField(
       minValue: parsedMinValue,
       maxValue: parsedMaxValue,
     }),
-    onChange: (nextValue: TimeValue | null) => {
-      const serializedValue = serializeTimeValue(nextValue, granularity)
-      base.onValueChange?.(serializedValue)
-      emitSyntheticChange(base.hiddenInputRef.current, base.onChange, serializedValue)
-    },
+    onChange: commitValue,
   }
 
   const state = useTimeFieldState(fieldProps)
   const aria = useTimeField(fieldProps, state, base.fieldRef)
 
   return (
-    <NonPickerSegmentedField
+    <TimePickerSegmentedField
       aria={aria}
       className={base.className}
+      dataTestId={base.dataTestId}
       description={base.description}
       errorMessage={base.errorMessage}
       fieldRef={base.fieldRef}
       fieldSize={base.fieldSize}
+      groupRef={base.groupRef}
       hiddenInputRef={base.hiddenInputRef}
       hiddenInputValue={serializeTimeValue(state.value as TimeValue | null, granularity)}
       inputRef={base.inputRef}
@@ -81,6 +86,15 @@ export function TimeSegmentedInputField(
       resolvedState={base.resolvedState}
       setIsFocused={base.setIsFocused}
       state={state}
+      timeSelectorProps={{
+        granularity,
+        isDisabled: base.resolvedState.isDisabled,
+        isReadOnly: base.resolvedState.isReadOnly,
+        minuteStep: resolveMinuteStep(base.step),
+        value: parsedValue ?? null,
+        onChange: commitValue,
+        ...omitUndefined({ hourCycle: base.hourCycle }),
+      }}
     />
   )
 }

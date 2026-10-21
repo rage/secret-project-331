@@ -4,7 +4,8 @@ use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
-    self, StaleUnclaimedLinkingMails,
+    self, LinkingEmailListRow, LinkingEmailListStatus, LinkingMailLinkState,
+    StaleUnclaimedLinkingMails,
 };
 use headless_lms_models::credit_registration_admin_actions::{
     self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
@@ -218,20 +219,38 @@ pub struct AccountLinkingRecentLink {
     pub verified_from_course_name: Option<String>,
 }
 
-/// One linking email, newest first in the recent list.
+/// One linking email, in the full list or the dashboard's recent ones.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-pub struct AccountLinkingRecentEmail {
+pub struct AccountLinkingEmailRow {
     pub id: Uuid,
     pub course_id: Uuid,
     pub course_name: String,
-    /// In full: support tells the recipients apart by it.
+    /// In full: support finds a student's mail by it.
     pub emailed_to: String,
+    pub student_number: String,
+    /// The name Sisu held for the student number when the mail went out.
+    pub sisu_full_name: Option<String>,
     pub claimed_at: DateTime<Utc>,
     /// When the `link-emails` phase handed it to the email worker.
     pub queued_at: Option<DateTime<Utc>>,
     /// `None` until queued.
     pub send_status: Option<EmailSendStatusReport>,
     pub last_error_message: Option<String>,
+    pub link_state: LinkingMailLinkState,
+    pub link_expires_at: Option<DateTime<Utc>>,
+    pub link_used_at: Option<DateTime<Utc>>,
+    pub claimed_by_user_id: Option<Uuid>,
+    pub claimed_by_email: Option<String>,
+}
+
+/// Filters and paging for the list of every linking email; see
+/// [`credit_registration_account_linking_emails::get_page`].
+#[derive(Debug, Deserialize)]
+pub struct ListAccountLinkingEmailsQuery {
+    page: Option<u32>,
+    limit: Option<u32>,
+    status: Option<LinkingEmailListStatus>,
+    address: Option<String>,
 }
 
 /// A student whose registration waits for a student number.
@@ -315,7 +334,7 @@ pub struct AccountLinkingStats {
     pub hard_failure_domains: Vec<AccountLinkingFailureDomain>,
     pub course_codes: Vec<AccountLinkingCourseCode>,
     /// Newest first, capped.
-    pub recent_linking_emails: Vec<AccountLinkingRecentEmail>,
+    pub recent_linking_emails: Vec<AccountLinkingEmailRow>,
     pub stale_addresses: Vec<AccountLinkingStaleAddress>,
     pub links_total_by_method: Vec<VerifiedStudentNumberMethodTotal>,
     pub links_in_window_by_method: Vec<VerifiedStudentNumberMethodTotal>,
@@ -644,22 +663,16 @@ pub async fn get_account_linking_stats(
             last_check_requested_at: row.last_check_requested_at,
         })
         .collect();
-    let recent_linking_emails = credit_registration_account_linking_emails::get_recent(
+    let recent_linking_emails = credit_registration_account_linking_emails::get_page(
         &mut conn,
+        None,
+        None,
         RECENT_LINKING_EMAIL_LIMIT,
+        0,
     )
     .await?
     .into_iter()
-    .map(|row| AccountLinkingRecentEmail {
-        id: row.id,
-        course_id: row.course_id,
-        course_name: row.course_name,
-        emailed_to: row.emailed_to.expose_secret().to_owned(),
-        claimed_at: row.claimed_at,
-        queued_at: row.queued_at,
-        send_status: row.send_status,
-        last_error_message: row.last_error_message,
-    })
+    .map(to_linking_email_row)
     .collect();
 
     let funnel = AccountLinkingFunnel {
@@ -1281,13 +1294,6 @@ pub async fn admin_resolve_student_number_for_linking(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    if !models::course_modules::any_credit_registration_enabled(&mut conn).await? {
-        return Err(controller_err!(
-            BadRequest,
-            "No course has credit registration configured.".to_string()
-        ));
-    }
-
     let student_number = typed_student_number(&payload.student_number)?;
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, RESOLVE_CALLER);
@@ -1411,13 +1417,6 @@ pub async fn admin_manually_link_student_number(
 ) -> ControllerResult<web::Json<AdminManuallyLinkStudentNumberResult>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-
-    if !models::course_modules::any_credit_registration_enabled(&mut conn).await? {
-        return Err(controller_err!(
-            BadRequest,
-            "No course has credit registration configured.".to_string()
-        ));
-    }
 
     let ManualLinkRequest {
         reason,
@@ -1834,8 +1833,96 @@ async fn build_stale_addresses(
         .collect())
 }
 
+/**
+GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+linking email, newest first.
+
+An `address` search covers every status, so a mail is found whatever became of it.
+*/
+#[instrument(skip(pool, query))]
+#[utoipa::path(
+    get,
+    path = "/account-linking/emails",
+    operation_id = "listAccountLinkingEmails",
+    tag = "credit-registration-admin",
+    params(
+        ("page" = Option<u32>, Query, description = "Page number, from 1"),
+        ("limit" = Option<u32>, Query, description = "Rows per page"),
+        ("status" = Option<LinkingEmailListStatus>, Query, description = "What became of the link or the send; ignored with `address`"),
+        ("address" = Option<String>, Query, description = "Part of the recipient address, ignoring case")
+    ),
+    responses(
+        (status = 200, description = "A page of linking emails", body = Page<AccountLinkingEmailRow>)
+    )
+)]
+pub async fn list_account_linking_emails(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    query: web::Query<ListAccountLinkingEmailsQuery>,
+) -> ControllerResult<web::Json<Page<AccountLinkingEmailRow>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let pagination = parse_pagination(query.page, query.limit, 50)?;
+    let address = query
+        .address
+        .as_deref()
+        .map(str::trim)
+        .filter(|address| !address.is_empty());
+    let rows = credit_registration_account_linking_emails::get_page(
+        &mut conn,
+        query.status,
+        address,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .await?;
+    let total_count = rows.first().map_or(0, |row| row.total_count);
+
+    token.authorized_ok(web::Json(Page::new(
+        pagination,
+        rows.into_iter().map(to_linking_email_row).collect(),
+        total_count,
+    )))
+}
+
+/// The admin list row for a mail, with the Sisu name joined and the student's secrets exposed.
+fn to_linking_email_row(row: LinkingEmailListRow) -> AccountLinkingEmailRow {
+    let sisu_full_name = [
+        expose_option(&row.first_names),
+        expose_option(&row.last_name),
+    ]
+    .into_iter()
+    .flatten()
+    .map(str::trim)
+    .filter(|part| !part.is_empty())
+    .collect::<Vec<_>>()
+    .join(" ");
+    AccountLinkingEmailRow {
+        id: row.id,
+        course_id: row.course_id,
+        course_name: row.course_name,
+        emailed_to: row.emailed_to.expose_secret().to_owned(),
+        student_number: row.student_number.expose_secret().to_owned(),
+        sisu_full_name: (!sisu_full_name.is_empty()).then_some(sisu_full_name),
+        claimed_at: row.claimed_at,
+        queued_at: row.queued_at,
+        send_status: row.send_status,
+        last_error_message: row.last_error_message,
+        link_state: row.link_state,
+        link_expires_at: row.link_expires_at,
+        link_used_at: row.link_used_at,
+        claimed_by_user_id: row.claimed_by_user_id,
+        claimed_by_email: row.claimed_by_email,
+    }
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/account-linking", web::get().to(get_account_linking_stats))
+        .route(
+            "/account-linking/emails",
+            web::get().to(list_account_linking_emails),
+        )
         .route(
             "/account-linking/resend",
             web::post().to(admin_resend_account_linking_email),

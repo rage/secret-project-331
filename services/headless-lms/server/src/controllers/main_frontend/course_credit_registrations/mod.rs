@@ -174,7 +174,6 @@ pub struct CourseCreditRegistration {
 pub struct CourseCreditRegistrationModuleSummary {
     pub course_module_id: Uuid,
     pub course_module_name: Option<String>,
-    pub enabled: bool,
     pub paused: bool,
     /// Live registrations of this module, replaced attempts excluded. Registrations, not
     /// completions: one per student per module, and a regrade replaces rather than adds.
@@ -357,12 +356,15 @@ pub async fn get_course_credit_registration_summary(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_teacher(&mut conn, user.id, *course_id).await?;
 
-    let configs =
+    let configs: Vec<_> =
         models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
-            .await?;
-    let on_push_path = configs
-        .iter()
-        .any(|config| config.enable_credit_registration_via_suotar);
+            .await?
+            .into_iter()
+            .filter(|config| {
+                models::course_modules::registers_credits(config.uh_course_code.as_deref())
+            })
+            .collect();
+    let on_push_path = !configs.is_empty();
     let module_names: HashMap<Uuid, Option<String>> =
         models::course_modules::get_by_course_id(&mut conn, *course_id)
             .await?
@@ -395,7 +397,6 @@ pub async fn get_course_credit_registration_summary(
                     .get(&config.course_module_id)
                     .cloned()
                     .unwrap_or_default(),
-                enabled: config.enable_credit_registration_via_suotar,
                 paused: config.credit_registration_paused_at.is_some(),
                 registration_count: groups.iter().map(|group| group.count).sum(),
                 registered_count: in_stage(Stage::Registered),

@@ -57,7 +57,6 @@ pub async fn seed_graded_course(
 
     let mut module = ModuleBuilder::new()
         .order(0)
-        .register_to_open_university(false)
         .automatic_completion(Some(1), Some(1), false)
         .default_registrar(registrar_id);
 

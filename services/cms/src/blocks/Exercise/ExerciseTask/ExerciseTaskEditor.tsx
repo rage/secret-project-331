@@ -6,13 +6,14 @@ import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import React, { useContext, useState } from "react"
 
+import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -145,13 +146,13 @@ const ExerciseTaskEditor: React.FC<
 
   const renderEditor = (exerciseServices: NonNullable<typeof exerciseServicesQuery.data>) => {
     const exerciseType = attributes.exercise_type
-    const url = exerciseServices.find((o) => o.slug === exerciseType)?.public_iframe_url
+    const exerciseService = exerciseServices.find((o) => o.slug === exerciseType)
+    const url = exerciseService?.public_iframe_url
 
     if (exerciseType && !url) {
       return (
         <>
-          <ErrorBanner
-            variant="readOnly"
+          <ErrorNotice
             error={t("error-cannot-render-editor-for-exercise-service-x", {
               slug: exerciseType,
             })}
@@ -184,6 +185,7 @@ const ExerciseTaskEditor: React.FC<
               `}
             >
               {t("task")}
+              {exerciseService && <ExerciseServiceBadges exerciseService={exerciseService} />}
             </div>
             <div
               className={cx(svgSquare, gray500WithHover)}
@@ -198,7 +200,7 @@ const ExerciseTaskEditor: React.FC<
                 <XmarkCircle
                   size={16}
                   className={css`
-                    color: ${baseTheme.colors.gray[100]};
+                    color: ${baseTheme.colors.gray[700]};
                     margin: 1.5rem;
                   `}
                 />
@@ -206,7 +208,7 @@ const ExerciseTaskEditor: React.FC<
                 <PencilBox
                   size={16}
                   className={css`
-                    color: ${baseTheme.colors.gray[100]};
+                    color: ${baseTheme.colors.gray[700]};
                     margin: 1.5rem;
                   `}
                 />

@@ -52,7 +52,7 @@ pub struct StudentCreditRegistration {
     pub submitted_at: Option<DateTime<Utc>>,
     /// Sisu holds the assessment item attainment but not yet the course unit attainment.
     pub is_partially_registered: bool,
-    /// Where a student with no usable enrolment is sent to enrol.
+    /// The module's open university enrolment page.
     pub enrolment_link: Option<String>,
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,

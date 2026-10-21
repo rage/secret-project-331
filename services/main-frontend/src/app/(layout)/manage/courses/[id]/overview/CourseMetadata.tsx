@@ -12,8 +12,7 @@ import { useTranslation } from "react-i18next"
 import AIMetadataForm from "@/components/forms/AIMetadataForm"
 import type { Course } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import Button from "@/shared-module/common/components/Button"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
+import { Button, Infobox } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -53,7 +52,7 @@ const CourseMetadata: React.FC<React.PropsWithChildren<Props>> = ({ courseId, re
           {t("generate-ai-metadata")}
         </Button>
         {structureLoaded && !hasCourseCode && (
-          <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
+          <Infobox>{t("missing-uh-course-code-notification")}</Infobox>
         )}
       </div>
 

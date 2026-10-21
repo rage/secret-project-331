@@ -1,11 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { PermissionPage } from "@/components/PermissionPage"
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -37,7 +38,14 @@ const CourseInstancePermissions: React.FC = () => {
       <QueryResult query={courseInstance}>
         {(data) => (
           <>
-            <h1>
+            <h1
+              className={cx(
+                pageTitleCss,
+                css`
+                  margin-bottom: var(--space-4);
+                `,
+              )}
+            >
               {t("roles-for-course-instance")} {data.name}
             </h1>
             <PermissionPage

@@ -20,10 +20,6 @@ import type {
   NewChatbotConf,
   ToolCategory,
 } from "@/generated/api/types.generated"
-import Accordion from "@/shared-module/common/components/Accordion"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import WarningInfobox from "@/shared-module/common/components/WarningInfobox"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -41,14 +37,17 @@ import {
 import {
   Button,
   Checkbox,
+  Disclosure,
+  Infobox,
   QueryResult,
   Select,
   TextArea,
   TextField,
+  useDialog,
 } from "@/shared-module/components"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
-import { itemsContainerCss } from "./styles"
+import { headingsCss, itemsContainerCss } from "./styles"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -312,7 +311,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           : false
 
         return (
-          <div>
+          <div className={headingsCss}>
             <h2>{t("customize-chatbot")}</h2>
             <form className={itemsContainerCss} onSubmit={onConfigureChatbotWrapper}>
               <TextField
@@ -421,21 +420,26 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   label={t("suggest-next-messages")}
                   name={"suggest_next_messages"}
                 />
-                <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
+                <Infobox>{t("recommend-message-suggesting")}</Infobox>
                 {suggestMessagesFieldValue && fields.length === 0 && (
                   <div
                     className={css`
                       margin-top: 10px;
                     `}
                   >
-                    <WarningInfobox>{t("no-suggested-messages-warning")}</WarningInfobox>
+                    <Infobox
+                      // oxlint-disable-next-line i18next/no-literal-string
+                      tone="warning"
+                    >
+                      {t("no-suggested-messages-warning")}
+                    </Infobox>
                   </div>
                 )}
                 {suggestMessagesFieldValue && (
                   <div className={itemsContainerCss}>
                     <div
                       className={css`
-                        margin: 20px 20px;
+                        margin: 20px 0;
                       `}
                     >
                       {fields.map((item, idx) => (
@@ -484,70 +488,33 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 )}
               </div>
 
-              <Accordion>
-                <details
-                  className={css`
-                    margin: 20px 0px;
-                  `}
-                >
-                  <summary>
-                    <h3>{t("advanced-settings")}</h3>
-                  </summary>
-                  <div>
-                    <div
-                      className={css`
-                        display: flex;
-                        gap: 20px;
-                        flex-direction: column;
-                        margin: 20px 0;
-                        ${respondToOrLarger.md} {
-                          flex-direction: row;
-                          flex-wrap: wrap;
-                          justify-content: space-between;
-                        }
-                      `}
-                    >
-                      <div className={itemsContainerCss}>
-                        <h4>{t("tools-heading")}</h4>
-                        {TOOL_CATEGORY_GROUP_ORDER.map((group) => {
-                          const categories = categoriesInGroup(group)
-                          if (group === "admin-support" && !canEditAdminToolCategories) {
-                            if (!hasAdminToolCategoriesEnabled) {
-                              return null
-                            }
-                            return (
-                              <div
-                                key={group}
-                                className={css`
-                                  margin-top: 10px;
-                                `}
-                              >
-                                <h5>{t(TOOL_CATEGORY_GROUP_HEADING_KEY[group])}</h5>
-                                <GenericInfobox>
-                                  {t("admin-tools-managed-by-administrators")}
-                                </GenericInfobox>
-                                {categories.map((category) => (
-                                  <Checkbox
-                                    key={category}
-                                    control={control}
-                                    isDisabled
-                                    label={t(TOOL_CATEGORY_META[category].labelKey)}
-                                    name={`tool_categories.${category}` as const}
-                                  />
-                                ))}
-                              </div>
-                            )
-                          }
-                          const [singleCategory] = categories
-                          if (singleCategory !== undefined && categories.length === 1) {
-                            return (
-                              <Checkbox
-                                key={group}
-                                control={control}
-                                label={t(TOOL_CATEGORY_META[singleCategory].labelKey)}
-                                name={`tool_categories.${singleCategory}` as const}
-                              />
-                            )
+              <Disclosure
+                className={css`
+                  margin: 20px 0px;
+                `}
+                title={<h3>{t("advanced-settings")}</h3>}
+              >
+                <div>
+                  <div
+                    className={css`
+                      display: flex;
+                      gap: 20px;
+                      flex-direction: column;
+                      margin: 20px 0;
+                      ${respondToOrLarger.md} {
+                        flex-direction: row;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                      }
+                    `}
+                  >
+                    <div className={itemsContainerCss}>
+                      <h4>{t("tools-heading")}</h4>
+                      {TOOL_CATEGORY_GROUP_ORDER.map((group) => {
+                        const categories = categoriesInGroup(group)
+                        if (group === "admin-support" && !canEditAdminToolCategories) {
+                          if (!hasAdminToolCategoriesEnabled) {
+                            return null
                           }
                           return (
                             <div
@@ -556,46 +523,201 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                 margin-top: 10px;
                               `}
                             >
-                              <h5>
-                                {t(
-                                  TOOL_CATEGORY_GROUP_HEADING_KEY[
-                                    group as "course-assistance" | "admin-support"
-                                  ],
-                                )}
-                              </h5>
+                              <h5>{t(TOOL_CATEGORY_GROUP_HEADING_KEY[group])}</h5>
+                              <Infobox>{t("admin-tools-managed-by-administrators")}</Infobox>
                               {categories.map((category) => (
                                 <Checkbox
                                   key={category}
                                   control={control}
+                                  isDisabled
                                   label={t(TOOL_CATEGORY_META[category].labelKey)}
                                   name={`tool_categories.${category}` as const}
                                 />
                               ))}
                             </div>
                           )
-                        })}
-                        {noToolCategoriesEnabled && (
-                          <WarningInfobox>{t("no-tool-categories-enabled-note")}</WarningInfobox>
-                        )}
+                        }
+                        const [singleCategory] = categories
+                        if (singleCategory !== undefined && categories.length === 1) {
+                          return (
+                            <Checkbox
+                              key={group}
+                              control={control}
+                              label={t(TOOL_CATEGORY_META[singleCategory].labelKey)}
+                              name={`tool_categories.${singleCategory}` as const}
+                            />
+                          )
+                        }
+                        return (
+                          <div
+                            key={group}
+                            className={css`
+                              margin-top: 10px;
+                            `}
+                          >
+                            <h5>
+                              {t(
+                                TOOL_CATEGORY_GROUP_HEADING_KEY[
+                                  group as "course-assistance" | "admin-support"
+                                ],
+                              )}
+                            </h5>
+                            {categories.map((category) => (
+                              <Checkbox
+                                key={category}
+                                control={control}
+                                label={t(TOOL_CATEGORY_META[category].labelKey)}
+                                name={`tool_categories.${category}` as const}
+                              />
+                            ))}
+                          </div>
+                        )
+                      })}
+                      {noToolCategoriesEnabled && (
+                        <Infobox
+                          // oxlint-disable-next-line i18next/no-literal-string
+                          tone="warning"
+                        >
+                          {t("no-tool-categories-enabled-note")}
+                        </Infobox>
+                      )}
+                    </div>
+                    <div className={itemsContainerCss}>
+                      <h4>{t("citations-and-search-tuning")}</h4>
+                      <div
+                        className={css`
+                          margin: 20px 20px;
+                        `}
+                      >
+                        <Checkbox
+                          control={control}
+                          label={t("hide-citations")}
+                          name={"hide_citations"}
+                          isDisabled={!useAzureSearchFieldValue}
+                        />
+                        <Checkbox
+                          control={control}
+                          label={t("use-semantic-reranking")}
+                          name={"use_semantic_reranking"}
+                          isDisabled={!useAzureSearchFieldValue}
+                        />
                       </div>
+                    </div>
+                    {!selectedModelThinking && (
                       <div className={itemsContainerCss}>
-                        <h4>{t("citations-and-search-tuning")}</h4>
+                        <h4>{t("model-tuning")}</h4>
                         <div
                           className={css`
                             margin: 20px 20px;
                           `}
                         >
-                          <Checkbox
+                          <TextField
+                            className={textFieldCss}
                             control={control}
-                            label={t("hide-citations")}
-                            name={"hide_citations"}
-                            isDisabled={!useAzureSearchFieldValue}
+                            type="number"
+                            label={t("frequency-penalty")}
+                            step="0.01"
+                            name={"frequency_penalty"}
+                            rules={{
+                              required: t("required-field"),
+                              min: {
+                                value: 0,
+                                message: t("error-field-value-between", {
+                                  field: t("frequency-penalty"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                              max: {
+                                value: 1,
+                                message: t("error-field-value-between", {
+                                  field: t("frequency-penalty"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                            }}
                           />
-                          <Checkbox
+                          <TextField
+                            className={textFieldCss}
+                            type="number"
                             control={control}
-                            label={t("use-semantic-reranking")}
-                            name={"use_semantic_reranking"}
-                            isDisabled={!useAzureSearchFieldValue}
+                            label={t("presence-penalty")}
+                            step="0.01"
+                            name={"presence_penalty"}
+                            rules={{
+                              required: t("required-field"),
+                              min: {
+                                value: 0,
+                                message: t("error-field-value-between", {
+                                  field: t("presence-penalty"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                              max: {
+                                value: 1,
+                                message: t("error-field-value-between", {
+                                  field: t("presence-penalty"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                            }}
+                          />
+                          <TextField
+                            control={control}
+                            className={textFieldCss}
+                            type="number"
+                            step="0.01"
+                            label={t("temperature")}
+                            name={"temperature"}
+                            rules={{
+                              required: t("required-field"),
+                              min: {
+                                value: 0,
+                                message: t("error-field-value-between", {
+                                  field: t("temperature"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                              max: {
+                                value: 1,
+                                message: t("error-field-value-between", {
+                                  field: t("temperature"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                            }}
+                          />
+                          <TextField
+                            className={textFieldCss}
+                            type="number"
+                            control={control}
+                            step="0.01"
+                            label={t("top-p")}
+                            name={"top_p"}
+                            rules={{
+                              required: t("required-field"),
+                              min: {
+                                value: 0,
+                                message: t("error-field-value-between", {
+                                  field: t("top-p"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                              max: {
+                                value: 1,
+                                message: t("error-field-value-between", {
+                                  field: t("top-p"),
+                                  lower: "0",
+                                  upper: "1",
+                                }),
+                              },
+                            }}
                           />
                           <Checkbox
                             control={control}
@@ -616,129 +738,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           ></ContentDisplayBox>
                         </div>
                       </div>
-                      {!selectedModelThinking && (
-                        <div className={itemsContainerCss}>
-                          <h4>{t("model-tuning")}</h4>
-                          <div
-                            className={css`
-                              margin: 20px 20px;
-                            `}
-                          >
-                            <TextField
-                              className={textFieldCss}
-                              control={control}
-                              type="number"
-                              label={t("frequency-penalty")}
-                              step="0.01"
-                              name={"frequency_penalty"}
-                              rules={{
-                                required: t("required-field"),
-                                min: {
-                                  value: 0,
-                                  message: t("error-field-value-between", {
-                                    field: t("frequency-penalty"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                                max: {
-                                  value: 1,
-                                  message: t("error-field-value-between", {
-                                    field: t("frequency-penalty"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                              }}
-                            />
-                            <TextField
-                              className={textFieldCss}
-                              type="number"
-                              control={control}
-                              label={t("presence-penalty")}
-                              step="0.01"
-                              name={"presence_penalty"}
-                              rules={{
-                                required: t("required-field"),
-                                min: {
-                                  value: 0,
-                                  message: t("error-field-value-between", {
-                                    field: t("presence-penalty"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                                max: {
-                                  value: 1,
-                                  message: t("error-field-value-between", {
-                                    field: t("presence-penalty"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                              }}
-                            />
-                            <TextField
-                              control={control}
-                              className={textFieldCss}
-                              type="number"
-                              step="0.01"
-                              label={t("temperature")}
-                              name={"temperature"}
-                              rules={{
-                                required: t("required-field"),
-                                min: {
-                                  value: 0,
-                                  message: t("error-field-value-between", {
-                                    field: t("temperature"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                                max: {
-                                  value: 1,
-                                  message: t("error-field-value-between", {
-                                    field: t("temperature"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                              }}
-                            />
-                            <TextField
-                              className={textFieldCss}
-                              type="number"
-                              control={control}
-                              step="0.01"
-                              label={t("top-p")}
-                              name={"top_p"}
-                              rules={{
-                                required: t("required-field"),
-                                min: {
-                                  value: 0,
-                                  message: t("error-field-value-between", {
-                                    field: t("top-p"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                                max: {
-                                  value: 1,
-                                  message: t("error-field-value-between", {
-                                    field: t("top-p"),
-                                    lower: "0",
-                                    upper: "1",
-                                  }),
-                                },
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                </details>
-              </Accordion>
+                </div>
+              </Disclosure>
               <div
                 className={css`
                   display: flex;
@@ -781,9 +784,12 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     disabled={deleteChatbotMutation.isPending}
                     onClick={async () => {
                       if (
-                        await confirm(
-                          t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
-                        )
+                        await confirm({
+                          message: t("delete-chatbot-confirmation", {
+                            name: oldChatbotConf.chatbot_name,
+                          }),
+                          isDestructive: true,
+                        })
                       ) {
                         deleteChatbotMutation.mutate({
                           path: {

@@ -18,9 +18,9 @@ import {
   iconSlotCss,
   type PressHandlers,
   resolveButtonRootCss,
-  spinnerCss,
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
+import { spinnerGlyphCss } from "./primitives/spinnerStyles"
 
 type OwnedButtonDomKeys =
   | keyof PressHandlers
@@ -189,7 +189,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <span className={spinnerOverlayCss} aria-hidden="true">
-              <span className={spinnerCss} />
+              <span className={spinnerGlyphCss("sm", "current")} />
             </span>
             <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
           </>

@@ -6,9 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import type { Course } from "@/generated/api/types.generated"
 import { useOrganizationDuplicatableCourses } from "@/hooks/useOrganizationDuplicatableCourses"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { QueryResult } from "@/shared-module/components"
+import { Checkbox, QueryResult, Select } from "@/shared-module/components"
 
 import type { FormFields } from "."
 import { FieldContainer } from "."
@@ -21,37 +19,31 @@ interface DuplicateOptionsProps {
 
 const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, organizationId }) => {
   const { t } = useTranslation()
-  const { register, watch } = form
+  const { control, watch } = form
   const createDuplicate = watch("createDuplicate")
   const createAsLanguageVersion = watch("createAsLanguageVersion")
 
   const coursesQuery = useOrganizationDuplicatableCourses(organizationId)
 
-  const handleDuplicateMenu = (courseId: string) => {
-    const findCourse = coursesQuery.data?.find((course: Course) => course.id === courseId)
-    if (findCourse?.name) {
-      form.setValue("courseId", courseId)
-    }
-  }
-
   const renderDuplicateFields = (courses: Course[]) => (
     <>
       <FieldContainer>
-        <SelectField
+        <Select
+          name="courseId"
+          control={control}
           label={t("course-where-to-copy-the-content")}
           id="duplicate-course-select-menu"
-          {...register("courseId")}
-          onChange={(e) => handleDuplicateMenu(e.target.value)}
           options={courses.map((course) => {
             return { label: course.name, value: course.id }
           })}
         />
       </FieldContainer>
       <FieldContainer>
-        <CheckBox
+        <Checkbox
+          name="createAsLanguageVersion"
+          control={control}
           label={t("copied-course-is-a-language-version")}
-          {...register("createAsLanguageVersion")}
-        ></CheckBox>
+        />
       </FieldContainer>
       {createAsLanguageVersion && (
         <div>
@@ -60,10 +52,11 @@ const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, organizationI
       )}
       {!createAsLanguageVersion && (
         <FieldContainer>
-          <CheckBox
+          <Checkbox
+            name="copy_user_permissions"
+            control={control}
             label={t("grant-access-to-users-with-permissions-to-original-course")}
-            {...register("copy_user_permissions")}
-          ></CheckBox>
+          />
         </FieldContainer>
       )}
     </>
@@ -72,7 +65,7 @@ const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, organizationI
   return (
     <>
       <FieldContainer>
-        <CheckBox label={t("create-course-duplicate")} {...register("createDuplicate")}></CheckBox>
+        <Checkbox name="createDuplicate" control={control} label={t("create-course-duplicate")} />
       </FieldContainer>
       {createDuplicate && (
         <div>

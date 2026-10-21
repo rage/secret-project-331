@@ -2,6 +2,8 @@ import type { Page } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
+import { Disclosure } from "./components/Disclosure"
+
 /**
  * Saves the current CMS page and waits for the success notification
  * @param page Playwright page object
@@ -12,16 +14,10 @@ export async function saveCMSPage(page: Page): Promise<void> {
   })
 }
 
-/**
- * Expands the exercise's peer and self review configuration in the CMS block editor.
- *
- * The section is a plain `<details>` and keeps whatever state it was left in across saves, so
- * clicking the summary unconditionally collapses an already open section.
- */
+const PEER_AND_SELF_REVIEW_CONFIG = "Peer and self review configuration"
+
+/** Expands the exercise's peer and self review configuration in the CMS block editor. */
 export async function expandPeerAndSelfReviewConfig(page: Page): Promise<void> {
-  const section = page.locator("details").filter({ hasText: "Peer and self review configuration" })
-  if (await section.evaluate((details: HTMLDetailsElement) => details.open)) {
-    return
-  }
-  await section.locator("summary").click()
+  const trigger = page.getByRole("button", { name: PEER_AND_SELF_REVIEW_CONFIG })
+  await new Disclosure(page, trigger, { name: PEER_AND_SELF_REVIEW_CONFIG }).expand()
 }

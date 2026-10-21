@@ -477,6 +477,17 @@
           },
           {
             "type": "object",
+            "description": "Opening the credit registration demo, the student page on made-up data. Every role holds\nit, so checked on [`Resource::AnyCourse`] it admits anyone with a role anywhere.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_credit_registration_demo"]
+              }
+            }
+          },
+          {
+            "type": "object",
             "required": ["type"],
             "properties": {
               "type": {

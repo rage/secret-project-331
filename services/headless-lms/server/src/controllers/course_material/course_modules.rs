@@ -1,5 +1,6 @@
 use headless_lms_models::{
     course_instances, course_module_ending_questions::CourseModuleEndingQuestion,
+    course_module_ending_questions_answers::NewCourseModuleEndingQuestionsAnswer,
     user_course_exercise_service_variables,
 };
 use models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
@@ -12,7 +13,8 @@ use crate::{domain::authorization::authorize_access_to_course_material, prelude:
     get_course_module_id_by_chapter_id,
     get_default_course_module_id_by_course_id,
     get_user_course_module_exercises_by_exercise_type,
-    get_course_module_end_questionnaire
+    get_course_module_end_questionnaire,
+    save_course_module_end_questionnaire_answers
 ))]
 pub(crate) struct CourseMaterialCourseModulesApiDoc;
 
@@ -148,7 +150,7 @@ async fn get_user_course_module_exercises_by_exercise_type(
 }
 
 /**
-GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
+GET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
 
 Returns course module end questions.
 */
@@ -186,6 +188,42 @@ async fn get_course_module_end_questionnaire(
 }
 
 /**
+POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+
+Saves course module end question answers.
+*/
+#[utoipa::path(
+    get,
+    path = "/course/{course_id}/{course_module_id}",
+    operation_id = "postCourseModuleEndQuestionnaireAnswers",
+    tag = "course-material-course-modules",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("course_module_id" = Uuid, Path, description = "Course module id")
+    ),
+    responses(
+        (status = 200, description = "Course module end questionnaire", body = ())
+    )
+)]
+#[instrument(skip(pool))]
+async fn save_course_module_end_questionnaire_answers(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    payload: web::Json<Vec<NewCourseModuleEndingQuestionsAnswer>>,
+) -> ControllerResult<()> {
+    let (course_id, course_module_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
+
+    let res =
+        models::course_module_ending_questions_answers::insert_many(&mut conn, &user.id, *payload)
+            .await?;
+
+    token.authorized_ok(())
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -208,5 +246,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/course/{course_id}/{module_id}",
         web::get().to(get_course_module_end_questionnaire),
+    )
+    .route(
+        "/course/{course_id}/{module_id}",
+        web::post().to(save_course_module_end_questionnaire_answers),
     );
 }

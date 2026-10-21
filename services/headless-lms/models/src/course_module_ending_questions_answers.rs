@@ -16,10 +16,9 @@ pub struct CourseModuleEndingQuestionsAnswer {
     pub answer_multi_select_value: Option<Vec<String>>,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+#[derive(Clone, PartialEq, Deserialize, Debug, Serialize, ToSchema)]
 pub struct NewCourseModuleEndingQuestionsAnswer {
     pub question_id: Uuid,
-    pub user_id: Uuid,
     pub answer_text_value: Option<String>,
     pub answer_select_value: Option<String>,
     pub answer_multi_select_value: Option<Vec<String>>,
@@ -27,6 +26,7 @@ pub struct NewCourseModuleEndingQuestionsAnswer {
 
 pub async fn insert(
     conn: &mut PgConnection,
+    user_id: &Uuid,
     input: &NewCourseModuleEndingQuestionsAnswer,
 ) -> ModelResult<CourseModuleEndingQuestionsAnswer> {
     // todo validate!!!!!
@@ -45,10 +45,56 @@ VALUES ($1, $2, $3, $4, $5)
 RETURNING *
         "#,
         input.question_id,
-        input.user_id,
+        user_id,
         input.answer_text_value,
         input.answer_select_value,
         input.answer_multi_select_value.as_deref()
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn insert_many(
+    conn: &mut PgConnection,
+    user_id: &Uuid,
+    input: Vec<NewCourseModuleEndingQuestionsAnswer>,
+) -> ModelResult<CourseModuleEndingQuestionsAnswer> {
+    let question_ids = input.iter().map(|x| x.question_id).collect();
+    let answer_text_values = input.iter().map(|x| x.answer_text_value).collect();
+    let answer_select_values = input.iter().map(|x| x.answer_select_value).collect();
+    let answer_multi_select_values = input.iter().map(|x| x.answer_multi_select_value).collect();
+    // todo validate!!!!!
+
+    let res = sqlx::query_as!(
+        CourseModuleEndingQuestionsAnswer,
+        r#"
+INSERT INTO course_module_ending_questions_answers (
+    user_id,
+    question_id,
+    answer_text_value,
+    answer_select_value,
+    answer_multi_select_value
+  )
+SELECT $1,
+  input.question_id,
+  input.answer_text_value,
+  input.answer_select_value,
+  input.answer_multi_select_value
+FROM (
+    SELECT UNNEST($2::UUID []) question_id,
+      UNNEST($3::TEXT []) answer_text_value,
+      UNNEST($4::TEXT []) answer_select_value,
+      UNNEST($5::TEXT [] []) answer_multi_select_value,
+  ) AS input
+RETURNING *
+        "#,
+        user_id,
+        question_ids,
+        answer_text_values,
+        answert_select_values,
+        answer_multi_select_values,
     )
     .fetch_one(&mut *conn)
     .await?;

@@ -1872,6 +1872,7 @@
   "reference-added-successfully": "Reference added successfully",
   "reference-deleted-successfully": "Reference deleted successfully",
   "reference-parsing-error": "Error: This format is not supported or recognized",
+  "reference-parsing-error-label-change": "The label {{original}} will be changed {{safe}} because it contains unsafe characters.",
   "reference-updated-successfully": "Reference updated successfully",
   "references": "References",
   "refresh": "Refresh",

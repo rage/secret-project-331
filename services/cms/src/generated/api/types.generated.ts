@@ -240,8 +240,6 @@ export type CourseModule = {
   created_at: string
   deleted_at?: string | null
   ects_credits?: number | null
-  enable_credit_registration_via_suotar: boolean
-  enable_registering_completion_to_uh_open_university: boolean
   id: string
   name?: string | null
   order_number: number
@@ -334,6 +332,14 @@ export type ExamInstructionsUpdate = {
 export type ExerciseServiceIframeRenderingInfo = {
   has_custom_view: boolean
   id: string
+  /**
+   * Shown to teachers as a tag only; changes no behaviour.
+   */
+  is_experimental: boolean
+  /**
+   * Only global admins can add new tasks of this type; teachers can still edit existing ones.
+   */
+  is_global_admin_only: boolean
   name: string
   public_iframe_url: string
   slug: string

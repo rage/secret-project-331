@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
+import { Link } from "@/shared-module/components"
 import { courseInstancePointsCsvHref } from "@/utils/exportDownloadUrls"
 
 const PointExportButton: React.FC<
@@ -10,15 +10,16 @@ const PointExportButton: React.FC<
 > = ({ courseInstanceId, courseInstanceName }) => {
   const { t } = useTranslation()
   return (
-    <a
+    <Link
       href={courseInstancePointsCsvHref(courseInstanceId)}
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}
       download
+      styledAsButton
+      variant="secondary"
+      size="medium"
     >
-      <Button variant="secondary" size="medium" type="button">
-        {t("link-export-points")}
-      </Button>
-    </a>
+      {t("link-export-points")}
+    </Link>
   )
 }
 

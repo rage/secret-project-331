@@ -11,7 +11,9 @@ use std::collections::HashMap;
 use headless_lms_models::{
     completion_registration_credit_justifications,
     course_module_completions::CourseModuleCompletion,
-    credit_registration_account_linking_emails::{self, CreditRegistrationAccountLinkingEmail},
+    credit_registration_account_linking_emails::{
+        self, CreditRegistrationAccountLinkingEmail, LinkingMailLinkState,
+    },
     credit_registration_enrolment_routes::{
         self, CreditRegistrationEnrolmentRoute, EnrolmentRouteAnswer,
     },
@@ -24,6 +26,7 @@ use headless_lms_models::{
     library::credit_registration::StudentFacingCreditRegistrationStatus,
     library::credit_registration::student_notifications,
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
+    user_details::UserDetail,
     verified_student_numbers::{
         self, LinkConflict, NewVerifiedStudentNumber, StudentNumberVerificationMethod,
         VerifiedStudentNumber,
@@ -35,6 +38,8 @@ use headless_lms_models::{
     library::credit_registration::enrolment_checks,
 };
 use headless_lms_utils::secret_string::expose_option;
+use models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER_PERSON_AND_COURSE;
+use models::library::credit_registration::sisu_name::{self, NameReplacement};
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
 use utoipa::{OpenApi, ToSchema};
@@ -46,7 +51,7 @@ use crate::domain::credit_registration::mail_status::{NotificationEmailStatus, m
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_credit_registration::account_linking::book_listing_for_unlinked_student;
+use headless_lms_utils::services::tmc::TmcClient;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -75,6 +80,19 @@ pub struct LinkingEmailStatus {
     pub email_send_status: EmailSendStatus,
     pub sent_at: Option<DateTime<Utc>>,
     pub emailed_to_masked: String,
+    pub link_state: LinkingEmailLinkState,
+}
+
+/// Whether the link in a linking mail can still be opened, and if not, whether a new mail can
+/// replace it.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LinkingEmailLinkState {
+    Usable,
+    /// The caps still allow another mail for this course.
+    ExpiredCanResend,
+    ExpiredNoResend,
+    Used,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -122,7 +140,8 @@ pub struct MyCreditRegistration {
     pub submitted_at: Option<DateTime<Utc>>,
     /// A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
     pub is_processing_in_sisu: bool,
-    /// The open university enrolment page, for a row the study registry has no enrolment for.
+    /// The module's open university enrolment page, in every status: an open university student
+    /// needs it before they have a student number to be looked up by.
     pub enrolment_link: Option<String>,
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
     /// addressed to a Sisu person, and a never-linked account names none.
@@ -164,10 +183,14 @@ pub struct UnlinkMyStudentNumberResult {
 }
 
 /// What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
-/// able to spend the token. Deliberately carries no Sisu-held names.
+/// able to spend the token.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct StudentNumberVerificationTokenPreview {
     pub student_number: String,
+    /// The name Sisu holds for the student number. Sisu does not verify the address the link was
+    /// mailed to, so the name is what tells someone they are about to link someone else's number.
+    /// `None` unless `claimable`.
+    pub sisu_full_name: Option<String>,
     pub course_name: Option<String>,
     pub emailed_to_masked: String,
     pub expires_at: DateTime<Utc>,
@@ -182,7 +205,19 @@ pub struct StudentNumberVerificationTokenPreview {
     pub current_student_number: Option<String>,
     /// Shown in the confirmation: being signed in to the wrong account is the common mistake.
     pub target_account_email: String,
+    /// The signed-in account's name, `None` when it has none.
+    pub target_account_name: Option<String>,
+    /// The name the account must take on claiming; `None` when it already uses Sisu's or the link is
+    /// not `claimable`.
+    pub name_change: Option<NameReplacement>,
     pub claimable: bool,
+}
+
+/// The answer to the confirmation page's name question.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+pub struct ClaimStudentNumberVerificationTokenRequest {
+    /// One of the preview's `name_change.first_name_options`; required when it has a `name_change`.
+    pub first_name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
@@ -446,7 +481,7 @@ pub async fn get_credit_registration_settings(
 ) -> ControllerResult<web::Json<CreditRegistrationSettings>> {
     let token = skip_authorize();
     token.authorized_ok(web::Json(CreditRegistrationSettings {
-        account_linking_enabled: app_conf.suotar_configuration.account_linking_enabled,
+        account_linking_enabled: app_conf.suotar_configuration.is_account_linking_enabled(),
     }))
 }
 
@@ -555,13 +590,16 @@ pub async fn preview_student_number_verification_token(
     let conflict = find_conflicting_account(&mut conn, &verification_token, user.id).await?;
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
-
     let expired =
         verification_token.expires_at <= Utc::now() || verification_token.deleted_at.is_some();
     let already_used = verification_token.used_at.is_some();
+    let claimable = !expired && !already_used && !conflict;
+    // A dead link may have been forwarded, so it no longer shows whose number it is.
+    let name_change = name_replacement(&verification_token, &details).filter(|_| claimable);
 
     auth_token.authorized_ok(web::Json(StudentNumberVerificationTokenPreview {
         student_number: verification_token.student_number.expose_secret().to_owned(),
+        sisu_full_name: full_name(&verification_token).filter(|_| claimable),
         course_name,
         emailed_to_masked: mask_email(verification_token.emailed_to.expose_secret()),
         expires_at: verification_token.expires_at,
@@ -571,8 +609,13 @@ pub async fn preview_student_number_verification_token(
         conflicts_with_other_account: conflict,
         current_student_number: current_link
             .map(|link| link.student_number.expose_secret().to_owned()),
+        target_account_name: joined_name(
+            details.first_name.as_deref(),
+            details.last_name.as_deref(),
+        ),
         target_account_email: details.email,
-        claimable: !expired && !already_used && !conflict,
+        name_change,
+        claimable,
     }))
 }
 
@@ -581,17 +624,20 @@ POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{t
 a mailed link and links the student number to the signed-in account.
 
 Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
-and the session says which of our accounts the person wants to use.
+and the session says which of our accounts the person wants to use. The account's name is set to
+Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
 */
-#[instrument(skip(pool, path))]
+#[instrument(skip(pool, path, payload, tmc_client, app_conf))]
 #[utoipa::path(
     post,
     path = "/student-number-verifications/{token}/claim",
     operation_id = "claimStudentNumberVerificationToken",
     tag = "credit-registrations",
     params(("token" = String, Path, description = "The mailed verification token")),
+    request_body = ClaimStudentNumberVerificationTokenRequest,
     responses(
         (status = 200, description = "What the claim did", body = ClaimStudentNumberVerificationTokenResult),
+        (status = 400, description = "The first name is not one the preview offered"),
         (status = 404, description = "No such token")
     )
 )]
@@ -599,6 +645,9 @@ pub async fn claim_student_number_verification_token(
     user: AuthUser,
     pool: web::Data<PgPool>,
     path: web::Path<String>,
+    payload: web::Json<ClaimStudentNumberVerificationTokenRequest>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ClaimStudentNumberVerificationTokenResult>> {
     let mut conn = pool.acquire().await?;
     let auth_token = skip_authorize();
@@ -627,6 +676,24 @@ pub async fn claim_student_number_verification_token(
         )));
     }
 
+    let details = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
+    let new_name = name_replacement(&verification_token, &details)
+        .map(|replacement| {
+            let first_name = payload
+                .first_name
+                .clone()
+                .filter(|first_name| replacement.allows(first_name))
+                .ok_or_else(|| {
+                    ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        "The first name must be one of those the preview offered.",
+                        None,
+                    )
+                })?;
+            Ok::<_, ControllerError>((first_name, replacement.last_name))
+        })
+        .transpose()?;
+
     let course_name = course_name_of_token(&mut conn, &verification_token).await?;
     let current_link = verified_student_numbers::get_by_user_id(&mut conn, user.id).await?;
     let already_ours = current_link.as_ref().is_some_and(|link| {
@@ -643,24 +710,54 @@ pub async fn claim_student_number_verification_token(
             ClaimStudentNumberVerificationTokenOutcome::AlreadyUsed,
         )));
     }
-    if already_ours {
-        tx.commit().await?;
-        return auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
-            outcome: ClaimStudentNumberVerificationTokenOutcome::AlreadyLinkedToThisAccount,
-            student_number: Some(verification_token.student_number.expose_secret().to_owned()),
-            linked_course_name: course_name,
-            newly_unblocked_registration_count: 0,
-        }));
+    let newly_unblocked_registration_count = if already_ours {
+        0
+    } else {
+        link_token_student_number(&mut tx, &verification_token, current_link, user.id).await?
+    };
+    if let Some((first_name, last_name)) = &new_name {
+        models::user_details::update_user_name(&mut tx, user.id, first_name, last_name).await?;
+        // Last before the commit: TMC cannot be rolled back, so nothing that may fail comes after it.
+        crate::controllers::auth::update_user_information_to_tmc(
+            user.upstream_id(),
+            first_name.clone(),
+            last_name.clone(),
+            None,
+            &tmc_client,
+            &app_conf,
+        )
+        .await?;
     }
+    tx.commit().await?;
 
+    auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
+        outcome: if already_ours {
+            ClaimStudentNumberVerificationTokenOutcome::AlreadyLinkedToThisAccount
+        } else {
+            ClaimStudentNumberVerificationTokenOutcome::Linked
+        },
+        student_number: Some(verification_token.student_number.expose_secret().to_owned()),
+        linked_course_name: course_name,
+        newly_unblocked_registration_count,
+    }))
+}
+
+/// Links the token's student number to `user_id`, replacing `current_link`, and returns how many
+/// registrations that unblocked.
+async fn link_token_student_number(
+    conn: &mut PgConnection,
+    verification_token: &StudentNumberVerificationToken,
+    current_link: Option<VerifiedStudentNumber>,
+    user_id: Uuid,
+) -> Result<i64, ControllerError> {
     // A student who changed programmes has a new number; the old link is retired, not deleted, so the
     // audit trail survives.
     let (_, newly_unblocked_registration_count) =
         verified_student_numbers::replace_verified_student_number(
-            &mut tx,
+            conn,
             current_link.map(|link| link.id),
             &NewVerifiedStudentNumber {
-                user_id: user.id,
+                user_id,
                 student_number: verification_token.student_number.clone(),
                 sisu_person_id: verification_token.sisu_person_id.clone(),
                 first_names: verification_token.first_names.clone(),
@@ -671,7 +768,7 @@ pub async fn claim_student_number_verification_token(
                 link_reason: None,
                 verified_from_course_id: verification_token.course_id,
             },
-            Some(user.id),
+            Some(user_id),
             CreditRegistrationEventKind::StudentAction,
             "The student linked a student number.",
         )
@@ -679,22 +776,14 @@ pub async fn claim_student_number_verification_token(
     // The mail went out because the course roster lists them, which proves an enrolment.
     if let Some(course_id) = verification_token.course_id {
         credit_registration_enrolment_check_signals::record_account_link_for_course(
-            &mut tx, user.id, course_id,
+            conn, user_id, course_id,
         )
         .await?;
     }
-    tx.commit().await?;
-
-    auth_token.authorized_ok(web::Json(ClaimStudentNumberVerificationTokenResult {
-        outcome: ClaimStudentNumberVerificationTokenOutcome::Linked,
-        student_number: Some(verification_token.student_number.expose_secret().to_owned()),
-        linked_course_name: course_name,
-        newly_unblocked_registration_count,
-    }))
+    Ok(newly_unblocked_registration_count)
 }
 
-/// Assembles the wire rows for one account, adding the enrolment link and the linking-mail status the
-/// ledger does not carry.
+/// Assembles the wire rows for one account, adding the linking-mail status the ledger does not carry.
 async fn build_my_credit_registrations(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -710,7 +799,7 @@ async fn build_my_credit_registrations(
     let mut res = Vec::with_capacity(rows.len());
     for row in rows {
         let state = row.state;
-        let status = if row.is_requested_check_unanswered() {
+        let status = if row.is_prompted_check_unanswered() {
             StudentFacingCreditRegistrationStatus::LookingForEnrolment
         } else {
             StudentFacingCreditRegistrationStatus::of(
@@ -718,11 +807,6 @@ async fn build_my_credit_registrations(
                 row.preconditions(),
                 row.enrolment_resolved,
             )
-        };
-        let enrolment_link = if status == StudentFacingCreditRegistrationStatus::NeedsEnrolment {
-            row.enrolment_link.clone()
-        } else {
-            None
         };
         let linking_email = if status == StudentFacingCreditRegistrationStatus::NeedsStudentNumber {
             resolve_linking_email(conn, user_id, &row, &mut linking_mails).await?
@@ -734,7 +818,6 @@ async fn build_my_credit_registrations(
         res.push(to_my_credit_registration(
             row,
             status,
-            enrolment_link,
             linking_email,
             notification_email,
         ));
@@ -745,7 +828,6 @@ async fn build_my_credit_registrations(
 fn to_my_credit_registration(
     row: StudentCreditRegistration,
     status: StudentFacingCreditRegistrationStatus,
-    enrolment_link: Option<String>,
     linking_email: Option<LinkingEmailStatus>,
     notification_email: Option<NotificationEmailStatus>,
 ) -> MyCreditRegistration {
@@ -786,7 +868,7 @@ fn to_my_credit_registration(
         submitted_at: row.submitted_at,
         is_processing_in_sisu: status == StudentFacingCreditRegistrationStatus::WaitingForSisu
             && row.is_partially_registered,
-        enrolment_link,
+        enrolment_link: row.enrolment_link,
         linking_email,
         notification_email,
     }
@@ -797,6 +879,7 @@ fn to_my_credit_registration(
 struct LinkingMailCache {
     mails: Vec<CreditRegistrationAccountLinkingEmail>,
     reports: HashMap<Uuid, EmailSendStatusReport>,
+    link_states: HashMap<Uuid, LinkingMailLinkState>,
 }
 
 /// The latest linking mail for this account's Sisu person on this course. `None` for an account that
@@ -808,9 +891,12 @@ async fn resolve_linking_email(
     cache: &mut Option<LinkingMailCache>,
 ) -> Result<Option<LinkingEmailStatus>, ControllerError> {
     if cache.is_none() {
+        // Only a number proven through its Sisu mailbox is known to be this student's; mails found
+        // through any other unlinked number may be someone else's.
         let mails =
             match verified_student_numbers::get_latest_including_deleted_by_user_id(conn, user_id)
                 .await?
+                .filter(|link| link.verified_via == StudentNumberVerificationMethod::EmailedLink)
                 .and_then(|link| link.sisu_person_id)
             {
                 Some(person_id) => {
@@ -825,7 +911,13 @@ async fn resolve_linking_email(
         let ids: Vec<Uuid> = mails.iter().map(|mail| mail.id).collect();
         let reports =
             credit_registration_account_linking_emails::get_send_status_reports(conn, &ids).await?;
-        *cache = Some(LinkingMailCache { mails, reports });
+        let link_states =
+            credit_registration_account_linking_emails::get_link_states(conn, &ids).await?;
+        *cache = Some(LinkingMailCache {
+            mails,
+            reports,
+            link_states,
+        });
     }
     let cache = cache.as_ref().ok_or_else(|| {
         controller_err!(
@@ -833,20 +925,30 @@ async fn resolve_linking_email(
             "linking mail cache was not populated".to_string()
         )
     })?;
-    let Some(mail) = cache
+    let mut course_mails = cache
         .mails
         .iter()
-        .find(|mail| mail.course_id == row.course_id)
-    else {
+        .filter(|mail| mail.course_id == row.course_id);
+    let Some(mail) = course_mails.next() else {
         return Ok(None);
     };
     let Some(report) = cache.reports.get(&mail.id) else {
         return Ok(None);
     };
+    let mail_count = 1 + course_mails.count() as i64;
+    let link_state = match cache.link_states.get(&mail.id) {
+        Some(LinkingMailLinkState::Usable) => LinkingEmailLinkState::Usable,
+        Some(LinkingMailLinkState::Used) => LinkingEmailLinkState::Used,
+        _ if mail_count < MAX_LINKING_MAILS_PER_PERSON_AND_COURSE => {
+            LinkingEmailLinkState::ExpiredCanResend
+        }
+        _ => LinkingEmailLinkState::ExpiredNoResend,
+    };
     Ok(Some(LinkingEmailStatus {
         email_send_status: report.email_send_status,
         sent_at: report.sent_at,
         emailed_to_masked: mask_email(mail.emailed_to.expose_secret()),
+        link_state,
     }))
 }
 
@@ -893,6 +995,38 @@ async fn course_name_of_token(
     };
     let course = models::courses::get_course(conn, course_id).await?;
     Ok(Some(course.name))
+}
+
+/// The first names and last name Sisu held when the token was minted, or `None` when it held neither.
+fn full_name(token: &StudentNumberVerificationToken) -> Option<String> {
+    joined_name(
+        expose_option(&token.first_names),
+        expose_option(&token.last_name),
+    )
+}
+
+/// `first` and `last` as one display name, or `None` when both are blank.
+fn joined_name(first: Option<&str>, last: Option<&str>) -> Option<String> {
+    let parts: Vec<&str> = [first, last]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect();
+    (!parts.is_empty()).then(|| parts.join(" "))
+}
+
+/// The name claiming `token` gives the account described by `details`; `None` keeps its name.
+fn name_replacement(
+    token: &StudentNumberVerificationToken,
+    details: &UserDetail,
+) -> Option<NameReplacement> {
+    sisu_name::align(
+        expose_option(&token.first_names),
+        expose_option(&token.last_name),
+        details.first_name.as_deref(),
+        details.last_name.as_deref(),
+    )
 }
 
 /// The caller's answer about where they enrol one module, and whether it can still be changed.
@@ -1088,10 +1222,10 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_mod
 
 Counts as a check request: a waiting registration restarts its checks on the check-requested
 schedule, under the limit every check request shares. Recorded against the completion too, so a
-registration that starts waiting later starts on that schedule. With account linking on, a caller
-with no linked student number books a roster listing of the course code instead.
+registration that starts waiting later starts on that schedule. For a caller with no linked
+student number, it also makes the course code's enrolment list due sooner.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-route/confirm",
@@ -1105,7 +1239,6 @@ with no linked student number books a roster listing of the course code instead.
 pub async fn confirm_my_enrolment(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
     let mut conn = pool.acquire().await?;
@@ -1146,19 +1279,12 @@ pub async fn confirm_my_enrolment(
             .await?;
         }
         _ => {
-            // No row waits yet: a row that starts waiting takes its group from the signal.
+            // No row waits yet: a row that starts waiting takes its group from the signal, and an
+            // unlinked student's signal makes their course code's enrolment list due.
             credit_registration_enrolment_check_signals::record_check_request(
                 &mut conn,
                 current.course_module_completion_id,
                 EnrolmentCheckSource::StudentRequest,
-            )
-            .await?;
-            book_roster_listing_for_unlinked_student(
-                &mut conn,
-                &app_conf,
-                user.id,
-                *course_module_id,
-                false,
             )
             .await?;
         }
@@ -1303,10 +1429,11 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_mod
 
 Moves a waiting registration onto the schedule for students who have looked, or restarts that
 schedule at most once a day. Recorded against the completion too, so a visit before there is a
-registration, or before a student number is linked, still counts once there is. Idempotent enough
-to call on every page load; the page sends it once per load.
+registration, or before a student number is linked, still counts once there is; an unlinked
+caller's visit also makes the course code's enrolment list due sooner. Idempotent enough to call on
+every page load; the page sends it once per load.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/my/by-course-module/{course_module_id}/enrolment-page-visit",
@@ -1321,7 +1448,6 @@ to call on every page load; the page sends it once per load.
 pub async fn record_my_enrolment_page_visit(
     user: AuthUser,
     pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
     course_module_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
@@ -1337,48 +1463,18 @@ pub async fn record_my_enrolment_page_visit(
     {
         return token.authorized_ok(web::Json(()));
     }
-    let previous_visit_at = credit_registration_enrolment_check_signals::record_visit(
+    credit_registration_enrolment_check_signals::record_visit(
         &mut conn,
         course_module_completion_id,
     )
     .await?;
-    match registration {
-        Some(registration) if registration.is_waiting_for_enrolment() => {
-            enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
-        }
-        _ => {
-            // Each unlinked visitor asks for a listing at most once a day.
-            let today = Utc::now().date_naive();
-            if previous_visit_at.is_none_or(|visited| visited.date_naive() != today) {
-                book_roster_listing_for_unlinked_student(
-                    &mut conn,
-                    &app_conf,
-                    user.id,
-                    *course_module_id,
-                    true,
-                )
-                .await?;
-            }
-        }
+    if let Some(registration) = registration
+        && registration.is_waiting_for_enrolment()
+    {
+        enrolment_checks::record_visit(&mut conn, registration.id, Utc::now()).await?;
     }
 
     token.authorized_ok(web::Json(()))
-}
-
-/// With account linking on, books a roster listing for a student we hold no number for; see
-/// [`book_listing_for_unlinked_student`].
-async fn book_roster_listing_for_unlinked_student(
-    conn: &mut PgConnection,
-    app_conf: &ApplicationConfiguration,
-    user_id: Uuid,
-    course_module_id: Uuid,
-    is_visit: bool,
-) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.account_linking_enabled {
-        return Ok(());
-    }
-    book_listing_for_unlinked_student(conn, user_id, course_module_id, is_visit).await?;
-    Ok(())
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -1403,6 +1499,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .service(
             web::resource("/my/by-course-module/{course_module_id}/enrolment-route/confirm")
+                .wrap(
+                    RateLimit::new(RateLimitConfig {
+                        per_minute: Some(5),
+                        per_hour: Some(30),
+                        ..Default::default()
+                    })
+                    .keyed_by(RateLimitKey::User),
+                )
                 .route(web::post().to(confirm_my_enrolment))
                 .route(web::delete().to(withdraw_my_enrolment_confirmation)),
         )

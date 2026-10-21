@@ -1,8 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { Trans } from "react-i18next"
 
-import { ABSENT } from "@/components/credit-registration/constants"
+import AbsentValue from "@/components/credit-registration/AbsentValue"
+import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import { timeZoneOffsetString } from "@/shared-module/common/utils/time"
 import { formatTimestamp } from "@/shared-module/components/lib/utils/relativeTimeFormat"
 
@@ -10,17 +12,52 @@ import { formatTimestamp } from "@/shared-module/components/lib/utils/relativeTi
 const DATE_LENGTH = 10
 const TIME_START = 11
 
+// Timestamps land in translated sentences and table cells as plain strings, where a line can break
+// at a space or after a hyphen; a range may still break after its dash.
+const NO_BREAK_SPACE = "\u00A0"
+// Not U+2011: Inter lacks it, and the fallback glyph is narrower than a hyphen.
+const WORD_JOINER = "\u2060"
+
+const unbroken = (text: string): string =>
+  text.replaceAll(" ", NO_BREAK_SPACE).replaceAll("-", `-${WORD_JOINER}`)
+
+const PLAIN_TEXT = "text/plain"
+const HTML = "text/html"
+// What `innerHTML` writes for U+00A0.
+const NBSP_ENTITY = "&nbsp;"
+
+/** `onCopy` handler that strips the word joiners and no-break spaces, so copies paste into a search or psql. */
+export const cleanTimestampsOnCopy = (event: React.ClipboardEvent) => {
+  const selection = window.getSelection()
+  const text = selection?.toString() ?? ""
+  if (!selection || (!text.includes(WORD_JOINER) && !text.includes(NO_BREAK_SPACE))) {
+    return
+  }
+  event.preventDefault()
+  event.clipboardData.setData(
+    PLAIN_TEXT,
+    text.replaceAll(WORD_JOINER, "").replaceAll(NO_BREAK_SPACE, " "),
+  )
+  const container = document.createElement("div")
+  for (let index = 0; index < selection.rangeCount; index++) {
+    container.append(selection.getRangeAt(index).cloneContents())
+  }
+  event.clipboardData.setData(
+    HTML,
+    container.innerHTML.replaceAll(WORD_JOINER, "").replaceAll(NBSP_ENTITY, " "),
+  )
+}
+
 const nowrapCss = css`
   white-space: nowrap;
 `
 
 /** `2026-09-29 13:43:37 (UTC+3)`: an absolute timestamp with its zone spelled out. */
 export function formatZonedTimestamp(at: Date): string {
-  return `${formatTimestamp(at)} (${timeZoneOffsetString(at)})`
+  return unbroken(`${formatTimestamp(at)} (${timeZoneOffsetString(at)})`)
 }
 
-/** `2026-09-29 13:05:12–13:43:37 (UTC+3)`; both full when the range spans days or a clock change. */
-export function formatZonedTimeRange(from: Date, to: Date): string {
+const zonedTimeRangeEnds = (from: Date, to: Date): [string, string] => {
   const start = formatTimestamp(from)
   const end = formatTimestamp(to)
   const offset = timeZoneOffsetString(to)
@@ -28,15 +65,33 @@ export function formatZonedTimeRange(from: Date, to: Date): string {
     start.slice(0, DATE_LENGTH) !== end.slice(0, DATE_LENGTH) ||
     timeZoneOffsetString(from) !== offset
   ) {
-    return `${formatZonedTimestamp(from)}–${formatZonedTimestamp(to)}`
+    return [formatZonedTimestamp(from), formatZonedTimestamp(to)]
   }
-  return `${start}–${end.slice(TIME_START)} (${offset})`
+  return [unbroken(start), unbroken(`${end.slice(TIME_START)} (${offset})`)]
 }
 
-/** A `<time>` showing an absolute timestamp with its zone; `ABSENT` when there is none. */
+/** `2026-09-29 13:05:12–13:43:37 (UTC+3)`; both full when the range spans days or a clock change. */
+export function formatZonedTimeRange(from: Date, to: Date): string {
+  const [start, end] = zonedTimeRangeEnds(from, to)
+  return `${start}–${end}`
+}
+
+/** A `<time>` showing `formatZonedTimeRange`, which may break only after its dash. */
+export const ZonedTimeRange: React.FC<{ from: string; to: string }> = ({ from, to }) => {
+  const [start, end] = zonedTimeRangeEnds(new Date(from), new Date(to))
+  return (
+    <time dateTime={from}>
+      <span className={nowrapCss}>{`${start}–`}</span>
+      <wbr />
+      <span className={nowrapCss}>{end}</span>
+    </time>
+  )
+}
+
+/** A `<time>` showing an absolute timestamp with its zone; a muted mark when there is none. */
 export const ZonedTimestamp: React.FC<{ at: string | null | undefined }> = ({ at }) => {
   if (!at) {
-    return <span>{ABSENT}</span>
+    return <AbsentValue />
   }
   return (
     <time className={nowrapCss} dateTime={at}>
@@ -44,3 +99,23 @@ export const ZonedTimestamp: React.FC<{ at: string | null | undefined }> = ({ at
     </time>
   )
 }
+
+/** The translations with a `<time/>` tag. */
+type TimestampSentenceKey =
+  | "credit-registration-admin-journey-sisu-enrolment-time"
+  | "credit-registration-admin-link-usable-until"
+  | "credit-registration-admin-link-used-at"
+  | "credit-registration-admin-status-enrolment-checks-stopped"
+  | "credit-registration-admin-status-next-attempt"
+  | "credit-registration-admin-status-next-enrolment-list-fetch"
+  | "credit-registration-admin-status-next-sisu-check"
+  | "credit-registration-admin-status-registered"
+
+/** The `i18nKey` sentence with its `<time/>` tag rendered as a `ZonedTimestamp` of `at`. */
+export const sentenceWithTimestamp = (
+  t: CreditRegistrationTFunction,
+  i18nKey: TimestampSentenceKey,
+  at: string,
+): React.ReactElement => (
+  <Trans t={t} i18nKey={i18nKey} components={{ time: <ZonedTimestamp at={at} /> }} />
+)

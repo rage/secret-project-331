@@ -33,6 +33,13 @@ pub enum CreditRegistrationAdminAction {
     UnlinkStudentNumber,
     ManualLinkStudentNumber,
     OverrideRateCap,
+    RequestEnrolmentListFetch,
+    DismissStudyRegistryConflict,
+    /// Took a registration off the Needs attention queue; `details.attention_reasons` holds what the
+    /// dismissal covers. Not `mark_resolved`, which clears the pipeline's own flag.
+    DismissAttention,
+    /// A note on a registration for whoever handles it next; the note is the `reason`.
+    AddNote,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
@@ -48,6 +55,8 @@ pub enum CreditRegistrationAdminActionTarget {
     Phase,
     VerifiedStudentNumber,
     StudentNumberVerificationToken,
+    RosterSchedule,
+    StudyRegistryStudentNumberConflict,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -159,7 +168,8 @@ RETURNING id
     Ok(res.id)
 }
 
-/// Backs the per-actor guard on the resend endpoints: one person's actions of one kind in a window.
+/// Backs the per-actor guard on the teacher resend endpoint: one person's actions of one kind in a
+/// window.
 pub async fn count_by_actor_since(
     conn: &mut PgConnection,
     actor_user_id: Uuid,
@@ -184,31 +194,140 @@ WHERE actor_user_id = $1
     Ok(count)
 }
 
-/// Backs the admin resend endpoint's own quiet period. Unlike `count_by_actor_since`, a refused
-/// attempt (no mail sent) doesn't count: otherwise a refusal would block the immediate
-/// override-and-retry the rate cap's own "send anyway" option exists to offer.
-pub async fn count_queued_resends_by_actor_since(
+/// A linking email an admin or a teacher sent by hand: a `resend_link_email` action that queued one.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ManualLinkingEmailSend {
+    pub sent_at: DateTime<Utc>,
+    pub student_number: Option<String>,
+    /// The registration whose student the email was a guess for.
+    pub credit_registration_id: Option<Uuid>,
+    pub sent_by_user_id: Uuid,
+    pub sent_by_first_name: Option<String>,
+    pub sent_by_last_name: Option<String>,
+    pub sent_by_email: Option<String>,
+    /// In full. `None` when the action recorded no address and no ledger row matched it.
+    pub emailed_to: Option<String>,
+}
+
+/// The linking emails sent by hand on these courses, newest first.
+///
+/// An action without `details.emailed_to`, as the earliest ones are, is matched to the ledger row its
+/// send claimed: the newest one for the same course and student number claimed at most a minute before
+/// the action. The per person and course quiet period leaves no other row in that window.
+pub async fn get_manual_linking_email_sends(
     conn: &mut PgConnection,
-    actor_user_id: Uuid,
-    since: DateTime<Utc>,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<ManualLinkingEmailSend>> {
+    let res = sqlx::query_as!(
+        ManualLinkingEmailSend,
         r#"
-SELECT COUNT(*) AS "count!"
-FROM credit_registration_admin_actions
-WHERE actor_user_id = $1
-  AND action = $2
-  AND details ->> 'outcome' = 'queued'
-  AND created_at >= $3
-  AND deleted_at IS NULL
+SELECT a.created_at AS sent_at,
+  a.details->>'student_number' AS "student_number?",
+  CASE
+    WHEN a.details->>'credit_registration_id' ~ '^[0-9a-fA-F-]{36}$' THEN (a.details->>'credit_registration_id')::uuid
+  END AS "credit_registration_id?",
+  a.actor_user_id AS sent_by_user_id,
+  ud.first_name AS "sent_by_first_name?",
+  ud.last_name AS "sent_by_last_name?",
+  ud.email AS "sent_by_email?",
+  COALESCE(a.details->>'emailed_to', claimed.emailed_to) AS "emailed_to?"
+FROM credit_registration_admin_actions a
+  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id
+  LEFT JOIN LATERAL (
+    SELECT e.emailed_to
+    FROM credit_registration_account_linking_emails e
+    WHERE a.details->>'emailed_to' IS NULL
+      AND e.course_id = a.target_id
+      AND e.student_number = a.details->>'student_number'
+      AND e.sent_at <= a.created_at
+      AND e.sent_at > a.created_at - INTERVAL '1 minute'
+    ORDER BY e.sent_at DESC
+    LIMIT 1
+  ) claimed ON TRUE
+WHERE a.target_kind = 'course'
+  AND a.target_id = ANY($1)
+  AND a.action = 'resend_link_email'
+  AND a.details->>'outcome' = 'queued'
+  AND a.deleted_at IS NULL
+ORDER BY a.created_at DESC,
+  a.id
         "#,
-        actor_user_id,
-        CreditRegistrationAdminAction::ResendLinkEmail as CreditRegistrationAdminAction,
-        since,
+        course_ids,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(count)
+    Ok(res)
+}
+
+/// A note an admin left on a registration for whoever handles it next.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationNote {
+    pub id: Uuid,
+    pub credit_registration_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub note: String,
+    pub written_by_user_id: Uuid,
+    pub written_by_first_name: Option<String>,
+    pub written_by_last_name: Option<String>,
+    pub written_by_email: Option<String>,
+}
+
+/// The notes on these registrations, newest first.
+pub async fn get_notes_by_registrations(
+    conn: &mut PgConnection,
+    credit_registration_ids: &[Uuid],
+) -> ModelResult<Vec<CreditRegistrationNote>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationNote,
+        r#"
+SELECT a.id,
+  a.target_id AS "credit_registration_id!",
+  a.created_at,
+  a.reason AS "note!",
+  a.actor_user_id AS written_by_user_id,
+  ud.first_name AS "written_by_first_name?",
+  ud.last_name AS "written_by_last_name?",
+  ud.email AS "written_by_email?"
+FROM credit_registration_admin_actions a
+  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id
+WHERE a.target_kind = 'credit_registration'
+  AND a.target_id = ANY($1)
+  AND a.action = 'add_note'
+  AND a.reason IS NOT NULL
+  AND a.deleted_at IS NULL
+ORDER BY a.created_at DESC,
+  a.id
+        "#,
+        credit_registration_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The distinct reasons given for `action`, most recently used first.
+pub async fn get_earlier_reasons(
+    conn: &mut PgConnection,
+    action: CreditRegistrationAdminAction,
+    limit: i64,
+) -> ModelResult<Vec<String>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT TRIM(reason) AS "reason!"
+FROM credit_registration_admin_actions
+WHERE action = $1
+  AND TRIM(reason) <> ''
+  AND deleted_at IS NULL
+GROUP BY TRIM(reason)
+ORDER BY MAX(created_at) DESC
+LIMIT $2
+        "#,
+        action as CreditRegistrationAdminAction,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 /// The narrowings the Audit tab applies, all of them in SQL.
@@ -222,6 +341,9 @@ pub struct CreditRegistrationAdminActionFilters<'a> {
     pub target_kind: Option<CreditRegistrationAdminActionTarget>,
     pub target_id: Option<Uuid>,
     pub target_phase: Option<&'a str>,
+    /// Every action about this student, whatever its target: their registrations, their student
+    /// number links and tokens, and actions that name them or their student number in `details`.
+    pub user_id: Option<Uuid>,
     /// Matches the course a teacher's permission authorised and a course-targeted action alike.
     pub course_id: Option<Uuid>,
     pub from: Option<DateTime<Utc>>,
@@ -288,8 +410,20 @@ FROM credit_registration_admin_actions a
   AND a.target_kind = 'credit_registration'
   LEFT JOIN verified_student_numbers tvsn ON tvsn.id = a.target_id
   AND a.target_kind = 'verified_student_number'
+  LEFT JOIN student_number_verification_tokens ttok ON ttok.id = a.target_id
+  AND a.target_kind = 'student_number_verification_token'
+  LEFT JOIN study_registry_student_number_conflicts tconf ON tconf.id = a.target_id
+  AND a.target_kind = 'study_registry_student_number_conflict'
   CROSS JOIN LATERAL (
-    SELECT COALESCE(tcr.user_id, tvsn.user_id) AS user_id
+    SELECT COALESCE(
+        tcr.user_id,
+        tvsn.user_id,
+        ttok.claimed_by_user_id,
+        tconf.user_id,
+        CASE
+          WHEN a.details->>'user_id' ~ '^[0-9a-fA-F-]{36}$' THEN (a.details->>'user_id')::uuid
+        END
+      ) AS user_id
   ) target_user
   LEFT JOIN user_details tud ON tud.user_id = target_user.user_id
   LEFT JOIN courses c ON c.id = COALESCE(
@@ -322,6 +456,15 @@ WHERE a.deleted_at IS NULL
   )
   AND ($8::timestamptz IS NULL OR a.created_at >= $8)
   AND ($9::timestamptz IS NULL OR a.created_at <= $9)
+  AND (
+    $12::uuid IS NULL
+    OR target_user.user_id = $12
+    OR a.details->>'student_number' IN (
+      SELECT linked.student_number
+      FROM verified_student_numbers linked
+      WHERE linked.user_id = $12
+    )
+  )
 ORDER BY a.created_at DESC,
   a.id
 LIMIT $10 OFFSET $11
@@ -337,6 +480,7 @@ LIMIT $10 OFFSET $11
         filters.to,
         limit,
         offset,
+        filters.user_id,
     )
     .fetch_all(conn)
     .await?;

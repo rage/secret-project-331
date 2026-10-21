@@ -5805,6 +5805,16 @@
         "type": "object",
         "required": ["feedback_given", "related_blocks", "page_id"],
         "properties": {
+          "category": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NewFeedbackCategory"
+              }
+            ]
+          },
           "feedback_given": {
             "type": "string"
           },
@@ -5820,6 +5830,15 @@
           },
           "selected_text": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "NewFeedbackCategory": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -7208,9 +7227,6 @@
           "last_name": {
             "type": ["string", "null"]
           },
-          "search_helper": {
-            "type": ["string", "null"]
-          },
           "updated_at": {
             "type": "string",
             "format": "date-time"
@@ -7322,8 +7338,7 @@
           "name",
           "order_number",
           "prerequisite_modules_completed",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar",
+          "registers_credits",
           "register_credits_via_suotar",
           "certification_enabled"
         ],
@@ -7339,12 +7354,6 @@
             "type": "boolean"
           },
           "default": {
-            "type": "boolean"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
             "type": "boolean"
           },
           "grade": {
@@ -7371,6 +7380,10 @@
           "register_credits_via_suotar": {
             "type": "boolean",
             "description": "Whether the module's registration flow is the push path, decided by\n[`course_module_completions::select_registration_completion`] rather than by the shown\ncompletion. False when no completion is shown."
+          },
+          "registers_credits": {
+            "type": "boolean",
+            "description": "Whether the module has a course code, without which its completions are never registered."
           }
         }
       },

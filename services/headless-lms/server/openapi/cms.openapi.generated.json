@@ -2055,9 +2055,7 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "certification_enabled",
-          "enable_credit_registration_via_suotar"
+          "certification_enabled"
         ],
         "properties": {
           "certification_enabled": {
@@ -2089,12 +2087,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -2311,7 +2303,15 @@
       "ExerciseServiceIframeRenderingInfo": {
         "type": "object",
         "description": "Exercise service definition that the CMS can use to render the editor view.",
-        "required": ["id", "name", "slug", "public_iframe_url", "has_custom_view"],
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "public_iframe_url",
+          "has_custom_view",
+          "is_global_admin_only",
+          "is_experimental"
+        ],
         "properties": {
           "has_custom_view": {
             "type": "boolean"
@@ -2319,6 +2319,14 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "name": {
             "type": "string"

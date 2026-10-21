@@ -23,14 +23,14 @@ export default function OrganizationLayout({ children }: { children: React.React
 
   const crumbs = useMemo(
     () => [
-      orgQuery.data?.name
+      orgQuery.data
         ? {
             isLoading: false as const,
-            label: orgQuery.data.name,
-            href: organizationFrontPageRoute(orgQuery.data?.slug ?? ""),
+            label: orgQuery.data.name || orgQuery.data.slug,
+            href: organizationFrontPageRoute(orgQuery.data.slug),
           }
         : { isLoading: true as const },
-      orgQuery.data?.name
+      orgQuery.data
         ? {
             isLoading: false as const,
             label: t("manage"),
@@ -38,7 +38,7 @@ export default function OrganizationLayout({ children }: { children: React.React
           }
         : { isLoading: true as const },
     ],
-    [orgQuery.data?.slug, orgQuery.data?.name, id, t],
+    [orgQuery.data, id, t],
   )
 
   useRegisterBreadcrumbs({ key: `organization:${id}`, order: 20, crumbs })

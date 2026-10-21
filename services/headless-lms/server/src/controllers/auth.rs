@@ -7,20 +7,19 @@ use crate::{
     OAuthClient,
     domain::{
         authentication,
-        authorization::{ActionOnResource, is_permitted, is_user_global_admin, skip_authorize},
+        authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
     },
     prelude::*,
 };
 use actix_session::Session;
-use anyhow::Error;
 use anyhow::anyhow;
 use chrono::Duration;
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
-    user_email_codes::UserEmailCodePurpose, user_passwords, users,
+    user_email_codes::UserEmailCodePurpose, users,
 };
 use headless_lms_utils::{
     cache::Cache,
@@ -488,7 +487,7 @@ pub async fn login(
 
     // Development mode UUID login (allows logging in with a user ID string)
     if app_conf.development_uuid_login {
-        return handle_uuid_login(&session, &mut conn, &email, &app_conf).await;
+        return handle_uuid_login(&session, &mut conn, &email).await;
     }
 
     // Test mode: authenticate using seeded test credentials or stored password
@@ -496,41 +495,56 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    return handle_production_login(
-        &session,
-        &mut conn,
-        &client,
-        &tmc_client,
-        &email,
-        &password,
-        &app_conf,
-    )
-    .await;
+    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
+        .await;
 }
 
 async fn handle_uuid_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Trying development mode UUID login");
     let token = skip_authorize();
 
     if let Ok(id) = Uuid::parse_str(email) {
         let user = { models::users::get_by_id(conn, id).await? };
-        let is_admin = is_user_global_admin(conn, user.id).await?;
-
-        if app_conf.enable_admin_email_verification && is_admin {
-            return handle_email_verification(conn, &user).await;
-        }
-
         authentication::remember(session, user)?;
         token.authorized_ok(web::Json(LoginResponse::Success))
     } else {
         warn!("Authentication failed");
         token.authorized_ok(web::Json(LoginResponse::Failed))
     }
+}
+
+/// Verifies `password` for `user_id`, trying the seeded test-mode credentials before falling
+/// back to the stored password hash.
+///
+/// Seeded test users (e.g. `admin@example.com`) have no `user_passwords` row, so outside test
+/// mode this always falls through to `verify_user_password`.
+async fn authenticate_by_password(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email: &str,
+    password: &SecretString,
+    app_conf: &ApplicationConfiguration,
+) -> Result<bool, ControllerError> {
+    if app_conf.test_mode {
+        let is_test_user_authenticated =
+            authentication::authenticate_test_user(conn, email, password, app_conf)
+                .await
+                .map_err(|e| {
+                    ControllerError::new(
+                        ControllerErrorType::Unauthorized,
+                        "Could not find the test user. Have you seeded the database?".to_string(),
+                        e,
+                    )
+                })?;
+        if is_test_user_authenticated {
+            return Ok(true);
+        }
+    }
+    Ok(models::user_passwords::verify_user_password(conn, user_id, password).await?)
 }
 
 async fn handle_test_mode_login(
@@ -551,30 +565,11 @@ async fn handle_test_mode_login(
         }
     };
 
-    let mut is_authenticated =
-        authentication::authenticate_test_user(conn, email, password, app_conf)
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "Could not find the test user. Have you seeded the database?".to_string(),
-                    e,
-                )
-            })?;
-
-    if !is_authenticated {
-        is_authenticated =
-            models::user_passwords::verify_user_password(conn, user.id, password).await?;
-    }
+    let is_authenticated =
+        authenticate_by_password(conn, user.id, email, password, app_conf).await?;
 
     if is_authenticated {
         info!("Authentication successful");
-        let is_admin = is_user_global_admin(conn, user.id).await?;
-
-        if app_conf.enable_admin_email_verification && is_admin {
-            return handle_email_verification(conn, &user).await;
-        }
-
         authentication::remember(session, user)?;
     } else {
         warn!("Authentication failed");
@@ -595,7 +590,6 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &SecretString,
-    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
     // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
@@ -666,9 +660,7 @@ async fn handle_production_login(
     let token = skip_authorize();
     if is_authenticated {
         if let Some(user) = authenticated_user {
-            let is_admin = is_user_global_admin(conn, user.id).await?;
-
-            if app_conf.enable_admin_email_verification && is_admin {
+            if requires_login_code(conn, user.id).await? {
                 return handle_email_verification(conn, &user).await;
             }
 
@@ -793,17 +785,29 @@ POST `/api/v0/auth/send-email-code` If users password is correct, sends a code t
         (status = 200, description = "What the request did", body = SendDeleteUserEmailCodeResult)
     )
 )]
-#[instrument(skip(pool, payload, auth_user))]
+#[instrument(skip(pool, payload, auth_user, app_conf))]
 pub async fn send_delete_user_email_code(
     auth_user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<SendEmailCodeData>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<SendDeleteUserEmailCodeResult>> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
 
-    let password_ok =
-        user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password).await?;
+    // The signed-in user's own address, never `payload.email`: the test-mode branch of
+    // `authenticate_by_password` matches on the address, so a client-supplied one would let
+    // any seeded account's credentials pass this check.
+    let user_details =
+        models::user_details::get_user_details_by_user_id(&mut conn, auth_user.id).await?;
+    let password_ok = authenticate_by_password(
+        &mut conn,
+        auth_user.id,
+        &user_details.email,
+        &payload.password,
+        &app_conf,
+    )
+    .await?;
 
     if !password_ok {
         info!(
@@ -1085,25 +1089,41 @@ pub async fn delete_user_account(
     token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
 }
 
+/// Copies a changed name, and `email` when it changed too, to TMC, which keeps its own copy of
+/// both; a no-op for an account without a TMC `upstream_id`. Callers run it inside their
+/// transaction so a TMC failure rolls the change back.
 pub async fn update_user_information_to_tmc(
+    upstream_id: Option<i32>,
     first_name: String,
     last_name: String,
     email: Option<String>,
-    user_upstream_id: String,
-    tmc_client: web::Data<TmcClient>,
-    app_conf: web::Data<ApplicationConfiguration>,
-) -> Result<(), Error> {
-    if app_conf.test_mode {
+    tmc_client: &TmcClient,
+    app_conf: &ApplicationConfiguration,
+) -> Result<(), ControllerError> {
+    let Some(upstream_id) = upstream_id.filter(|_| !app_conf.test_mode) else {
         return Ok(());
-    }
+    };
     tmc_client
-        .update_user_information(first_name, last_name, email, user_upstream_id)
+        .update_user_information(first_name, last_name, email, upstream_id.to_string())
         .await
         .map_err(|e| {
             log::warn!("TMC user update failed: {:?}", e);
-            anyhow::anyhow!("TMC user update failed: {}", e)
-        })?;
-    Ok(())
+            controller_err!(
+                InternalServerError,
+                "Failed to update user info to tmc".to_string(),
+                e
+            )
+        })
+}
+
+/// Whether a production login must also be confirmed with an emailed code. Any role at any scope
+/// counts: a teacher's account is as worth stealing as an admin's. Test-mode and UUID logins skip
+/// it, since the system tests have no mail capture.
+async fn requires_login_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> Result<bool, ControllerError> {
+    Ok(!models::roles::get_roles(conn, user_id).await?.is_empty())
 }
 
 async fn handle_email_verification(
@@ -1126,7 +1146,7 @@ async fn handle_email_verification(
     user_email_codes::insert_user_email_code(
         conn,
         user.id,
-        UserEmailCodePurpose::AdminLogin,
+        UserEmailCodePurpose::StaffLogin,
         &code,
     )
     .await
@@ -1253,7 +1273,7 @@ pub async fn verify_email(
     user_email_codes::mark_user_email_code_used(
         &mut conn,
         user_id,
-        UserEmailCodePurpose::AdminLogin,
+        UserEmailCodePurpose::StaffLogin,
         &payload.code,
     )
     .await

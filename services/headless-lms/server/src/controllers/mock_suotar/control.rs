@@ -34,7 +34,8 @@ pub struct RunTickQuery {
     /// Comma-separated ledger row ids, for a spec that already knows them.
     pub credit_registration_ids: Option<String>,
     /// Overrides the deployment's account-linking switch for this tick, so a spec can run a phase
-    /// the way a deployment with linking off would.
+    /// the way a deployment with linking off would. On, it keeps the deployment's cutoff, or mails
+    /// every enrolment if the deployment has none.
     pub account_linking_enabled: Option<bool>,
 }
 
@@ -134,9 +135,16 @@ async fn run_tick(
     };
 
     let ctx = PhaseContext {
-        is_account_linking_enabled: query
-            .account_linking_enabled
-            .unwrap_or(app_conf.suotar_configuration.account_linking_enabled),
+        account_linking_since: match query.account_linking_enabled {
+            Some(true) => Some(
+                app_conf
+                    .suotar_configuration
+                    .account_linking_since
+                    .unwrap_or(DateTime::UNIX_EPOCH),
+            ),
+            Some(false) => None,
+            None => app_conf.suotar_configuration.account_linking_since,
+        },
         ..tick_context(&app_conf, &pool, &suotar_client)
     };
     debug!(phase = phase.as_str(), ?scope, "run-tick requested");
@@ -368,7 +376,7 @@ pub struct MakeRosterListingsDueResult {
 }
 
 /// Makes the roster listings of the scope's course due now and refills the listing limiter of the
-/// scope, so a spec can list its codes again without waiting out the tier interval, a backoff or
+/// scope, so a spec can list its codes again without waiting for their next fetch, a backoff or
 /// the rate. Takes the tick's scope, which must name a course; the phase is ignored.
 async fn make_roster_listings_due(
     app_conf: web::Data<ApplicationConfiguration>,
@@ -458,32 +466,6 @@ async fn enrolment_check_schedule(
         seen_enrolment_ids: row.seen_enrolment_ids,
         claimed_until: row.enrolment_check_claimed_until,
     }))
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RegisterNewCompletionsViaSuotarPayload {
-    pub course_module_id: Uuid,
-}
-
-/// Opts a module's new completions of linked students into Suotar, which only support can do by
-/// hand: a spec that creates its own course needs its completions on the pipeline.
-async fn register_new_completions_via_suotar(
-    app_conf: web::Data<ApplicationConfiguration>,
-    pool: web::Data<PgPool>,
-    payload: web::Json<RegisterNewCompletionsViaSuotarPayload>,
-) -> ControllerResult<HttpResponse> {
-    super::assert_enabled(&app_conf);
-    let token = skip_authorize();
-
-    let mut conn = pool.acquire().await?;
-    models::course_modules::set_register_eligible_new_completions_via_suotar(
-        &mut conn,
-        payload.course_module_id,
-        true,
-    )
-    .await?;
-    token.authorized_ok(HttpResponse::Ok().json(()))
 }
 
 #[derive(Debug, Deserialize)]
@@ -642,10 +624,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/make-roster-listings-due",
             web::post().to(make_roster_listings_due),
-        )
-        .route(
-            "/register-new-completions-via-suotar",
-            web::post().to(register_new_completions_via_suotar),
         )
         .route("/queued-emails", web::get().to(queued_emails))
         .configure(commands::_add_routes);

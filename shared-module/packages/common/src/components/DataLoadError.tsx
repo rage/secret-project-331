@@ -22,7 +22,7 @@ const DataLoadError: React.FC<React.PropsWithChildren<DataLoadErrorProps>> = ({
   buttonSize = "medium",
   contextMessage,
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
 
   return (
     <div>

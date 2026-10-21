@@ -12,9 +12,8 @@ import type { RegistrationStatusState } from "@/shared-module/components"
 import { RegistrationStatusBadge } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
-import { registrationLedgerStateLabel } from "../creditRegistrationCopy"
 import { codeValueCss, noteCss, rowCss } from "../styles"
-import { stateTone } from "./adminCreditRegistrationCopy"
+import { adminLedgerStateLabel, stateTone } from "./adminCreditRegistrationCopy"
 import { STATE_ICONS } from "./stateIcons"
 
 const SUPERSEDED = "superseded" as const
@@ -98,7 +97,7 @@ const AdminStateLabel: React.FC<Props> = ({
           size={STATE_ICON_SIZE}
           className={cx(iconCss, TONE_INK[stateTone(state, pendingReason)])}
         />
-        {registrationLedgerStateLabel(t, state, pendingReason)}
+        {adminLedgerStateLabel(t, state, pendingReason)}
       </span>
       {showToken && <code className={cx(noteCss, codeValueCss)}>{token}</code>}
       {/* Still a badge: it marks the exception rather than labelling every row, so it is the one

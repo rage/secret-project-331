@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT TRIM(reason) AS \"reason!\"\nFROM credit_registration_admin_actions\nWHERE action = $1\n  AND TRIM(reason) <> ''\n  AND deleted_at IS NULL\nGROUP BY TRIM(reason)\nORDER BY MAX(created_at) DESC\nLIMIT $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reason!",
+        "type_info": "Text",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "credit_registration_admin_action",
+            "kind": {
+              "Enum": [
+                "retry_item",
+                "retry_failed_for_course",
+                "force_recheck",
+                "mark_resolved",
+                "requeue_batch",
+                "transition_item",
+                "cancel_registration",
+                "pause_course_module",
+                "resume_course_module",
+                "pause_phase",
+                "resume_phase",
+                "run_phase_now",
+                "resend_link_email",
+                "unlink_student_number",
+                "manual_link_student_number",
+                "override_rate_cap",
+                "request_enrolment_list_fetch",
+                "dismiss_study_registry_conflict",
+                "dismiss_attention",
+                "add_note"
+              ]
+            }
+          }
+        },
+        "Int8"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "091a3cc09ae650cba4674a02f9d258635be6dfde687adda437688323b5be04bd"
+}

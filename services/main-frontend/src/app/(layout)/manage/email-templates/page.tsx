@@ -1,22 +1,23 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import React, { useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { LINK_QUIET } from "@/components/credit-registration/constants"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import AddEmailTemplateDialog from "@/components/email-templates/AddEmailTemplateDialog"
 import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
 import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/types.generated"
 import { zEmailTemplateType } from "@/generated/api/zod.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { baseTheme } from "@/shared-module/common/styles"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ErrorNotice, Link, LoadingRegion, Table } from "@/shared-module/components"
 
 interface GroupedTemplates {
   templateType: EmailTemplateType
@@ -29,11 +30,6 @@ interface GroupedTemplates {
 }
 
 const TEMPLATE_TYPES = zEmailTemplateType.options
-
-const formatDate = (date: Date | string): string => {
-  const d = typeof date === "string" ? new Date(date) : date
-  return d.toLocaleDateString()
-}
 
 const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
@@ -188,35 +184,34 @@ const EmailTemplatesList: React.FC = () => {
   }, [groupedTemplates, getTemplateTypeLabel])
 
   if (templatesQuery.isError) {
-    return <ErrorBanner variant={"readOnly"} error={templatesQuery.error} />
+    return <ErrorNotice error={templatesQuery.error} />
   }
 
   if (templatesQuery.isLoading) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   if (coursesQueries.isLoading && uniqueCourseIds.length > 0) {
-    return <Spinner variant={"medium"} />
+    return <LoadingRegion />
   }
 
   if (coursesQueries.isError) {
-    return <ErrorBanner variant={"readOnly"} error={coursesQueries.error} />
+    return <ErrorNotice error={coursesQueries.error} />
   }
 
   return (
     <div
       className={css`
-        padding: 2rem;
         max-width: 1400px;
-        margin: 0 auto;
       `}
     >
       <h1
-        className={css`
-          margin-bottom: 2rem;
-          font-size: 2rem;
-          font-weight: 600;
-        `}
+        className={cx(
+          pageTitleCss,
+          css`
+            margin-bottom: var(--space-4);
+          `,
+        )}
       >
         {t("email-templates-title")}
       </h1>
@@ -225,77 +220,49 @@ const EmailTemplatesList: React.FC = () => {
 
       <div
         className={css`
-          overflow-x: auto;
+          margin-top: 1rem;
         `}
       >
-        <table
-          className={css`
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-
-            th,
-            td {
-              padding: 0.75rem;
-              text-align: left;
-              border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-            }
-
-            th {
-              background-color: ${baseTheme.colors.clear[100]};
-              font-weight: 600;
-              position: sticky;
-              top: 0;
-            }
-
-            tr:hover {
-              background-color: ${baseTheme.colors.clear[200]};
-            }
-
-            td {
-              vertical-align: top;
-            }
-          `}
-        >
-          <thead>
-            <tr>
-              <th>{t("label-template-type")}</th>
-              <th>{t("label-email-subject")}</th>
-              <th>{t("label-language")}</th>
-              <th>{t("label-course") as string}</th>
-              <th>{t("email-template-last-updated")}</th>
-              {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- intentionally empty header cell above the actions column */}
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {allTemplates.map(({ template, templateTypeLabel, courseName }) => (
-              <tr key={template.id}>
-                <td>{templateTypeLabel}</td>
-                <td>{template.subject || t("email-template-no-subject")}</td>
-                <td>{template.language || t("email-template-language-default")}</td>
-                <td>{courseName || t("email-templates-global")}</td>
-                <td>{formatDate(template.updated_at)}</td>
-                <td>
-                  <Link
-                    href={`/cms/email-templates/${template.id}/edit`}
-                    className={css`
-                      color: ${baseTheme.colors.blue[600]};
-                      text-decoration: none;
-                      font-weight: 500;
-
-                      &:hover {
-                        text-decoration: underline;
-                      }
-                    `}
-                  >
-                    {t("edit")}
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <Table
+          caption={t("email-templates-title")}
+          rows={allTemplates}
+          rowKey={({ template }) => template.id}
+          rowHover
+          columns={[
+            {
+              header: t("label-template-type"),
+              cell: ({ templateTypeLabel }) => templateTypeLabel,
+            },
+            {
+              header: t("label-email-subject"),
+              cell: ({ template }) => template.subject || t("email-template-no-subject"),
+            },
+            {
+              header: t("label-language"),
+              cell: ({ template }) => template.language || t("email-template-language-default"),
+            },
+            {
+              header: t("label-course") as string,
+              cell: ({ courseName }) => courseName || t("email-templates-global"),
+            },
+            {
+              header: t("email-template-last-updated"),
+              cell: ({ template }) => dateToString(template.updated_at),
+            },
+            {
+              header: <VisuallyHidden>{t("label-actions")}</VisuallyHidden>,
+              cell: ({ template }) => (
+                <Link
+                  href={`/cms/email-templates/${template.id}/edit`}
+                  isCrossService
+                  appearance={LINK_QUIET}
+                >
+                  {t("edit")}
+                </Link>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   )

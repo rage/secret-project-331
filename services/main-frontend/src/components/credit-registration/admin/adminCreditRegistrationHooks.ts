@@ -1,13 +1,17 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
+  getAccountLinkingCoursesOptions,
   getAccountLinkingStatsOptions,
+  getAccountLinkingUnlinkedEnroleesOptions,
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationAttentionItemsOptions,
   getCreditRegistrationAttentionItemsQueryKey,
+  getCreditRegistrationEarlierReasonsOptions,
   getCreditRegistrationEnrolmentChecksOptions,
   getCreditRegistrationErrorsByCodeOptions,
   getCreditRegistrationForAdminOptions,
+  getCreditRegistrationLinkingCandidatesOptions,
   getCreditRegistrationOverviewOptions,
   getCreditRegistrationOverviewQueryKey,
   getCreditRegistrationPipelineHistoryOptions,
@@ -15,8 +19,8 @@ import {
   getCreditRegistrationReconciliationQueryKey,
   getCreditRegistrationStatsByCourseOptions,
   getCreditRegistrationStatsByCourseQueryKey,
-  getCreditRegistrationThresholdsOptions,
   getSuotarHealthOptions,
+  listAccountLinkingEmailsOptions,
   listCreditRegistrationAdminActionsOptions,
   listCreditRegistrationPhasesOptions,
   listCreditRegistrationsForAdminOptions,
@@ -26,21 +30,24 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
-  AccountLinkingStats,
+  CreditRegistrationAdminAction,
   CreditRegistrationAlertId,
   CreditRegistrationOverview,
   CreditRegistrationStatsByCourse,
   GetCreditRegistrationAttentionItemsData,
+  ListAccountLinkingEmailsData,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationsForAdminData,
   ListSuotarApiCallsData,
   ListVerifiedStudentNumbersForAdminData,
 } from "@/generated/api/types.generated"
+import { useIsDocumentHidden } from "@/shared-module/common/hooks/useIsDocumentHidden"
 
 /** Group-bys over the ledger, so not a cheap read. */
 const OVERVIEW_REFETCH_INTERVAL_MS = 30_000
 const LIST_REFETCH_INTERVAL_MS = 60_000
 const LIVE_ITEM_REFETCH_INTERVAL_MS = 5_000
+const HIDDEN_ITEM_REFETCH_INTERVAL_MS = 60_000
 /** Matches the other pod views in the repo: a wedged phase should show within seconds. */
 const PHASE_REFETCH_INTERVAL_MS = 10_000
 const ATTENTION_REFETCH_INTERVAL_MS = 20_000
@@ -51,7 +58,7 @@ const HISTORY_REFETCH_INTERVAL_MS = 300_000
 /** The shortest window the health endpoint reports. */
 export const HOUR_SECS = 3600
 
-/** The window the Linking page reads its funnel over. Shared so the tab badge hits the same cache. */
+/** The window the Linking page reads its linking email counts over. */
 export const LINKING_STATS_WINDOW_DAYS = 30
 
 const GC_TIME_MS = 5 * 60_000
@@ -91,30 +98,84 @@ export const useSuotarApiCalls = (query: NonNullable<ListSuotarApiCallsData["que
 
 export const useAdminCreditRegistrations = (
   query: NonNullable<ListCreditRegistrationsForAdminData["query"]>,
-  { paused }: { paused: boolean },
+  { paused, enabled = true }: { paused: boolean; enabled?: boolean },
 ) =>
   useQuery({
     ...listCreditRegistrationsForAdminOptions({ query }),
+    enabled,
     // A table that reshuffles under a click is worse than a stale one.
     refetchInterval: paused ? false : LIST_REFETCH_INTERVAL_MS,
     staleTime: LIST_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
   })
 
-export const useAdminCreditRegistration = (creditRegistrationId: string) =>
-  useQuery({
+/**
+ * One registration, polled until it is terminal: often while the tab is in view, now and then
+ * while it is hidden, and at once when it is shown again.
+ */
+export const useAdminCreditRegistration = (creditRegistrationId: string) => {
+  const isHidden = useIsDocumentHidden()
+  return useQuery({
     ...getCreditRegistrationForAdminOptions({
       path: { credit_registration_id: creditRegistrationId },
     }),
-    refetchInterval: (query) =>
-      query.state.data?.registration.terminal_at ? false : LIVE_ITEM_REFETCH_INTERVAL_MS,
+    refetchInterval: (observed) => {
+      if (observed.state.data?.registration.terminal_at) {
+        return false
+      }
+      return isHidden ? HIDDEN_ITEM_REFETCH_INTERVAL_MS : LIVE_ITEM_REFETCH_INTERVAL_MS
+    },
+    // The detail page marks its title when the registration changes in a hidden tab.
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
     staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
+  })
+}
+
+/**
+ * Fetches the code's enrolment list live from Sisu on every open; nothing is cached past the dialog.
+ */
+export const useLinkingCandidates = (creditRegistrationId: string, isEnabled: boolean) =>
+  useQuery({
+    ...getCreditRegistrationLinkingCandidatesOptions({
+      path: { credit_registration_id: creditRegistrationId },
+    }),
+    enabled: isEnabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  })
+
+/** The courses a linking email can be sent for by hand, loaded once the dialog opens. */
+export const useAccountLinkingCourses = (isEnabled: boolean) =>
+  useQuery({ ...getAccountLinkingCoursesOptions(), enabled: isEnabled })
+
+/**
+ * Fetches the course's enrolment lists live from Sisu once a course is picked; nothing is cached
+ * past the dialog.
+ */
+export const useUnlinkedEnrolees = (courseId: string | null, isEnabled: boolean) =>
+  useQuery({
+    ...getAccountLinkingUnlinkedEnroleesOptions({ path: { course_id: courseId ?? "" } }),
+    enabled: isEnabled && courseId !== null,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
   })
 
 export const useAccountLinkingStats = (windowDays: number) =>
   useQuery({
     ...getAccountLinkingStatsOptions({ query: { window_days: windowDays } }),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
+
+/** One page of every linking email; `status` is ignored when `address` is set. */
+export const useAccountLinkingEmails = (
+  query: NonNullable<ListAccountLinkingEmailsData["query"]>,
+) =>
+  useQuery({
+    ...listAccountLinkingEmailsOptions({ query }),
     ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
@@ -132,31 +193,18 @@ export const useCreditRegistrationPhases = () =>
     ...polled(PHASE_REFETCH_INTERVAL_MS),
   })
 
-/** The thresholds the detectors and the alert rules share, so the page never states a number of its own. */
-export const useCreditRegistrationThresholds = () =>
-  useQuery({
-    ...getCreditRegistrationThresholdsOptions(),
-    staleTime: GC_TIME_MS,
-    gcTime: GC_TIME_MS,
-  })
-
-/**
- * One page of the work queue. The facet counts on the response cover the whole queue, not the page.
- *
- * `enabled: false` for the second call a page makes to select a whole facet at once, which must not
- * run until the operator asks for it.
- */
+/** The Needs attention tab's sections. Each lists its oldest rows; every count covers all of them. */
 export const useCreditRegistrationAttentionItems = (
   query: NonNullable<GetCreditRegistrationAttentionItemsData["query"]>,
-  { enabled = true }: { enabled?: boolean } = {},
 ) =>
   useQuery({
     ...getCreditRegistrationAttentionItemsOptions({ query }),
     ...polled(ATTENTION_REFETCH_INTERVAL_MS),
-    enabled,
-    // A facet click must not blank the table it renumbers.
-    placeholderData: keepPreviousData,
   })
+
+/** The reasons given before for one audited action, newest first, to pick from instead of retyping. */
+export const useEarlierReasons = (action: CreditRegistrationAdminAction) =>
+  useQuery(getCreditRegistrationEarlierReasonsOptions({ query: { action } }))
 
 export const useInvalidateAttentionItems = () => {
   const queryClient = useQueryClient()
@@ -183,7 +231,7 @@ const SYSTEM_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
 ]
 
 const selectNeedsAttention = (overview: CreditRegistrationOverview) =>
-  overview.needs_admin_attention_count
+  overview.needs_attention_count
 
 const selectUnhealthyPhases = (overview: CreditRegistrationOverview) =>
   alertTotal(overview, SYSTEM_ALERT_IDS)
@@ -211,6 +259,32 @@ export const useCreditRegistrationMisconfiguredCourseCount = () =>
     select: (stats: CreditRegistrationStatsByCourse) => stats.misconfigured_count,
   })
 
+const BLOCKING_ALERT_IDS: readonly CreditRegistrationAlertId[] = [
+  "phase_failing",
+  "phase_heartbeat_stale",
+  "pipeline_paused_globally",
+  "roster_course_code_failing",
+]
+
+const selectHasBlockingAlert = (overview: CreditRegistrationOverview) =>
+  alertTotal(overview, BLOCKING_ALERT_IDS) > 0
+
+/**
+ * Whether a processing phase is paused or late or a course code is failing: problems that hold up
+ * many registrations, which the Needs attention count leaves out.
+ */
+export const useHasBlockingProblem = (): boolean => {
+  const hasBlockingAlert = useQuery({
+    ...getCreditRegistrationOverviewOptions(),
+    ...polled(OVERVIEW_REFETCH_INTERVAL_MS),
+    select: selectHasBlockingAlert,
+  }).data
+  const hasPausedPhase = useCreditRegistrationPhases().data?.phases.some(
+    (phase) => phase.paused_at !== null && phase.paused_at !== undefined,
+  )
+  return Boolean(hasBlockingAlert || hasPausedPhase)
+}
+
 /** Pipeline phases that are failing or overdue. */
 export const useCreditRegistrationUnhealthyPhaseCount = () =>
   useOverviewCount(selectUnhealthyPhases)
@@ -223,17 +297,6 @@ const selectFailingRosterCodes = (overview: CreditRegistrationOverview) =>
 /** Course codes whose roster listing is backing off after repeated failures. */
 export const useCreditRegistrationFailingRosterCodeCount = () =>
   useOverviewCount(selectFailingRosterCodes)
-
-/**
- * Account-linking mails our own sender never got out, all time — the number the Linking page's
- * "Sending failed" tile shows. Keep the two reading the same field.
- */
-export const useCreditRegistrationLinkingFailureCount = () =>
-  useQuery({
-    ...getAccountLinkingStatsOptions({ query: { window_days: LINKING_STATS_WINDOW_DAYS } }),
-    ...polled(LIST_REFETCH_INTERVAL_MS),
-    select: (stats: AccountLinkingStats) => stats.send_status_totals.send_failed,
-  })
 
 export const useCreditRegistrationErrorsByCode = (windowSecs: number) =>
   useQuery({

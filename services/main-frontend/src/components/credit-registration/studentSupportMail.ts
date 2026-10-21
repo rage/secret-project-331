@@ -42,7 +42,33 @@ export const registrationSupportMail = (
   }
 }
 
-/** What a confirmation link can leave a student stuck on, and so what the mail has to ask for. */
+/** A support mail from a student told to enrol in Sisu on a module that names no course code. */
+export const missingSisuCourseCodeSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+): SupportMailContents => {
+  const mail = registrationSupportMail(t, registration)
+  return { ...mail, bodyLines: [t("support-mail-line-no-sisu-course-code"), ...mail.bodyLines] }
+}
+
+/** A support mail from a student whose enrolment we still cannot see days after "I have enrolled". */
+export const unseenEnrolmentSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration,
+  enrolmentConfirmedDate: string,
+): SupportMailContents => {
+  const mail = registrationSupportMail(t, registration)
+  return {
+    ...mail,
+    subject: t("support-mail-subject-enrolment-not-seen", { course: registration.course_name }),
+    bodyLines: [
+      t("support-mail-line-enrolment-not-seen", { date: enrolmentConfirmedDate }),
+      ...mail.bodyLines,
+    ],
+  }
+}
+
+/** What an account linking email can leave a student stuck on, and so what the mail has to ask for. */
 export type StudentNumberLinkProblem =
   | "need_a_new_link"
   | "used_by_someone_else"
@@ -56,7 +82,7 @@ const LINK_PROBLEM_KEYS = {
   linked_to_another_account: "support-mail-line-number-linked-to-another-account",
 } as const satisfies Record<StudentNumberLinkProblem, string>
 
-/** A support mail about a confirmation link the student never received or can no longer use. */
+/** A support mail about an account linking email the student never received or can no longer use. */
 export const studentNumberLinkSupportMail = (
   t: CreditRegistrationTFunction,
   problem: StudentNumberLinkProblem,
@@ -68,4 +94,16 @@ export const studentNumberLinkSupportMail = (
     ...(studentNumber ? [t("support-mail-line-student-number", { studentNumber })] : []),
   ],
   ...omitUndefined({ reference: studentNumber ?? undefined }),
+})
+
+/** A support mail from a student still waiting for a linking email; support needs their number. */
+export const missingLinkingEmailSupportMail = (
+  t: CreditRegistrationTFunction,
+  courseName: string,
+): SupportMailContents => ({
+  subject: t("support-mail-subject-no-linking-email", { course: courseName }),
+  bodyLines: [
+    t("support-mail-line-course", { course: courseName }),
+    t("support-mail-line-student-number", { studentNumber: "" }),
+  ],
 })

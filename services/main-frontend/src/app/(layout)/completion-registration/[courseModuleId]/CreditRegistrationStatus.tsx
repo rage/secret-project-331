@@ -2,14 +2,13 @@
 
 import { css } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
-import { useQuery } from "@tanstack/react-query"
+import { type UseQueryResult, useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
   CREDIT_REGISTRATION_NS,
-  MIDDLE_DOT,
   QUIET_REFRESH,
   TIME_DATE,
   TIME_IN_TITLE,
@@ -21,7 +20,9 @@ import {
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
+import { EnrolmentCheck } from "@/components/credit-registration/EnrolmentCheck"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
+import { RegistrationQuestions } from "@/components/credit-registration/RegistrationQuestions"
 import {
   RegistrationActions,
   type RegistrationCardAction,
@@ -32,6 +33,7 @@ import {
   useStudentRegistrationActions,
 } from "@/components/credit-registration/studentRegistrationActions"
 import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
+import { missingSisuCourseCodeSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
   bandCss,
   bandedCardCss,
@@ -60,7 +62,13 @@ import type {
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
-import { DescriptionList, Link, QueryResults, RelativeTime } from "@/shared-module/components"
+import {
+  DescriptionList,
+  Link,
+  DefaultBlockingError,
+  QueryResults,
+  RelativeTime,
+} from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
   courseModuleId: string
@@ -131,7 +139,6 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
 
   const data = query.data ?? null
   const enrolmentRoute = routeQuery.data ?? null
-  const verifiedNumber = numberQuery.data ?? null
   const checkedAt = query.dataUpdatedAt === 0 ? null : new Date(query.dataUpdatedAt).toISOString()
   const heading = (
     <CardHeading courseName={courseName} moduleName={moduleName} ectsCredits={ectsCredits} />
@@ -144,7 +151,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
       ectsCredits={ectsCredits}
       registration={data.registration}
       enrolmentRoute={enrolmentRoute}
-      verifiedNumber={verifiedNumber}
+      numberQuery={numberQuery}
       checkedAt={checkedAt}
       earlierAttempts={data.earlier_attempts}
     />
@@ -189,7 +196,10 @@ const CardHeading: React.FC<{
     <header className={cardTitleBandCss}>
       <h1 className={pageTitleCss}>{t("register-completion")}</h1>
       <p className={subheadingCss}>
-        {t("course")}: {moduleName ? `${courseName}${MIDDLE_DOT}${moduleName}` : courseName}
+        {t("course")}:{" "}
+        {moduleName
+          ? t("credit-registration-course-and-module", { course: courseName, module: moduleName })
+          : courseName}
       </p>
       {typeof ectsCredits === "number" ? (
         <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
@@ -242,7 +252,7 @@ interface TrackerProps {
   ectsCredits: number | null | undefined
   registration: MyCreditRegistration
   enrolmentRoute: MyEnrolmentRoute | null
-  verifiedNumber: MyVerifiedStudentNumber | null
+  numberQuery: UseQueryResult<MyVerifiedStudentNumber | null>
   checkedAt: string | null
   earlierAttempts: MyCreditRegistration[]
 }
@@ -261,16 +271,13 @@ const Tracker: React.FC<TrackerProps> = ({
   ectsCredits,
   registration,
   enrolmentRoute,
-  verifiedNumber,
+  numberQuery,
   checkedAt,
   earlierAttempts,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statusLabel = myRegistrationStatusLabel(t, registration)
-  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
-    registration,
-    linkToStatusPage: false,
-  })
+  const { primaryAction, secondaryActions } = useStudentRegistrationActions(registration)
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
   const announcedStatusLabel = useRef(statusLabel)
@@ -281,6 +288,7 @@ const Tracker: React.FC<TrackerProps> = ({
     }
   }, [statusLabel, t])
 
+  const verifiedNumber = numberQuery.data ?? null
   const view = { registration, enrolmentRoute }
   const recheckAction =
     [primaryAction, ...secondaryActions].find(
@@ -296,7 +304,11 @@ const Tracker: React.FC<TrackerProps> = ({
       <article className={bandedCardCss}>
         {heading}
 
-        <StudentNumberLinkStep registration={registration} verifiedNumber={verifiedNumber} />
+        <StudentNumberLinkStep
+          registration={registration}
+          verifiedNumber={verifiedNumber}
+          enrolmentRoute={enrolmentRoute}
+        />
 
         {asksWhereYouEnrolled(view) && enrolmentRoute ? (
           <EnrolmentRouteStep
@@ -304,6 +316,22 @@ const Tracker: React.FC<TrackerProps> = ({
             courseModuleId={courseModuleId}
             enrolmentRoute={enrolmentRoute}
             openUniversityEnrolmentLink={registration.enrolment_link}
+            uhCourseCode={registration.uh_course_code}
+            supportMail={missingSisuCourseCodeSupportMail(t, registration)}
+          />
+        ) : null}
+
+        {/* Which of the two enrolment checks applies depends on the number. */}
+        {numberQuery.data !== undefined ? (
+          <EnrolmentCheck
+            registration={registration}
+            enrolmentRoute={enrolmentRoute}
+            hasLinkedStudentNumber={numberQuery.data !== null}
+          />
+        ) : numberQuery.isError ? (
+          <DefaultBlockingError
+            error={numberQuery.error}
+            retry={() => void numberQuery.refetch()}
           />
         ) : null}
 
@@ -356,6 +384,12 @@ const Tracker: React.FC<TrackerProps> = ({
           })}
         </section>
       ) : null}
+
+      <RegistrationQuestions
+        registration={registration}
+        verifiedNumber={verifiedNumber}
+        enrolmentRoute={enrolmentRoute}
+      />
     </>
   )
 }

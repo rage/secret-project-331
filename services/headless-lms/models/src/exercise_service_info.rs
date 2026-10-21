@@ -438,6 +438,8 @@ mod test {
                 public_url: "http://example.com/api/service".to_string(),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await

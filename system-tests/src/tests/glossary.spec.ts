@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { selectTab } from "@/utils/selectTab"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -36,7 +37,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
 
   await test.step("Open course manage menu and switch to Glossary tab", async () => {
     await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
-    await page.getByRole("tab", { name: "Other" }).click()
+    await selectTab(page, "Other")
     await page.getByRole("tab", { name: "Glossary" }).click()
   })
 
@@ -49,8 +50,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   })
 
   await test.step("Create new glossary term and verify success", async () => {
-    await page.getByPlaceholder("New term").fill("SSD")
-    await page.getByPlaceholder("New definition").fill(SSD_DEFINITION)
+    await page.getByLabel("New term").fill("SSD")
+    await page.getByLabel("New definition").fill(SSD_DEFINITION)
 
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save", exact: true }).click()
@@ -65,8 +66,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   await test.step("Edit the newly added term and definition, then save", async () => {
     await page.getByRole("button", { name: "Edit" }).first().click()
 
-    await page.getByPlaceholder("Updated term").fill("SSD")
-    await page.getByPlaceholder("Updated definition").fill(SSD_DEFINITION)
+    await page.getByLabel("Updated term").fill("SSD")
+    await page.getByLabel("Updated definition").fill(SSD_DEFINITION)
 
     await waitForSuccessNotification(page, async () => {
       await page.locator(':nth-match(:text("Save"), 2)').click()
@@ -147,7 +148,12 @@ test("glossary test", async ({ page, headless }, testInfo) => {
       testInfo,
       snapshotName: "glossary-tooltips",
       beforeScreenshot: async () => {
+        const tooltip = page.getByRole("tooltip", { name: SSD_DEFINITION })
+        // The previous viewport's tooltip is still closing after the mouse moved away, and
+        // hovering just as its close delay expires leaves it closed.
+        await expect(tooltip).toBeHidden()
         await page.getByRole("button", { name: "SSD" }).first().hover()
+        await expect(tooltip).toBeVisible()
       },
     })
   })

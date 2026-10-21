@@ -1,8 +1,11 @@
 import type {
+  CreditRegistrationErrorCode,
   MyCreditRegistration,
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
 } from "@/generated/api/types.generated"
+
+import { OPEN_UNIVERSITY } from "./constants"
 
 export interface TrackerViewInput {
   /** `null` before the pipeline has created a ledger row for the completion. */
@@ -107,20 +110,31 @@ export const showsRegistrationFacts = (registration: MyCreditRegistration | null
  * promise, and `duplicate` and `not_improved` rows read as registered with no fact sheet. `null`
  * means no band: once the credits are in the registry its fact sheet names the number, and a row
  * nobody is registering has no number to name.
+ *
+ * `awaiting-email` replaces the enrol step once the student has said they enrolled, or once a mail
+ * is queued: either way enrolling is behind them. `contact-support` is for when no mail can come
+ * any more: the latest link was used, or it expired with the caps spent.
  */
 export type StudentNumberLinkBand =
   | { kind: "registering"; studentNumber: string }
   | { kind: "linked"; studentNumber: string }
   | { kind: "awaiting-enrolment" }
+  | { kind: "awaiting-email"; isOpenUniversity: boolean }
   | { kind: "staff-links" }
-  | { kind: "mailing" }
   | { kind: "mailed"; emailMasked: string; sentAt: string }
+  | { kind: "link-expired"; emailMasked: string; sentAt: string }
   | { kind: "send-failed" }
+  | { kind: "contact-support" }
+
+export interface StudentNumberLinkBandOptions {
+  isAccountLinkingEnabled: boolean
+  enrolmentRoute: MyEnrolmentRoute | null
+}
 
 export const studentNumberLinkBand = (
   registration: MyCreditRegistration,
   verifiedStudentNumber: MyVerifiedStudentNumber | null,
-  { isAccountLinkingEnabled }: { isAccountLinkingEnabled: boolean },
+  { isAccountLinkingEnabled, enrolmentRoute }: StudentNumberLinkBandOptions,
 ): StudentNumberLinkBand | null => {
   const status = registration.student_facing_status
   if (status === "not_registering") {
@@ -138,17 +152,67 @@ export const studentNumberLinkBand = (
       : { kind: "registering", studentNumber }
   }
   const mail = registration.linking_email
-  if (mail?.email_send_status === "send_failed") {
+  const usableMail = mail?.link_state === "usable" ? mail : null
+  if (usableMail?.email_send_status === "send_failed") {
     return { kind: "send-failed" }
   }
-  if (mail?.email_send_status === "sent" && mail.sent_at) {
-    return { kind: "mailed", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
+  if (usableMail?.email_send_status === "sent" && usableMail.sent_at) {
+    return { kind: "mailed", emailMasked: usableMail.emailed_to_masked, sentAt: usableMail.sent_at }
   }
-  // With linking off a queued mail is never sent, so neither band below can promise one.
+  // With linking off a queued mail is never sent and no new one comes, so no band below can
+  // promise one.
   if (!isAccountLinkingEnabled) {
     return { kind: "staff-links" }
   }
-  // A mail still in the queue already proves the registry listed them, so the band cannot go on
-  // telling them to enrol first.
-  return mail ? { kind: "mailing" } : { kind: "awaiting-enrolment" }
+  if (mail?.link_state === "expired_can_resend" && mail.sent_at) {
+    return { kind: "link-expired", emailMasked: mail.emailed_to_masked, sentAt: mail.sent_at }
+  }
+  if (mail?.link_state === "used" || mail?.link_state === "expired_no_resend") {
+    return { kind: "contact-support" }
+  }
+  if (enrolmentRoute?.enrolment_confirmed_at || usableMail !== null) {
+    return { kind: "awaiting-email", isOpenUniversity: enrolmentRoute?.route === OPEN_UNIVERSITY }
+  }
+  return { kind: "awaiting-enrolment" }
+}
+
+/** How long after "I have enrolled" a student without a linked number is asked to check. */
+const ENROLMENT_CHECK_WITHOUT_STUDENT_NUMBER_AFTER_MS = 2 * 60 * 60 * 1000
+
+/** The registry verdicts that say why a linked student's enrolment is still not seen. */
+const ENROLMENT_CHECK_ERRORS = [
+  "enrolment_not_found",
+  "enrolment_not_accepted",
+  "study_right_not_valid",
+] as const satisfies readonly CreditRegistrationErrorCode[]
+
+export type EnrolmentCheckErrorCode = (typeof ENROLMENT_CHECK_ERRORS)[number]
+
+/** Why the "Check your enrolment" box opens. */
+export type EnrolmentCheckOpening =
+  | { kind: "registry-verdict"; errorCode: EnrolmentCheckErrorCode }
+  | { kind: "still-not-seen" }
+
+/** Whether the error code is one the enrolment check box explains. */
+const isEnrolmentCheckError = (
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+): errorCode is EnrolmentCheckErrorCode => ENROLMENT_CHECK_ERRORS.some((code) => code === errorCode)
+
+/** Why a student who said they enrolled is asked to check their enrolment; `null` hides the box. */
+export const enrolmentCheckOpening = (
+  input: TrackerViewInput,
+  hasLinkedStudentNumber: boolean,
+  nowMs: number,
+): EnrolmentCheckOpening | null => {
+  const confirmedAt = input.enrolmentRoute?.enrolment_confirmed_at
+  if (!asksWhereYouEnrolled(input) || !confirmedAt || input.registration === null) {
+    return null
+  }
+  if (hasLinkedStudentNumber) {
+    const errorCode = input.registration.error_code
+    return isEnrolmentCheckError(errorCode) ? { kind: "registry-verdict", errorCode } : null
+  }
+  return nowMs - new Date(confirmedAt).getTime() >= ENROLMENT_CHECK_WITHOUT_STUDENT_NUMBER_AFTER_MS
+    ? { kind: "still-not-seen" }
+    : null
 }

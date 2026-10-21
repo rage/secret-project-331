@@ -5,6 +5,8 @@ import type { TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ALIGN_END } from "@/components/credit-registration/constants"
+import type { CountResult } from "@/generated/api/types.generated"
 import {
   useTotalUsersCompletedCourseByInstanceQuery,
   useTotalUsersReturnedExercisesByInstanceQuery,
@@ -14,46 +16,28 @@ import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, Table, type TableColumn } from "@/shared-module/components"
 
 interface TotalStatsByInstanceProps {
   courseId: string
 }
 
 const tableStyles = css`
-  width: 100%;
-  border-collapse: collapse;
   margin: 2rem 0;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  overflow: hidden;
-`
-
-const thStyles = css`
-  background: ${baseTheme.colors.clear[200]};
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[700]};
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-`
-
-const tdStyles = css`
-  padding: 1rem;
-  border-bottom: 1px solid ${baseTheme.colors.clear[200]};
-  color: ${baseTheme.colors.gray[700]};
-  font-size: 1rem;
 `
 
 const numberCellStyles = css`
-  ${tdStyles}
-  text-align: right;
-  font-variant-numeric: tabular-nums;
   color: ${baseTheme.colors.green[600]};
   font-weight: 600;
 `
+
+type CountsByInstance = Record<string, CountResult | undefined> | undefined
+
+interface CountsByColumn {
+  totalUsers?: CountsByInstance
+  totalReturnedExercises?: CountsByInstance
+  totalCompletions?: CountsByInstance
+}
 
 const getInstanceDisplayName = (
   instance: { name: string | null } | undefined,
@@ -126,6 +110,31 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
     t,
   ])
 
+  const columnsFor = ({
+    totalUsers,
+    totalReturnedExercises,
+    totalCompletions,
+  }: CountsByColumn): TableColumn<string>[] => {
+    const countColumn = (header: string, counts: CountsByInstance): TableColumn<string> => ({
+      header,
+      align: ALIGN_END,
+      cell: (instanceId) => (
+        <span className={numberCellStyles}>
+          {formatNumber(counts?.[instanceId]?.count || 0, i18n.language)}
+        </span>
+      ),
+    })
+    return [
+      {
+        header: t("stats-heading-course-instance"),
+        cell: (instanceId) => getInstanceDisplayName(instanceMap.get(instanceId), instanceId, t),
+      },
+      countColumn(t("stats-heading-students-started-the-course"), totalUsers),
+      countColumn(t("stats-heading-students-returned-exercises"), totalReturnedExercises),
+      countColumn(t("stats-heading-students-completed-the-course"), totalCompletions),
+    ]
+  }
+
   return (
     <div>
       <QueryResults
@@ -138,47 +147,23 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
           ] as const
         }
         emptyFallback={
-          <table className={tableStyles}>
-            <thead>
-              <tr>
-                <th className={thStyles}>{t("stats-heading-course-instance")}</th>
-                <th className={thStyles}>{t("stats-heading-students-started-the-course")}</th>
-                <th className={thStyles}>{t("stats-heading-students-returned-exercises")}</th>
-                <th className={thStyles}>{t("stats-heading-students-completed-the-course")}</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <Table
+            caption={t("stats-heading-course-instance")}
+            className={tableStyles}
+            columns={columnsFor({})}
+            rows={[]}
+            rowKey={(instanceId) => instanceId}
+            emptyState={null}
+          />
         }
         renderData={([totalUsers, totalReturnedExercises, totalCompletions]) => (
-          <table className={tableStyles}>
-            <thead>
-              <tr>
-                <th className={thStyles}>{t("stats-heading-course-instance")}</th>
-                <th className={thStyles}>{t("stats-heading-students-started-the-course")}</th>
-                <th className={thStyles}>{t("stats-heading-students-returned-exercises")}</th>
-                <th className={thStyles}>{t("stats-heading-students-completed-the-course")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allInstanceIds.map((instanceId) => (
-                <tr key={instanceId}>
-                  <td className={tdStyles}>
-                    {getInstanceDisplayName(instanceMap.get(instanceId), instanceId, t)}
-                  </td>
-                  <td className={numberCellStyles}>
-                    {formatNumber(totalUsers?.[instanceId]?.count || 0, i18n.language)}
-                  </td>
-                  <td className={numberCellStyles}>
-                    {formatNumber(totalReturnedExercises?.[instanceId]?.count || 0, i18n.language)}
-                  </td>
-                  <td className={numberCellStyles}>
-                    {formatNumber(totalCompletions?.[instanceId]?.count || 0, i18n.language)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Table
+            caption={t("stats-heading-course-instance")}
+            className={tableStyles}
+            columns={columnsFor({ totalUsers, totalReturnedExercises, totalCompletions })}
+            rows={allInstanceIds}
+            rowKey={(instanceId) => instanceId}
+          />
         )}
       />
     </div>

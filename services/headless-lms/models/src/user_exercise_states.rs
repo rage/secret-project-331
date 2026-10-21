@@ -1474,32 +1474,24 @@ pub async fn get_returned_exercise_ids_for_user_and_course(
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
-    #[derive(sqlx::FromRow)]
-    struct ExerciseIdRow {
-        exercise_id: Uuid,
-    }
-
-    let returned_exercise_ids: Vec<ExerciseIdRow> = sqlx::query_as::<_, ExerciseIdRow>(
+    let returned_exercise_ids = sqlx::query_scalar!(
         r#"
-        SELECT DISTINCT exercise_id
-        FROM user_exercise_states
-        WHERE exercise_id = ANY($1::uuid[])
-          AND user_id = $2
-          AND course_id = $3
-          AND deleted_at IS NULL
-          AND activity_progress IN ('completed', 'submitted')
+SELECT DISTINCT exercise_id
+FROM user_exercise_states
+WHERE exercise_id = ANY($1::uuid[])
+  AND user_id = $2
+  AND course_id = $3
+  AND deleted_at IS NULL
+  AND activity_progress IN ('completed', 'submitted')
         "#,
+        exercise_ids,
+        user_id,
+        course_id,
     )
-    .bind(exercise_ids)
-    .bind(user_id)
-    .bind(course_id)
     .fetch_all(conn)
     .await?;
 
-    Ok(returned_exercise_ids
-        .into_iter()
-        .map(|r| r.exercise_id)
-        .collect())
+    Ok(returned_exercise_ids)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, FromRow)]
@@ -1576,7 +1568,7 @@ mod tests {
                 Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             )
             .set_timestamps(timestamp, timestamp, None)
-            .set_registration_info(None, Some(5.0), None, false, false),
+            .set_registration_info(None, Some(5.0), None),
         ];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,

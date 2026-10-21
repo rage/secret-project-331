@@ -79,7 +79,6 @@ pub async fn seed_switching_course_instances_course(
         .module(
             ModuleBuilder::new()
                 .order(0)
-                .register_to_open_university(false)
                 .automatic_completion(Some(1), Some(1), false)
                 .chapter(
                     ChapterBuilder::new(1, "The Basics")
@@ -183,7 +182,6 @@ pub async fn seed_switching_course_instances_course(
             ModuleBuilder::new()
                 .order(2)
                 .name("Bonus module")
-                .register_to_open_university(true)
                 .automatic_completion(None, Some(1), false)
                 .chapter(
                     ChapterBuilder::new(3, "Bonus chapter")

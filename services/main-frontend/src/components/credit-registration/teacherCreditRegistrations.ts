@@ -34,6 +34,7 @@ import { CREDIT_REGISTRATION_NS } from "./constants"
 import type { CreditRegistrationTFunction } from "./constants"
 import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import { labelFrom, widenedLookup } from "./labelFrom"
+import { registersCredits } from "./registersCredits"
 import type { FailureOwner } from "./registrationFailures"
 import { failureOwner, retryableFailureCount } from "./registrationFailures"
 
@@ -97,7 +98,7 @@ export const useCourseHasStudyRegistryModules = (courseId: string | null): boole
       build: (id) => getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: id } }),
     }),
   )
-  return (query.data ?? []).some((module) => module.enable_credit_registration_via_suotar)
+  return (query.data ?? []).some((module) => registersCredits(module.uh_course_code))
 }
 
 /**
@@ -313,7 +314,7 @@ const LINKING_EMAIL_SHORT_KEYS = {
 } as const satisfies Record<EmailSendStatus, string>
 
 /**
- * Where the student's confirmation link got to, in the few words a roster cell has room for.
+ * Where the student's account linking email got to, in the few words a roster cell has room for.
  *
  * The reason line under a "No student number" pill: the teacher's question there is whether the
  * student was ever asked, not why a registration failed. Null when nothing has been sent yet.

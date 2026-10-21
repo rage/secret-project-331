@@ -3,10 +3,12 @@
 //! Keyed on the Sisu person id plus the recipient address: at send time there is no account of ours
 //! to key on, and the student number changes when a student moves between programmes. A row is
 //! written when the right to mail is claimed, before a delivery exists, so a crash between the two
-//! phases cannot mail twice.
+//! phases cannot mail twice. A row holds its address only while its link can still be used; once
+//! the link has expired or been used, a later mail to the address replaces it.
 use std::collections::{HashMap, HashSet};
 
 use secrecy::ExposeSecret;
+use utoipa::ToSchema;
 
 use crate::email_deliveries::{
     EmailSendStatus, EmailSendStatusFacts, EmailSendStatusReport, derive_email_send_status,
@@ -27,6 +29,9 @@ pub struct CreditRegistrationAccountLinkingEmail {
     pub student_number_verification_token_id: Option<Uuid>,
     pub email_delivery_id: Option<Uuid>,
     pub sent_at: DateTime<Utc>,
+    /// Set once this row gave up its place in the dedup key: to a later mail to the same address,
+    /// or when the person was unlinked.
+    pub replaced_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone)]
@@ -39,8 +44,9 @@ pub struct NewAccountLinkingEmail {
     pub email_delivery_id: Option<Uuid>,
 }
 
-/// Claims the right to mail this (person, course, address) once; `None` means the caller must not
-/// send. Call in the transaction that mints the token, so a refused claim leaves no usable link.
+/// Claims the right to mail this (person, course, address); `None` means another row holds the
+/// address and the caller must not send. Call in the transaction that mints the token, so a refused
+/// claim leaves no usable link.
 pub async fn claim_send_slot(
     conn: &mut PgConnection,
     new: &NewAccountLinkingEmail,
@@ -70,6 +76,20 @@ RETURNING id
     Ok(res.map(|r| r.id))
 }
 
+/// Moves a mail's `sent_at` `age` into the past, for seeding mails sent before today.
+///
+/// Shifts the row rather than the clock because the caps compare against Postgres `now()`.
+pub async fn backdate(conn: &mut PgConnection, id: Uuid, age: chrono::Duration) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE credit_registration_account_linking_emails SET sent_at = now() - $2::interval WHERE id = $1",
+        id,
+        age as chrono::Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// As much of one existing mail as the dedup guard and the rate caps need to decide on a person.
 #[derive(Debug, Clone)]
 pub struct ExistingLinkingMailFact {
@@ -77,6 +97,9 @@ pub struct ExistingLinkingMailFact {
     pub course_id: Uuid,
     pub emailed_to: DbSecret,
     pub sent_at: DateTime<Utc>,
+    /// Whether the row still holds its address: not replaced, and its link can still be used. A row
+    /// with no token holds it for good.
+    pub holds_address: bool,
 }
 
 /// Every live mail these people have ever been sent, any course: one query stands in for the
@@ -88,19 +111,104 @@ pub async fn get_existing_facts_for_persons(
     let res = sqlx::query_as!(
         ExistingLinkingMailFact,
         r#"
-SELECT sisu_person_id,
-  course_id,
-  emailed_to,
-  sent_at
-FROM credit_registration_account_linking_emails
-WHERE sisu_person_id = ANY($1::text [])
-  AND deleted_at IS NULL
+SELECT e.sisu_person_id AS "sisu_person_id!",
+  e.course_id AS "course_id!",
+  e.emailed_to AS "emailed_to!",
+  e.sent_at AS "sent_at!",
+  (
+    e.replaced_at IS NULL
+    AND (
+      e.student_number_verification_token_id IS NULL
+      OR is_usable_verification_token(t)
+    )
+  ) AS "holds_address!"
+FROM credit_registration_account_linking_emails e
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+WHERE e.sisu_person_id = ANY($1::text [])
+  AND e.deleted_at IS NULL
         "#,
         sisu_person_ids
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// How many linking mails one course has sent each of these people, replaced ones included.
+pub async fn count_mails_per_person_for_course(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+    course_id: Uuid,
+) -> ModelResult<HashMap<String, i64>> {
+    let res = sqlx::query!(
+        r#"
+SELECT sisu_person_id AS "sisu_person_id!",
+  COUNT(*) AS "mail_count!"
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND course_id = $2
+  AND deleted_at IS NULL
+GROUP BY sisu_person_id
+        "#,
+        sisu_person_ids,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res
+        .into_iter()
+        .map(|row| {
+            (
+                row.sisu_person_id.expose_secret().to_owned(),
+                row.mail_count,
+            )
+        })
+        .collect())
+}
+
+/// Marks the rows these new slots would collide with in the dedup key as replaced, where their link
+/// can no longer be used, so the slots can be claimed. Rows holding their address are left alone.
+pub async fn replace_lapsed_slots(
+    conn: &mut PgConnection,
+    new: &[NewAccountLinkingEmail],
+) -> ModelResult<()> {
+    if new.is_empty() {
+        return Ok(());
+    }
+    let sisu_person_ids: Vec<String> = new
+        .iter()
+        .map(|n| n.sisu_person_id.expose_secret().to_owned())
+        .collect();
+    let course_ids: Vec<Uuid> = new.iter().map(|n| n.course_id).collect();
+    let emailed_tos: Vec<String> = new
+        .iter()
+        .map(|n| n.emailed_to.expose_secret().to_owned())
+        .collect();
+    sqlx::query!(
+        r#"
+UPDATE credit_registration_account_linking_emails e
+SET replaced_at = now()
+FROM UNNEST($1::text [], $2::uuid [], $3::text []) AS slot(sisu_person_id, course_id, emailed_to)
+WHERE e.sisu_person_id = slot.sisu_person_id
+  AND e.course_id = slot.course_id
+  AND LOWER(e.emailed_to) = LOWER(slot.emailed_to)
+  AND e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND e.student_number_verification_token_id IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM student_number_verification_tokens t
+    WHERE t.id = e.student_number_verification_token_id
+      AND is_usable_verification_token(t)
+  )
+        "#,
+        &sisu_person_ids,
+        &course_ids,
+        &emailed_tos,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// Batched form of [`claim_send_slot`], keyed by token: returns the
@@ -230,8 +338,8 @@ ORDER BY sent_at DESC
     Ok(res)
 }
 
-/// How many mails this person has had for this course, tokens that expired unused included. Read
-/// against the lifetime cap when an admin asks for a resend.
+/// How many mails this person has had for this course, replaced ones included. Read against the
+/// lifetime cap when an admin asks for a resend.
 pub async fn count_sent_for_person_and_course(
     conn: &mut PgConnection,
     sisu_person_id: &str,
@@ -271,9 +379,8 @@ pub struct LinkingMailToQueue {
 /// Locks them, so the caller must hold a transaction: the delivery insert is not idempotent, and two
 /// iterations claiming one slot would queue the same mail twice.
 ///
-/// A retired, used or expired token is skipped rather than mailed — a dead link spends the
-/// recipient's one mail for this course on nothing — but its slot stays, since it is still proof we
-/// may not mail that address again.
+/// A retired, used or expired token is skipped rather than mailed — a dead link would spend one of
+/// the recipient's mails for this course on nothing — but its slot stays, counting against the caps.
 pub async fn claim_unqueued(
     conn: &mut PgConnection,
     limit: i64,
@@ -294,9 +401,7 @@ FROM credit_registration_account_linking_emails e
   JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
 WHERE e.email_delivery_id IS NULL
   AND e.deleted_at IS NULL
-  AND t.deleted_at IS NULL
-  AND t.used_at IS NULL
-  AND t.expires_at > now()
+  AND is_usable_verification_token(t)
   AND ($2::uuid IS NULL OR e.course_id = $2)
 ORDER BY e.sent_at
 FOR UPDATE OF e SKIP LOCKED
@@ -329,6 +434,57 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Whether the link a linking mail carries can still be opened.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LinkingMailLinkState {
+    /// Also a mail with no token, which has no link to lapse.
+    Usable,
+    Used,
+    /// Expired, or retired unused.
+    Lapsed,
+}
+
+impl LinkingMailLinkState {
+    /// The state a mail's link is in, given whether it can still be used and whether it was used.
+    fn of(is_usable: bool, is_used: bool) -> Self {
+        if is_usable {
+            Self::Usable
+        } else if is_used {
+            Self::Used
+        } else {
+            Self::Lapsed
+        }
+    }
+}
+
+/// The state of each mail's link, by mail id.
+pub async fn get_link_states(
+    conn: &mut PgConnection,
+    mail_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, LinkingMailLinkState>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT e.id,
+  (
+    e.student_number_verification_token_id IS NULL
+    OR is_usable_verification_token(t)
+  ) AS "is_usable!",
+  t.used_at IS NOT NULL AS "is_used!"
+FROM credit_registration_account_linking_emails e
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+WHERE e.id = ANY($1::uuid [])
+        "#,
+        mail_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.id, LinkingMailLinkState::of(row.is_usable, row.is_used)))
+        .collect())
 }
 
 /// What we can honestly say about each linking mail. A slot with no delivery yet is `queued`:
@@ -404,10 +560,15 @@ WHERE sent_at >= $1
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct LinkingMailSendStatusTotals {
     pub mails_in_window: i64,
-    pub queued: i64,
+    /// Claimed, with no delivery yet: the `link-emails` phase has not queued them.
+    pub waiting_for_link_emails: i64,
+    /// Queued as a delivery the email worker has not attempted yet.
+    pub waiting_for_email_worker: i64,
     pub retrying: i64,
     pub sent: i64,
     pub send_failed: i64,
+    /// Of `mails_in_window`, those whose link has been used.
+    pub used: i64,
     /// `None` when nothing failed within the window.
     pub last_send_failed_at: Option<DateTime<Utc>>,
 }
@@ -424,6 +585,7 @@ pub async fn get_send_status_totals_since(
         retryable: Option<bool>,
         first_failed_at: Option<DateTime<Utc>>,
         retry_count: Option<i32>,
+        is_used: bool,
     }
     let rows = sqlx::query_as!(
         Row,
@@ -434,9 +596,11 @@ SELECT
   ed.sent AS "delivery_sent?",
   ed.retryable AS "retryable?",
   ed.first_failed_at AS "first_failed_at?",
-  ed.retry_count AS "retry_count?"
+  ed.retry_count AS "retry_count?",
+  COALESCE(t.used_at IS NOT NULL, FALSE) AS "is_used!"
 FROM credit_registration_account_linking_emails e
   LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id AND ed.deleted_at IS NULL
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
 WHERE e.sent_at >= $1
   AND e.deleted_at IS NULL
         "#,
@@ -450,27 +614,26 @@ WHERE e.sent_at >= $1
         ..Default::default()
     };
     for row in rows {
-        let status = match row.email_delivery_id {
-            None => EmailSendStatus::Queued,
-            Some(_) => {
-                let facts = EmailSendStatusFacts {
-                    sent: row.delivery_sent.unwrap_or(false),
-                    retryable: row.retryable.unwrap_or(false),
-                    retry_count: row.retry_count.unwrap_or(0),
-                    next_retry_at: None,
-                    first_failed_at: row.first_failed_at,
-                    last_attempt_at: None,
-                    failure_code: None,
-                    failure_is_transient: None,
-                };
-                derive_email_send_status(&facts, now).email_send_status
-            }
-        };
+        totals.used += i64::from(row.is_used);
+        let status = row.email_delivery_id.map(|_| {
+            let facts = EmailSendStatusFacts {
+                sent: row.delivery_sent.unwrap_or(false),
+                retryable: row.retryable.unwrap_or(false),
+                retry_count: row.retry_count.unwrap_or(0),
+                next_retry_at: None,
+                first_failed_at: row.first_failed_at,
+                last_attempt_at: None,
+                failure_code: None,
+                failure_is_transient: None,
+            };
+            derive_email_send_status(&facts, now).email_send_status
+        });
         match status {
-            EmailSendStatus::Queued => totals.queued += 1,
-            EmailSendStatus::Retrying => totals.retrying += 1,
-            EmailSendStatus::Sent => totals.sent += 1,
-            EmailSendStatus::SendFailed => {
+            None => totals.waiting_for_link_emails += 1,
+            Some(EmailSendStatus::Queued) => totals.waiting_for_email_worker += 1,
+            Some(EmailSendStatus::Retrying) => totals.retrying += 1,
+            Some(EmailSendStatus::Sent) => totals.sent += 1,
+            Some(EmailSendStatus::SendFailed) => {
                 totals.send_failed += 1;
                 totals.last_send_failed_at = Some(
                     totals
@@ -657,18 +820,59 @@ WHERE id = ANY($1)
     Ok(())
 }
 
+/// Voids the unused links in the mails about the person behind a verified link, and marks those
+/// mails replaced, so that once unlinked the person can be mailed again. The mails still count
+/// against the caps.
+pub async fn retire_unused_for_link(
+    conn: &mut PgConnection,
+    verified_student_number_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+WITH retired AS (
+  UPDATE credit_registration_account_linking_emails e
+  SET replaced_at = now()
+  FROM verified_student_numbers vsn
+  WHERE vsn.id = $1
+    AND e.deleted_at IS NULL
+    AND e.replaced_at IS NULL
+    AND (
+      e.sisu_person_id = vsn.sisu_person_id
+      OR e.student_number = vsn.student_number
+    )
+    AND NOT EXISTS (
+      SELECT 1
+      FROM student_number_verification_tokens t
+      WHERE t.id = e.student_number_verification_token_id
+        AND t.used_at IS NOT NULL
+    )
+  RETURNING e.student_number_verification_token_id
+)
+UPDATE student_number_verification_tokens t
+SET deleted_at = now()
+FROM retired
+WHERE t.id = retired.student_number_verification_token_id
+  AND t.deleted_at IS NULL
+        "#,
+        verified_student_number_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::email_deliveries::insert_email_delivery_to_address;
     use crate::email_templates::{EmailTemplateNew, EmailTemplateType, insert_email_template};
     use crate::library::credit_registration::account_linking::{
-        DiscoveredPerson, claim_linking_mails,
+        DiscoveredPerson, claim_linking_mail,
     };
     use crate::test_helper::*;
 
     async fn claim_a_mail(conn: &mut PgConnection, course_id: Uuid) -> Uuid {
-        claim_linking_mails(
+        claim_linking_mail(
             conn,
             &DiscoveredPerson {
                 sisu_person_id: "hy-hlo-1".to_string().into(),
@@ -676,7 +880,7 @@ mod tests {
                 first_names: Some("Aada".to_string().into()),
                 last_name: Some("Virtanen".to_string().into()),
                 course_id,
-                addresses: vec![DbSecret::new("aada@example.com")],
+                address: Some(DbSecret::new("aada@example.com")),
             },
         )
         .await
@@ -749,4 +953,292 @@ mod tests {
             Some(EmailSendStatus::Queued)
         );
     }
+}
+
+/// A linking email whose link can still be used.
+#[derive(Debug, Clone)]
+pub struct UnusedLinkingLink {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    /// The course code of the email's course, where its modules agree on one.
+    pub uh_course_code: Option<String>,
+    pub emailed_to: DbSecret,
+    pub claimed_at: DateTime<Utc>,
+    pub expires_at: DateTime<Utc>,
+}
+
+/// Linking emails whose link can still be used, oldest first.
+pub async fn get_unused_links(
+    conn: &mut PgConnection,
+    limit: i64,
+) -> ModelResult<Vec<UnusedLinkingLink>> {
+    let res = sqlx::query_as!(
+        UnusedLinkingLink,
+        r#"
+SELECT e.id,
+  e.course_id,
+  c.name AS course_name,
+  (
+    SELECT MIN(TRIM(cm.uh_course_code))
+    FROM course_modules cm
+    WHERE cm.course_id = e.course_id
+      AND cm.deleted_at IS NULL
+      AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+  ) AS "uh_course_code?",
+  e.emailed_to,
+  e.sent_at AS claimed_at,
+  t.expires_at
+FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
+  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+WHERE e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND is_usable_verification_token(t)
+ORDER BY e.sent_at,
+  e.id
+LIMIT $1
+        "#,
+        limit,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// How many links can still be used per course code, over every course with a module on the code.
+pub async fn count_unused_links_by_course_code(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<(String, i64)>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT TRIM(cm.uh_course_code) AS "course_code!",
+  COUNT(DISTINCT e.id) AS "count!"
+FROM credit_registration_account_linking_emails e
+  JOIN courses c ON c.id = e.course_id AND c.deleted_at IS NULL
+  JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+  JOIN course_modules cm ON cm.course_id = e.course_id
+  AND cm.deleted_at IS NULL
+  AND TRIM(COALESCE(cm.uh_course_code, '')) <> ''
+WHERE e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND is_usable_verification_token(t)
+GROUP BY TRIM(cm.uh_course_code)
+        "#,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.course_code, row.count))
+        .collect())
+}
+
+/// Which linking emails a [`get_page`] lists, by what became of their link and their send.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LinkingEmailListStatus {
+    /// Carries a link that can still be used.
+    Unused,
+    Used,
+    /// The link expired or was retired before anyone used it.
+    Expired,
+    /// Not handed to the mail server yet, or the send failed.
+    NotSent,
+}
+
+impl LinkingEmailListStatus {
+    /// The status name the `get_page` query matches on.
+    fn as_sql(self) -> &'static str {
+        match self {
+            Self::Unused => "unused",
+            Self::Used => "used",
+            Self::Expired => "expired",
+            Self::NotSent => "not_sent",
+        }
+    }
+}
+
+/// One linking email as the admin's searchable list shows it.
+#[derive(Debug, Clone)]
+pub struct LinkingEmailListRow {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub emailed_to: DbSecret,
+    pub student_number: DbSecret,
+    pub first_names: Option<DbSecret>,
+    pub last_name: Option<DbSecret>,
+    pub claimed_at: DateTime<Utc>,
+    /// When the `link-emails` phase queued it for the email worker; `None` until then.
+    pub queued_at: Option<DateTime<Utc>>,
+    /// `None` until queued.
+    pub send_status: Option<EmailSendStatusReport>,
+    /// The newest delivery error's message, however transient.
+    pub last_error_message: Option<String>,
+    pub link_state: LinkingMailLinkState,
+    /// `None` for a mail sent without a link.
+    pub link_expires_at: Option<DateTime<Utc>>,
+    pub link_used_at: Option<DateTime<Utc>>,
+    pub claimed_by_user_id: Option<Uuid>,
+    pub claimed_by_email: Option<String>,
+    pub total_count: i64,
+}
+
+/// A page of linking emails on live courses, newest first, including ones a later mail replaced.
+///
+/// `address` matches any part of the recipient address, ignoring case, and overrides `status`, so a
+/// search for a student finds their mail whatever became of it.
+pub async fn get_page(
+    conn: &mut PgConnection,
+    status: Option<LinkingEmailListStatus>,
+    address: Option<&str>,
+    limit: i64,
+    offset: i64,
+) -> ModelResult<Vec<LinkingEmailListRow>> {
+    let address_pattern = address.map(|address| {
+        format!(
+            "%{}%",
+            crate::library::students_view::escape_like_pattern(address)
+        )
+    });
+    let rows = sqlx::query!(
+        r#"
+WITH page AS (
+  SELECT e.id,
+    e.sent_at,
+    c.name AS course_name,
+    COUNT(*) OVER () AS total_count
+  FROM credit_registration_account_linking_emails e
+    JOIN courses c ON c.id = e.course_id
+    AND c.deleted_at IS NULL
+    LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+    LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+    AND ed.deleted_at IS NULL
+  WHERE e.deleted_at IS NULL
+    AND (
+      $2::text IS NULL
+      OR e.emailed_to ILIKE $2 ESCAPE '\'
+    )
+    AND (
+      $1::text IS NULL
+      OR (
+        $1 = 'unused'
+        AND is_usable_verification_token(t)
+      )
+      OR (
+        $1 = 'used'
+        AND t.used_at IS NOT NULL
+      )
+      OR (
+        $1 = 'expired'
+        AND e.student_number_verification_token_id IS NOT NULL
+        AND t.used_at IS NULL
+        AND NOT is_usable_verification_token(t)
+      )
+      OR (
+        $1 = 'not_sent'
+        AND ed.sent IS DISTINCT FROM TRUE
+      )
+    )
+  ORDER BY e.sent_at DESC,
+    e.id
+  LIMIT $3 OFFSET $4
+)
+SELECT e.id,
+  e.course_id,
+  page.course_name AS "course_name!",
+  e.emailed_to,
+  e.student_number,
+  t.first_names AS "first_names?",
+  t.last_name AS "last_name?",
+  e.sent_at AS claimed_at,
+  ed.created_at AS "queued_at?",
+  ed.sent AS "delivery_sent?",
+  ed.retryable AS "retryable?",
+  ed.retry_count AS "retry_count?",
+  ed.next_retry_at AS "next_retry_at?",
+  ed.first_failed_at AS "first_failed_at?",
+  ed.last_attempt_at AS "last_attempt_at?",
+  latest_error.error_code AS "error_code?",
+  latest_error.error_message AS "error_message?",
+  latest_error.is_transient AS "is_transient?",
+  (
+    e.student_number_verification_token_id IS NULL
+    OR is_usable_verification_token(t)
+  ) AS "is_usable!",
+  t.expires_at AS "link_expires_at?",
+  t.used_at AS "link_used_at?",
+  t.claimed_by_user_id AS "claimed_by_user_id?",
+  claimer.email AS "claimed_by_email?",
+  page.total_count AS "total_count!"
+FROM page
+  JOIN credit_registration_account_linking_emails e ON e.id = page.id
+  LEFT JOIN student_number_verification_tokens t ON t.id = e.student_number_verification_token_id
+  LEFT JOIN user_details claimer ON claimer.user_id = t.claimed_by_user_id
+  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  AND ed.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT ede.error_code,
+      ede.error_message,
+      ede.is_transient
+    FROM email_delivery_errors ede
+    WHERE ede.email_delivery_id = ed.id
+      AND ede.deleted_at IS NULL
+    ORDER BY ede.attempt DESC,
+      ede.created_at DESC
+    LIMIT 1
+  ) latest_error ON TRUE
+ORDER BY page.sent_at DESC,
+  page.id
+        "#,
+        status
+            .filter(|_| address.is_none())
+            .map(LinkingEmailListStatus::as_sql),
+        address_pattern,
+        limit,
+        offset,
+    )
+    .fetch_all(conn)
+    .await?;
+    let now = Utc::now();
+    Ok(rows
+        .into_iter()
+        .map(|row| {
+            let send_status = row.delivery_sent.map(|sent| {
+                derive_email_send_status(
+                    &EmailSendStatusFacts {
+                        sent,
+                        retryable: row.retryable.unwrap_or(false),
+                        retry_count: row.retry_count.unwrap_or(0),
+                        next_retry_at: row.next_retry_at,
+                        first_failed_at: row.first_failed_at,
+                        last_attempt_at: row.last_attempt_at,
+                        failure_code: row.error_code,
+                        failure_is_transient: row.is_transient,
+                    },
+                    now,
+                )
+            });
+            LinkingEmailListRow {
+                id: row.id,
+                course_id: row.course_id,
+                course_name: row.course_name,
+                emailed_to: row.emailed_to,
+                student_number: row.student_number,
+                first_names: row.first_names,
+                last_name: row.last_name,
+                claimed_at: row.claimed_at,
+                queued_at: row.queued_at,
+                send_status,
+                last_error_message: row.error_message,
+                link_state: LinkingMailLinkState::of(row.is_usable, row.link_used_at.is_some()),
+                link_expires_at: row.link_expires_at,
+                link_used_at: row.link_used_at,
+                claimed_by_user_id: row.claimed_by_user_id,
+                claimed_by_email: row.claimed_by_email,
+                total_count: row.total_count,
+            }
+        })
+        .collect())
 }

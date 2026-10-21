@@ -19,9 +19,10 @@ import {
   TONE,
 } from "../constants"
 import {
+  breakAnywhereCss,
+  codeValueCss,
   dividedListCss,
   headingCss,
-  codeValueCss,
   noteCss,
   proseCss,
   rowCss,
@@ -33,6 +34,7 @@ import {
 } from "../styles"
 import { useInvalidateAfterMaterialize } from "./adminCreditRegistrationHooks"
 import AdminStateLabel from "./AdminStateLabel"
+import { AUDIT_ACTION } from "./auditActions"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
@@ -94,6 +96,7 @@ const MaterializeButton: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterMaterialize = useInvalidateAfterMaterialize()
   const { button, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.REQUEUE_BATCH,
     mutationFn: (fields) =>
       adminMaterializeCreditRegistrations({ body: { reason: fields.reason } }),
     invalidate: () => void invalidateAfterMaterialize(),
@@ -142,7 +145,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               minWidth: "11rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
                   <span className={noteCss}>{row.course_module_name}</span>
                 </span>
               ),
@@ -204,7 +207,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
               minWidth: "11rem",
               cell: (row) => (
                 <span className={stackedCellCss}>
-                  <span>{row.course_name}</span>
+                  <span className={breakAnywhereCss}>{row.course_name}</span>
                   <span className={cx(noteCss, codeValueCss)}>{row.uh_course_code}</span>
                 </span>
               ),
@@ -246,7 +249,11 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
                 />
               ),
             },
-            { header: t("label-course"), minWidth: "11rem", cell: (row) => row.course_name },
+            {
+              header: t("label-course"),
+              minWidth: "11rem",
+              cell: (row) => <span className={breakAnywhereCss}>{row.course_name}</span>,
+            },
             {
               header: t("label-state"),
               minWidth: "10rem",
@@ -276,11 +283,8 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
     },
   ]
 
-  return (
-    <section className={sectionCardCss}>
-      <div className={sectionCardHeaderCss}>
-        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
-      </div>
+  const checks = (
+    <>
       <p className={cx(noteCss, proseCss)}>
         {t("credit-registration-admin-reconciliation-in-queue-note")}
       </p>
@@ -304,6 +308,31 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
       {/* After the checks, not beside the heading: it stays the section's action regardless of
           what the checks found, but a phone must not read it before it reads why it exists. */}
       <MaterializeButton />
+    </>
+  )
+
+  if (detectors.every((detector) => detector.count === 0)) {
+    return (
+      <section className={sectionCardCss}>
+        <Disclosure
+          title={t("credit-registration-heading-reconciliation")}
+          summary={
+            <span className={noteCss}>{t("credit-registration-admin-check-none-found")}</span>
+          }
+          variant={PLAIN_DISCLOSURE}
+        >
+          <div className={subsectionCss}>{checks}</div>
+        </Disclosure>
+      </section>
+    )
+  }
+
+  return (
+    <section className={sectionCardCss}>
+      <div className={sectionCardHeaderCss}>
+        <h2 className={headingCss}>{t("credit-registration-heading-reconciliation")}</h2>
+      </div>
+      {checks}
     </section>
   )
 }

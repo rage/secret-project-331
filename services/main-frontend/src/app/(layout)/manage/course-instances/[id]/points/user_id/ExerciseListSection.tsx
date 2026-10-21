@@ -4,16 +4,14 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { LockKeyhole, Pen, UnlockKeyhole } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult, Select, Spinner } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import {
   defaultTeacherChapterLockStatus,
@@ -71,9 +69,17 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
   const { t } = useTranslation()
   const courseStructure = useCourseStructure(courseId)
   const [editorChapterId, setEditorChapterId] = useState<string | null>(null)
-  const [editorStatus, setEditorStatus] = useState<TeacherChapterLockStatus>(
-    defaultTeacherChapterLockStatus,
-  )
+  const {
+    control: statusControl,
+    watch: watchStatus,
+    reset: resetStatus,
+  } = useForm<{
+    status: TeacherChapterLockStatus
+  }>({
+    defaultValues: { status: defaultTeacherChapterLockStatus },
+  })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const editorStatus = watchStatus("status")
 
   return (
     <QueryResult query={courseStructure}>
@@ -94,7 +100,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
 
         const openStatusEditor = (chapterId: string) => {
           setEditorChapterId(chapterId)
-          setEditorStatus(getEditableStatus(chapterLockStatusesByChapterId?.[chapterId]))
+          resetStatus({ status: getEditableStatus(chapterLockStatusesByChapterId?.[chapterId]) })
         }
 
         const closeStatusEditor = () => {
@@ -231,7 +237,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                               disabled={lockActionPendingChapterId === chapterId}
                             >
                               {lockActionPendingChapterId === chapterId ? (
-                                <Spinner variant="small" />
+                                <Spinner size="sm" delayMs={0} />
                               ) : (
                                 <Pen size={16} />
                               )}
@@ -251,28 +257,24 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                 })}
             </div>
             {chapterLockingEnabled && (
-              <StandardDialog
+              <Dialog
                 open={editorChapterId !== null}
                 onClose={closeStatusEditor}
                 title={t("teacher-chapter-status-editor-title")}
-                buttons={[
+                actions={[
                   {
                     variant: "secondary",
                     onClick: closeStatusEditor,
                     disabled: isSavingEditorStatus,
-                    children: t("button-text-cancel"),
+                    label: t("button-text-cancel"),
                   },
                   {
                     variant: "primary",
                     onClick: () => {
                       void saveEditedStatus()
                     },
-                    disabled: isSavingEditorStatus,
-                    children: isSavingEditorStatus ? (
-                      <Spinner variant="small" />
-                    ) : (
-                      t("button-text-save")
-                    ),
+                    isLoading: isSavingEditorStatus,
+                    label: t("button-text-save"),
                   },
                 ]}
               >
@@ -297,14 +299,11 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                       : ""}
                   </p>
 
-                  <SelectField
+                  <Select
                     id="teacher-chapter-status-select"
-                    data-testid="teacher-chapter-status-select"
-                    defaultValue={editorStatus}
+                    name="status"
+                    control={statusControl}
                     label={t("teacher-chapter-status-select-label")}
-                    onChangeByValue={(value) => {
-                      setEditorStatus(value as TeacherChapterLockStatus)
-                    }}
                     options={teacherChapterLockStatuses.map((status) => ({
                       value: status,
                       label: getTeacherChapterLockLabel(t, status),
@@ -314,7 +313,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                     `}
                   />
                 </div>
-              </StandardDialog>
+              </Dialog>
             )}
           </Section>
         )

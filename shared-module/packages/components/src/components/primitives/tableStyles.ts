@@ -8,6 +8,8 @@ export const CONTROL_COLUMN_WIDTH = "3rem"
 
 export const frameCss = css`
   position: relative;
+  max-width: 100%;
+  min-width: 0;
 `
 
 export const scrollCss = css`
@@ -54,7 +56,14 @@ export const headerCellCss = css`
 
 export const bodyCellCss = css`
   color: var(--color-gray-700);
-  font-variant-numeric: tabular-nums;
+  /* Unlike "anywhere", leaves min-content alone, so auto layout never squeezes a short cell
+     (a link, a date) into mid-word breaks. */
+  overflow-wrap: break-word;
+`
+
+/** For columns of ids and emails: lets auto layout shrink the column below the token's width. */
+export const breakAnywhereCss = css`
+  overflow-wrap: anywhere;
 `
 
 export const nowrapCss = css`
@@ -80,8 +89,11 @@ export const alignCss = {
   center: css`
     text-align: center;
   `,
+  /* Tabular figures only here: in Inter they also widen hyphens, which spaces out names, emails
+     and dates in text columns. */
   end: css`
     text-align: end;
+    font-variant-numeric: tabular-nums;
   `,
 } as const
 
@@ -261,6 +273,16 @@ export const detailCellCss = css`
   color: var(--color-gray-700);
 `
 
+/** A `rowGroup` heading row: spans the table and introduces the rows under it. */
+export const groupHeaderCellCss = css`
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--color-clear-300);
+  color: var(--color-gray-700);
+  font-size: var(--font-size-1);
+  font-weight: 600;
+  text-align: start;
+`
+
 /** Hidden until the table stacks, where it becomes the row's label for that cell. */
 export const stackLabelCss = css`
   display: none;
@@ -375,6 +397,17 @@ export const stackCss = css`
     & td[data-table-detail="true"] {
       display: block;
       margin-top: var(--space-2);
+      border-bottom: 0;
+    }
+
+    & tr[data-table-group="true"] {
+      padding: var(--space-3) 0 0;
+      border: 0;
+    }
+
+    & th[data-table-group="true"] {
+      display: block;
+      padding: 0;
       border-bottom: 0;
     }
 

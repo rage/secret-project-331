@@ -3,15 +3,15 @@
 import { css } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useContext, useEffect, useMemo, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 
 import type {
   EmailTemplate,
   EmailTemplatePreviewRequest,
   EmailTemplateUpdate,
 } from "@/generated/api"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { Button, Infobox, TONE } from "@/shared-module/components"
+import { Button, Infobox, TONE, ErrorNotice } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -31,7 +31,11 @@ import { findImagesNeedingAltText } from "../../utils/Gutenberg/imageAltWarning"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import EmailPreviewDialog from "../email/EmailPreviewDialog"
-import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
+import type { EmailDetailsFormFields } from "../forms/UpdateEmailDetailsForm"
+import UpdateEmailDetailsForm, {
+  SUBJECT_FIELD_NAME,
+  TEMPLATE_TYPE_FIELD_NAME,
+} from "../forms/UpdateEmailDetailsForm"
 
 interface EmailEditorProps {
   data: EmailTemplate
@@ -92,19 +96,19 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     ) as BlockInstance[]
     return initialContent
   })
-  const [templateType, setTemplateType] = useState<unknown>(
-    // oxlint-disable-next-line i18next/no-literal-string
-    (data as { template_type?: unknown }).template_type ?? "generic",
-  )
-  const [subject, setSubject] = useState(data.subject ?? "")
+  const { control: emailDetailsControl, reset: resetEmailDetailsForm } =
+    useForm<EmailDetailsFormFields>({
+      defaultValues: {
+        templateType: data.template_type,
+        subject: data.subject ?? "",
+      },
+    })
+  const templateTypeString = useWatch({
+    control: emailDetailsControl,
+    name: TEMPLATE_TYPE_FIELD_NAME,
+  })
+  const subject = useWatch({ control: emailDetailsControl, name: SUBJECT_FIELD_NAME })
   const [previewDraft, setPreviewDraft] = useState<EmailTemplatePreviewRequest | null>(null)
-
-  const templateTypeString = useMemo(() => {
-    if (typeof templateType === "string") {
-      return templateType
-    }
-    return templateType as unknown as string
-  }, [templateType])
 
   const detectedPlaceholders = useMemo(
     () => extractPlaceholders(content, subject),
@@ -128,11 +132,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   const canSave = placeholderValidation.valid && imagesNeedingAltText.length === 0
 
   const dataContentString = useMemo(() => JSON.stringify(data.content), [data.content])
-  const dataTemplateType = useMemo(
-    // oxlint-disable-next-line i18next/no-literal-string
-    () => (data as { template_type?: unknown }).template_type ?? "generic",
-    [data],
-  )
+  const dataTemplateType = data.template_type
 
   useEffect(() => {
     const modifiedContent = modifyBlocks(
@@ -140,8 +140,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       allowedEmailBlocks,
     ) as BlockInstance[]
     setContent(modifiedContent)
-    setTemplateType(dataTemplateType)
-    setSubject(data.subject ?? "")
+    resetEmailDetailsForm({ templateType: dataTemplateType, subject: data.subject ?? "" })
     setNeedToRunMigrationsAndValidations(true)
   }, [
     dataContentString,
@@ -149,19 +148,18 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     data.subject,
     data.content,
     setNeedToRunMigrationsAndValidations,
+    resetEmailDetailsForm,
   ])
 
   useEffect(() => {
     if (saveMutation.isSuccess && saveMutation.data) {
       setContent((saveMutation.data.content ?? []) as BlockInstance[])
-
-      setTemplateType(
-        // oxlint-disable-next-line i18next/no-literal-string
-        (saveMutation.data as { template_type?: unknown }).template_type ?? "generic",
-      )
-      setSubject(saveMutation.data.subject ?? "")
+      resetEmailDetailsForm({
+        templateType: saveMutation.data.template_type,
+        subject: saveMutation.data.subject ?? "",
+      })
     }
-  }, [saveMutation.isSuccess, saveMutation.data])
+  }, [saveMutation.isSuccess, saveMutation.data, resetEmailDetailsForm])
 
   const normalizedContent = () =>
     stripProtocolBeforePlaceholderLinks(removeUnsupportedBlockType(content))
@@ -174,7 +172,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
     saveMutation.mutate(
       {
         subject,
-        template_type: templateType,
+        template_type: templateTypeString,
         content: normalizedContent(),
         exercise_completions_threshold: null,
         points_threshold: null,
@@ -182,9 +180,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       {
         onSuccess: (res) => {
           setContent((res.content ?? []) as BlockInstance[])
-          // oxlint-disable-next-line i18next/no-literal-string
-          setTemplateType((res as { template_type?: unknown }).template_type ?? "generic")
-          setSubject(res.subject ?? "")
+          resetEmailDetailsForm({ templateType: res.template_type, subject: res.subject ?? "" })
         },
       },
     )
@@ -195,10 +191,10 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       className={css`
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 1rem;
+        align-items: stretch;
+        gap: var(--space-3);
         background: #f5f6f7;
-        padding: 1rem;
+        padding: var(--space-4);
       `}
     >
       <Button
@@ -242,22 +238,22 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       <div className="editor__component">
         <div
           className={css`
-            padding: 1rem;
+            padding: 1rem 0;
             max-width: 1200px;
             margin: 0 auto;
           `}
         >
-          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+          {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
 
           <UpdateEmailDetailsForm
-            templateType={templateType}
-            subject={subject}
-            setTemplateType={setTemplateType}
-            setSubject={setSubject}
+            control={emailDetailsControl}
+            templateType={templateTypeString}
             placeholderValidation={placeholderValidation}
           />
         </div>
       </div>
+
+      <div className="editor__top-button-wrapper">{saveButton}</div>
 
       <EmailGutenbergEditor
         content={content}

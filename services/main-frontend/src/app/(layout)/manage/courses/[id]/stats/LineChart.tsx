@@ -3,16 +3,14 @@
 import { css } from "@emotion/css"
 import { format } from "date-fns"
 import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "echarts"
-import React from "react"
+import React, { useEffect } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/components/charts/Echarts"
 import type { CountResult } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { DateField, LoadingRegion, Select, ErrorNotice } from "@/shared-module/components"
 
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import StatsHeader from "./StatsHeader"
@@ -25,6 +23,16 @@ export type Period = typeof MONTHLY_PERIOD | typeof DAILY_PERIOD | typeof CUSTOM
 
 export const DAILY_DATE_FORMAT = "yyyy-MM-dd"
 export const MONTHLY_DATE_FORMAT = "yyyy-MM"
+
+const FIELD_START_DATE = "startDate" as const
+const FIELD_END_DATE = "endDate" as const
+const FIELD_PERIOD = "period" as const
+
+interface LineChartFilterValues {
+  startDate: string
+  endDate: string
+  period: Period
+}
 
 interface LineChartProps {
   data: CountResult[] | undefined
@@ -62,6 +70,28 @@ const LineChart: React.FC<LineChartProps> = ({
   setEndDate,
 }) => {
   const { t } = useTranslation()
+
+  // DateField and Select are control/name-only (no onChange prop), so this local form exists
+  // solely to host them; their values are mirrored up through the legacy setStartDate/setEndDate/
+  // setPeriod callback props.
+  const { control: filterControl } = useForm<LineChartFilterValues>({
+    defaultValues: { startDate: "", endDate: "", period },
+  })
+  const watchedStartDate = useWatch({ control: filterControl, name: FIELD_START_DATE })
+  const watchedEndDate = useWatch({ control: filterControl, name: FIELD_END_DATE })
+  const watchedPeriod = useWatch({ control: filterControl, name: FIELD_PERIOD })
+
+  useEffect(() => {
+    setStartDate?.(watchedStartDate || null)
+  }, [watchedStartDate, setStartDate])
+
+  useEffect(() => {
+    setEndDate?.(watchedEndDate || null)
+  }, [watchedEndDate, setEndDate])
+
+  useEffect(() => {
+    setPeriod(watchedPeriod)
+  }, [watchedPeriod, setPeriod])
 
   const chartOptions: EChartsOption = {
     xAxis: {
@@ -131,19 +161,24 @@ const LineChart: React.FC<LineChartProps> = ({
                   padding-bottom: 12px;
                 `}
               >
-                <DatePickerField
+                <DateField
+                  control={filterControl}
+                  name={FIELD_START_DATE}
                   label={t("stats-start-date")}
-                  onChangeByValue={(value) => setStartDate?.(value)}
                 />
-                <DatePickerField
+                <DateField
+                  control={filterControl}
+                  name={FIELD_END_DATE}
                   label={t("stats-end-date")}
-                  onChangeByValue={(value) => setEndDate?.(value)}
                 />
               </div>
             )}
 
-            <SelectMenu
+            <Select
               id="period-select"
+              control={filterControl}
+              name={FIELD_PERIOD}
+              label={t("stats-period-selector-label")}
               options={[
                 { value: MONTHLY_PERIOD, label: t("stats-period-monthly") },
                 { value: DAILY_PERIOD, label: t("stats-period-daily") },
@@ -151,13 +186,10 @@ const LineChart: React.FC<LineChartProps> = ({
                   ? [{ value: CUSTOM_PERIOD, label: t("stats-period-custom") }]
                   : []),
               ]}
-              value={period}
-              onChange={(e) => setPeriod(e.currentTarget.value as Period)}
               className={css`
                 margin-bottom: 0;
                 min-width: 120px;
               `}
-              showDefaultOption={false}
             />
           </div>
         )}
@@ -176,9 +208,9 @@ const LineChart: React.FC<LineChartProps> = ({
         `}
       >
         {isLoading ? (
-          <Spinner variant="medium" />
+          <LoadingRegion minHeight={0} />
         ) : error ? (
-          <ErrorBanner variant="readOnly" error={error} />
+          <ErrorNotice error={error} />
         ) : !data || data.length < 2 ? (
           <div>{t("no-data")}</div>
         ) : (

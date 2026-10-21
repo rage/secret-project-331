@@ -474,22 +474,6 @@ async fn get_my_studies(
     )
     .await?;
 
-    let registering_new_completion_module_ids: HashSet<Uuid> =
-        if models::verified_student_numbers::get_by_user_id(&mut conn, user.id)
-            .await?
-            .is_some()
-        {
-            models::course_modules::get_ids_registering_eligible_new_completions_via_suotar(
-                &mut conn,
-                &course_ids,
-            )
-            .await?
-            .into_iter()
-            .collect()
-        } else {
-            HashSet::new()
-        };
-
     let completion_ids: Vec<Uuid> = enrollments_info
         .course_enrollments
         .iter()
@@ -558,10 +542,10 @@ async fn get_my_studies(
                     order_number: course_module.order_number,
                     ects_credits: course_module.ects_credits,
                     uh_course_code: course_module.uh_course_code.clone(),
-                    supports_credit_registration: registration_completion.map_or_else(
-                        || registering_new_completion_module_ids.contains(&course_module.id),
-                        |completion| completion.register_credits_via_suotar,
-                    ),
+                    supports_credit_registration: models::course_modules::registers_credits(
+                        course_module.uh_course_code.as_deref(),
+                    ) && registration_completion
+                        .is_none_or(|completion| completion.register_credits_via_suotar),
                     is_credit_registration_starting: registration_completion.is_some_and(
                         |completion| credit_registration_expected_ids.contains(&completion.id),
                     ),

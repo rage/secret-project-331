@@ -60,6 +60,7 @@ pub struct ListAdminActionsQuery {
     target_kind: Option<CreditRegistrationAdminActionTarget>,
     target_id: Option<Uuid>,
     target_phase: Option<String>,
+    user_id: Option<Uuid>,
     course_id: Option<Uuid>,
     from: Option<DateTime<Utc>>,
     to: Option<DateTime<Utc>>,
@@ -87,6 +88,7 @@ module, a course, a phase, a student-number link or its token.
         ("target_kind" = Option<CreditRegistrationAdminActionTarget>, Query, description = "What was acted on"),
         ("target_id" = Option<Uuid>, Query, description = "One target row"),
         ("target_phase" = Option<String>, Query, description = "One pipeline phase"),
+        ("user_id" = Option<Uuid>, Query, description = "Every action about this student: their registrations, student number links, tokens, and actions naming them or their student number"),
         ("course_id" = Option<Uuid>, Query, description = "Actions on this course, and actions its teachers took"),
         ("from" = Option<DateTime<Utc>>, Query, description = "Taken at or after"),
         ("to" = Option<DateTime<Utc>>, Query, description = "Taken at or before")
@@ -113,6 +115,7 @@ pub async fn list_credit_registration_admin_actions(
         target_kind: query.target_kind,
         target_id: query.target_id,
         target_phase,
+        user_id: query.user_id,
         course_id: query.course_id,
         from: query.from,
         to: query.to,
@@ -160,9 +163,55 @@ fn to_action_row(row: CreditRegistrationAdminActionListRow) -> CreditRegistratio
     }
 }
 
+/// Distinct earlier reasons offered for one action.
+const EARLIER_REASON_LIMIT: i64 = 20;
+
+/// The query of `GET /audit/earlier-reasons`.
+#[derive(Debug, Deserialize)]
+pub struct EarlierReasonsQuery {
+    action: CreditRegistrationAdminAction,
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+before for an action, to pick from instead of typing the same one again.
+
+Distinct after trimming, most recently used first, at most 20.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/audit/earlier-reasons",
+    operation_id = "getCreditRegistrationEarlierReasons",
+    tag = "credit-registration-admin",
+    params(("action" = CreditRegistrationAdminAction, Query, description = "The action the reasons were given for")),
+    responses(
+        (status = 200, description = "Earlier reasons, most recently used first", body = Vec<String>)
+    )
+)]
+pub async fn get_credit_registration_earlier_reasons(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    query: web::Query<EarlierReasonsQuery>,
+) -> ControllerResult<web::Json<Vec<String>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+    let reasons = credit_registration_admin_actions::get_earlier_reasons(
+        &mut conn,
+        query.action,
+        EARLIER_REASON_LIMIT,
+    )
+    .await?;
+    token.authorized_ok(web::Json(reasons))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/audit",
         web::get().to(list_credit_registration_admin_actions),
+    )
+    .route(
+        "/audit/earlier-reasons",
+        web::get().to(get_credit_registration_earlier_reasons),
     );
 }

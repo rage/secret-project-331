@@ -20,9 +20,17 @@ mod phases;
 mod reconciliation;
 mod student_numbers;
 
+use std::collections::HashMap;
+
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::credit_registration_account_linking_emails::{
     self, CreditRegistrationAccountLinkingEmail,
 };
+use headless_lms_models::credit_registration_admin_actions::{self, ManualLinkingEmailSend};
+use headless_lms_models::credit_registration_events::{
+    self, CreditRegistrationEventKind, NewCreditRegistrationEvent,
+};
+use headless_lms_models::credit_registrations::AttentionRules;
 use headless_lms_models::email_deliveries::EmailSendStatusReport;
 use headless_lms_models::student_number_verification_tokens;
 use utoipa::{OpenApi, ToSchema};
@@ -46,6 +54,8 @@ use secrecy::ExposeSecret;
     errors::get_credit_registration_thresholds,
     errors::get_credit_registration_attention_items,
     errors::get_credit_registration_errors_by_code,
+    errors::admin_dismiss_credit_registration_attention,
+    errors::admin_add_credit_registration_note,
     phases::list_credit_registration_phases,
     api_log::list_suotar_api_calls,
     api_log::get_suotar_api_call,
@@ -54,22 +64,41 @@ use secrecy::ExposeSecret;
     courses::admin_resume_course_module_credit_registration,
     reconciliation::get_credit_registration_reconciliation,
     audit::list_credit_registration_admin_actions,
+    audit::get_credit_registration_earlier_reasons,
     history::get_credit_registration_pipeline_history,
     enrolment_checks::get_credit_registration_enrolment_checks,
     account_linking::get_account_linking_stats,
+    account_linking::list_account_linking_emails,
     account_linking::admin_resend_account_linking_email,
     account_linking::admin_resolve_student_number_for_linking,
     account_linking::admin_manually_link_student_number,
+    account_linking::admin_request_enrolment_list_fetch,
+    account_linking::admin_dismiss_study_registry_conflict,
+    account_linking::get_credit_registration_linking_candidates,
+    account_linking::get_account_linking_courses,
+    account_linking::get_account_linking_unlinked_enrolees,
     student_numbers::list_verified_student_numbers_for_admin,
     student_numbers::admin_unlink_student_number,
     materialize::admin_materialize_credit_registrations
-))]
+), components(schemas(
+    // Only a query parameter names it, and utoipa takes schemas from bodies alone.
+    headless_lms_models::credit_registration_account_linking_emails::LinkingEmailListStatus
+)))]
 pub(crate) struct MainFrontendCreditRegistrationAdminApiDoc;
 
-/// Resends after which retrying is not the answer and the attention queue picks the row up. Verify
-/// polls do not count: confirming routinely takes many. Shared so the Overview tile and the Errors
-/// queue count the same rows.
-const ATTENTION_TOO_MANY_ATTEMPTS: i32 = 5;
+/// The rules every Needs attention count on these tabs is taken under.
+async fn attention_rules(
+    conn: &mut PgConnection,
+    app_conf: &ApplicationConfiguration,
+) -> Result<AttentionRules, ControllerError> {
+    Ok(
+        headless_lms_credit_registration::attention::attention_rules(
+            conn,
+            app_conf.suotar_configuration.account_linking_since,
+        )
+        .await?,
+    )
+}
 
 /// Every handler here gates on the same check; a submodule calls this instead of repeating it.
 async fn authorize_credit_registration_admin(
@@ -98,6 +127,25 @@ fn required_reason(reason: &str) -> Result<&str, ControllerError> {
     Ok(trimmed)
 }
 
+/// Records an admin action on the row's timeline without moving its state.
+async fn insert_admin_action_event(
+    tx: &mut PgConnection,
+    id: Uuid,
+    actor_user_id: Uuid,
+    reason: &str,
+) -> Result<(), ControllerError> {
+    credit_registration_events::insert(
+        tx,
+        &NewCreditRegistrationEvent {
+            actor_user_id: Some(actor_user_id),
+            message: Some(reason.to_string()),
+            ..NewCreditRegistrationEvent::new(id, CreditRegistrationEventKind::AdminAction)
+        },
+    )
+    .await?;
+    Ok(())
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminLinkingEmail {
     pub id: Uuid,
@@ -111,6 +159,51 @@ pub struct AdminLinkingEmail {
     pub token_claimed_by_user_id: Option<Uuid>,
     pub token_used_at: Option<DateTime<Utc>>,
     pub token_expires_at: Option<DateTime<Utc>>,
+}
+
+/// A linking email someone sent by hand, so others do not send the same one again.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminManualLinkingEmailSend {
+    pub sent_at: DateTime<Utc>,
+    pub sent_by_user_id: Uuid,
+    pub sent_by_first_name: Option<String>,
+    pub sent_by_last_name: Option<String>,
+    pub sent_by_email: Option<String>,
+    /// In full.
+    pub emailed_to: Option<String>,
+}
+
+impl From<ManualLinkingEmailSend> for AdminManualLinkingEmailSend {
+    fn from(send: ManualLinkingEmailSend) -> Self {
+        Self {
+            sent_at: send.sent_at,
+            sent_by_user_id: send.sent_by_user_id,
+            sent_by_first_name: send.sent_by_first_name,
+            sent_by_last_name: send.sent_by_last_name,
+            sent_by_email: send.sent_by_email,
+            emailed_to: send.emailed_to,
+        }
+    }
+}
+
+/// The linking emails sent by hand on these courses as a guess for a registration's student, newest
+/// first, by registration id.
+async fn manual_linking_email_sends_by_registration(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> Result<HashMap<Uuid, Vec<AdminManualLinkingEmailSend>>, ControllerError> {
+    let mut by_registration: HashMap<Uuid, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
+    if course_ids.is_empty() {
+        return Ok(by_registration);
+    }
+    let sends =
+        credit_registration_admin_actions::get_manual_linking_email_sends(conn, course_ids).await?;
+    for send in sends {
+        if let Some(id) = send.credit_registration_id {
+            by_registration.entry(id).or_default().push(send.into());
+        }
+    }
+    Ok(by_registration)
 }
 
 /// Shared by the ledger detail view and the account-linking admin views: both show a person's linking

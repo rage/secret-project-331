@@ -35,7 +35,10 @@ test("Join course by code only", async ({}) => {
     )
 
     await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
-    await teacherPage.getByLabel("Edit course").getByText("Joinable by code only").click()
+    await teacherPage
+      .getByLabel("Edit course")
+      .getByRole("checkbox", { name: "Joinable by code only" })
+      .uncheck()
     await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
     await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
 
@@ -44,7 +47,10 @@ test("Join course by code only", async ({}) => {
 
   await test.step("Turn join by code only feature back on", async () => {
     await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
-    await teacherPage.getByLabel("Edit course").getByText("Joinable by code only").click()
+    await teacherPage
+      .getByLabel("Edit course")
+      .getByRole("checkbox", { name: "Joinable by code only" })
+      .check()
     await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
     await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
 

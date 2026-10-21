@@ -3,7 +3,7 @@
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
-import type { i18n, TFunction } from "i18next"
+import type { TFunction } from "i18next"
 import { useAtomValue } from "jotai"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -22,6 +22,7 @@ import NextSectionLink from "@/shared-module/common/components/NextSectionLink"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { courseFrontPageRoute, coursePageRoute } from "@/utils/course-material/routing"
@@ -90,9 +91,6 @@ const ChapterProgress = styled.div`
   }
 `
 
-const NUMERIC = "numeric"
-const LONG = "long"
-
 function calculatePercentage(attempted: number, total: number): string {
   if (total === 0) {
     return "0%"
@@ -106,7 +104,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   organizationSlug,
   courseSlug,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const now = useTime()
   const materialInstance = useAtomValue(materialInstanceAtom)
   const courseInstanceId = materialInstance?.id
@@ -159,21 +157,11 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
       getPageRoutingData.data,
       chapterId,
       now,
-      i18n,
       organizationSlug,
       courseSlug,
       currentPageId,
     )
-  }, [
-    chapterId,
-    courseSlug,
-    currentPageId,
-    getPageRoutingData.data,
-    i18n,
-    now,
-    organizationSlug,
-    t,
-  ])
+  }, [chapterId, courseSlug, currentPageId, getPageRoutingData.data, now, organizationSlug, t])
 
   return (
     <QueryResult query={getPageRoutingData}>
@@ -219,7 +207,6 @@ function deriveNextpageProps(
   info: PageNavigationInformation,
   chapterId: string | null,
   now: Date,
-  i18n: i18n,
   organizationSlug: string,
   courseSlug: string,
   currentPageId: string,
@@ -293,16 +280,9 @@ function deriveNextpageProps(
         })
         res.nextTitle = t("opens-in-time", { "relative-time": formatted })
       } else {
-        const date = parseISO(info.next_page.chapter_opens_at).toLocaleString(i18n.language, {
-          year: NUMERIC,
-          month: LONG,
-          day: NUMERIC,
+        res.nextTitle = t("available-at-timestamp", {
+          timestamp: dateToString(info.next_page.chapter_opens_at),
         })
-        const time = parseISO(info.next_page.chapter_opens_at).toLocaleString(i18n.language, {
-          hour: NUMERIC,
-          minute: NUMERIC,
-        })
-        res.nextTitle = t("available-on-date-at-time", { date: date, time: time })
       }
     }
   }

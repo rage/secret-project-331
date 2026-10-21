@@ -4,8 +4,6 @@
 //! now, so a row that missed rungs (an outage, a check brought forward) gets one catch-up check
 //! rather than one per missed rung, and a row past its last rung has stopped.
 
-use std::sync::LazyLock;
-
 use utoipa::ToSchema;
 
 use crate::prelude::*;
@@ -44,18 +42,26 @@ pub enum EnrolmentCheckSource {
 }
 
 impl EnrolmentCheckSource {
-    /// Whether someone pressed a button for the check, and so is waiting to see its answer.
-    pub fn is_request(self) -> bool {
-        matches!(
-            self,
-            Self::StudentRequest | Self::TeacherRequest | Self::AdminRequest
-        )
+    /// Whether something other than the row's own ladder set the check off: someone pressed a
+    /// button and is waiting for its answer, or an enrolment just turned up and the check is due now.
+    pub fn is_prompted(self) -> bool {
+        self != Self::Schedule
+    }
+
+    /// When a schedule this source started at `anchor` runs a check of its own ahead of the ladder's
+    /// first rung, or `None` for one that waits for that rung. The ladder runs on unchanged after.
+    pub fn own_check_at(self, anchor: DateTime<Utc>) -> Option<DateTime<Utc>> {
+        (self == Self::AccountLink).then(|| anchor + ACCOUNT_LINK_CHECK_DELAY)
     }
 }
 
 /// Suotar's copy of Sisu shows a new enrolment after 15 to 60 minutes, so a check sooner than this
 /// after an enrolment usually cannot see it.
 pub const REGISTRY_LAG: TimeDelta = TimeDelta::hours(1);
+
+/// How soon after a student links their number from a roster mail their enrolment is checked. The
+/// roster already listed the enrolment, so unlike a request this need not wait out [`REGISTRY_LAG`].
+pub const ACCOUNT_LINK_CHECK_DELAY: TimeDelta = TimeDelta::minutes(1);
 
 /// How soon after a check request, or after the last check, another request may start one. Shared
 /// by the student's recheck, Done and the teacher's button.
@@ -117,50 +123,56 @@ impl ScheduledEnrolmentCheck {
     }
 }
 
-/// The group's ladder, as offsets from the anchor, ascending.
-fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [TimeDelta] {
-    const DAY: TimeDelta = TimeDelta::days(1);
-    const WEEK: TimeDelta = TimeDelta::weeks(1);
-    static COMPLETED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        [1, 3, 7, 14, 30, 60, 90]
-            .into_iter()
-            .map(TimeDelta::days)
-            .collect()
-    });
-    static VISITED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets: Vec<TimeDelta> = [60, 75, 120, 240, 480]
-            .into_iter()
-            .map(TimeDelta::minutes)
-            .collect();
-        extend_by(&mut offsets, DAY, TimeDelta::days(14));
-        extend_by(&mut offsets, WEEK, TimeDelta::days(90));
-        offsets
-    });
-    static CHECK_REQUESTED: LazyLock<Vec<TimeDelta>> = LazyLock::new(|| {
-        let mut offsets: Vec<TimeDelta> = [15, 50, 60, 75, 120, 180, 360, 720, 1440]
-            .into_iter()
-            .map(TimeDelta::minutes)
-            .collect();
-        extend_by(&mut offsets, DAY, TimeDelta::days(28));
-        extend_by(&mut offsets, WEEK, TimeDelta::days(180));
-        offsets
-    });
-    match group {
-        EnrolmentCheckGroup::Completed => &COMPLETED,
-        EnrolmentCheckGroup::Visited => &VISITED,
-        EnrolmentCheckGroup::CheckRequested => &CHECK_REQUESTED,
+pub(crate) const MINUTE_SECS: i64 = 60;
+pub(crate) const HOUR_SECS: i64 = 60 * MINUTE_SECS;
+pub(crate) const DAY_SECS: i64 = 24 * HOUR_SECS;
+pub(crate) const WEEK_SECS: i64 = 7 * DAY_SECS;
+
+/// A ladder in seconds: `head` in `head_unit`s, then for each `(gap, until)` rungs `gap` apart while
+/// they stay within `until`. Fails to compile unless that makes exactly `N` rungs.
+pub(crate) const fn ladder<const N: usize>(
+    head: &[i64],
+    head_unit: i64,
+    extensions: &[(i64, i64)],
+) -> [i64; N] {
+    let mut rungs = [0; N];
+    let mut len = 0;
+    while len < head.len() {
+        rungs[len] = head[len] * head_unit;
+        len += 1;
     }
+    let mut i = 0;
+    while i < extensions.len() {
+        let (gap, until) = extensions[i];
+        while rungs[len - 1] + gap <= until {
+            rungs[len] = rungs[len - 1] + gap;
+            len += 1;
+        }
+        i += 1;
+    }
+    assert!(len == N, "the ladder has a different number of rungs");
+    rungs
 }
 
-fn push_after(offsets: &mut Vec<TimeDelta>, gap: TimeDelta) {
-    let last = offsets.last().copied().unwrap_or_default();
-    offsets.push(last + gap);
-}
+/// Also the ladder of enrolment list fetches for a person waiting for a student number.
+pub(crate) const COMPLETED_LADDER: [i64; 7] = ladder(&[1, 3, 7, 14, 30, 60, 90], DAY_SECS, &[]);
+const VISITED_LADDER: [i64; 28] = ladder(
+    &[60, 75, 120, 240, 480],
+    MINUTE_SECS,
+    &[(DAY_SECS, 14 * DAY_SECS), (WEEK_SECS, 90 * DAY_SECS)],
+);
+const CHECK_REQUESTED_LADDER: [i64; 57] = ladder(
+    &[15, 50, 60, 75, 120, 180, 360, 720, 1440],
+    MINUTE_SECS,
+    &[(DAY_SECS, 28 * DAY_SECS), (WEEK_SECS, 180 * DAY_SECS)],
+);
 
-/// Appends rungs `gap` apart until the next one would pass `until`.
-fn extend_by(offsets: &mut Vec<TimeDelta>, gap: TimeDelta, until: TimeDelta) {
-    while offsets.last().copied().unwrap_or_default() + gap <= until {
-        push_after(offsets, gap);
+/// The group's ladder, as offsets in seconds from the anchor, ascending.
+fn ladder_offsets(group: EnrolmentCheckGroup) -> &'static [i64] {
+    match group {
+        EnrolmentCheckGroup::Completed => &COMPLETED_LADDER,
+        EnrolmentCheckGroup::Visited => &VISITED_LADDER,
+        EnrolmentCheckGroup::CheckRequested => &CHECK_REQUESTED_LADDER,
     }
 }
 
@@ -171,18 +183,16 @@ fn resolve(
 ) -> Option<ScheduledEnrolmentCheck> {
     let offsets = ladder_offsets(group);
     let offset = *offsets.get(step)?;
-    let previous = step
-        .checked_sub(1)
-        .map_or(TimeDelta::zero(), |previous| offsets[previous]);
+    let previous = step.checked_sub(1).map_or(0, |previous| offsets[previous]);
     Some(ScheduledEnrolmentCheck {
         step: i32::try_from(step).ok()?,
-        due_at: anchor + offset,
-        is_batched: offset - previous >= SLOW_GAP,
+        due_at: anchor + TimeDelta::seconds(offset),
+        is_batched: offset - previous >= SLOW_GAP.num_seconds(),
     })
 }
 
 /// The first rung of a ladder started at `anchor`. A check request's own check runs before it, at
-/// once.
+/// once, and an account link's a minute after the link; see [`EnrolmentCheckSource::own_check_at`].
 pub fn first_check(
     group: EnrolmentCheckGroup,
     anchor: DateTime<Utc>,
@@ -196,7 +206,7 @@ pub fn next_check_after(
     anchor: DateTime<Utc>,
     after: DateTime<Utc>,
 ) -> Option<ScheduledEnrolmentCheck> {
-    let elapsed = after - anchor;
+    let elapsed = (after - anchor).num_seconds();
     let step = ladder_offsets(group).partition_point(|&offset| offset <= elapsed);
     resolve(group, anchor, step)
 }
@@ -218,7 +228,7 @@ mod tests {
     fn offsets_hours(group: EnrolmentCheckGroup) -> Vec<f64> {
         ladder_offsets(group)
             .iter()
-            .map(|offset| offset.num_seconds() as f64 / 3600.0)
+            .map(|&offset| offset as f64 / 3600.0)
             .collect()
     }
 
@@ -279,6 +289,29 @@ mod tests {
             ),
             None
         );
+    }
+
+    #[test]
+    fn only_an_account_link_checks_ahead_of_the_first_rung() {
+        let anchor = at(TimeDelta::zero());
+        assert_eq!(
+            EnrolmentCheckSource::AccountLink.own_check_at(anchor),
+            Some(at(ACCOUNT_LINK_CHECK_DELAY))
+        );
+        assert_eq!(EnrolmentCheckSource::Schedule.own_check_at(anchor), None);
+        assert_eq!(
+            EnrolmentCheckSource::StudentRequest.own_check_at(anchor),
+            None
+        );
+        // A miss carries on from the ladder's first rung.
+        let after_own_check = next_check_after(
+            EnrolmentCheckGroup::CheckRequested,
+            anchor,
+            at(ACCOUNT_LINK_CHECK_DELAY),
+        )
+        .unwrap();
+        assert_eq!(after_own_check.step, 0);
+        assert_eq!(after_own_check.due_at, at(TimeDelta::minutes(15)));
     }
 
     #[test]

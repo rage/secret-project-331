@@ -180,9 +180,7 @@ test("Teacher resend is refused by the rate cap and cannot be overridden", async
   await test.step("The teacher UI offers no override anywhere", async () => {
     await page.goto(STATES_COMPLETIONS_URL)
     await expect(page.getByLabel("Send anyway, past the rate caps")).toHaveCount(0)
-    await expect(
-      page.getByRole("button", { name: "Send the confirmation link again" }),
-    ).toHaveCount(0)
+    await expect(page.getByRole("button", { name: "Send the linking email again" })).toHaveCount(0)
   })
 })
 
@@ -195,8 +193,8 @@ test("The module editor configures a study registry module by its course code an
   await form.getByRole("button", { name: "Edit" }).click()
 
   await expect(
-    form.getByRole("checkbox", { name: "Register opted-in completions in Sisu" }),
-  ).toBeChecked()
+    form.getByRole("textbox", { name: "University of Helsinki course code" }),
+  ).toHaveValue(CRS_STATES_101)
   await expect(form.getByLabel("Completion registration link", { exact: true })).toHaveValue(
     seededEnrolmentLink(CRS_STATES_101),
   )

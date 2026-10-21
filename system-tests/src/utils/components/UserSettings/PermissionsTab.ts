@@ -37,7 +37,9 @@ export class PermissionsTab {
   }
 
   public async getGeneralResearchConsentValue(): Promise<string | null> {
-    return await this.page.getByTestId("general-research-consent-value").textContent()
+    const consentValue = this.page.getByTestId("general-research-consent-value")
+    await expect(consentValue).not.toHaveText("")
+    return await consentValue.textContent()
   }
 
   public async getCourseSpecificConsents(): Promise<

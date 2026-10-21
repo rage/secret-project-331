@@ -1,0 +1,154 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_services (\n    name,\n    slug,\n    public_url,\n    internal_url,\n    max_reprocessing_submissions_at_once,\n    is_global_admin_only,\n    is_experimental\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING *\n  ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "public_url",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "public_url"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "internal_url",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "internal_url"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "max_reprocessing_submissions_at_once",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "max_reprocessing_submissions_at_once"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_global_admin_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "is_global_admin_only"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "is_experimental",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "is_experimental"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c38bef590acf186447c428bf1f970c218b8c0868dfae04ddde190d345ca529a1"
+}

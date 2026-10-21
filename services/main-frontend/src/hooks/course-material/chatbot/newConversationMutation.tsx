@@ -18,12 +18,12 @@ import { saveChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
 const useNewConversationMutation = (
   chatbotConfigurationId: string | null,
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>,
+  resetComposerMessage: () => void,
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
   setConvId: React.Dispatch<string | null>,
 ) => {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t } = useTranslation("errors")
   return useToastMutation(
     () => {
       if (!chatbotConfigurationId) {
@@ -43,17 +43,19 @@ const useNewConversationMutation = (
         }
         const anonymousToken = res.anonymous_token
         saveChatbotAnonymousToken(anonymousToken)
-        queryClient.refetchQueries({
-          queryKey: getCurrentConversationIdQueryKey({
-            path: {
-              chatbot_configuration_id: chatbotConfigurationId,
-            },
-          }),
+        const currentConversationIdQueryKey = getCurrentConversationIdQueryKey({
+          path: {
+            chatbot_configuration_id: chatbotConfigurationId,
+          },
         })
+        // Set before the refetch lands: until then the cached id still names the previous
+        // conversation, and a message sent in that window would go there.
+        queryClient.setQueryData(currentConversationIdQueryKey, res.id)
+        queryClient.refetchQueries({ queryKey: currentConversationIdQueryKey })
         queryClient.refetchQueries({
           queryKey: allUserConversationsQueryKey(),
         })
-        setNewMessage("")
+        resetComposerMessage()
         setConvId(null)
         setError(null) // Clear any existing errors when starting a new conversation
       },

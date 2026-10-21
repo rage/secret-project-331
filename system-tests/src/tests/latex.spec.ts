@@ -2,6 +2,7 @@
 import { test } from "@playwright/test"
 
 import { createCourse } from "@/utils/flows/newCourse.flow"
+import { createCourseChapter, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
@@ -28,17 +29,11 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await page.locator("[aria-label=\"Manage course 'Latex course'\"] svg").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-  await page.getByText("Pages").click()
+  await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
-
-  // Fill input[type="text"]
-  await page.fill(`label:has-text("Name")`, "first page")
-
-  await page.click(`button:text("Create")`)
-
-  await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
+  await createCourseChapter(page, "first page")
+  await openCoursePageInEditor(page, "first page")
   // - CHAPTER GRID
   await page.getByText("Pages in chapter placeholder").click()
   await page.waitForTimeout(100)
@@ -105,7 +100,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
     "Wubba Lubba Dub Dub",
   )
 
-  await page.click('button:text-is("Save") >> visible=true')
+  await page.getByRole("button", { name: "Save", exact: true }).click()
   await page.waitForTimeout(200)
 
   await page.goto(`http://project-331.local/org/uh-mathstat`)

@@ -4,18 +4,13 @@ import { css } from "@emotion/css"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import React, { useCallback, useEffect, useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import useCourseLanguageVersionNavigationInfos from "@/hooks/course-material/useCourseLanguageVersionNavigationInfos"
-import {
-  baseTheme,
-  fontWeights,
-  headingFont,
-  primaryFont,
-  typography,
-} from "@/shared-module/common/styles"
+import { headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Select } from "@/shared-module/components"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 import { getLanguageName } from "./modals/ChooseCourseLanguage"
@@ -48,9 +43,13 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
       courseLanguageVersionNavigationInfo.course_id === selectedLangCourseId,
   )?.language_code
 
+  const { control, watch, setValue } = useForm<{ courseId: string }>({
+    defaultValues: { courseId: selectedLangCourseId },
+  })
+  const formCourseId = watch("courseId")
+
   const onChange = useCallback(
-    (event: { target: { value: string } }) => {
-      const changedCourseId = event.target.value
+    (changedCourseId: string) => {
       const newLangCode = courseLanguageVersionsQuery.data?.find(
         (courseLanguageVersionNavigationInfo) =>
           courseLanguageVersionNavigationInfo.course_id === changedCourseId,
@@ -64,6 +63,17 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     },
     [courseLanguageVersionsQuery.data, setDialogLanguage, setSelectedLangCourseId],
   )
+
+  useEffect(() => {
+    if (formCourseId !== selectedLangCourseId) {
+      onChange(formCourseId)
+    }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [formCourseId])
+
+  useEffect(() => {
+    setValue("courseId", selectedLangCourseId)
+  }, [selectedLangCourseId, setValue])
 
   //Puts the current course at the top of the list
   const reorderedCourseLanguageVersions = useMemo(() => {
@@ -127,55 +137,20 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
               max-width: 100%;
             `}
           >
-            <label
-              htmlFor="changeLanguage"
-              className={css`
-                font-family: ${primaryFont};
-                font-weight: ${fontWeights.normal};
-                font-size: ${typography.h6};
-                color: ${baseTheme.colors.gray[500]};
-              `}
-            >
-              {t("choose-preferred-language")}
-            </label>
-
-            <div
-              className={css`
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                height: 37px;
-                min-width: 0;
-                max-width: 100%;
-              `}
-            >
-              <LanguageTranslation size={18} />
-              <select
-                className={css`
-                  box-sizing: border-box;
-                  background: #ffffff;
-                  border: 2px solid ${baseTheme.colors.gray[200]};
-                  width: 119px;
-                  max-width: 100%;
-                  min-width: 0;
-                  flex-shrink: 1;
-                  height: 100%;
-                `}
-                id="changeLanguage"
-                onChange={onChange}
-                defaultValue={selectedLangCourseId}
-              >
-                {reorderedCourseLanguageVersions.map((courseLanguageVersionNavigationInfo) => (
-                  <option
-                    key={courseLanguageVersionNavigationInfo.course_id}
-                    value={courseLanguageVersionNavigationInfo.course_id}
-                    lang={courseLanguageVersionNavigationInfo.language_code}
-                  >
-                    {getLanguageName(courseLanguageVersionNavigationInfo.language_code)}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <LanguageTranslation size={18} />
+            <Select
+              name="courseId"
+              data-testid="change-course-language"
+              control={control}
+              label={t("choose-preferred-language")}
+              options={reorderedCourseLanguageVersions.map((version) => ({
+                value: version.course_id,
+                label: (
+                  <span lang={version.language_code}>{getLanguageName(version.language_code)}</span>
+                ),
+                textValue: getLanguageName(version.language_code),
+              }))}
+            />
           </div>
         )
       }}

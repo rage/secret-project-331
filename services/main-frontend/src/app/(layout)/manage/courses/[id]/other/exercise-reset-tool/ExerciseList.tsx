@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
+import type { Control } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -11,19 +12,21 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { DatabaseChapter, Exercise, Page } from "@/generated/api/types.generated"
 import { useExercises } from "@/hooks/useExercises"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
-import { QueryResults } from "@/shared-module/components"
+import { Button, Checkbox, QueryResults, Table } from "@/shared-module/components"
+
+import type { ResetFormFields } from "./ResetExercises"
 
 interface Props {
   courseId: string
+  control: Control<ResetFormFields>
   selectedExerciseIds: string[]
-  setSelectedExerciseIds: React.Dispatch<React.SetStateAction<string[]>>
+  setSelectedExerciseIds: (ids: string[]) => void
 }
 
 const ExerciseList: React.FC<Props> = ({
   courseId,
+  control,
   selectedExerciseIds,
   setSelectedExerciseIds,
 }) => {
@@ -46,12 +49,6 @@ const ExerciseList: React.FC<Props> = ({
       },
     }),
   })
-
-  const toggleExercise = (exerciseId: string) => {
-    setSelectedExerciseIds((prev) =>
-      prev.includes(exerciseId) ? prev.filter((id) => id !== exerciseId) : [...prev, exerciseId],
-    )
-  }
 
   const exercises = exercisesQuery.data
   const groupedExercises = useMemo(() => {
@@ -120,34 +117,19 @@ const ExerciseList: React.FC<Props> = ({
             gap: 8px;
           `}
         >
-          <Button onClick={selectAll} variant={"green"} size={"small"} transform={"capitalize"}>
+          <Button onClick={selectAll} variant="secondary" size={"small"}>
             {t("button-select-all")}
           </Button>
-          <Button onClick={selectNone} variant={"green"} size={"small"} transform={"capitalize"}>
+          <Button onClick={selectNone} variant="secondary" size={"small"}>
             {t("button-select-none")}
           </Button>
-          <Button
-            onClick={invertSelection}
-            variant={"green"}
-            size={"small"}
-            transform={"capitalize"}
-          >
+          <Button onClick={invertSelection} variant="secondary" size={"small"}>
             {t("button-invert-selection")}
           </Button>
-          <Button
-            onClick={selectPeerReview}
-            variant={"green"}
-            size={"small"}
-            transform={"capitalize"}
-          >
+          <Button onClick={selectPeerReview} variant="secondary" size={"small"}>
             {t("button-exercises-with-peer-review")}
           </Button>
-          <Button
-            onClick={selectSelfReview}
-            variant={"green"}
-            size={"small"}
-            transform={"capitalize"}
-          >
+          <Button onClick={selectSelfReview} variant="secondary" size={"small"}>
             {t("button-exercises-with-self-review")}
           </Button>
         </div>
@@ -192,82 +174,54 @@ const ExerciseList: React.FC<Props> = ({
                       color: ${baseTheme.colors.gray[700]};
                     `}
                   >
-                    <table
-                      className={css`
-                        border-collapse: collapse;
-                        width: 100%;
-                        text-align: left;
-
-                        th {
-                          font-weight: ${fontWeights.medium};
-                          background: #f7f8f9;
-                          border-radius: 8px;
-                        }
-                        td {
-                          border-top: 1px solid #ced1d7;
-                        }
-                        td,
-                        th {
-                          font-size: ${baseTheme.fontSizes[0]}px;
-                          padding: 1rem;
-                          opacity: 0.8;
-                        }
-                      `}
-                    >
-                      <thead>
-                        <tr>
-                          <th>{t("label-select")}</th>
-                          <th>{t("exercise")}</th>
-                          <th>{t("title-page")}</th>
-                          <th>{t("title-peer-review")}</th>
-                          <th>{t("title-self-review")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(pagesExercises)
-                          .toSorted(([pageAId], [pageBId]) => {
-                            const pageA = pageMap.get(pageAId)
-                            const pageB = pageMap.get(pageBId)
-                            const orderA = pageA ? pageA.order_number : Number.MAX_VALUE
-                            const orderB = pageB ? pageB.order_number : Number.MAX_VALUE
-                            return orderA - orderB
-                          })
-                          .map(([pageId, exercisesForPage]) => {
-                            return exercisesForPage
-                              .slice()
-                              .toSorted((a, b) => a.order_number - b.order_number)
-                              .map((exercise) => (
-                                <tr key={exercise.id}>
-                                  <td>
-                                    <CheckBox
-                                      checked={selectedExerciseIds.includes(exercise.id)}
-                                      onChange={() => toggleExercise(exercise.id)}
-                                      label={""}
-                                      className={css`
-                                        margin: 0px;
-                                        padding-left: 10px;
-                                      `}
-                                    />
-                                  </td>
-                                  <td>{exercise.name}</td>
-                                  <td>
-                                    {t("title-page")} {pageMap.get(pageId)?.order_number}
-                                  </td>
-                                  <td>
-                                    {exercise.needs_peer_review
-                                      ? t("label-true")
-                                      : t("label-false")}
-                                  </td>
-                                  <td>
-                                    {exercise.needs_self_review
-                                      ? t("label-true")
-                                      : t("label-false")}
-                                  </td>
-                                </tr>
-                              ))
-                          })}
-                      </tbody>
-                    </table>
+                    <Table
+                      caption={chapterTitle}
+                      rows={Object.entries(pagesExercises)
+                        .toSorted(([pageAId], [pageBId]) => {
+                          const pageA = pageMap.get(pageAId)
+                          const pageB = pageMap.get(pageBId)
+                          const orderA = pageA ? pageA.order_number : Number.MAX_VALUE
+                          const orderB = pageB ? pageB.order_number : Number.MAX_VALUE
+                          return orderA - orderB
+                        })
+                        .flatMap(([pageId, exercisesForPage]) =>
+                          exercisesForPage
+                            .toSorted((a, b) => a.order_number - b.order_number)
+                            .map((exercise) => ({ exercise, pageId })),
+                        )}
+                      rowKey={({ exercise }) => exercise.id}
+                      columns={[
+                        {
+                          header: t("label-select"),
+                          cell: ({ exercise }) => (
+                            <Checkbox
+                              name={`selectedExercises.${exercise.id}`}
+                              control={control}
+                              label=""
+                              aria-label={t("label-select-exercise", {
+                                name: exercise.name,
+                              })}
+                            />
+                          ),
+                        },
+                        { header: t("exercise"), cell: ({ exercise }) => exercise.name },
+                        {
+                          header: t("title-page"),
+                          cell: ({ pageId }) =>
+                            `${t("title-page")} ${pageMap.get(pageId)?.order_number}`,
+                        },
+                        {
+                          header: t("title-peer-review"),
+                          cell: ({ exercise }) =>
+                            exercise.needs_peer_review ? t("label-true") : t("label-false"),
+                        },
+                        {
+                          header: t("title-self-review"),
+                          cell: ({ exercise }) =>
+                            exercise.needs_self_review ? t("label-true") : t("label-false"),
+                        },
+                      ]}
+                    />
                   </div>
                 </div>
               )

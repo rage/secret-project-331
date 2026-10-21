@@ -1,7 +1,7 @@
 //! Creating ledger rows for completions that are allowed to be registered. It catches up as well as
 //! keeps up: any completion carrying the push-path flag and still missing a row gets one, stopping
-//! at `pending`, because historical completions belong to students nobody ever asked. Turning a
-//! module on reaches none made before it: `register_credits_via_suotar` is set at creation or by hand.
+//! at `pending`, because historical completions belong to students nobody ever asked. Completions
+//! from before the push path never carry the flag, so they are never caught up.
 
 use crate::credit_registrations::{
     BatchMove, CreditRegistrationState, NewCreditRegistration, RegistrationScope, Transition,
@@ -192,7 +192,7 @@ SELECT cr.id,
   cmc.updated_at AS completion_updated_at
 FROM credit_registrations cr
   JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  -- Membership is the whole eligibility check: the view is the module opt-in and the completion
+  -- Membership is the whole eligibility check: the view is the course code and the completion
   -- being live, passed and ECTS-eligible, and fully_eligible the prerequisites and the review.
   JOIN credit_registration_eligible_completions e ON e.course_module_completion_id = cr.course_module_completion_id
   AND e.fully_eligible
@@ -301,26 +301,14 @@ mod tests {
     use crate::credit_registrations::CreditRegistrationState;
     use crate::test_helper::*;
 
-    async fn enable_suotar(
+    async fn give_course_code(
         conn: &mut PgConnection,
         course_module: &crate::course_modules::CourseModule,
     ) {
-        crate::course_modules::update(
+        crate::course_modules::update_uh_course_code(
             conn,
             course_module.id,
-            &crate::course_modules::NewCourseModule::new(
-                course_module.course_id,
-                course_module.name.clone(),
-                course_module.order_number,
-            )
-            .set_enable_credit_registration_via_suotar(true),
-        )
-        .await
-        .unwrap();
-        crate::course_modules::set_register_eligible_new_completions_via_suotar(
-            conn,
-            course_module.id,
-            true,
+            Some("TKT10001".to_string()),
         )
         .await
         .unwrap();
@@ -338,33 +326,6 @@ mod tests {
         crate::course_instance_enrollments::insert(conn, user, course, course_instance)
             .await
             .unwrap();
-        // Eligibility for the push path at creation.
-        if crate::verified_student_numbers::get_by_user_id(conn, user)
-            .await
-            .unwrap()
-            .is_none()
-        {
-            let student_number = format!("{:09}", user.as_u128() % 1_000_000_000);
-            crate::verified_student_numbers::insert(
-                conn,
-                PKeyPolicy::Generate,
-                &crate::verified_student_numbers::NewVerifiedStudentNumber {
-                    user_id: user,
-                    sisu_person_id: DbSecret::new(format!("hy-hlo-{student_number}")),
-                    student_number: DbSecret::new(student_number),
-                    first_names: None,
-                    last_name: None,
-                    verified_via:
-                        crate::verified_student_numbers::StudentNumberVerificationMethod::EmailedLink,
-                    verified_via_email: Some(DbSecret::new("student@example.com")),
-                    linked_by_user_id: None,
-                    link_reason: None,
-                    verified_from_course_id: None,
-                },
-            )
-            .await
-            .unwrap();
-        }
         crate::course_module_completions::insert(
             conn,
             PKeyPolicy::Generate,
@@ -388,9 +349,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn a_completion_on_an_enabled_module_gets_a_row_addressed_by_its_own_id() {
+    async fn a_completion_on_a_module_with_a_course_code_gets_a_row_addressed_by_its_own_id() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), &course_module).await;
+        give_course_code(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -427,7 +388,7 @@ mod tests {
     #[tokio::test]
     async fn running_twice_creates_nothing_the_second_time() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), &course_module).await;
+        give_course_code(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -463,7 +424,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn a_module_that_was_never_opted_in_materialises_nothing() {
+    async fn a_module_without_a_course_code_materialises_nothing() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
         add_completion(
             tx.as_mut(),
@@ -490,7 +451,7 @@ mod tests {
     #[tokio::test]
     async fn a_failed_or_ects_ineligible_completion_never_gets_a_row() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), &course_module).await;
+        give_course_code(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -529,7 +490,7 @@ mod tests {
     #[tokio::test]
     async fn a_completion_the_pull_path_already_registered_is_skipped() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), &course_module).await;
+        give_course_code(tx.as_mut(), &course_module).await;
         let completion = add_completion(
             tx.as_mut(),
             course,
@@ -578,7 +539,7 @@ mod tests {
     #[tokio::test]
     async fn a_scoped_run_leaves_another_courses_completions_alone() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), &course_module).await;
+        give_course_code(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,
@@ -616,7 +577,7 @@ mod tests {
     #[tokio::test]
     async fn the_limit_bounds_one_iteration() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        enable_suotar(tx.as_mut(), &course_module).await;
+        give_course_code(tx.as_mut(), &course_module).await;
         add_completion(
             tx.as_mut(),
             course,

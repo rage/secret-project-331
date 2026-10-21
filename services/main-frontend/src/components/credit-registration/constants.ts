@@ -2,7 +2,9 @@
 
 import type { TFunction } from "i18next"
 
-export { ABSENT_LABEL as ABSENT, MIDDLE_DOT, TONE } from "@/shared-module/components"
+import type { EmailSendStatus } from "@/generated/api/types.generated"
+
+export { TONE } from "@/shared-module/components"
 
 /**
  * The namespace every view in this feature reads. Its strings are a third of the service's
@@ -21,6 +23,12 @@ export const STACKED = "stacked" as const
 
 /** `TableColumn.align` for numeric columns. */
 export const ALIGN_END = "end" as const
+
+/** `TableColumn.align` for a column of icons or short controls. */
+export const ALIGN_CENTER = "center" as const
+
+/** `TableColumn.sortDirection` for the column a table is currently sorted by. */
+export const SORT_ASCENDING = "ascending" as const
 
 /** `QueryResult.refreshIndicator` for polled views: a poll must not blank or freeze the page. */
 export const QUIET_REFRESH = "quiet" as const
@@ -60,6 +68,9 @@ export const STATE_SUPERSEDED = "superseded" as const
 /** `Badge.size` for a badge that is a dense table cell's content rather than a chip in a row. */
 export const BADGE_COMPACT = "compact" as const
 
+/** The `EmailSendStatus` a send cell badges as a danger. */
+export const SEND_FAILED: EmailSendStatus = "send_failed"
+
 /** `Button.variant` for the one action a surface leads with, and for the rest beside it. */
 export const BUTTON_PRIMARY = "primary" as const
 export const BUTTON_SECONDARY = "secondary" as const
@@ -71,7 +82,7 @@ export const BUTTON_SMALL = "small" as const
 export const BUTTON_TERTIARY = "tertiary" as const
 
 /** `Button.variant` for an action that ends something and cannot be taken back. */
-export const BUTTON_DESTRUCTIVE = "destructive" as const
+export const BUTTON_DANGER = "danger" as const
 
 /** `Table.responsive` for an operator table that becomes labelled cards on a phone. */
 export const TABLE_STACK = "stack" as const
@@ -120,4 +131,4 @@ export const openUniversityEnrolmentInfoUrl = (language: string): string =>
     : OPEN_UNIVERSITY_ENROLMENT_INFO_URL_EN
 
 /** Kept in one place so every page that names it can change together. */
-export const SUPPORT_EMAIL = "mooc@cs.helsinki.fi"
+export const SUPPORT_EMAIL = "mooc@helsinki.fi"

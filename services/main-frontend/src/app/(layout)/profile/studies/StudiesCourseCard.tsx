@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next"
 import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
-  MIDDLE_DOT,
   TIME_DATE,
   TONE,
 } from "@/components/credit-registration/constants"
@@ -39,6 +38,7 @@ import {
   Link,
   Meter,
   METER_KIND,
+  MIDDLE_DOT,
   RegistrationStatusBadge,
   RelativeTime,
 } from "@/shared-module/components"
@@ -83,6 +83,7 @@ const moduleRowCss = css`
 const courseTitleCss = css`
   margin: 0;
   min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--color-gray-700);
   font-size: var(--font-size-3);
   font-weight: 600;

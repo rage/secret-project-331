@@ -1,0 +1,42 @@
+{
+  "button-text-try-again": "Yritä uudelleen",
+  "default-toast-error-message": "Tapahtui virhe",
+  "default-toast-error-title": "Virhe",
+  "dynamic-import-error-boundary-reload": "Lataa sivu uudelleen",
+  "dynamic-import-error-boundary-title": "Tämän sivun osan lataamisessa tapahtui virhe.",
+  "error-code": "Koodi: {{code}}",
+  "error-hide-details": "Piilota tiedot",
+  "error-issue": "Ongelma: {{issue}}",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
+      "title": "Kirjautuminen vaaditaan"
+    },
+    "chapter_not_open_yet": {
+      "message": "Tämä luku ei ole vielä avoinna.",
+      "title": "Luku on suljettu"
+    },
+    "course_slug_already_taken": {
+      "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
+      "title": "Lyhyt nimi on jo käytössä"
+    },
+    "foreign_key_violation": {
+      "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
+      "title": "Viiteavainvirhe"
+    }
+  },
+  "error-original-message": "Alkuperäinen viesti",
+  "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin",
+  "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
+  "error-request-id": "Pyynnön ID: {{requestId}}",
+  "error-show-details": "Näytä tiedot",
+  "error-status": "Tila: {{status}}",
+  "error-title": "Virhe",
+  "error-type": "Tyyppi: {{type}}",
+  "errorNotice.status": "Tila",
+  "errorNotice.type": "Tyyppi",
+  "failed-to-send-message": "Viestin lähettäminen epäonnistui",
+  "go-to-error": "Siirry virheeseen",
+  "label-error-loading": "Virhe datan lataamisessa.",
+  "show-error-source": "Näytä lähde"
+}

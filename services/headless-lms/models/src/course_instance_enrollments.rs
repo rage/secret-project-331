@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
@@ -54,7 +54,6 @@ pub struct CourseModuleInfo {
     pub ects_credits: Option<f32>,
     /// The module's course code in the university's registry, e.g. `BSCS1001`.
     pub uh_course_code: Option<String>,
-    pub enable_credit_registration_via_suotar: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -106,29 +105,46 @@ pub struct NewCourseInstanceEnrollment {
 }
 
 /**
-Inserts enrollment if it doesn't exist yet; on conflict updates deleted_at to NULL (upsert).
+Inserts enrollment if it doesn't exist yet, or restores a soft-deleted one.
 
-Handles duplicate submissions (e.g. multiple tabs or parallel requests) by conflicting on (user_id, course_id, course_instance_id).
+Safe to call concurrently for the same enrollment, e.g. from multiple tabs or parallel requests.
 */
 pub async fn insert_enrollment_if_it_doesnt_exist(
     conn: &mut PgConnection,
     enrollment: NewCourseInstanceEnrollment,
 ) -> ModelResult<CourseInstanceEnrollment> {
-    let enrollment = sqlx::query_as!(
-        CourseInstanceEnrollment,
+    let mut tx = conn.begin().await?;
+    // A conflict target would leave the table's other unique index as a non-arbiter, which raises a
+    // duplicate key error instead of conflicting when two requests insert at the same time.
+    sqlx::query!(
         "
 INSERT INTO course_instance_enrollments (user_id, course_id, course_instance_id)
 VALUES ($1, $2, $3)
-ON CONFLICT (user_id, course_id, course_instance_id)
-DO UPDATE SET deleted_at = NULL
-RETURNING *;
+ON CONFLICT DO NOTHING
 ",
         enrollment.user_id,
         enrollment.course_id,
         enrollment.course_instance_id,
     )
-    .fetch_one(conn)
+    .execute(&mut *tx)
     .await?;
+    let enrollment = sqlx::query_as!(
+        CourseInstanceEnrollment,
+        "
+UPDATE course_instance_enrollments
+SET deleted_at = NULL
+WHERE user_id = $1
+  AND course_id = $2
+  AND course_instance_id = $3
+RETURNING *
+",
+        enrollment.user_id,
+        enrollment.course_id,
+        enrollment.course_instance_id,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    tx.commit().await?;
     Ok(enrollment)
 }
 
@@ -352,22 +368,6 @@ ORDER BY c.course_module_id, "day!"
             });
     }
 
-    // The flag is not on the `CourseModule` DTO, so `get_by_course_ids` below cannot supply it.
-    let credit_registration_enabled_module_ids: HashSet<Uuid> = sqlx::query_scalar!(
-        "
-SELECT id
-FROM course_modules
-WHERE course_id = ANY($1)
-  AND enable_credit_registration_via_suotar
-  AND deleted_at IS NULL
-        ",
-        &course_ids
-    )
-    .fetch_all(&mut *conn)
-    .await?
-    .into_iter()
-    .collect();
-
     let course_instance_enrollments = get_by_user_id(&mut *conn, user_id).await?;
     let all_course_module_completions =
         crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
@@ -418,8 +418,6 @@ WHERE course_id = ANY($1)
                     .unwrap_or_default(),
                 ects_credits: m.ects_credits,
                 uh_course_code: m.uh_course_code.clone(),
-                enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
-                    .contains(&m.id),
             })
             .collect();
         let course_module_completions = all_course_module_completions

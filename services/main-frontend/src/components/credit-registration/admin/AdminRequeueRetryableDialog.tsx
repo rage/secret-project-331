@@ -8,12 +8,13 @@ import type { AdminRequeueRetryableResult } from "@/generated/api/types.generate
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Infobox, Select } from "@/shared-module/components"
 
-import { CREDIT_REGISTRATION_NS, MIDDLE_DOT, TONE } from "../constants"
+import { CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import { AdminActionDialog } from "./AdminActionDialog"
 import {
   useCreditRegistrationCourseStats,
   useInvalidateAttentionItems,
 } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { ReasonField } from "./ReasonConfirmDialog"
 
 interface Fields {
@@ -57,11 +58,14 @@ const AdminRequeueRetryableDialog: React.FC = () => {
               { value: EVERY_MODULE, label: t("credit-registration-admin-requeue-every-module") },
               ...(courseStatsQuery.data?.modules ?? []).map((module) => ({
                 value: module.course_module_id,
-                label: `${module.course_name}${MIDDLE_DOT}${module.course_module_name ?? module.course_module_id}`,
+                label: t("credit-registration-course-and-module", {
+                  course: module.course_name,
+                  module: module.course_module_name ?? module.course_module_id,
+                }),
               })),
             ]}
           />
-          <ReasonField control={control} />
+          <ReasonField control={control} auditAction={AUDIT_ACTION.REQUEUE_BATCH} />
         </>
       )}
       renderResult={(result) => (

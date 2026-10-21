@@ -5,8 +5,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import { Radio, RadioGroup, TextArea } from "@/shared-module/components"
+import { Dialog, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 export const ReportReasonValues = {
   // oxlint-disable-next-line i18next/no-literal-string
@@ -45,16 +44,16 @@ const MarkAsSpamDialog: React.FC<{
   }
 
   return (
-    <StandardDialog
+    <Dialog
       open={isOpen}
       onClose={onClose}
       title={t("title-report-dialog")}
-      buttons={[
+      actions={[
         {
           variant: "primary",
           onClick: () => handleSubmit(),
           disabled: !selectedReason,
-          children: t("submit-button"),
+          label: t("submit-button"),
         },
       ]}
     >
@@ -83,7 +82,7 @@ const MarkAsSpamDialog: React.FC<{
           margin-bottom: 1rem;
         `}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

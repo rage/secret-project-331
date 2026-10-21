@@ -6,26 +6,27 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-/// Refuses a resend while account linking is switched off, or for a course with no credit
-/// registration module configured.
+/// Refuses a resend while account linking is switched off, or for a course with no module that
+/// registers credits.
 pub async fn ensure_resend_possible(
     conn: &mut PgConnection,
     app_conf: &ApplicationConfiguration,
     course_id: Uuid,
 ) -> Result<(), ControllerError> {
-    if !app_conf.suotar_configuration.account_linking_enabled {
+    if !app_conf.suotar_configuration.is_account_linking_enabled() {
         return Err(controller_err!(
             BadRequest,
             "Account linking is switched off.".to_string()
         ));
     }
-    let enabled_module_ids =
-        models::course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
-            .await?;
-    if enabled_module_ids.is_empty() {
+    let registers_credits = models::course_modules::get_by_course_id(conn, course_id)
+        .await?
+        .iter()
+        .any(|module| models::course_modules::registers_credits(module.uh_course_code.as_deref()));
+    if !registers_credits {
         return Err(controller_err!(
             BadRequest,
-            "This course has no credit registration module configured.".to_string()
+            "This course has no module with a course code.".to_string()
         ));
     }
     Ok(())
@@ -42,6 +43,8 @@ pub enum ResendOutcome {
     AlreadyMailedToEveryKnownAddress,
     /// A cap refused it.
     RefusedByRateCap,
+    /// A linking email went to the person moments ago, which even an override leaves in place.
+    JustSent,
     NoAddressInStudyRegistry,
     NotOnTheCourseRoster,
     /// The number is already linked to an account, so no linking mail is owed.
@@ -58,6 +61,7 @@ impl From<account_linking::ResendOutcome> for ResendOutcome {
             Attempted::Queued => Self::Queued,
             Attempted::AlreadyMailedToEveryKnownAddress => Self::AlreadyMailedToEveryKnownAddress,
             Attempted::RefusedByRateCap => Self::RefusedByRateCap,
+            Attempted::JustSent => Self::JustSent,
             Attempted::NoAddressInStudyRegistry => Self::NoAddressInStudyRegistry,
             Attempted::NotOnTheCourseRoster => Self::NotOnTheCourseRoster,
             Attempted::AlreadyLinked => Self::AlreadyLinked,

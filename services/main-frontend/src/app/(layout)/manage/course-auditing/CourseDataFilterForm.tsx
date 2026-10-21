@@ -5,7 +5,7 @@ import React from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import SelectAllCheckbox from "@/components/forms/SelectAllCheckbox"
 import { Button, Checkbox } from "@/shared-module/components"
 
 import {
@@ -34,7 +34,6 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     showClosedCourseSuccessorId,
     showAdditionalMessage,
     showCompletionRegistrationLink,
-    showEnableRegisterinCompletionToUhOpenUniversity,
     showUhCourseCode,
     showEctsCredits,
   ] = watch([
@@ -46,7 +45,6 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     "show_closed_course_successor_id",
     "show_additional_message",
     "show_completion_registration_link",
-    "show_enable_registering_completion_to_uh_open_university",
     "show_uh_course_code",
     "show_ects_credits",
   ])
@@ -55,8 +53,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     showDescription && showPrerequisites && showAudiences && showSuggestMetadata,
   )
 
-  const handleToggleAllMetadata = () => {
-    const next = !allSelectedMetadata
+  const handleToggleAllMetadata = (next: boolean) => {
     setValue("show_description", next, { shouldDirty: true })
     setValue("show_prerequisites", next, {
       shouldDirty: true,
@@ -69,8 +66,7 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
     showClosedAt && showClosedCourseSuccessorId && showAdditionalMessage,
   )
 
-  const handleToggleAllClosedAtData = () => {
-    const next = !allSelectedClosedAtData
+  const handleToggleAllClosedAtData = (next: boolean) => {
     setValue("show_closed_at", next, { shouldDirty: true })
     setValue("show_closed_course_successor_id", next, {
       shouldDirty: true,
@@ -79,29 +75,14 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
   }
 
   const allSelectedModuleData = Boolean(
-    showCompletionRegistrationLink &&
-    showEnableRegisterinCompletionToUhOpenUniversity &&
-    showUhCourseCode &&
-    showEctsCredits,
+    showCompletionRegistrationLink && showUhCourseCode && showEctsCredits,
   )
 
-  const handleToggleAllModuleData = () => {
-    const next = !allSelectedModuleData
+  const handleToggleAllModuleData = (next: boolean) => {
     setValue("show_completion_registration_link", next, { shouldDirty: true })
-    setValue("show_enable_registering_completion_to_uh_open_university", next, {
-      shouldDirty: true,
-    })
     setValue("show_uh_course_code", next, { shouldDirty: true })
     setValue("show_ects_credits", next, { shouldDirty: true })
   }
-
-  const checkBoxLabelStyles = css`
-    color: ${baseTheme.colors.gray[800]};
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2, 0.5rem);
-    cursor: pointer;
-  `
 
   return (
     <FieldSet>
@@ -116,14 +97,11 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           >
             {t("course-auditing-filter-metadata-title")}
           </p>
-          <label className={checkBoxLabelStyles}>
-            <input
-              type="checkbox"
-              checked={allSelectedMetadata}
-              onChange={handleToggleAllMetadata}
-            />
-            {t("course-auditing-filter-checkbox-all")}
-          </label>
+          <SelectAllCheckbox
+            label={t("course-auditing-filter-checkbox-all")}
+            isAllSelected={allSelectedMetadata}
+            onToggleAll={handleToggleAllMetadata}
+          />
           <Checkbox
             name="show_description"
             control={control}
@@ -154,14 +132,11 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           >
             {t("course-auditing-filter-closed-at-data-title")}
           </p>
-          <label className={checkBoxLabelStyles}>
-            <input
-              type="checkbox"
-              checked={allSelectedClosedAtData}
-              onChange={handleToggleAllClosedAtData}
-            />
-            {t("course-auditing-filter-checkbox-all")}
-          </label>
+          <SelectAllCheckbox
+            label={t("course-auditing-filter-checkbox-all")}
+            isAllSelected={allSelectedClosedAtData}
+            onToggleAll={handleToggleAllClosedAtData}
+          />
           <Checkbox
             name="show_closed_at"
             control={control}
@@ -187,23 +162,15 @@ const CourseDataFilterForm: React.FC<Props> = ({ methods }) => {
           >
             {t("course-auditing-filter-module-data-title")}
           </p>
-          <label className={checkBoxLabelStyles}>
-            <input
-              type="checkbox"
-              checked={allSelectedModuleData}
-              onChange={handleToggleAllModuleData}
-            />
-            {t("course-auditing-filter-checkbox-all")}
-          </label>
+          <SelectAllCheckbox
+            label={t("course-auditing-filter-checkbox-all")}
+            isAllSelected={allSelectedModuleData}
+            onToggleAll={handleToggleAllModuleData}
+          />
           <Checkbox
             name="show_completion_registration_link"
             control={control}
             label={t("course-auditing-filter-completion-registration-link")}
-          />
-          <Checkbox
-            name="show_enable_registering_completion_to_uh_open_university"
-            control={control}
-            label={t("course-auditing-filter-enable-registering-completion-to-uh-open-university")}
           />
           <Checkbox
             name="show_uh_course_code"

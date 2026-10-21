@@ -39,11 +39,11 @@ const Cta: React.FC<{ href: string; label: string; enabled: boolean }> = ({
   enabled,
 }) =>
   enabled ? (
-    <Link href={href} styledAsButton variant="tertiary" size="large">
+    <Link href={href} styledAsButton variant="secondary" size="large">
       {label}
     </Link>
   ) : (
-    <Button variant="tertiary" size="large" disabled>
+    <Button variant="secondary" size="large" disabled>
       {label}
     </Button>
   )
@@ -55,9 +55,7 @@ export interface CongratulationsLinksProps {
 
 export const moduleOffersCreditOrCompletionRegistration = (
   module: UserModuleCompletionStatus,
-): boolean =>
-  module.enable_credit_registration_via_suotar ||
-  module.enable_registering_completion_to_uh_open_university
+): boolean => module.registers_credits
 
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
   certificateConfigurationId,
@@ -77,13 +75,10 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
         }
       `}
     >
-      {/* Same page for both flows, but on the new one the student does no registering themselves. */}
       {moduleOffersCreditOrCompletionRegistration(module) && (
         <Cta
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
-          label={
-            module.register_credits_via_suotar ? t("credit-registration-status") : t("register")
-          }
+          label={module.register_credits_via_suotar ? t("register-completion") : t("register")}
           enabled={Boolean(module.completed)}
         />
       )}

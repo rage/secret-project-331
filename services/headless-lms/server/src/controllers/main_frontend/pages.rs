@@ -88,6 +88,13 @@ async fn post_new_page(
         )
     })?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    domain::authorization::ensure_user_can_add_exercise_tasks(
+        &mut conn,
+        user.id,
+        None,
+        &new_page.exercise_tasks,
+    )
+    .await?;
 
     let page = models::pages::create_for_course_id(
         &mut conn,

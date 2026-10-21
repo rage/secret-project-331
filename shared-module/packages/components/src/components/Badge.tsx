@@ -24,6 +24,7 @@ export interface BadgeProps {
    * pause reason or what a count means. Prefer this over `title` for anything load-bearing.
    */
   description?: React.ReactNode
+  "data-testid"?: string | undefined
 }
 
 // Tinted chips: pale bg, darker border, dark text. The yellow ramp is not contrast-safe as text, so
@@ -106,6 +107,7 @@ export const Badge: React.FC<BadgeProps> = ({
   className,
   title,
   description,
+  "data-testid": dataTestId,
 }) => {
   const descriptionId = React.useId()
 
@@ -118,6 +120,7 @@ export const Badge: React.FC<BadgeProps> = ({
         !description && className,
       )}
       title={title}
+      data-testid={dataTestId}
       {...includeIf(description, { "aria-describedby": descriptionId })}
     >
       {icon ? (

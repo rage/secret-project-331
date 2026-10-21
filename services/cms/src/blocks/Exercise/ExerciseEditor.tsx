@@ -5,10 +5,10 @@ import styled from "@emotion/styled"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import { useContext } from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -76,7 +76,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                 />
 
                 <div>
-                  <Button variant="primary" size="medium" onClick={handleAddNewSlide}>
+                  <Button variant="secondary" size="medium" onClick={handleAddNewSlide}>
                     {t("add-slide")}
                   </Button>
                 </div>

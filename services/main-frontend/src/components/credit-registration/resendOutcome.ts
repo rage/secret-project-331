@@ -7,6 +7,7 @@ const RESEND_OUTCOME_KEYS = {
   queued: "credit-registration-resend-queued",
   already_mailed_to_every_known_address: "credit-registration-resend-already-mailed",
   refused_by_rate_cap: "credit-registration-resend-refused-by-rate-cap",
+  just_sent: "credit-registration-resend-refused-by-rate-cap",
   no_address_in_study_registry: "credit-registration-resend-no-address",
   not_on_the_course_roster: "credit-registration-resend-not-on-roster",
   no_student_number_known: "credit-registration-resend-no-student-number",

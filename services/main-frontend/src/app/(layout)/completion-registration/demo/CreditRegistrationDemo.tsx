@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import CompletionRegistrationPage from "@/app/(layout)/completion-registration/[courseModuleId]/CompletionRegistrationPage"
 import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
+import { DemoModeProvider } from "@/components/credit-registration/demoMode"
 import { narrowPageCss } from "@/components/credit-registration/styles"
 import { client } from "@/generated/api/client.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -179,7 +180,9 @@ const CreditRegistrationDemo: React.FC = () => {
         </Infobox>
       </div>
       {installedState === demoState ? (
-        <CompletionRegistrationPage key={variantKey} courseModuleId={DEMO_COURSE_MODULE_ID} />
+        <DemoModeProvider value>
+          <CompletionRegistrationPage key={variantKey} courseModuleId={DEMO_COURSE_MODULE_ID} />
+        </DemoModeProvider>
       ) : null}
       <Dialog
         open={isIntroOpen}

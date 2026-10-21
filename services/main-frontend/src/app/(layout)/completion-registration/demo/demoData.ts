@@ -224,7 +224,6 @@ const enrolmentRouteFor = (stage: DemoStage, nowMs: number): MyEnrolmentRoute =>
 export const buildDemoState = (variants: DemoVariants, nowMs: number): DemoState => {
   const isLinked = isStudentNumberLinkedIn(variants)
   const registration = registrationFor(variants.stage, isLinked, nowMs)
-  const isRegistering = variants.stage !== "not_registering"
   return {
     completion: {
       course_module_completion_id: DEMO_COMPLETION_ID,
@@ -232,10 +231,11 @@ export const buildDemoState = (variants: DemoVariants, nowMs: number): DemoState
       course_name: DEMO_COURSE_NAME,
       ects_credits: DEMO_ECTS_CREDITS,
       email: DEMO_EMAIL,
-      uh_course_code: isRegistering ? DEMO_COURSE_CODE : null,
-      registers_credits: isRegistering,
+      uh_course_code: DEMO_COURSE_CODE,
+      registers_credits: true,
       register_credits_via_suotar: true,
-      status_before_registration: isRegistering ? "sending" : "not_registering",
+      status_before_registration:
+        variants.stage === "not_registering" ? "not_registering" : "sending",
       certificate_configuration_id: variants.hasCertificate
         ? DEMO_CERTIFICATE_CONFIGURATION_ID
         : null,

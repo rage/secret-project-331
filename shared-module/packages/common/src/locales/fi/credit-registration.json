@@ -935,7 +935,7 @@
   "credit-registration-demo-stage-enrolment-confirmed": "Kertoi ilmoittautuneensa",
   "credit-registration-demo-stage-failed": "Kirjaus epäonnistui",
   "credit-registration-demo-stage-linking-email-sent": "Opiskelijanumeron liittämissähköposti lähetetty",
-  "credit-registration-demo-stage-not-registering": "Kurssilta ei kirjata opintopisteitä",
+  "credit-registration-demo-stage-not-registering": "Suoritusta ei kirjata",
   "credit-registration-demo-stage-processing-in-sisu": "Sisu käsittelee opintopisteitä",
   "credit-registration-demo-stage-registered": "Opintopisteet kirjattu",
   "credit-registration-demo-stage-sending": "Lähetetään Sisuun",

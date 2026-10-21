@@ -935,7 +935,7 @@
   "credit-registration-demo-stage-enrolment-confirmed": "Said they have enrolled",
   "credit-registration-demo-stage-failed": "Registration failed",
   "credit-registration-demo-stage-linking-email-sent": "Student number linking email sent",
-  "credit-registration-demo-stage-not-registering": "Course does not register credits",
+  "credit-registration-demo-stage-not-registering": "Completion will not be registered",
   "credit-registration-demo-stage-processing-in-sisu": "Sisu is processing the credits",
   "credit-registration-demo-stage-registered": "Credits registered",
   "credit-registration-demo-stage-sending": "Sending to Sisu",

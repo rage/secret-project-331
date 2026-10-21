@@ -57,7 +57,7 @@ const pickerCss = css`
   gap: var(--space-4);
 `
 
-/** Drops the fake answers from the cache, so neither a new variant nor a real page reads them. */
+/** Whether a cached query holds one of the fake server's answers. */
 const isDemoQuery = (queryKey: readonly unknown[]): boolean => {
   const first = queryKey[0]
   return (
@@ -88,16 +88,20 @@ const CreditRegistrationDemo: React.FC = () => {
     },
   })
   const stage = watch(STAGE_FIELD)
-  const isStudentNumberLinked = watch(LINKED_FIELD)
   const hasCertificate = watch(CERTIFICATE_FIELD)
-  const language = watch(LANGUAGE_FIELD)
   const studentNumberRule = studentNumberRuleOf(stage)
+  // The effective value, so a stage that fixes it does not rebuild the demo when the switch follows.
+  const isLinked = isStudentNumberLinkedIn({
+    stage,
+    isStudentNumberLinked: watch(LINKED_FIELD),
+    hasCertificate,
+  })
 
   // One fake server per variant: picking another starts from that situation afresh.
-  const variantKey = `${stage}:${isStudentNumberLinked}:${hasCertificate}`
+  const variantKey = `${stage}:${isLinked}:${hasCertificate}`
   const demoState = useMemo(
-    () => buildDemoState({ stage, isStudentNumberLinked, hasCertificate }, Date.now()),
-    [stage, isStudentNumberLinked, hasCertificate],
+    () => buildDemoState({ stage, isStudentNumberLinked: isLinked, hasCertificate }, Date.now()),
+    [stage, isLinked, hasCertificate],
   )
   const [installedState, setInstalledState] = useState<typeof demoState | null>(null)
 
@@ -113,21 +117,28 @@ const CreditRegistrationDemo: React.FC = () => {
     }
   }, [demoState, queryClient])
 
+  // Only a pick changes the language, and leaving puts the reader's own back.
   useEffect(() => {
-    if (!i18n.language.startsWith(language)) {
-      void i18n.changeLanguage(language)
+    const languageBefore = i18n.language
+    const subscription = watch((values, { name }) => {
+      if (name === LANGUAGE_FIELD && values[LANGUAGE_FIELD]) {
+        void i18n.changeLanguage(values[LANGUAGE_FIELD])
+      }
+    })
+    return () => {
+      subscription.unsubscribe()
+      if (i18n.language !== languageBefore) {
+        void i18n.changeLanguage(languageBefore)
+      }
     }
-  }, [i18n, language])
+  }, [i18n, watch])
 
   // A stage that fixes the number shows the switch the way the stage has it.
   useEffect(() => {
     if (studentNumberRule !== "either") {
-      setValue(
-        LINKED_FIELD,
-        isStudentNumberLinkedIn({ stage, isStudentNumberLinked, hasCertificate }),
-      )
+      setValue(LINKED_FIELD, isLinked)
     }
-  }, [hasCertificate, isStudentNumberLinked, setValue, stage, studentNumberRule])
+  }, [isLinked, setValue, studentNumberRule])
 
   return (
     <>

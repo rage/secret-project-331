@@ -155,7 +155,6 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
               Congratulations! You meet all the requiremenents for passing the course. Give course
               feedback to gain your completion (1-2 minutes)
             </p>
-            <Button onClick={() => {}}>Give course feedback</Button>
             <QueryResult query={getEndQuestionnaire} emptyFallback={<p>Help</p>}>
               {(data) => <EndQuestionnaireDialog questions={data} />}
             </QueryResult>

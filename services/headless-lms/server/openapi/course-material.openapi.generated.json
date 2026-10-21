@@ -4803,23 +4803,14 @@
       },
       "CourseModuleEndingQuestion": {
         "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "course_id",
-          "course_module_id",
-          "question_text",
-          "question_type",
-          "question_serial_number"
-        ],
+        "required": ["id", "created_at", "updated_at", "question_serial_number", "question_text"],
         "properties": {
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "created_at": {
@@ -4834,6 +4825,15 @@
             "type": "string",
             "format": "uuid"
           },
+          "multi_select_labels": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "question_free_text_instruction": {
+            "type": ["string", "null"]
+          },
           "question_serial_number": {
             "type": "integer",
             "format": "int32"
@@ -4841,18 +4841,11 @@
           "question_text": {
             "type": "string"
           },
-          "question_type": {
-            "$ref": "#/components/schemas/EndQuestionType"
-          },
-          "rating_labels": {
+          "select_labels": {
             "type": ["array", "null"],
             "items": {
               "type": "string"
             }
-          },
-          "rating_options_n": {
-            "type": ["integer", "null"],
-            "format": "int32"
           },
           "updated_at": {
             "type": "string",
@@ -5066,10 +5059,6 @@
         "type": "string",
         "description": "How proof of control over [`UserDetail::email`] was obtained. `AdminAsserted` is the weakest.",
         "enum": ["emailed_code", "password_reset_backfill", "tmc_confirmed", "admin_asserted"]
-      },
-      "EndQuestionType": {
-        "type": "string",
-        "enum": ["FreeText", "NumericRating"]
       },
       "ExamData": {
         "type": "object",

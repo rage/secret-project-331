@@ -12,7 +12,8 @@ pub struct CourseModuleEndingQuestionsAnswer {
     pub question_id: Uuid,
     pub user_id: Uuid,
     pub answer_text_value: Option<String>,
-    pub answer_numeric_value: Option<i32>,
+    pub answer_select_value: Option<String>,
+    pub answer_multi_select_value: Option<Vec<String>>,
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
@@ -20,13 +21,16 @@ pub struct NewCourseModuleEndingQuestionsAnswer {
     pub question_id: Uuid,
     pub user_id: Uuid,
     pub answer_text_value: Option<String>,
-    pub answer_numeric_value: Option<i32>,
+    pub answer_select_value: Option<String>,
+    pub answer_multi_select_value: Option<Vec<String>>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
     input: &NewCourseModuleEndingQuestionsAnswer,
 ) -> ModelResult<CourseModuleEndingQuestionsAnswer> {
+    // todo validate!!!!!
+
     let res = sqlx::query_as!(
         CourseModuleEndingQuestionsAnswer,
         r#"
@@ -34,15 +38,17 @@ INSERT INTO course_module_ending_questions_answers (
     question_id,
     user_id,
     answer_text_value,
-    answer_numeric_value
+    answer_select_value,
+    answer_multi_select_value
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *
         "#,
         input.question_id,
         input.user_id,
         input.answer_text_value,
-        input.answer_numeric_value
+        input.answer_select_value,
+        input.answer_multi_select_value.as_deref()
     )
     .fetch_one(&mut *conn)
     .await?;

@@ -407,6 +407,23 @@ export const zCourseModuleCompletion = z.object({
   user_id: z.uuid(),
 })
 
+export const zCourseModuleEndingQuestion = z.object({
+  course_id: z.uuid().nullish(),
+  course_module_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  multi_select_labels: z.array(z.string()).nullish(),
+  question_free_text_instruction: z.string().nullish(),
+  question_serial_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  question_text: z.string(),
+  select_labels: z.array(z.string()).nullish(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zCustomViewExerciseTaskGrading = z.object({
   created_at: z.iso.datetime(),
   exercise_id: z.uuid(),
@@ -452,29 +469,6 @@ export const zEmailVerificationMethod = z.enum([
   "tmc_confirmed",
   "admin_asserted",
 ])
-
-export const zEndQuestionType = z.enum(["FreeText", "NumericRating"])
-
-export const zCourseModuleEndingQuestion = z.object({
-  course_id: z.uuid(),
-  course_module_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  question_serial_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  question_text: z.string(),
-  question_type: zEndQuestionType,
-  rating_labels: z.array(z.string()).nullish(),
-  rating_options_n: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  updated_at: z.iso.datetime(),
-})
 
 export const zExamEnrollment = z.object({
   created_at: z.iso.datetime(),

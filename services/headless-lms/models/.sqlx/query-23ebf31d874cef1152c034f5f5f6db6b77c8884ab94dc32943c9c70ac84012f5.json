@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_module_ending_questions_answers (\n    question_id,\n    user_id,\n    answer_text_value,\n    answer_numeric_value\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO course_module_ending_questions_answers (\n    question_id,\n    user_id,\n    answer_text_value,\n    answer_select_value,\n    answer_multi_select_value\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -72,7 +72,7 @@
       {
         "ordinal": 6,
         "name": "answer_text_value",
-        "type_info": "Varchar",
+        "type_info": "Text",
         "origin": {
           "Table": {
             "table": "course_module_ending_questions_answers",
@@ -82,12 +82,23 @@
       },
       {
         "ordinal": 7,
-        "name": "answer_numeric_value",
-        "type_info": "Int4",
+        "name": "answer_select_value",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "course_module_ending_questions_answers",
-            "name": "answer_numeric_value"
+            "name": "answer_select_value"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "answer_multi_select_value",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "answer_multi_select_value"
           }
         }
       }
@@ -96,8 +107,9 @@
       "Left": [
         "Uuid",
         "Uuid",
+        "Text",
         "Varchar",
-        "Int4"
+        "TextArray"
       ]
     },
     "nullable": [
@@ -108,8 +120,9 @@
       false,
       false,
       true,
+      true,
       true
     ]
   },
-  "hash": "264ba67e24c7fa10fa85924855ee560ff399c1160918cefbf865cf13427f5da9"
+  "hash": "23ebf31d874cef1152c034f5f5f6db6b77c8884ab94dc32943c9c70ac84012f5"
 }

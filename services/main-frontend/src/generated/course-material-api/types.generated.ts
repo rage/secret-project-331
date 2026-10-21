@@ -598,16 +598,16 @@ export type CourseModuleCompletion = {
 }
 
 export type CourseModuleEndingQuestion = {
-  course_id: string
-  course_module_id: string
+  course_id?: string | null
+  course_module_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
+  multi_select_labels?: Array<string> | null
+  question_free_text_instruction?: string | null
   question_serial_number: number
   question_text: string
-  question_type: EndQuestionType
-  rating_labels?: Array<string> | null
-  rating_options_n?: number | null
+  select_labels?: Array<string> | null
   updated_at: string
 }
 
@@ -680,8 +680,6 @@ export type EmailVerificationMethod =
   | "password_reset_backfill"
   | "tmc_confirmed"
   | "admin_asserted"
-
-export type EndQuestionType = "FreeText" | "NumericRating"
 
 export type ExamData = {
   ended: boolean

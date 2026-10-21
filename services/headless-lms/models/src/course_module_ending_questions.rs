@@ -14,13 +14,13 @@ pub struct CourseModuleEndingQuestion {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_id: Uuid,
-    pub course_module_id: Uuid,
-    pub question_text: String,
-    pub question_type: EndQuestionType,
-    pub rating_options_n: Option<i32>,
-    pub rating_labels: Option<Vec<String>>,
+    pub course_id: Option<Uuid>,
+    pub course_module_id: Option<Uuid>,
     pub question_serial_number: i32,
+    pub question_text: String,
+    pub question_free_text_instruction: Option<String>,
+    pub select_labels: Option<Vec<String>>,
+    pub multi_select_labels: Option<Vec<String>>,
 }
 
 pub async fn get_by_course_module_id(
@@ -30,20 +30,9 @@ pub async fn get_by_course_module_id(
     let res: Vec<CourseModuleEndingQuestion> = sqlx::query_as!(
         CourseModuleEndingQuestion,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    course_module_id,
-    question_text,
-    question_type as "question_type: EndQuestionType",
-    rating_options_n,
-    rating_labels,
-    question_serial_number
+SELECT *
 FROM course_module_ending_questions
-WHERE course_module_id = $1
+WHERE course_module_id = $1 OR course_id IS NULL
     AND deleted_at IS NULL
         "#,
         course_module_id,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    course_module_id,\n    question_text,\n    question_type as \"question_type: EndQuestionType\",\n    rating_options_n,\n    rating_labels,\n    question_serial_number\nFROM course_module_ending_questions\nWHERE course_module_id = $1\n    AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM course_module_ending_questions\nWHERE course_module_id = $1 OR course_id IS NULL\n    AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -71,6 +71,17 @@
       },
       {
         "ordinal": 6,
+        "name": "question_serial_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "question_serial_number"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
         "name": "question_text",
         "type_info": "Varchar",
         "origin": {
@@ -81,56 +92,35 @@
         }
       },
       {
-        "ordinal": 7,
-        "name": "question_type: EndQuestionType",
-        "type_info": {
-          "Custom": {
-            "name": "end_question_type",
-            "kind": {
-              "Enum": [
-                "free-text",
-                "numeric-rating"
-              ]
-            }
-          }
-        },
-        "origin": {
-          "Table": {
-            "table": "course_module_ending_questions",
-            "name": "question_type"
-          }
-        }
-      },
-      {
         "ordinal": 8,
-        "name": "rating_options_n",
-        "type_info": "Int4",
+        "name": "question_free_text_instruction",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "course_module_ending_questions",
-            "name": "rating_options_n"
+            "name": "question_free_text_instruction"
           }
         }
       },
       {
         "ordinal": 9,
-        "name": "rating_labels",
+        "name": "select_labels",
         "type_info": "TextArray",
         "origin": {
           "Table": {
             "table": "course_module_ending_questions",
-            "name": "rating_labels"
+            "name": "select_labels"
           }
         }
       },
       {
         "ordinal": 10,
-        "name": "question_serial_number",
-        "type_info": "Int4",
+        "name": "multi_select_labels",
+        "type_info": "TextArray",
         "origin": {
           "Table": {
             "table": "course_module_ending_questions",
-            "name": "question_serial_number"
+            "name": "multi_select_labels"
           }
         }
       }
@@ -145,14 +135,14 @@
       false,
       false,
       true,
-      false,
-      false,
+      true,
+      true,
       false,
       false,
       true,
       true,
-      false
+      true
     ]
   },
-  "hash": "8ae9ca84f52aae601b4c3e32c1a18805387fa565a1e467b6cb3cfcca09d16e10"
+  "hash": "093fd7e586e309e1ed7375c4f4d3fc08439ef1f2257f1b63fd13741982639fbd"
 }

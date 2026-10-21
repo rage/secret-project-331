@@ -1133,11 +1133,13 @@ SELECT NOT EXISTS (
 /// Applies the module editor's changes to `course_id` in one transaction.
 ///
 /// Rejects the whole update if any referenced module or chapter is not in the course, or if a
-/// completion registration link fails [`validate_completion_registration_link`].
+/// completion registration link fails [`validate_completion_registration_link`]. Switching a module's
+/// Sisu registration off cancels its registrations not yet sent, on behalf of `actor_user_id`.
 pub async fn update_modules(
     conn: &mut PgConnection,
     course_id: Uuid,
     updates: ModuleUpdates,
+    actor_user_id: Uuid,
 ) -> ModelResult<()> {
     for link in updates
         .new_modules
@@ -1169,6 +1171,17 @@ pub async fn update_modules(
         .chain(updates.moved_chapters.iter().map(|(chapter, _)| *chapter))
         .collect();
     ensure_belong_to_course(&mut tx, course_id, &module_ids, &chapter_ids).await?;
+
+    let mut sisu_switched_off_module_ids = Vec::new();
+    for module in &updates.modified_modules {
+        if !module.completions_can_be_registered_to_sisu
+            && get_by_id(&mut tx, module.id)
+                .await?
+                .completions_can_be_registered_to_sisu
+        {
+            sisu_switched_off_module_ids.push(module.id);
+        }
+    }
 
     // scramble order of modified and deleted modules
     for module_id in updates
@@ -1247,6 +1260,14 @@ pub async fn update_modules(
     }
     for deleted in updates.deleted_modules {
         delete(&mut tx, deleted).await?;
+    }
+    for module_id in sisu_switched_off_module_ids {
+        crate::credit_registrations::cancel_unsent_for_course_module(
+            &mut tx,
+            module_id,
+            actor_user_id,
+        )
+        .await?;
     }
 
     tx.commit().await?;

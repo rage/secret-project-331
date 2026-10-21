@@ -1667,7 +1667,8 @@ pub async fn update_modules(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner()).await?;
+    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner(), user.id)
+        .await?;
     token.authorized_ok(web::Json(()))
 }
 

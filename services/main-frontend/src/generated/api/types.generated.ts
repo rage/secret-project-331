@@ -4571,7 +4571,7 @@ export type NewChatbotConf = {
   course_id?: string | null
   daily_tokens_per_user: number
   default_chatbot: boolean
-  embeddable: boolean
+  embeddable?: boolean
   enabled_to_students: boolean
   enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
@@ -6682,9 +6682,9 @@ export type GetChatbotEmbedConfData = {
 
 export type GetChatbotEmbedConfResponses = {
   /**
-   * Chatbot configuration
+   * Chatbot is embeddable
    */
-  200: ChatbotConfiguration
+  204: void
 }
 
 export type GetChatbotEmbedConfResponse =

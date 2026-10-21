@@ -193,6 +193,7 @@ pub struct NewChatbotConf {
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
     pub publicly_accessible: bool,
+    #[serde(default)]
     pub embeddable: bool,
 }
 

@@ -1,8 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbot-embed/`.
 use crate::prelude::*;
+use headless_lms_authorization::authorize_access_to_chatbot;
 use utoipa::OpenApi;
-
-use models::chatbot_configurations::ChatbotConfiguration;
 
 #[derive(OpenApi)]
 #[openapi(paths(get_chatbot))]
@@ -24,24 +23,26 @@ pub struct CourseInfo {
         ("chatbot_id" = Uuid, Path, description = "Chatbot id")
     ),
     responses(
-        (status = 200, description = "Chatbot configuration", body = ChatbotConfiguration)
+        (status = 204, description = "Chatbot is embeddable")
     )
 )]
 #[instrument(skip(pool))]
 async fn get_chatbot(
     chatbot_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<ChatbotConfiguration>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let chatbot = models::chatbot_configurations::get_by_id(&mut conn, *chatbot_id).await?;
-    let token = skip_authorize();
+    let token = authorize_access_to_chatbot(&mut conn, None, &chatbot).await?;
+
     if !chatbot.embeddable {
         return Err(controller_err!(
             Forbidden,
             "Chatbot is not embeddable".to_string()
         ));
     }
-    token.authorized_ok(web::Json(chatbot))
+
+    token.authorized_ok(HttpResponse::NoContent().finish())
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

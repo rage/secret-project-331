@@ -1706,7 +1706,8 @@ INSERT INTO chatbot_configurations (
     reasoning_effort,
     suggest_next_messages,
     initial_suggested_messages,
-    publicly_accessible
+    publicly_accessible,
+    embeddable
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1733,7 +1734,8 @@ SELECT
   reasoning_effort,
   suggest_next_messages,
   initial_suggested_messages,
-  publicly_accessible
+  publicly_accessible,
+  embeddable
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL

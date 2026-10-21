@@ -574,15 +574,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Chatbot configuration",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChatbotConfiguration"
-                }
-              }
-            }
+          "204": {
+            "description": "Chatbot is embeddable"
           }
         }
       }
@@ -25954,8 +25947,7 @@
           "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
-          "publicly_accessible",
-          "embeddable"
+          "publicly_accessible"
         ],
         "properties": {
           "chatbot_name": {

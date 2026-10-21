@@ -17,7 +17,6 @@ import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOpt
 
 const ChatbotEmbed = () => {
   const { id } = useParams<{ id: string }>()
-  console.log("Chatbot ID from iframe URL:", id)
   const chatBotQuery = useQuery({
     ...optionalGeneratedQueryOptions({
       value: id,

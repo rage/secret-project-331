@@ -582,24 +582,55 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       )}
                     </div>
                     <div className={itemsContainerCss}>
-                      <h4>{t("citations-and-search-tuning")}</h4>
-                      <div
-                        className={css`
-                          margin: 20px 20px;
-                        `}
-                      >
-                        <Checkbox
-                          control={control}
-                          label={t("hide-citations")}
-                          name={"hide_citations"}
-                          isDisabled={!useAzureSearchFieldValue}
-                        />
-                        <Checkbox
-                          control={control}
-                          label={t("use-semantic-reranking")}
-                          name={"use_semantic_reranking"}
-                          isDisabled={!useAzureSearchFieldValue}
-                        />
+                      <div className={itemsContainerCss}>
+                        <h4>{t("citations-and-search-tuning")}</h4>
+                        <div
+                          className={css`
+                            margin: 20px 20px;
+                          `}
+                        >
+                          <Checkbox
+                            control={control}
+                            label={t("hide-citations")}
+                            name={"hide_citations"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                          <Checkbox
+                            control={control}
+                            label={t("use-semantic-reranking")}
+                            name={"use_semantic_reranking"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                        </div>
+                      </div>
+                      <div className={itemsContainerCss}>
+                        <h4>{t("chatbot-access-title")}</h4>
+                        <div
+                          className={css`
+                            margin: 20px 20px;
+                          `}
+                        >
+                          <Checkbox
+                            control={control}
+                            label={t("publicly-accessible")}
+                            name={"publicly_accessible"}
+                          />
+                          <Checkbox control={control} label={t("embeddable")} name={"embeddable"} />
+                          <ContentDisplayBox
+                            label={t("iframe-embed-code-title")}
+                            content={
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '<iframe title="' +
+                              oldChatbotConf.chatbot_name +
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '" width="100%" height="600" src="https://courses.mooc.fi//chatbot-embed/' +
+                              oldChatbotConf.id +
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '"></iframe>'
+                            }
+                            isVisible={embeddableFieldValue}
+                          ></ContentDisplayBox>
+                        </div>
                       </div>
                     </div>
                     {!selectedModelThinking && (
@@ -718,26 +749,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                               },
                             }}
                           />
-                          <Checkbox
-                            control={control}
-                            label={t("publicly-accessible")}
-                            name={"publicly_accessible"}
-                          />
-                          <Checkbox control={control} label={t("embeddable")} name={"embeddable"} />
-                          <ContentDisplayBox
-                            label={t("iframe-embed-code-title")}
-                            content={
-                              // oxlint-disable-next-line i18next/no-literal-string
-                              '<iframe title="' +
-                              oldChatbotConf.chatbot_name +
-                              // oxlint-disable-next-line i18next/no-literal-string
-                              '" width="100%" height="600" src="https://courses.mooc.fi//chatbot-embed/' +
-                              oldChatbotConf.id +
-                              // oxlint-disable-next-line i18next/no-literal-string
-                              '"></iframe>'
-                            }
-                            isVisible={embeddableFieldValue}
-                          ></ContentDisplayBox>
                         </div>
                       </div>
                     )}

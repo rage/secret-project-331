@@ -255,6 +255,7 @@
   "chart-block-invalid-spec-error": "The chart could not be displayed because its specification is invalid.",
   "chart-block-no-data-file": "This chart is missing its data file.",
   "chatbot": "Chatbot",
+  "chatbot-access-title": "Access",
   "chatbot-action-aborted": "This action is no longer waiting for confirmation.",
   "chatbot-action-declined": "Declined. Nothing was changed.",
   "chatbot-action-executed": "Confirmed and done.",

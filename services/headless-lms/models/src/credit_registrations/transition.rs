@@ -588,7 +588,7 @@ pub async fn cancel_unsent_for_course_module(
     let rows = sqlx::query!(
         r#"
 SELECT id,
-  state AS "state: CreditRegistrationState"
+  state
 FROM credit_registrations
 WHERE course_module_id = $1
   AND state = ANY($2::credit_registration_state [])

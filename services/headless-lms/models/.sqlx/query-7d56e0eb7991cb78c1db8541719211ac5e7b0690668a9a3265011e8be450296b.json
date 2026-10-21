@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  state AS \"state: CreditRegistrationState\"\nFROM credit_registrations\nWHERE course_module_id = $1\n  AND state = ANY($2::credit_registration_state [])\n  AND submitted_attainment_id IS NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  state\nFROM credit_registrations\nWHERE course_module_id = $1\n  AND state = ANY($2::credit_registration_state [])\n  AND submitted_attainment_id IS NULL\n  AND superseded_by_id IS NULL\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "state: CreditRegistrationState",
+        "name": "state",
         "type_info": {
           "Custom": {
             "name": "credit_registration_state",
@@ -94,5 +94,5 @@
       false
     ]
   },
-  "hash": "cceb6bac37ab94db5939d147e88e5c1b83602c383e78e97034780f5788bbf974"
+  "hash": "7d56e0eb7991cb78c1db8541719211ac5e7b0690668a9a3265011e8be450296b"
 }

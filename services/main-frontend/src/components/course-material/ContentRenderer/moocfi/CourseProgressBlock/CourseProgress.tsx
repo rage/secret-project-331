@@ -14,7 +14,7 @@ export interface CourseProgressProps {
   userCourseProgress: UserCourseProgress[]
   /** `null` leaves out the buttons that list every exercise. */
   courseInstanceLocation: CourseInstanceLocation | null
-  courseId: string
+  courseId: string | null
 }
 
 const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = ({

@@ -54,14 +54,18 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
     <QueryResult
       query={getUserCourseProgress}
       emptyFallback={
-        <CourseProgress userCourseProgress={[]} courseInstanceLocation={courseInstanceLocation} />
+        <CourseProgress
+          userCourseProgress={[]}
+          courseInstanceLocation={courseInstanceLocation}
+          courseId={courseMaterialState.course?.id ?? null}
+        />
       }
     >
       {(data) => (
         <CourseProgress
           userCourseProgress={data}
           courseInstanceLocation={courseInstanceLocation}
-          courseId={courseMaterialState.course.id}
+          courseId={courseMaterialState.course?.id ?? null}
         />
       )}
     </QueryResult>

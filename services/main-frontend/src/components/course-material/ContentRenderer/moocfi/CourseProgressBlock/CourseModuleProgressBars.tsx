@@ -22,7 +22,6 @@ import type {
   UserCourseProgress,
   CourseModuleEndingQuestion,
 } from "@/generated/course-material-api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Button, QueryResult } from "@/shared-module/components"
 
@@ -32,7 +31,7 @@ export interface CourseModuleProgressBarsProps {
   courseModuleProgress: UserCourseProgress
   /** `null` leaves out the button that lists every exercise. */
   courseInstanceLocation: CourseInstanceLocation | null
-  courseId: string
+  courseId: string | null
 }
 
 const Wrapper = styled.div`
@@ -54,15 +53,15 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const getEndQuestionnaire = useQuery({
-    queryKey: [`course-module-${courseId}-${courseModuleProgress.course_module_id}-questions`],
+    queryKey: [`course-${courseId}-module-${courseModuleProgress.course_module_id}-questions`],
     queryFn: (): Promise<CourseModuleEndingQuestion[]> =>
       getCourseModuleEndQuestionnaire({
         path: {
-          course_id: courseId,
+          course_id: assertNotNullOrUndefined(courseId),
           course_module_id: assertNotNullOrUndefined(courseModuleProgress.course_module_id),
         },
       }),
-    enabled: true, //!!courseId && loginStateContext.signedIn === true,
+    enabled: !!courseId && !!courseModuleProgress.course_module_id,
   })
   const requiresExam = courseModuleProgress.requires_exam
   const points: ProgressMeasure = withoutEmptyThreshold({
@@ -157,13 +156,8 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
               feedback to gain your completion (1-2 minutes)
             </p>
             <Button onClick={() => {}}>Give course feedback</Button>
-            <QueryResult query={getEndQuestionnaire} emptyFallback={<p></p>}>
-              {(data) => (
-                <CourseProgress
-                  userCourseProgress={data}
-                  courseInstanceLocation={courseInstanceLocation}
-                />
-              )}
+            <QueryResult query={getEndQuestionnaire} emptyFallback={<p>Help</p>}>
+              {(data) => <EndQuestionnaireDialog questions={data} />}
             </QueryResult>
           </div>
         </Wrapper>

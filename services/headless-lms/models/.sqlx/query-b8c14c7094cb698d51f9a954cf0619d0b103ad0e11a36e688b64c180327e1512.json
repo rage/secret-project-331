@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT eq.id, eq.course_module_id FROM course_module_ending_questions AS eq\nJOIN course_module_ending_questions_answers AS eqa ON eqa.question_id = eq.id\nWHERE eq.course_id = $1 AND eq.deleted_at IS NULL AND eqa.deleted_at IS NULL AND eqa.user_id = $2\nGROUP BY eq.course_module_id, eq.id\n;\n\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "course_module_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "b8c14c7094cb698d51f9a954cf0619d0b103ad0e11a36e688b64c180327e1512"
+}

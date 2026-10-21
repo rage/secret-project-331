@@ -169,11 +169,11 @@ Returns course module end questions.
 async fn get_course_module_end_questionnaire(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    course_id: web::Path<Uuid>,
-    course_module_id: web::Path<Uuid>,
+    path: web::Path<(Uuid, Uuid)>,
 ) -> ControllerResult<web::Json<Vec<CourseModuleEndingQuestion>>> {
+    let (course_id, course_module_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
 
     // get questions if user has not answered yet
     let res = models::course_module_ending_questions::get_by_course_module_id(

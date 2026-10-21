@@ -71,6 +71,7 @@ struct ModuleInfo {
     ects_credits: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     uh_course_code: Option<String>,
+    completions_can_be_registered_to_sisu: bool,
     certification_enabled: bool,
 }
 
@@ -603,8 +604,9 @@ impl ChatbotTool for CourseConfigurationTool {
                 );
             }
             notes.push(
-                "Credits are registered only for modules with a uh_course_code; without one \
-                 the student cannot register credits at all. certification_enabled alone is not \
+                "Credits are registered only for modules with a uh_course_code and \
+                 completions_can_be_registered_to_sisu on; otherwise the student cannot register \
+                 credits at all. certification_enabled alone is not \
                  sufficient for a certificate to exist — a certificate_configuration must also \
                  reference the module."
                     .to_string(),
@@ -881,6 +883,7 @@ fn module_to_info(module: &headless_lms_models::course_modules::CourseModule) ->
         automatic_completion_requires_exam: requires_exam,
         ects_credits: module.ects_credits,
         uh_course_code: module.uh_course_code.clone(),
+        completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
         certification_enabled: module.certification_enabled,
     }
 }

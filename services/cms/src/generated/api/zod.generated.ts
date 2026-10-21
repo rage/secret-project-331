@@ -153,6 +153,7 @@ export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   copied_from: z.uuid().nullish(),
   course_id: z.uuid(),
   created_at: z.iso.datetime(),

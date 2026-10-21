@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.automatic_completion,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_requires_exam,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.certification_enabled\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
+  "query": "\nSELECT course_modules.id AS \"id!\",\n  course_modules.created_at AS \"created_at!\",\n  course_modules.updated_at AS \"updated_at!\",\n  course_modules.deleted_at,\n  course_modules.name,\n  course_modules.course_id AS \"course_id!\",\n  course_modules.order_number AS \"order_number!\",\n  course_modules.copied_from,\n  course_modules.uh_course_code,\n  course_modules.automatic_completion AS \"automatic_completion!\",\n  course_modules.automatic_completion_number_of_exercises_attempted_treshold,\n  course_modules.automatic_completion_number_of_points_treshold,\n  course_modules.automatic_completion_requires_exam AS \"automatic_completion_requires_exam!\",\n  course_modules.completion_registration_link_override,\n  course_modules.ects_credits,\n  course_modules.certification_enabled AS \"certification_enabled!\",\n  course_modules.completions_can_be_registered_to_sisu AS \"completions_can_be_registered_to_sisu!\"\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n  AND chapters.deleted_at IS NULL\n  AND course_modules.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
+        "name": "id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
+        "name": "created_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "updated_at",
+        "name": "updated_at!",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "course_id",
+        "name": "course_id!",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "order_number",
+        "name": "order_number!",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "automatic_completion",
+        "name": "automatic_completion!",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -137,7 +137,7 @@
       },
       {
         "ordinal": 12,
-        "name": "automatic_completion_requires_exam",
+        "name": "automatic_completion_requires_exam!",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -170,12 +170,23 @@
       },
       {
         "ordinal": 15,
-        "name": "certification_enabled",
+        "name": "certification_enabled!",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "course_modules",
             "name": "certification_enabled"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "completions_can_be_registered_to_sisu!",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "completions_can_be_registered_to_sisu"
           }
         }
       }
@@ -186,23 +197,24 @@
       ]
     },
     "nullable": [
-      false,
-      false,
-      false,
       true,
       true,
-      false,
-      false,
       true,
       true,
-      false,
       true,
       true,
-      false,
       true,
       true,
-      false
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
     ]
   },
-  "hash": "06b8d1e0323b8287db6a5c635238f090dbd7658ab1f8da01b025ae3fbfb5271a"
+  "hash": "97c21fc62c855ae26b037efae2cdc8907138ecbf275655ab8e1765be0ba83f66"
 }

@@ -866,6 +866,7 @@ pub async fn get_user_completion_information(
         email: course_module_completion.email,
         registers_credits: course_modules::registers_credits(
             course_module.uh_course_code.as_deref(),
+            course_module.completions_can_be_registered_to_sisu,
         ),
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
         status_before_registration,
@@ -961,6 +962,7 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .is_some_and(|x| x.prerequisite_modules_completed),
                 registers_credits: course_modules::registers_credits(
                     module.uh_course_code.as_deref(),
+                    module.completions_can_be_registered_to_sisu,
                 ),
                 register_credits_via_suotar: completion.is_some()
                     && registers_via_suotar_module_ids.contains(&module.id),
@@ -983,7 +985,10 @@ pub async fn get_completion_registration_link_and_save_attempt(
     user_id: Uuid,
     course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
-    if !course_modules::registers_credits(course_module.uh_course_code.as_deref()) {
+    if !course_modules::registers_credits(
+        course_module.uh_course_code.as_deref(),
+        course_module.completions_can_be_registered_to_sisu,
+    ) {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
             "Completion registration is not enabled for this course module.".to_string(),

@@ -61,6 +61,7 @@ export interface ModuleView {
   automatic_completion_number_of_exercises_attempted_treshold: number | null
   automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
+  completions_can_be_registered_to_sisu: boolean
 }
 
 interface ChapterView {
@@ -112,6 +113,7 @@ const blankModule = (chapters: number[]): ModuleView => ({
   automatic_completion_number_of_exercises_attempted_treshold: null,
   automatic_completion_requires_exam: false,
   completion_registration_link_override: null,
+  completions_can_be_registered_to_sisu: true,
 })
 
 /** The completions roster, filtered to one module and, when `failed`, to its failed registrations. */
@@ -220,7 +222,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   // A registration carries the student's Sisu identity, so the counts need their own permission.
   const canViewCreditRegistrations = useCanViewCreditRegistrations(courseId)
   const courseUsesStudyRegistry = (creditRegistrationConfigs ?? []).some((module) =>
-    registersCredits(module.uh_course_code),
+    registersCredits(module),
   )
   const registrationSummaryQuery = useQuery({
     ...getCourseCreditRegistrationSummaryOptions({ path: { course_id: courseId } }),
@@ -269,6 +271,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               automatic_completion_requires_exam: m.completion_policy.requires_exam,
               completion_registration_link_override:
                 m.completion_registration_link_override ?? null,
+              completions_can_be_registered_to_sisu: m.completions_can_be_registered_to_sisu,
             }
           }
           return {
@@ -285,6 +288,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             automatic_completion_number_of_exercises_attempted_treshold: null,
             automatic_completion_requires_exam: false,
             completion_registration_link_override: m.completion_registration_link_override ?? null,
+            completions_can_be_registered_to_sisu: m.completions_can_be_registered_to_sisu,
           }
         })
         const error = validateModuleList(modules, chapters)
@@ -339,6 +343,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
             completion_registration_link_override:
               courseModule.completion_registration_link_override,
+            completions_can_be_registered_to_sisu:
+              courseModule.completions_can_be_registered_to_sisu,
           })
         } else if (
           initialModule !== undefined &&
@@ -355,7 +361,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             courseModule.automatic_completion_requires_exam !==
               initialModule.automatic_completion_requires_exam ||
             courseModule.completion_registration_link_override !==
-              initialModule.completion_registration_link_override)
+              initialModule.completion_registration_link_override ||
+            courseModule.completions_can_be_registered_to_sisu !==
+              initialModule.completions_can_be_registered_to_sisu)
         ) {
           modifiedModules.push({
             id: courseModule.id,
@@ -366,6 +374,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
             completion_registration_link_override:
               courseModule.completion_registration_link_override,
+            completions_can_be_registered_to_sisu:
+              courseModule.completions_can_be_registered_to_sisu,
           })
         }
       }
@@ -441,6 +451,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       automatic_completion_requires_exam,
       completion_registration_link_override,
       override_completion_link,
+      completions_can_be_registered_to_sisu,
     }: CourseModuleFormFields,
   ) => {
     setEdited(true)
@@ -470,6 +481,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         completion_registration_link_override: override_completion_link
           ? completion_registration_link_override
           : null,
+        completions_can_be_registered_to_sisu,
         // Overwritten below, along with every other module's.
         firstChapter: null,
         lastChapter: null,

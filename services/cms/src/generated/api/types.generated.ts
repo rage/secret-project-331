@@ -235,6 +235,10 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
+  /**
+   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
+   */
+  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string

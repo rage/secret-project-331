@@ -1392,6 +1392,7 @@ export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   copied_from: z.uuid().nullish(),
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -1455,6 +1456,7 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export const zCourseModuleCreditRegistrationConfig = z.object({
+  completions_can_be_registered_to_sisu: z.boolean(),
   course_id: z.uuid(),
   course_module_id: z.uuid(),
   credit_registration_config_check_message: z.string().nullish(),
@@ -2342,6 +2344,7 @@ export const zDailySubmissionCount = z.object({
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export const zCourseModuleInfo = z.object({
+  completions_can_be_registered_to_sisu: z.boolean(),
   daily_submissions: z.array(zDailySubmissionCount),
   ects_credits: z.number().nullish(),
   exercise_count: z
@@ -3658,6 +3661,7 @@ export const zChatbotConfigurationModel = z.object({
 export const zModifiedModule = z.object({
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   ects_credits: z.number().nullish(),
   id: z.uuid(),
   name: z.string().nullish(),
@@ -3917,6 +3921,7 @@ export const zNewModule = z.object({
   chapters: z.array(z.uuid()),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   ects_credits: z.number().nullish(),
   name: z.string(),
   order_number: z

@@ -832,6 +832,12 @@ WHERE course_module_id = ANY($1)
   -- registration until a teacher dismisses or confirms them.
   AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM course_modules cm
+    WHERE cm.id = course_module_completions.course_module_id
+      AND cm.completions_can_be_registered_to_sisu
+  )
   -- Completions on the push path are registered by us; letting the registry pull them too would put
   -- a second attainment on the student's transcript. Per student and module: a completion from
   -- before the push path stays the pull path's until the student gets a flagged one, which takes

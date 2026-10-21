@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_modules\nSET automatic_completion = $1,\n  automatic_completion_number_of_exercises_attempted_treshold = $2,\n  automatic_completion_number_of_points_treshold = $3,\n  automatic_completion_requires_exam = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  completions_can_be_registered_to_sisu\nFROM course_modules\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -178,15 +178,22 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 16,
+        "name": "completions_can_be_registered_to_sisu",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "completions_can_be_registered_to_sisu"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Bool",
-        "Int4",
-        "Int4",
-        "Bool",
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -205,8 +212,9 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "12f7996a7cf026193d59ac1ced450075eaa4bcc0e6570ff188c989a73ef3691f"
+  "hash": "90a7316b205bccd83e8d572aaf5a5989f18da78771308e371ed581e97eed7fe8"
 }

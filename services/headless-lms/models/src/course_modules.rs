@@ -23,6 +23,7 @@ struct CourseModulesSchema {
     completion_registration_link_override: Option<String>,
     ects_credits: Option<f32>,
     certification_enabled: bool,
+    completions_can_be_registered_to_sisu: bool,
 }
 /// Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
 /// `completion_policy`.
@@ -42,6 +43,8 @@ pub struct CourseModule {
     pub completion_registration_link_override: Option<String>,
     pub ects_credits: Option<f32>,
     pub certification_enabled: bool,
+    /// Off, the module's completions are never registered, course code or not; see [`registers_credits`].
+    pub completions_can_be_registered_to_sisu: bool,
 }
 
 impl CourseModule {
@@ -60,6 +63,7 @@ impl CourseModule {
             completion_registration_link_override: None,
             ects_credits: None,
             certification_enabled: false,
+            completions_can_be_registered_to_sisu: true,
         }
     }
     pub fn set_timestamps(
@@ -135,6 +139,7 @@ impl From<CourseModulesSchema> for CourseModule {
             completion_registration_link_override: schema.completion_registration_link_override,
             ects_credits: schema.ects_credits,
             certification_enabled: schema.certification_enabled,
+            completions_can_be_registered_to_sisu: schema.completions_can_be_registered_to_sisu,
         }
     }
 }
@@ -148,6 +153,7 @@ pub struct NewCourseModule {
     name: Option<String>,
     order_number: i32,
     uh_course_code: Option<String>,
+    completions_can_be_registered_to_sisu: bool,
 }
 
 impl NewCourseModule {
@@ -160,6 +166,7 @@ impl NewCourseModule {
             name,
             order_number,
             uh_course_code: None,
+            completions_can_be_registered_to_sisu: true,
         }
     }
 
@@ -169,6 +176,14 @@ impl NewCourseModule {
 
     pub fn set_uh_course_code(mut self, uh_course_code: Option<String>) -> Self {
         self.uh_course_code = uh_course_code;
+        self
+    }
+
+    pub fn set_completions_can_be_registered_to_sisu(
+        mut self,
+        completions_can_be_registered_to_sisu: bool,
+    ) -> Self {
+        self.completions_can_be_registered_to_sisu = completions_can_be_registered_to_sisu;
         self
     }
 
@@ -200,6 +215,7 @@ pub struct NewModule {
     ects_credits: Option<f32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
+    completions_can_be_registered_to_sisu: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -211,6 +227,7 @@ pub struct ModifiedModule {
     ects_credits: Option<f32>,
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
+    completions_can_be_registered_to_sisu: bool,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -245,11 +262,15 @@ pub fn normalize_uh_course_code(uh_course_code: Option<String>) -> Option<String
         .filter(|code| !code.is_empty())
 }
 
-/// Whether completions of a module with this course code are registered at all. Relies on
-/// [`normalize_uh_course_code`] having been applied on write, which is what the SQL side's
-/// `TRIM(cm.uh_course_code) <> ''` predicates assume.
-pub fn registers_credits(uh_course_code: Option<&str>) -> bool {
-    uh_course_code.is_some_and(|code| !code.trim().is_empty())
+/// Whether a module's completions are registered at all: it needs a course code and
+/// `completions_can_be_registered_to_sisu` on. Mirrors the SQL side's
+/// `TRIM(cm.uh_course_code) <> '' AND cm.completions_can_be_registered_to_sisu` predicates.
+pub fn registers_credits(
+    uh_course_code: Option<&str>,
+    completions_can_be_registered_to_sisu: bool,
+) -> bool {
+    completions_can_be_registered_to_sisu
+        && uh_course_code.is_some_and(|code| !code.trim().is_empty())
 }
 
 /// Per-module credit-registration configuration: the module's own fields merged with its
@@ -271,6 +292,7 @@ pub struct CourseModuleCreditRegistrationConfig {
     /// Whether `completion_registration_link_override` is set, which is also the enrolment link for
     /// students without a usable enrolment.
     pub credit_registration_has_enrolment_link: bool,
+    pub completions_can_be_registered_to_sisu: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -361,9 +383,10 @@ INSERT INTO course_modules (
     automatic_completion_requires_exam,
     ects_credits,
     uh_course_code,
-    completion_registration_link_override
+    completion_registration_link_override,
+    completions_can_be_registered_to_sisu
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING id,
   created_at,
   updated_at,
@@ -379,7 +402,8 @@ RETURNING id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
         ",
         pkey_policy.into_uuid(),
         new_course_module.course_id,
@@ -392,6 +416,7 @@ RETURNING id,
         new_course_module.ects_credits,
         normalize_uh_course_code(new_course_module.uh_course_code.clone()),
         new_course_module.completion_registration_link_override,
+        new_course_module.completions_can_be_registered_to_sisu,
     )
     .fetch_one(conn)
     .await?;
@@ -458,7 +483,8 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
 FROM course_modules
 WHERE deleted_at IS NULL
         ",
@@ -488,7 +514,8 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
@@ -519,7 +546,8 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
 FROM course_modules
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -554,7 +582,8 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -591,7 +620,8 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
 FROM course_modules
 WHERE course_id = ANY($1)
 AND deleted_at IS NULL
@@ -626,7 +656,8 @@ SELECT cm.id,
   cm.automatic_completion_requires_exam,
   cm.completion_registration_link_override,
   cm.ects_credits,
-  cm.certification_enabled
+  cm.certification_enabled,
+  cm.completions_can_be_registered_to_sisu
 FROM course_modules as cm
 WHERE EXISTS (
   SELECT 1
@@ -670,7 +701,8 @@ SELECT course_modules.id AS "id!",
   course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
   course_modules.completion_registration_link_override,
   course_modules.ects_credits,
-  course_modules.certification_enabled AS "certification_enabled!"
+  course_modules.certification_enabled AS "certification_enabled!",
+  course_modules.completions_can_be_registered_to_sisu AS "completions_can_be_registered_to_sisu!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
@@ -748,7 +780,8 @@ SELECT id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
@@ -837,7 +870,8 @@ SELECT cm.id AS course_module_id,
   c.config_checked_at AS "credit_registration_config_checked_at?",
   c.course_code_allowed AS "credit_registration_course_code_allowed?",
   c.config_check_message AS "credit_registration_config_check_message?",
-  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "credit_registration_has_enrolment_link!"
+  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "credit_registration_has_enrolment_link!",
+  cm.completions_can_be_registered_to_sisu
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
@@ -909,7 +943,8 @@ RETURNING id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
         ",
         automatic_completion,
         exercises_treshold,
@@ -949,7 +984,8 @@ RETURNING id,
   automatic_completion_requires_exam,
   completion_registration_link_override,
   ects_credits,
-  certification_enabled
+  certification_enabled,
+  completions_can_be_registered_to_sisu
         ",
         normalize_uh_course_code(uh_course_code),
         id,
@@ -995,6 +1031,7 @@ pub async fn update(
         name,
         uh_course_code,
         completion_registration_link_override,
+        completions_can_be_registered_to_sisu,
     } = updated_course_module;
     let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
         updated_course_module.completion_policy.to_database_fields();
@@ -1010,7 +1047,8 @@ SET name = COALESCE($2, name),
   automatic_completion_number_of_exercises_attempted_treshold = $7,
   automatic_completion_number_of_points_treshold = $8,
   automatic_completion_requires_exam = $9,
-  completion_registration_link_override = $10
+  completion_registration_link_override = $10,
+  completions_can_be_registered_to_sisu = $11
 WHERE id = $1
         ",
         id,
@@ -1023,6 +1061,7 @@ WHERE id = $1
         points_treshold,
         requires_exam,
         completion_registration_link_override.as_ref(),
+        completions_can_be_registered_to_sisu,
     )
     .execute(conn)
     .await?;
@@ -1153,13 +1192,15 @@ pub async fn update_modules(
             ects_credits,
             completion_policy,
             completion_registration_link_override,
+            completions_can_be_registered_to_sisu,
         } = new;
         // insert with a random order number to avoid conflicts
         let new_course_module = NewCourseModule::new(course_id, Some(name.clone()), rand::random())
             .set_completion_policy(completion_policy.clone())
             .set_completion_registration_link_override(completion_registration_link_override)
             .set_ects_credits(ects_credits)
-            .set_uh_course_code(uh_course_code);
+            .set_uh_course_code(uh_course_code)
+            .set_completions_can_be_registered_to_sisu(completions_can_be_registered_to_sisu);
         let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
         for chapter in chapters {
             chapters::set_module(&mut tx, chapter, module.id).await?;
@@ -1173,6 +1214,7 @@ pub async fn update_modules(
             ects_credits,
             completion_policy,
             completion_registration_link_override: module.completion_registration_link_override,
+            completions_can_be_registered_to_sisu,
         })
     }
     // update modified and new modules
@@ -1186,6 +1228,7 @@ pub async fn update_modules(
             ects_credits,
             completion_policy,
             completion_registration_link_override,
+            completions_can_be_registered_to_sisu,
         } = module;
         update(
             &mut tx,
@@ -1194,7 +1237,8 @@ pub async fn update_modules(
                 .set_completion_policy(completion_policy)
                 .set_completion_registration_link_override(completion_registration_link_override)
                 .set_ects_credits(ects_credits)
-                .set_uh_course_code(uh_course_code),
+                .set_uh_course_code(uh_course_code)
+                .set_completions_can_be_registered_to_sisu(completions_can_be_registered_to_sisu),
         )
         .await?;
     }

@@ -20227,7 +20227,8 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "certification_enabled"
+          "certification_enabled",
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
           "certification_enabled": {
@@ -20239,6 +20240,10 @@
           "completion_registration_link_override": {
             "type": ["string", "null"],
             "description": "If set, use this link rather than the default one when registering course completions."
+          },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean",
+            "description": "Off, the module's completions are never registered, course code or not; see [`registers_credits`]."
           },
           "copied_from": {
             "type": ["string", "null"],
@@ -20430,8 +20435,16 @@
       "CourseModuleCreditRegistrationConfig": {
         "type": "object",
         "description": "Per-module credit-registration configuration: the module's own fields merged with its\n`course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
-        "required": ["course_module_id", "course_id", "credit_registration_has_enrolment_link"],
+        "required": [
+          "course_module_id",
+          "course_id",
+          "credit_registration_has_enrolment_link",
+          "completions_can_be_registered_to_sisu"
+        ],
         "properties": {
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
+          },
           "course_id": {
             "type": "string",
             "format": "uuid"
@@ -20478,8 +20491,17 @@
       "CourseModuleInfo": {
         "type": "object",
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
-        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
+        "required": [
+          "id",
+          "order_number",
+          "exercise_count",
+          "daily_submissions",
+          "completions_can_be_registered_to_sisu"
+        ],
         "properties": {
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
+          },
           "daily_submissions": {
             "type": "array",
             "items": {
@@ -25189,13 +25211,21 @@
       },
       "ModifiedModule": {
         "type": "object",
-        "required": ["id", "order_number", "completion_policy"],
+        "required": [
+          "id",
+          "order_number",
+          "completion_policy",
+          "completions_can_be_registered_to_sisu"
+        ],
         "properties": {
           "completion_policy": {
             "$ref": "#/components/schemas/CompletionPolicy"
           },
           "completion_registration_link_override": {
             "type": ["string", "null"]
+          },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -26204,7 +26234,13 @@
       },
       "NewModule": {
         "type": "object",
-        "required": ["name", "order_number", "chapters", "completion_policy"],
+        "required": [
+          "name",
+          "order_number",
+          "chapters",
+          "completion_policy",
+          "completions_can_be_registered_to_sisu"
+        ],
         "properties": {
           "chapters": {
             "type": "array",
@@ -26218,6 +26254,9 @@
           },
           "completion_registration_link_override": {
             "type": ["string", "null"]
+          },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
           },
           "ects_credits": {
             "type": ["number", "null"],

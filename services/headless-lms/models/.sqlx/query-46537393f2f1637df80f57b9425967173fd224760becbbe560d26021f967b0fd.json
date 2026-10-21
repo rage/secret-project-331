@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_modules\nSET uh_course_code = $1\nWHERE id = $2\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  completions_can_be_registered_to_sisu\nFROM course_modules\nWHERE deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -178,13 +178,21 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 16,
+        "name": "completions_can_be_registered_to_sisu",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "completions_can_be_registered_to_sisu"
+          }
+        }
       }
     ],
     "parameters": {
-      "Left": [
-        "Varchar",
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -202,8 +210,9 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "34ead2251fbbd60992e13fe179962370a5d8f5aba3a62962106a2aa3788e4574"
+  "hash": "46537393f2f1637df80f57b9425967173fd224760becbbe560d26021f967b0fd"
 }

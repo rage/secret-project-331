@@ -1056,6 +1056,7 @@ INSERT INTO course_modules (
     automatic_completion_number_of_points_treshold,
     automatic_completion_requires_exam,
     certification_enabled,
+    completions_can_be_registered_to_sisu,
     completion_registration_link_override,
     ects_credits,
     uh_course_code
@@ -1070,6 +1071,7 @@ SELECT uuid_generate_v5($1, id::text),
   automatic_completion_number_of_points_treshold,
   automatic_completion_requires_exam,
   certification_enabled,
+  completions_can_be_registered_to_sisu,
   completion_registration_link_override,
   ects_credits,
   uh_course_code

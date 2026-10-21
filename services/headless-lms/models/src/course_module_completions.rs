@@ -825,7 +825,12 @@ pub fn stream_by_course_module_id<'a>(
         r#"
 SELECT *
 FROM course_module_completions
-WHERE course_module_id = ANY($1)
+WHERE course_module_id IN (
+    SELECT id
+    FROM course_modules
+    WHERE id = ANY($1)
+      AND completions_can_be_registered_to_sisu
+  )
   AND prerequisite_modules_completed
   AND eligible_for_ects IS TRUE
   -- Completions still awaiting suspected-cheater review are withheld from study-registry

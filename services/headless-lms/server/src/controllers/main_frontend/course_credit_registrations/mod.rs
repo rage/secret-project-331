@@ -361,7 +361,10 @@ pub async fn get_course_credit_registration_summary(
             .await?
             .into_iter()
             .filter(|config| {
-                models::course_modules::registers_credits(config.uh_course_code.as_deref())
+                models::course_modules::registers_credits(
+                    config.uh_course_code.as_deref(),
+                    config.completions_can_be_registered_to_sisu,
+                )
             })
             .collect();
     let on_push_path = !configs.is_empty();

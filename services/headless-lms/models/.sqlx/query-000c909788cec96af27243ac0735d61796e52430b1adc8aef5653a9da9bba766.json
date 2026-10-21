@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed\n  END AS \"stored_course_code_allowed?\",\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_rejection\n  END AS \"stored_course_code_rejection?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.deleted_at IS NULL\n  AND TRIM(cm.uh_course_code) <> ''\n  AND ($1::uuid IS NULL OR cm.course_id = $1)\nORDER BY cm.course_id,\n  cm.order_number\n        ",
+  "query": "\nSELECT cm.id AS \"course_module_id!\",\n  cm.course_id AS \"course_id!\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_allowed\n  END AS \"stored_course_code_allowed?\",\n  CASE\n    WHEN c.checked_course_code = TRIM(cm.uh_course_code) THEN c.course_code_rejection\n  END AS \"stored_course_code_rejection?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.deleted_at IS NULL\n  AND TRIM(cm.uh_course_code) <> ''\n  AND cm.completions_can_be_registered_to_sisu\n  AND ($1::uuid IS NULL OR cm.course_id = $1)\nORDER BY cm.course_id,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -74,5 +74,5 @@
       null
     ]
   },
-  "hash": "4a7708335753cc12429656f6d05e9e9be8bcac5cff5ee38569e8377b883467d6"
+  "hash": "000c909788cec96af27243ac0735d61796e52430b1adc8aef5653a9da9bba766"
 }

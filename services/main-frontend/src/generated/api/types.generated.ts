@@ -2150,6 +2150,10 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
+  /**
+   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
+   */
+  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string
@@ -2232,6 +2236,7 @@ export type CourseModuleCompletionWithRegistrationInfo = {
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export type CourseModuleCreditRegistrationConfig = {
+  completions_can_be_registered_to_sisu: boolean
   course_id: string
   course_module_id: string
   credit_registration_config_check_message?: string | null
@@ -2257,6 +2262,7 @@ export type CourseModuleCreditRegistrationConfig = {
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export type CourseModuleInfo = {
+  completions_can_be_registered_to_sisu: boolean
   /**
    * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
    */
@@ -4230,6 +4236,7 @@ export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
+  completions_can_be_registered_to_sisu: boolean
   ects_credits?: number | null
   id: string
   name?: string | null
@@ -4664,6 +4671,7 @@ export type NewModule = {
   chapters: Array<string>
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
+  completions_can_be_registered_to_sisu: boolean
   ects_credits?: number | null
   name: string
   order_number: number

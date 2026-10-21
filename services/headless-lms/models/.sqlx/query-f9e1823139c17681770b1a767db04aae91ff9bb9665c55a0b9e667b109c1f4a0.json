@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled\nFROM course_modules\nWHERE course_id = $1\n  AND name IS NULL\n  AND deleted_at IS NULL\n        ",
+  "query": "\nINSERT INTO course_modules (\n    id,\n    course_id,\n    name,\n    order_number,\n    automatic_completion,\n    automatic_completion_number_of_exercises_attempted_treshold,\n    automatic_completion_number_of_points_treshold,\n    automatic_completion_requires_exam,\n    ects_credits,\n    uh_course_code,\n    completion_registration_link_override,\n    completions_can_be_registered_to_sisu\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  completions_can_be_registered_to_sisu\n        ",
   "describe": {
     "columns": [
       {
@@ -178,11 +178,33 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 16,
+        "name": "completions_can_be_registered_to_sisu",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "completions_can_be_registered_to_sisu"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Int4",
+        "Bool",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Float4",
+        "Varchar",
+        "Varchar",
+        "Bool"
       ]
     },
     "nullable": [
@@ -201,8 +223,9 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "f25f9926da3d9790952e13c59f8cc82ed8f8457baab069d62c762279cd8d0f09"
+  "hash": "f9e1823139c17681770b1a767db04aae91ff9bb9665c55a0b9e667b109c1f4a0"
 }

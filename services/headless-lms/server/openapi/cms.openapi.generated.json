@@ -2055,7 +2055,8 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "certification_enabled"
+          "certification_enabled",
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
           "certification_enabled": {
@@ -2067,6 +2068,10 @@
           "completion_registration_link_override": {
             "type": ["string", "null"],
             "description": "If set, use this link rather than the default one when registering course completions."
+          },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean",
+            "description": "Off, the module's completions are never registered, course code or not; see [`registers_credits`]."
           },
           "copied_from": {
             "type": ["string", "null"],

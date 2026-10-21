@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled\nFROM course_modules\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.automatic_completion,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_requires_exam,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.certification_enabled,\n  cm.completions_can_be_registered_to_sisu\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -178,11 +178,22 @@
             "name": "certification_enabled"
           }
         }
+      },
+      {
+        "ordinal": 16,
+        "name": "completions_can_be_registered_to_sisu",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "completions_can_be_registered_to_sisu"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -201,8 +212,9 @@
       false,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "30d0df7f53358a806b020245da8b1bb594c5f55fb5b68f68f740cd3218129d26"
+  "hash": "b727957739e50452d4a6f0d752b29a7b8cba3df4779b0c3bd6e429820f9b49d0"
 }

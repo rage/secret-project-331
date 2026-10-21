@@ -79,6 +79,9 @@ export interface CreditRegistrationStatusProps {
   ectsCredits: number | null | undefined
   /** What the student is told while the completion has no registration yet. */
   statusBeforeRegistration: StudentFacingCreditRegistrationStatus
+  /** Set when a certificate could serve instead, which asks the detour questions first. */
+  certificateConfigurationId: string | null | undefined
+  creditJustification: string | null | undefined
 }
 
 const MOVING_REFETCH_INTERVAL_MS = 10_000
@@ -101,6 +104,8 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   moduleName,
   ectsCredits,
   statusBeforeRegistration,
+  certificateConfigurationId,
+  creditJustification,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
@@ -154,6 +159,8 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
       numberQuery={numberQuery}
       checkedAt={checkedAt}
       earlierAttempts={data.earlier_attempts}
+      certificateConfigurationId={certificateConfigurationId}
+      creditJustification={creditJustification}
     />
   ) : null
 
@@ -255,6 +262,8 @@ interface TrackerProps {
   numberQuery: UseQueryResult<MyVerifiedStudentNumber | null>
   checkedAt: string | null
   earlierAttempts: MyCreditRegistration[]
+  certificateConfigurationId: string | null | undefined
+  creditJustification: string | null | undefined
 }
 
 /**
@@ -274,6 +283,8 @@ const Tracker: React.FC<TrackerProps> = ({
   numberQuery,
   checkedAt,
   earlierAttempts,
+  certificateConfigurationId,
+  creditJustification,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statusLabel = myRegistrationStatusLabel(t, registration)
@@ -318,6 +329,8 @@ const Tracker: React.FC<TrackerProps> = ({
             openUniversityEnrolmentLink={registration.enrolment_link}
             uhCourseCode={registration.uh_course_code}
             supportMail={missingSisuCourseCodeSupportMail(t, registration)}
+            certificateConfigurationId={certificateConfigurationId}
+            creditJustification={creditJustification}
           />
         ) : null}
 

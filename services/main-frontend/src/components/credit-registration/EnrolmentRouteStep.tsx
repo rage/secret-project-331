@@ -36,6 +36,7 @@ import {
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
 import { invalidateRegistrationViews } from "./enrolmentActions"
+import { OpenUniversityDetour } from "./OpenUniversityDetour"
 import { SisuCourseCode } from "./SisuCourseCode"
 import type { SupportMailContents } from "./studentSupportMail"
 import { bandCss, rowCss } from "./styles"
@@ -55,6 +56,10 @@ export interface EnrolmentRouteStepProps {
   uhCourseCode: string | null | undefined
   /** What the support mail says when there is no course code to enrol on. */
   supportMail: SupportMailContents
+  /** Set when a certificate could serve instead, which asks the detour questions first. */
+  certificateConfigurationId: string | null | undefined
+  /** What the student wrote on the detour's last question, if they got that far. */
+  creditJustification: string | null | undefined
 }
 
 /**
@@ -71,6 +76,8 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   openUniversityEnrolmentLink,
   uhCourseCode,
   supportMail,
+  certificateConfigurationId,
+  creditJustification,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
@@ -155,6 +162,41 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
     >
       {t("button-i-have-enrolled")}
     </Button>
+  )
+
+  const openUniversityEnrolment = (
+    <section className={bandCss}>
+      <p>
+        <Trans
+          t={t}
+          i18nKey="credit-registration-open-university-enrol-explanation"
+          components={{
+            openUniversityInfoLink: (
+              <TransLink
+                href={openUniversityEnrolmentInfoUrl(i18n.language)}
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            ),
+          }}
+        />
+      </p>
+      <div className={rowCss}>
+        {enrolmentLink ? (
+          <Link
+            href={enrolmentLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            styledAsButton
+            variant={BUTTON_PRIMARY}
+            size="medium"
+          >
+            {t("credit-registration-action-enrol")}
+          </Link>
+        ) : null}
+        {iHaveEnrolled}
+      </div>
+    </section>
   )
 
   if (enrolmentRoute.enrolment_confirmed_at) {
@@ -253,38 +295,16 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
       ) : null}
 
       {picked === OPEN_UNIVERSITY ? (
-        <section className={bandCss}>
-          <p>
-            <Trans
-              t={t}
-              i18nKey="credit-registration-open-university-enrol-explanation"
-              components={{
-                openUniversityInfoLink: (
-                  <TransLink
-                    href={openUniversityEnrolmentInfoUrl(i18n.language)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                ),
-              }}
-            />
-          </p>
-          <div className={rowCss}>
-            {enrolmentLink ? (
-              <Link
-                href={enrolmentLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                styledAsButton
-                variant={BUTTON_PRIMARY}
-                size="medium"
-              >
-                {t("credit-registration-action-enrol")}
-              </Link>
-            ) : null}
-            {iHaveEnrolled}
-          </div>
-        </section>
+        certificateConfigurationId ? (
+          <OpenUniversityDetour
+            courseModuleId={courseModuleId}
+            certificateConfigurationId={certificateConfigurationId}
+            creditJustification={creditJustification}
+            openUniversityContent={openUniversityEnrolment}
+          />
+        ) : (
+          openUniversityEnrolment
+        )
       ) : null}
     </>
   )

@@ -1,7 +1,7 @@
 import type {
-  CreditRegistrationEnrolmentRoute,
   MyCreditJustification,
   RequestCreditRegistrationEnrolmentRecheckResult,
+  SetEnrolmentRoutePayload,
 } from "@/generated/api/types.generated"
 
 import { DEMO_COURSE_MODULE_ID, DEMO_REGISTRATION_ID, type DemoState } from "./demoData"
@@ -46,10 +46,22 @@ export const createDemoFetch =
       case `GET ${MODULE}/enrolment-route`:
         return json(route)
       case `PUT ${MODULE}/enrolment-route`: {
-        const body = (await request.json()) as { route: CreditRegistrationEnrolmentRoute }
-        state.enrolmentRoute = { ...route, route: body.route }
+        const answers = (await request.json()) as SetEnrolmentRoutePayload
+        state.enrolmentRoute = {
+          ...route,
+          ...answers,
+          // Like the server: "I have enrolled" was about the old route.
+          enrolment_confirmed_at:
+            answers.route === route.route ? (route.enrolment_confirmed_at ?? null) : null,
+        }
         return json(state.enrolmentRoute)
       }
+      case `POST ${MODULE}/enrolment-route/certificate-choice`:
+        state.enrolmentRoute = { ...route, certificate_chosen_at: nowIso }
+        return json(state.enrolmentRoute)
+      case `DELETE ${MODULE}/enrolment-route/certificate-choice`:
+        state.enrolmentRoute = { ...route, certificate_chosen_at: null }
+        return json(state.enrolmentRoute)
       case `POST ${MODULE}/enrolment-route/confirm`:
         state.enrolmentRoute = { ...route, enrolment_confirmed_at: nowIso }
         return json(state.enrolmentRoute)

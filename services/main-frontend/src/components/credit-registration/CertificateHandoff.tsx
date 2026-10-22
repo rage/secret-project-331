@@ -5,11 +5,10 @@ import { useTranslation } from "react-i18next"
 
 import { Button, Link, useDialog } from "@/shared-module/components"
 
+import { certificateHref } from "./certificateHref"
 import { BUTTON_PRIMARY } from "./constants"
 import { useIsDemoMode } from "./demoMode"
 import { bandCss, headingCss, rowCss } from "./styles"
-
-const GENERATE_CERTIFICATE_PATH = "/generate-certificate"
 
 export interface CertificateHandoffProps {
   courseModuleId: string
@@ -49,7 +48,7 @@ export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({
           </Button>
         ) : (
           <Link
-            href={`${GENERATE_CERTIFICATE_PATH}?module=${courseModuleId}&ccid=${certificateConfigurationId}`}
+            href={certificateHref(courseModuleId, certificateConfigurationId)}
             styledAsButton
             variant={BUTTON_PRIMARY}
             size="medium"

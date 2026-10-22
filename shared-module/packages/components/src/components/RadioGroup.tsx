@@ -30,6 +30,7 @@ interface RadioGroupContextValue {
   state: RadioGroupState
   variant: RadioGroupVariant
   fillWidth: boolean
+  showCheckMark: boolean
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContextValue | null>(null)
@@ -166,10 +167,16 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
   variant?: RadioGroupVariant
   /**
    * `segmented` only — splits the row evenly between options instead of each hugging its own
-   * text. For a pair whose labels are long and unevenly sized enough to wrap raggedly; leave unset
-   * for a short choice like Yes/No, where hugging the text is the more compact, expected look.
+   * text, wrapping onto more rows when the options get too narrow to read. For options whose
+   * labels are long and unevenly sized enough to wrap raggedly; leave unset for a short choice
+   * like Yes/No, where hugging the text is the more compact, expected look.
    */
   fillWidth?: boolean
+  /**
+   * `segmented` only — puts a check mark on the chosen option, for a question whose answer is
+   * kept, where the fill alone could read as a highlighted button rather than a recorded answer.
+   */
+  showCheckMark?: boolean
   /**
    * Renders `description` as an ordinary paragraph — body text size and color, and the band's
    * normal paragraph spacing — instead of the smaller, muted field-hint style. For a description
@@ -200,6 +207,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     orientation = "vertical",
     variant = "list",
     fillWidth = false,
+    showCheckMark = false,
     proseDescription = false,
     className,
     children,
@@ -293,7 +301,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
         </div>
       ) : null}
 
-      <RadioGroupContext.Provider value={{ fieldSize, state, variant, fillWidth }}>
+      <RadioGroupContext.Provider value={{ fieldSize, state, variant, fillWidth, showCheckMark }}>
         <div
           className={cx(
             resolveRadioListCss(variant, orientation),

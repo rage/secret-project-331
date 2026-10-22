@@ -10,7 +10,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { Disclosure } from "@/shared-module/components"
 
-import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL } from "./constants"
+import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL, UNIVERSITY_OF_HELSINKI } from "./constants"
 import { missingLinkingEmailSupportMail } from "./studentSupportMail"
 import { subsectionCss } from "./styles"
 import SupportMailLink from "./SupportMailLink"
@@ -63,7 +63,10 @@ export const RegistrationQuestions: React.FC<RegistrationQuestionsProps> = ({
         <>
           <Disclosure title={t("credit-registration-faq-linking-email-address-question")}>
             <p>
-              {t("credit-registration-faq-linking-email-address-answer")}{" "}
+              {/* Logging in to Sisu needs a University of Helsinki account. */}
+              {enrolmentRoute?.route === UNIVERSITY_OF_HELSINKI
+                ? t("credit-registration-faq-linking-email-address-answer")
+                : t("credit-registration-faq-linking-email-address-answer-open-university")}{" "}
               <SupportMailLink
                 appearance={SUPPORT_LINK_IN_TEXT}
                 label={SUPPORT_EMAIL}

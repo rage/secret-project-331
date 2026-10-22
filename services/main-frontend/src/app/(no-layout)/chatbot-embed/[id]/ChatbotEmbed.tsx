@@ -28,6 +28,7 @@ const ChatbotEmbed = () => {
         }),
     }),
     enabled: Boolean(id),
+    select: () => true,
   })
 
   return (

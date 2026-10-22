@@ -44,6 +44,7 @@ import {
   TextField,
   useDialog,
 } from "@/shared-module/components"
+import { sanitizeChatbotName } from "@/utils/sanitizeChatbotName"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
 import { headingsCss, itemsContainerCss } from "./styles"
@@ -282,7 +283,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
         publicly_accessible: data.publicly_accessible,
-        embeddable: data.embeddable,
+        embeddable: data.embeddable ?? false,
         default_chatbot: oldChatbotConf.default_chatbot, // not editable in this form
         chatbotconf_id: null,
       },
@@ -621,14 +622,14 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                             content={
                               // oxlint-disable-next-line i18next/no-literal-string
                               '<iframe title="' +
-                              oldChatbotConf.chatbot_name +
+                              sanitizeChatbotName(oldChatbotConf.chatbot_name) +
                               // oxlint-disable-next-line i18next/no-literal-string
-                              '" width="100%" height="600" src="https://courses.mooc.fi//chatbot-embed/' +
+                              '" width="100%" height="600" src="https://courses.mooc.fi/chatbot-embed/' +
                               oldChatbotConf.id +
                               // oxlint-disable-next-line i18next/no-literal-string
                               '"></iframe>'
                             }
-                            isVisible={embeddableFieldValue}
+                            isVisible={embeddableFieldValue ?? false}
                           ></ContentDisplayBox>
                         </div>
                       </div>

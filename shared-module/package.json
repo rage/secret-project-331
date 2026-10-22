@@ -15,10 +15,10 @@
     "@parcel/watcher": "^2.6.0",
     "date-fns-tz": "^3.2.0",
     "lodash": "^4.18.1",
-    "react-aria-components": "^1.22.0"
+    "react-aria-components": "^1.22.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.25",
+    "@types/lodash": "^4.17.26",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.15"
   },

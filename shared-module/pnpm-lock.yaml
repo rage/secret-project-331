@@ -189,12 +189,12 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       react-aria-components:
-        specifier: ^1.22.0
-        version: 1.22.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^1.22.1
+        version: 1.22.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       '@types/lodash':
-        specifier: ^4.17.25
-        version: 4.17.25
+        specifier: ^4.17.26
+        version: 4.17.26
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -468,8 +468,8 @@ packages:
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
 
-  '@types/lodash@4.17.25':
-    resolution: {integrity: sha512-+K1NIO8I+F9/wNulfVvu23QYd0Pe9/OCqRrim4NoYIf1VoEDL90Ve4ClzpyqBLc7NpGGWRvYNCKZ1BE/Jpf8dQ==}
+  '@types/lodash@4.17.26':
+    resolution: {integrity: sha512-48NWfiY6oNcKOh47Z4h+sIvwcQR91h6KPhaYKgeMIrkT2jV82Gy90SErj60vW8jQbeMSOSbhIv3bZ7JoqPPVhA==}
 
   aria-hidden@1.2.6:
     resolution: {integrity: sha512-ik3ZgC9dY/lYVVM++OISsaYDeg1tb0VtP5uL3ouh1koGOaUMDPpbFIei4JkFimWUFPn90sbMNMXQAIVOlnYKJA==}
@@ -654,14 +654,14 @@ packages:
     resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
 
-  react-aria-components@1.22.0:
-    resolution: {integrity: sha512-iTrOa3QYzlEZLSICcaZBS3yqFnxu41x/PQqzA9bqcKahlcheMeEMF6aMVOiB+rtAwpX2MqNDPBxIbnhwa4KBFQ==}
+  react-aria-components@1.22.1:
+    resolution: {integrity: sha512-UTHaYHOaM71bOCjGPF50DcLywlrwAodE63IP64LB4kO+OizatQEL8TesVEOM8+TkBeSgHoflJ45388IlJfa7aw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
-  react-aria@3.53.0:
-    resolution: {integrity: sha512-xnr61tc2ZZ0MBPn52AiUSnO89Q2zwvBFFghipxuRM5H5n4cfPt3D0rB6OQoKCwNyD/ozm9BTFoNainzafd/RkQ==}
+  react-aria@3.53.1:
+    resolution: {integrity: sha512-dikisyOjJd3D2fFrIDWmVWzqiLz5B86GzZv1zxs7xI4dVc0JIz/1Wa52I20gYvVL2WXeFXlygYsle/QcOMhtcg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -856,7 +856,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@types/lodash@4.17.25': {}
+  '@types/lodash@4.17.26': {}
 
   aria-hidden@1.2.6:
     dependencies:
@@ -920,7 +920,7 @@ snapshots:
 
   picomatch@4.0.5: {}
 
-  react-aria-components@1.22.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  react-aria-components@1.22.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       '@internationalized/date': 3.12.4
       '@internationalized/string': 3.2.10
@@ -928,12 +928,12 @@ snapshots:
       '@swc/helpers': 0.5.23
       client-only: 0.0.1
       react: 19.1.1
-      react-aria: 3.53.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-aria: 3.53.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-dom: 19.1.1(react@19.1.1)
       react-stately: 3.51.0(react@19.1.1)
       use-sync-external-store: 1.6.0(react@19.1.1)
 
-  react-aria@3.53.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  react-aria@3.53.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       '@internationalized/date': 3.12.4
       '@internationalized/number': 3.6.9
@@ -982,9 +982,9 @@ time:
   '@fontsource-variable/inter@5.3.0': '2026-07-19T03:50:25.793Z'
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
   '@parcel/watcher@2.6.0': '2026-07-20T05:38:07.544Z'
-  '@types/lodash@4.17.25': '2026-08-01T03:45:21.615Z'
+  '@types/lodash@4.17.26': '2026-10-09T18:46:42.671Z'
   date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
   esbuild@0.28.2: '2026-08-08T20:00:55.454Z'
   lodash@4.18.1: '2026-04-01T21:01:20.458Z'
-  react-aria-components@1.22.0: '2026-10-08T01:02:20.782Z'
+  react-aria-components@1.22.1: '2026-10-09T20:23:49.939Z'
   tsx@4.23.15: '2026-09-20T07:22:17.792Z'

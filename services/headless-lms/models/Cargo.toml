@@ -80,7 +80,7 @@ secrecy.workspace = true
 # Password hashing using Argon2id
 argon2 = "0.6.0"
 # Unicode normalization (NFC) so passwords hash to identical bytes regardless of input form
-unicode-normalization = "0.1.25"
+unicode-normalization = "0.1.26"
 
 [features]
 # Compiles `test_helper` and its `insert_data!` macro for dependent crates' tests. Off otherwise.

@@ -50,8 +50,11 @@ pub struct StudentCreditRegistration {
     /// The name of the realisation we submitted against, not a Sisu id.
     pub enrolment_realisation_name: Option<String>,
     pub submitted_at: Option<DateTime<Utc>>,
-    /// Sisu holds the assessment item attainment but not yet the course unit attainment.
-    pub is_partially_registered: bool,
+    /// Whether Sisu answered the latest send with an attainment, which verify then looks for.
+    pub has_submitted_attainment: bool,
+    /// When verify first saw Sisu holding the assessment item attainment without the course unit
+    /// attainment; `None` if it never has, or the row has been sent again since.
+    pub partially_registered_at: Option<DateTime<Utc>>,
     /// The module's open university enrolment page.
     pub enrolment_link: Option<String>,
     pub completion_eligible: bool,
@@ -152,7 +155,8 @@ SELECT cr.id,
     cr.selected_enrolment_realisation_name->>'sv'
   ) AS "enrolment_realisation_name?",
   cr.submitted_at,
-  cr.partially_registered_at IS NOT NULL AS "is_partially_registered!",
+  cr.submitted_attainment_id IS NOT NULL AS "has_submitted_attainment!",
+  cr.partially_registered_at,
   NULLIF(TRIM(cm.completion_registration_link_override), '') AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",

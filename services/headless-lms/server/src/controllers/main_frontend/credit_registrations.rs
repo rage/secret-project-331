@@ -15,9 +15,10 @@ use headless_lms_models::{
         self, CreditRegistrationAccountLinkingEmail, LinkingMailLinkState,
     },
     credit_registration_enrolment_routes::{
-        self, CreditRegistrationEnrolmentRoute, EnrolmentRouteAnswer,
+        self, CreditRegistrationEnrolmentRoute, CreditRegistrationIdentification,
+        CreditRegistrationNeed, EnrolmentAnswers, EnrolmentRouteAnswer,
     },
-    credit_registration_events::CreditRegistrationEventKind,
+    credit_registration_events::{self, CreditRegistrationEventKind},
     credit_registrations::{
         CreditRegistrationErrorCode, CreditRegistrationState, StudentCreditRegistration,
         StudentRegistrationFilter,
@@ -25,6 +26,9 @@ use headless_lms_models::{
     email_deliveries::{EmailSendStatus, EmailSendStatusReport},
     library::credit_registration::StudentFacingCreditRegistrationStatus,
     library::credit_registration::student_notifications,
+    library::credit_registration::student_progress::{
+        self, ProgressFacts, StudentRegistrationProgress,
+    },
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
     user_details::UserDetail,
     verified_student_numbers::{
@@ -66,6 +70,8 @@ use headless_lms_utils::services::tmc::TmcClient;
     set_my_enrolment_route,
     confirm_my_enrolment,
     withdraw_my_enrolment_confirmation,
+    choose_my_certificate,
+    withdraw_my_certificate_choice,
     record_my_enrolment_page_visit,
     set_my_credit_justification,
     unlink_my_student_number,
@@ -143,6 +149,9 @@ pub struct MyCreditRegistration {
     /// The module's open university enrolment page, in every status: an open university student
     /// needs it before they have a student number to be looked up by.
     pub enrolment_link: Option<String>,
+    /// The step list for a registration on its way to Sisu; `None` until a usable enrolment is
+    /// found, and for a row that is not on its way.
+    pub progress: Option<StudentRegistrationProgress>,
     /// Only on a row waiting for a student number whose account was linked at some point: the mail is
     /// addressed to a Sisu person, and a never-linked account names none.
     pub linking_email: Option<LinkingEmailStatus>,
@@ -794,6 +803,17 @@ async fn build_my_credit_registrations(
 
     let ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
     let notification_mails = student_notifications::get_for_registrations(conn, &ids).await?;
+    let ids_with_enrolment: Vec<Uuid> = rows
+        .iter()
+        .filter(|row| row.has_usable_enrolment())
+        .map(|row| row.id)
+        .collect();
+    let enrolment_found_entries = credit_registration_events::get_latest_state_entries(
+        conn,
+        &ids_with_enrolment,
+        &[student_progress::ENROLMENT_FOUND_STATE],
+    )
+    .await?;
 
     let mut linking_mails: Option<LinkingMailCache> = None;
     let mut res = Vec::with_capacity(rows.len());
@@ -815,11 +835,23 @@ async fn build_my_credit_registrations(
         };
         let notification_email =
             NotificationEmailStatus::for_state(state, row.id, &notification_mails);
+        let progress = StudentRegistrationProgress::of(ProgressFacts {
+            state,
+            has_usable_enrolment: row.has_usable_enrolment(),
+            enrolment_found_at: enrolment_found_entries
+                .get(&(row.id, student_progress::ENROLMENT_FOUND_STATE))
+                .copied(),
+            has_submitted_attainment: row.has_submitted_attainment,
+            submitted_at: row.submitted_at,
+            partially_registered_at: row.partially_registered_at,
+            registered_at: row.registered_at,
+        });
         res.push(to_my_credit_registration(
             row,
             status,
             linking_email,
             notification_email,
+            progress,
         ));
     }
     Ok(res)
@@ -830,6 +862,7 @@ fn to_my_credit_registration(
     status: StudentFacingCreditRegistrationStatus,
     linking_email: Option<LinkingEmailStatus>,
     notification_email: Option<NotificationEmailStatus>,
+    progress: Option<StudentRegistrationProgress>,
 ) -> MyCreditRegistration {
     let enrolment_found = row.has_usable_enrolment();
     let can_request_enrolment_recheck = can_student_request_enrolment_recheck(
@@ -867,8 +900,9 @@ fn to_my_credit_registration(
         enrolment_realisation_name: row.enrolment_realisation_name,
         submitted_at: row.submitted_at,
         is_processing_in_sisu: status == StudentFacingCreditRegistrationStatus::WaitingForSisu
-            && row.is_partially_registered,
+            && row.partially_registered_at.is_some(),
         enrolment_link: row.enrolment_link,
+        progress,
         linking_email,
         notification_email,
     }
@@ -1033,18 +1067,28 @@ fn name_replacement(
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyEnrolmentRoute {
     pub course_module_completion_id: Uuid,
-    /// `None` until the student answers the question.
+    /// `None` until the student answers the question, as are the answers below.
     pub route: Option<CreditRegistrationEnrolmentRoute>,
+    pub has_finnish_personal_identity_code: Option<bool>,
+    pub need: Option<CreditRegistrationNeed>,
+    pub identification: Option<CreditRegistrationIdentification>,
+    pub need_after_reconsider: Option<CreditRegistrationNeed>,
     pub enrolment_confirmed_at: Option<DateTime<Utc>>,
+    pub certificate_chosen_at: Option<DateTime<Utc>>,
     /// False once a usable enrolment has been found: the answer only picks which enrolment
     /// instructions to show, so once we have the enrolment there is nothing left for it to change.
     /// A row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true.
     pub can_change: bool,
 }
 
+/// Every answer at once, replacing the stored ones: an answer left out is cleared.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SetEnrolmentRoutePayload {
     pub route: CreditRegistrationEnrolmentRoute,
+    pub has_finnish_personal_identity_code: Option<bool>,
+    pub need: Option<CreditRegistrationNeed>,
+    pub identification: Option<CreditRegistrationIdentification>,
+    pub need_after_reconsider: Option<CreditRegistrationNeed>,
 }
 
 /// The caller's completion for a module, whichever registration path it is on, which is also the
@@ -1132,11 +1176,29 @@ fn my_enrolment_route(
     answer: Option<EnrolmentRouteAnswer>,
     can_change: bool,
 ) -> MyEnrolmentRoute {
-    MyEnrolmentRoute {
-        course_module_completion_id,
-        route: answer.as_ref().map(|answer| answer.route),
-        enrolment_confirmed_at: answer.and_then(|answer| answer.enrolment_confirmed_at),
-        can_change,
+    match answer {
+        Some(answer) => MyEnrolmentRoute {
+            course_module_completion_id,
+            route: Some(answer.route),
+            has_finnish_personal_identity_code: answer.has_finnish_personal_identity_code,
+            need: answer.need,
+            identification: answer.identification,
+            need_after_reconsider: answer.need_after_reconsider,
+            enrolment_confirmed_at: answer.enrolment_confirmed_at,
+            certificate_chosen_at: answer.certificate_chosen_at,
+            can_change,
+        },
+        None => MyEnrolmentRoute {
+            course_module_completion_id,
+            route: None,
+            has_finnish_personal_identity_code: None,
+            need: None,
+            identification: None,
+            need_after_reconsider: None,
+            enrolment_confirmed_at: None,
+            certificate_chosen_at: None,
+            can_change,
+        },
     }
 }
 
@@ -1170,7 +1232,8 @@ pub async fn get_my_enrolment_route(
 
 /**
 PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
-- Records which university relationship the caller has, which decides where they are told to enrol.
+- Records which university relationship the caller has, which decides where they are told to enrol,
+and their answers to the questions that follow it. Replaces every stored answer.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -1201,11 +1264,18 @@ pub async fn set_my_enrolment_route(
                 .to_string()
         ));
     }
-    let answer = credit_registration_enrolment_routes::set_route(
+    let payload = payload.into_inner();
+    let answer = credit_registration_enrolment_routes::set_answers(
         &mut conn,
         current.course_module_completion_id,
         user.id,
-        payload.route,
+        &EnrolmentAnswers {
+            route: payload.route,
+            has_finnish_personal_identity_code: payload.has_finnish_personal_identity_code,
+            need: payload.need,
+            identification: payload.identification,
+            need_after_reconsider: payload.need_after_reconsider,
+        },
     )
     .await?;
 
@@ -1332,6 +1402,108 @@ pub async fn withdraw_my_enrolment_confirmation(
         None => None,
         Some(_) => Some(
             credit_registration_enrolment_routes::set_enrolment_confirmed(
+                &mut conn,
+                current.course_module_completion_id,
+                false,
+            )
+            .await?,
+        ),
+    };
+
+    token.authorized_ok(web::Json(my_enrolment_route(
+        current.course_module_completion_id,
+        answer,
+        current.can_change,
+    )))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+- The caller takes the certificate instead of registering credits.
+
+Advisory like the other answers: the pipeline still registers the completion.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+    operation_id = "chooseMyCertificate",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn choose_my_certificate(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let (current, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+    if current.route.is_none() {
+        return Err(controller_err!(
+            BadRequest,
+            "Tell us where you enrol first.".to_string()
+        ));
+    }
+    if !current.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "We can already see your enrolment.".to_string()
+        ));
+    }
+    let answer = credit_registration_enrolment_routes::set_certificate_chosen(
+        &mut conn,
+        current.course_module_completion_id,
+        true,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(my_enrolment_route(
+        current.course_module_completion_id,
+        Some(answer),
+        current.can_change,
+    )))
+}
+
+/**
+DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+- The caller takes back choosing the certificate.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+    operation_id = "withdrawMyCertificateChoice",
+    tag = "credit-registrations",
+    params(("course_module_id" = Uuid, Path, description = "Course module id")),
+    responses(
+        (status = 200, description = "The stored answer", body = MyEnrolmentRoute)
+    )
+)]
+pub async fn withdraw_my_certificate_choice(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_module_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<MyEnrolmentRoute>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let (current, _) = build_my_enrolment_route(&mut conn, user.id, *course_module_id).await?;
+    if !current.can_change {
+        return Err(controller_err!(
+            BadRequest,
+            "We can already see your enrolment, so there is nothing to undo.".to_string()
+        ));
+    }
+    let answer = match current.route {
+        // No answer is already what this asks for, so it is an answer rather than a 404.
+        None => None,
+        Some(_) => Some(
+            credit_registration_enrolment_routes::set_certificate_chosen(
                 &mut conn,
                 current.course_module_completion_id,
                 false,
@@ -1509,6 +1681,21 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 )
                 .route(web::post().to(confirm_my_enrolment))
                 .route(web::delete().to(withdraw_my_enrolment_confirmation)),
+        )
+        .service(
+            web::resource(
+                "/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+            )
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(5),
+                    per_hour: Some(30),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .route(web::post().to(choose_my_certificate))
+            .route(web::delete().to(withdraw_my_certificate_choice)),
         )
         .service(
             web::resource("/my/by-course-module/{course_module_id}/credit-justification")

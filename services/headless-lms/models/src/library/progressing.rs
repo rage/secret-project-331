@@ -758,6 +758,9 @@ pub struct UserCompletionInformation {
     /// The module's own name, `None` on a course's default module.
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
+    /// The module's open university enrolment page: the same link the credit registration carries,
+    /// here so the page has it before the registration exists.
+    pub enrolment_link: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
     /// Whether the module has a course code, without which its completions are never registered.
@@ -862,6 +865,12 @@ pub async fn get_user_completion_information(
         course_name: course.name.clone(),
         course_module_name: course_module.name.clone(),
         uh_course_code: course_module.uh_course_code.clone(),
+        enrolment_link: course_module
+            .completion_registration_link_override
+            .as_deref()
+            .map(str::trim)
+            .filter(|link| !link.is_empty())
+            .map(str::to_owned),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
         registers_credits: course_modules::registers_credits(

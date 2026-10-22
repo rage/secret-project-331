@@ -79,7 +79,7 @@ test.describe("A student the University has no enrolment for", () => {
     })
 
     await test.step("Saying they have enrolled turns the page into a wait", async () => {
-      await page.getByRole("button", { name: "I have enrolled" }).click()
+      await page.getByRole("button", { name: "I have enrolled", exact: true }).click()
       await page.getByRole("button", { name: "Yes, I have enrolled" }).click()
       await expect(page.getByRole("heading", { name: "Waiting for your enrolment" })).toBeVisible()
       await expect(page.getByText("You told us you enrolled at the Open University")).toBeVisible()

@@ -58,7 +58,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     courseSlug: "automatic-completions",
     userEmail: "teacher@example.com",
   })
-  await page.getByText("Link your student number").waitFor()
+  await page.getByText("Link your student number", { exact: true }).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

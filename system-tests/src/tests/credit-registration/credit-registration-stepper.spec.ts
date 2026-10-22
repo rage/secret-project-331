@@ -22,7 +22,7 @@ test("A student without a linked number is walked through all three steps", asyn
   await openDemo(page)
 
   await test.step("The overview names the linking step before it comes", async () => {
-    await expect(page.getByText("Link your student number")).toBeVisible()
+    await expect(page.getByText("Link your student number", { exact: true })).toBeVisible()
     await page.getByRole("button", { name: "Start" }).click()
     await expect(page.getByText("Step 1 of 3")).toBeVisible()
   })
@@ -37,13 +37,13 @@ test("A student without a linked number is walked through all three steps", asyn
   })
 
   await test.step("Not yet keeps them on the instructions", async () => {
-    await page.getByRole("button", { name: "I have enrolled" }).click()
+    await page.getByRole("button", { name: "I have enrolled", exact: true }).click()
     await page.getByRole("button", { name: "Not yet" }).click()
     await expect(page.getByRole("heading", { name: "Enrol in Sisu" })).toBeVisible()
   })
 
   await test.step("Saying they enrolled leads to linking, and can be taken back", async () => {
-    await page.getByRole("button", { name: "I have enrolled" }).click()
+    await page.getByRole("button", { name: "I have enrolled", exact: true }).click()
     await page.getByRole("button", { name: "Yes, I have enrolled" }).click()
     await expect(page.getByRole("heading", { name: "Link your student number" })).toBeVisible()
     await expect(page.getByText("Step 3 of 3")).toBeVisible()

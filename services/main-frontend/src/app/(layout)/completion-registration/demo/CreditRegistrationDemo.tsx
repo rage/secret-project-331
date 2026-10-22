@@ -168,7 +168,6 @@ const CreditRegistrationDemo: React.FC = () => {
               name={CERTIFICATE_FIELD}
               control={control}
               label={t("credit-registration-demo-certificate")}
-              description={t("credit-registration-demo-certificate-description")}
             />
             <Select
               name={LANGUAGE_FIELD}

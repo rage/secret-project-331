@@ -17,7 +17,15 @@ import type {
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Button, Infobox, Link, Radio, RadioGroup, TransLink } from "@/shared-module/components"
+import {
+  Button,
+  Infobox,
+  Link,
+  Radio,
+  RadioGroup,
+  TransLink,
+  useDialog,
+} from "@/shared-module/components"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import {
@@ -35,6 +43,7 @@ import {
   UNIVERSITY_OF_HELSINKI,
 } from "./constants"
 import { enrolmentConfirmedSentence } from "./creditRegistrationCopy"
+import { useIsDemoMode } from "./demoMode"
 import { invalidateRegistrationViews } from "./enrolmentActions"
 import { OpenUniversityDetour } from "./OpenUniversityDetour"
 import { SisuCourseCode } from "./SisuCourseCode"
@@ -80,6 +89,8 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
   creditJustification,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const isDemoMode = useIsDemoMode()
+  const { alert } = useDialog()
   const queryClient = useQueryClient()
   const { control, watch, reset } = useForm<RouteForm>({
     defaultValues: { [ROUTE_FIELD]: enrolmentRoute.route ?? "" },
@@ -182,7 +193,20 @@ export const EnrolmentRouteStep: React.FC<EnrolmentRouteStepProps> = ({
         />
       </p>
       <div className={rowCss}>
-        {enrolmentLink ? (
+        {isDemoMode ? (
+          <Button
+            variant={BUTTON_PRIMARY}
+            size="medium"
+            onClick={() =>
+              void alert({
+                title: t("credit-registration-demo-enrol-dialog-title"),
+                message: t("credit-registration-demo-enrol-dialog-body"),
+              })
+            }
+          >
+            {t("credit-registration-action-enrol")}
+          </Button>
+        ) : enrolmentLink ? (
           <Link
             href={enrolmentLink}
             target="_blank"

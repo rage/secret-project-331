@@ -3,11 +3,11 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Link } from "@/shared-module/components"
+import { Button, Link, useDialog } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY } from "./constants"
 import { useIsDemoMode } from "./demoMode"
-import { bandCss, headingCss, noteCss, rowCss } from "./styles"
+import { bandCss, headingCss, rowCss } from "./styles"
 
 const GENERATE_CERTIFICATE_PATH = "/generate-certificate"
 
@@ -28,13 +28,23 @@ export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({
   // `credit-registration` one the rest of this folder reads.
   const { t } = useTranslation()
   const isDemoMode = useIsDemoMode()
+  const { alert } = useDialog()
   return (
     <section className={bandCss}>
       <h2 className={headingCss}>{t("heading-your-certificate-is-ready")}</h2>
       <p>{t("you-can-get-your-certificate-of-completion-right-away")}</p>
       <div className={rowCss}>
         {isDemoMode ? (
-          <Button variant={BUTTON_PRIMARY} size="medium">
+          <Button
+            variant={BUTTON_PRIMARY}
+            size="medium"
+            onClick={() =>
+              void alert({
+                title: t("credit-registration-demo-certificate-dialog-title"),
+                message: t("credit-registration-demo-certificate-dialog-body"),
+              })
+            }
+          >
             {t("go-to-certificate")}
           </Button>
         ) : (
@@ -48,9 +58,6 @@ export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({
           </Link>
         )}
       </div>
-      {isDemoMode ? (
-        <p className={noteCss}>{t("credit-registration-demo-certificate-not-included")}</p>
-      ) : null}
     </section>
   )
 }

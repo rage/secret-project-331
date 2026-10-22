@@ -68,6 +68,7 @@ import {
   DefaultBlockingError,
   QueryResults,
   RelativeTime,
+  Spinner,
 } from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
@@ -94,6 +95,12 @@ const BACK_ARROW_SIZE = 16
 
 const backLinkCss = css`
   display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+`
+
+const startingHeadingCss = css`
+  display: flex;
   align-items: center;
   gap: var(--space-2);
 `
@@ -240,15 +247,21 @@ const NoRegistrationYet: React.FC<{
   return (
     <article className={bandedCardCss}>
       {heading}
-      <section className={bandCss}>
-        <h2 className={subheadingCss}>{registrationStatusLabel(t, status)}</h2>
-        <p>
-          {isComing
-            ? t("credit-registration-explanation-starting")
-            : registrationExplanation(t, status)}
-        </p>
-        {isComing && checkedAt ? <LastChecked checkedAt={checkedAt} /> : null}
-      </section>
+      {isComing ? (
+        <section className={bandCss}>
+          <div className={startingHeadingCss}>
+            <Spinner size="sm" />
+            <h2 className={subheadingCss}>{t("credit-registration-starting-heading")}</h2>
+          </div>
+          <p>{t("credit-registration-explanation-starting")}</p>
+          {checkedAt ? <LastChecked checkedAt={checkedAt} /> : null}
+        </section>
+      ) : (
+        <section className={bandCss}>
+          <h2 className={subheadingCss}>{registrationStatusLabel(t, status)}</h2>
+          <p>{registrationExplanation(t, status)}</p>
+        </section>
+      )}
     </article>
   )
 }

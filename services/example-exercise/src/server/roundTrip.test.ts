@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { PublicAlternative } from "@/util/stateInterfaces"
+import type { PublicAlternative, VersionedPublicSpec } from "@/util/stateInterfaces"
 
 import { handleGrade } from "./grade"
 import { handlePublicSpec } from "./publicSpec"
@@ -10,10 +10,13 @@ import { handlePublicSpec } from "./publicSpec"
 // If a future change re-minted ids in the public-spec derivation, real students' answers would
 // silently score zero — this test would catch it.
 
-const PRIVATE_SPEC = [
-  { id: "opt-a", name: "Right", correct: true },
-  { id: "opt-b", name: "Wrong", correct: false },
-]
+const PRIVATE_SPEC = {
+  version: "1",
+  alternatives: [
+    { id: "opt-a", name: "Right", correct: true },
+    { id: "opt-b", name: "Wrong", correct: false },
+  ],
+}
 
 async function derivePublicSpec(): Promise<PublicAlternative[]> {
   const res = await handlePublicSpec(
@@ -24,7 +27,7 @@ async function derivePublicSpec(): Promise<PublicAlternative[]> {
     }),
   )
   expect(res.status).toBe(200)
-  return (await res.json()) as PublicAlternative[]
+  return ((await res.json()) as VersionedPublicSpec).options
 }
 
 async function gradePublicChoice(
@@ -40,7 +43,7 @@ async function gradePublicChoice(
         grading_update_url: "http://x",
         submission_files: [],
         exercise_spec: PRIVATE_SPEC,
-        submission_data: { selectedOptionId: publicOption.id },
+        submission_data: { version: "1", selectedOptionId: publicOption.id },
       }),
     }),
   )

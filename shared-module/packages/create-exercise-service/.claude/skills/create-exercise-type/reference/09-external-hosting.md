@@ -36,10 +36,14 @@ not repeat it. What follows is what you need to route correctly and to build a p
 
 ## What the plugin must provide
 
-- **A `Dockerfile`.** The scaffold deliberately excludes the monorepo's (they assume private base
-  images and the pnpm workspace). The file-submission plugin's is the standalone shape: a build stage
-  that runs `pnpm run build` with `PUBLIC_BASE_PATH` and `NEXT_PUBLIC_SERVICE_SLUG` as build args, and
-  a runtime stage with no `node_modules` running `node server.mjs`.
+- **A `Dockerfile`.** The scaffold ships one (the template's `standalone.Dockerfile`; the monorepo's
+  own assume private base images): a build stage that runs `pnpm run build` with `PUBLIC_BASE_PATH`
+  and `NEXT_PUBLIC_SERVICE_SLUG` as build args, and a runtime stage with no `node_modules` running
+  `node server.mjs` as `node`. Keep its traps intact when you edit it: the runtime stage copies
+  `package.json` (for `"type": "module"`), copies with `--chown=node:node` (a umask-077 checkout is
+  otherwise unreadable), and lists every module `server.mjs` imports (`dockerfiles.test.ts`
+  checks); the pnpm it installs matches `packageManager`'s major. Anything the browser bundle reads
+  is inlined at build time, so it is a build arg, never a Cloud Run `env` entry.
 - **Listen on `$PORT` (Cloud Run injects `8080`) on `0.0.0.0`**, over plain HTTP/1.1 — the port is
   left unnamed in Terraform because naming it `h2c` turns on end-to-end HTTP/2, which `node:http`
   cannot serve. The template's `server.mjs` already does both; keep them when you edit it.
@@ -54,7 +58,18 @@ not repeat it. What follows is what you need to route correctly and to build a p
   `ALLOWED_FILE_ORIGINS` (the platform's origin plus the storage host its `GET /api/v0/files/*`
   redirects to; unset means every preview is refused).
 - **Drain in-flight requests on `SIGTERM`.** Cloud Run replaces revisions on every deploy, and a
-  grade request cut mid-flight fails a student's submission.
+  grade request cut mid-flight fails a student's submission. The template's `graceful-shutdown.mjs`
+  does it and exits by 8 s, since Cloud Run sends `SIGKILL` 10 s after `SIGTERM` — so every
+  in-request and engine timeout must fit inside that. A service with a backend of its own doesn't
+  listen until the backend answers (Cloud Run's default TCP startup probe then waits for it).
+- **Rate limits key on the client address** from `X-Forwarded-For`, counted from the end by the
+  trusted hops (2 behind the shared load balancer): default to 0 in code, set 2 in the image, and
+  keep ingress limited to the load balancer, or the header is forgeable.
+- **Cloud Run's `/tmp` is memory**: a disk cache counts against the instance's memory limit, so size
+  it inside that, keyed by an immutable host object name.
+- **A non-Node backend** (an engine, a PHP or Python service) goes in the same image under a small
+  supervisor that exits when any child dies, listens on loopback only, and is never handed a spec
+  that would make it fetch a remote resource.
 
 ## Registering
 

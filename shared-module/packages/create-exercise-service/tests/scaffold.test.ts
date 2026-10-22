@@ -138,13 +138,20 @@ describe("scaffoldReactProject", () => {
 
   test("omits monorepo-only files", async () => {
     for (const rel of [
-      "Dockerfile",
       "Dockerfile.production.slim.dockerfile",
-      ".dockerignore",
+      "standalone.Dockerfile",
       "pnpm-lock.yaml",
     ]) {
       await assert.rejects(stat(join(projectPath, rel)), `${rel} should not be generated`)
     }
+  })
+
+  test("ships the standalone Dockerfile, not the monorepo's", async () => {
+    const dockerfile = await readFile(join(projectPath, "Dockerfile"), "utf8")
+    assert.match(dockerfile, /^FROM node:/m)
+    assert.doesNotMatch(dockerfile, /moocfi-public/)
+    assert.match(dockerfile, /graceful-shutdown\.mjs/)
+    await assert.doesNotReject(stat(join(projectPath, ".dockerignore")))
   })
 
   test("replaces the template service name", async () => {

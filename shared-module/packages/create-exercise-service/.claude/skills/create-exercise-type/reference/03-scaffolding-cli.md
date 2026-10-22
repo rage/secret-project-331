@@ -28,10 +28,9 @@ a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
    decision below).
 3. **Project type** — `React` (only one implemented). `Svelte` and `No framework` are shown as
    disabled placeholders in the picker and cannot be selected (arrow-key navigation skips them).
-4. **Package manager** — npm / yarn / pnpm. Only used for the printed next-steps text.
-5. **Dev server port** — default `3002`, validated 1–65535. ⚠️ `3002` collides with example-exercise;
+4. **Dev server port** — default `3002`, validated 1–65535. ⚠️ `3002` collides with example-exercise;
    pick a free one (quizzes uses 3004, tmc 3005).
-6. **Confirmation** — "The project will be created in `<abs path>`. Continue?" (default no).
+5. **Confirmation** — "The project will be created in `<abs path>`. Continue?" (default no).
 
 ## What it generates (the pipeline)
 
@@ -41,8 +40,8 @@ a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
    `dist`/`build`/`coverage`/`.turbo`/`.tanstack`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`,
    `tsconfig.tsbuildinfo`, `.vscode`, the template's own Playwright output dirs (`test-results`,
    `playwright-report`, `blob-report`, `.playwright-cli` — git-ignored but not `.gitignore`-aware
-   copying, so excluded explicitly), the moocfi-internal deploy files (`Dockerfile`,
-   `Dockerfile.production.slim.dockerfile`, `.dockerignore`), and the template's own
+   copying, so excluded explicitly), the monorepo's Dockerfiles (`Dockerfile`,
+   `Dockerfile.production.slim.dockerfile`, on private base images), and the template's own
    `src/shared-module/` (re-vendored next).
 2. **`vendorSharedModules`** — in monorepo/vendor mode, copies a fresh snapshot of four shared
    packages (see below). In published/npm mode, imports are rewritten to `@moocfi/exercise-*` and
@@ -59,6 +58,7 @@ a bundled template and scaffolds against the `@moocfi/exercise-*` npm packages.
      This updates e.g. `serviceInfo.ts`'s `service_name` and `ClientLayoutWrapper.tsx`'s
      `SERVICE_NAME`. It's a sweep, not a fixed file list, so it stays correct as the template evolves.
    - `renameLocales`: `src/locales/{en,fi}/example-exercise.json` → `<projectName>.json`.
+   - Renames `standalone.Dockerfile` to `Dockerfile`; `.dockerignore` is copied as is.
    - Writes a standalone `.editorconfig` and a minimal `pnpm-workspace.yaml`
      (`allowBuilds: esbuild: true`).
    - Edits `.gitignore` to _remove_ the `shared-module` ignore line — in the generated project the

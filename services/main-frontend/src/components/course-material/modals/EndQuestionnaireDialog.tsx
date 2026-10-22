@@ -4,6 +4,7 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
+import { saveCourseModuleEndQuestionnaireAnswersMutation } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { CourseModuleEndingQuestion } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -28,8 +29,27 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ questio
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
   })
+  const courseId = questions[0]?.course_id
+  const courseModuleId = questions[0]?.course_module_id
 
-  /*   const answerEndQuestionnaireMutation = useToastMutationOptions({ notify: true, method: "POST" }) */
+  const answerEndQuestionnaireMutation = useToastMutationOptions(
+    saveCourseModuleEndQuestionnaireAnswersMutation(),
+    { notify: true, method: "POST" },
+  )
+
+  const onSaveEndQuestionnaireAnswersWrapper = handleSubmit((data) => {
+    if (!courseId || !courseModuleId) {
+      throw new Error("can't submit without path ids")
+    }
+    console.log(data)
+    answerEndQuestionnaireMutation.mutate({
+      body: [],
+      path: {
+        course_id: courseId,
+        course_module_id: courseModuleId,
+      },
+    })
+  })
 
   return (
     <>
@@ -43,16 +63,11 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ questio
       <StandardDialog
         open={open}
         title={"Answer these questions"}
-        onClose={() => {
-          setOpen(false)
-        }}
+        showCloseButton={false}
+        closeable={false}
       >
         <p>Please answer these questions for no particular reason.</p>
-        <form
-          onSubmit={handleSubmit((data) => {
-            console.log(data)
-          })}
-        >
+        <form onSubmit={onSaveEndQuestionnaireAnswersWrapper}>
           {questions.map((q) => {
             return (
               <>

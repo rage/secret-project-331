@@ -193,14 +193,15 @@ POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id
 Saves course module end question answers.
 */
 #[utoipa::path(
-    get,
+    post,
     path = "/course/{course_id}/{course_module_id}",
-    operation_id = "postCourseModuleEndQuestionnaireAnswers",
+    operation_id = "saveCourseModuleEndQuestionnaireAnswers",
     tag = "course-material-course-modules",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
         ("course_module_id" = Uuid, Path, description = "Course module id")
     ),
+    request_body = Vec<NewCourseModuleEndingQuestionsAnswer>,
     responses(
         (status = 200, description = "Course module end questionnaire", body = ())
     )
@@ -211,16 +212,20 @@ async fn save_course_module_end_questionnaire_answers(
     user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
     payload: web::Json<Vec<NewCourseModuleEndingQuestionsAnswer>>,
-) -> ControllerResult<()> {
-    let (course_id, course_module_id) = path.into_inner();
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, _course_module_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
 
-    let res =
-        models::course_module_ending_questions_answers::insert_many(&mut conn, &user.id, *payload)
-            .await?;
+    let mut tx = conn.begin().await?;
 
-    token.authorized_ok(())
+    for item in payload.iter() {
+        models::course_module_ending_questions_answers::insert(&mut tx, &user.id, item).await?;
+    }
+
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**

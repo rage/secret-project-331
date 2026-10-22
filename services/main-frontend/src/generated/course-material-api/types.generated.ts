@@ -951,6 +951,13 @@ export type NewCourseBackgroundQuestionAnswer = {
   course_background_question_id: string
 }
 
+export type NewCourseModuleEndingQuestionsAnswer = {
+  answer_multi_select_value?: Array<string> | null
+  answer_select_value?: string | null
+  answer_text_value?: string | null
+  question_id: string
+}
+
 export type NewFeedback = {
   category?: null | NewFeedbackCategory
   feedback_given: string
@@ -2107,6 +2114,29 @@ export type GetCourseModuleEndQuestionnaireResponses = {
 
 export type GetCourseModuleEndQuestionnaireResponse =
   GetCourseModuleEndQuestionnaireResponses[keyof GetCourseModuleEndQuestionnaireResponses]
+
+export type SaveCourseModuleEndQuestionnaireAnswersData = {
+  body: Array<NewCourseModuleEndingQuestionsAnswer>
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}"
+}
+
+export type SaveCourseModuleEndQuestionnaireAnswersResponses = {
+  /**
+   * Course module end questionnaire
+   */
+  200: unknown
+}
 
 export type GetCourseMaterialExerciseTasksByModuleAndTypeData = {
   body?: never

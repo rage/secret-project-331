@@ -162,6 +162,8 @@ import type {
   ResetExamProgressResponses,
   SaveCourseMaterialCourseSettingsData,
   SaveCourseMaterialCourseSettingsResponses,
+  SaveCourseModuleEndQuestionnaireAnswersData,
+  SaveCourseModuleEndQuestionnaireAnswersResponses,
   SearchPagesWithPhraseData,
   SearchPagesWithPhraseResponses,
   SearchPagesWithWordsData,
@@ -854,7 +856,7 @@ export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends 
 
 /**
  *
- * GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
+ * GET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
  *
  * Returns course module end questions.
  */
@@ -872,6 +874,30 @@ export const getCourseModuleEndQuestionnaire = <ThrowOnError extends boolean = t
     responseStyle: "data",
     url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+ *
+ * Saves course module end question answers.
+ */
+export const saveCourseModuleEndQuestionnaireAnswers = <ThrowOnError extends boolean = true>(
+  options: Options<SaveCourseModuleEndQuestionnaireAnswersData, ThrowOnError>,
+): RequestResult<SaveCourseModuleEndQuestionnaireAnswersResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    SaveCourseModuleEndQuestionnaireAnswersResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

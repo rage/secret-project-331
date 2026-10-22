@@ -980,7 +980,7 @@
     "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}": {
       "get": {
         "tags": ["course-material-course-modules"],
-        "summary": "\nGET `/api/v0/course-material/course-modules/chapter/:chapter_id`\n\nReturns course module end questions.",
+        "summary": "\nGET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`\n\nReturns course module end questions.",
         "operationId": "getCourseModuleEndQuestionnaire",
         "parameters": [
           {
@@ -1014,6 +1014,58 @@
                   "items": {
                     "$ref": "#/components/schemas/CourseModuleEndingQuestion"
                   }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["course-material-course-modules"],
+        "summary": "\nPOST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`\n\nSaves course module end question answers.",
+        "operationId": "saveCourseModuleEndQuestionnaireAnswers",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NewCourseModuleEndingQuestionsAnswer"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Course module end questionnaire",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": null
                 }
               }
             }
@@ -5892,6 +5944,28 @@
             "type": ["string", "null"]
           },
           "course_background_question_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "NewCourseModuleEndingQuestionsAnswer": {
+        "type": "object",
+        "required": ["question_id"],
+        "properties": {
+          "answer_multi_select_value": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer_select_value": {
+            "type": ["string", "null"]
+          },
+          "answer_text_value": {
+            "type": ["string", "null"]
+          },
+          "question_id": {
             "type": "string",
             "format": "uuid"
           }

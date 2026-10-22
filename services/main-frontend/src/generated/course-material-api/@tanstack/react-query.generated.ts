@@ -86,6 +86,7 @@ import {
   postSubmission,
   resetExamProgress,
   saveCourseMaterialCourseSettings,
+  saveCourseModuleEndQuestionnaireAnswers,
   searchPagesWithPhrase,
   searchPagesWithWords,
   sendChatbotMessage,
@@ -248,6 +249,7 @@ import type {
   ResetExamProgressData,
   SaveCourseMaterialCourseSettingsData,
   SaveCourseMaterialCourseSettingsResponse,
+  SaveCourseModuleEndQuestionnaireAnswersData,
   SearchPagesWithPhraseData,
   SearchPagesWithPhraseResponse,
   SearchPagesWithWordsData,
@@ -1029,7 +1031,7 @@ export const getCourseModuleEndQuestionnaireQueryKey = (
 
 /**
  *
- * GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
+ * GET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
  *
  * Returns course module end questions.
  */
@@ -1051,6 +1053,34 @@ export const getCourseModuleEndQuestionnaireOptions = (
       }),
     queryKey: getCourseModuleEndQuestionnaireQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+ *
+ * Saves course module end question answers.
+ */
+export const saveCourseModuleEndQuestionnaireAnswersMutation = (
+  options?: Partial<Options<SaveCourseModuleEndQuestionnaireAnswersData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<SaveCourseModuleEndQuestionnaireAnswersData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<SaveCourseModuleEndQuestionnaireAnswersData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await saveCourseModuleEndQuestionnaireAnswers({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCourseMaterialExerciseTasksByModuleAndTypeQueryKey = (
   options: Options<GetCourseMaterialExerciseTasksByModuleAndTypeData>,

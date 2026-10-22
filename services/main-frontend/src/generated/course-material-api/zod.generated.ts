@@ -702,6 +702,13 @@ export const zNewCourseBackgroundQuestionAnswer = z.object({
   course_background_question_id: z.uuid(),
 })
 
+export const zNewCourseModuleEndingQuestionsAnswer = z.object({
+  answer_multi_select_value: z.array(z.string()).nullish(),
+  answer_select_value: z.string().nullish(),
+  answer_text_value: z.string().nullish(),
+  question_id: z.uuid(),
+})
+
 export const zNewFeedbackCategory = z.object({
   name: z.string(),
 })
@@ -1840,6 +1847,15 @@ export const zGetCourseModuleEndQuestionnairePath = z.object({
  * Course module end questionnaire
  */
 export const zGetCourseModuleEndQuestionnaireResponse = z.array(zCourseModuleEndingQuestion)
+
+export const zSaveCourseModuleEndQuestionnaireAnswersBody = z.array(
+  zNewCourseModuleEndingQuestionsAnswer,
+)
+
+export const zSaveCourseModuleEndQuestionnaireAnswersPath = z.object({
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+})
 
 export const zGetCourseMaterialExerciseTasksByModuleAndTypePath = z.object({
   course_module_id: z.uuid(),

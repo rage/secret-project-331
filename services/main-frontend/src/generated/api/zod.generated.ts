@@ -521,6 +521,31 @@ export const zAdminUnlinkStudentNumberResult = z.object({
     }),
 })
 
+export const zAgentChangesetEntityOperation = z.enum(["create", "update", "delete"])
+
+export const zAgentChangesetEntityType = z.enum([
+  "page",
+  "chapter",
+  "module",
+  "course_settings",
+  "glossary_term",
+  "reference",
+])
+
+export const zAgentChangesetStatus = z.enum(["open", "published", "discarded", "expired"])
+
+export const zAgentChangeset = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  expires_at: z.iso.datetime(),
+  id: z.uuid(),
+  published_at: z.iso.datetime().nullish(),
+  published_by: z.uuid().nullish(),
+  status: zAgentChangesetStatus,
+  updated_at: z.iso.datetime(),
+  user_id: z.uuid(),
+})
+
 export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
 
 /**
@@ -932,6 +957,7 @@ export const zConsentQuery = z.object({
   code_challenge_method: z.string().nullish(),
   nonce: z.string(),
   redirect_uri: z.string(),
+  resource: z.string().nullish(),
   response_type: z.string(),
   scope: z.string(),
   state: z.string(),
@@ -939,6 +965,30 @@ export const zConsentQuery = z.object({
 
 export const zConsentResponse = z.object({
   redirect_uri: z.string(),
+})
+
+/**
+ * One requested scope as the consent screen shows it.
+ */
+export const zConsentScope = z.object({
+  is_checked_by_default: z.boolean(),
+  is_required: z.boolean(),
+  scope: z.string(),
+  was_previously_granted: z.boolean(),
+})
+
+/**
+ * What the consent screen shows about the client asking for access.
+ */
+export const zConsentInfo = z.object({
+  client_id: z.string(),
+  client_name: z.string(),
+  client_uri: z.string().nullish(),
+  is_loopback_redirect: z.boolean(),
+  is_metadata_document_client: z.boolean(),
+  logo_uri: z.string().nullish(),
+  redirect_uri: z.string(),
+  scopes: z.array(zConsentScope),
 })
 
 export const zCopyCourseMode = z.union([
@@ -1557,6 +1607,15 @@ export const zCreateCourseDesignerPlanRequest = z.object({
 export const zCreateCourseDesignerStageTaskRequest = z.object({
   description: z.string().nullish(),
   title: z.string(),
+})
+
+/**
+ * A redirect publishing created from a page's old path.
+ */
+export const zCreatedRedirect = z.object({
+  new_url_path: z.string(),
+  old_url_path: z.string(),
+  page_id: z.uuid(),
 })
 
 export const zCreditRegistrationAdminAction = z.enum([
@@ -2946,6 +3005,32 @@ export const zEnrolmentCheckFindings = z.object({
   source: zEnrolmentCheckSource,
 })
 
+/**
+ * One entity a call touched, with its full snapshot just before and just after the call.
+ */
+export const zEntityChange = z.object({
+  after: z.unknown().optional(),
+  before: z.unknown().optional(),
+  entity_id: z.uuid(),
+  entity_type: zAgentChangesetEntityType,
+  operation: zAgentChangesetEntityOperation,
+})
+
+export const zAgentChangesetCall = z.object({
+  changeset_id: z.uuid(),
+  client_name: z.string(),
+  created_at: z.iso.datetime(),
+  entity_changes: z.array(zEntityChange),
+  id: z.uuid(),
+  oauth_client_id: z.uuid().nullish(),
+  oauth_grant_id: z.uuid().nullish(),
+  ops: z.unknown(),
+  revert_of_call_id: z.uuid().nullish(),
+  summary: z.string().nullish(),
+  tool_name: z.string(),
+  user_id: z.uuid(),
+})
+
 export const zEventInfo = z.object({
   count: z
     .int()
@@ -3977,6 +4062,21 @@ export const zNotificationEmailStatus = z.object({
   sent_at: z.iso.datetime().nullish(),
 })
 
+/**
+ * A user's consent to one client: what the account page lists and revokes.
+ */
+export const zOAuthGrant = z.object({
+  client_id: z.uuid(),
+  client_identifier: z.string(),
+  client_name: z.string(),
+  client_uri: z.string().nullish(),
+  granted_at: z.iso.datetime(),
+  id: z.uuid(),
+  is_metadata_document_client: z.boolean(),
+  last_used_at: z.iso.datetime().nullish(),
+  scopes: z.array(z.string()),
+})
+
 export const zOrgExam = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -4068,6 +4168,8 @@ export const zPageDetailsUpdate = z.object({
 })
 
 export const zPageHistory = z.object({
+  agent_changeset_id: z.uuid().nullish(),
+  agent_client_name: z.string().nullish(),
   author_user_id: z.uuid(),
   content: z.unknown(),
   created_at: z.iso.datetime(),
@@ -4474,6 +4576,41 @@ export const zNewPage = z.object({
   url_path: z.string(),
 })
 
+/**
+ * A course page: its metadata, its stored blocks and its exercises, in the shape the CMS page
+ * save takes. Exercise blocks in `content` are stored stripped to their id, as the CMS stores
+ * them; the exercises themselves are in `exercises`, `exercise_slides` and `exercise_tasks`.
+ */
+export const zPageSnapshot = z.object({
+  chapter_id: z.uuid().nullish(),
+  content: z.array(zGutenbergBlock),
+  course_id: z.uuid(),
+  exercise_slides: z.array(zCmsPageExerciseSlide),
+  exercise_tasks: z.array(zCmsPageExerciseTask),
+  exercises: z.array(zCmsPageExercise),
+  hidden: z.boolean(),
+  id: z.uuid(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * What the preview of a staged page renders.
+ */
+export const zPagePreview = z.object({
+  changeset_id: z.uuid(),
+  course_id: z.uuid(),
+  course_name: z.string(),
+  course_slug: z.string(),
+  is_staged: z.boolean(),
+  language_code: z.string(),
+  page: zPageSnapshot,
+})
+
 export const zPeerReviewQueueEntry = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -4495,6 +4632,15 @@ export const zPeerReviewWithQuestionsAndAnswers = z.object({
   peer_or_self_review_submission_id: z.uuid(),
   peer_review_giver_user_id: z.uuid(),
   questions_and_answers: z.array(zPeerOrSelfReviewQuestionAndAnswer),
+})
+
+/**
+ * The user's unpublished agent changes on a page.
+ */
+export const zPendingAgentChanges = z.object({
+  changeset_id: z.uuid(),
+  course_id: z.uuid(),
+  review_path: z.string(),
 })
 
 /**
@@ -4632,6 +4778,18 @@ export const zPageProposal = z.object({
   page_url_path: z.string(),
   pending: z.boolean(),
   user_id: z.uuid().nullish(),
+})
+
+/**
+ * A staged entity whose live state changed after it was staged.
+ */
+export const zPublishConflict = z.object({
+  entity_id: z.uuid(),
+  entity_type: zAgentChangesetEntityType,
+  label: z.string(),
+  last_changed_at: z.iso.datetime().nullish(),
+  last_changed_by_user_id: z.uuid().nullish(),
+  last_changed_via_client: z.string().nullish(),
 })
 
 export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
@@ -5057,6 +5215,111 @@ export const zReviewingStage = z.enum([
   "ReviewedAndLocked",
   "Locked",
   "NotAnsweredAndLocked",
+])
+
+/**
+ * Why a staged change needs the user's confirmation before it is published.
+ */
+export const zRiskReason = z.object({
+  code: z.string(),
+  consequence: z.string(),
+  message: z.string(),
+})
+
+export const zAgentChangesetEntity = z.object({
+  after_snapshot: z.unknown().optional(),
+  base_snapshot: z.unknown().optional(),
+  base_version_id: z.uuid().nullish(),
+  changeset_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  entity_id: z.uuid(),
+  entity_type: zAgentChangesetEntityType,
+  id: z.uuid(),
+  operation: zAgentChangesetEntityOperation,
+  risk_reasons: z.array(zRiskReason),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * One entity of a changeset, as listings and expiry warnings describe it.
+ */
+export const zChangesetEntitySummary = z.object({
+  entity_id: z.uuid(),
+  entity_type: zAgentChangesetEntityType,
+  label: z.string(),
+  operation: zAgentChangesetEntityOperation,
+  risk_reasons: z.array(zRiskReason),
+})
+
+/**
+ * A changeset with what it changes. While it is open and close to expiry, `is_expiring_soon` is
+ * set and `entities` is what expiry would drop.
+ */
+export const zChangesetSummary = z.object({
+  changeset: zAgentChangeset,
+  entities: z.array(zChangesetEntitySummary),
+  has_risky_changes: z.boolean(),
+  is_expiring_soon: z.boolean(),
+})
+
+/**
+ * One entity on the review page: its base, staged and current live state, so the page can render
+ * the diff and flag conflicts.
+ */
+export const zReviewEntity = z.object({
+  entity: zAgentChangesetEntity,
+  has_conflict: z.boolean(),
+  label: z.string(),
+  live_snapshot: z.unknown().optional(),
+})
+
+/**
+ * Everything the review page shows for a changeset.
+ */
+export const zChangesetReview = z.object({
+  calls: z.array(zAgentChangesetCall),
+  changeset: zAgentChangeset,
+  conflicts: z.array(zPublishConflict),
+  entities: z.array(zReviewEntity),
+  has_risky_changes: z.boolean(),
+  is_expiring_soon: z.boolean(),
+})
+
+export const zRiskyEntity = z.object({
+  entity_id: z.uuid(),
+  entity_type: zAgentChangesetEntityType,
+  label: z.string(),
+  risk_reasons: z.array(zRiskReason),
+})
+
+/**
+ * Why a publish was refused. Nothing was written.
+ */
+export const zPublishRejection = z.union([
+  z.object({
+    conflicts: z.array(zPublishConflict),
+    reason: z.enum(["conflicts"]),
+  }),
+  z.object({
+    reason: z.enum(["needs_confirmation"]),
+    risky_entities: z.array(zRiskyEntity),
+  }),
+  z.object({
+    reason: z.enum(["global_admin_only_exercise_services"]),
+    service_names: z.array(z.string()),
+  }),
+])
+
+export const zPublishOutcome = z.union([
+  z.object({
+    changeset: zAgentChangeset,
+    outcome: z.enum(["published"]),
+    redirects: z.array(zCreatedRedirect),
+  }),
+  z.object({
+    outcome: z.enum(["rejected"]),
+    rejection: zPublishRejection,
+  }),
 ])
 
 export const zRoleDomain = z.union([
@@ -7206,6 +7469,60 @@ export const zUploadFilesFromExerciseServicePath = z.object({
  * Uploaded files
  */
 export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)
+
+export const zGetAgentChangesetsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The user's changesets in the course
+ */
+export const zGetAgentChangesetsResponse = z.array(zChangesetSummary)
+
+export const zGetAgentChangesPendingForPagePath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The open changeset changing the page, if any
+ */
+export const zGetAgentChangesPendingForPageResponse = zPendingAgentChanges.nullable()
+
+export const zGetAgentChangesetPath = z.object({
+  changeset_id: z.uuid(),
+})
+
+/**
+ * The changeset with its entities and calls
+ */
+export const zGetAgentChangesetResponse = zChangesetReview
+
+export const zDiscardAgentChangesetPath = z.object({
+  changeset_id: z.uuid(),
+})
+
+/**
+ * The discarded changeset
+ */
+export const zDiscardAgentChangesetResponse = zAgentChangeset
+
+export const zPublishAgentChangesetPath = z.object({
+  changeset_id: z.uuid(),
+})
+
+/**
+ * Published, or why it was not
+ */
+export const zPublishAgentChangesetResponse = zPublishOutcome
+
+export const zGetAgentPagePreviewPath = z.object({
+  token: z.string(),
+})
+
+/**
+ * The staged page
+ */
+export const zGetAgentPagePreviewResponse = zPagePreview
 
 export const zUpdateCertificateConfigurationBody = z.object({
   file: z.array(z.string()),
@@ -10187,6 +10504,17 @@ export const zApproveOauthConsentBody = zConsentQuery
  */
 export const zApproveOauthConsentResponse = zConsentResponse
 
+export const zGetOauthConsentInfoPath = z.object({
+  client_id: z.string(),
+  redirect_uri: z.string(),
+  scope: z.string(),
+})
+
+/**
+ * Consent screen data
+ */
+export const zGetOauthConsentInfoResponse = zConsentInfo
+
 export const zDenyOauthConsentBody = zConsentDenyQuery
 
 /**
@@ -10223,6 +10551,20 @@ export const zDenyOauthDeviceVerificationBody = zDeviceDecisionBody
  * Device authorization denied
  */
 export const zDenyOauthDeviceVerificationResponse = zDeviceDecisionResponse
+
+/**
+ * The user's grants
+ */
+export const zGetOauthGrantsResponse = z.array(zOAuthGrant)
+
+export const zRevokeOauthGrantPath = z.object({
+  grant_id: z.uuid(),
+})
+
+/**
+ * Grant revoked
+ */
+export const zRevokeOauthGrantResponse = z.void()
 
 export const zIntrospectOauthTokenBody = z.unknown()
 

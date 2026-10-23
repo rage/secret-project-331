@@ -5,10 +5,10 @@ linkWorkspacePackages: true
 pmOnFail: download
 
 minimumReleaseAge: 10080
-minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
+minimumReleaseAgeExcludePrune: true
 
-nodeVersion: 24.18.0
+nodeVersion: 24.21.0
 
 overrides:
   picomatch@>=4.0.0 <4.0.4: ">=4.0.4"
@@ -27,15 +27,26 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-allowBuilds:
-  "@parcel/watcher": true
-  esbuild: true
-  node: false
+permissions:
+  "@parcel/watcher":
+    build: true
+  esbuild:
+    build: true
+  node:
+    build: false
 
 trustLockfile: true
 
-confirmModulesPurge: false
-
 updateNotifier: false
 
-verifyDepsBeforeRun: install
+# Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
+# so undeclared dependencies fail locally instead of only in image builds.
+hoistPattern: []
+
+autoDedupe: true
+
+lockfile:
+  includeResolutionSettings: true
+
+allowBuilds:
+  "@parcel/watcher": false

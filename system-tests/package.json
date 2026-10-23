@@ -30,29 +30,29 @@
   },
   "dependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "axe-core": "^4.13.0",
-    "jose": "^6.2.10",
-    "js-yaml": "^5.4.0",
+    "axe-core": "^4.14.0",
+    "jose": "^6.2.12",
+    "js-yaml": "^5.4.3",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.3",
     "which": "^7.0.0"
   },
   "devDependencies": {
-    "@playwright/browser-chromium": "^1.62.1",
-    "@playwright/test": "^1.62.1",
-    "@types/node": "^26.3.0",
+    "@playwright/browser-chromium": "^1.64.1",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^26.6.5",
     "@types/tar-fs": "^2.0.4",
     "@types/which": "^3.0.4",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "playwright": "^1.62.1",
+    "playwright": "^1.64.1",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.18.0",
+      "version": "24.21.0",
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@12.11.2"
 }

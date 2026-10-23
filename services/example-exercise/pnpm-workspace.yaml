@@ -5,10 +5,10 @@ linkWorkspacePackages: true
 pmOnFail: download
 
 minimumReleaseAge: 10080
-minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
+minimumReleaseAgeExcludePrune: true
 
-nodeVersion: 24.18.0
+nodeVersion: 24.21.0
 
 overrides:
   dompurify@<3.3.2: ">=3.3.2"
@@ -35,27 +35,28 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-allowBuilds:
-  node: false
-  sharp: false
+permissions:
+  esbuild:
+    build: true
+  node:
+    build: false
+  sharp:
+    build: false
 
 trustLockfile: true
 
-confirmModulesPurge: false
-
 updateNotifier: false
-
-verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
   - "typescript@7.0.2"
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"
-  - postcss@8.5.10 || 8.5.18 || 8.5.23
-  - "@babel/plugin-transform-modules-systemjs@7.29.4"
-  - qs@6.15.2
-  - esbuild@0.28.1
-  - "@babel/core@7.29.1"
-  - js-yaml@4.1.2
-  - fast-uri@3.1.5
-  - nanoid@3.3.17 || 3.3.18
+
+# Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
+# so undeclared dependencies fail locally instead of only in image builds.
+hoistPattern: []
+
+autoDedupe: true
+
+lockfile:
+  includeResolutionSettings: true

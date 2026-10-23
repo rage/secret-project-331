@@ -14,26 +14,26 @@ headless-lms-base = { path = "../base" }
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio = { workspace = true, features = ["macros", "time"] }
 # Additional utilities for working with Tokio.
-tokio-util = { version = "0.7.19", features = ["io"] }
+tokio-util = { version = "0.7.20", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream.workspace = true
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.34"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.28.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Hash map that keeps insertion order, so serialized tool and response schemas are byte-stable and
 # Azure's prompt cache can match on them.
-indexmap = { version = "2.14.1", features = ["serde"] }
+indexmap = { version = "2.14.2", features = ["serde"] }
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.151"
+serde_json = "1.0.154"
 # Rust client library for Google Cloud Storage.
-google-cloud-storage = "1.18.0"
+google-cloud-storage = "1.21.0"
 # Authentication and signing helpers for Google Cloud Rust client libraries.
-google-cloud-auth = "1.16.0"
+google-cloud-auth = "1.18.0"
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 # Type erasure for async trait methods
@@ -43,7 +43,7 @@ async-stream = "0.3.6"
 # Types and traits for working with bytes
 bytes = "1.12.1"
 # Random number generators and other randomness functionality.
-rand = "0.10.2"
+rand = "0.10.3"
 # the BLAKE3 hash function
 blake3 = "1.8.7"
 # Recursively walk a directory.
@@ -61,25 +61,25 @@ regex = "1.13.1"
 # Single assignment cells and lazy values.
 once_cell = "1.21.4"
 # HTML Sanitization
-ammonia = "4.2.0"
+ammonia = "4.2.4"
 # Moves email shells' CSS into style attributes, since many email clients drop <style>
-css-inline = { version = "0.21.2", default-features = false }
+css-inline = { version = "0.23.0", default-features = false }
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.20"
+thiserror = "2.0.21"
 # Percent encoding and decoding
 percent-encoding = "2.3.2"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
-ipnet = "2.12.1"
+ipnet = "2.12.2"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.104"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.1.10"
 # higher level HTTP client library
-reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
+reqwest = { version = "0.13.5", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Redis driver for Rust.
-redis = { version = "1.6.0", features = ["aio", "tokio-comp", "connection-manager"] }
+redis = { version = "1.7.1", features = ["aio", "tokio-comp", "connection-manager"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.

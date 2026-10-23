@@ -1,4 +1,6 @@
 /* oxlint-disable import/order */
+const path = require("path")
+
 const generateNormalResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").generateNormalResponseHeaders
 const chatbotEmbedResponseHeaders =
@@ -8,11 +10,13 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
 
+// In Docker, node_modules symlinks into pnpm's global virtual store in the sibling ../pnpm, so
+// tracing and Turbopack need the parent directory as their root to reach it.
+const fileSystemRoot =
+  process.env.PNPM_CONFIG_VIRTUAL_STORE_TYPE === "global" ? path.join(__dirname, "..") : __dirname
+
 /** @type {import('next').NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   // Type errors are gated by the separate fast tsc check (bin/tsc-check-all + the CI
   // "Typecheck" step), so skip Next's slower in-build type-check.
   typescript: {
@@ -25,7 +29,7 @@ const config = {
     useTypeScriptCli: false,
   },
   output: "standalone",
-  outputFileTracingRoot: ".",
+  outputFileTracingRoot: fileSystemRoot,
   // oxlint-disable-next-line require-await -- Next.js config expects headers() to return a Promise
   async headers() {
     return [
@@ -53,6 +57,7 @@ const config = {
     return webpackConfig
   },
   turbopack: {
+    root: fileSystemRoot,
     rules: {
       "*.svg": {
         loaders: [
@@ -93,15 +98,13 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
-  publicRuntimeConfig: {
-    publicAddress: process.env.PUBLIC_ADDRESS,
-  },
-  // uuid and react-table ship only ES modules, and next/jest transforms only what is listed here.
+  // uuid, react-table and jotai ship only ES modules, and next/jest transforms only what is listed here.
   transpilePackages: [
     "@vectopus/atlas-icons-react",
     "uuid",
     "@tanstack/react-table",
     "@tanstack/table-core",
+    "jotai",
   ],
   allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code

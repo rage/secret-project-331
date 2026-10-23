@@ -19,12 +19,12 @@ resolver = "2"
 version = "0.1.0"
 authors = ["University of Helsinki <mooc@cs.helsinki.fi>", "Henrik Nygren <nygrenh@gmail.com>"]
 edition = "2024"
-rust-version = "1.96.0" # minimum required Rust version, update if you use a new API
+rust-version = "1.99.0" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
 [profile.dev]
-# Include only line tables so that we get line numbers in backtraces
-debug = 1
+# Line numbers in backtraces without the size of full debug info
+debug = "line-tables-only"
 
 # Speeds up development builds because the sqlx macros do a lot of work during compile time
 [profile.dev.package.sqlx-macros]
@@ -35,12 +35,12 @@ opt-level = 3
 opt-level = 3
 
 [profile.release]
-# Include only line tables so that we get line numbers in backtraces
-debug = 1
+# Line numbers in backtraces without the size of full debug info
+debug = "line-tables-only"
 
 [workspace.dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.53.1", features = [
+tokio = { version = "1.54.1", features = [
   "fs",
   "io-util",
   "sync",
@@ -49,11 +49,11 @@ tokio = { version = "1.53.1", features = [
 ] }
 
 # Rustls is a modern TLS library written in Rust.
-rustls = { version = "0.23.43", default-features = false, features = ["ring"] }
+rustls = { version = "0.23.46", default-features = false, features = ["ring"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.13.0"
 # Pure Rust implementation of the SHA-2 hash function family.
-sha2 = "0.11.0"
+sha2 = "0.11.1"
 
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries.
 sqlx = { version = "0.9.0", default-features = false, features = [
@@ -75,7 +75,7 @@ tokio-stream = { version = "0.1.19", features = ["io-util"] }
 secrecy = { version = "0.10.3", features = ["serde"] }
 
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
-utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
+utoipa = { version = "6.0.0", features = ["chrono", "uuid"] }
 
 # Create and decode JWTs.
-jsonwebtoken = { version = "11.0.0", features = ["rust_crypto"] }
+jsonwebtoken = { version = "11.1.0", features = ["rust_crypto"] }

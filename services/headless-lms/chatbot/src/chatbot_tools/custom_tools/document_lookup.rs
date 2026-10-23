@@ -154,9 +154,7 @@ impl ChatbotTool for DocumentLookupTool {
         } else {
             return Err(chatbot_err!(
                 InvalidToolArguments,
-                format!(
-                    "Unable to call document_lookup tool. No filepath or page id provided. One of them is needed to find the document."
-                )
+                "Unable to call document_lookup tool. No filepath or page id provided. One of them is needed to find the document.".to_string()
             ));
         };
         let document = match course_page_markdown_content::get_course_page_content_by_page_id(

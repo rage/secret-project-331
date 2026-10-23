@@ -102,74 +102,28 @@ def write_package_json(data: dict[str, Any], path: Path) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
-def sort_dict_recursively(obj: Any) -> Any:
-    """Sort dictionary keys with scalar values first, then object values."""
-    if isinstance(obj, dict):
-        scalar_keys = []
-        object_keys = []
-
-        for key, value in obj.items():
-            if isinstance(value, dict):
-                object_keys.append(key)
-            else:
-                scalar_keys.append(key)
-
-        sorted_dict = {}
-        for key in sorted(scalar_keys) + sorted(object_keys):
-            sorted_dict[key] = sort_dict_recursively(obj[key])
-        return sorted_dict
-    if isinstance(obj, list):
-        return [sort_dict_recursively(item) for item in obj]
-    return obj
-
-
-def sort_package_json(folder: Path, use_color: bool) -> bool:
+def sort_package_json(folder: Path, repo_root: Path, use_color: bool) -> bool:
+    """Format package.json with oxfmt, whose sortPackageJson is the field order CI checks."""
     package_json_path = folder / "package.json"
     if not package_json_path.exists():
         return False
 
-    try:
-        data = json.loads(package_json_path.read_text())
-    except (json.JSONDecodeError, OSError) as exc:
-        print(colorize(f"Error processing {package_json_path}: {exc}", RED, use_color))
-        return False
-
-    first_keys = ["name", "version", "description"]
-    dependency_keys = ["dependencies", "devDependencies"]
-    scalar_keys = []
-    object_keys = []
-
-    for key, value in data.items():
-        if key in first_keys or key in dependency_keys:
-            continue
-        if isinstance(value, dict):
-            object_keys.append(key)
-        else:
-            scalar_keys.append(key)
-
-    sorted_data = {}
-    ordered_keys = (
-        [key for key in first_keys if key in data]
-        + sorted(scalar_keys)
-        + sorted(object_keys)
-        + [key for key in dependency_keys if key in data]
+    original_text = package_json_path.read_text()
+    subprocess.run(
+        ["pnpm", "exec", "oxfmt", str(package_json_path.resolve())],
+        cwd=str(repo_root),
+        check=True,
     )
-    for key in ordered_keys:
-        sorted_data[key] = sort_dict_recursively(data[key])
-
-    original_json = json.dumps(data, sort_keys=False, indent=2)
-    sorted_json = json.dumps(sorted_data, sort_keys=False, indent=2)
-    if original_json == sorted_json:
+    if package_json_path.read_text() == original_text:
         return False
 
     print(
         colorize(
-            f"Sorted package.json fields alphabetically in {folder.name}/package.json",
+            f"Sorted package.json fields in {folder.name}/package.json",
             BLUE,
             use_color,
         )
     )
-    write_package_json(sorted_data, package_json_path)
     return True
 
 
@@ -274,6 +228,10 @@ def git_has_staged_changes_for_paths(cwd: Path, paths: list[str]) -> bool:
         check=False,
     )
     return cp.returncode != 0
+
+
+def existing_paths(cwd: Path, paths: list[str]) -> list[str]:
+    return [path for path in paths if (cwd / path).exists()]
 
 
 def is_worktree_clean(repo_root: Path) -> bool:
@@ -1056,7 +1014,7 @@ class StepRunner(StepRunnerProtocol):
     def substep_sort_package_json(
         self, step: Step, substep_id: str, substep_record: dict[str, Any]
     ) -> None:
-        changed = sort_package_json(step.cwd, self.use_color)
+        changed = sort_package_json(step.cwd, self.repo_root, self.use_color)
         substep_record["changed"] = changed
         if changed and git_has_changes_for_paths(step.cwd, ["package.json"]):
             commit = self.git_commit(
@@ -1145,11 +1103,9 @@ class StepRunner(StepRunnerProtocol):
                 "The script will then commit your changes..."
             )
 
-        to_add = [
-            path
-            for path in ["package.json", "pnpm-lock.yaml"]
-            if (step.cwd / path).exists()
-        ]
+        to_add = existing_paths(
+            step.cwd, ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"]
+        )
         if to_add and git_has_changes_for_paths(step.cwd, to_add):
             self.command_runner.run(
                 ["git", "add", *to_add],
@@ -1211,16 +1167,18 @@ class StepRunner(StepRunnerProtocol):
             print(colorize(warning, BLUE, self.use_color))
         # Keep fix/install output live; the separate JSON pass is only for reports.
         self.capture_pnpm_audit_json(step, substep_id)
-        if git_has_changes_for_paths(step.cwd, ["pnpm-lock.yaml"]):
+        # The fix can add minimumReleaseAgeExclude entries to pnpm-workspace.yaml.
+        to_add = existing_paths(step.cwd, ["pnpm-lock.yaml", "pnpm-workspace.yaml"])
+        if to_add and git_has_changes_for_paths(step.cwd, to_add):
             self.command_runner.run(
-                ["git", "add", "pnpm-lock.yaml"],
+                ["git", "add", *to_add],
                 cwd=step.cwd,
                 step_id=step.id,
                 substep_id=substep_id,
             )
             commit = self.git_commit_paths(
                 cwd=step.cwd,
-                paths=["pnpm-lock.yaml"],
+                paths=to_add,
                 message=f"pnpm audit for {step.target_name}",
                 step_id=step.id,
                 substep_id=substep_id,

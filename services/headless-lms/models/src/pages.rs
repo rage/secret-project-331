@@ -2008,7 +2008,7 @@ RETURNING id,
                         return Some((config, questions));
                     }
                     let (mut config, mut questions) =
-                        original_exercise_id.and_then(&recover_peer_or_self_review)?;
+                        original_exercise_id.and_then(recover_peer_or_self_review)?;
                     fork_peer_or_self_review_config(&mut config, &mut questions, exercise_id);
                     Some((config, questions))
                 }
@@ -4432,7 +4432,7 @@ pub async fn reorder_pages(
 
     let mut normalized_pages = Vec::with_capacity(pages.len());
 
-    for (_, chapter_pages) in chapter_pages.iter() {
+    for chapter_pages in chapter_pages.values() {
         // Sort by order_number and then by id for consistency
         let mut sorted_pages = chapter_pages.to_vec();
         sorted_pages.sort_by(|a, b| {

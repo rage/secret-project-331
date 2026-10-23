@@ -27,6 +27,7 @@ const WARNING_NOTICE_STATUS = "warning"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withParagraphWarnings = createHigherOrderComponent((BlockEdit) => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const ParagraphWarnings = (props: ParagraphBlockProps) => {
     const { t } = useTranslation()
     const isPreviewMode = useIsBlockPreviewMode()
@@ -62,6 +63,7 @@ const withParagraphWarnings = createHigherOrderComponent((BlockEdit) => {
 
   // This dispatcher runs for every block in the document; the hooks and the html analysis stay in
   // the inner component so that only paragraphs pay for them.
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const BlockEditWithParagraphWarnings = (props: ParagraphBlockProps) =>
     props.name === PARAGRAPH_BLOCK_NAME ? (
       <ParagraphWarnings {...props} />

@@ -5,10 +5,10 @@ linkWorkspacePackages: true
 pmOnFail: download
 
 minimumReleaseAge: 10080
-minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
+minimumReleaseAgeExcludePrune: true
 
-nodeVersion: 24.18.0
+nodeVersion: 24.21.0
 
 overrides:
   brace-expansion@<1.1.13: ">=1.1.13 <2"
@@ -34,18 +34,17 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-allowBuilds:
-  esbuild: true
-  node: false
-  unrs-resolver: true
+permissions:
+  esbuild:
+    build: true
+  node:
+    build: false
+  unrs-resolver:
+    build: true
 
 trustLockfile: true
 
-confirmModulesPurge: false
-
 updateNotifier: false
-
-verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
   # TypeScript 7.0 GA + the v6 API compat package, published at GA and newer than the 7-day gate.
@@ -53,7 +52,12 @@ minimumReleaseAgeExclude:
   - "typescript@7.0.2"
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"
-  - brace-expansion@2.1.2 || 2.1.3 || 2.1.4 || 5.0.7 || 5.0.8 || 5.0.9
-  - js-yaml@4.3.0 || 4.3.1
-  - fast-uri@3.1.5
-  - nanoid@3.3.18
+
+# Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
+# so undeclared dependencies fail locally instead of only in image builds.
+hoistPattern: []
+
+autoDedupe: true
+
+lockfile:
+  includeResolutionSettings: true

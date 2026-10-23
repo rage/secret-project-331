@@ -81,6 +81,11 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
   // oxlint-disable-next-line i18next/no-literal-string
   const editorStatus = watchStatus("status")
 
+  const openStatusEditor = (chapterId: string) => {
+    setEditorChapterId(chapterId)
+    resetStatus({ status: getEditableStatus(chapterLockStatusesByChapterId?.[chapterId]) })
+  }
+
   return (
     <QueryResult query={courseStructure}>
       {(courseStructureData) => {
@@ -97,11 +102,6 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
         const activeChapter = editorChapterId ? chapterById[editorChapterId] : undefined
         const isSavingEditorStatus =
           Boolean(editorChapterId) && lockActionPendingChapterId === editorChapterId
-
-        const openStatusEditor = (chapterId: string) => {
-          setEditorChapterId(chapterId)
-          resetStatus({ status: getEditableStatus(chapterLockStatusesByChapterId?.[chapterId]) })
-        }
 
         const closeStatusEditor = () => {
           if (isSavingEditorStatus) {

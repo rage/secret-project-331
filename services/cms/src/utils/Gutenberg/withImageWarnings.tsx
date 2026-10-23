@@ -30,6 +30,7 @@ const WARNING_NOTICE_STATUS = "warning"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const ImageWarnings = (props: ImageBlockProps) => {
     const { t } = useTranslation()
     const isPreviewMode = useIsBlockPreviewMode()
@@ -66,6 +67,7 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
     )
   }
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const BlockEditWithImageWarnings = (props: ImageBlockProps) =>
     props.name === IMAGE_BLOCK_NAME ? <ImageWarnings {...props} /> : <BlockEdit {...props} />
 

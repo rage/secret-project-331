@@ -12,6 +12,8 @@ pub struct TokenQuery {
     pub client_secret: Option<SecretString>, // optional: public clients won't send this
     #[serde(flatten)]
     pub grant: Option<TokenGrant>,
+    /// RFC 8707 resource indicator.
+    pub resource: Option<String>,
     // OAuth 2.0 requires unknown params be ignored at /token (RFC 6749 §3.2)
     #[serde(flatten)]
     pub _extra: HashMap<String, String>,
@@ -22,6 +24,7 @@ pub struct TokenParams {
     pub client_id: String,
     pub client_secret: Option<SecretString>, // carry through; validation for presence is done per-client later
     pub grant: TokenGrant,
+    pub resource: Option<String>,
 }
 
 impl OAuthValidate for TokenQuery {
@@ -152,6 +155,7 @@ impl OAuthValidate for TokenQuery {
             client_id: client_id.to_string(),
             client_secret: self.client_secret.clone(), // may be None for public clients
             grant,
+            resource: self.resource.clone(),
         })
     }
 }
@@ -224,6 +228,7 @@ mod tests {
             client_id: None,
             client_secret: None,
             grant: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -239,6 +244,7 @@ mod tests {
                 refresh_token: "rt".into(),
                 scope: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -250,6 +256,7 @@ mod tests {
             client_id: Some("cid".into()),
             client_secret: Some("sec".into()),
             grant: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -270,6 +277,7 @@ mod tests {
                 redirect_uri: Some("http://localhost".into()),
                 code_verifier: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -290,6 +298,7 @@ mod tests {
                 redirect_uri: Some("".into()),
                 code_verifier: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -311,6 +320,7 @@ mod tests {
                 redirect_uri: None,
                 code_verifier: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -326,6 +336,7 @@ mod tests {
                 redirect_uri: Some("http://localhost".into()),
                 code_verifier: Some("verifier".into()),
             }),
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -340,6 +351,7 @@ mod tests {
                 refresh_token: "".into(),
                 scope: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -360,6 +372,7 @@ mod tests {
                 redirect_uri: Some("http://localhost".into()),
                 code_verifier: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -373,6 +386,7 @@ mod tests {
             grant: Some(TokenGrant::DeviceCode {
                 device_code: "".into(),
             }),
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -391,6 +405,7 @@ mod tests {
             grant: Some(TokenGrant::DeviceCode {
                 device_code: "dc".into(),
             }),
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -405,6 +420,7 @@ mod tests {
                 refresh_token: "r1".into(),
                 scope: None,
             }),
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());

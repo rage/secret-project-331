@@ -1293,6 +1293,87 @@ WHERE id = $2
     Ok(())
 }
 
+/// Writes every field of the snapshot to the module, creating it with the snapshot's id if it does
+/// not exist and bringing it back if it is deleted.
+pub async fn upsert_from_snapshot(
+    conn: &mut PgConnection,
+    snapshot: &crate::library::entity_snapshots::ModuleSnapshot,
+) -> ModelResult<()> {
+    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
+        snapshot.completion_policy.to_database_fields();
+    sqlx::query!(
+        "
+INSERT INTO course_modules (
+    id,
+    course_id,
+    name,
+    order_number,
+    automatic_completion,
+    automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_number_of_points_treshold,
+    automatic_completion_requires_exam,
+    certification_enabled,
+    uh_course_code,
+    ects_credits,
+    completion_registration_link_override,
+    completions_can_be_registered_to_sisu
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) ON CONFLICT (id) DO
+UPDATE
+SET name = EXCLUDED.name,
+  order_number = EXCLUDED.order_number,
+  automatic_completion = EXCLUDED.automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold = EXCLUDED.automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold = EXCLUDED.automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam = EXCLUDED.automatic_completion_requires_exam,
+  certification_enabled = EXCLUDED.certification_enabled,
+  uh_course_code = EXCLUDED.uh_course_code,
+  ects_credits = EXCLUDED.ects_credits,
+  completion_registration_link_override = EXCLUDED.completion_registration_link_override,
+  completions_can_be_registered_to_sisu = EXCLUDED.completions_can_be_registered_to_sisu,
+  deleted_at = NULL
+WHERE course_modules.course_id = EXCLUDED.course_id
+        ",
+        snapshot.id,
+        snapshot.course_id,
+        snapshot.name,
+        snapshot.order_number,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        requires_exam,
+        snapshot.certification_enabled,
+        normalize_uh_course_code(snapshot.uh_course_code.clone()),
+        snapshot.ects_credits,
+        snapshot.completion_registration_link_override,
+        snapshot.completions_can_be_registered_to_sisu,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Moves the modules' order numbers out of the way of the unique constraint, so that a batch of
+/// modules can swap them. Never park the default module, whose order number must stay 0.
+pub async fn park_order_numbers(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        "
+UPDATE course_modules
+SET order_number = 1000000 + v.position
+FROM unnest($1::uuid[]) WITH ORDINALITY AS v(id, position)
+WHERE course_modules.id = v.id
+  AND course_modules.name IS NOT NULL
+",
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
 

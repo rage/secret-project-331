@@ -171,3 +171,29 @@ AND deleted_at IS NULL
     .await?;
     Ok(res)
 }
+
+/// Writes the snapshot to the term, creating it with the snapshot's id if it does not exist and
+/// bringing it back if it is deleted.
+pub async fn upsert_from_snapshot(
+    conn: &mut PgConnection,
+    snapshot: &crate::library::entity_snapshots::GlossaryTermSnapshot,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO glossary (id, course_id, term, definition)
+VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO
+UPDATE
+SET term = EXCLUDED.term,
+  definition = EXCLUDED.definition,
+  deleted_at = NULL
+WHERE glossary.course_id = EXCLUDED.course_id
+",
+        snapshot.id,
+        snapshot.course_id,
+        snapshot.term,
+        snapshot.definition,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

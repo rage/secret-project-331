@@ -1,12 +1,15 @@
 use crate::prelude::*;
 use utoipa::ToSchema;
 
+pub mod agent_changesets;
 pub mod content_management;
 pub mod copying;
 pub mod course_instances;
 pub mod course_stats;
 pub mod credit_registration;
 pub mod custom_view_exercises;
+pub mod entity_history;
+pub mod entity_snapshots;
 pub mod global_stats;
 pub mod grading;
 pub mod migration;

@@ -408,6 +408,7 @@ mod test {
             crate::page_history::HistoryChangeReason::PageSaved,
             user_id,
             None,
+            None,
         )
         .await
         .unwrap();

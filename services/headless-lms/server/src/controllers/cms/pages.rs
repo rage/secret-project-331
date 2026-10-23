@@ -154,6 +154,7 @@ async fn update_page(
     let saved = models::pages::update_by_id_in_parent_context(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: *page_id,
             author: user.id,
             cms_page_update,

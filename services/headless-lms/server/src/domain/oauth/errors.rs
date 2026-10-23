@@ -48,6 +48,10 @@ pub enum TokenGrantError {
     #[error("Access denied")]
     AccessDenied,
 
+    /// RFC 8707: the requested resource does not match the grant.
+    #[error("Invalid target: {0}")]
+    InvalidTarget(String),
+
     /// Server error (database or other internal error)
     #[error("Server error: {0}")]
     ServerError(String),
@@ -122,6 +126,13 @@ impl From<TokenGrantError> for ControllerError {
             TokenGrantError::AccessDenied => OAuthErrorData {
                 error: OAuthErrorCode::AccessDenied.as_str().into(),
                 error_description: "authorization request was denied".into(),
+                redirect_uri: None,
+                state: None,
+                nonce: None,
+            },
+            TokenGrantError::InvalidTarget(msg) => OAuthErrorData {
+                error: OAuthErrorCode::InvalidTarget.as_str().into(),
+                error_description: msg.clone(),
                 redirect_uri: None,
                 state: None,
                 nonce: None,

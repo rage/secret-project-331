@@ -458,6 +458,7 @@ WHERE id = $1
     crate::pages::update_page(
         &mut tx,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: page_with_exercises.page.id,
             author,
             cms_page_update,
@@ -598,6 +599,7 @@ mod test {
         crate::pages::update_page(
             conn,
             PageUpdateArgs {
+                agent_attribution: None,
                 page_id: page,
                 author: user,
                 cms_page_update,

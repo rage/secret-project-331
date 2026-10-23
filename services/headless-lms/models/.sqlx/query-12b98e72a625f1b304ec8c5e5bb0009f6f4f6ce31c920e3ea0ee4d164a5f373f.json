@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cs.id\nFROM agent_changesets cs\n  JOIN agent_changeset_entities e ON e.changeset_id = cs.id\nWHERE cs.user_id = $1\n  AND cs.status = 'open'\n  AND cs.deleted_at IS NULL\n  AND e.entity_type = 'page'\n  AND e.entity_id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "12b98e72a625f1b304ec8c5e5bb0009f6f4f6ce31c920e3ea0ee4d164a5f373f"
+}

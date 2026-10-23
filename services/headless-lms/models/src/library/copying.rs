@@ -883,6 +883,7 @@ async fn insert_page_history_for_copies(
             HistoryChangeReason::PageSaved,
             author_user_id,
             None,
+            None,
         )
         .await?;
     }

@@ -1,5 +1,6 @@
 pub mod digest;
 pub mod grant_type;
+pub mod mcp;
 pub mod pkce;
 pub mod scopes;
 pub mod tokens;

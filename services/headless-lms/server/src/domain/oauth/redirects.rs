@@ -20,6 +20,9 @@ pub fn build_authorize_qs(q: &AuthorizeParams) -> String {
     if let Some(code_challenge_method) = q.code_challenge_method.as_deref() {
         s.append_pair("code_challenge_method", code_challenge_method);
     }
+    if let Some(resource) = q.resource.as_deref() {
+        s.append_pair("resource", resource);
+    }
     s.finish()
 }
 
@@ -43,12 +46,20 @@ pub fn build_consent_redirect(q: &AuthorizeParams, return_to: &str) -> String {
     )
 }
 
-pub fn redirect_with_code(redirect_uri: &str, code: &str, state: Option<&str>) -> String {
+/// The client redirect carrying the authorization code, with `iss` so clients can detect mix-up
+/// attacks (RFC 9207).
+pub fn redirect_with_code(
+    redirect_uri: &str,
+    code: &str,
+    state: Option<&str>,
+    issuer: &str,
+) -> String {
     let mut qs = form_urlencoded::Serializer::new(String::new());
     qs.append_pair("code", code);
     if let Some(s) = state {
         qs.append_pair("state", s);
     }
+    qs.append_pair("iss", issuer);
     let qs = qs.finish();
     if redirect_uri.contains('?') {
         format!("{redirect_uri}&{qs}")

@@ -13,6 +13,7 @@ pub mod exercise_repositories;
 pub mod exercise_services;
 pub mod exercises;
 pub mod internal_error_reporting;
+pub mod mcp_auth;
 pub mod models_requests;
 pub mod oauth;
 pub mod rate_limit_middleware_builder;

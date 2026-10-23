@@ -676,6 +676,7 @@ RETURNING id
         HistoryChangeReason::PageSaved,
         author,
         None,
+        None,
     )
     .await?;
     tx.commit().await?;
@@ -730,6 +731,7 @@ RETURNING id
         },
         HistoryChangeReason::PageSaved,
         author,
+        None,
         None,
     )
     .await?;
@@ -1790,6 +1792,8 @@ pub struct PageUpdateArgs {
     pub retain_ids: bool,
     pub history_change_reason: HistoryChangeReason,
     pub is_exam_page: bool,
+    /// Set when an agent publish writes the page, for "via <client>" in page history.
+    pub agent_attribution: Option<crate::agent_changesets::AgentAttribution>,
 }
 
 pub async fn update_page(
@@ -2156,6 +2160,7 @@ RETURNING id,
         page_update.history_change_reason,
         page_update.author,
         None,
+        page_update.agent_attribution.as_ref(),
     )
     .await?;
     let organization_id = get_organization_id(&mut tx, page.id).await?;
@@ -3128,6 +3133,7 @@ RETURNING id,
     let cms_page = update_page(
         &mut tx,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
@@ -3239,10 +3245,155 @@ pub async fn create_for_course_id(
     Ok(page)
 }
 
+/// Fields of a course page row that exist before its content is written.
+#[derive(Debug, Clone)]
+pub struct CoursePageRow<'a> {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub chapter_id: Option<Uuid>,
+    pub url_path: &'a str,
+    pub title: &'a str,
+    pub order_number: i32,
+    pub hidden: bool,
+}
+
+/// Creates an empty course page with a fixed id, or brings back the deleted page with that id, so
+/// that [update_page] can write its content and exercises next. Writes no page history: the
+/// content save that follows does.
+pub async fn insert_or_undelete_course_page_row(
+    conn: &mut PgConnection,
+    row: CoursePageRow<'_>,
+) -> ModelResult<()> {
+    let normalized_url_path = normalize_url_path_for_storage(row.url_path);
+    let existing_course_id =
+        sqlx::query_scalar!("SELECT course_id FROM pages WHERE id = $1", row.id)
+            .fetch_optional(&mut *conn)
+            .await?;
+    if let Some(existing_course_id) = existing_course_id {
+        if existing_course_id != Some(row.course_id) {
+            return Err(model_err!(
+                PreconditionFailed,
+                "A page with this id belongs to another course".to_string()
+            ));
+        }
+        sqlx::query!(
+            r#"
+UPDATE pages
+SET deleted_at = NULL,
+  chapter_id = $2,
+  url_path = $3,
+  title = $4,
+  order_number = $5,
+  hidden = $6
+WHERE id = $1
+            "#,
+            row.id,
+            row.chapter_id,
+            normalized_url_path,
+            row.title.trim(),
+            row.order_number,
+            row.hidden,
+        )
+        .execute(&mut *conn)
+        .await?;
+        return Ok(());
+    }
+
+    let course = crate::courses::get_course(&mut *conn, row.course_id).await?;
+    let page_language_group_id = crate::page_language_groups::insert(
+        &mut *conn,
+        PKeyPolicy::Generate,
+        course.course_language_group_id,
+    )
+    .await?;
+    let content_search_language = course
+        .content_search_language
+        .unwrap_or_else(|| "simple".to_string());
+    sqlx::query!(
+        r#"
+INSERT INTO pages(
+    id,
+    course_id,
+    content,
+    url_path,
+    title,
+    order_number,
+    chapter_id,
+    content_search_language,
+    page_language_group_id,
+    hidden
+  )
+VALUES($1, $2, '[]'::jsonb, $3, $4, $5, $6, $7, $8, $9)
+        "#,
+        row.id,
+        row.course_id,
+        normalized_url_path,
+        row.title.trim(),
+        row.order_number,
+        row.chapter_id,
+        content_search_language as _,
+        page_language_group_id,
+        row.hidden,
+    )
+    .execute(&mut *conn)
+    .await?;
+    Ok(())
+}
+
+/// Sets the pages' order numbers as given, without the reordering logic of [reorder_pages].
+pub async fn set_order_numbers(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+    order_numbers: &[i32],
+) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        "
+UPDATE pages
+SET order_number = v.order_number
+FROM unnest($1::uuid[], $2::int[]) AS v(id, order_number)
+WHERE pages.id = v.id
+",
+        ids,
+        order_numbers
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Moves the pages' order numbers and url paths out of the way of the unique constraints, so that
+/// a batch of pages can swap them. Every parked page must get its final values in the same
+/// transaction.
+pub async fn park_order_numbers_and_url_paths(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        "
+UPDATE pages
+SET order_number = 1000000 + v.position,
+  url_path = '/agent-publish-parking/' || pages.id::text
+FROM unnest($1::uuid[]) WITH ORDINALITY AS v(id, position)
+WHERE pages.id = v.id
+",
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn delete_page_and_exercises(
     conn: &mut PgConnection,
     page_id: Uuid,
     author: Uuid,
+    attribution: Option<&crate::agent_changesets::AgentAttribution>,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
 
@@ -3374,6 +3525,7 @@ WHERE exercise_slide_id IN (
         HistoryChangeReason::PageDeleted,
         author,
         None,
+        attribution,
     )
     .await?;
 
@@ -4225,6 +4377,7 @@ pub async fn restore(
     update_page(
         conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {
@@ -5568,7 +5721,7 @@ mod test {
                 .await
                 .unwrap();
         for page in existing_pages.iter().filter(|p| p.url_path.trim() != "/") {
-            delete_page_and_exercises(tx.as_mut(), page.id, user)
+            delete_page_and_exercises(tx.as_mut(), page.id, user, None)
                 .await
                 .unwrap();
         }

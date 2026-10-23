@@ -15,6 +15,8 @@ pub struct AuthorizeQuery {
     pub code_challenge_method: Option<String>,
 
     pub prompt: Option<String>,
+    /// RFC 8707 resource indicator.
+    pub resource: Option<String>,
     // Request is not supported, but we capture it so we can return "not supported" error
     pub request: Option<String>,
 
@@ -36,6 +38,7 @@ pub struct AuthorizeParams {
     pub code_challenge_method: Option<String>,
     pub prompt: Option<String>,
     pub request: Option<String>,
+    pub resource: Option<String>,
 }
 
 // We need to make sure we don't return errors directly, instead we need to return
@@ -110,6 +113,7 @@ impl OAuthValidate for AuthorizeQuery {
             code_challenge_method: self.code_challenge_method.clone(),
             prompt: self.prompt.clone(),
             request: self.request.clone(),
+            resource: self.resource.clone(),
         })
     }
 }
@@ -150,6 +154,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -173,6 +178,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -197,6 +203,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -232,6 +239,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -255,6 +263,7 @@ mod tests {
             code_challenge_method: Some("S256".into()),
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let p = q.validate().expect("validate should pass");

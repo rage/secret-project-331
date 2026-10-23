@@ -2373,6 +2373,7 @@ pub async fn seed_cs_course_material(
     pages::update_page(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: front_page.id,
             author: teacher_user_id,
             cms_page_update: CmsPageUpdate {
@@ -2439,6 +2440,7 @@ pub async fn seed_cs_course_material(
     pages::update_page(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: front_page_ch_1.id,
             author: teacher_user_id,
             cms_page_update: CmsPageUpdate {
@@ -2608,6 +2610,7 @@ pub async fn seed_cs_course_material(
     pages::update_page(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: front_page_ch_2.id,
             author: teacher_user_id,
             cms_page_update: CmsPageUpdate {

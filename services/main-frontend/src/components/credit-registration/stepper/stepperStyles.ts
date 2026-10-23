@@ -50,13 +50,19 @@ export const captionCss = css`
   font-size: var(--font-size-1);
 `
 
-/** A boxed aside: a tip, the wrong-course warning, the "please register" request. */
+/**
+ * A boxed aside: a tip, the wrong-course warning, the "please register" request.
+ *
+ * Not a grid: that would split inline text and `Trans` slots into separate rows.
+ */
 export const noteBoxCss = css`
-  display: grid;
-  gap: var(--space-2);
   padding: var(--space-3-5) var(--space-4);
   border: 1px solid var(--color-clear-400);
   border-radius: var(--surface-radius);
+
+  & > :not(:first-child) {
+    margin-top: var(--space-2);
+  }
 `
 
 export const noteTitleCss = css`

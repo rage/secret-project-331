@@ -218,6 +218,32 @@ impl BlockValidator for CmsValidatorClient {
     }
 }
 
+/// Stands in when the validator isn't configured: every write fails closed with a retryable
+/// error, reads keep working.
+pub struct UnconfiguredValidator {
+    pub reason: String,
+}
+
+#[async_trait]
+impl BlockValidator for UnconfiguredValidator {
+    async fn validate_blocks(
+        &self,
+        _: &ValidationRequest<'_>,
+    ) -> Result<ValidationOutcome, ValidatorError> {
+        Err(ValidatorError::Unavailable {
+            reason: self.reason.clone(),
+            retry_after: None,
+        })
+    }
+
+    async fn block_schemas(&self) -> Result<BlockSchemas, ValidatorError> {
+        Err(ValidatorError::Unavailable {
+            reason: self.reason.clone(),
+            retry_after: None,
+        })
+    }
+}
+
 /// The top-level trees of `page` that hold a block the diff added, changed or moved there.
 pub fn changed_roots(page: &PageDocument, diff: &Diff) -> Vec<GutenbergBlock> {
     let touched: HashSet<Uuid> = diff

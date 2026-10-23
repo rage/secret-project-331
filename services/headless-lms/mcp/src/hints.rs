@@ -64,7 +64,9 @@ pub fn skill_version(reported: Option<&str>) -> Result<Option<Hint>, OutdatedSki
     check_skill_version(reported, CURRENT_SKILL_VERSION, MINIMUM_SKILL_VERSION)
 }
 
-fn check_skill_version(
+/// Checks the `skill_version` a call sent against the current and the oldest supported version.
+/// No hint means the skill is current.
+pub fn check_skill_version(
     reported: Option<&str>,
     current: &str,
     minimum: &str,

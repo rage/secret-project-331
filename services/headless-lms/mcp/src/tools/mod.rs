@@ -252,6 +252,40 @@ impl From<crate::validator::ValidatorError> for ToolError {
     }
 }
 
+impl From<headless_lms_models::ModelError> for ToolError {
+    fn from(error: headless_lms_models::ModelError) -> Self {
+        use headless_lms_base::error::backend_error::BackendError;
+        use headless_lms_models::ModelErrorType;
+        match error.error_type() {
+            ModelErrorType::RecordNotFound | ModelErrorType::NotFound => ToolError::NotFound {
+                message: error.message().to_string(),
+            },
+            ModelErrorType::PreconditionFailed | ModelErrorType::InvalidRequest => {
+                ToolError::InvalidArguments {
+                    message: error.message().to_string(),
+                }
+            }
+            _ => ToolError::Internal(format!("{error:?}")),
+        }
+    }
+}
+
+impl From<headless_lms_authorization::error::AuthorizationError> for ToolError {
+    fn from(error: headless_lms_authorization::error::AuthorizationError) -> Self {
+        use headless_lms_authorization::error::AuthorizationErrorType;
+        use headless_lms_base::error::backend_error::BackendError;
+        match error.error_type() {
+            AuthorizationErrorType::Forbidden | AuthorizationErrorType::Unauthorized => {
+                ToolError::Forbidden {
+                    message: "Your teacher account doesn't have edit rights on this course."
+                        .to_string(),
+                }
+            }
+            _ => ToolError::Internal(format!("{error:?}")),
+        }
+    }
+}
+
 /// Implements one tool. `S` is the application state the protocol layer passes through, such as
 /// the database pool, config and validator client.
 #[async_trait]

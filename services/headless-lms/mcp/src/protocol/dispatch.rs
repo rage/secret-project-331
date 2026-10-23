@@ -34,6 +34,10 @@ pub struct ServerConfig {
     /// Short, so scope and role changes show up promptly.
     pub tools_list_ttl_ms: u64,
     pub discover_ttl_ms: u64,
+    /// The skill release this server is built for; older ones get a hint.
+    pub current_skill_version: String,
+    /// Calls from skills older than this are rejected.
+    pub minimum_skill_version: String,
 }
 
 impl ServerConfig {
@@ -48,6 +52,8 @@ impl ServerConfig {
             request_state_codec: None,
             tools_list_ttl_ms: 60_000,
             discover_ttl_ms: 300_000,
+            current_skill_version: hints::CURRENT_SKILL_VERSION.into(),
+            minimum_skill_version: hints::MINIMUM_SKILL_VERSION.into(),
         }
     }
 }
@@ -403,17 +409,20 @@ impl<S: Send + Sync + 'static> McpServer<S> {
                 ));
             }
         };
-        let skill_hint =
-            match hints::skill_version(arguments.get("skill_version").and_then(Value::as_str)) {
-                Ok(hint) => hint,
-                Err(outdated) => {
-                    return Ok(self.tool_result(
-                        &ToolError::from(outdated)
-                            .to_result()
-                            .unwrap_or_else(|| ToolResult::success(json!({}))),
-                    ));
-                }
-            };
+        let skill_hint = match hints::check_skill_version(
+            arguments.get("skill_version").and_then(Value::as_str),
+            &self.config.current_skill_version,
+            &self.config.minimum_skill_version,
+        ) {
+            Ok(hint) => hint,
+            Err(outdated) => {
+                return Ok(self.tool_result(
+                    &ToolError::from(outdated)
+                        .to_result()
+                        .unwrap_or_else(|| ToolResult::success(json!({}))),
+                ));
+            }
+        };
         let associated_data = confirmation_binding(principal, &name, &arguments);
         let retry = match params.get("requestState").and_then(Value::as_str) {
             None => None,

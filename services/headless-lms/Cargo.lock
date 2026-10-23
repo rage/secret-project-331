@@ -3036,11 +3036,18 @@ dependencies = [
 name = "headless-lms-mcp"
 version = "0.1.0"
 dependencies = [
+ "actix-web",
  "async-trait",
  "base64 0.23.1",
  "chrono",
+ "futures",
+ "governor",
+ "headless-lms-authorization",
+ "headless-lms-base",
+ "headless-lms-models",
  "headless-lms-utils",
  "indexmap 2.14.1",
+ "mime_guess",
  "mockito",
  "pretty_assertions",
  "regex",
@@ -3050,9 +3057,12 @@ dependencies = [
  "secrecy",
  "serde",
  "serde_json",
+ "sha2 0.11.0",
+ "sqlx",
  "thiserror 2.0.20",
  "tokio",
  "tracing",
+ "url",
  "uuid",
 ]
 
@@ -3139,6 +3149,7 @@ dependencies = [
  "headless-lms-certificates",
  "headless-lms-chatbot",
  "headless-lms-credit-registration",
+ "headless-lms-mcp",
  "headless-lms-models",
  "headless-lms-utils",
  "hmac 0.13.0",

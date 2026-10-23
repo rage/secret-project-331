@@ -47,6 +47,8 @@ pub enum EditErrorCode {
     CitationKey,
     InvalidBibtex,
     DuplicateTerm,
+    /// The CMS validator rejected blocks; `details` lists its errors.
+    InvalidBlocks,
 }
 
 /// An edit rejected before anything was staged. Every message names the correct form where one

@@ -129,9 +129,10 @@ impl GoogleCloudFileStore {
         if let Some(content_disposition) = content_disposition {
             builder = builder.with_query_param("response-content-disposition", content_disposition);
         }
-        let url = builder.sign_with(&self.signer).await.map_err(|e| {
-            UtilError::new(UtilErrorType::CloudStorage, e.to_string(), Some(e.into()))
-        })?;
+        let url = builder
+            .sign_with(&self.signer)
+            .await
+            .map_err(|e| util_err!(CloudStorage, e.to_string(), e))?;
         Ok(url)
     }
 }

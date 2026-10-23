@@ -46,8 +46,9 @@ struct FileQuery {
     name: Option<String>,
 }
 
-/// `requested_name`, else the uploaded file's original name, always ending in the stored file's
-/// extension so the saved file still opens in the right program.
+/// `requested_name`, else the uploaded file's original name, always ending in the file's extension
+/// so the saved file still opens in the right program. The extension comes from the storage path,
+/// or from `stored_name` for paths stored without one.
 fn download_file_name(
     requested_name: Option<&str>,
     stored_name: Option<&str>,
@@ -63,10 +64,11 @@ fn download_file_name(
         .map(str::trim)
         .find(|name| !name.is_empty())
         .unwrap_or(&stem_name);
-    match path
+    let extension = path
         .extension()
-        .map(|extension| extension.to_string_lossy())
-    {
+        .or_else(|| stored_name.and_then(|stored_name| Path::new(stored_name).extension()))
+        .map(|extension| extension.to_string_lossy());
+    match extension {
         Some(extension)
             if !name
                 .to_lowercase()
@@ -236,17 +238,18 @@ async fn serve_upload(
     if let Some(m) = mime_type {
         response.append_header(("content-type", m));
     }
-    if let Some(details) = details {
-        let content_disposition = if query.download.is_some() {
-            attachment_content_disposition(&download_file_name(
-                query.name.as_deref(),
-                Some(&details.name),
-                path,
-            ))
-        } else {
-            format!("filename=\"{}\"", details.name)
-        };
-        response.append_header(("Content-Disposition", content_disposition));
+    let stored_name = details.as_ref().map(|details| details.name.as_str());
+    if query.download.is_some() {
+        let file_name = download_file_name(query.name.as_deref(), stored_name, path);
+        response.append_header((
+            "Content-Disposition",
+            attachment_content_disposition(&file_name),
+        ));
+    } else if let Some(stored_name) = stored_name {
+        response.append_header((
+            "Content-Disposition",
+            format!("filename=\"{}\"", stored_name),
+        ));
     }
 
     // this endpoint is only used for development

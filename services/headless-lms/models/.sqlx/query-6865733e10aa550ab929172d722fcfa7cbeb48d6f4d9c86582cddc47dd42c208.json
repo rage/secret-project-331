@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT name,\n  mime\nFROM file_uploads\nWHERE path = $1\n",
+  "query": "\nSELECT name,\n  mime\nFROM file_uploads\nWHERE path = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -36,5 +36,5 @@
       false
     ]
   },
-  "hash": "460445444f6e3ea3b0ab1fd7966234cbb699df47a828748b288632cdb3127b3c"
+  "hash": "6865733e10aa550ab929172d722fcfa7cbeb48d6f4d9c86582cddc47dd42c208"
 }

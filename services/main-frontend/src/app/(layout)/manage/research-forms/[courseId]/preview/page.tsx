@@ -9,10 +9,11 @@ import SelectResearchConsentForm from "@/components/course-material/forms/Select
 import useResearchConsentForm from "@/hooks/course-material/useResearchConsentForm"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import type { ResearchFormPreviewMessage } from "@/shared-module/common/utils/researchFormPreview"
 import { openResearchFormPreviewChannel } from "@/shared-module/common/utils/researchFormPreview"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, LoadingRegion } from "@/shared-module/components"
+import { Button, ErrorNotice, LoadingRegion } from "@/shared-module/components"
 
 /** Shows the saved form until an open CMS editor sends its unsaved draft. */
 function ResearchFormPreviewPage() {
@@ -23,6 +24,7 @@ function ResearchFormPreviewPage() {
   const savedFormQuery = useResearchConsentForm(courseId)
   const [draftContent, setDraftContent] = useState<unknown>(undefined)
   const [isDialogOpen, setIsDialogOpen] = useState(true)
+  usePageTitle(t("research-form-preview-heading"))
 
   useEffect(() => {
     const channel = openResearchFormPreviewChannel(courseId)
@@ -36,6 +38,9 @@ function ResearchFormPreviewPage() {
     return () => channel.close()
   }, [courseId])
 
+  if (courseQuery.isError || savedFormQuery.isError) {
+    return <ErrorNotice error={courseQuery.error ?? savedFormQuery.error} />
+  }
   if (!courseQuery.data || !savedFormQuery.isSuccess) {
     return <LoadingRegion />
   }

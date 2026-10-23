@@ -91,6 +91,7 @@ SELECT name,
   mime
 FROM file_uploads
 WHERE path = $1
+  AND deleted_at IS NULL
 "#,
         path,
     )

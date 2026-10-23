@@ -65,6 +65,25 @@ const FEATURE_SETTING_NAMES: Record<string, string> = {
 
 const EXAMPLE_TEXT = "Example text."
 
+const EXERCISE_BLOCK = "moocfi/exercise"
+
+/** Pages hold only an exercise reference; the editor's template is for the exercise editor. */
+const EXERCISE_BLOCK_SCHEMA: BlockSchema = {
+  title: "Exercise",
+  description:
+    "A reference to an exercise stored outside the page. Agents can't create or edit exercises yet; they can only move, copy or remove an existing exercise block, kept exactly as read.",
+  attributes: { id: { type: "string", description: "The exercise's id, as read from the page." } },
+  allowed_parents: ["root"],
+  allowed_children: [],
+  template: null,
+  template_lock: null,
+  example: {
+    name: EXERCISE_BLOCK,
+    attributes: { id: "00000000-0000-4000-8000-000000000000" },
+    innerBlocks: [],
+  },
+}
+
 /** Template attributes the registration knows; createBlock drops the rest, so the editor does too. */
 const registeredAttributes = (
   name: string,
@@ -238,6 +257,9 @@ export const buildBlockSchemas = (): BlockSchemasDocument => {
       template_lock: blockType.innerBlocksArea?.templateLock ?? null,
       example: validatedExample(minimalExample(blockType), blockType, pageTypes),
     }
+  }
+  if (blocks[EXERCISE_BLOCK]) {
+    blocks[EXERCISE_BLOCK] = EXERCISE_BLOCK_SCHEMA
   }
 
   const content = {

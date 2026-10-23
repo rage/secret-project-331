@@ -7,6 +7,7 @@ import { callBlockValidator } from "@/blockValidator/validatorWorker"
 import { startBuiltValidator, stopBlockValidator, validate } from "./runValidator"
 
 interface BlockSchemaBody {
+  description: string
   attributes: Record<string, Record<string, unknown>>
   allowed_parents: string[] | null
   allowed_children: string[] | null
@@ -103,6 +104,18 @@ describe("block schemas", () => {
     expect(schemas.blocks["core/list-item"]?.allowed_parents).toEqual(["core/list"])
     expect(schemas.blocks["core/paragraph"]?.allowed_children).toEqual([])
     expect(schemas.blocks["moocfi/aside"]?.allowed_children).toBeNull()
+  })
+
+  it("describes exercise blocks as the id-only reference agents may keep", () => {
+    expect(schemas.blocks["moocfi/exercise"]).toMatchObject({
+      attributes: { id: { type: "string" } },
+      allowed_children: [],
+      template: null,
+      template_lock: null,
+      example: { name: "moocfi/exercise", innerBlocks: [] },
+    })
+    expect(Object.keys(schemas.blocks["moocfi/exercise"]?.example.attributes ?? {})).toEqual(["id"])
+    expect(schemas.blocks["moocfi/exercise"]?.description).toContain("can't create or edit")
   })
 
   it("gives examples that validate as they are", async () => {

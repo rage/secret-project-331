@@ -161,6 +161,55 @@ pub struct StructureResult {
     pub moved_pages: Vec<PageChapterMove>,
 }
 
+/// A link in course content that points at a page's old path.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct LinkToOldPath {
+    pub page_id: Uuid,
+    pub block_id: Uuid,
+    pub old_path: String,
+    pub new_path: String,
+}
+
+/// Finds links in `pages` whose target ends in `/<course slug><old path>`; they keep working
+/// through the redirects and are reported, not rewritten.
+pub fn find_links_to_old_paths(
+    pages: &[PageDocument],
+    course_slug: &str,
+    changed: &[Redirect],
+) -> Vec<LinkToOldPath> {
+    let mut found = Vec::new();
+    for page in pages {
+        let mut page_blocks = page.blocks.clone();
+        super::blocks::walk_mut(&mut page_blocks, &mut |block| {
+            let block_id = block.client_id;
+            super::blocks::for_each_string_mut(&mut block.attributes, &mut |_, text| {
+                for change in changed {
+                    let target = format!("/{course_slug}{}", change.from.trim_end_matches('/'));
+                    let is_linked = text.match_indices(&target).any(|(at, _)| {
+                        let rest = &text[at + target.len()..];
+                        rest.is_empty()
+                            || rest.starts_with(['"', '\'', '#', '?'])
+                            || (change.from == "/" && rest.starts_with('/'))
+                    });
+                    if is_linked
+                        && !found.iter().any(|f: &LinkToOldPath| {
+                            f.block_id == block_id && f.old_path == change.from
+                        })
+                    {
+                        found.push(LinkToOldPath {
+                            page_id: page.page_id,
+                            block_id,
+                            old_path: change.from.clone(),
+                            new_path: change.to.clone(),
+                        });
+                    }
+                }
+            });
+        });
+    }
+    found
+}
+
 /// Parses raw ops for this tool. See [`parse_ops`].
 pub fn parse(raw: &[Value]) -> Result<Vec<PatchOp>, EditError> {
     parse_ops(raw, PatchTarget::CourseStructure)

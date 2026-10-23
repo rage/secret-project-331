@@ -684,3 +684,30 @@ fn page_types_follow_position() {
     assert_eq!(doc.page_type(id("pg2")), Some(PageType::CoursePage));
     assert_eq!(doc.page_type(id("nope")), None);
 }
+
+#[test]
+fn links_to_old_paths_are_reported() {
+    use crate::test_fixtures::{page, para};
+    let pages = vec![page(
+        "pg9",
+        PageType::CoursePage,
+        vec![
+            para(
+                "l1",
+                "See <a href=\"/org/uh/courses/ohpe/chapter-1/loops#top\">loops</a>.",
+            ),
+            para(
+                "l2",
+                "See <a href=\"/org/uh/courses/ohpe/chapter-1/loops-extra\">x</a>.",
+            ),
+        ],
+    )];
+    let changed = vec![Redirect {
+        page_id: id("pg3"),
+        from: "/chapter-1/loops".into(),
+        to: "/chapter-2/loops".into(),
+    }];
+    let links = find_links_to_old_paths(&pages, "ohpe", &changed);
+    assert_eq!(links.len(), 1);
+    assert_eq!(links[0].block_id, id("l1"));
+}

@@ -89,7 +89,7 @@ Glossary terms (fields term, definition) are highlighted automatically wherever 
 Renaming a citation_key rewrites its citations in page content. Removing a reference, or renaming or removing a term, changes no content; the result lists the pages that use it.";
 
 const RICH_TEXT: &str = "\
-Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math is [latex]…[/latex]. Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
+Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math uses the editor's math format (see rich_text_formats). Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
 
 /// Builds the guide for the requested block types and topics; with neither, an index.
 pub fn build_guide(
@@ -261,7 +261,7 @@ mod tests {
             guide["topics"][0]["text"]
                 .as_str()
                 .unwrap()
-                .contains("[latex]")
+                .contains("math format")
         );
     }
 

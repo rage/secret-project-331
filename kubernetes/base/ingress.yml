@@ -35,6 +35,20 @@ spec:
                 name: headless-lms
                 port:
                   number: 3001
+          - path: /.well-known/oauth-protected-resource
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /.well-known/oauth-authorization-server
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
           - path: /example-exercise
             pathType: Prefix
             backend:

@@ -26,6 +26,7 @@ use headless_lms_models::{
     chapters::NewChapter,
     courses::NewCourse,
     exercise_service_info::ExerciseServiceInfoApi,
+    feedback::{self, FeedbackBlock, NewFeedback},
     library::{
         content_management::{create_new_chapter, create_new_course},
         entity_snapshots,
@@ -36,6 +37,8 @@ use headless_lms_models::{
     oauth_user_client_scopes::OAuthUserClientScopes,
     organizations,
     pages::{self, NewPage, PageDetailsUpdate},
+    proposed_block_edits::NewProposedBlockEdit,
+    proposed_page_edits::{self, NewProposedPageEdits},
     roles::{self, RoleDomain, UserRole},
     users,
 };
@@ -776,6 +779,44 @@ async fn structure_settings_and_glossary_edits_publish_together() {
         .await;
     assert_eq!(wrapped["total"], json!(1), "{wrapped}");
 
+    let mut conn = fixture.pool.acquire().await.unwrap();
+    let feedback_id = feedback::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        Some(fixture.user_id),
+        course,
+        NewFeedback {
+            feedback_given: "Unclear".to_string(),
+            selected_text: None,
+            related_blocks: vec![FeedbackBlock {
+                id: fixture.paragraph_id,
+                text: None,
+                order_number: None,
+            }],
+            page_id: fixture.page_id,
+            category: None,
+        },
+    )
+    .await
+    .unwrap();
+    let (proposal_id, _) = proposed_page_edits::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        course,
+        Some(fixture.user_id),
+        &NewProposedPageEdits {
+            page_id: fixture.page_id,
+            block_edits: vec![NewProposedBlockEdit {
+                block_id: fixture.paragraph_id,
+                block_attribute: "content".to_string(),
+                original_text: "Stop".to_string(),
+                changed_text: "Halt".to_string(),
+            }],
+        },
+    )
+    .await
+    .unwrap();
+
     let published = fixture
         .call(
             "publish_changeset",
@@ -783,6 +824,14 @@ async fn structure_settings_and_glossary_edits_publish_together() {
         )
         .await;
     assert_eq!(published["published"], json!(true), "{published}");
+
+    let new_page_id: Uuid = new_page.parse().unwrap();
+    let feedback = feedback::get_by_id(&mut conn, feedback_id).await.unwrap();
+    assert_eq!(feedback.page_id, Some(new_page_id));
+    let proposal = proposed_page_edits::get_by_id(&mut conn, proposal_id)
+        .await
+        .unwrap();
+    assert_eq!(proposal.page_id, new_page_id);
 
     let live = fixture
         .call(

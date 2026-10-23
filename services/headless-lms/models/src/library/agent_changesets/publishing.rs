@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use futures::future::BoxFuture;
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
 use utoipa::ToSchema;
 
@@ -11,6 +14,7 @@ use crate::{
     agent_changesets::{self, AgentAttribution, AgentChangeset},
     chapter_history, course_module_history, course_settings_history,
     exercise_service_info::ExerciseServiceInfoApi,
+    feedback,
     library::{
         entity_history::{self, EntityHistoryChangeReason},
         entity_snapshots::{self, EntitySnapshot},
@@ -18,6 +22,7 @@ use crate::{
     page_history::HistoryChangeReason,
     pages::{self, CoursePageRow, PageUpdateArgs},
     prelude::*,
+    proposed_page_edits,
 };
 
 /// A staged entity whose live state changed after it was staged.
@@ -393,6 +398,7 @@ pub async fn publish(
         }
     }
 
+    move_block_references(&mut tx, &parsed).await?;
     delete_removed(&mut tx, &parsed, author, &attribution).await?;
 
     let changeset = agent_changesets::mark_published(&mut tx, changeset_id, author).await?;
@@ -438,6 +444,73 @@ async fn park_changed_unique_fields(
     crate::chapters::park_chapter_numbers(conn, &chapter_ids).await?;
     crate::course_modules::park_order_numbers(conn, &module_ids).await?;
     Ok(())
+}
+
+/// Points feedback and edit proposals at the page their blocks moved to.
+///
+/// A record moves only when none of its blocks is left on its page; it then follows its first
+/// block that still exists. Blocks keep their `clientId` when moved, so only pages in the
+/// changeset can have gained or lost them.
+async fn move_block_references(
+    conn: &mut PgConnection,
+    parsed: &[ParsedEntity],
+) -> ModelResult<()> {
+    let mut changed_page_ids = Vec::new();
+    let mut page_of_block = HashMap::new();
+    for entity in parsed {
+        if entity.entity_type != AgentChangesetEntityType::Page {
+            continue;
+        }
+        if entity.base.is_some() {
+            changed_page_ids.push(entity.entity_id);
+        }
+        if let Some(EntitySnapshot::Page(page)) = &entity.after {
+            insert_client_ids(&page.content, page.id, &mut page_of_block);
+        }
+    }
+    if changed_page_ids.is_empty() {
+        return Ok(());
+    }
+    let new_page = |page_id: Uuid, block_ids: &[Uuid]| {
+        let mut pages = block_ids
+            .iter()
+            .filter_map(|id| page_of_block.get(id).copied());
+        if pages.clone().any(|block_page_id| block_page_id == page_id) {
+            None
+        } else {
+            pages.next()
+        }
+    };
+
+    let (mut feedback_ids, mut feedback_page_ids) = (Vec::new(), Vec::new());
+    for record in feedback::get_block_ids_by_page_ids(conn, &changed_page_ids).await? {
+        if let Some(page_id) = new_page(record.page_id, &record.block_ids) {
+            feedback_ids.push(record.id);
+            feedback_page_ids.push(page_id);
+        }
+    }
+    feedback::set_page_ids(conn, &feedback_ids, &feedback_page_ids).await?;
+
+    let (mut proposal_ids, mut proposal_page_ids) = (Vec::new(), Vec::new());
+    for record in proposed_page_edits::get_block_ids_by_page_ids(conn, &changed_page_ids).await? {
+        if let Some(page_id) = new_page(record.page_id, &record.block_ids) {
+            proposal_ids.push(record.id);
+            proposal_page_ids.push(page_id);
+        }
+    }
+    proposed_page_edits::set_page_ids(conn, &proposal_ids, &proposal_page_ids).await?;
+    Ok(())
+}
+
+fn insert_client_ids(
+    blocks: &[GutenbergBlock],
+    page_id: Uuid,
+    page_of_block: &mut HashMap<Uuid, Uuid>,
+) {
+    for block in blocks {
+        page_of_block.insert(block.client_id, page_id);
+        insert_client_ids(&block.inner_blocks, page_id, page_of_block);
+    }
 }
 
 /// Deletes the entities the changeset removes: pages first, then chapters, then modules, so that

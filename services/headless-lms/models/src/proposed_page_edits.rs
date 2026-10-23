@@ -745,3 +745,61 @@ mod test {
         };
     }
 }
+
+/// A proposal's page and the blocks its edits are for, oldest edit first.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ProposalBlockIds {
+    pub id: Uuid,
+    pub page_id: Uuid,
+    pub block_ids: Vec<Uuid>,
+}
+
+/// Edit proposals on the given pages, handled ones included.
+pub async fn get_block_ids_by_page_ids(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<Vec<ProposalBlockIds>> {
+    let res = sqlx::query_as!(
+        ProposalBlockIds,
+        r#"
+SELECT proposed_page_edits.id,
+  proposed_page_edits.page_id,
+  array_agg(
+    proposed_block_edits.block_id
+    ORDER BY proposed_block_edits.created_at,
+      proposed_block_edits.id
+  ) AS "block_ids!"
+FROM proposed_page_edits
+  JOIN proposed_block_edits ON proposed_block_edits.proposal_id = proposed_page_edits.id
+  AND proposed_block_edits.deleted_at IS NULL
+WHERE proposed_page_edits.page_id = ANY($1)
+  AND proposed_page_edits.deleted_at IS NULL
+GROUP BY proposed_page_edits.id
+        "#,
+        page_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Sets each proposal's page; `proposal_ids` and `page_ids` are parallel.
+pub async fn set_page_ids(
+    conn: &mut PgConnection,
+    proposal_ids: &[Uuid],
+    page_ids: &[Uuid],
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE proposed_page_edits
+SET page_id = moved.page_id
+FROM UNNEST($1::uuid [], $2::uuid []) AS moved(id, page_id)
+WHERE proposed_page_edits.id = moved.id
+        ",
+        proposal_ids,
+        page_ids
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

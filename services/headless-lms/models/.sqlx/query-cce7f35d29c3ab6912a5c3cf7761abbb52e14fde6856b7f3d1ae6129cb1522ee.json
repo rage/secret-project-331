@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT feedback.id,\n  feedback.page_id AS \"page_id!\",\n  array_agg(\n    block_feedback.block_id\n    ORDER BY block_feedback.order_number\n  ) AS \"block_ids!\"\nFROM feedback\n  JOIN block_feedback ON block_feedback.feedback_id = feedback.id\n  AND block_feedback.deleted_at IS NULL\nWHERE feedback.page_id = ANY($1)\n  AND feedback.deleted_at IS NULL\nGROUP BY feedback.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "page_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "block_ids!",
+        "type_info": "UuidArray",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "cce7f35d29c3ab6912a5c3cf7761abbb52e14fde6856b7f3d1ae6129cb1522ee"
+}

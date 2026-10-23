@@ -523,6 +523,15 @@ export const zContentManagementPage = z.object({
   peer_or_self_review_questions: z.array(zCmsPeerOrSelfReviewQuestion),
 })
 
+/**
+ * The user's unpublished agent changes on a page.
+ */
+export const zPendingAgentChanges = z.object({
+  changeset_id: z.uuid(),
+  course_id: z.uuid(),
+  review_path: z.string(),
+})
+
 export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
 
 export const zRepositoryExercise = z.object({
@@ -937,6 +946,15 @@ export const zGetCmsPageNavigationPath = z.object({
  * Page navigation
  */
 export const zGetCmsPageNavigationResponse = zPageNavigationInformation
+
+export const zGetCmsPagePendingAgentChangesPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The open changeset changing the page, if any
+ */
+export const zGetCmsPagePendingAgentChangesResponse = zPendingAgentChanges.nullable()
 
 export const zGetCmsRepositoryExercisesForCoursePath = z.object({
   course_id: z.uuid(),

@@ -123,7 +123,7 @@
         "parameters": [
           {
             "name": "course_id",
-            "in": "path",
+            "in": "query",
             "required": true,
             "schema": {
               "type": "string",
@@ -241,6 +241,47 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AgentChangeset"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}": {
+      "post": {
+        "tags": ["agent_changesets"],
+        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a\nshort-lived preview link for a page of the user's changeset, so the review page can open the staged\npage as students would see it.",
+        "operationId": "createAgentChangesetPreviewLink",
+        "parameters": [
+          {
+            "name": "changeset_id",
+            "in": "path",
+            "description": "Changeset id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The preview link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentPreviewLink"
                 }
               }
             }
@@ -11773,7 +11814,7 @@
         "parameters": [
           {
             "name": "client_id",
-            "in": "path",
+            "in": "query",
             "required": true,
             "schema": {
               "type": "string"
@@ -11781,7 +11822,7 @@
           },
           {
             "name": "redirect_uri",
-            "in": "path",
+            "in": "query",
             "required": true,
             "schema": {
               "type": "string"
@@ -11789,7 +11830,7 @@
           },
           {
             "name": "scope",
-            "in": "path",
+            "in": "query",
             "description": "The requested scopes, space-separated.",
             "required": true,
             "schema": {
@@ -17428,6 +17469,17 @@
       "AgentChangesetStatus": {
         "type": "string",
         "enum": ["open", "published", "discarded", "expired"]
+      },
+      "AgentPreviewLink": {
+        "type": "object",
+        "description": "A login-free link to one page of a changeset as staged.",
+        "required": ["preview_path"],
+        "properties": {
+          "preview_path": {
+            "type": "string",
+            "description": "Path of the preview page in the main frontend. Expires after\n`PREVIEW_TOKEN_LIFETIME_MINUTES`."
+          }
+        }
       },
       "AnalysisCourseType": {
         "type": "string",

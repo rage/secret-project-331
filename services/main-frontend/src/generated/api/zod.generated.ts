@@ -546,6 +546,13 @@ export const zAgentChangeset = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * A login-free link to one page of a changeset as staged.
+ */
+export const zAgentPreviewLink = z.object({
+  preview_path: z.string(),
+})
+
 export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
 
 /**
@@ -7470,7 +7477,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
  */
 export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)
 
-export const zGetAgentChangesetsPath = z.object({
+export const zGetAgentChangesetsQuery = z.object({
   course_id: z.uuid(),
 })
 
@@ -7505,6 +7512,16 @@ export const zDiscardAgentChangesetPath = z.object({
  * The discarded changeset
  */
 export const zDiscardAgentChangesetResponse = zAgentChangeset
+
+export const zCreateAgentChangesetPreviewLinkPath = z.object({
+  changeset_id: z.uuid(),
+  page_id: z.uuid(),
+})
+
+/**
+ * The preview link
+ */
+export const zCreateAgentChangesetPreviewLinkResponse = zAgentPreviewLink
 
 export const zPublishAgentChangesetPath = z.object({
   changeset_id: z.uuid(),
@@ -10504,7 +10521,7 @@ export const zApproveOauthConsentBody = zConsentQuery
  */
 export const zApproveOauthConsentResponse = zConsentResponse
 
-export const zGetOauthConsentInfoPath = z.object({
+export const zGetOauthConsentInfoQuery = z.object({
   client_id: z.string(),
   redirect_uri: z.string(),
   scope: z.string(),

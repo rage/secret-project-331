@@ -27,13 +27,23 @@ use crate::{
     get_changeset,
     publish_changeset,
     discard_changeset,
+    create_preview_link,
     get_pending_for_page
 ))]
 pub(crate) struct MainFrontendAgentChangesetsApiDoc;
 
 #[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
 pub struct AgentChangesetsQuery {
     pub course_id: Uuid,
+}
+
+/// A login-free link to one page of a changeset as staged.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct AgentPreviewLink {
+    /// Path of the preview page in the main frontend. Expires after
+    /// `PREVIEW_TOKEN_LIFETIME_MINUTES`.
+    pub preview_path: String,
 }
 
 /// The user's unpublished agent changes on a page.
@@ -209,6 +219,40 @@ async fn discard_changeset(
 }
 
 /**
+POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
+short-lived preview link for a page of the user's changeset, so the review page can open the staged
+page as students would see it.
+*/
+#[instrument(skip(pool, jwt_key))]
+#[utoipa::path(
+    post,
+    path = "/{changeset_id}/preview-link/{page_id}",
+    operation_id = "createAgentChangesetPreviewLink",
+    tag = "agent_changesets",
+    params(
+        ("changeset_id" = Uuid, Path, description = "Changeset id"),
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "The preview link", body = AgentPreviewLink)
+    )
+)]
+async fn create_preview_link(
+    pool: web::Data<PgPool>,
+    path: web::Path<(Uuid, Uuid)>,
+    user: AuthUser,
+    jwt_key: web::Data<JwtKey>,
+) -> ControllerResult<web::Json<AgentPreviewLink>> {
+    let (changeset_id, page_id) = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let (changeset, token) = authorize_own_changeset(&mut conn, user.id, changeset_id).await?;
+    let preview_token = changesets::mint_preview_token(&jwt_key, changeset.id, page_id, user.id)?;
+    token.authorized_ok(web::Json(AgentPreviewLink {
+        preview_path: format!("/agent-preview/{preview_token}"),
+    }))
+}
+
+/**
 GET `/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}` - Whether the signed-in user
 has unpublished agent changes on the page, for the notice in the page editor. `null` if not.
 */
@@ -232,7 +276,17 @@ async fn get_pending_for_page(
 ) -> ControllerResult<web::Json<Option<PendingAgentChanges>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let pending = changesets::get_open_changeset_changing_page(&mut conn, user.id, *page_id)
+    let pending = get_pending_agent_changes(&mut conn, user.id, *page_id).await?;
+    token.authorized_ok(web::Json(pending))
+}
+
+/// The user's open changeset that changes the page, for the page editor notice.
+pub(crate) async fn get_pending_agent_changes(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    page_id: Uuid,
+) -> models::ModelResult<Option<PendingAgentChanges>> {
+    let pending = changesets::get_open_changeset_changing_page(conn, user_id, page_id)
         .await?
         .map(|changeset| PendingAgentChanges {
             review_path: format!(
@@ -242,7 +296,7 @@ async fn get_pending_for_page(
             changeset_id: changeset.id,
             course_id: changeset.course_id,
         });
-    token.authorized_ok(web::Json(pending))
+    Ok(pending)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -253,5 +307,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{changeset_id}", web::get().to(get_changeset))
         .route("/{changeset_id}/publish", web::post().to(publish_changeset))
-        .route("/{changeset_id}/discard", web::post().to(discard_changeset));
+        .route("/{changeset_id}/discard", web::post().to(discard_changeset))
+        .route(
+            "/{changeset_id}/preview-link/{page_id}",
+            web::post().to(create_preview_link),
+        );
 }

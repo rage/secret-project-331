@@ -20,6 +20,7 @@ use utoipa::{IntoParams, OpenApi, ToSchema};
 pub(crate) struct MainFrontendOauthConsentApiDoc;
 
 #[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
 pub struct ConsentInfoQuery {
     pub client_id: String,
     pub redirect_uri: String,

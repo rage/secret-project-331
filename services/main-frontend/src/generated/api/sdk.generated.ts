@@ -95,6 +95,8 @@ import type {
   ConfirmCourseSuspectedCheaterResponses,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponses,
+  CreateAgentChangesetPreviewLinkData,
+  CreateAgentChangesetPreviewLinkResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateChatbotData,
@@ -906,6 +908,7 @@ import {
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
+  zCreateAgentChangesetPreviewLinkResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
@@ -1376,6 +1379,28 @@ export const discardAgentChangeset = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zDiscardAgentChangesetResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/discard",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
+ * short-lived preview link for a page of the user's changeset, so the review page can open the staged
+ * page as students would see it.
+ */
+export const createAgentChangesetPreviewLink = <ThrowOnError extends boolean = true>(
+  options: Options<CreateAgentChangesetPreviewLinkData, ThrowOnError>,
+): RequestResult<CreateAgentChangesetPreviewLinkResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    CreateAgentChangesetPreviewLinkResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateAgentChangesetPreviewLinkResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}",
     ...options,
   })
 

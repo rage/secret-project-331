@@ -1086,6 +1086,17 @@ export type AgentChangesetEntityType =
 
 export type AgentChangesetStatus = "open" | "published" | "discarded" | "expired"
 
+/**
+ * A login-free link to one page of a changeset as staged.
+ */
+export type AgentPreviewLink = {
+  /**
+   * Path of the preview page in the main frontend. Expires after
+   * `PREVIEW_TOKEN_LIFETIME_MINUTES`.
+   */
+  preview_path: string
+}
+
 export type AnalysisCourseType = "compulsory" | "elective"
 
 /**
@@ -6826,10 +6837,10 @@ export type UploadFilesFromExerciseServiceResponse =
 
 export type GetAgentChangesetsData = {
   body?: never
-  path: {
+  path?: never
+  query: {
     course_id: string
   }
-  query?: never
   url: "/api/v0/main-frontend/agent-changesets"
 }
 
@@ -6907,6 +6918,32 @@ export type DiscardAgentChangesetResponses = {
 
 export type DiscardAgentChangesetResponse =
   DiscardAgentChangesetResponses[keyof DiscardAgentChangesetResponses]
+
+export type CreateAgentChangesetPreviewLinkData = {
+  body?: never
+  path: {
+    /**
+     * Changeset id
+     */
+    changeset_id: string
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}"
+}
+
+export type CreateAgentChangesetPreviewLinkResponses = {
+  /**
+   * The preview link
+   */
+  200: AgentPreviewLink
+}
+
+export type CreateAgentChangesetPreviewLinkResponse =
+  CreateAgentChangesetPreviewLinkResponses[keyof CreateAgentChangesetPreviewLinkResponses]
 
 export type PublishAgentChangesetData = {
   body?: never
@@ -14174,7 +14211,8 @@ export type ApproveOauthConsentResponse =
 
 export type GetOauthConsentInfoData = {
   body?: never
-  path: {
+  path?: never
+  query: {
     client_id: string
     redirect_uri: string
     /**
@@ -14182,7 +14220,6 @@ export type GetOauthConsentInfoData = {
      */
     scope: string
   }
-  query?: never
   url: "/api/v0/main-frontend/oauth/consent-info"
 }
 

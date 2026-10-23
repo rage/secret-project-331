@@ -504,6 +504,18 @@ export type PeerReviewProcessingStrategy =
   | "AutomaticallyGradeOrManualReviewByAverage"
   | "ManualReviewEverything"
 
+/**
+ * The user's unpublished agent changes on a page.
+ */
+export type PendingAgentChanges = {
+  changeset_id: string
+  course_id: string
+  /**
+   * Path of the review page in the main frontend.
+   */
+  review_path: string
+}
+
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 export type RepositoryExercise = {
@@ -1283,6 +1295,28 @@ export type GetCmsPageNavigationResponses = {
 
 export type GetCmsPageNavigationResponse =
   GetCmsPageNavigationResponses[keyof GetCmsPageNavigationResponses]
+
+export type GetCmsPagePendingAgentChangesData = {
+  body?: never
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/pending-agent-changes"
+}
+
+export type GetCmsPagePendingAgentChangesResponses = {
+  /**
+   * The open changeset changing the page, if any
+   */
+  200: null | PendingAgentChanges
+}
+
+export type GetCmsPagePendingAgentChangesResponse =
+  GetCmsPagePendingAgentChangesResponses[keyof GetCmsPagePendingAgentChangesResponses]
 
 export type GetCmsRepositoryExercisesForCourseData = {
   body?: never

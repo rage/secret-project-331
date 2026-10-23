@@ -45,6 +45,7 @@ import {
   configureChatbot,
   confirmCourseSuspectedCheater,
   confirmMyEnrolment,
+  createAgentChangesetPreviewLink,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -483,6 +484,8 @@ import type {
   ConfirmCourseSuspectedCheaterData,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponse,
+  CreateAgentChangesetPreviewLinkData,
+  CreateAgentChangesetPreviewLinkResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -1390,6 +1393,34 @@ export const discardAgentChangesetMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await discardAgentChangeset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
+ * short-lived preview link for a page of the user's changeset, so the review page can open the staged
+ * page as students would see it.
+ */
+export const createAgentChangesetPreviewLinkMutation = (
+  options?: Partial<Options<CreateAgentChangesetPreviewLinkData>>,
+): UseMutationOptions<
+  CreateAgentChangesetPreviewLinkResponse,
+  DefaultError,
+  Options<CreateAgentChangesetPreviewLinkData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateAgentChangesetPreviewLinkResponse,
+    DefaultError,
+    Options<CreateAgentChangesetPreviewLinkData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createAgentChangesetPreviewLink({
         ...options,
         ...fnOptions,
         throwOnError: true,

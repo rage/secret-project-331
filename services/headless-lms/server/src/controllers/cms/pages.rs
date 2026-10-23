@@ -10,6 +10,7 @@ use models::{
 };
 
 use crate::{
+    controllers::main_frontend::agent_changesets::{self, PendingAgentChanges},
     domain::{
         models_requests::{self, JwtKey},
         request_id::RequestId,
@@ -24,7 +25,8 @@ use utoipa::OpenApi;
     get_page_info,
     update_page,
     get_page_navigation,
-    get_exercises_with_submissions
+    get_exercises_with_submissions,
+    get_pending_agent_changes
 ))]
 pub(crate) struct CmsPagesApiDoc;
 
@@ -242,6 +244,35 @@ async fn get_page_navigation(
 
     token.authorized_ok(web::Json(res))
 }
+
+/**
+GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{page_id}/pending-agent-changes",
+    operation_id = "getCmsPagePendingAgentChanges",
+    tag = "cms_pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "The open changeset changing the page, if any", body = Option<PendingAgentChanges>)
+    )
+)]
+async fn get_pending_agent_changes(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Option<PendingAgentChanges>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let pending = agent_changesets::get_pending_agent_changes(&mut conn, user.id, *page_id).await?;
+    token.authorized_ok(web::Json(pending))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -260,5 +291,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{page_id}/exercises-with-submissions",
             web::post().to(get_exercises_with_submissions),
+        )
+        .route(
+            "/{page_id}/pending-agent-changes",
+            web::get().to(get_pending_agent_changes),
         );
 }

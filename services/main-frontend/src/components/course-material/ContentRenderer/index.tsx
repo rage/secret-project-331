@@ -26,6 +26,7 @@ import ListBlock from "./core/common/List/ListBlock"
 import ListItemBlock from "./core/common/List/ListItemBlock"
 import ParagraphBlock from "./core/common/Paragraph"
 import QuoteBlock from "./core/common/Quote/QuoteBlock"
+import VideoBlock from "./core/common/Video/VideoBlock"
 import EmbedBlock from "./core/embeds/EmbedBlock"
 import CodeBlock from "./core/formatting/CodeBlock"
 import CustomHTMLBlock from "./core/formatting/CustomHTMLBlock"
@@ -118,6 +119,7 @@ export const blockToRendererMap: Record<string, any> = {
   "core/list-item": ListItemBlock,
   "core/paragraph": ParagraphBlock,
   "core/quote": QuoteBlock,
+  "core/video": VideoBlock,
 
   // core / embeds
   "core/embed": EmbedBlock, // This is used by youtube, twitter etc.

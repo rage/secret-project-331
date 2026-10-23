@@ -185,7 +185,16 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       `}
     >
       <TextBox backgroundImages={backgroundImages} color={fontColor} direction={direction}>
-        <span className="chapter">{label}</span>
+        {label !== undefined && (
+          <ParsedText
+            text={label}
+            tag="span"
+            // oxlint-disable-next-line i18next/no-literal-string
+            tagProps={{ className: "chapter" }}
+            options={{ glossary: false }}
+            useWrapperElement={true}
+          />
+        )}
         <ParsedText
           text={title}
           tag="h1"

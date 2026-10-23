@@ -465,7 +465,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
           size="small"
           onPress={retry}
         >
-          {t("queryResult.retry")}
+          {t("errorNotice.retry")}
         </Button>
       ) : null}
 

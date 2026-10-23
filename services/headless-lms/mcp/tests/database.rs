@@ -112,6 +112,7 @@ struct Fixture {
     endpoint: Arc<McpEndpoint>,
     user_id: Uuid,
     course_id: Uuid,
+    module_id: Uuid,
     page_id: Uuid,
     paragraph_id: Uuid,
 }
@@ -258,6 +259,7 @@ impl Fixture {
             endpoint: Arc::new(endpoint),
             user_id,
             course_id: course.id,
+            module_id: module.id,
             page_id: page.id,
             paragraph_id,
         }
@@ -706,4 +708,147 @@ async fn the_route_takes_oauth_tokens_and_enforces_their_scopes() {
     .await;
     assert_eq!(read["result"]["isError"], json!(false), "{read}");
     assert!(read.to_string().contains(&fixture.page_id.to_string()));
+}
+
+#[tokio::test]
+async fn structure_settings_and_glossary_edits_publish_together() {
+    let fixture = Fixture::new().await;
+    let course = fixture.course_id;
+    let structure = fixture
+        .call(
+            "patch_course_structure",
+            json!({"course": course, "ops": [
+                {"op": "add", "path": format!("/{}/chapters", fixture.module_id), "position": "end", "value": {"label": "$ch", "name": "Recursion"}},
+                {"op": "add", "path": "/$ch/pages", "position": "end", "value": {"label": "$pg", "title": "Base cases", "blocks": [{"name": "core/paragraph", "attributes": {"content": "Stop somewhere."}}]}},
+            ]}),
+        )
+        .await;
+    let labels = &structure["labels"];
+    let new_page = labels["$pg"].as_str().unwrap().to_string();
+    fixture
+        .call(
+            "patch_page_content",
+            json!({"course": course, "page": fixture.page_id, "ops": [
+                {"op": "move", "from": format!("/{}", fixture.paragraph_id), "to_page": new_page, "path": "", "position": "end"},
+            ]}),
+        )
+        .await;
+    let settings = fixture
+        .call(
+            "patch_course_settings",
+            json!({"course": course, "ops": [{"op": "replace", "path": "/course/is_unlisted", "value": true}]}),
+        )
+        .await;
+    fixture
+        .call(
+            "patch_course_glossary_and_references",
+            json!({"course": course, "ops": [{"op": "add", "path": "/glossary", "value": {"term": "Recursion", "definition": "A function calling itself."}}]}),
+        )
+        .await;
+    let replaced = fixture
+        .call(
+            "find_replace",
+            json!({"course": course, "find": "Stop", "replace": "Halt"}),
+        )
+        .await;
+    assert_eq!(replaced["total"], json!(1), "{replaced}");
+
+    let published = fixture
+        .call(
+            "publish_changeset",
+            json!({"course": course, "changeset": settings["changeset"]}),
+        )
+        .await;
+    assert_eq!(published["published"], json!(true), "{published}");
+
+    let live = fixture
+        .call(
+            "get_course_structure",
+            json!({"course": course, "selectors": [{"path": format!("/{}", labels["$ch"].as_str().unwrap()), "mode": "raw", "state": "published"}]}),
+        )
+        .await;
+    let chapter = &live["reads"][0]["items"][0];
+    assert_eq!(chapter["name"], json!("Recursion"), "{live}");
+    assert_eq!(chapter["pages"].as_array().unwrap().len(), 2, "{live}");
+    let new_page_content = fixture
+        .call(
+            "get_page_content",
+            json!({"course": course, "page": new_page, "selectors": [{"mode": "raw", "state": "published"}]}),
+        )
+        .await;
+    let text = new_page_content.to_string();
+    assert!(text.contains("Halt somewhere."), "{text}");
+    assert!(text.contains(&fixture.paragraph_id.to_string()), "{text}");
+    let old_page = fixture
+        .call(
+            "get_page_content",
+            json!({"course": course, "page": fixture.page_id, "selectors": [{"state": "published"}]}),
+        )
+        .await;
+    assert!(
+        !old_page
+            .to_string()
+            .contains(&fixture.paragraph_id.to_string())
+    );
+
+    let settings = fixture
+        .call("get_course_settings", json!({"course": course}))
+        .await;
+    assert_eq!(settings["settings"]["course"]["is_unlisted"], json!(true));
+    let glossary = fixture
+        .call(
+            "get_course_glossary_and_references",
+            json!({"course": course}),
+        )
+        .await;
+    assert_eq!(glossary["glossary"][0]["term"], json!("Recursion"));
+    assert_eq!(glossary["staged_changes"], json!([]));
+}
+
+#[tokio::test]
+async fn uploads_preview_links_and_discard() {
+    let fixture = Fixture::new().await;
+    let png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg==";
+    let uploaded = fixture
+        .call(
+            "upload_file",
+            json!({"course": fixture.course_id, "file_name": "dot.png", "content_base64": png}),
+        )
+        .await;
+    assert_eq!(uploaded["mime_type"], json!("image/png"));
+    assert!(uploaded["url"].as_str().unwrap().ends_with(".png"));
+
+    let unstaged = fixture
+        .call(
+            "get_preview_link",
+            json!({"course": fixture.course_id, "page": fixture.page_id}),
+        )
+        .await;
+    assert_eq!(unstaged["is_staged"], json!(false));
+
+    let staged = fixture.edit_paragraph("Draft text.").await;
+    let preview = fixture
+        .call(
+            "get_preview_link",
+            json!({"course": fixture.course_id, "page": fixture.page_id}),
+        )
+        .await;
+    assert!(
+        preview["url"]
+            .as_str()
+            .unwrap()
+            .starts_with("http://project-331.local/agent-preview/")
+    );
+
+    let discarded = fixture
+        .call(
+            "discard_changeset",
+            json!({"course": fixture.course_id, "changeset": staged["changeset"]}),
+        )
+        .await;
+    assert_eq!(discarded["status"], json!("discarded"));
+    assert_eq!(
+        fixture.paragraph_text("staged").await,
+        json!("Loops repeat things.")
+    );
 }

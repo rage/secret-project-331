@@ -329,24 +329,44 @@ pub async fn load_module(
     conn: &mut PgConnection,
     module_id: Uuid,
 ) -> ModelResult<Option<ModuleSnapshot>> {
-    let Some(module) = course_modules::get_by_id(conn, module_id)
+    let module = course_modules::get_by_id(conn, module_id)
         .await
-        .optional()?
-    else {
-        return Ok(None);
-    };
-    Ok(Some(ModuleSnapshot {
-        id: module.id,
-        course_id: module.course_id,
-        name: module.name,
-        order_number: module.order_number,
-        completion_policy: module.completion_policy,
-        certification_enabled: module.certification_enabled,
-        uh_course_code: module.uh_course_code,
-        ects_credits: module.ects_credits,
-        completion_registration_link_override: module.completion_registration_link_override,
-        completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
-    }))
+        .optional()?;
+    Ok(module.map(ModuleSnapshot::from))
+}
+
+impl From<course_modules::CourseModule> for ModuleSnapshot {
+    fn from(module: course_modules::CourseModule) -> Self {
+        Self {
+            id: module.id,
+            course_id: module.course_id,
+            name: module.name,
+            order_number: module.order_number,
+            completion_policy: module.completion_policy,
+            certification_enabled: module.certification_enabled,
+            uh_course_code: module.uh_course_code,
+            ects_credits: module.ects_credits,
+            completion_registration_link_override: module.completion_registration_link_override,
+            completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
+        }
+    }
+}
+
+impl From<crate::chapters::DatabaseChapter> for ChapterSnapshot {
+    fn from(chapter: crate::chapters::DatabaseChapter) -> Self {
+        Self {
+            id: chapter.id,
+            course_id: chapter.course_id,
+            course_module_id: chapter.course_module_id,
+            name: chapter.name,
+            color: chapter.color,
+            chapter_number: chapter.chapter_number,
+            front_page_id: chapter.front_page_id,
+            opens_at: chapter.opens_at,
+            deadline: chapter.deadline,
+            chapter_image_path: chapter.chapter_image_path,
+        }
+    }
 }
 
 pub async fn load_course_settings(

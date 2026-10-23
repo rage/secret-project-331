@@ -2,6 +2,7 @@ use pretty_assertions::assert_eq;
 use serde_json::{Value, json};
 
 use super::*;
+use crate::engine::PageType;
 use crate::engine::op::{PatchTarget, parse_ops};
 use crate::ids::SequentialIds;
 use crate::test_fixtures::*;
@@ -877,4 +878,18 @@ fn read_back_label_paths_resolve() {
     );
     assert_eq!(resolve_label_path(&p("p1"), &labels).unwrap(), p("p1"));
     assert!(resolve_label_path("/$nope", &labels).is_err());
+}
+
+#[test]
+fn raw_html_and_course_front_page_rules() {
+    let html = run(&sample(), json!([{"op":"add","path":"","position":"end","value":{"name":"core/html","attributes":{"content":"<b>x</b>"}}}])).unwrap_err();
+    assert_eq!(html.code, EditErrorCode::InvalidValue);
+    let front = page("front", PageType::CourseFrontPage, vec![]);
+    let error = run_with(
+        &sample(),
+        std::slice::from_ref(&front),
+        json!([{"op":"move","from":p("ex1"),"to_page":id("front").to_string(),"path":"","position":"end"}]),
+    )
+    .unwrap_err();
+    assert_eq!(error.code, EditErrorCode::InvariantViolated);
 }

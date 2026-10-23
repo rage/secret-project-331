@@ -30,8 +30,10 @@ pub enum PageType {
     /// A page inside a chapter that isn't its front page.
     CoursePage,
     ChapterFrontPage,
-    /// A page outside chapters, including the course front page `/`.
+    /// A page outside chapters other than the course front page.
     TopLevelPage,
+    /// The course's front page, `/`.
+    CourseFrontPage,
 }
 
 impl PageType {
@@ -40,7 +42,13 @@ impl PageType {
             PageType::CoursePage => "course-page",
             PageType::ChapterFrontPage => "chapter-front-page",
             PageType::TopLevelPage => "top-level-page",
+            PageType::CourseFrontPage => "course-front-page",
         }
+    }
+
+    /// Outside chapters, where exercises and chapter listings aren't allowed.
+    pub fn is_outside_chapters(self) -> bool {
+        matches!(self, PageType::TopLevelPage | PageType::CourseFrontPage)
     }
 }
 

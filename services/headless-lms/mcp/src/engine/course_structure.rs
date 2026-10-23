@@ -95,8 +95,12 @@ impl CourseStructure {
 
     /// The editor context a page's blocks are validated in.
     pub fn page_type(&self, page_id: Uuid) -> Option<PageType> {
-        if self.course.pages.iter().any(|p| p.id == page_id) {
-            return Some(PageType::TopLevelPage);
+        if let Some(page) = self.course.pages.iter().find(|p| p.id == page_id) {
+            return Some(if page.url_path == "/" {
+                PageType::CourseFrontPage
+            } else {
+                PageType::TopLevelPage
+            });
         }
         self.chapters().find_map(|c| {
             let position = c.pages.iter().position(|p| p.id == page_id)?;
@@ -1553,7 +1557,7 @@ impl<'c> StructureEditor<'c> {
             .filter(|p| self.doc.page(p.page_id).is_some())
             .collect();
         for new_page in &new_pages {
-            if new_page.page_type == PageType::TopLevelPage {
+            if new_page.page_type.is_outside_chapters() {
                 let disallowed: Vec<&str> = new_page
                     .blocks
                     .iter()

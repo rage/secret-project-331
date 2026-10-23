@@ -678,7 +678,8 @@ fn never_published_course_gets_no_redirects() {
 #[test]
 fn page_types_follow_position() {
     let doc = sample();
-    assert_eq!(doc.page_type(id("pg0")), Some(PageType::TopLevelPage));
+    assert_eq!(doc.page_type(id("pg0")), Some(PageType::CourseFrontPage));
+    assert_eq!(doc.page_type(id("pg40")), Some(PageType::TopLevelPage));
     assert_eq!(doc.page_type(id("pg1")), Some(PageType::ChapterFrontPage));
     assert_eq!(doc.page_type(id("pg2")), Some(PageType::CoursePage));
     assert_eq!(doc.page_type(id("nope")), None);

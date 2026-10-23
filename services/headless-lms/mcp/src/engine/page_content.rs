@@ -11,7 +11,7 @@ use super::blocks::{self, DISALLOWED_ON_TOP_LEVEL_PAGES, is_exercise, is_exercis
 use super::error::{EditError, EditErrorCode, Warning, WarningCode};
 use super::labels::{Labels, Reference, parse_reference, parse_uuid};
 use super::op::{OpKind, PatchOp, Position};
-use super::{CreatedIds, EngineContext, PageDocument, PageType, push_created};
+use super::{CreatedIds, EngineContext, PageDocument, push_created};
 use crate::text;
 
 /// The new state after a successful call. Nothing is stored until the caller stages it.
@@ -1591,7 +1591,7 @@ impl<'c> Editor<'c> {
                 if is_exercise(block) && path.len() > 1 {
                     nested_exercises.push(block.client_id.to_string());
                 }
-                if doc.page_type == PageType::TopLevelPage
+                if doc.page_type.is_outside_chapters()
                     && DISALLOWED_ON_TOP_LEVEL_PAGES.contains(&block.name.as_str())
                 {
                     disallowed.push(format!("/{} ({})", block.client_id, block.name));
@@ -1735,6 +1735,9 @@ fn label_of(object: &Map<String, Value>) -> Result<Option<String>, EditError> {
     }
 }
 
+/// Raw HTML, synced patterns and the editor's placeholder.
+const NOT_WRITABLE_BLOCKS: [&str; 3] = ["core/html", "core/block", "moocfi/unsupported-block-type"];
+
 fn check_creatable(name: &str) -> Result<(), EditError> {
     if is_exercise_name(name) {
         return Err(EditError::new(
@@ -1742,10 +1745,10 @@ fn check_creatable(name: &str) -> Result<(), EditError> {
             "exercises can't be created or edited with page edits yet; an existing exercise block can be moved, copied or removed",
         ));
     }
-    if name == "moocfi/unsupported-block-type" {
+    if NOT_WRITABLE_BLOCKS.contains(&name) {
         return Err(EditError::new(
             EditErrorCode::InvalidValue,
-            "moocfi/unsupported-block-type is an editor placeholder, not a block to write",
+            format!("agents can't write {name}; the guide tool lists the blocks a page takes"),
         ));
     }
     Ok(())

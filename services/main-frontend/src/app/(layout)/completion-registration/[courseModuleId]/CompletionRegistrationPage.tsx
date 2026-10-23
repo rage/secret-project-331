@@ -1,0 +1,85 @@
+"use client"
+
+import { useQuery } from "@tanstack/react-query"
+import React, { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
+
+import { QUIET_REFRESH, TONE } from "@/components/credit-registration/constants"
+import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { Infobox, QueryResult } from "@/shared-module/components"
+
+import CreditRegistrationStatus from "./CreditRegistrationStatus"
+import RegisterCompletion from "./RegisterCompletion"
+
+const REDIRECT = "redirect"
+
+/** The registration page for one of the signed-in student's module completions. */
+const CompletionRegistrationPage: React.FC<{ courseModuleId: string }> = ({ courseModuleId }) => {
+  const { t } = useTranslation()
+  const [pathname, setPathname] = useState<string>("")
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathname(window.location.pathname)
+    }
+  }, [])
+
+  const userCompletionInformation = useQuery({
+    ...getCourseModuleUserCompletionOptions({
+      path: {
+        course_module_id: courseModuleId,
+      },
+    }),
+  })
+
+  const courseName = userCompletionInformation.data?.course_name
+  usePageTitle(
+    courseName
+      ? t("page-title-credit-registration-for-course", { course: courseName })
+      : t("heading-credit-registration"),
+  )
+
+  // Quiet refresh: saving an answer refetches this, and blanking the card under the student's
+  // hands would throw away where they had got to.
+  return (
+    <QueryResult query={userCompletionInformation} refreshIndicator={QUIET_REFRESH}>
+      {(data) => {
+        if (!data.registers_credits) {
+          return (
+            <Infobox tone={TONE.INFO} heading={t("register-completion")}>
+              {t("this-course-does-not-register-credits-for-you")}
+            </Infobox>
+          )
+        }
+        if (data.register_credits_via_suotar) {
+          return (
+            <CreditRegistrationStatus
+              courseModuleId={courseModuleId}
+              courseName={data.course_name}
+              moduleName={data.course_module_name}
+              ectsCredits={data.ects_credits}
+              statusBeforeRegistration={data.status_before_registration}
+              certificateConfigurationId={data.certificate_configuration_id}
+              creditJustification={data.credit_justification}
+            />
+          )
+        }
+        // A completion from before the push path keeps the old page.
+        return (
+          <RegisterCompletion
+            courseModuleId={courseModuleId}
+            email={data.email}
+            courseName={data.course_name}
+            ectsCredits={data.ects_credits}
+            registrationFormUrl={`${pathname}/${REDIRECT}`}
+            certificateConfigurationId={data.certificate_configuration_id}
+            creditJustification={data.credit_justification}
+          />
+        )
+      }}
+    </QueryResult>
+  )
+}
+
+export default CompletionRegistrationPage

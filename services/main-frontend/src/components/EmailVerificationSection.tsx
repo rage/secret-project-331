@@ -5,7 +5,7 @@ import type { QueryClient } from "@tanstack/react-query"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { getMyEmailVerificationStatusOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { requestEmailVerificationCode, verifyEmailOwnership } from "@/generated/api/sdk.generated"
@@ -26,11 +26,12 @@ const TONE_WARNING = "warning"
 /** The server refuses a resend for two minutes, so the button must not re-enable before then. */
 const RESEND_COOLDOWN_SECONDS = 120
 
+/** `queued` says nothing: the dialog opening, and its resend countdown, already confirm the send. */
 const OUTCOME_KEYS = {
-  queued: "message-email-verification-code-on-its-way",
+  queued: null,
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
-} as const satisfies Record<RequestEmailVerificationOutcome, string>
+} as const satisfies Record<RequestEmailVerificationOutcome, string | null>
 
 const headerCss = css`
   display: flex;
@@ -75,11 +76,6 @@ const bodyCss = css`
 const codeFormCss = css`
   padding: 0;
   align-self: stretch;
-`
-
-const outcomeCss = css`
-  color: var(--color-gray-600);
-  font-size: var(--font-size-1);
 `
 
 /** Email changes clear verification server-side; callers must refetch after such an edit. */
@@ -203,29 +199,45 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         <Dialog
           open={codeDialogOpen}
           onClose={() => setCodeDialogOpen(false)}
-          title={t("button-enter-verification-code")}
+          title={t("heading-verify-your-email")}
         >
           <OneTimeCodeForm
             containerClassName={codeFormCss}
-            message={t("message-enter-the-verification-code-we-emailed-you")}
+            message={
+              <Trans
+                t={t}
+                i18nKey="message-we-sent-a-code-to-until"
+                values={{
+                  email: status.email,
+                  time: new Date(pendingCode.expires_at).toLocaleTimeString(i18n.language, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  }),
+                }}
+                components={{ email: <strong /> }}
+              />
+            }
             onSubmit={async (code) => {
               await submitCode.mutateAsync(code)
             }}
             submitLabel={t("button-text-verify")}
-            error={codeRefused ? t("incorrect-code") : null}
+            error={codeRefused ? t("message-code-did-not-work") : null}
             isSubmitting={submitCode.isPending}
+            submitOnComplete
             resend={{
               helperText: t("message-did-not-receive-the-verification-code"),
               label: t("resend"),
               onResend: () => requestCode.mutate(),
               cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+              lastSentAt: pendingCode.sent_at,
+              statusMessage:
+                outcome && OUTCOME_KEYS[outcome] ? (
+                  <span data-testid="email-verification-request-outcome">
+                    {t(OUTCOME_KEYS[outcome])}
+                  </span>
+                ) : undefined,
             }}
           />
-          {outcome ? (
-            <p className={outcomeCss} data-testid="email-verification-request-outcome">
-              {t(OUTCOME_KEYS[outcome])}
-            </p>
-          ) : null}
         </Dialog>
       )}
     </div>

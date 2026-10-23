@@ -167,7 +167,8 @@ fn resume_state(
 ///
 /// A row that would start resolving without ever having been checked starts its enrolment check
 /// schedule instead: nobody has enrolled at the moment they complete, so it waits in
-/// `no_usable_enrolment` for the first rung of its group's ladder unless that rung is due already.
+/// `no_usable_enrolment` for the first rung of its group's ladder, or the start's own check ahead
+/// of it, unless that is due already.
 /// A row waiting there is left to resolve-enrolments, which checks it where it stands.
 pub async fn recompute_preconditions(
     conn: &mut PgConnection,
@@ -215,9 +216,10 @@ pub async fn recompute_preconditions(
                     scheduled,
                     source: start.source,
                 });
-                if scheduled.due_at > now {
+                let own_check_at = start.source.own_check_at(start.anchor_at);
+                if own_check_at.unwrap_or(scheduled.due_at) > now {
                     target = CreditRegistrationState::NoUsableEnrolment;
-                    next_attempt_at = Some(scheduled.release_at());
+                    next_attempt_at = Some(own_check_at.unwrap_or_else(|| scheduled.release_at()));
                 }
             }
             (target != pending.state).then(|| BatchMove {
@@ -856,22 +858,10 @@ mod tests {
     #[tokio::test]
     async fn a_parked_row_is_claimed_for_its_check_where_it_stands() {
         insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-        crate::course_modules::update(
+        crate::course_modules::update_uh_course_code(
             tx.as_mut(),
             course_module.id,
-            &crate::course_modules::NewCourseModule::new(
-                course_module.course_id,
-                course_module.name.clone(),
-                course_module.order_number,
-            )
-            .set_enable_credit_registration_via_suotar(true),
-        )
-        .await
-        .unwrap();
-        crate::course_modules::set_register_eligible_new_completions_via_suotar(
-            tx.as_mut(),
-            course_module.id,
-            true,
+            Some("TKT10001".to_string()),
         )
         .await
         .unwrap();

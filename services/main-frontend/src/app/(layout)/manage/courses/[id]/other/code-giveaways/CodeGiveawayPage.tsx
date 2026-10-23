@@ -8,10 +8,9 @@ import { useTranslation } from "react-i18next"
 
 import { getCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CodeGiveaway } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { codeGiveawayRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import NewCodeGiveawayForm from "./NewCodeGiveawayForm"
 

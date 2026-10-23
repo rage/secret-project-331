@@ -567,22 +567,19 @@ pub async fn update_course_auditing_data(
             module.completion_registration_link_override.as_deref(),
         )?;
     }
-    let (
-        module_ids,
-        uh_course_codes,
-        completion_registration_link_overrides,
-        ects_credits,
-        enable_registering_completion_to_uh_open_university,
-    ): (Vec<_>, Vec<_>, Vec<_>, Vec<_>, Vec<_>) =
-        multiunzip(data_update.modules.into_iter().map(|m| {
-            (
-                m.id,
-                m.uh_course_code,
-                m.completion_registration_link_override,
-                m.ects_credits,
-                m.enable_registering_completion_to_uh_open_university,
-            )
-        }));
+    let (module_ids, uh_course_codes, completion_registration_link_overrides, ects_credits): (
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+    ) = multiunzip(data_update.modules.into_iter().map(|m| {
+        (
+            m.id,
+            crate::course_modules::normalize_uh_course_code(m.uh_course_code),
+            m.completion_registration_link_override,
+            m.ects_credits,
+        )
+    }));
 
     let new_prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
 
@@ -706,33 +703,29 @@ WHERE id = $1
 UPDATE course_modules cm
 SET uh_course_code = v.uh_course_code,
   completion_registration_link_override = v.completion_registration_link_override,
-  ects_credits = v.ects_credits,
-  enable_registering_completion_to_uh_open_university = v.enable_registering_completion_to_uh_open_university
+  ects_credits = v.ects_credits
 FROM (
     SELECT *
     FROM UNNEST(
         $1::uuid [],
         $2::TEXT [],
         $3::TEXT [],
-        $4::FLOAT8 [],
-        $5::BOOLEAN []
+        $4::FLOAT8 []
       ) AS v(
         id,
         uh_course_code,
         completion_registration_link_override,
-        ects_credits,
-        enable_registering_completion_to_uh_open_university
+        ects_credits
       )
   ) AS v
 WHERE cm.id = v.id
-  AND cm.course_id = $6
+  AND cm.course_id = $5
   AND cm.deleted_at IS NULL
 "#,
         &module_ids,
         &uh_course_codes as &[Option<String>],
         &completion_registration_link_overrides as &[Option<String>],
         &ects_credits as &[Option<f32>],
-        &enable_registering_completion_to_uh_open_university,
         course_id
     )
     .execute(&mut *tx)
@@ -790,6 +783,69 @@ WHERE courses.deleted_at IS NULL
   )
 "#,
         user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+/// A course with its organization's name, as listed to a native client.
+#[derive(Debug)]
+pub struct CourseWithOrganizationName {
+    pub id: Uuid,
+    pub slug: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub ai_policy: CourseAiPolicy,
+    pub organization_name: String,
+}
+
+/// Courses the user is enrolled on, through any of their instances, that contain at least one
+/// task of any of the given exercise types; each course once, ordered by name. An empty
+/// `exercise_types` matches nothing.
+pub async fn get_enrolled_courses_with_exercise_types(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_types: &[String],
+) -> ModelResult<Vec<CourseWithOrganizationName>> {
+    let courses = sqlx::query_as!(
+        CourseWithOrganizationName,
+        r#"
+SELECT c.id,
+  c.slug,
+  c.name,
+  c.description,
+  c.ai_policy AS "ai_policy: CourseAiPolicy",
+  o.name AS organization_name
+FROM courses AS c
+  JOIN organizations AS o ON o.id = c.organization_id
+WHERE c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM course_instance_enrollments AS cie
+      JOIN course_instances AS ci ON ci.id = cie.course_instance_id
+    WHERE cie.user_id = $1
+      AND ci.course_id = c.id
+      AND cie.deleted_at IS NULL
+      AND ci.deleted_at IS NULL
+  )
+  AND EXISTS (
+    SELECT 1
+    FROM exercises AS e
+      JOIN exercise_slides AS es ON es.exercise_id = e.id
+      JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
+    WHERE e.course_id = c.id
+      AND et.exercise_type = ANY($2)
+      AND e.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+      AND et.deleted_at IS NULL
+  )
+ORDER BY c.name,
+  c.id
+"#,
+        user_id,
+        exercise_types,
     )
     .fetch_all(conn)
     .await?;
@@ -1950,6 +2006,137 @@ mod test {
             let reread = courses::get_course(tx.as_mut(), course_id).await.unwrap();
             assert_eq!(reread.ai_policy, CourseAiPolicy::Limited);
             assert_eq!(reread.course_material_ai_instructions, Some(true));
+        }
+    }
+
+    mod enrolled_courses_with_exercise_types {
+        use super::*;
+        use crate::{
+            course_instance_enrollments::{self, NewCourseInstanceEnrollment},
+            exercise_tasks::{self, NewExerciseTask},
+        };
+
+        #[tokio::test]
+        async fn gets_enrolled_courses_with_exercise_types() {
+            insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:chapter_id, page:page_id, :exercise, slide:exercise_slide_id);
+
+            course_instance_enrollments::insert_enrollment_and_set_as_current(
+                tx.as_mut(),
+                NewCourseInstanceEnrollment {
+                    course_id,
+                    user_id,
+                    course_instance_id: instance.id,
+                },
+            )
+            .await
+            .unwrap();
+            let tmc = ["tmc".to_string()];
+            let courses = get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap();
+            assert!(
+                courses.is_empty(),
+                "user should not be enrolled on any course with tmc exercises"
+            );
+
+            exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    assignment: Vec::new(),
+                    exercise_slide_id,
+                    exercise_type: "tmc".to_string(),
+                    model_solution_spec: None,
+                    private_spec: None,
+                    public_spec: None,
+                    order_number: 1,
+                },
+            )
+            .await
+            .unwrap();
+            let courses = get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap();
+            assert_eq!(
+                courses.len(),
+                1,
+                "user should be enrolled on one course with tmc exercises"
+            );
+
+            // A type list the course has no task for must not match, and neither must an empty list.
+            let others = ["quizzes".to_string(), "example-exercise".to_string()];
+            assert!(
+                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &others)
+                    .await
+                    .unwrap()
+                    .is_empty()
+            );
+            assert!(
+                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &[])
+                    .await
+                    .unwrap()
+                    .is_empty()
+            );
+
+            // Any list containing a type the course does have matches.
+            let mixed = ["quizzes".to_string(), "tmc".to_string()];
+            assert_eq!(
+                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &mixed)
+                    .await
+                    .unwrap()
+                    .len(),
+                1
+            );
+            tx.rollback().await;
+        }
+
+        #[tokio::test]
+        async fn lists_a_course_once_when_enrolled_on_several_of_its_instances() {
+            insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:_chapter_id, page:_page_id, :exercise, slide:exercise_slide_id);
+            exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    assignment: Vec::new(),
+                    exercise_slide_id,
+                    exercise_type: "tmc".to_string(),
+                    model_solution_spec: None,
+                    private_spec: None,
+                    public_spec: None,
+                    order_number: 1,
+                },
+            )
+            .await
+            .unwrap();
+            let default_instance =
+                crate::course_instances::get_default_by_course_id(tx.as_mut(), course_id)
+                    .await
+                    .unwrap();
+            for course_instance_id in [instance.id, default_instance.id] {
+                course_instance_enrollments::insert_enrollment_and_set_as_current(
+                    tx.as_mut(),
+                    NewCourseInstanceEnrollment {
+                        course_id,
+                        user_id,
+                        course_instance_id,
+                    },
+                )
+                .await
+                .unwrap();
+            }
+
+            let courses = get_enrolled_courses_with_exercise_types(
+                tx.as_mut(),
+                user_id,
+                &["tmc".to_string()],
+            )
+            .await
+            .unwrap();
+            assert_eq!(
+                courses.iter().map(|c| c.id).collect::<Vec<_>>(),
+                vec![course_id]
+            );
+            tx.rollback().await;
         }
     }
 }

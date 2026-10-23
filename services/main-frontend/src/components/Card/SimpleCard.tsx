@@ -11,7 +11,7 @@ import CardSVG from "@/shared-module/common/img/cardNext.svg"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 import type { CardExtraProps } from "."
 import CardDeadlineOverlay, { cardTopBandStyle } from "./CardDeadlineOverlay"
@@ -103,11 +103,11 @@ const SimpleCard: React.FC<React.PropsWithChildren<CardProps>> = ({
   exerciseDeadline,
   exerciseDeadlinesMultiple,
 }) => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   const shouldLink = url && (open || allowedToPreview)
-  const formattedDeadline = humanReadableDateTime(deadline, i18n.language) ?? null
-  const formattedExerciseDeadline = humanReadableDateTime(exerciseDeadline, i18n.language) ?? null
+  const formattedDeadline = deadline ? dateToString(deadline) : null
+  const formattedExerciseDeadline = exerciseDeadline ? dateToString(exerciseDeadline) : null
   const hasDeadlines = !!(formattedDeadline || formattedExerciseDeadline)
 
   const topBandsWrapperStyle = css`

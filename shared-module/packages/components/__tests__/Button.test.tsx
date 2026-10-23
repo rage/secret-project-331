@@ -3,9 +3,10 @@
 import { fireEvent, screen } from "@testing-library/react"
 
 import { Button } from "../src/components/Button"
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { pressEnter, pressSpace, renderUi } from "./testUtils"
 
-type Variant = "primary" | "secondary" | "tertiary" | "icon"
+type Variant = "primary" | "secondary" | "tertiary" | "icon" | "danger"
 type Size = "small" | "medium" | "large"
 
 describe("Button", () => {
@@ -42,6 +43,21 @@ describe("Button", () => {
     const loadingId = loadingText.getAttribute("id")
     expect(typeof loadingId).toBe("string")
     expect(loadingId && describedBy ? describedBy.split(" ").includes(loadingId) : false).toBe(true)
+  })
+
+  test("loading glyph is the shared spinnerGlyphCss ring, shown with no delay", () => {
+    jest.useFakeTimers()
+    try {
+      renderUi(<Button isLoading>Save</Button>)
+
+      const button = screen.getByRole("button", { name: "Save" })
+      const glyph = button.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`)[0]
+
+      expect(glyph).toBeInTheDocument()
+      expect(glyph?.closest('[aria-hidden="true"]')).toBeInTheDocument()
+    } finally {
+      jest.useRealTimers()
+    }
   })
 
   test("merges user aria-describedby with loading reason", () => {
@@ -160,7 +176,7 @@ describe("Button", () => {
 })
 
 describe("Button variants and sizes", () => {
-  const variants: Variant[] = ["primary", "secondary", "tertiary", "icon"]
+  const variants: Variant[] = ["primary", "secondary", "tertiary", "icon", "danger"]
   const sizes: Size[] = ["small", "medium", "large"]
 
   test.each(variants)("variant renders without crashing: %s", (variant) => {
@@ -216,5 +232,42 @@ describe("Button variants and sizes", () => {
     expect(button).toBeInTheDocument()
     expect(button).toHaveAttribute("data-pressed", "false")
     expect(screen.getByTestId("icon-only")).toBeInTheDocument()
+  })
+
+  test("danger variant renders the crimson fill token with an accessible name", () => {
+    renderUi(<Button variant="danger">Delete course</Button>)
+
+    const button = screen.getByRole("button", { name: "Delete course" })
+    expect(button).toBeInTheDocument()
+    expect(getComputedStyle(button).background).toContain("var(--btn-danger-bg)")
+  })
+
+  test("danger variant darkens on press and drops the shared press translate", () => {
+    renderUi(<Button variant="danger">Delete course</Button>)
+
+    const button = screen.getByRole("button", { name: "Delete course" })
+    fireEvent.keyDown(button, { key: " " })
+    expect(button).toHaveAttribute("data-pressed", "true")
+    expect(getComputedStyle(button).transform).toBe("none")
+  })
+
+  test.each(variants)("loading glyph renders for variant %s, including danger", (variant) => {
+    renderUi(
+      <Button variant={variant} isLoading>
+        Label
+      </Button>,
+    )
+    const button = screen.getByRole("button", { name: "Label" })
+    expect(button.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`).length).toBe(1)
+  })
+
+  test.each(sizes)("loading glyph renders for size %s", (size) => {
+    renderUi(
+      <Button size={size} isLoading>
+        Label
+      </Button>,
+    )
+    const button = screen.getByRole("button", { name: "Label" })
+    expect(button.querySelectorAll(`.${spinnerGlyphCss("sm", "current")}`).length).toBe(1)
   })
 })

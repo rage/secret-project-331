@@ -22,6 +22,9 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminAddCreditRegistrationNoteData,
+  AdminAddCreditRegistrationNoteErrors,
+  AdminAddCreditRegistrationNoteResponses,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
@@ -328,6 +331,8 @@ import type {
   GetCourseExercisesResponses,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponses,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponses,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponses,
   GetCourseFeedbackData,
@@ -425,6 +430,8 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponses,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponses,
   GetCreditRegistrationErrorsByCodeData,
@@ -449,8 +456,6 @@ import type {
   GetCreditRegistrationThresholdsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
-  GetEditProposalCountData,
-  GetEditProposalCountResponses,
   GetEditProposalsData,
   GetEditProposalsResponses,
   GetEmailTemplatesData,
@@ -684,6 +689,8 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponses,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponses,
   ListCreditRegistrationPhasesData,
@@ -756,12 +763,10 @@ import type {
   RevokeSubmissionSharesOfSubmissionResponses,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponses,
-  SearchUserDetailsByEmailData,
-  SearchUserDetailsByEmailResponses,
-  SearchUserDetailsByOtherDetailsData,
-  SearchUserDetailsByOtherDetailsResponses,
-  SearchUserDetailsFuzzyMatchData,
-  SearchUserDetailsFuzzyMatchResponses,
+  SearchUserDetailsExactData,
+  SearchUserDetailsExactResponses,
+  SearchUserDetailsFuzzyData,
+  SearchUserDetailsFuzzyResponses,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponses,
   SetCourseChatbotAsDefaultData,
@@ -970,6 +975,7 @@ import {
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
+  zGetCourseFeedbackCategoriesResponse,
   zGetCourseFeedbackCountResponse,
   zGetCourseFeedbackResponse,
   zGetCourseFlaggedSuspectedCheatersCountResponse,
@@ -1014,6 +1020,7 @@ import {
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
@@ -1025,7 +1032,6 @@ import {
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
   zGetCurrentTimeResponse,
-  zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
   zGetEmailVerificationCodeForTestModeResponse,
@@ -1134,6 +1140,7 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListAccountLinkingEmailsResponse,
   zListCreditRegistrationAdminActionsResponse,
   zListCreditRegistrationPhasesResponse,
   zListCreditRegistrationsForAdminResponse,
@@ -1158,9 +1165,8 @@ import {
   zRevokeSubmissionShareResponse,
   zRevokeSubmissionSharesOfSubmissionResponse,
   zSaveCourseDesignerScheduleResponse,
-  zSearchUserDetailsByEmailResponse,
-  zSearchUserDetailsByOtherDetailsResponse,
-  zSearchUserDetailsFuzzyMatchResponse,
+  zSearchUserDetailsExactResponse,
+  zSearchUserDetailsFuzzyResponse,
   zSendResetPasswordEmailResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
@@ -3302,6 +3308,25 @@ export const getCourseFeedback = <ThrowOnError extends boolean = true>(
 
 /**
  *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseFeedbackCategoriesData, ThrowOnError>,
+): RequestResult<GetCourseFeedbackCategoriesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseFeedbackCategoriesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseFeedbackCategoriesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/feedback-categories",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
  */
 export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
@@ -4984,6 +5009,25 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmails = <ThrowOnError extends boolean = true>(
+  options?: Options<ListAccountLinkingEmailsData, ThrowOnError>,
+): RequestResult<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zListAccountLinkingEmailsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails",
+      ...options,
+    },
+  )
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
  * one course code's enrolment list due at its next grid point.
  *
@@ -5197,7 +5241,30 @@ export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean 
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasons = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationEarlierReasonsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEarlierReasonsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationEarlierReasonsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEarlierReasonsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
 export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean = true>(
@@ -5684,6 +5751,36 @@ export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends bool
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNote = <ThrowOnError extends boolean = true>(
+  options: Options<AdminAddCreditRegistrationNoteData, ThrowOnError>,
+): RequestResult<
+  AdminAddCreditRegistrationNoteResponses,
+  AdminAddCreditRegistrationNoteErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminAddCreditRegistrationNoteResponses,
+    AdminAddCreditRegistrationNoteErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -6187,7 +6284,8 @@ export const previewStudentNumberVerificationToken = <ThrowOnError extends boole
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
   options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
@@ -6208,6 +6306,10 @@ export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -8519,20 +8621,6 @@ export const getEditProposals = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCount = <ThrowOnError extends boolean = true>(
-  options: Options<GetEditProposalCountData, ThrowOnError>,
-): RequestResult<GetEditProposalCountResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetEditProposalCountResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zGetEditProposalCountResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count",
-    ...options,
-  })
-
-/**
- *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
  */
 export const processEditProposal = <ThrowOnError extends boolean = true>(
@@ -8991,41 +9079,15 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
-export const searchUserDetailsByEmail = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsByEmailData, ThrowOnError>,
-): RequestResult<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, "data">(
-    {
-      responseValidator: async (data) => await zSearchUserDetailsByEmailResponse.parseAsync(data),
-      responseStyle: "data",
-      url: "/api/v0/main-frontend/user-details/search-by-email",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-    },
-  )
-
-/**
- *
- * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
- */
-export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsByOtherDetailsData, ThrowOnError>,
-): RequestResult<SearchUserDetailsByOtherDetailsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    SearchUserDetailsByOtherDetailsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zSearchUserDetailsByOtherDetailsResponse.parseAsync(data),
+export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
+  options: Options<SearchUserDetailsExactData, ThrowOnError>,
+): RequestResult<SearchUserDetailsExactResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SearchUserDetailsExactResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSearchUserDetailsExactResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/user-details/search-by-other-details",
+    url: "/api/v0/main-frontend/user-details/search-exact",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -9035,20 +9097,15 @@ export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = t
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
+ * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
-export const searchUserDetailsFuzzyMatch = <ThrowOnError extends boolean = true>(
-  options: Options<SearchUserDetailsFuzzyMatchData, ThrowOnError>,
-): RequestResult<SearchUserDetailsFuzzyMatchResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    SearchUserDetailsFuzzyMatchResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zSearchUserDetailsFuzzyMatchResponse.parseAsync(data),
+export const searchUserDetailsFuzzy = <ThrowOnError extends boolean = true>(
+  options: Options<SearchUserDetailsFuzzyData, ThrowOnError>,
+): RequestResult<SearchUserDetailsFuzzyResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SearchUserDetailsFuzzyResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSearchUserDetailsFuzzyResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/user-details/search-fuzzy-match",
+    url: "/api/v0/main-frontend/user-details/search-fuzzy",
     ...options,
     headers: {
       "Content-Type": "application/json",

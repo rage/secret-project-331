@@ -8,14 +8,13 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, TextField, ErrorNotice } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface SubmitEmailFormFields {
@@ -60,7 +59,7 @@ const ResetPassword: React.FC = () => {
   if (emailSent) {
     return (
       <>
-        <h3>{t("password-reset-email-sent")}</h3>
+        <h1>{t("password-reset-email-sent")}</h1>
         <p>{t("password-reset-email-sent-description", { email: sentEmail })}</p>
         <Button
           variant="primary"
@@ -78,15 +77,18 @@ const ResetPassword: React.FC = () => {
 
   return (
     <>
-      <h3
+      <h1>{t("title-reset-password")}</h1>
+      <p
         className={css`
           margin-bottom: 1.5rem;
         `}
       >
         {t("enter-email-for-password-reset-link")}
-      </h3>
+      </p>
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {postResetPassword.isError && (
-        <ErrorBanner error={postResetPassword.error} variant={"readOnly"} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={postResetPassword.error} announce="off" />
       )}
 
       <form

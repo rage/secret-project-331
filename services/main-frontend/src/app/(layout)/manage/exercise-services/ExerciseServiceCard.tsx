@@ -19,18 +19,19 @@ import {
   updateExerciseServiceMutation as updateExerciseServiceMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { validURL } from "@/shared-module/common/utils/validation"
+import { Button, ConfirmDialog } from "@/shared-module/components"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
 import ContentArea from "./ContentArea"
+import ExerciseServiceBadges from "./ExerciseServiceBadges"
+import ExerciseServiceFlagFields, { type ExerciseServiceFlags } from "./ExerciseServiceFlagFields"
 
 interface ExerciseServiceCardProps {
   id: string
@@ -57,8 +58,14 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
   const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
 
-  const toggleEdit = () => {
-    setEditing(!editing)
+  const startEditing = () => {
+    setEditing(true)
+  }
+
+  const cancelEditing = () => {
+    setService(exerciseService)
+    setStatus(UpdateStatus.none)
+    setEditing(false)
   }
 
   const onChange = (key: string) => (value: string) => {
@@ -66,6 +73,10 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
       ...service,
       [key]: key === "max_reprocessing_submissions_at_once" ? Number(value) : value,
     })
+  }
+
+  const onChangeFlags = (flags: ExerciseServiceFlags) => {
+    setService((previous) => ({ ...previous, ...flags }))
   }
 
   const onChangeName = (value: string) => {
@@ -177,15 +188,22 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           `}
         >
           <div>
-            <h1
+            <h2
               className={css`
                 margin: 0;
                 font-weight: 400;
                 font-size: 1.5rem;
               `}
             >
-              {editing ? t("edit") : service.name}
-            </h1>
+              {editing ? (
+                t("edit")
+              ) : (
+                <>
+                  {service.name}
+                  <ExerciseServiceBadges exerciseService={service} />
+                </>
+              )}
+            </h2>
             <div
               className={css`
                 margin: 0;
@@ -203,6 +221,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               className={css`
                 display: flex;
                 flex-direction: row;
+                gap: var(--space-3);
               `}
             >
               <Button
@@ -221,7 +240,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               </Button>
               <Button
                 aria-label={t("button-text-cancel")}
-                onClick={toggleEdit}
+                onClick={cancelEditing}
                 variant={"icon"}
                 size={"small"}
               >
@@ -233,6 +252,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               className={css`
                 display: flex;
                 flex-direction: row;
+                gap: var(--space-3);
               `}
             >
               <Button
@@ -243,7 +263,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               >
                 <Trash size={20} />
               </Button>
-              <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
+              <Button aria-label={t("edit")} onClick={startEditing} variant={"icon"} size={"small"}>
                 <Pencil size={20} />
               </Button>
             </div>
@@ -267,6 +287,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 onChange={onChange("slug")}
                 type={"text"}
               />
+              <ExerciseServiceFlagFields flags={service} onChange={onChangeFlags} />
             </>
           )}
           <ContentArea
@@ -276,7 +297,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("public_url")}
             type={"text"}
-            {...includeIf(!validURL(service.public_url), { error: t("error-title") })}
+            {...includeIf(!!service.public_url && !validURL(service.public_url), {
+              error: t("invalid-url"),
+            })}
           />
           <ContentArea
             title={t("title-internal-url")}
@@ -285,7 +308,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
             // oxlint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}
             type={"text"}
-            {...includeIf(!validURL(service.internal_url ?? ""), { error: t("error-title") })}
+            {...includeIf(!!service.internal_url && !validURL(service.internal_url), {
+              error: t("invalid-url"),
+            })}
           />
           <ContentArea
             title={t("title-reprocessing-submissions")}
@@ -302,7 +327,9 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
         <div
           className={css`
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
+            gap: var(--space-2) var(--space-4);
             padding-top: 1rem;
           `}
         >
@@ -320,44 +347,16 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           />
         </div>
       </div>
-      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog} noPadding>
-        <div
-          className={css`
-            display: flex;
-            flex-direction: column;
-          `}
-        >
-          <h2
-            className={css`
-              padding: 16px 24px;
-            `}
-          >
-            {t("button-text-delete")}
-          </h2>
-
-          <div
-            className={css`
-              padding: 0px 24px 20px;
-            `}
-          >
-            {t("delete-confirmation", { name: service.name })}
-          </div>
-          <div
-            className={css`
-              padding: 8px;
-              display: flex;
-              justify-content: flex-end;
-            `}
-          >
-            <Button variant="primary" size="medium" onClick={handleCloseDeleteDialog}>
-              {t("button-text-cancel")}
-            </Button>
-            <Button variant="secondary" size="medium" onClick={deleteContent}>
-              {t("button-text-delete")}
-            </Button>
-          </div>
-        </div>
-      </Dialog>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        title={t("button-text-delete")}
+        description={t("delete-confirmation", { name: service.name })}
+        confirmLabel={t("button-text-delete")}
+        cancelLabel={t("button-text-cancel")}
+        isDestructive
+        onConfirm={deleteContent}
+      />
     </div>
   )
 }

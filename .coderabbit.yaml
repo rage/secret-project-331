@@ -53,6 +53,8 @@ reviews:
 
         We have better replacements for window.confirm, window.alert, and window.prompt, use the DialogProvider and the useDialog hook from the shared module instead.
 
+        The Dialog component from shared-module/components renders its own close button in the top corner, so don't add another close button in the dialog content or footer. Pass `showCloseButton={false}` to opt out.
+
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};

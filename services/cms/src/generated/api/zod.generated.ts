@@ -153,13 +153,12 @@ export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   copied_from: z.uuid().nullish(),
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z
@@ -271,6 +270,8 @@ export const zExamInstructionsUpdate = z.object({
 export const zExerciseServiceIframeRenderingInfo = z.object({
   has_custom_view: z.boolean(),
   id: z.uuid(),
+  is_experimental: z.boolean(),
+  is_global_admin_only: z.boolean(),
   name: z.string(),
   public_iframe_url: z.string(),
   slug: z.string(),

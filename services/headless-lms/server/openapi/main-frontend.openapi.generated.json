@@ -3761,6 +3761,16 @@
               "type": "integer",
               "format": "int64"
             }
+          },
+          {
+            "name": "category_filter",
+            "in": "query",
+            "description": "Selected category",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -3772,6 +3782,49 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Feedback"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/feedback-categories": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.",
+        "operationId": "getCourseFeedbackCategories",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "read",
+            "in": "query",
+            "description": "Categories for read/unread status feedback",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All feedback categories used in feedback for the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeedbackCategory"
                   }
                 }
               }
@@ -3799,11 +3852,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Feedback counts for the course",
+            "description": "Feedback and edit proposal counts for the course",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FeedbackCount"
+                  "$ref": "#/components/schemas/FeedbackEditProposalCounts"
                 }
               }
             }
@@ -7216,6 +7269,67 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/emails": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every\nlinking email, newest first.\n\nAn `address` search covers every status, so a mail is found whatever became of it.",
+        "operationId": "listAccountLinkingEmails",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number, from 1",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Rows per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "What became of the link or the send; ignored with `address`",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LinkingEmailListStatus"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Part of the recipient address, ignoring case",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of linking emails",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_AccountLinkingEmailRow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list": {
       "post": {
         "tags": ["credit-registration-admin"],
@@ -7391,17 +7505,6 @@
         "operationId": "getCreditRegistrationAttentionItems",
         "parameters": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "Rows listed per section; the counts cover every row",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "minimum": 0
-            }
-          },
-          {
             "name": "reason",
             "in": "query",
             "description": "Only rows carrying one of these reasons; repeat the parameter for several",
@@ -7420,6 +7523,15 @@
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "reacted",
+            "in": "query",
+            "description": "Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -7579,14 +7691,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given\nbefore for an action, to pick from instead of typing the same one again.\n\nDistinct after trimming, most recently used first, at most 20.",
+        "operationId": "getCreditRegistrationEarlierReasons",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "description": "The action the reasons were given for",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/CreditRegistrationAdminAction"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Earlier reasons, most recently used first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/courses": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,\nits validated configuration and its volumes.",
+        "summary": "\nGET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,\nits validated configuration and its volumes.",
         "operationId": "getCreditRegistrationStatsByCourse",
         "responses": {
           "200": {
-            "description": "One row per enabled course module",
+            "description": "One row per course module with a course code",
             "content": {
               "application/json": {
                 "schema": {
@@ -8359,6 +8504,43 @@
           },
           "400": {
             "description": "Account linking is off, or the row is not stuck waiting for a student number"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`\n- Leaves a note on a registration for whoever handles it next.\n\nChanges nothing else: the row stays on the Needs attention queue, counted as reacted to.",
+        "operationId": "adminAddCreditRegistrationNote",
+        "parameters": [
+          {
+            "name": "credit_registration_id",
+            "in": "path",
+            "description": "Credit registration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminAddCreditRegistrationNotePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The note was added"
+          },
+          "400": {
+            "description": "The note is empty"
           }
         }
       }
@@ -9144,7 +9326,7 @@
     "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nAny signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,\nand the session says which of our accounts the person wants to use.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends\na mailed link and links the student number to the signed-in account.\n\nAny signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,\nand the session says which of our accounts the person wants to use. The account's name is set to\nSisu's in the same transaction, with the first name the student picked, and pushed to TMC.",
         "operationId": "claimStudentNumberVerificationToken",
         "parameters": [
           {
@@ -9157,6 +9339,16 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimStudentNumberVerificationTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "What the claim did",
@@ -9167,6 +9359,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "The first name is not one the preview offered"
           },
           "404": {
             "description": "No such token"
@@ -12801,37 +12996,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/proposed-edits/course/{course_id}/count": {
-      "get": {
-        "tags": ["proposed_edits"],
-        "summary": "\nGET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.",
-        "operationId": "getEditProposalCount",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Edit proposal counts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProposalCount"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/proposed-edits/process-edit-proposal": {
       "post": {
         "tags": ["proposed_edits"],
@@ -13631,11 +13795,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-email": {
+    "/api/v0/main-frontend/user-details/search-exact": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email",
-        "operationId": "searchUserDetailsByEmail",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query",
+        "operationId": "searchUserDetailsExact",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13648,7 +13812,7 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose id or email equals the query",
             "content": {
               "application/json": {
                 "schema": {
@@ -13663,11 +13827,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/user-details/search-by-other-details": {
+    "/api/v0/main-frontend/user-details/search-fuzzy": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.",
-        "operationId": "searchUserDetailsByOtherDetails",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email",
+        "operationId": "searchUserDetailsFuzzy",
         "requestBody": {
           "content": {
             "application/json": {
@@ -13680,46 +13844,11 @@
         },
         "responses": {
           "200": {
-            "description": "User details search results",
+            "description": "Users whose name or email resembles the query",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/user-details/search-fuzzy-match": {
-      "post": {
-        "tags": ["user-details"],
-        "summary": "\nGET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query",
-        "operationId": "searchUserDetailsFuzzyMatch",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "User details fuzzy search results",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserDetail"
-                  }
+                  "$ref": "#/components/schemas/FuzzyUserSearchResults"
                 }
               }
             }
@@ -14596,6 +14725,84 @@
           }
         }
       },
+      "AccountLinkingEmailRow": {
+        "type": "object",
+        "description": "One linking email, in the full list or the dashboard's recent ones.",
+        "required": [
+          "id",
+          "course_id",
+          "course_name",
+          "emailed_to",
+          "student_number",
+          "claimed_at",
+          "link_state"
+        ],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "claimed_by_email": {
+            "type": ["string", "null"]
+          },
+          "claimed_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "emailed_to": {
+            "type": "string",
+            "description": "In full: support finds a student's mail by it."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_error_message": {
+            "type": ["string", "null"]
+          },
+          "link_expires_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "link_state": {
+            "$ref": "#/components/schemas/LinkingMailLinkState"
+          },
+          "link_used_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "queued_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the `link-emails` phase handed it to the email worker."
+          },
+          "send_status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EmailSendStatusReport",
+                "description": "`None` until queued."
+              }
+            ]
+          },
+          "sisu_full_name": {
+            "type": ["string", "null"],
+            "description": "The name Sisu held for the student number when the mail went out."
+          },
+          "student_number": {
+            "type": "string"
+          }
+        }
+      },
       "AccountLinkingEngagementCounts": {
         "type": "object",
         "description": "Students waiting for a student number since the cutoff, by what they have done. Mutually\nexclusive, uncapped, and equal to the overview's counts for the same step.",
@@ -14783,51 +14990,6 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
-          }
-        }
-      },
-      "AccountLinkingRecentEmail": {
-        "type": "object",
-        "description": "One linking email, newest first in the recent list.",
-        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at"],
-        "properties": {
-          "claimed_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_name": {
-            "type": "string"
-          },
-          "emailed_to": {
-            "type": "string",
-            "description": "In full: support tells the recipients apart by it."
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "last_error_message": {
-            "type": ["string", "null"]
-          },
-          "queued_at": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "When the `link-emails` phase handed it to the email worker."
-          },
-          "send_status": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/EmailSendStatusReport",
-                "description": "`None` until queued."
-              }
-            ]
           }
         }
       },
@@ -15056,7 +15218,7 @@
           "recent_linking_emails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AccountLinkingRecentEmail"
+              "$ref": "#/components/schemas/AccountLinkingEmailRow"
             },
             "description": "Newest first, capped."
           },
@@ -15219,6 +15381,16 @@
           "email": {
             "type": "string",
             "format": "email"
+          }
+        }
+      },
+      "AdminAddCreditRegistrationNotePayload": {
+        "type": "object",
+        "description": "The body of `POST /registrations/{credit_registration_id}/notes`.",
+        "required": ["note"],
+        "properties": {
+          "note": {
+            "type": "string"
           }
         }
       },
@@ -17183,6 +17355,26 @@
           }
         }
       },
+      "CategoryFeedbackCount": {
+        "type": "object",
+        "required": ["category_id", "read_feedback", "unread_feedback"],
+        "properties": {
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "unread_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "CertificateAllRequirements": {
         "type": "object",
         "required": ["certificate_configuration_id", "course_module_ids"],
@@ -17903,6 +18095,16 @@
           "already_used",
           "student_number_already_linked_to_another_account"
         ]
+      },
+      "ClaimStudentNumberVerificationTokenRequest": {
+        "type": "object",
+        "description": "The answer to the confirmation page's name question.",
+        "properties": {
+          "first_name": {
+            "type": ["string", "null"],
+            "description": "One of the preview's `name_change.first_name_options`; required when it has a `name_change`."
+          }
+        }
       },
       "ClaimStudentNumberVerificationTokenResult": {
         "type": "object",
@@ -18819,7 +19021,7 @@
       },
       "CourseAuditingModuleUpdate": {
         "type": "object",
-        "required": ["id", "order_number", "enable_registering_completion_to_uh_open_university"],
+        "required": ["id", "order_number"],
         "properties": {
           "completion_registration_link_override": {
             "type": ["string", "null"]
@@ -18827,9 +19029,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -19243,7 +19442,6 @@
         "description": "One module's live registrations, split so a teacher can add the columns up.\n\n`registered_count`, `in_progress_count`, `waiting_on_student_count`, `failed_count` and\n`not_registering_count` partition `registration_count`: every live row falls in exactly one, and\neach is the same classification the row's own badge shows. `needs_admin_attention_count` is not\none of them — it cuts across all five — so it is never added to them.",
         "required": [
           "course_module_id",
-          "enabled",
           "paused",
           "registration_count",
           "registered_count",
@@ -19260,9 +19458,6 @@
           },
           "course_module_name": {
             "type": ["string", "null"]
-          },
-          "enabled": {
-            "type": "boolean"
           },
           "failed_count": {
             "type": "integer",
@@ -20032,9 +20227,8 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
           "certification_enabled",
-          "enable_credit_registration_via_suotar"
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
           "certification_enabled": {
@@ -20046,6 +20240,10 @@
           "completion_registration_link_override": {
             "type": ["string", "null"],
             "description": "If set, use this link rather than the default one when registering course completions."
+          },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean",
+            "description": "Off, the module's completions are never registered, course code or not; see [`registers_credits`]."
           },
           "copied_from": {
             "type": ["string", "null"],
@@ -20066,12 +20264,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -20242,14 +20434,17 @@
       },
       "CourseModuleCreditRegistrationConfig": {
         "type": "object",
-        "description": "Per-module credit-registration configuration: the rollout switch and the module's own fields\nmerged with its `course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
+        "description": "Per-module credit-registration configuration: the module's own fields merged with its\n`course_module_suotar_configurations` row. Every field of that row is optional\nhere because a module with no configuration row is a valid, unconfigured module.",
         "required": [
           "course_module_id",
           "course_id",
-          "enable_credit_registration_via_suotar",
-          "credit_registration_has_enrolment_link"
+          "credit_registration_has_enrolment_link",
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
+          },
           "course_id": {
             "type": "string",
             "format": "uuid"
@@ -20288,9 +20483,6 @@
             "type": ["number", "null"],
             "format": "float"
           },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
           "uh_course_code": {
             "type": ["string", "null"]
           }
@@ -20304,9 +20496,12 @@
           "order_number",
           "exercise_count",
           "daily_submissions",
-          "enable_credit_registration_via_suotar"
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
+          },
           "daily_submissions": {
             "type": "array",
             "items": {
@@ -20318,9 +20513,6 @@
             "type": ["number", "null"],
             "format": "float",
             "description": "ECTS credits the module is worth. `None` when the module grants no credits."
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
           },
           "exercise_count": {
             "type": "integer",
@@ -20639,7 +20831,8 @@
           "override_rate_cap",
           "request_enrolment_list_fetch",
           "dismiss_study_registry_conflict",
-          "dismiss_attention"
+          "dismiss_attention",
+          "add_note"
         ]
       },
       "CreditRegistrationAdminActionRecord": {
@@ -20980,7 +21173,8 @@
           "is_enrolment_list_empty",
           "needs_admin_attention",
           "hand_actions",
-          "manual_linking_email_sends"
+          "manual_linking_email_sends",
+          "notes"
         ],
         "properties": {
           "attempt_count": {
@@ -21084,6 +21278,13 @@
             "type": "string",
             "format": "date-time"
           },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreditRegistrationNote"
+            },
+            "description": "Newest first."
+          },
           "phase": {
             "$ref": "#/components/schemas/TimelinePhase"
           },
@@ -21139,9 +21340,9 @@
           "counts_by_reason",
           "phases",
           "running_late",
-          "running_late_count",
           "explained_by_problem",
-          "dismissed_recently"
+          "dismissed_recently",
+          "reaction_counts"
         ],
         "properties": {
           "counts_by_reason": {
@@ -21172,17 +21373,16 @@
             },
             "description": "The rows needing attention that match `reason`, one entry per timeline phase that has any,\nin timeline order."
           },
+          "reaction_counts": {
+            "$ref": "#/components/schemas/CreditRegistrationAttentionReactionCounts",
+            "description": "Before `reacted` narrows the rows, so both stay usable as facets."
+          },
           "running_late": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in\nthe count."
-          },
-          "running_late_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Every running late row, however many `running_late` lists."
+            "description": "Over a timing threshold with no person-level cause, oldest first. Not in the count."
           },
           "total_count": {
             "type": "integer",
@@ -21194,22 +21394,32 @@
       "CreditRegistrationAttentionPhaseRows": {
         "type": "object",
         "description": "The rows of one timeline phase that need attention.",
-        "required": ["phase", "total_count", "items"],
+        "required": ["phase", "items"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "The first of them in the requested order, at most `limit`."
+            "description": "Every row of the phase matching the filters, in the requested order."
           },
           "phase": {
             "$ref": "#/components/schemas/TimelinePhase"
-          },
-          "total_count": {
+          }
+        }
+      },
+      "CreditRegistrationAttentionReactionCounts": {
+        "type": "object",
+        "description": "How many listed rows someone has reacted to, over the problem groups, the phases and running\nlate alike.",
+        "required": ["reacted_count", "not_reacted_count"],
+        "properties": {
+          "not_reacted_count": {
             "type": "integer",
-            "format": "int64",
-            "description": "Every row of the phase matching `reason`, however many `items` lists."
+            "format": "int64"
+          },
+          "reacted_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -21246,22 +21456,17 @@
       "CreditRegistrationBlockingProblemRows": {
         "type": "object",
         "description": "One blocking problem and the rows it accounts for.",
-        "required": ["problem", "total_count", "items"],
+        "required": ["problem", "items"],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationAttentionItem"
             },
-            "description": "The oldest of them, at most `limit`."
+            "description": "Every row the problem accounts for, oldest first."
           },
           "problem": {
             "$ref": "#/components/schemas/BlockingProblem"
-          },
-          "total_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Every row the problem accounts for, however many `items` lists."
           }
         }
       },
@@ -21380,7 +21585,7 @@
           "eligible_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module opted in mid-course keeps a permanent gap against `registration_count` for the\ncompletions that predate the opt-in."
+            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -21761,6 +21966,41 @@
           },
           "step": {
             "$ref": "#/components/schemas/TimelineStep"
+          }
+        }
+      },
+      "CreditRegistrationNote": {
+        "type": "object",
+        "description": "A note an admin left on a registration for whoever handles it next.",
+        "required": ["id", "credit_registration_id", "created_at", "note", "written_by_user_id"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "credit_registration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "note": {
+            "type": "string"
+          },
+          "written_by_email": {
+            "type": ["string", "null"]
+          },
+          "written_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "written_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "written_by_user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -23605,7 +23845,9 @@
           "name",
           "slug",
           "public_url",
-          "max_reprocessing_submissions_at_once"
+          "max_reprocessing_submissions_at_once",
+          "is_global_admin_only",
+          "is_experimental"
         ],
         "properties": {
           "created_at": {
@@ -23623,6 +23865,14 @@
           "internal_url": {
             "type": ["string", "null"],
             "description": "This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url."
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "max_reprocessing_submissions_at_once": {
             "type": "integer",
@@ -23645,10 +23895,26 @@
       },
       "ExerciseServiceNewOrUpdate": {
         "type": "object",
-        "required": ["name", "slug", "public_url", "max_reprocessing_submissions_at_once"],
+        "description": "The admin-editable fields of an exercise service, for creating or updating one.",
+        "required": [
+          "name",
+          "slug",
+          "public_url",
+          "max_reprocessing_submissions_at_once",
+          "is_global_admin_only",
+          "is_experimental"
+        ],
         "properties": {
           "internal_url": {
             "type": ["string", "null"]
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "max_reprocessing_submissions_at_once": {
             "type": "integer",
@@ -24283,6 +24549,13 @@
             "type": "string",
             "format": "date-time"
           },
+          "feedback_category_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "feedback_category_name": {
+            "type": ["string", "null"]
+          },
           "feedback_given": {
             "type": "string"
           },
@@ -24329,16 +24602,70 @@
           }
         }
       },
-      "FeedbackCount": {
+      "FeedbackCategory": {
         "type": "object",
-        "required": ["read", "unread"],
+        "required": ["id", "created_at", "updated_at", "name"],
         "properties": {
-          "read": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FeedbackEditProposalCounts": {
+        "type": "object",
+        "required": [
+          "read_feedback",
+          "unread_feedback",
+          "feedback_categories_counts",
+          "pending_edits",
+          "handled_edits",
+          "total_waiting"
+        ],
+        "properties": {
+          "feedback_categories_counts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryFeedbackCount"
+            }
+          },
+          "handled_edits": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
           },
-          "unread": {
+          "pending_edits": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "read_feedback": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "total_waiting": {
+            "type": "integer",
+            "format": "int32",
+            "description": "pending edits + unread feedback",
+            "minimum": 0
+          },
+          "unread_feedback": {
             "type": "integer",
             "format": "int32",
             "minimum": 0
@@ -24390,6 +24717,23 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "FuzzyUserSearchResults": {
+        "type": "object",
+        "description": "Typo-tolerant matches from [`search_for_user_details_fuzzy`], best first.",
+        "required": ["users", "has_more"],
+        "properties": {
+          "has_more": {
+            "type": "boolean",
+            "description": "More users matched than `users` holds."
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            }
           }
         }
       },
@@ -24735,6 +25079,11 @@
         "description": "Whether the link in a linking mail can still be opened, and if not, whether a new mail can\nreplace it.",
         "enum": ["usable", "expired_can_resend", "expired_no_resend", "used"]
       },
+      "LinkingEmailListStatus": {
+        "type": "string",
+        "description": "Which linking emails a [`get_page`] lists, by what became of their link and their send.",
+        "enum": ["unused", "used", "expired", "not_sent"]
+      },
       "LinkingEmailStatus": {
         "type": "object",
         "description": "What we can honestly say about the linking mail: our send status, never a delivery.",
@@ -24754,6 +25103,11 @@
             "format": "date-time"
           }
         }
+      },
+      "LinkingMailLinkState": {
+        "type": "string",
+        "description": "Whether the link a linking mail carries can still be opened.",
+        "enum": ["usable", "used", "lapsed"]
       },
       "ManualCompletionPreview": {
         "type": "object",
@@ -24861,8 +25215,7 @@
           "id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
           "completion_policy": {
@@ -24871,15 +25224,12 @@
           "completion_registration_link_override": {
             "type": ["string", "null"]
           },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
+          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -25059,7 +25409,7 @@
           },
           "enrolment_link": {
             "type": ["string", "null"],
-            "description": "The open university enrolment page, for a row the study registry has no enrolment for."
+            "description": "The module's open university enrolment page, in every status: an open university student\nneeds it before they have a student number to be looked up by."
           },
           "enrolment_realisation_name": {
             "type": ["string", "null"]
@@ -25446,6 +25796,36 @@
           "verified_via_email_masked": {
             "type": ["string", "null"],
             "description": "The Sisu-held address the proof rests on, masked; `None` when support linked it by hand."
+          }
+        }
+      },
+      "NameReplacement": {
+        "type": "object",
+        "description": "The names the account may take on linking; the student picks the first name.",
+        "required": [
+          "first_name_options",
+          "suggested_first_name",
+          "last_name",
+          "resembles_nothing"
+        ],
+        "properties": {
+          "first_name_options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling."
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "resembles_nothing": {
+            "type": "boolean",
+            "description": "Neither the account's first name nor its last name resembles Sisu's, so the account may belong\nto someone other than the person Sisu names."
+          },
+          "suggested_first_name": {
+            "type": "string",
+            "description": "One of `first_name_options`: what the account already uses, else Sisu's first first name."
           }
         }
       },
@@ -25859,8 +26239,7 @@
           "order_number",
           "chapters",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar"
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
           "chapters": {
@@ -25876,15 +26255,12 @@
           "completion_registration_link_override": {
             "type": ["string", "null"]
           },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean"
+          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "name": {
             "type": "string"
@@ -26593,6 +26969,102 @@
           "visit_date": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "Page_AccountLinkingEmailRow": {
+        "type": "object",
+        "required": ["data", "total_count", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "One linking email, in the full list or the dashboard's recent ones.",
+              "required": [
+                "id",
+                "course_id",
+                "course_name",
+                "emailed_to",
+                "student_number",
+                "claimed_at",
+                "link_state"
+              ],
+              "properties": {
+                "claimed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "claimed_by_email": {
+                  "type": ["string", "null"]
+                },
+                "claimed_by_user_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid"
+                },
+                "course_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "course_name": {
+                  "type": "string"
+                },
+                "emailed_to": {
+                  "type": "string",
+                  "description": "In full: support finds a student's mail by it."
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "last_error_message": {
+                  "type": ["string", "null"]
+                },
+                "link_expires_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "link_state": {
+                  "$ref": "#/components/schemas/LinkingMailLinkState"
+                },
+                "link_used_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time"
+                },
+                "queued_at": {
+                  "type": ["string", "null"],
+                  "format": "date-time",
+                  "description": "When the `link-emails` phase handed it to the email worker."
+                },
+                "send_status": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EmailSendStatusReport",
+                      "description": "`None` until queued."
+                    }
+                  ]
+                },
+                "sisu_full_name": {
+                  "type": ["string", "null"],
+                  "description": "The name Sisu held for the student number when the mail went out."
+                },
+                "student_number": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -27802,22 +28274,6 @@
           }
         }
       },
-      "ProposalCount": {
-        "type": "object",
-        "required": ["pending", "handled"],
-        "properties": {
-          "handled": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "pending": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        }
-      },
       "ProposalStatus": {
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
@@ -28634,7 +29090,7 @@
       },
       "StudentNumberVerificationTokenPreview": {
         "type": "object",
-        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token. Deliberately carries no Sisu-held names.",
+        "description": "What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be\nable to spend the token.",
         "required": [
           "student_number",
           "emailed_to_masked",
@@ -28678,12 +29134,31 @@
             "type": "string",
             "format": "date-time"
           },
+          "name_change": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NameReplacement",
+                "description": "The name the account must take on claiming; `None` when it already uses Sisu's or the link is\nnot `claimable`."
+              }
+            ]
+          },
+          "sisu_full_name": {
+            "type": ["string", "null"],
+            "description": "The name Sisu holds for the student number. Sisu does not verify the address the link was\nmailed to, so the name is what tells someone they are about to link someone else's number.\n`None` unless `claimable`."
+          },
           "student_number": {
             "type": "string"
           },
           "target_account_email": {
             "type": "string",
             "description": "Shown in the confirmation: being signed in to the wrong account is the common mistake."
+          },
+          "target_account_name": {
+            "type": ["string", "null"],
+            "description": "The signed-in account's name, `None` when it has none."
           }
         }
       },
@@ -29705,8 +30180,7 @@
           "course_module_completion_id",
           "course_name",
           "email",
-          "enable_registering_completion_to_uh_open_university",
-          "enable_credit_registration_via_suotar",
+          "registers_credits",
           "register_credits_via_suotar",
           "status_before_registration"
         ],
@@ -29739,23 +30213,20 @@
           "email": {
             "type": "string"
           },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
-          },
           "register_credits_via_suotar": {
             "type": "boolean",
-            "description": "Whether this completion in particular goes through the push path. Decides which flow the\npage shows: the module flag above only says the module takes part."
+            "description": "Whether this completion goes through the push path, which decides the flow the page shows."
+          },
+          "registers_credits": {
+            "type": "boolean",
+            "description": "Whether the module has a course code, without which its completions are never registered."
           },
           "status_before_registration": {
             "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
             "description": "What the student is told while the completion has no credit registration: `sending` when\nthe push path will create one, `not_registering` when it never will."
           },
           "uh_course_code": {
-            "type": ["string", "null"],
-            "description": "`None` only on a module registering through credit registration."
+            "type": ["string", "null"]
           }
         }
       },
@@ -29919,9 +30390,6 @@
             "type": ["string", "null"]
           },
           "last_name": {
-            "type": ["string", "null"]
-          },
-          "search_helper": {
             "type": ["string", "null"]
           },
           "updated_at": {

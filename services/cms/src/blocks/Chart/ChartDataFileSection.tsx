@@ -6,8 +6,8 @@ import { Placeholder } from "@wordpress/components"
 import { image as icon } from "@wordpress/icons"
 import React from "react"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { ErrorNotice, Link } from "@/shared-module/components"
 import { Button } from "@/shared-module/components/components/Button"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -61,7 +61,7 @@ const ChartDataFileSection: React.FC<ChartDataFileSectionProps> = ({ dataFile, d
   const { t } = useTranslation()
   return (
     <>
-      {dataFile.error && <ErrorBanner error={dataFile.error} />}
+      {dataFile.error && <ErrorNotice error={dataFile.error} />}
       {/* The live region must exist before content changes for screen readers to announce it. */}
       <div aria-live="polite">
         {dataFile.isExtracting && (
@@ -90,9 +90,9 @@ const ChartDataFileSection: React.FC<ChartDataFileSectionProps> = ({ dataFile, d
             `}
           >
             {t("chart-data-extracted-warning")}{" "}
-            <a href={dataFile.extractedDataUrl} target="_blank" rel="noopener noreferrer">
+            <Link href={dataFile.extractedDataUrl} target="_blank" rel="noopener noreferrer">
               {t("view-data-file")}
-            </a>
+            </Link>
           </div>
         )}
       </div>

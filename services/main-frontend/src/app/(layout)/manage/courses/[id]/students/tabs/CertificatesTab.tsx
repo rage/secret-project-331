@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 import { Eye, Pen } from "@vectopus/atlas-icons-react"
 import React, { useDeferredValue, useMemo, useState } from "react"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
@@ -12,15 +13,17 @@ import type {
   CertificateUpdateRequest,
   GetCertificateByVerificationIdData,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
+import {
+  Button,
+  DateField,
+  Dialog,
+  LoadingRegion,
+  TextField,
+  ErrorNotice,
+} from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 import { useStudentsContext, useStudentsListParams, useStudentsSorting } from "../StudentsContext"
@@ -39,6 +42,7 @@ const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"
   "/api/v0/main-frontend/certificates/{certificate_verification_id}"
 
 const EM_DASH = "—"
+const DATE_FIELD = "date" as const
 
 // Issue dates render in UTC so the displayed day does not shift with the viewer's timezone.
 const formatDateIssuedUtc = (value: string | null): string => {
@@ -47,6 +51,29 @@ const formatDateIssuedUtc = (value: string | null): string => {
   }
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? EM_DASH : date.toISOString().slice(0, 10)
+}
+
+const withOriginalTimeOfDay = (editedDate: Date, originalDateIssued: string | null): Date => {
+  if (!originalDateIssued) {
+    return editedDate
+  }
+  const original = new Date(originalDateIssued)
+  if (Number.isNaN(original.getTime())) {
+    return editedDate
+  }
+  const combined = new Date(editedDate)
+  combined.setUTCHours(
+    original.getUTCHours(),
+    original.getUTCMinutes(),
+    original.getUTCSeconds(),
+    original.getUTCMilliseconds(),
+  )
+  return combined
+}
+
+interface EditCertificateFormValues {
+  name_on_certificate: string
+  date: string
 }
 
 interface CertificateRow {
@@ -111,11 +138,13 @@ export const CertificatesTabContent: React.FC = () => {
   const deferredDetailData = useDeferredValue(detailQuery.data)
   const isStale = deferredIdentityRows !== identityRows || deferredDetailData !== detailQuery.data
 
-  const [editData, setEditData] = useState<{
-    id: string
-    name_on_certificate: string
-    date: string | null
-  } | null>(null)
+  const [editingCertificateId, setEditingCertificateId] = useState<string | null>(null)
+  // The date field only edits the calendar day; the original time of day is reapplied on submit
+  // so editing a certificate doesn't reset its issue time to midnight UTC.
+  const [editingOriginalDateIssued, setEditingOriginalDateIssued] = useState<string | null>(null)
+  const editForm = useForm<EditCertificateFormValues>({
+    defaultValues: { name_on_certificate: "", date: "" },
+  })
   const [popupUrl, setPopupUrl] = useState<string | null>(null)
   const [verificationId, setVerificationId] = useState<string | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -125,6 +154,7 @@ export const CertificatesTabContent: React.FC = () => {
     ? // oxlint-disable-next-line i18next/no-literal-string
       `${window.location.origin}/certificates/validate/${verificationId}`
     : ""
+  const verificationForm = useForm<{ verificationUrl: string }>({ values: { verificationUrl } })
   const copyToClipboard = useCopyToClipboard(verificationUrl)
   const closePopup = () => {
     setPopupUrl(null)
@@ -142,7 +172,7 @@ export const CertificatesTabContent: React.FC = () => {
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
-        setEditData(null)
+        setEditingCertificateId(null)
         // oxlint-disable-next-line i18next/no-literal-string
         void queryClient.invalidateQueries({ queryKey: ["course-students/certificates", courseId] })
       },
@@ -168,7 +198,8 @@ export const CertificatesTabContent: React.FC = () => {
   }, [deferredDetailData, deferredIdentityRows, t])
 
   // Guard the edit dialog's date so an empty / invalid value never reaches new Date(...).toISOString().
-  const parsedEditDate = editData?.date ? new Date(editData.date) : null
+  const watchedEditDate = useWatch({ control: editForm.control, name: DATE_FIELD })
+  const parsedEditDate = watchedEditDate ? new Date(watchedEditDate) : null
   const editDateValid = parsedEditDate !== null && !Number.isNaN(parsedEditDate.getTime())
 
   const columns = useMemo<ColumnDef<StudentsTableFeatures, CertificateRow, unknown>[]>(
@@ -248,13 +279,14 @@ export const CertificatesTabContent: React.FC = () => {
               {certificate_id && (
                 <IconButton
                   label={t("edit_certificate")}
-                  onClick={() =>
-                    setEditData({
-                      id: certificate_id,
+                  onClick={() => {
+                    setEditingCertificateId(certificate_id)
+                    setEditingOriginalDateIssued(date_issued)
+                    editForm.reset({
                       name_on_certificate: name_on_certificate ?? "",
-                      date: date_issued ?? null,
+                      date: formatDateForDateInputs(date_issued) ?? "",
                     })
-                  }
+                  }}
                 >
                   <Pen size={18} />
                 </IconButton>
@@ -264,29 +296,27 @@ export const CertificatesTabContent: React.FC = () => {
         },
       },
     ],
-    [t],
+    [t, editForm],
   )
 
   if (identityQuery.isError) {
-    return <ErrorBanner error={identityQuery.error} />
+    return <ErrorNotice error={identityQuery.error} />
   }
   if (detailQuery.isError) {
-    return <ErrorBanner error={detailQuery.error} />
+    return <ErrorNotice error={detailQuery.error} />
   }
   if (identityQuery.isPending || (userIds.length > 0 && detailQuery.isLoading)) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (
     <>
       {popupUrl && verificationId && (
-        <StandardDialog
+        <Dialog
           open={true}
           onClose={closePopup}
           title={t("view_certificate")}
-          showCloseButton={true}
           isDismissable={true}
-          noPadding={false}
           className={css`
             width: auto !important;
             max-width: 95vw !important;
@@ -313,19 +343,13 @@ export const CertificatesTabContent: React.FC = () => {
               `}
             >
               {!imageLoaded && (
-                <div
+                <LoadingRegion
+                  minHeight={0}
                   className={css`
                     position: absolute;
                     inset: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #999;
-                    font-size: 14px;
                   `}
-                >
-                  <Spinner variant="medium" />
-                </div>
+                />
               )}
               <img
                 src={popupUrl}
@@ -352,15 +376,6 @@ export const CertificatesTabContent: React.FC = () => {
                 border-top: 1px solid #e5e5e5;
               `}
             >
-              <label
-                htmlFor="verification-url-input"
-                className={css`
-                  font-size: 14px;
-                  font-weight: 500;
-                `}
-              >
-                {t("verification-url")}
-              </label>
               <div
                 className={css`
                   display: flex;
@@ -368,18 +383,13 @@ export const CertificatesTabContent: React.FC = () => {
                   align-items: center;
                 `}
               >
-                <input
-                  id="verification-url-input"
-                  type="text"
-                  readOnly
-                  value={verificationUrl}
+                <TextField
+                  name="verificationUrl"
+                  control={verificationForm.control}
+                  label={t("verification-url")}
+                  isReadOnly
                   className={css`
                     flex: 1;
-                    padding: 8px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    font-size: 14px;
-                    background: #f5f5f5;
                   `}
                 />
                 <Button
@@ -398,17 +408,15 @@ export const CertificatesTabContent: React.FC = () => {
               </div>
             </div>
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
 
-      {editData && (
-        <StandardDialog
+      {editingCertificateId && (
+        <Dialog
           open={true}
-          onClose={() => setEditData(null)}
+          onClose={() => setEditingCertificateId(null)}
           title={t("edit-certificate")}
-          showCloseButton={true}
           isDismissable={true}
-          noPadding={false}
           className={css`
             width: 360px !important;
             max-width: 90vw !important;
@@ -416,23 +424,12 @@ export const CertificatesTabContent: React.FC = () => {
         >
           <TextField
             type="text"
+            name="name_on_certificate"
+            control={editForm.control}
             label={t("name-on-certificate")}
-            placeholder={t("name-on-certificate")}
-            value={editData.name_on_certificate}
-            onChange={(e) =>
-              setEditData((prev) =>
-                prev ? { ...prev, name_on_certificate: e.target.value } : prev,
-              )
-            }
           />
 
-          <DatePickerField
-            label={t("date-issued")}
-            value={formatDateForDateInputs(editData.date) ?? ""}
-            onChangeByValue={(value) =>
-              setEditData((prev) => (prev ? { ...prev, date: value } : prev))
-            }
-          />
+          <DateField control={editForm.control} name={DATE_FIELD} label={t("date-issued")} />
 
           <div
             className={css`
@@ -443,22 +440,25 @@ export const CertificatesTabContent: React.FC = () => {
             `}
           >
             <Button
-              fullWidth
               size="medium"
               variant="primary"
+              className={css`
+                width: 100%;
+              `}
               disabled={!editDateValid || updateCertificateMutation.isPending}
               onClick={() => {
-                if (!editData || !parsedEditDate || !editDateValid) {
+                if (!editingCertificateId || !parsedEditDate || !editDateValid) {
                   return
                 }
+                const nameOnCertificate = editForm.getValues("name_on_certificate")
                 updateCertificateMutation.mutate({
-                  certificateId: editData.id,
+                  certificateId: editingCertificateId,
                   body: {
-                    date_issued: parsedEditDate.toISOString(),
-                    name_on_certificate:
-                      editData.name_on_certificate.trim() === ""
-                        ? null
-                        : editData.name_on_certificate,
+                    date_issued: withOriginalTimeOfDay(
+                      parsedEditDate,
+                      editingOriginalDateIssued,
+                    ).toISOString(),
+                    name_on_certificate: nameOnCertificate.trim() === "" ? null : nameOnCertificate,
                   },
                 })
               }}
@@ -466,11 +466,18 @@ export const CertificatesTabContent: React.FC = () => {
               {t("button-text-update")}
             </Button>
 
-            <Button fullWidth size="medium" variant="secondary" onClick={() => setEditData(null)}>
+            <Button
+              size="medium"
+              variant="secondary"
+              className={css`
+                width: 100%;
+              `}
+              onClick={() => setEditingCertificateId(null)}
+            >
               {t("button-text-cancel")}
             </Button>
           </div>
-        </StandardDialog>
+        </Dialog>
       )}
 
       <StaleTableWrapper isStale={isStale}>

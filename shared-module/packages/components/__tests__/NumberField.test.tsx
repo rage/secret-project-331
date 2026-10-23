@@ -257,3 +257,14 @@ describe("NumberField - size variants", () => {
     expect(screen.getByRole("textbox")).toBeInTheDocument()
   })
 })
+
+describe("NumberField - data-testid", () => {
+  test("lands on the input, not the stepper group", () => {
+    renderNumberField((control) => (
+      <NumberField name="f" control={control} label="Quantity" data-testid="quantity-field" />
+    ))
+    expect(screen.getByTestId("quantity-field")).toBe(
+      screen.getByRole("textbox", { name: "Quantity" }),
+    )
+  })
+})

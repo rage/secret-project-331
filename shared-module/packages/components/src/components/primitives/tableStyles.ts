@@ -8,6 +8,8 @@ export const CONTROL_COLUMN_WIDTH = "3rem"
 
 export const frameCss = css`
   position: relative;
+  max-width: 100%;
+  min-width: 0;
 `
 
 export const scrollCss = css`
@@ -54,6 +56,14 @@ export const headerCellCss = css`
 
 export const bodyCellCss = css`
   color: var(--color-gray-700);
+  /* Unlike "anywhere", leaves min-content alone, so auto layout never squeezes a short cell
+     (a link, a date) into mid-word breaks. */
+  overflow-wrap: break-word;
+`
+
+/** For columns of ids and emails: lets auto layout shrink the column below the token's width. */
+export const breakAnywhereCss = css`
+  overflow-wrap: anywhere;
 `
 
 export const nowrapCss = css`

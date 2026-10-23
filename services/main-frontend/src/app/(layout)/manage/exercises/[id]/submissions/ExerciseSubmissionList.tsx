@@ -2,15 +2,14 @@
 
 import { css } from "@emotion/css"
 import { Link as LinkIcon } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ALIGN_CENTER } from "@/components/credit-registration/constants"
 import type { ExerciseSlideSubmission, UserDetail } from "@/generated/api/types.generated"
 import { useBulkUserDetails } from "@/hooks/useUserDetails"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { baseTheme, fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { EmptyState, Link, Table } from "@/shared-module/components"
 
 interface Props {
   exerciseSubmissions: ExerciseSlideSubmission[]
@@ -43,146 +42,48 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
   }, [userDetailsQuery.data])
 
   if (exerciseSubmissions.length === 0) {
-    return <div>{t("no-submissions")}</div>
+    return <EmptyState title={t("no-submissions")} />
   }
-  return (
-    <BreakFromCentered sidebar={false}>
-      <div
-        className={css`
-          overflow-x: auto;
-          width: 100%;
-        `}
-      >
-        <table
-          className={css`
-            border-collapse: collapse;
-            border: 1px solid ${baseTheme.colors.clear[300]};
-            margin: 1.5rem auto 2rem auto;
-            width: auto;
-            min-width: 600px;
 
-            td,
-            th {
-              border-left: 1px solid ${baseTheme.colors.clear[300]};
-              border-right: 1px solid ${baseTheme.colors.clear[300]};
-              color: ${baseTheme.colors.gray[500]};
-              padding-left: 30px;
-              padding-right: 30px;
-              text-align: left;
-              height: 60px;
-              overflow-wrap: break-word;
-              word-break: break-all;
-            }
-          `}
-        >
-          <thead>
-            <tr
-              className={css`
-                font-family: ${secondaryFont};
-                font-weight: ${fontWeights.semibold};
-                font-size: ${baseTheme.fontSizes[14]};
-                text-transform: uppercase;
-                opacity: 0.8;
-                padding-right: 30px;
-              `}
-            >
-              <th
+  const userOf = (submission: ExerciseSlideSubmission): UserDetail | undefined =>
+    userDetailsMap.get(submission.user_id)
+
+  return (
+    <Table
+      caption={t("header-submissions")}
+      className={css`
+        margin: 1.5rem auto 2rem auto;
+      `}
+      rows={exerciseSubmissions}
+      rowKey={(submission) => submission.id}
+      columns={[
+        {
+          header: t("label-link"),
+          align: ALIGN_CENTER,
+          cell: (submission) => (
+            <Link href={`/submissions/${submission.id}`}>
+              <LinkIcon
+                size={20}
                 className={css`
-                  min-width: 100px;
+                  color: #868b93;
                 `}
-              >
-                {t("label-link")}
-              </th>
-              <th
-                className={css`
-                  min-width: 200px;
-                `}
-              >
-                {t("label-submission-time")}
-              </th>
-              <th
-                className={css`
-                  width: auto;
-                  min-width: 120px;
-                `}
-              >
-                {t("first-name")}
-              </th>
-              <th
-                className={css`
-                  width: auto;
-                  min-width: 120px;
-                `}
-              >
-                {t("last-name")}
-              </th>
-              <th
-                className={css`
-                  width: auto;
-                  min-width: 200px;
-                `}
-              >
-                {t("label-email")}
-              </th>
-            </tr>
-          </thead>
-          <tbody
-            className={css`
-              tr:nth-child(odd) {
-                background-color: ${baseTheme.colors.clear[100]};
-              }
-            `}
-          >
-            {exerciseSubmissions.map((x) => (
-              <tr
-                key={x.id}
-                className={css`
-                  font-family: ${headingFont};
-                  font-weight: ${fontWeights.medium};
-                  font-size: ${baseTheme.fontSizes[16]};
-                  line-height: 19px;
-                `}
-              >
-                <td
-                  className={css`
-                    font-size: 20px;
-                    text-align: center !important;
-                  `}
-                >
-                  <Link href={`/submissions/${x.id}`}>
-                    <LinkIcon
-                      size={20}
-                      className={css`
-                        color: #868b93;
-                      `}
-                    />
-                  </Link>
-                </td>
-                <td>{dateToString(x.created_at)}</td>
-                <td>
-                  {(() => {
-                    const userDetails = userDetailsMap.get(x.user_id) as UserDetail | undefined
-                    return userDetails?.first_name || ""
-                  })()}
-                </td>
-                <td>
-                  {(() => {
-                    const userDetails = userDetailsMap.get(x.user_id) as UserDetail | undefined
-                    return userDetails?.last_name || ""
-                  })()}
-                </td>
-                <td>
-                  {(() => {
-                    const userDetails = userDetailsMap.get(x.user_id) as UserDetail | undefined
-                    return userDetails?.email || x.user_id // Fallback to user ID if email not found
-                  })()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </BreakFromCentered>
+              />
+            </Link>
+          ),
+        },
+        {
+          header: t("label-submission-time"),
+          cell: (submission) => dateToString(submission.created_at),
+        },
+        { header: t("first-name"), cell: (submission) => userOf(submission)?.first_name || "" },
+        { header: t("last-name"), cell: (submission) => userOf(submission)?.last_name || "" },
+        {
+          header: t("label-email"),
+          // Falls back to the user ID while details are missing.
+          cell: (submission) => userOf(submission)?.email || submission.user_id,
+        },
+      ]}
+    />
   )
 }
 

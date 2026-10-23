@@ -60,6 +60,9 @@ pub enum Action {
     /// Operating the credit registration pipeline across all courses from the admin dashboard.
     /// Separate from `Administrate` so it can be handed out without the rest of global admin.
     AdministrateCreditRegistrations,
+    /// Opening the credit registration demo, the student page on made-up data. Every role holds
+    /// it, so checked on [`Resource::AnyCourse`] it admits anyone with a role anywhere.
+    ViewCreditRegistrationDemo,
     Administrate,
 }
 
@@ -625,6 +628,9 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
     use Action::*;
     use UserRole::*;
 
+    if action == ViewCreditRegistrationDemo {
+        return true;
+    }
     match user_role {
         Admin => true,
         Teacher => matches!(

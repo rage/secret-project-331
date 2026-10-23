@@ -408,7 +408,8 @@ AND cm.deleted_at IS NULL
 WHERE d.prerequisite_modules_completed = TRUE
 AND c.is_draft = FALSE
 AND c.is_test_mode = FALSE
-AND cm.enable_registering_completion_to_uh_open_university = TRUE
+AND TRIM(cm.uh_course_code) <> ''
+AND cm.completions_can_be_registered_to_sisu
 AND cm.ects_credits IS NOT NULL
 AND cm.ects_credits > 0
 GROUP BY u.email_domain
@@ -546,7 +547,8 @@ FROM deduped_completions d
 WHERE d.prerequisite_modules_completed = TRUE
   AND c.is_draft = FALSE
   AND c.is_test_mode = FALSE
-  AND cm.enable_registering_completion_to_uh_open_university = TRUE
+  AND TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
   AND cm.ects_credits IS NOT NULL
   AND cm.ects_credits > 0
   AND u.email_domain = $1

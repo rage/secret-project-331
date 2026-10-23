@@ -34,6 +34,7 @@ import { CREDIT_REGISTRATION_NS } from "./constants"
 import type { CreditRegistrationTFunction } from "./constants"
 import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import { labelFrom, widenedLookup } from "./labelFrom"
+import { registersCredits } from "./registersCredits"
 import type { FailureOwner } from "./registrationFailures"
 import { failureOwner, retryableFailureCount } from "./registrationFailures"
 
@@ -97,7 +98,7 @@ export const useCourseHasStudyRegistryModules = (courseId: string | null): boole
       build: (id) => getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: id } }),
     }),
   )
-  return (query.data ?? []).some((module) => module.enable_credit_registration_via_suotar)
+  return (query.data ?? []).some((module) => registersCredits(module))
 }
 
 /**

@@ -43,7 +43,6 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
           className={css`
             font-size: 1.1rem;
             color: ${baseTheme.colors.gray[500]};
-            text-transform: capitalize;
           `}
         >
           {t("number-of-students")}: {userCount}

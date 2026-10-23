@@ -1,4 +1,4 @@
-//! The row itself, and the Courses tab's overview of every enabled module.
+//! The row itself, and the Courses tab's overview of every module with a course code.
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 use crate::prelude::*;
@@ -66,7 +66,7 @@ SET deleted_at = NULL
     Ok(())
 }
 
-/// A Suotar-enabled module as the Courses tab lists it: what it is configured with, what the last
+/// A module with a course code as the Courses tab lists it: what it is configured with, what the last
 /// check concluded, and how much work it has produced.
 ///
 /// The stored verdict may be older than the configuration; `config_checked_at` is `None` for a
@@ -92,7 +92,7 @@ pub struct SuotarModuleOverview {
     pub eligible_completion_count: i64,
 }
 
-/// Every Suotar-enabled module, one row each, ordered by course then module order.
+/// Every module with a course code, one row each, ordered by course then module order.
 pub async fn get_module_overviews(
     conn: &mut PgConnection,
     limit: i64,
@@ -125,8 +125,9 @@ FROM course_modules cm
   JOIN courses c ON c.id = cm.course_id AND c.deleted_at IS NULL
   LEFT JOIN course_module_suotar_configurations conf ON conf.course_module_id = cm.id
   AND conf.deleted_at IS NULL
-WHERE cm.enable_credit_registration_via_suotar
-  AND cm.deleted_at IS NULL
+WHERE cm.deleted_at IS NULL
+  AND TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
 ORDER BY c.name,
   cm.order_number
 LIMIT $1

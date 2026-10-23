@@ -9,7 +9,7 @@ import type {
   LinkingEmailStatus,
   NotificationEmailStatus,
 } from "@/generated/api/types.generated"
-import { humanReadableDate } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
 import { translateKey, widenedLookup } from "./labelFrom"
@@ -23,7 +23,6 @@ interface EmailStatusLineProps {
 
 /** Says nothing while the mail is queued or retrying, and never that it was delivered. */
 const EmailStatusLine: React.FC<EmailStatusLineProps> = ({ status, sentText, sendFailedText }) => {
-  const { i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   if (!status) {
     return null
   }
@@ -33,9 +32,7 @@ const EmailStatusLine: React.FC<EmailStatusLineProps> = ({ status, sentText, sen
   if (status.email_send_status !== "sent" || !status.sent_at) {
     return null
   }
-  return (
-    <p className={noteCss}>{sentText(humanReadableDate(status.sent_at, i18n.language) ?? "")}</p>
-  )
+  return <p className={noteCss}>{sentText(dateToString(status.sent_at))}</p>
 }
 
 export interface LinkingEmailLineProps {
@@ -112,7 +109,7 @@ export const NotificationEmailLine: React.FC<NotificationEmailLineProps> = ({
   return (
     <EmailStatusLine
       status={notificationEmail}
-      sentText={() => translateKey(t, sentKey)}
+      sentText={(date) => translateKey(t, sentKey, { date })}
       sendFailedText={translateKey(t, sendFailedKey)}
     />
   )

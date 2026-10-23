@@ -4,16 +4,14 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import NewExamForm from "@/components/forms/NewExamForm"
+import NewExamForm, { NEW_EXAM_FORM_ID } from "@/components/forms/NewExamForm"
 import {
   createOrganizationExamMutation as createOrganizationExamMutationOptions,
   duplicateExamMutation as duplicateExamMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 interface ExamDialogProps {
   organizationId: string
@@ -91,17 +89,35 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   )
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("new-exam")}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("new-exam")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: NEW_EXAM_FORM_ID },
+          // The form only mounts once getOrgExams resolves; without this the footer button
+          // would submit nothing while the dialog is still loading.
+          disabled: getOrgExams.data === undefined,
+        },
+      ]}
+    >
+      {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
       {createExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={createExamMutation.error} announce="off" />
       )}
       {duplicateExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={duplicateExamMutation.error} announce="off" />
       )}
       <QueryResult query={getOrgExams} treatEmptyAsData>
         {(exams) => renderForm(exams)}
       </QueryResult>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

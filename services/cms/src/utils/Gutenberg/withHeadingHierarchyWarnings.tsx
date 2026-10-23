@@ -6,6 +6,7 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
 import { Fragment, useMemo } from "@wordpress/element"
 
+import { Link } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -114,9 +115,9 @@ const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
               ))}
               <p className={noticeParagraphClass}>{renderGuidanceText(issues, t)}</p>
               <p className={noticeParagraphClass}>
-                <a href={W3C_HEADINGS_GUIDANCE_URL} target="_blank" rel="noopener noreferrer">
+                <Link href={W3C_HEADINGS_GUIDANCE_URL} target="_blank" rel="noopener noreferrer">
                   {t("link-heading-structure-guidance")}
-                </a>
+                </Link>
               </p>
             </Notice>
           </div>

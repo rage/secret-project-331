@@ -6,8 +6,7 @@ import { Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { Button, ErrorNotice } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface MediaObject {
@@ -72,7 +71,7 @@ const BackgroundImageSection: React.FC<BackgroundImageSectionProps> = ({
 
   return (
     <div key={imageKey}>
-      {error && <ErrorBanner error={error} />}
+      {error && <ErrorNotice error={error} />}
       {currentImage ? (
         <Placeholder
           className={placeHolderFixHeightStyles}

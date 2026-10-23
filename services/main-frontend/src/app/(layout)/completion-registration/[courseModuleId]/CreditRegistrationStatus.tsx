@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
-import { useQuery } from "@tanstack/react-query"
+import { type UseQueryResult, useQuery } from "@tanstack/react-query"
 import { ArrowLeft } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
@@ -20,8 +20,9 @@ import {
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import { useRecordEnrolmentPageVisitOnce } from "@/components/credit-registration/enrolmentActions"
+import { EnrolmentCheck } from "@/components/credit-registration/EnrolmentCheck"
 import { EnrolmentRouteStep } from "@/components/credit-registration/EnrolmentRouteStep"
-import { LinkingEmailQuestions } from "@/components/credit-registration/LinkingEmailQuestions"
+import { RegistrationQuestions } from "@/components/credit-registration/RegistrationQuestions"
 import {
   RegistrationActions,
   type RegistrationCardAction,
@@ -32,6 +33,7 @@ import {
   useStudentRegistrationActions,
 } from "@/components/credit-registration/studentRegistrationActions"
 import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
+import { missingSisuCourseCodeSupportMail } from "@/components/credit-registration/studentSupportMail"
 import {
   bandCss,
   bandedCardCss,
@@ -60,7 +62,13 @@ import type {
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
-import { DescriptionList, Link, QueryResults, RelativeTime } from "@/shared-module/components"
+import {
+  DescriptionList,
+  Link,
+  DefaultBlockingError,
+  QueryResults,
+  RelativeTime,
+} from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
   courseModuleId: string
@@ -71,6 +79,9 @@ export interface CreditRegistrationStatusProps {
   ectsCredits: number | null | undefined
   /** What the student is told while the completion has no registration yet. */
   statusBeforeRegistration: StudentFacingCreditRegistrationStatus
+  /** Set when a certificate could serve instead, which asks the detour questions first. */
+  certificateConfigurationId: string | null | undefined
+  creditJustification: string | null | undefined
 }
 
 const MOVING_REFETCH_INTERVAL_MS = 10_000
@@ -93,6 +104,8 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   moduleName,
   ectsCredits,
   statusBeforeRegistration,
+  certificateConfigurationId,
+  creditJustification,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
@@ -131,7 +144,6 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
 
   const data = query.data ?? null
   const enrolmentRoute = routeQuery.data ?? null
-  const verifiedNumber = numberQuery.data ?? null
   const checkedAt = query.dataUpdatedAt === 0 ? null : new Date(query.dataUpdatedAt).toISOString()
   const heading = (
     <CardHeading courseName={courseName} moduleName={moduleName} ectsCredits={ectsCredits} />
@@ -144,9 +156,11 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
       ectsCredits={ectsCredits}
       registration={data.registration}
       enrolmentRoute={enrolmentRoute}
-      verifiedNumber={verifiedNumber}
+      numberQuery={numberQuery}
       checkedAt={checkedAt}
       earlierAttempts={data.earlier_attempts}
+      certificateConfigurationId={certificateConfigurationId}
+      creditJustification={creditJustification}
     />
   ) : null
 
@@ -245,9 +259,11 @@ interface TrackerProps {
   ectsCredits: number | null | undefined
   registration: MyCreditRegistration
   enrolmentRoute: MyEnrolmentRoute | null
-  verifiedNumber: MyVerifiedStudentNumber | null
+  numberQuery: UseQueryResult<MyVerifiedStudentNumber | null>
   checkedAt: string | null
   earlierAttempts: MyCreditRegistration[]
+  certificateConfigurationId: string | null | undefined
+  creditJustification: string | null | undefined
 }
 
 /**
@@ -264,16 +280,15 @@ const Tracker: React.FC<TrackerProps> = ({
   ectsCredits,
   registration,
   enrolmentRoute,
-  verifiedNumber,
+  numberQuery,
   checkedAt,
   earlierAttempts,
+  certificateConfigurationId,
+  creditJustification,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statusLabel = myRegistrationStatusLabel(t, registration)
-  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
-    registration,
-    linkToStatusPage: false,
-  })
+  const { primaryAction, secondaryActions } = useStudentRegistrationActions(registration)
 
   // The page polls, so a status that moves while it is open has to be announced, not only redrawn.
   const announcedStatusLabel = useRef(statusLabel)
@@ -284,6 +299,7 @@ const Tracker: React.FC<TrackerProps> = ({
     }
   }, [statusLabel, t])
 
+  const verifiedNumber = numberQuery.data ?? null
   const view = { registration, enrolmentRoute }
   const recheckAction =
     [primaryAction, ...secondaryActions].find(
@@ -311,6 +327,24 @@ const Tracker: React.FC<TrackerProps> = ({
             courseModuleId={courseModuleId}
             enrolmentRoute={enrolmentRoute}
             openUniversityEnrolmentLink={registration.enrolment_link}
+            uhCourseCode={registration.uh_course_code}
+            supportMail={missingSisuCourseCodeSupportMail(t, registration)}
+            certificateConfigurationId={certificateConfigurationId}
+            creditJustification={creditJustification}
+          />
+        ) : null}
+
+        {/* Which of the two enrolment checks applies depends on the number. */}
+        {numberQuery.data !== undefined ? (
+          <EnrolmentCheck
+            registration={registration}
+            enrolmentRoute={enrolmentRoute}
+            hasLinkedStudentNumber={numberQuery.data !== null}
+          />
+        ) : numberQuery.isError ? (
+          <DefaultBlockingError
+            error={numberQuery.error}
+            retry={() => void numberQuery.refetch()}
           />
         ) : null}
 
@@ -364,7 +398,7 @@ const Tracker: React.FC<TrackerProps> = ({
         </section>
       ) : null}
 
-      <LinkingEmailQuestions
+      <RegistrationQuestions
         registration={registration}
         verifiedNumber={verifiedNumber}
         enrolmentRoute={enrolmentRoute}

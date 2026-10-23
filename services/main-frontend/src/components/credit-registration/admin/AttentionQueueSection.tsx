@@ -11,9 +11,11 @@ import type {
   CreditRegistrationAttentionDismissal,
   CreditRegistrationAttentionItem,
   CreditRegistrationAttentionPhaseRows,
+  CreditRegistrationAttentionReactionCounts,
   CreditRegistrationBlockingProblemRows,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   creditRegistrationItemRoute,
   manageCourseModulesRoute,
@@ -32,6 +34,7 @@ import {
   headingCss,
   noteCss,
   proseCss,
+  rowCss,
   sectionCardCss,
   sectionCardHeaderCss,
   sectionCardsCss,
@@ -50,28 +53,18 @@ import {
   RUNNING_LATE_ANCHOR,
 } from "./adminLinks"
 import AttentionRowActions from "./AttentionRowActions"
+import FacetChip from "./FacetChip"
 import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
 import { moduleSubtitleParts } from "./moduleSubtitle"
+import RegistrationNoteLines from "./RegistrationNoteLines"
 import { registrationsListHref } from "./registrationsListUrl"
 import { attentionItemStatusSubject, registrationStatusLines } from "./registrationStatus"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
-import {
-  STEPS_BY_PHASE,
-  TIMELINE_PHASES,
-  timelinePhaseLabel,
-  timelineStepLabel,
-} from "./timelineSteps"
+import { TIMELINE_PHASES, timelinePhaseLabel, timelineStepLabel } from "./timelineSteps"
 import { useHashTarget, useOpenedByLink } from "./useHashTarget"
+import { useQueryParamFilters } from "./useQueryParamFilters"
 
 const ANSWER_UNCLEAR = "answer_unclear"
-
-/** Says how many of a section's rows are listed when the server capped them. */
-const ShownOfTotal: React.FC<{ shown: number; total: number }> = ({ shown, total }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  return shown < total ? (
-    <p className={noteCss}>{t("credit-registration-admin-oldest-shown", { shown, total })}</p>
-  ) : null
-}
 
 /**
  * What is wrong first, then what to do and whom it waits on. An unclear answer's next step is
@@ -134,6 +127,7 @@ const AttentionItemsTable: React.FC<{
                 sends={row.manual_linking_email_sends}
                 variant="registration"
               />
+              <RegistrationNoteLines notes={row.notes} />
             </span>
           ),
         },
@@ -230,15 +224,12 @@ const BlockingProblemGroup: React.FC<{ group: CreditRegistrationBlockingProblemR
       <Disclosure
         title={
           <span id={headingId}>
-            {t("credit-registration-admin-problem-holds-up", { count: group.total_count })}
+            {t("credit-registration-admin-problem-holds-up", { count: group.items.length })}
           </span>
         }
         variant={PLAIN_DISCLOSURE}
       >
-        <div className={sectionCss}>
-          <ShownOfTotal shown={group.items.length} total={group.total_count} />
-          <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
-        </div>
+        <AttentionItemsTable items={group.items} labelledBy={headingId} hasActions={false} />
       </Disclosure>
     </div>
   )
@@ -280,35 +271,14 @@ const PhaseSection: React.FC<{ rows: CreditRegistrationAttentionPhaseRows }> = (
         <h2 id={headingId} className={headingCss}>
           {t("credit-registration-admin-phase-with-count", {
             phase: timelinePhaseLabel(t, rows.phase),
-            count: rows.total_count,
+            count: rows.items.length,
           })}
         </h2>
       </div>
       {rows.items.length === 0 ? (
         <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
       ) : (
-        <>
-          {rows.items.length < rows.total_count && (
-            <p className={noteCss}>
-              {t("credit-registration-admin-oldest-shown", {
-                shown: rows.items.length,
-                total: rows.total_count,
-              })}{" "}
-              <Link
-                href={registrationsListHref({
-                  needsAttention: true,
-                  steps: STEPS_BY_PHASE[rows.phase],
-                  includeNotStarted: true,
-                })}
-              >
-                {t("credit-registration-admin-needs-attention-in-list", {
-                  count: rows.total_count,
-                })}
-              </Link>
-            </p>
-          )}
-          <AttentionItemsTable items={rows.items} labelledBy={headingId} />
-        </>
+        <AttentionItemsTable items={rows.items} labelledBy={headingId} />
       )}
     </section>
   )
@@ -316,9 +286,8 @@ const PhaseSection: React.FC<{ rows: CreditRegistrationAttentionPhaseRows }> = (
 
 const RunningLateSection: React.FC<{
   items: CreditRegistrationAttentionItem[]
-  totalCount: number
   isOpen: boolean
-}> = ({ items, totalCount, isOpen }) => {
+}> = ({ items, isOpen }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
   const expansion = useOpenedByLink(isOpen)
@@ -326,7 +295,7 @@ const RunningLateSection: React.FC<{
     <section id={RUNNING_LATE_ANCHOR} className={sectionCardCss}>
       <Disclosure
         title={<span id={headingId}>{t("credit-registration-heading-running-late")}</span>}
-        summary={<span className={noteCss}>{totalCount}</span>}
+        summary={<span className={noteCss}>{items.length}</span>}
         variant={PLAIN_DISCLOSURE}
         {...expansion}
       >
@@ -334,7 +303,6 @@ const RunningLateSection: React.FC<{
           <p className={cx(noteCss, proseCss)}>
             {t("credit-registration-admin-running-late-note")}
           </p>
-          <ShownOfTotal shown={items.length} total={totalCount} />
           <AttentionItemsTable items={items} labelledBy={headingId} />
         </div>
       </Disclosure>
@@ -428,13 +396,53 @@ const DismissedRecentlySection: React.FC<{
   )
 }
 
+const REACTED_PARAM = "reacted"
+
+const reactedFilter = (value: string | undefined): boolean | undefined =>
+  value === "true" ? true : value === "false" ? false : undefined
+
+/** Narrows every list on the page to the rows someone has, or has not, reacted to. */
+const ReactedFilter: React.FC<{
+  counts: CreditRegistrationAttentionReactionCounts
+  selected: boolean | undefined
+  onSelect: (reacted: boolean | undefined) => void
+}> = ({ counts, selected, onSelect }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (counts.reacted_count + counts.not_reacted_count === 0) {
+    return null
+  }
+  const chip = (reacted: boolean, label: string, count: number) => (
+    <FacetChip
+      label={label}
+      count={count}
+      isSelected={selected === reacted}
+      onToggle={() => onSelect(selected === reacted ? undefined : reacted)}
+    />
+  )
+  return (
+    <div className={stackedCellCss}>
+      <div className={rowCss}>
+        {chip(
+          false,
+          t("credit-registration-admin-filter-not-reacted-to"),
+          counts.not_reacted_count,
+        )}
+        {chip(true, t("credit-registration-admin-filter-reacted-to"), counts.reacted_count)}
+      </div>
+      <p className={noteCss}>{t("credit-registration-admin-filter-reacted-to-note")}</p>
+    </div>
+  )
+}
+
 /**
  * Everything that needs a person, one section per timeline phase, after the problems that hold up
  * many rows at once. Running late and recent dismissals follow, collapsed and not counted.
  */
 const AttentionQueueSection: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const attentionQuery = useCreditRegistrationAttentionItems({})
+  const filters = useQueryParamFilters()
+  const reacted = reactedFilter(filters.param(REACTED_PARAM))
+  const attentionQuery = useCreditRegistrationAttentionItems(omitUndefined({ reacted }))
   const hash = useHashTarget(attentionQuery.isSuccess)
 
   return (
@@ -450,12 +458,15 @@ const AttentionQueueSection: React.FC = () => {
           if (rows) {
             return [rows]
           }
-          return hash === attentionPhaseAnchorId(phase)
-            ? [{ phase, total_count: 0, items: [] }]
-            : []
+          return hash === attentionPhaseAnchorId(phase) ? [{ phase, items: [] }] : []
         })
         return (
           <>
+            <ReactedFilter
+              counts={attention.reaction_counts}
+              selected={reacted}
+              onSelect={(next) => filters.applyParams({ [REACTED_PARAM]: next?.toString() })}
+            />
             {attention.total_count > 0 && (
               <p className={noteCss}>
                 <Link
@@ -472,15 +483,20 @@ const AttentionQueueSection: React.FC = () => {
             )}
             {phases.length === 0 ? (
               <section className={sectionCardCss}>
-                <EmptyState title={t("credit-registration-admin-nothing-needs-a-human")} />
+                <EmptyState
+                  title={t(
+                    reacted === undefined
+                      ? "credit-registration-admin-nothing-needs-a-human"
+                      : "credit-registration-admin-no-rows-match-filter",
+                  )}
+                />
               </section>
             ) : (
               phases.map((rows) => <PhaseSection key={rows.phase} rows={rows} />)
             )}
-            {attention.running_late_count > 0 && (
+            {attention.running_late.length > 0 && (
               <RunningLateSection
                 items={attention.running_late}
-                totalCount={attention.running_late_count}
                 isOpen={hash === RUNNING_LATE_ANCHOR}
               />
             )}

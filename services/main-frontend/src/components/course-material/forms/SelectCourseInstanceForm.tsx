@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
+import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { updateMarketingConsent } from "@/generated/course-material-api/sdk.generated"
@@ -13,15 +14,12 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import useAdditionalQuestions from "@/hooks/course-material/useAdditionalQuestions"
 import useCourse from "@/hooks/course-material/useCourse"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, Checkbox, Radio, RadioGroup, ErrorNotice } from "@/shared-module/components"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
-const FieldContainer = styled.div`
+const courseInstanceGroupCss = css`
   margin-bottom: 1.5rem;
 `
 
@@ -32,6 +30,23 @@ const GreenText = styled.span`
 const AdditionalQuestionWrapper = styled.div`
   margin: 0.5rem 0;
 `
+
+/** Matches the radio group's legend, so the two question blocks in the dialog read as siblings. */
+const additionalQuestionsHeadingCss = css`
+  color: var(--field-label);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 var(--space-2);
+`
+
+// oxlint-disable-next-line i18next/no-literal-string
+const ANSWERS_FIELD = "answers" as const
+// Wire format for NewCourseBackgroundQuestionAnswer.answer_value: "t"/"f" flags, not a boolean.
+// oxlint-disable-next-line i18next/no-literal-string
+const ANSWER_VALUE_TRUE = "t"
+// oxlint-disable-next-line i18next/no-literal-string
+const ANSWER_VALUE_FALSE = "f"
 
 interface SelectCourseInstanceFormProps {
   courseInstances: CourseInstance[]
@@ -49,6 +64,16 @@ interface SelectCourseInstanceFormProps {
   selectedLangCourseId: string
 }
 
+interface AdditionalQuestionAnswerFormValue {
+  course_background_question_id: string
+  answer_value: boolean
+}
+
+interface SelectCourseInstanceFormValues {
+  courseInstanceId: string | undefined
+  answers: AdditionalQuestionAnswerFormValue[]
+}
+
 const SelectCourseInstanceForm: React.FC<
   React.PropsWithChildren<SelectCourseInstanceFormProps>
 > = ({
@@ -59,59 +84,61 @@ const SelectCourseInstanceForm: React.FC<
   selectedLangCourseId,
 }) => {
   const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
-  const [selectedInstanceId, setSelectedInstanceId] = useState(
-    figureOutInitialValue(courseInstances, initialSelectedInstanceId),
-  )
-  const [additionalQuestionAnswers, setAdditionalQuestionAnswers] = useState<
-    NewCourseBackgroundQuestionAnswer[]
-  >([])
+  const { control, watch, setValue, getValues } = useForm<SelectCourseInstanceFormValues>({
+    defaultValues: {
+      courseInstanceId: figureOutInitialValue(courseInstances, initialSelectedInstanceId),
+      answers: [],
+    },
+  })
+  const { fields: answerFields, replace: replaceAnswers } = useFieldArray({
+    control,
+    name: ANSWERS_FIELD,
+  })
+  const courseInstanceId = watch("courseInstanceId")
 
   const [isMarketingConsentChecked, setIsMarketingConsentChecked] = useState(false)
   const [isEmailSubscriptionConsentChecked, setIsEmailSubscriptionConsentChecked] = useState(false)
 
-  const additionalQuestionsQuery = useAdditionalQuestions(selectedInstanceId)
+  const additionalQuestionsQuery = useAdditionalQuestions(courseInstanceId)
   const getCourse = useCourse(selectedLangCourseId)
 
   useEffect(() => {
     if (!additionalQuestionsQuery.data) {
       return
     }
-    // Populates initial answers for all questions
-    setAdditionalQuestionAnswers((prev) => {
-      const newState: NewCourseBackgroundQuestionAnswer[] = []
-      additionalQuestionsQuery.data.background_questions.forEach((question) => {
-        const prevAnswer = prev.find((a) => a.course_background_question_id === question.id)
+    // Populates initial answers for all questions, preserving any answer already entered.
+    const prevAnswers = getValues(ANSWERS_FIELD)
+    const nextAnswers: AdditionalQuestionAnswerFormValue[] =
+      additionalQuestionsQuery.data.background_questions.map((question) => {
+        const prevAnswer = prevAnswers.find((a) => a.course_background_question_id === question.id)
         const savedAnswer = additionalQuestionsQuery.data.answers.find(
           (a) => a.course_background_question_id === question.id,
         )
-        let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
-        if (question.question_type === "Checkbox" && initialValue === null) {
-          // oxlint-disable-next-line i18next/no-literal-string
-          initialValue = "f"
-        }
-        newState.push({
-          answer_value: initialValue,
+        return {
           course_background_question_id: question.id,
-        })
+          answer_value: prevAnswer?.answer_value ?? savedAnswer?.answer_value === ANSWER_VALUE_TRUE,
+        }
       })
-      return newState
-    })
-  }, [additionalQuestionsQuery.data])
+    replaceAnswers(nextAnswers)
+  }, [additionalQuestionsQuery.data, getValues, replaceAnswers])
 
   useEffect(() => {
-    if (courseInstances.some((x) => x.id === selectedInstanceId)) {
+    if (courseInstances.some((x) => x.id === courseInstanceId)) {
       // Selected course instance is an allowed option
       return
     }
 
-    setSelectedInstanceId(figureOutInitialValue(courseInstances, initialSelectedInstanceId))
-  }, [courseInstances, initialSelectedInstanceId, selectedInstanceId])
+    setValue("courseInstanceId", figureOutInitialValue(courseInstances, initialSelectedInstanceId))
+  }, [courseInstances, initialSelectedInstanceId, courseInstanceId, setValue])
 
   const enrollOnCourse = async () => {
-    if (selectedInstanceId) {
+    if (courseInstanceId) {
       submitMutation.mutate({
-        instanceId: selectedInstanceId,
-        backgroundQuestionAnswers: additionalQuestionAnswers,
+        instanceId: courseInstanceId,
+        backgroundQuestionAnswers: getValues(ANSWERS_FIELD).map((answer) => ({
+          course_background_question_id: answer.course_background_question_id,
+          answer_value: answer.answer_value ? ANSWER_VALUE_TRUE : ANSWER_VALUE_FALSE,
+        })),
       })
     }
     if (getCourse.isSuccess && getCourse.data?.ask_marketing_consent) {
@@ -132,98 +159,66 @@ const SelectCourseInstanceForm: React.FC<
 
   return (
     <div>
-      <h2 data-testid="select-course-instance-heading">
-        {t("title-select-course-instance")}
-        <GreenText>*</GreenText>
-      </h2>
-      <FieldContainer role="radiogroup" aria-label={t("label-course-instance")} aria-required>
-        {courseInstances.map((courseInstance) => (
-          <div key={courseInstance.id}>
-            <RadioButton
-              className={css`
-                span {
-                  font-weight: 500;
-                }
-              `}
-              key={courseInstance.id}
-              {...(courseInstance.name === null
-                ? // oxlint-disable-next-line i18next/no-literal-string
-                  { "data-testid": "default-course-instance-radiobutton" }
-                : undefined)}
-              label={courseInstance.name || t("default-course-instance-name")}
-              onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
-              checked={selectedInstanceId === courseInstance.id}
-              name="select-course-instance"
-            />
-            <span
-              className={css`
-                font-size: 15px;
-                display: flex;
-                margin-top: -0.4rem;
-              `}
-            >
-              {courseInstance.description}
-            </span>
-          </div>
-        ))}
-      </FieldContainer>
-      <div
-        className={css`
-          margin-top: 1rem;
-          margin-bottom: 1rem;
-          color: ${baseTheme.colors.gray[600]};
-        `}
+      <RadioGroup
+        name="courseInstanceId"
+        control={control}
+        data-testid="select-course-instance-heading"
+        className={courseInstanceGroupCss}
+        isRequired
+        label={
+          <>
+            {t("title-select-course-instance")}
+            <GreenText>*</GreenText>
+          </>
+        }
+        description={
+          <>
+            <GreenText>*</GreenText> {t("select-course-instance-explanation")}
+          </>
+        }
       >
-        <GreenText>*</GreenText> {t("select-course-instance-explanation")}
-      </div>
-      {selectedInstanceId !== undefined &&
-        additionalQuestions &&
-        additionalQuestions.length > 0 && (
-          <div
-            className={css`
-              margin-bottom: 1rem;
-            `}
-          >
-            <h2>{t("title-additional-questions")}</h2>
-            {additionalQuestions.map((additionalQuestion) => {
-              if (additionalQuestion.question_type === "Checkbox") {
-                const answer = additionalQuestionAnswers.find(
-                  (a) => a.course_background_question_id === additionalQuestion.id,
-                )
-                return (
-                  <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                    <CheckBox
-                      label={additionalQuestion.question_text}
-                      checked={answer?.answer_value === "t"}
-                      onChange={(event) => {
-                        // oxlint-disable-next-line i18next/no-literal-string
-                        const valueAsString = event.target.value ? "t" : "f"
-                        setAdditionalQuestionAnswers((prev) => {
-                          const newArray = prev.filter(
-                            (a) => a.course_background_question_id !== additionalQuestion.id,
-                          )
-                          newArray.push({
-                            answer_value: valueAsString,
-                            course_background_question_id: additionalQuestion.id,
-                          })
-                          return newArray
-                        })
-                      }}
-                    />
-                  </AdditionalQuestionWrapper>
-                )
-              }
+        {courseInstances.map((courseInstance) => (
+          <Radio
+            key={courseInstance.id}
+            {...(courseInstance.name === null
+              ? // oxlint-disable-next-line i18next/no-literal-string
+                { "data-testid": "default-course-instance-radiobutton" }
+              : undefined)}
+            label={courseInstance.name || t("default-course-instance-name")}
+            description={courseInstance.description}
+            value={courseInstance.id}
+          />
+        ))}
+      </RadioGroup>
+      {courseInstanceId !== undefined && additionalQuestions && additionalQuestions.length > 0 && (
+        <div
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          <h2 className={additionalQuestionsHeadingCss}>{t("title-additional-questions")}</h2>
+          {additionalQuestions.map((additionalQuestion, index) => {
+            const fieldId = answerFields[index]?.id ?? additionalQuestion.id
+            if (additionalQuestion.question_type === "Checkbox") {
               return (
-                <AdditionalQuestionWrapper key={additionalQuestion.id}>
-                  {t("unsupported-question-type")}
+                <AdditionalQuestionWrapper key={fieldId}>
+                  <Checkbox
+                    name={`${ANSWERS_FIELD}.${index}.answer_value`}
+                    control={control}
+                    label={additionalQuestion.question_text}
+                  />
                 </AdditionalQuestionWrapper>
               )
-            })}
-          </div>
-        )}
-      {additionalQuestionsQuery.error && (
-        <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
+            }
+            return (
+              <AdditionalQuestionWrapper key={fieldId}>
+                {t("unsupported-question-type")}
+              </AdditionalQuestionWrapper>
+            )
+          })}
+        </div>
       )}
+      {additionalQuestionsQuery.error && <ErrorNotice error={additionalQuestionsQuery.error} />}
       {getCourse.data?.ask_marketing_consent && (
         <div>
           <SelectMarketingConsentForm
@@ -239,11 +234,11 @@ const SelectCourseInstanceForm: React.FC<
           size="medium"
           variant="primary"
           onClick={enrollOnCourse}
-          disabled={
-            !selectedInstanceId ||
+          disabled={Boolean(
+            !courseInstanceId ||
             additionalQuestionsQuery.isLoading ||
-            (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked)
-          }
+            (getCourse.data?.ask_marketing_consent && !isEmailSubscriptionConsentChecked),
+          )}
           data-testid="select-course-instance-continue-button"
         >
           {t("continue")}

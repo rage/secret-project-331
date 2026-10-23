@@ -5,9 +5,10 @@ import { CheckCircle, ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { useStatusDeployments } from "@/hooks/useStatusDeployments"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Table } from "@/shared-module/components"
 
 const StatusDeployments: React.FC = () => {
   const { t } = useTranslation()
@@ -16,43 +17,20 @@ const StatusDeployments: React.FC = () => {
   return (
     <QueryResult query={deploymentsQuery} emptyFallback={<p>{t("status-no-deployments-found")}</p>}>
       {(deployments) => (
-        <div
+        <Table
+          caption={t("status-deployments")}
+          density={DENSITY_COMPACT}
+          rowHover
+          rows={deployments}
+          rowKey={(deployment) => deployment.name}
           className={css`
-            overflow-x: auto;
+            margin-top: 1rem;
           `}
-        >
-          <table
-            className={css`
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 1rem;
-
-              th,
-              td {
-                padding: 0.5rem;
-                text-align: left;
-                border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-              }
-
-              th {
-                background-color: ${baseTheme.colors.clear[100]};
-                font-weight: 600;
-              }
-
-              tr:hover {
-                background-color: ${baseTheme.colors.clear[200]};
-              }
-            `}
-          >
-            <thead>
-              <tr>
-                <th>{t("status-name")}</th>
-                <th>{t("status-ready-replicas")}</th>
-                <th>{t("status-total-replicas")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {deployments.map((deployment) => {
+          columns={[
+            { header: t("status-name"), cell: (deployment) => deployment.name },
+            {
+              header: t("status-ready-replicas"),
+              cell: (deployment) => {
                 const isHealthy =
                   deployment.ready_replicas === deployment.replicas && deployment.replicas > 0
                 const readinessPercent =
@@ -60,66 +38,56 @@ const StatusDeployments: React.FC = () => {
                     ? (deployment.ready_replicas / deployment.replicas) * 100
                     : 0
                 return (
-                  <tr
-                    key={deployment.name}
+                  <div
                     className={css`
-                      ${!isHealthy ? `background-color: ${baseTheme.colors.yellow[100]};` : ""}
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
                     `}
                   >
-                    <td>{deployment.name}</td>
-                    <td>
+                    {isHealthy ? (
+                      <CheckCircle size={16} color={baseTheme.colors.green[600]} />
+                    ) : (
+                      <ExclamationTriangle size={16} color={baseTheme.colors.red[600]} />
+                    )}
+                    <span
+                      className={css`
+                        font-weight: 600;
+                        color: ${
+                          isHealthy ? baseTheme.colors.green[600] : baseTheme.colors.red[600]
+                        };
+                      `}
+                    >
+                      {deployment.ready_replicas}/{deployment.replicas}
+                    </span>
+                    <div
+                      className={css`
+                        flex: 1;
+                        max-width: 200px;
+                        height: 8px;
+                        background-color: ${baseTheme.colors.clear[300]};
+                        border-radius: 4px;
+                        overflow: hidden;
+                      `}
+                    >
                       <div
                         className={css`
-                          display: flex;
-                          align-items: center;
-                          gap: 0.5rem;
+                          height: 100%;
+                          width: ${readinessPercent}%;
+                          background-color: ${
+                            isHealthy ? baseTheme.colors.green[600] : baseTheme.colors.red[600]
+                          };
+                          transition: width 0.3s ease;
                         `}
-                      >
-                        {isHealthy ? (
-                          <CheckCircle size={16} color={baseTheme.colors.green[600]} />
-                        ) : (
-                          <ExclamationTriangle size={16} color={baseTheme.colors.red[600]} />
-                        )}
-                        <span
-                          className={css`
-                            font-weight: 600;
-                            color: ${
-                              isHealthy ? baseTheme.colors.green[600] : baseTheme.colors.red[600]
-                            };
-                          `}
-                        >
-                          {deployment.ready_replicas}/{deployment.replicas}
-                        </span>
-                        <div
-                          className={css`
-                            flex: 1;
-                            max-width: 200px;
-                            height: 8px;
-                            background-color: ${baseTheme.colors.clear[300]};
-                            border-radius: 4px;
-                            overflow: hidden;
-                          `}
-                        >
-                          <div
-                            className={css`
-                              height: 100%;
-                              width: ${readinessPercent}%;
-                              background-color: ${
-                                isHealthy ? baseTheme.colors.green[600] : baseTheme.colors.red[600]
-                              };
-                              transition: width 0.3s ease;
-                            `}
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td>{deployment.replicas}</td>
-                  </tr>
+                      />
+                    </div>
+                  </div>
                 )
-              })}
-            </tbody>
-          </table>
-        </div>
+              },
+            },
+            { header: t("status-total-replicas"), cell: (deployment) => deployment.replicas },
+          ]}
+        />
       )}
     </QueryResult>
   )

@@ -2055,9 +2055,8 @@
           "course_id",
           "order_number",
           "completion_policy",
-          "enable_registering_completion_to_uh_open_university",
           "certification_enabled",
-          "enable_credit_registration_via_suotar"
+          "completions_can_be_registered_to_sisu"
         ],
         "properties": {
           "certification_enabled": {
@@ -2069,6 +2068,10 @@
           "completion_registration_link_override": {
             "type": ["string", "null"],
             "description": "If set, use this link rather than the default one when registering course completions."
+          },
+          "completions_can_be_registered_to_sisu": {
+            "type": "boolean",
+            "description": "Off, the module's completions are never registered, course code or not; see [`registers_credits`]."
           },
           "copied_from": {
             "type": ["string", "null"],
@@ -2089,12 +2092,6 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
-          },
-          "enable_credit_registration_via_suotar": {
-            "type": "boolean"
-          },
-          "enable_registering_completion_to_uh_open_university": {
-            "type": "boolean"
           },
           "id": {
             "type": "string",
@@ -2310,7 +2307,15 @@
       "ExerciseServiceIframeRenderingInfo": {
         "type": "object",
         "description": "Exercise service definition that the CMS can use to render the editor view.",
-        "required": ["id", "name", "slug", "public_iframe_url", "has_custom_view"],
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "public_iframe_url",
+          "has_custom_view",
+          "is_global_admin_only",
+          "is_experimental"
+        ],
         "properties": {
           "has_custom_view": {
             "type": "boolean"
@@ -2318,6 +2323,14 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "is_experimental": {
+            "type": "boolean",
+            "description": "Shown to teachers as a tag only; changes no behaviour."
+          },
+          "is_global_admin_only": {
+            "type": "boolean",
+            "description": "Only global admins can add new tasks of this type; teachers can still edit existing ones."
           },
           "name": {
             "type": "string"

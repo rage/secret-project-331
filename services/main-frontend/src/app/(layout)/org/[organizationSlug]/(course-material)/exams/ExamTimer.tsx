@@ -10,8 +10,7 @@ import { Trans, useTranslation } from "react-i18next"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-
-const SHORT = "short"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 const TimerContainer = styled.div`
   border-radius: 8px;
@@ -58,8 +57,6 @@ const InfoBoxDarkGreenSmall = styled.div`
 
 export interface ExamTimerProps {
   endsAt: Date
-  /** Define to override how time is displayed. */
-  hour12?: boolean
   maxScore?: number
   startedAt: Date
   secondsLeft: number
@@ -67,16 +64,14 @@ export interface ExamTimerProps {
 
 const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
   endsAt,
-  hour12,
   maxScore,
   secondsLeft,
   startedAt,
 }) => {
   const { t } = useTranslation()
 
-  const timeFormatOptions: Intl.DateTimeFormatOptions = { hour12, timeStyle: SHORT }
-  const formatedStartedAt = startedAt.toLocaleTimeString(undefined, timeFormatOptions)
-  const formatedEndsAt = endsAt.toLocaleTimeString(undefined, timeFormatOptions)
+  const formatedStartedAt = dateToString(startedAt)
+  const formatedEndsAt = dateToString(endsAt)
 
   return (
     <TimerContainer>
@@ -112,14 +107,14 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
         <div>
           <HideTextInSystemTests
             text={t("started-at-time", { time: formatedStartedAt })}
-            testPlaceholder={t("started-at-time", { time: "XX:XX PM" })}
+            testPlaceholder={t("started-at-time", { time: "XXXX-XX-XX XX:XX:XX UTC+XX:XX" })}
           />
         </div>
       </InfoBoxLightGreenMedium>
       <InfoBoxLightGreenMedium>
         <HideTextInSystemTests
           text={t("ends-at-time", { time: formatedEndsAt })}
-          testPlaceholder={t("ends-at-time", { time: "XX:XX PM" })}
+          testPlaceholder={t("ends-at-time", { time: "XXXX-XX-XX XX:XX:XX UTC+XX:XX" })}
         />
       </InfoBoxLightGreenMedium>
       <InfoBoxDarkGreenSmall>

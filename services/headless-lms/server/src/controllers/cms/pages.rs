@@ -138,6 +138,13 @@ async fn update_page(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
     let cms_page_update = payload.0;
+    domain::authorization::ensure_user_can_add_exercise_tasks(
+        &mut conn,
+        user.id,
+        Some(*page_id),
+        &cms_page_update.exercise_tasks,
+    )
+    .await?;
     let course_or_exam_id = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     let is_exam_page = matches!(course_or_exam_id, CourseOrExamId::Exam(_));
     let (expected_course_id, expected_exam_id) = match course_or_exam_id {

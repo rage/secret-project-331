@@ -17,6 +17,7 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
@@ -160,6 +161,7 @@ import {
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
   getCourseFeedback,
+  getCourseFeedbackCategories,
   getCourseFeedbackCount,
   getCourseFlaggedSuspectedCheatersCount,
   getCourseGlossary,
@@ -206,6 +208,7 @@ import {
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
@@ -217,7 +220,6 @@ import {
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
   getCurrentTime,
-  getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
   getEmailVerificationCodeForTestMode,
@@ -332,6 +334,7 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listAccountLinkingEmails,
   listCreditRegistrationAdminActions,
   listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
@@ -365,9 +368,8 @@ import {
   revokeSubmissionShare,
   revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
-  searchUserDetailsByEmail,
-  searchUserDetailsByOtherDetails,
-  searchUserDetailsFuzzyMatch,
+  searchUserDetailsExact,
+  searchUserDetailsFuzzy,
   sendResetPasswordEmail,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
@@ -421,6 +423,7 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
   AdminDismissCreditRegistrationAttentionData,
@@ -675,6 +678,8 @@ import type {
   GetCourseExercisesResponse,
   GetCourseExerciseStatusesForUserData,
   GetCourseExerciseStatusesForUserResponse,
+  GetCourseFeedbackCategoriesData,
+  GetCourseFeedbackCategoriesResponse,
   GetCourseFeedbackCountData,
   GetCourseFeedbackCountResponse,
   GetCourseFeedbackData,
@@ -766,6 +771,8 @@ import type {
   GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponse,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponse,
   GetCreditRegistrationErrorsByCodeData,
@@ -788,8 +795,6 @@ import type {
   GetCreditRegistrationThresholdsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
-  GetEditProposalCountData,
-  GetEditProposalCountResponse,
   GetEditProposalsData,
   GetEditProposalsResponse,
   GetEmailTemplatesData,
@@ -1012,6 +1017,8 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponse,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponse,
   ListCreditRegistrationPhasesData,
@@ -1068,12 +1075,10 @@ import type {
   RevokeSubmissionSharesOfSubmissionResponse,
   SaveCourseDesignerScheduleData,
   SaveCourseDesignerScheduleResponse,
-  SearchUserDetailsByEmailData,
-  SearchUserDetailsByEmailResponse,
-  SearchUserDetailsByOtherDetailsData,
-  SearchUserDetailsByOtherDetailsResponse,
-  SearchUserDetailsFuzzyMatchData,
-  SearchUserDetailsFuzzyMatchResponse,
+  SearchUserDetailsExactData,
+  SearchUserDetailsExactResponse,
+  SearchUserDetailsFuzzyData,
+  SearchUserDetailsFuzzyResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
   SetCourseChatbotAsDefaultData,
@@ -4090,6 +4095,33 @@ export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedb
   return opts as Omit<typeof opts, "initialData">
 }
 
+export const getCourseFeedbackCategoriesQueryKey = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) => createQueryKey("getCourseFeedbackCategories", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
+ */
+export const getCourseFeedbackCategoriesOptions = (
+  options: Options<GetCourseFeedbackCategoriesData>,
+) =>
+  queryOptions<
+    GetCourseFeedbackCategoriesResponse,
+    DefaultError,
+    GetCourseFeedbackCategoriesResponse,
+    ReturnType<typeof getCourseFeedbackCategoriesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseFeedbackCategories({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseFeedbackCategoriesQueryKey(options),
+  })
+
 export const getCourseFeedbackCountQueryKey = (options: Options<GetCourseFeedbackCountData>) =>
   createQueryKey("getCourseFeedbackCount", options)
 
@@ -6293,6 +6325,88 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
+export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
+  createQueryKey("listAccountLinkingEmails", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsOptions = (options?: Options<ListAccountLinkingEmailsData>) =>
+  queryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    ListAccountLinkingEmailsResponse,
+    ReturnType<typeof listAccountLinkingEmailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listAccountLinkingEmails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listAccountLinkingEmailsQueryKey(options),
+  })
+
+export const listAccountLinkingEmailsInfiniteQueryKey = (
+  options?: Options<ListAccountLinkingEmailsData>,
+): QueryKey<Options<ListAccountLinkingEmailsData>> =>
+  createQueryKey("listAccountLinkingEmails", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsInfiniteOptions = (
+  options?: Options<ListAccountLinkingEmailsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    InfiniteData<ListAccountLinkingEmailsResponse>,
+    QueryKey<Options<ListAccountLinkingEmailsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listAccountLinkingEmails({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listAccountLinkingEmailsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
 /**
  *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
@@ -6559,13 +6673,43 @@ export const listCreditRegistrationAdminActionsInfiniteOptions = (
   return opts as Omit<typeof opts, "initialData">
 }
 
+export const getCreditRegistrationEarlierReasonsQueryKey = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) => createQueryKey("getCreditRegistrationEarlierReasons", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasonsOptions = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationEarlierReasonsResponse,
+    DefaultError,
+    GetCreditRegistrationEarlierReasonsResponse,
+    ReturnType<typeof getCreditRegistrationEarlierReasonsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationEarlierReasons({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationEarlierReasonsQueryKey(options),
+  })
+
 export const getCreditRegistrationStatsByCourseQueryKey = (
   options?: Options<GetCreditRegistrationStatsByCourseData>,
 ) => createQueryKey("getCreditRegistrationStatsByCourse", options)
 
 /**
  *
- * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
 export const getCreditRegistrationStatsByCourseOptions = (
@@ -7151,6 +7295,31 @@ export const getCreditRegistrationLinkingCandidatesOptions = (
       }),
     queryKey: getCreditRegistrationLinkingCandidatesQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNoteMutation = (
+  options?: Partial<Options<AdminAddCreditRegistrationNoteData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminAddCreditRegistrationNoteData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminAddCreditRegistrationNoteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminAddCreditRegistrationNote({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *
@@ -7886,7 +8055,8 @@ export const previewStudentNumberVerificationTokenOptions = (
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationTokenMutation = (
   options?: Partial<Options<ClaimStudentNumberVerificationTokenData>>,
@@ -11310,30 +11480,6 @@ export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposal
   return opts as Omit<typeof opts, "initialData">
 }
 
-export const getEditProposalCountQueryKey = (options: Options<GetEditProposalCountData>) =>
-  createQueryKey("getEditProposalCount", options)
-
-/**
- *
- * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
- */
-export const getEditProposalCountOptions = (options: Options<GetEditProposalCountData>) =>
-  queryOptions<
-    GetEditProposalCountResponse,
-    DefaultError,
-    GetEditProposalCountResponse,
-    ReturnType<typeof getEditProposalCountQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getEditProposalCount({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getEditProposalCountQueryKey(options),
-  })
-
 /**
  *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
@@ -12066,22 +12212,22 @@ export const getBulkUserDetailsMutation = (
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
-export const searchUserDetailsByEmailMutation = (
-  options?: Partial<Options<SearchUserDetailsByEmailData>>,
+export const searchUserDetailsExactMutation = (
+  options?: Partial<Options<SearchUserDetailsExactData>>,
 ): UseMutationOptions<
-  SearchUserDetailsByEmailResponse,
+  SearchUserDetailsExactResponse,
   DefaultError,
-  Options<SearchUserDetailsByEmailData>
+  Options<SearchUserDetailsExactData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SearchUserDetailsByEmailResponse,
+    SearchUserDetailsExactResponse,
     DefaultError,
-    Options<SearchUserDetailsByEmailData>
+    Options<SearchUserDetailsExactData>
   > = {
     mutationFn: async (fnOptions) =>
-      await searchUserDetailsByEmail({
+      await searchUserDetailsExact({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -12092,48 +12238,22 @@ export const searchUserDetailsByEmailMutation = (
 
 /**
  *
- * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
+ * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
-export const searchUserDetailsByOtherDetailsMutation = (
-  options?: Partial<Options<SearchUserDetailsByOtherDetailsData>>,
+export const searchUserDetailsFuzzyMutation = (
+  options?: Partial<Options<SearchUserDetailsFuzzyData>>,
 ): UseMutationOptions<
-  SearchUserDetailsByOtherDetailsResponse,
+  SearchUserDetailsFuzzyResponse,
   DefaultError,
-  Options<SearchUserDetailsByOtherDetailsData>
+  Options<SearchUserDetailsFuzzyData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SearchUserDetailsByOtherDetailsResponse,
+    SearchUserDetailsFuzzyResponse,
     DefaultError,
-    Options<SearchUserDetailsByOtherDetailsData>
+    Options<SearchUserDetailsFuzzyData>
   > = {
     mutationFn: async (fnOptions) =>
-      await searchUserDetailsByOtherDetails({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
- */
-export const searchUserDetailsFuzzyMatchMutation = (
-  options?: Partial<Options<SearchUserDetailsFuzzyMatchData>>,
-): UseMutationOptions<
-  SearchUserDetailsFuzzyMatchResponse,
-  DefaultError,
-  Options<SearchUserDetailsFuzzyMatchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SearchUserDetailsFuzzyMatchResponse,
-    DefaultError,
-    Options<SearchUserDetailsFuzzyMatchData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await searchUserDetailsFuzzyMatch({
+      await searchUserDetailsFuzzy({
         ...options,
         ...fnOptions,
         throwOnError: true,

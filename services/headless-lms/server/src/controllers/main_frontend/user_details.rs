@@ -1,4 +1,7 @@
-use models::{pages::SearchRequest, user_details::UserDetail};
+use models::{
+    pages::SearchRequest,
+    user_details::{FuzzyUserSearchResults, UserDetail},
+};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::{controllers, prelude::*};
@@ -9,9 +12,8 @@ use std::net::IpAddr;
 #[openapi(paths(
     get_user_details,
     get_user_details_by_courses,
-    search_users_by_email,
-    search_users_by_other_details,
-    search_users_fuzzy_match,
+    search_users_exact,
+    search_users_fuzzy,
     get_users_by_course_id,
     get_bulk_user_details,
     get_user_details_for_user,
@@ -166,20 +168,20 @@ pub async fn get_user_details_by_courses(
 }
 
 /**
-GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
+POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
-    path = "/search-by-email",
-    operation_id = "searchUserDetailsByEmail",
+    path = "/search-exact",
+    operation_id = "searchUserDetailsExact",
     tag = "user-details",
     request_body = SearchRequest,
     responses(
-        (status = 200, description = "User details search results", body = [UserDetail])
+        (status = 200, description = "Users whose id or email equals the query", body = [UserDetail])
     )
 )]
-pub async fn search_users_by_email(
+pub async fn search_users_exact(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<SearchRequest>,
@@ -194,29 +196,29 @@ pub async fn search_users_by_email(
     )
     .await?;
     let res =
-        models::user_details::search_for_user_details_by_email(&mut conn, &payload.query).await?;
+        models::user_details::search_for_user_details_exact(&mut conn, &payload.query).await?;
     token.authorized_ok(web::Json(res))
 }
 
 /**
-GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
+POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
-    path = "/search-by-other-details",
-    operation_id = "searchUserDetailsByOtherDetails",
+    path = "/search-fuzzy",
+    operation_id = "searchUserDetailsFuzzy",
     tag = "user-details",
     request_body = SearchRequest,
     responses(
-        (status = 200, description = "User details search results", body = [UserDetail])
+        (status = 200, description = "Users whose name or email resembles the query", body = FuzzyUserSearchResults)
     )
 )]
-pub async fn search_users_by_other_details(
+pub async fn search_users_fuzzy(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<SearchRequest>,
-) -> ControllerResult<web::Json<Vec<UserDetail>>> {
+) -> ControllerResult<web::Json<FuzzyUserSearchResults>> {
     let mut conn = pool.acquire().await?;
 
     let token = authorize(
@@ -227,41 +229,7 @@ pub async fn search_users_by_other_details(
     )
     .await?;
     let res =
-        models::user_details::search_for_user_details_by_other_details(&mut conn, &payload.query)
-            .await?;
-    token.authorized_ok(web::Json(res))
-}
-
-/**
-GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
-*/
-#[instrument(skip(pool))]
-#[utoipa::path(
-    post,
-    path = "/search-fuzzy-match",
-    operation_id = "searchUserDetailsFuzzyMatch",
-    tag = "user-details",
-    request_body = SearchRequest,
-    responses(
-        (status = 200, description = "User details fuzzy search results", body = [UserDetail])
-    )
-)]
-pub async fn search_users_fuzzy_match(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-    payload: web::Json<SearchRequest>,
-) -> ControllerResult<web::Json<Vec<UserDetail>>> {
-    let mut conn = pool.acquire().await?;
-
-    let token = authorize(
-        &mut conn,
-        Act::ViewUserProgressOrDetails,
-        Some(user.id),
-        Res::GlobalPermissions,
-    )
-    .await?;
-    let res = models::user_details::search_for_user_details_fuzzy_match(&mut conn, &payload.query)
-        .await?;
+        models::user_details::search_for_user_details_fuzzy(&mut conn, &payload.query).await?;
     token.authorized_ok(web::Json(res))
 }
 
@@ -446,40 +414,16 @@ pub async fn update_user_info(
     let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
     let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
 
-    if !app_conf.test_mode && (email_changed || first_name_changed || last_name_changed) {
-        let email_opt = if email_changed {
-            Some(payload.email.clone())
-        } else {
-            None
-        };
-
-        let upstream_id = user
-            .upstream_id
-            .ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Missing upstream_id".to_string(),
-                    None,
-                )
-            })?
-            .to_string();
-
+    if email_changed || first_name_changed || last_name_changed {
         controllers::auth::update_user_information_to_tmc(
+            user.upstream_id,
             payload.first_name.clone(),
             payload.last_name.clone(),
-            email_opt,
-            upstream_id,
-            tmc_client.clone(),
-            app_conf.clone(),
+            email_changed.then(|| payload.email.clone()),
+            &tmc_client,
+            &app_conf,
         )
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to update user info to tmc",
-                e,
-            )
-        })?;
+        .await?;
     } else {
         info!("User info unchanged, skipping update to TMC.");
     }
@@ -502,15 +446,8 @@ pub async fn update_user_info(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/search-by-email", web::post().to(search_users_by_email))
-        .route(
-            "/search-by-other-details",
-            web::post().to(search_users_by_other_details),
-        )
-        .route(
-            "/search-fuzzy-match",
-            web::post().to(search_users_fuzzy_match),
-        )
+    cfg.route("/search-exact", web::post().to(search_users_exact))
+        .route("/search-fuzzy", web::post().to(search_users_fuzzy))
         .route(
             "/{course_id}/user/{user_id}",
             web::get().to(get_user_details),

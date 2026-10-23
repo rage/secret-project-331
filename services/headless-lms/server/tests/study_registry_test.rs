@@ -11,9 +11,7 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy,
     course_module_completion_registered_to_study_registries::RegisteredCompletion,
-    course_module_completions::{
-        CourseModuleCompletionGranter, NewCourseModuleCompletion, StudyRegistryCompletion,
-    },
+    course_module_completions::{NewCourseModuleCompletionSeed, StudyRegistryCompletion},
     courses::NewCourse,
     library::content_management::CreateNewCourseFixedIds,
 };
@@ -193,64 +191,51 @@ async fn insert_data(
         )
         .await
         .unwrap();
-    let course_module_completion = headless_lms_models::course_module_completions::insert(
+    let course_module_completion = headless_lms_models::course_module_completions::insert_seed_row(
         conn,
-        PKeyPolicy::Generate,
-        &NewCourseModuleCompletion {
+        &NewCourseModuleCompletionSeed {
             course_id: course.id,
             course_module_id: course_module.id,
             user_id: user_1,
-            completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
-            completion_registration_attempt_date: None,
-            completion_language: "en-US".to_string(),
-            eligible_for_ects: true,
-            email: "student@example.com".to_string(),
+            completion_date: Some(Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap()),
+            completion_language: Some("en-US".to_string()),
+            eligible_for_ects: Some(true),
+            email: Some("student@example.com".to_string()),
             grade: Some(4),
-            passed: true,
+            passed: Some(true),
+            prerequisite_modules_completed: Some(true),
+            needs_to_be_reviewed: Some(false),
+            register_credits_via_suotar: false,
         },
-        CourseModuleCompletionGranter::Automatic,
     )
     .await
     .unwrap();
-    headless_lms_models::course_module_completions::update_prerequisite_modules_completed(
-        conn,
-        course_module_completion.id,
-        true,
-    )
-    .await
-    .unwrap();
-    let course_module_completion_2 = headless_lms_models::course_module_completions::insert(
-        conn,
-        PKeyPolicy::Generate,
-        &NewCourseModuleCompletion {
-            course_id: course.id,
-            course_module_id: course_module.id,
-            user_id: user_2,
-            completion_date: Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap(),
-            completion_registration_attempt_date: None,
-            completion_language: "en-US".to_string(),
-            eligible_for_ects: true,
-            email: "student@example.com".to_string(),
-            grade: Some(3),
-            passed: true,
-        },
-        CourseModuleCompletionGranter::Automatic,
-    )
-    .await
-    .unwrap();
-    headless_lms_models::course_module_completions::update_prerequisite_modules_completed(
-        conn,
-        course_module_completion_2.id,
-        true,
-    )
-    .await
-    .unwrap();
+    let course_module_completion_2 =
+        headless_lms_models::course_module_completions::insert_seed_row(
+            conn,
+            &NewCourseModuleCompletionSeed {
+                course_id: course.id,
+                course_module_id: course_module.id,
+                user_id: user_2,
+                completion_date: Some(Utc.with_ymd_and_hms(2022, 6, 13, 0, 0, 0).unwrap()),
+                completion_language: Some("en-US".to_string()),
+                eligible_for_ects: Some(true),
+                email: Some("student@example.com".to_string()),
+                grade: Some(3),
+                passed: Some(true),
+                prerequisite_modules_completed: Some(true),
+                needs_to_be_reviewed: Some(false),
+                register_credits_via_suotar: false,
+            },
+        )
+        .await
+        .unwrap();
     (
         user_1,
         org,
         course.id,
         course_module.id,
-        course_module_completion.id,
-        course_module_completion_2.id,
+        course_module_completion,
+        course_module_completion_2,
     )
 }

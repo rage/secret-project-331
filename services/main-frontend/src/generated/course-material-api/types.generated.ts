@@ -938,10 +938,15 @@ export type NewCourseBackgroundQuestionAnswer = {
 }
 
 export type NewFeedback = {
+  category?: null | NewFeedbackCategory
   feedback_given: string
   page_id: string
   related_blocks: Array<FeedbackBlock>
   selected_text?: string | null
+}
+
+export type NewFeedbackCategory = {
+  name: string
 }
 
 export type NewFlaggedAnswerWithToken = {
@@ -1391,7 +1396,6 @@ export type UserDetail = {
   email_verified_method?: null | EmailVerificationMethod
   first_name?: string | null
   last_name?: string | null
-  search_helper?: string | null
   updated_at: string
   user_id: string
 }
@@ -1429,8 +1433,6 @@ export type UserModuleCompletionStatus = {
   certification_enabled: boolean
   completed: boolean
   default: boolean
-  enable_credit_registration_via_suotar: boolean
-  enable_registering_completion_to_uh_open_university: boolean
   grade?: number | null
   module_id: string
   name: string
@@ -1443,6 +1445,10 @@ export type UserModuleCompletionStatus = {
    * completion. False when no completion is shown.
    */
   register_credits_via_suotar: boolean
+  /**
+   * Whether the module has a course code, without which its completions are never registered.
+   */
+  registers_credits: boolean
 }
 
 export type UserPointsUpdateStrategy =

@@ -31,6 +31,11 @@ export const sectionsCss = cx(
   `,
 )
 
+/** For a `RouteTabList` in a `sectionsCss` shell, whose gap replaces the list's own bottom margin. */
+export const flushTabListCss = css`
+  margin-bottom: 0;
+`
+
 /** One section: heading, controls, tiles, table. Sub-blocks inside it take `subsectionCss`. */
 export const sectionCss = cx(
   stackCss,
@@ -121,6 +126,7 @@ export const headingCss = css`
 /** An h3 or h4 inside a section, and dialog sub-heads. */
 export const subheadingCss = css`
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--color-gray-700);
   font-size: var(--font-size-2);
   font-weight: 600;

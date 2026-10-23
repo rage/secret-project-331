@@ -87,6 +87,7 @@ minimumReleaseAgeExclude:
   - postcss@8.5.23
   - body-parser@2.3.0
   - nanoid@3.3.18
+  - markdown-it@14.3.3
 
 # Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
 # so undeclared dependencies fail locally instead of only in image builds.

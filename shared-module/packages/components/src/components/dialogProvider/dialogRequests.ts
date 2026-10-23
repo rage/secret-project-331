@@ -41,6 +41,11 @@ export type ConfirmRequest = DialogRequest & {
    * deliberately leaves initial focus on the dialog itself, so nothing destructive is armed.
    */
   isDestructive?: boolean
+  /**
+   * Answering no is the safe default, as when yes would be recorded and acted on: renders the
+   * negative action as the primary one and the affirmative as secondary.
+   */
+  emphasizesCancel?: boolean
 }
 
 interface PromptLabels {

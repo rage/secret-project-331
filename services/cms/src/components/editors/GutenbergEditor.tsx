@@ -75,6 +75,7 @@ import {
 } from "../../utils/Gutenberg/editorHistory"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
+import withFileIframePreview from "../../utils/Gutenberg/withFileIframePreview"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
 import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointReset"
 import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
@@ -401,6 +402,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/fileIframePreview", withFileIframePreview)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/fileIframePreview")
     }
   }, [])
 

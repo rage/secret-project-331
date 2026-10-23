@@ -127,6 +127,7 @@ FROM course_modules cm
   AND conf.deleted_at IS NULL
 WHERE cm.deleted_at IS NULL
   AND TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
 ORDER BY c.name,
   cm.order_number
 LIMIT $1

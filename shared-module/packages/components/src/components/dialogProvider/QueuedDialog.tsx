@@ -303,24 +303,31 @@ function buildActions({
     }
     case "confirm": {
       const confirmRequest = request as ConfirmRequest
-      return [
-        {
-          label: confirmRequest.cancelLabel ?? t("dialog.decline"),
-          variant: "secondary",
-          "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
-          onPress: () => {
-            settle(false)
-          },
+      const cancelAction: DialogAction = {
+        label: confirmRequest.cancelLabel ?? t("dialog.decline"),
+        variant: confirmRequest.emphasizesCancel === true ? "primary" : "secondary",
+        "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+        onPress: () => {
+          settle(false)
         },
-        {
-          label: confirmRequest.confirmLabel ?? t("dialog.confirm"),
-          variant: confirmRequest.isDestructive === true ? "danger" : "primary",
-          "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
-          onPress: () => {
-            settle(true)
-          },
+      }
+      const confirmAction: DialogAction = {
+        label: confirmRequest.confirmLabel ?? t("dialog.confirm"),
+        variant:
+          confirmRequest.isDestructive === true
+            ? "danger"
+            : confirmRequest.emphasizesCancel === true
+              ? "secondary"
+              : "primary",
+        "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+        onPress: () => {
+          settle(true)
         },
-      ]
+      }
+      // The primary action goes last, where the eye ends up.
+      return confirmRequest.emphasizesCancel === true
+        ? [confirmAction, cancelAction]
+        : [cancelAction, confirmAction]
     }
     case "prompt": {
       const promptRequest = request as TextPromptRequest

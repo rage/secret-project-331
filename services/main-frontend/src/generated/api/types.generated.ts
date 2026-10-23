@@ -1574,6 +1574,14 @@ export type CompleteCourseMetadata = {
   default_module: CourseModule
 }
 
+export type CompletedProgressStep = {
+  /**
+   * When the registration reached the step; `None` for a step it skipped.
+   */
+  reached_at?: string | null
+  step: StudentRegistrationProgressStep
+}
+
 export type CompletionGridRow = {
   grade?: number | null
   module?: string | null
@@ -2151,6 +2159,10 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
+  /**
+   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
+   */
+  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string
@@ -2233,6 +2245,7 @@ export type CourseModuleCompletionWithRegistrationInfo = {
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export type CourseModuleCreditRegistrationConfig = {
+  completions_can_be_registered_to_sisu: boolean
   course_id: string
   course_module_id: string
   credit_registration_config_check_message?: string | null
@@ -2258,6 +2271,7 @@ export type CourseModuleCreditRegistrationConfig = {
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export type CourseModuleInfo = {
+  completions_can_be_registered_to_sisu: boolean
   /**
    * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
    */
@@ -2982,6 +2996,17 @@ export type CreditRegistrationHistoryStepPoint = {
   phase: TimelinePhase
   step: TimelineStep
 }
+
+/**
+ * How a student without a Finnish personal identity code said they can identify themselves for
+ * enrolling.
+ */
+export type CreditRegistrationIdentification = "eidas" | "other_suomi_fi" | "none"
+
+/**
+ * Whether a student said they need a certificate or credits in the study registry.
+ */
+export type CreditRegistrationNeed = "certificate" | "credits"
 
 /**
  * A note an admin left on a registration for whoever handles it next.
@@ -4231,6 +4256,7 @@ export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
+  completions_can_be_registered_to_sisu: boolean
   ects_credits?: number | null
   id: string
   name?: string | null
@@ -4309,6 +4335,7 @@ export type MyCreditRegistration = {
   linking_email?: null | LinkingEmailStatus
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus
+  progress?: null | StudentRegistrationProgress
   registered_at?: string | null
   /**
    * The registry declined this attempt because it already holds an equal or better grade. Still a
@@ -4359,8 +4386,13 @@ export type MyEnrolmentRoute = {
    * A row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true.
    */
   can_change: boolean
+  certificate_chosen_at?: string | null
   course_module_completion_id: string
   enrolment_confirmed_at?: string | null
+  has_finnish_personal_identity_code?: boolean | null
+  identification?: null | CreditRegistrationIdentification
+  need?: null | CreditRegistrationNeed
+  need_after_reconsider?: null | CreditRegistrationNeed
   route?: null | CreditRegistrationEnrolmentRoute
 }
 
@@ -4666,6 +4698,7 @@ export type NewModule = {
   chapters: Array<string>
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
+  completions_can_be_registered_to_sisu: boolean
   ects_credits?: number | null
   name: string
   order_number: number
@@ -5642,7 +5675,14 @@ export type SetCreditJustificationPayload = {
   justification: string
 }
 
+/**
+ * Every answer at once, replacing the stored ones: an answer left out is cleared.
+ */
 export type SetEnrolmentRoutePayload = {
+  has_finnish_personal_identity_code?: boolean | null
+  identification?: null | CreditRegistrationIdentification
+  need?: null | CreditRegistrationNeed
+  need_after_reconsider?: null | CreditRegistrationNeed
   route: CreditRegistrationEnrolmentRoute
 }
 
@@ -5726,6 +5766,28 @@ export type StudentNumberVerificationTokenPreview = {
    */
   target_account_name?: string | null
 }
+
+export type StudentRegistrationProgress = {
+  /**
+   * The steps before `current_step`, in order.
+   */
+  completed_steps: Array<CompletedProgressStep>
+  current_step?: null | StudentRegistrationProgressStep
+  /**
+   * A send is out and we do not know yet whether it reached Sisu. Only with `current_step`
+   * `sent_to_sisu`.
+   */
+  submission_uncertain: boolean
+}
+
+/**
+ * One row of the step list, in the order a registration passes them.
+ */
+export type StudentRegistrationProgressStep =
+  | "enrolment_found"
+  | "sent_to_sisu"
+  | "accepted_by_sisu"
+  | "partially_registered"
 
 export type StudentsByCountryTotalsResult = {
   count: number
@@ -6177,6 +6239,11 @@ export type UserCompletionInformation = {
   credit_justification?: string | null
   ects_credits?: number | null
   email: string
+  /**
+   * The module's open university enrolment page: the same link the credit registration carries,
+   * here so the page has it before the registration exists.
+   */
+  enrolment_link?: string | null
   /**
    * Whether this completion goes through the push path, which decides the flow the page shows.
    */
@@ -11999,6 +12066,50 @@ export type SetMyEnrolmentRouteResponses = {
 
 export type SetMyEnrolmentRouteResponse =
   SetMyEnrolmentRouteResponses[keyof SetMyEnrolmentRouteResponses]
+
+export type WithdrawMyCertificateChoiceData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice"
+}
+
+export type WithdrawMyCertificateChoiceResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyCertificateChoiceResponse =
+  WithdrawMyCertificateChoiceResponses[keyof WithdrawMyCertificateChoiceResponses]
+
+export type ChooseMyCertificateData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice"
+}
+
+export type ChooseMyCertificateResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ChooseMyCertificateResponse =
+  ChooseMyCertificateResponses[keyof ChooseMyCertificateResponses]
 
 export type WithdrawMyEnrolmentConfirmationData = {
   body?: never

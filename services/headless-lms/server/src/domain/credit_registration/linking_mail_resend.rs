@@ -22,7 +22,12 @@ pub async fn ensure_resend_possible(
     let registers_credits = models::course_modules::get_by_course_id(conn, course_id)
         .await?
         .iter()
-        .any(|module| models::course_modules::registers_credits(module.uh_course_code.as_deref()));
+        .any(|module| {
+            models::course_modules::registers_credits(
+                module.uh_course_code.as_deref(),
+                module.completions_can_be_registered_to_sisu,
+            )
+        });
     if !registers_credits {
         return Err(controller_err!(
             BadRequest,

@@ -543,6 +543,7 @@ async fn get_my_studies(
                     uh_course_code: course_module.uh_course_code.clone(),
                     supports_credit_registration: models::course_modules::registers_credits(
                         course_module.uh_course_code.as_deref(),
+                        course_module.completions_can_be_registered_to_sisu,
                     ) && registration_completion
                         .is_none_or(|completion| completion.register_credits_via_suotar),
                     is_credit_registration_starting: registration_completion.is_some_and(

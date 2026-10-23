@@ -64,6 +64,39 @@ function ControlledRadioGroupStory() {
   )
 }
 
+function SegmentedStory() {
+  const { control } = useForm<{ student: string; need: string }>({
+    defaultValues: { student: "no", need: "" },
+  })
+
+  return (
+    <div className={stackCss}>
+      <RadioGroup
+        name="student"
+        control={control}
+        label="Are you a student?"
+        variant="segmented"
+        showCheckMark
+      >
+        <Radio label="Yes" value="yes" />
+        <Radio label="No" value="no" />
+      </RadioGroup>
+      <RadioGroup
+        name="need"
+        control={control}
+        label="Which do you need?"
+        variant="segmented"
+        fillWidth
+        showCheckMark
+      >
+        <Radio label="A certificate of completion" value="certificate" />
+        <Radio label="University of Helsinki credits" value="credits" />
+        <Radio label="Neither" value="neither" />
+      </RadioGroup>
+    </div>
+  )
+}
+
 const meta = {
   title: "Components/RadioGroup",
   component: RadioGroup,
@@ -83,4 +116,8 @@ export const States = {
 
 export const Controlled = {
   render: () => <ControlledRadioGroupStory />,
+} satisfies Story
+
+export const Segmented = {
+  render: () => <SegmentedStory />,
 } satisfies Story

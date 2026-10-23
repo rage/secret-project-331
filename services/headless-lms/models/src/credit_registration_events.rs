@@ -311,6 +311,39 @@ ORDER BY created_at,
     Ok(res)
 }
 
+/// When each of the rows last entered each of `states`, keyed by (row, state). A pair missing
+/// from the map never entered that state; staying in a state is not entering it.
+pub async fn get_latest_state_entries(
+    conn: &mut PgConnection,
+    credit_registration_ids: &[Uuid],
+    states: &[CreditRegistrationState],
+) -> ModelResult<HashMap<(Uuid, CreditRegistrationState), DateTime<Utc>>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT DISTINCT ON (credit_registration_id, to_state) credit_registration_id,
+  to_state AS "to_state!: CreditRegistrationState",
+  created_at
+FROM credit_registration_events
+WHERE credit_registration_id = ANY($1)
+  AND to_state = ANY($2::credit_registration_state [])
+  AND from_state IS DISTINCT FROM to_state
+  AND deleted_at IS NULL
+ORDER BY credit_registration_id,
+  to_state,
+  created_at DESC,
+  id DESC
+        "#,
+        credit_registration_ids,
+        states as &[CreditRegistrationState],
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| ((row.credit_registration_id, row.to_state), row.created_at))
+        .collect())
+}
+
 /// The per-item timeline entries one study registry call produced, oldest first: what the answer
 /// did to each row it covered.
 pub async fn get_by_suotar_api_call_id(

@@ -153,6 +153,7 @@ export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   copied_from: z.uuid().nullish(),
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -296,13 +297,6 @@ export const zGutenbergBlock = z.object({
 export const zNewResearchForm = z.object({
   content: z.unknown(),
   course_id: z.uuid(),
-})
-
-export const zNewResearchFormQuestion = z.object({
-  course_id: z.uuid(),
-  question: z.string(),
-  question_id: z.uuid(),
-  research_consent_form_id: z.uuid(),
 })
 
 export const zPage = z.object({
@@ -545,16 +539,6 @@ export const zResearchForm = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zResearchFormQuestion = z.object({
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  question: z.string(),
-  research_consent_form_id: z.uuid(),
-  updated_at: z.iso.datetime(),
-})
-
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
  * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
@@ -779,17 +763,6 @@ export const zUpsertCmsCourseResearchFormPath = z.object({
  * Research form
  */
 export const zUpsertCmsCourseResearchFormResponse = zResearchForm
-
-export const zUpsertCmsCourseResearchFormQuestionsBody = z.array(zNewResearchFormQuestion)
-
-export const zUpsertCmsCourseResearchFormQuestionsPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Research form questions
- */
-export const zUpsertCmsCourseResearchFormQuestionsResponse = z.array(zResearchFormQuestion)
 
 export const zUploadCmsCourseMediaBody = z.string()
 

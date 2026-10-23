@@ -17,6 +17,7 @@ import {
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
+import { CheckIcon } from "../primitives/CheckIcon"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
@@ -48,7 +49,15 @@ const segmentedContentCss = css`
 
 /** `RadioGroup`'s `fillWidth`: splits the row evenly instead of each option hugging its own text. */
 const segmentedFillWidthCss = css`
-  flex: 1 1 0;
+  flex: 1 1 15rem;
+  justify-content: center;
+  text-align: center;
+`
+
+const segmentedCheckedLabelCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
 `
 
 /** The option's own description and error, which both variants hang under the label. */
@@ -154,7 +163,14 @@ export function RadioInGroup({
           aria-describedby={describedBy}
         />
         <span className={segmentedContentCss}>
-          <span>{label}</span>
+          {group.showCheckMark && isSelected ? (
+            <span className={segmentedCheckedLabelCss}>
+              <CheckIcon />
+              {label}
+            </span>
+          ) : (
+            <span>{label}</span>
+          )}
           <RadioNotes
             description={description}
             descriptionId={descriptionId}

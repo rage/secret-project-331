@@ -236,6 +236,10 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
+  /**
+   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
+   */
+  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string
@@ -367,13 +371,6 @@ export type GutenbergBlock = {
 export type NewResearchForm = {
   content: unknown
   course_id: string
-}
-
-export type NewResearchFormQuestion = {
-  course_id: string
-  question: string
-  question_id: string
-  research_consent_form_id: string
 }
 
 export type Page = {
@@ -519,16 +516,6 @@ export type ResearchForm = {
   created_at: string
   deleted_at?: string | null
   id: string
-  updated_at: string
-}
-
-export type ResearchFormQuestion = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  question: string
-  research_consent_form_id: string
   updated_at: string
 }
 
@@ -936,28 +923,6 @@ export type UpsertCmsCourseResearchFormResponses = {
 
 export type UpsertCmsCourseResearchFormResponse =
   UpsertCmsCourseResearchFormResponses[keyof UpsertCmsCourseResearchFormResponses]
-
-export type UpsertCmsCourseResearchFormQuestionsData = {
-  body: Array<NewResearchFormQuestion>
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/cms/courses/{course_id}/research-consent-form-questions"
-}
-
-export type UpsertCmsCourseResearchFormQuestionsResponses = {
-  /**
-   * Research form questions
-   */
-  200: Array<ResearchFormQuestion>
-}
-
-export type UpsertCmsCourseResearchFormQuestionsResponse =
-  UpsertCmsCourseResearchFormQuestionsResponses[keyof UpsertCmsCourseResearchFormQuestionsResponses]
 
 export type UploadCmsCourseMediaData = {
   body: string

@@ -40,6 +40,7 @@ import {
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
+  chooseMyCertificate,
   claimStudentNumberVerificationToken,
   configureChatbot,
   confirmCourseSuspectedCheater,
@@ -414,6 +415,7 @@ import {
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
+  withdrawMyCertificateChoice,
   withdrawMyEnrolmentConfirmation,
 } from "../sdk.generated"
 import type {
@@ -464,6 +466,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
+  ChooseMyCertificateData,
+  ChooseMyCertificateResponse,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenResponse,
   ConfigureChatbotData,
@@ -1155,6 +1159,8 @@ import type {
   UpsertCoursePartnersBlockData,
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipResponse,
+  WithdrawMyCertificateChoiceData,
+  WithdrawMyCertificateChoiceResponse,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponse,
 } from "../types.generated"
@@ -7790,7 +7796,8 @@ export const getMyEnrolmentRouteOptions = (options: Options<GetMyEnrolmentRouteD
 /**
  *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
- * - Records which university relationship the caller has, which decides where they are told to enrol.
+ * - Records which university relationship the caller has, which decides where they are told to enrol,
+ * and their answers to the questions that follow it. Replaces every stored answer.
  */
 export const setMyEnrolmentRouteMutation = (
   options?: Partial<Options<SetMyEnrolmentRouteData>>,
@@ -7806,6 +7813,62 @@ export const setMyEnrolmentRouteMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await setMyEnrolmentRoute({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes back choosing the certificate.
+ */
+export const withdrawMyCertificateChoiceMutation = (
+  options?: Partial<Options<WithdrawMyCertificateChoiceData>>,
+): UseMutationOptions<
+  WithdrawMyCertificateChoiceResponse,
+  DefaultError,
+  Options<WithdrawMyCertificateChoiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyCertificateChoiceResponse,
+    DefaultError,
+    Options<WithdrawMyCertificateChoiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyCertificateChoice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes the certificate instead of registering credits.
+ *
+ * Advisory like the other answers: the pipeline still registers the completion.
+ */
+export const chooseMyCertificateMutation = (
+  options?: Partial<Options<ChooseMyCertificateData>>,
+): UseMutationOptions<
+  ChooseMyCertificateResponse,
+  DefaultError,
+  Options<ChooseMyCertificateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ChooseMyCertificateResponse,
+    DefaultError,
+    Options<ChooseMyCertificateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await chooseMyCertificate({
         ...options,
         ...fnOptions,
         throwOnError: true,

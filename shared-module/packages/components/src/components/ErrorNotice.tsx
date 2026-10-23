@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import type { ErrorSeverity, ErrorViewModel } from "../lib/errors/normalizeErrorForDisplay"
 import { normalizeErrorForDisplay } from "../lib/errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../lib/errors/resolveErrorDisplayCopy"
+import { Button } from "./Button"
 import { CopyButton } from "./CopyButton"
 import { DescriptionList } from "./DescriptionList"
 import { Disclosure } from "./Disclosure"
@@ -42,6 +43,7 @@ export interface ErrorNoticeProps {
   maxHeight?: string
   /** CSS length capping the technical details panel, which then scrolls. */
   detailsMaxHeight?: string
+  retry?: () => void
   className?: string
   "data-testid"?: string | undefined
 }
@@ -336,6 +338,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
   maxHeight,
   detailsMaxHeight,
   className,
+  retry,
   "data-testid": dataTestId,
 }) => {
   const { t } = useTranslation("errors")
@@ -451,6 +454,19 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
             </dd>
           </dl>
         </div>
+      ) : null}
+      {retry ? (
+        <Button
+          className={css`
+            justify-self: start;
+          `}
+          type="button"
+          variant="secondary"
+          size="small"
+          onPress={retry}
+        >
+          {t("queryResult.retry")}
+        </Button>
       ) : null}
 
       <div className={actionsCss}>

@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { useLoadingAffordance } from "../../lib/utils/loading"
 import { Button } from "../Button"
+import { ErrorNotice } from "../ErrorNotice"
 import {
   QUERY_INITIAL_LOADING_TEST_ID,
   QUERY_LOADING_SPINNER_TEST_ID,
@@ -196,7 +197,11 @@ export function AnimatedQueryFrame<E>({
 
   if (blockingError && error !== undefined) {
     const args = { error, retry }
-    return renderBlockingError ? renderBlockingError(args) : <DefaultBlockingError {...args} />
+    return renderBlockingError ? (
+      renderBlockingError(args)
+    ) : (
+      <ErrorNotice error={error} retry={retry} />
+    )
   }
 
   // Once the delayed spinner has appeared, hold the whole section for its minVisibleMs even

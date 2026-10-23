@@ -1,9 +1,5 @@
 "use client"
 
-"use client"
-
-"use client"
-
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
@@ -11,7 +7,6 @@ import { useParams } from "next/navigation"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import { getChatbotEmbedConfOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -33,13 +28,7 @@ const ChatbotEmbed = () => {
 
   return (
     <div>
-      <QueryResult
-        query={chatBotQuery}
-        emptyFallback
-        renderBlockingError={({ error, retry: _retry }) => {
-          return <ErrorBanner variant={"readOnly"} error={error} />
-        }}
-      >
+      <QueryResult query={chatBotQuery} emptyFallback>
         {() => (
           <div
             className={css`

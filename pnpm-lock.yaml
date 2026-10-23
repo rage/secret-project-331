@@ -229,8 +229,8 @@ importers:
         specifier: ^8.5.30
         version: 8.5.30
       postcss-styled-syntax:
-        specifier: ^0.7.3
-        version: 0.7.3(postcss@8.5.30)
+        specifier: ^0.7.4
+        version: 0.7.4(postcss@8.5.30)
       postcss-syntax:
         specifier: ^0.36.2
         version: 0.36.2(postcss@8.5.30)
@@ -1840,8 +1840,8 @@ packages:
     resolution: {integrity: sha512-7qASPzhKF2l2KLboRZux8CCTRMdGiV08vWmyKzPz22qZ7ZjQBOeY7rNzNoCLSUiftJ7HUq0GERHmxw/t0dCdMw==}
     engines: {node: '>=4'}
 
-  postcss-styled-syntax@0.7.3:
-    resolution: {integrity: sha512-F6PSmNJKnOk1E5BWNqp6lEg3qlVYexKPf9C5eoBflPxNyS29goTATFVU7vUi0WWMmpAK+Pf2yHuUdjKXL2bOTg==}
+  postcss-styled-syntax@0.7.4:
+    resolution: {integrity: sha512-wRRWfMTQEFtFv94NpfOAx/GLM7vfHRsgHQIEhBlBw3C7XXuFG6ASTGbR8VdINoF84uBx4lxHdWRUQ+VDi5jNpA==}
     engines: {node: '>=14.17'}
     peerDependencies:
       postcss: ^8.5.1
@@ -3351,7 +3351,7 @@ snapshots:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
 
-  postcss-styled-syntax@0.7.3(postcss@8.5.30):
+  postcss-styled-syntax@0.7.4(postcss@8.5.30):
     dependencies:
       postcss: 8.5.30
       typescript: 6.0.3
@@ -3682,7 +3682,7 @@ time:
   lint-staged@17.6.0: '2026-09-26T06:01:39.503Z'
   oxfmt@0.73.0: '2026-10-13T09:47:24.473Z'
   oxlint@1.88.0: '2026-10-13T09:47:46.926Z'
-  postcss-styled-syntax@0.7.3: '2026-09-27T10:55:05.845Z'
+  postcss-styled-syntax@0.7.4: '2026-10-15T18:16:34.419Z'
   postcss-syntax@0.36.2: '2019-01-03T09:50:07.690Z'
   postcss@8.5.30: '2026-10-12T20:38:43.212Z'
   stylelint-config-recommended@18.0.0: '2026-01-15T11:55:53.530Z'

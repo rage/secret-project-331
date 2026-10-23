@@ -7,18 +7,13 @@ import { useContext } from "react"
 import { useController } from "react-hook-form"
 
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
-import type {
-  ResearchForm,
-  ResearchFormQuestion,
-} from "@/generated/course-material-api/types.generated"
+import type { ResearchFormQuestionAnswer } from "@/generated/course-material-api/types.generated"
 
 import SelectResearchConsentForm from "../SelectResearchConsentForm"
 
-const mockGetQuestions = jest.fn()
 const mockPostAnswer = jest.fn().mockResolvedValue({})
 
 jest.mock("@/generated/course-material-api/sdk.generated", () => ({
-  getCourseMaterialResearchConsentFormQuestions: (...args: unknown[]) => mockGetQuestions(...args),
   postCourseMaterialResearchConsentFormAnswer: (...args: unknown[]) => mockPostAnswer(...args),
 }))
 
@@ -75,46 +70,26 @@ jest.mock("@/components/course-material/ContentRenderer", () => ({
   default: MockContentRenderer,
 }))
 
-const QUESTIONS: ResearchFormQuestion[] = [
-  {
-    id: "question-1",
-    course_id: "course-1",
-    research_consent_form_id: "form-1",
-    question: "May we use your data?",
-    created_at: "2020-01-01T00:00:00.000Z",
-    updated_at: "2020-01-01T00:00:00.000Z",
-  },
-  {
-    id: "question-2",
-    course_id: "course-1",
-    research_consent_form_id: "form-1",
-    question: "May we contact you?",
-    created_at: "2020-01-01T00:00:00.000Z",
-    updated_at: "2020-01-01T00:00:00.000Z",
-  },
+const CONTENT = [
+  { name: "moocfi/research-consent-question", clientId: "question-1" },
+  { name: "moocfi/research-consent-question", clientId: "question-2" },
 ]
 
-const RESEARCH_FORM: ResearchForm = {
-  id: "form-1",
-  course_id: "course-1",
-  content: [{ clientId: "question-1" }, { clientId: "question-2" }],
-  created_at: "2020-01-01T00:00:00.000Z",
-  updated_at: "2020-01-01T00:00:00.000Z",
-}
-
-function renderForm() {
-  mockGetQuestions.mockResolvedValue(QUESTIONS)
+function renderForm(usersInitialAnswers?: ResearchFormQuestionAnswer[]) {
+  const onClose = jest.fn()
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
     <QueryClientProvider client={queryClient}>
       <SelectResearchConsentForm
-        onClose={jest.fn()}
+        onClose={onClose}
         editForm={false}
         shouldAnswerResearchForm={true}
-        researchForm={RESEARCH_FORM}
+        content={CONTENT}
+        {...(usersInitialAnswers ? { usersInitialAnswers } : {})}
       />
     </QueryClientProvider>,
   )
+  return { onClose }
 }
 
 describe("SelectResearchConsentForm", () => {
@@ -133,5 +108,28 @@ describe("SelectResearchConsentForm", () => {
     await waitFor(() => expect(mockPostAnswer).toHaveBeenCalledTimes(2))
     const answers = mockPostAnswer.mock.calls.map((call) => call[0].body.research_consent)
     expect(answers).toEqual([false, false])
+  })
+
+  it("skips answers to questions removed from the form and closes once saved", async () => {
+    const { onClose } = renderForm([
+      {
+        id: "answer-1",
+        user_id: "user-1",
+        course_id: "course-1",
+        research_form_question_id: "removed-question",
+        research_consent: true,
+        created_at: "2020-01-01T00:00:00.000Z",
+        updated_at: "2020-01-01T00:00:00.000Z",
+      },
+    ])
+
+    await screen.findByLabelText("question-1")
+    fireEvent.click(screen.getByRole("button", { name: "save" }))
+
+    await waitFor(() => expect(onClose).toHaveBeenCalled())
+    const questionIds = mockPostAnswer.mock.calls.map(
+      (call) => call[0].body.research_form_question_id,
+    )
+    expect(questionIds).toEqual(["question-1", "question-2"])
   })
 })

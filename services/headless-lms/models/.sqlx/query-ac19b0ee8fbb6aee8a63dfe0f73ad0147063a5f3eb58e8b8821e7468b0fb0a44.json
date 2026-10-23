@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cr.created_at,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_check_anchor_at,\n  cr.enrolment_check_source,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  cr.partially_registered_at IS NOT NULL AS \"is_partially_registered!\",\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
+  "query": "\nSELECT cr.id,\n  cr.course_id,\n  c.name AS course_name,\n  c.slug AS course_slug,\n  cr.course_module_id,\n  cm.name AS course_module_name,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cr.course_module_completion_id,\n  cr.created_at,\n  cmc.completion_date,\n  cr.state,\n  cr.error_code AS \"error_code?\",\n  cr.next_attempt_at,\n  cr.registered_at,\n  cr.sisu_attainment_id,\n  cr.student_number,\n  cr.credits,\n  cr.grade_id,\n  cr.grade_scale_id,\n  cr.attempt_number,\n  cr.superseded_by_id,\n  cr.superseded_at,\n  cr.enrolment_checked_at,\n  cr.enrolment_check_requested_at,\n  cr.no_usable_enrolment_since,\n  cr.enrolment_check_anchor_at,\n  cr.enrolment_check_source,\n  cr.selected_enrolment_id IS NOT NULL AS \"enrolment_resolved!\",\n  COALESCE(\n    cr.selected_enrolment_realisation_name->>'fi',\n    cr.selected_enrolment_realisation_name->>'en',\n    cr.selected_enrolment_realisation_name->>'sv'\n  ) AS \"enrolment_realisation_name?\",\n  cr.submitted_at,\n  cr.submitted_attainment_id IS NOT NULL AS \"has_submitted_attainment!\",\n  cr.partially_registered_at,\n  NULLIF(TRIM(cm.completion_registration_link_override), '') AS \"enrolment_link?\",\n  p.completion_eligible AS \"completion_eligible!\",\n  p.has_verified_student_number AS \"has_verified_student_number!\",\n  p.course_code_allowed AS \"course_code_allowed!\"\nFROM credit_registrations cr\n  JOIN courses c ON c.id = cr.course_id AND c.deleted_at IS NULL\n  JOIN course_modules cm ON cm.id = cr.course_module_id AND cm.deleted_at IS NULL\n  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id AND cmc.deleted_at IS NULL\n  JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id\nWHERE cr.user_id = $1\n  AND cr.deleted_at IS NULL\n  AND ($2::uuid IS NULL OR cr.course_module_id = $2)\n  AND ($3::uuid IS NULL OR cr.course_id = $3)\n  AND (\n    NOT $4::boolean\n    OR (\n      cr.state = 'no_usable_enrolment'\n      AND cr.enrolment_banner_dismissed_at IS NULL\n    )\n  )\nORDER BY cmc.completion_date DESC,\n  cr.attempt_number DESC\n        ",
   "describe": {
     "columns": [
       {
@@ -406,18 +406,29 @@
       },
       {
         "ordinal": 31,
-        "name": "is_partially_registered!",
+        "name": "has_submitted_attainment!",
         "type_info": "Bool",
         "origin": "Expression"
       },
       {
         "ordinal": 32,
+        "name": "partially_registered_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "partially_registered_at"
+          }
+        }
+      },
+      {
+        "ordinal": 33,
         "name": "enrolment_link?",
         "type_info": "Text",
         "origin": "Expression"
       },
       {
-        "ordinal": 33,
+        "ordinal": 34,
         "name": "completion_eligible!",
         "type_info": "Bool",
         "origin": {
@@ -428,7 +439,7 @@
         }
       },
       {
-        "ordinal": 34,
+        "ordinal": 35,
         "name": "has_verified_student_number!",
         "type_info": "Bool",
         "origin": {
@@ -439,7 +450,7 @@
         }
       },
       {
-        "ordinal": 35,
+        "ordinal": 36,
         "name": "course_code_allowed!",
         "type_info": "Bool",
         "origin": {
@@ -491,11 +502,12 @@
       null,
       true,
       null,
+      true,
       null,
       true,
       true,
       true
     ]
   },
-  "hash": "6c159775250ed6e1ebcf642296e9c0ee9482dbf3b14a16d6325b35d400d91fff"
+  "hash": "ac19b0ee8fbb6aee8a63dfe0f73ad0147063a5f3eb58e8b8821e7468b0fb0a44"
 }

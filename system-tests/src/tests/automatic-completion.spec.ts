@@ -58,7 +58,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     courseSlug: "automatic-completions",
     userEmail: "teacher@example.com",
   })
-  await page.getByText("Your University of Helsinki student number is not linked yet").waitFor()
+  await page.getByText("Link your student number", { exact: true }).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -67,7 +67,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
     snapshotName: "automatic-completion-registration-page",
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("heading", { name: "Register completion" }),
-      page.getByText("Your University of Helsinki student number is not linked yet"),
+      page.getByRole("button", { name: "Start" }),
     ],
   })
 })

@@ -62,6 +62,8 @@ const CompletionRegistrationPage: React.FC<{ courseModuleId: string }> = ({ cour
               statusBeforeRegistration={data.status_before_registration}
               certificateConfigurationId={data.certificate_configuration_id}
               creditJustification={data.credit_justification}
+              uhCourseCode={data.uh_course_code}
+              enrolmentLink={data.enrolment_link}
             />
           )
         }

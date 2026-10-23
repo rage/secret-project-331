@@ -114,7 +114,9 @@ test.describe("A student whose credits reach the study registry", () => {
         expect(SEND_STATUSES).toContain(mail.send_status.email_send_status)
       }
       await page.goto(completionRegistrationUrl(registration.course_module_id))
-      await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
+      await expect(
+        page.getByRole("heading", { name: "Your completion is registered" }),
+      ).toBeVisible()
       await expect(page.getByText("delivered")).toHaveCount(0)
     })
 

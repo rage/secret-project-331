@@ -9032,7 +9032,7 @@
       },
       "put": {
         "tags": ["credit-registrations"],
-        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`\n- Records which university relationship the caller has, which decides where they are told to enrol.",
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`\n- Records which university relationship the caller has, which decides where they are told to enrol,\nand their answers to the questions that follow it. Replaces every stored answer.",
         "operationId": "setMyEnrolmentRoute",
         "parameters": [
           {
@@ -9056,6 +9056,66 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`\n- The caller takes the certificate instead of registering credits.\n\nAdvisory like the other answers: the pipeline still registers the completion.",
+        "operationId": "chooseMyCertificate",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["credit-registrations"],
+        "summary": "\nDELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`\n- The caller takes back choosing the certificate.",
+        "operationId": "withdrawMyCertificateChoice",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The stored answer",
@@ -18484,6 +18544,20 @@
           }
         }
       },
+      "CompletedProgressStep": {
+        "type": "object",
+        "required": ["step"],
+        "properties": {
+          "reached_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the registration reached the step; `None` for a step it skipped."
+          },
+          "step": {
+            "$ref": "#/components/schemas/StudentRegistrationProgressStep"
+          }
+        }
+      },
       "CompletionGridRow": {
         "type": "object",
         "required": ["user_id", "module_id", "registered", "needs_to_be_reviewed"],
@@ -21968,6 +22042,16 @@
             "$ref": "#/components/schemas/TimelineStep"
           }
         }
+      },
+      "CreditRegistrationIdentification": {
+        "type": "string",
+        "description": "How a student without a Finnish personal identity code said they can identify themselves for\nenrolling.",
+        "enum": ["eidas", "other_suomi_fi", "none"]
+      },
+      "CreditRegistrationNeed": {
+        "type": "string",
+        "description": "Whether a student said they need a certificate or credits in the study registry.",
+        "enum": ["certificate", "credits"]
       },
       "CreditRegistrationNote": {
         "type": "object",
@@ -25465,6 +25549,17 @@
               }
             ]
           },
+          "progress": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StudentRegistrationProgress",
+                "description": "The step list for a registration on its way to Sisu; `None` until a usable enrolment is\nfound, and for a row that is not on its way."
+              }
+            ]
+          },
           "registered_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -25526,6 +25621,10 @@
             "type": "boolean",
             "description": "False once a usable enrolment has been found: the answer only picks which enrolment\ninstructions to show, so once we have the enrolment there is nothing left for it to change.\nA row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true."
           },
+          "certificate_chosen_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "course_module_completion_id": {
             "type": "string",
             "format": "uuid"
@@ -25534,6 +25633,39 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "has_finnish_personal_identity_code": {
+            "type": ["boolean", "null"]
+          },
+          "identification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationIdentification"
+              }
+            ]
+          },
+          "need": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationNeed"
+              }
+            ]
+          },
+          "need_after_reconsider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationNeed"
+              }
+            ]
+          },
           "route": {
             "oneOf": [
               {
@@ -25541,7 +25673,7 @@
               },
               {
                 "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute",
-                "description": "`None` until the student answers the question."
+                "description": "`None` until the student answers the question, as are the answers below."
               }
             ]
           }
@@ -29011,8 +29143,42 @@
       },
       "SetEnrolmentRoutePayload": {
         "type": "object",
+        "description": "Every answer at once, replacing the stored ones: an answer left out is cleared.",
         "required": ["route"],
         "properties": {
+          "has_finnish_personal_identity_code": {
+            "type": ["boolean", "null"]
+          },
+          "identification": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationIdentification"
+              }
+            ]
+          },
+          "need": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationNeed"
+              }
+            ]
+          },
+          "need_after_reconsider": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditRegistrationNeed"
+              }
+            ]
+          },
           "route": {
             "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
           }
@@ -29161,6 +29327,39 @@
             "description": "The signed-in account's name, `None` when it has none."
           }
         }
+      },
+      "StudentRegistrationProgress": {
+        "type": "object",
+        "required": ["completed_steps", "submission_uncertain"],
+        "properties": {
+          "completed_steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompletedProgressStep"
+            },
+            "description": "The steps before `current_step`, in order."
+          },
+          "current_step": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StudentRegistrationProgressStep",
+                "description": "`None` once every step is done."
+              }
+            ]
+          },
+          "submission_uncertain": {
+            "type": "boolean",
+            "description": "A send is out and we do not know yet whether it reached Sisu. Only with `current_step`\n`sent_to_sisu`."
+          }
+        }
+      },
+      "StudentRegistrationProgressStep": {
+        "type": "string",
+        "description": "One row of the step list, in the order a registration passes them.",
+        "enum": ["enrolment_found", "sent_to_sisu", "accepted_by_sisu", "partially_registered"]
       },
       "StudentsByCountryTotalsResult": {
         "type": "object",
@@ -30212,6 +30411,10 @@
           },
           "email": {
             "type": "string"
+          },
+          "enrolment_link": {
+            "type": ["string", "null"],
+            "description": "The module's open university enrolment page: the same link the credit registration carries,\nhere so the page has it before the registration exists."
           },
           "register_credits_via_suotar": {
             "type": "boolean",

@@ -1,6 +1,7 @@
 import type {
   CreditRegistrationEnrolmentRoute,
   MyCreditRegistration,
+  StudentRegistrationProgress,
   MyCreditRegistrationForCourseModule,
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
@@ -24,6 +25,7 @@ const DEMO_EMAIL = "student@example.com"
 const DEMO_EMAIL_MASKED = "s*****@example.com"
 
 const UNIVERSITY_OF_HELSINKI: CreditRegistrationEnrolmentRoute = "university_of_helsinki"
+const OPEN_UNIVERSITY: CreditRegistrationEnrolmentRoute = "open_university"
 
 const MINUTE_MS = 60 * 1000
 const HOUR_MS = 60 * MINUTE_MS
@@ -33,6 +35,7 @@ const DAY_MS = 24 * HOUR_MS
 export const DEMO_STAGES = [
   "starting",
   "asks_where_enrolled",
+  "certificate_chosen",
   "enrolment_confirmed",
   "linking_email_sent",
   "waiting_for_course_setup",
@@ -78,6 +81,9 @@ export interface DemoState {
   enrolmentRoute: MyEnrolmentRoute
   studentNumber: MyVerifiedStudentNumber | null
 }
+
+/** Whether the stage needs the course to have a certificate, which fixes that switch. */
+export const fixesCertificate = (stage: DemoStage): boolean => stage === "certificate_chosen"
 
 export const isStudentNumberLinkedIn = ({
   stage,
@@ -143,6 +149,7 @@ const registrationFor = (
     case "not_registering":
       return null
     case "asks_where_enrolled":
+    case "certificate_chosen":
       return base
     case "enrolment_confirmed":
       return isLinked
@@ -169,12 +176,17 @@ const registrationFor = (
         error_code: "course_code_not_found",
       }
     case "sending":
-      return { ...enrolled, student_facing_status: "sending" }
+      return {
+        ...enrolled,
+        student_facing_status: "sending",
+        progress: progressOf(["enrolment_found"], nowMs),
+      }
     case "waiting_for_sisu":
       return {
         ...enrolled,
         student_facing_status: "waiting_for_sisu",
         submitted_at: iso(nowMs - 20 * MINUTE_MS),
+        progress: progressOf(["enrolment_found", "sent_to_sisu"], nowMs),
       }
     case "processing_in_sisu":
       return {
@@ -182,6 +194,7 @@ const registrationFor = (
         student_facing_status: "waiting_for_sisu",
         submitted_at: iso(nowMs - 2 * HOUR_MS),
         is_processing_in_sisu: true,
+        progress: progressOf(["enrolment_found", "sent_to_sisu", "accepted_by_sisu"], nowMs),
       }
     case "registered":
       return {
@@ -211,13 +224,39 @@ const registrationFor = (
   }
 }
 
+const PROGRESS_STEPS = [
+  "enrolment_found",
+  "sent_to_sisu",
+  "accepted_by_sisu",
+  "partially_registered",
+] as const
+
+/** The progress of a registration that has passed `done`, an hour apart, the last an hour ago. */
+const progressOf = (
+  done: readonly (typeof PROGRESS_STEPS)[number][],
+  nowMs: number,
+): StudentRegistrationProgress => ({
+  completed_steps: done.map((step, index) => ({
+    step,
+    reached_at: iso(nowMs - (done.length - index) * HOUR_MS),
+  })),
+  current_step: PROGRESS_STEPS[done.length] ?? null,
+  submission_uncertain: false,
+})
+
 const enrolmentRouteFor = (stage: DemoStage, nowMs: number): MyEnrolmentRoute => {
   const confirmed = stage === "enrolment_confirmed" || stage === "linking_email_sent"
+  const choseCertificate = stage === "certificate_chosen"
   return {
     can_change: true,
     course_module_completion_id: DEMO_COMPLETION_ID,
-    route: confirmed ? UNIVERSITY_OF_HELSINKI : null,
+    route: confirmed ? UNIVERSITY_OF_HELSINKI : choseCertificate ? OPEN_UNIVERSITY : null,
     enrolment_confirmed_at: confirmed ? iso(nowMs - 10 * MINUTE_MS) : null,
+    has_finnish_personal_identity_code: choseCertificate ? false : null,
+    need: choseCertificate ? "certificate" : null,
+    identification: null,
+    need_after_reconsider: null,
+    certificate_chosen_at: choseCertificate ? iso(nowMs - DAY_MS) : null,
   }
 }
 
@@ -236,10 +275,12 @@ export const buildDemoState = (variants: DemoVariants, nowMs: number): DemoState
       register_credits_via_suotar: true,
       status_before_registration:
         variants.stage === "not_registering" ? "not_registering" : "sending",
-      certificate_configuration_id: variants.hasCertificate
-        ? DEMO_CERTIFICATE_CONFIGURATION_ID
-        : null,
+      certificate_configuration_id:
+        variants.hasCertificate || fixesCertificate(variants.stage)
+          ? DEMO_CERTIFICATE_CONFIGURATION_ID
+          : null,
       credit_justification: null,
+      enrolment_link: DEMO_ENROLMENT_LINK,
     },
     registration: registration ? { registration, earlier_attempts: [] } : null,
     enrolmentRoute: enrolmentRouteFor(variants.stage, nowMs),

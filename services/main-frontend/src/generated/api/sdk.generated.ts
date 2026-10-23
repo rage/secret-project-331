@@ -83,6 +83,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ChooseMyCertificateData,
+  ChooseMyCertificateResponses,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenErrors,
   ClaimStudentNumberVerificationTokenResponses,
@@ -856,6 +858,8 @@ import type {
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipErrors,
   VerifyEmailOwnershipResponses,
+  WithdrawMyCertificateChoiceData,
+  WithdrawMyCertificateChoiceResponses,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponses,
 } from "./types.generated"
@@ -880,6 +884,7 @@ import {
   zApproveOauthConsentResponse,
   zApproveOauthDeviceVerificationResponse,
   zChangeUserPasswordResponse,
+  zChooseMyCertificateResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
@@ -1197,6 +1202,7 @@ import {
   zUploadFilesForExerciseAnswerResponse,
   zUploadFilesFromExerciseServiceResponse,
   zVerifyEmailOwnershipResponse,
+  zWithdrawMyCertificateChoiceResponse,
   zWithdrawMyEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
@@ -6057,7 +6063,8 @@ export const getMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
 /**
  *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
- * - Records which university relationship the caller has, which decides where they are told to enrol.
+ * - Records which university relationship the caller has, which decides where they are told to enrol,
+ * and their answers to the questions that follow it. Replaces every stored answer.
  */
 export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
   options: Options<SetMyEnrolmentRouteData, ThrowOnError>,
@@ -6071,6 +6078,43 @@ export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes back choosing the certificate.
+ */
+export const withdrawMyCertificateChoice = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyCertificateChoiceData, ThrowOnError>,
+): RequestResult<WithdrawMyCertificateChoiceResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    WithdrawMyCertificateChoiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zWithdrawMyCertificateChoiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes the certificate instead of registering credits.
+ *
+ * Advisory like the other answers: the pipeline still registers the completion.
+ */
+export const chooseMyCertificate = <ThrowOnError extends boolean = true>(
+  options: Options<ChooseMyCertificateData, ThrowOnError>,
+): RequestResult<ChooseMyCertificateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<ChooseMyCertificateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zChooseMyCertificateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+    ...options,
   })
 
 /**

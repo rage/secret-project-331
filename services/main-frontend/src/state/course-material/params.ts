@@ -3,12 +3,14 @@ import { atom } from "jotai"
 import type {
   CourseMaterialCourse,
   Organization,
+  Page,
 } from "@/generated/course-material-api/types.generated"
 
 export type ViewParams =
   | { type: "material"; courseSlug: string; path: string }
   | { type: "exam"; examId: string; isTestMode: boolean }
   | { type: "management"; organization: Organization; course: CourseMaterialCourse }
+  | { type: "preview"; page: Page }
   | null
 
 /** Parameters defining the current view type (material, exam, or management). */

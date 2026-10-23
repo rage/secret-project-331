@@ -42,6 +42,7 @@ import { coursePageRoute } from "../../utils/routing"
 import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
+import PendingAgentChangesNotice from "./PendingAgentChangesNotice"
 
 interface PageEditorProps {
   data: Page
@@ -312,6 +313,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </BreakFromCentered>
       <div className="editor__component">
         <div>
+          {data.course_id && <PendingAgentChangesNotice pageId={data.id} />}
           {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>

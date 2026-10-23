@@ -481,10 +481,10 @@ fn render_block(
             if let Some(preview) = block_preview(block) {
                 object.insert("preview".into(), json!(preview));
             }
-            if blocks::is_exercise(block) {
-                if let Some(exercise_id) = blocks::exercise_id(block) {
-                    object.insert("exercise_id".into(), json!(exercise_id));
-                }
+            if blocks::is_exercise(block)
+                && let Some(exercise_id) = blocks::exercise_id(block)
+            {
+                object.insert("exercise_id".into(), json!(exercise_id));
             }
             if !block.inner_blocks.is_empty() {
                 object.insert("children".into(), json!(block.inner_blocks.len()));

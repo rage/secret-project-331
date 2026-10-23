@@ -860,14 +860,14 @@ impl<'c> Editor<'c> {
                 ));
             }
         };
-        if let Some(sent) = object.get("clientId") {
-            if sent.as_str() != Some(id.to_string().as_str()) {
-                return Err(EditError::new(
-                    EditErrorCode::InvalidValue,
-                    format!("the value's clientId {sent} differs from the path's block {id}"),
-                )
-                .with_fix("leave clientId out of the value; replace keeps the block's id"));
-            }
+        if let Some(sent) = object.get("clientId")
+            && sent.as_str() != Some(id.to_string().as_str())
+        {
+            return Err(EditError::new(
+                EditErrorCode::InvalidValue,
+                format!("the value's clientId {sent} differs from the path's block {id}"),
+            )
+            .with_fix("leave clientId out of the value; replace keeps the block's id"));
         }
         let mut with_id = object.clone();
         with_id.insert("clientId".to_string(), Value::String(id.to_string()));
@@ -937,14 +937,16 @@ impl<'c> Editor<'c> {
                 Anchor::Before(id) | Anchor::After(id) => Some(id),
                 Anchor::Start(list) | Anchor::End(list) => list.parent,
             };
-            if let Some(anchor_id) = anchor_id {
-                if moved_ids.contains(&anchor_id) {
-                    return Err(EditError::new(
-                        EditErrorCode::MoveIntoItself,
-                        format!("can't move into or next to {anchor_id}: it is part of what is being moved"),
-                    )
-                    .with_fix("choose a target outside the moved block or range"));
-                }
+            if let Some(anchor_id) = anchor_id
+                && moved_ids.contains(&anchor_id)
+            {
+                return Err(EditError::new(
+                    EditErrorCode::MoveIntoItself,
+                    format!(
+                        "can't move into or next to {anchor_id}: it is part of what is being moved"
+                    ),
+                )
+                .with_fix("choose a target outside the moved block or range"));
             }
         } else {
             self.check_not_in_exercise(&first, false, "copy blocks out of it")?;

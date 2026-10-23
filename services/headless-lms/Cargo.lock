@@ -3037,6 +3037,7 @@ name = "headless-lms-mcp"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "base64 0.23.1",
  "chrono",
  "headless-lms-utils",
  "indexmap 2.14.1",

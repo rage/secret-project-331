@@ -153,14 +153,14 @@ pub fn structural_replace(
         })?;
         changed_pages.push(result);
     }
-    if let Some(expected) = expected_count {
-        if expected != matches.len() {
-            return Err(EditError::new(
+    if let Some(expected) = expected_count
+        && expected != matches.len()
+    {
+        return Err(EditError::new(
                 EditErrorCode::ExpectedCountMismatch,
                 format!("expected {expected} matches but found {}; nothing was changed", matches.len()),
             )
             .with_details(json!({"matches": matches.iter().map(|m| json!({"page_id": m.page_id, "path": m.path})).collect::<Vec<_>>()})));
-        }
     }
     Ok(StructuralReplaceResult {
         matches,

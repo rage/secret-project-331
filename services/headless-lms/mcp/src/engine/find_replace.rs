@@ -262,14 +262,14 @@ pub fn find_replace(
         }
     }
     let total = matches.iter().map(|m| m.count).sum();
-    if let Some(expected) = request.expected_count {
-        if expected != total {
-            return Err(EditError::new(
+    if let Some(expected) = request.expected_count
+        && expected != total
+    {
+        return Err(EditError::new(
                 EditErrorCode::ExpectedCountMismatch,
                 format!("expected {expected} matches but found {total}; nothing was changed"),
             )
             .with_details(json!({"matches": matches.iter().map(|m| json!({"page_id": m.page_id, "path": m.path, "count": m.count})).collect::<Vec<_>>()})));
-        }
     }
     let find_lower = request.find.to_lowercase();
     let inflected_variants = variants

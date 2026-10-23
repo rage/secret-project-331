@@ -128,7 +128,7 @@ impl PatchTarget {
         }
     }
 
-    fn allowed_ops(self) -> &'static [OpKind] {
+    pub fn allowed_ops(self) -> &'static [OpKind] {
         match self {
             PatchTarget::PageContent => &[
                 OpKind::Add,

@@ -35,6 +35,8 @@ secrecy.workspace = true
 tokio = { workspace = true, features = ["macros"] }
 # Application-level tracing for Rust.
 tracing = "0.1.44"
+# Decodes base64-wrapped MCP header values.
+base64 = "0.23.1"
 # Hash map that keeps insertion order, so tool lists and result keys stay in a fixed order.
 indexmap = { version = "2.14.1", features = ["serde"] }
 

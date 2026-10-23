@@ -1232,14 +1232,14 @@ impl<'c> StructureEditor<'c> {
             | Anchor::End(ListRef::ModuleChapters(id) | ListRef::ChapterPages(id)) => Some(*id),
             _ => None,
         };
-        if let Some(anchor_id) = anchor_id {
-            if moved_ids.contains(&anchor_id) {
-                return Err(EditError::new(
-                    EditErrorCode::MoveIntoItself,
-                    format!("{anchor_id} is part of what is being moved"),
-                )
-                .with_fix("choose a target outside the moved range"));
-            }
+        if let Some(anchor_id) = anchor_id
+            && moved_ids.contains(&anchor_id)
+        {
+            return Err(EditError::new(
+                EditErrorCode::MoveIntoItself,
+                format!("{anchor_id} is part of what is being moved"),
+            )
+            .with_fix("choose a target outside the moved range"));
         }
         if start.kind == Kind::Page {
             let target_list = match &anchor {
@@ -1266,10 +1266,7 @@ impl<'c> StructureEditor<'c> {
             }
         }
         let entities = self.take(start.list, start.index, end);
-        let (list, index) = match self.resolve_anchor(&anchor, start.kind) {
-            Ok(target) => target,
-            Err(error) => return Err(error),
-        };
+        let (list, index) = self.resolve_anchor(&anchor, start.kind)?;
         self.put(list, index, entities)
     }
 
@@ -1472,13 +1469,13 @@ impl<'c> StructureEditor<'c> {
                 empty.id
             )));
         }
-        if let Some(front) = self.original_front_page {
-            if self.doc.course.pages.first().map(|p| p.id) != Some(front) {
-                return Err(EditError::new(
-                    EditErrorCode::PinnedFrontPage,
-                    "the course front page (/) must stay first in /course/pages",
-                ));
-            }
+        if let Some(front) = self.original_front_page
+            && self.doc.course.pages.first().map(|p| p.id) != Some(front)
+        {
+            return Err(EditError::new(
+                EditErrorCode::PinnedFrontPage,
+                "the course front page (/) must stay first in /course/pages",
+            ));
         }
 
         let mut renumbered = Vec::new();
@@ -1490,14 +1487,14 @@ impl<'c> StructureEditor<'c> {
                     .chapters()
                     .find(|c| c.id == chapter.id)
                     .map(|c| c.chapter_number);
-                if let Some(previous) = previous {
-                    if previous != number {
-                        renumbered.push(ChapterRenumber {
-                            chapter_id: chapter.id,
-                            from: previous,
-                            to: number,
-                        });
-                    }
+                if let Some(previous) = previous
+                    && previous != number
+                {
+                    renumbered.push(ChapterRenumber {
+                        chapter_id: chapter.id,
+                        from: previous,
+                        to: number,
+                    });
                 }
                 chapter.chapter_number = number;
             }
@@ -1511,14 +1508,14 @@ impl<'c> StructureEditor<'c> {
             .collect();
         let mut changed_paths = Vec::new();
         for (_, page) in self.doc.pages() {
-            if let Some(old) = before_paths.get(&page.id) {
-                if *old != page.url_path {
-                    changed_paths.push(Redirect {
-                        page_id: page.id,
-                        from: old.clone(),
-                        to: page.url_path.clone(),
-                    });
-                }
+            if let Some(old) = before_paths.get(&page.id)
+                && *old != page.url_path
+            {
+                changed_paths.push(Redirect {
+                    page_id: page.id,
+                    from: old.clone(),
+                    to: page.url_path.clone(),
+                });
             }
         }
         let redirects = if self.ctx.creates_redirects {
@@ -1670,14 +1667,14 @@ impl<'c> StructureEditor<'c> {
         // renames another page.
         for (id, path, explicit) in &planned {
             let is_kept = before_paths.get(id).is_some_and(|old| old == path);
-            if *explicit || is_kept {
-                if let Some(other) = taken.insert(path.clone(), *id) {
-                    return Err(EditError::new(
-                        EditErrorCode::DuplicatePath,
-                        format!("pages {other} and {id} would both have the path {path}"),
-                    )
-                    .with_fix("give one of them another url_path"));
-                }
+            if (*explicit || is_kept)
+                && let Some(other) = taken.insert(path.clone(), *id)
+            {
+                return Err(EditError::new(
+                    EditErrorCode::DuplicatePath,
+                    format!("pages {other} and {id} would both have the path {path}"),
+                )
+                .with_fix("give one of them another url_path"));
             }
         }
         let mut final_paths: HashMap<Uuid, String> = HashMap::new();

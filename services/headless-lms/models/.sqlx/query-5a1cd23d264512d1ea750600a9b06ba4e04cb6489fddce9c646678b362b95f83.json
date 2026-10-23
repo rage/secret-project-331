@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.id AS exercise_id,\n  e.page_id\nFROM exercises e\nWHERE e.course_id = $1\n  AND e.deleted_at IS NULL\n  AND EXISTS (\n    SELECT 1\n    FROM exercise_slide_submissions ess\n    WHERE ess.exercise_id = e.id\n      AND ess.deleted_at IS NULL\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "page_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "5a1cd23d264512d1ea750600a9b06ba4e04cb6489fddce9c646678b362b95f83"
+}

@@ -5,19 +5,15 @@ import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
-import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { FlipCardAttributes } from "."
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/front-card"]
-const INNER_BLOCKS_TEMPLATE: TemplateArray = [
-  ["moocfi/front-card", {}],
-  ["moocfi/back-card", {}],
-]
-
 const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAttributes>>> = ({
+  name,
   attributes,
   setAttributes,
 }) => {
@@ -36,11 +32,7 @@ const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAt
           width: 100%;
         `}
       >
-        <InnerBlocks
-          allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          template={INNER_BLOCKS_TEMPLATE}
-          templateLock="all"
-        />
+        <InnerBlocks {...registeredInnerBlocksProps(name)} />
       </div>
     </BlockPlaceholderWrapper>
   )

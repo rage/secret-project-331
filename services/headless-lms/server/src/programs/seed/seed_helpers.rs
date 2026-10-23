@@ -90,6 +90,7 @@ pub async fn create_page(
     pages::update_page(
         conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: page.id,
             author,
             cms_page_update: CmsPageUpdate {

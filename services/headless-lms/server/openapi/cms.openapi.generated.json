@@ -1141,6 +1141,44 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/pending-agent-changes": {
+      "get": {
+        "tags": ["cms_pages"],
+        "summary": "\nGET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has\nunpublished AI agent changes on the page, for the notice in the page editor. `null` if not.",
+        "operationId": "getCmsPagePendingAgentChanges",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The open changeset changing the page, if any",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PendingAgentChanges"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/repository-exercises/{course_id}": {
       "get": {
         "tags": ["cms_repository_exercises"],
@@ -2664,6 +2702,25 @@
           "AutomaticallyGradeOrManualReviewByAverage",
           "ManualReviewEverything"
         ]
+      },
+      "PendingAgentChanges": {
+        "type": "object",
+        "description": "The user's unpublished agent changes on a page.",
+        "required": ["changeset_id", "course_id", "review_path"],
+        "properties": {
+          "changeset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "review_path": {
+            "type": "string",
+            "description": "Path of the review page in the main frontend."
+          }
+        }
       },
       "ReasoningEffortLevel": {
         "type": "string",

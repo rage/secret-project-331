@@ -61,6 +61,20 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
       default: false,
     },
   },
+  allowedBlocks: ["core/heading", "core/paragraph"],
+  innerBlocksArea: {
+    template: [
+      [
+        "core/paragraph",
+        {
+          content: "Insert sales speech...",
+          placeholder: "Insert sales speech...",
+          align: "center",
+        },
+      ],
+    ],
+    templateLock: "all",
+  },
   edit: LandingPageHeroSectionEditor,
   save: LandingPageHeroSectionSave,
 }

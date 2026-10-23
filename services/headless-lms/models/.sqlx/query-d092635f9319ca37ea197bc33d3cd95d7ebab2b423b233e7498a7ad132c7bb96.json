@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM agent_changeset_entities\nWHERE changeset_id = $1\n  AND entity_type = $2\n  AND entity_id = $3\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "agent_changeset_entity_type",
+            "kind": {
+              "Enum": [
+                "page",
+                "chapter",
+                "module",
+                "course_settings",
+                "glossary_term",
+                "reference"
+              ]
+            }
+          }
+        },
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d092635f9319ca37ea197bc33d3cd95d7ebab2b423b233e7498a7ad132c7bb96"
+}

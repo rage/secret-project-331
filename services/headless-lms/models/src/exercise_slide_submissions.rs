@@ -467,6 +467,40 @@ pub async fn get_exercise_ids_with_submissions_for_user(
     Ok(exercise_ids)
 }
 
+/// An exercise of a course that has at least one submission, with the page it is on.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExerciseWithSubmissions {
+    pub exercise_id: Uuid,
+    pub page_id: Uuid,
+}
+
+/// The course's exercises that have at least one submission from any user.
+pub async fn get_exercises_with_submissions_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExerciseWithSubmissions>> {
+    let res = sqlx::query_as!(
+        ExerciseWithSubmissions,
+        r#"
+SELECT e.id AS exercise_id,
+  e.page_id
+FROM exercises e
+WHERE e.course_id = $1
+  AND e.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM exercise_slide_submissions ess
+    WHERE ess.exercise_id = e.id
+      AND ess.deleted_at IS NULL
+  )
+        "#,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Of the given exercises, the ones with at least one existing submission from any user.
 ///
 /// Used to warn a teacher before saving a page edit that would drop one of these exercises: the

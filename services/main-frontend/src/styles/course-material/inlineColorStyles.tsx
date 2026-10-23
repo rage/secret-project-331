@@ -11,5 +11,5 @@ export const inlineColorStyles = css`
           color: ${value};
         }`
     })
-    .join(",")}
+    .join("\n")}
 `

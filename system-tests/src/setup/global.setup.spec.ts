@@ -6,6 +6,7 @@ import path from "path"
 import type { BrowserContext, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
+import { AGENT_CHANGESET_USER_EMAILS } from "../utils/agentChangesets"
 import { CREDIT_REGISTRATION_STUDENT_EMAILS } from "../utils/creditRegistration"
 import { login } from "../utils/login"
 
@@ -42,6 +43,11 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
+    // Seeded by `seed_agent_changesets.rs`; the password is the address's local part.
+    ...AGENT_CHANGESET_USER_EMAILS.map((email) => ({
+      email,
+      password: email.replace(/@.*$/, ""),
+    })),
     // The password is the address's local part, for `seed_credit_registration.rs`'s accounts and
     // the general `studentN` ones alike.
     ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({

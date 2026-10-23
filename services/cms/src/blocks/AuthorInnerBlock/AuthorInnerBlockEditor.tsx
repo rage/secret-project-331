@@ -4,28 +4,14 @@ import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import BlockWrapper from "../BlockWrapper"
 
-const AUTHOR_BLOCK_TEMPLATE: Template[] = [
-  [
-    "core/columns",
-    { isStackedOnMobile: true },
-    [
-      ["core/column", {}, [["core/image", {}]]],
-      [
-        "core/column",
-        {},
-        [["core/paragraph", { placeholder: "Insert author's bio text...", align: "left" }]],
-      ],
-    ],
-  ],
-]
-
 const AuthorInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = () => {
+> = ({ name }) => {
   return (
     <BlockWrapper>
       <div
@@ -35,7 +21,7 @@ const AuthorInnerBlockEditor: React.FC<
           }
         `}
       >
-        <InnerBlocks template={AUTHOR_BLOCK_TEMPLATE} templateLock="insert" />
+        <InnerBlocks {...registeredInnerBlocksProps(name)} />
       </div>
     </BlockWrapper>
   )

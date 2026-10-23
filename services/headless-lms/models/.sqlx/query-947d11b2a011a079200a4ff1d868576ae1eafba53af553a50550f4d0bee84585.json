@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT snapshot\nFROM chapter_history\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC,\n  id DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "snapshot",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "chapter_history",
+            "name": "snapshot"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "947d11b2a011a079200a4ff1d868576ae1eafba53af553a50550f4d0bee84585"
+}

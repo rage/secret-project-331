@@ -19,6 +19,8 @@ if (!("Module" in vm)) {
 const customJestConfig = {
   testEnvironment: "jsdom",
   testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
+  // A local production build copies package.json into .next/standalone.
+  modulePathIgnorePatterns: ["<rootDir>/.next/"],
   moduleNameMapper: {
     // SWC rewrites static "@/" imports, but not runtime specifiers like jest.unstable_mockModule("@/...").
     "^@/(.*)$": "<rootDir>/src/$1",

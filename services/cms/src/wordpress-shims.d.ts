@@ -21,6 +21,7 @@ declare module "@wordpress/block-editor" {
   export const ObserveTyping: any
   export const PlainText: any
   export const RichText: any
+  export const SETTINGS_DEFAULTS: any
   export const WritingFlow: any
   export const __experimentalLibrary: any
   export const __experimentalListView: any

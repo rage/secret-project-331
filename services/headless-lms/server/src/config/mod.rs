@@ -170,6 +170,13 @@ pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<
 }
 
 /// Returns global runtime configuration loaded during startup.
+/// The OAuth issuer, or `None` before the server runtime configuration is set (as in unit tests).
+pub fn configured_oauth_issuer() -> Option<String> {
+    SERVER_RUNTIME_CONFIG
+        .get()
+        .map(|config| crate::domain::mcp_auth::oauth_issuer(&config.app_conf))
+}
+
 pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
     SERVER_RUNTIME_CONFIG
         .get()
@@ -277,6 +284,13 @@ impl ServerConfigBuilder {
 
         let jwt_key = Data::new(JwtKey::new(&app_conf.jwt_password)?);
 
+        let mcp_endpoint = Data::new(crate::domain::mcp_endpoint::build_mcp_endpoint(
+            db_pool.as_ref().clone(),
+            &app_conf,
+            jwt_key.clone().into_inner(),
+            self.file_store.clone(),
+        ));
+
         let tmc_client = Data::new(self.tmc_client);
 
         let sisu_client = Data::new(self.sisu_client);
@@ -305,6 +319,7 @@ impl ServerConfigBuilder {
             sisu_client,
             suotar_client,
             mock_suotar_store,
+            mcp_endpoint,
         };
         Ok(config)
     }
@@ -326,6 +341,7 @@ pub struct ServerConfig {
     pub sisu_client: Data<SisuClient>,
     pub suotar_client: Data<SuotarClient>,
     pub mock_suotar_store: Option<Data<MockSuotarStore>>,
+    pub mcp_endpoint: Data<headless_lms_mcp::http::McpEndpoint>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -345,6 +361,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         sisu_client,
         suotar_client,
         mock_suotar_store,
+        mcp_endpoint,
     } = server_config;
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
@@ -367,6 +384,8 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .app_data(sisu_client)
         .app_data(suotar_client)
+        .app_data(mcp_endpoint)
+        .service(web::scope("/.well-known").configure(crate::controllers::well_known::_add_routes))
         .service(
             web::scope("/api/v0")
                 .wrap(RateLimit::new(api_rate_limit_config).bypassable())

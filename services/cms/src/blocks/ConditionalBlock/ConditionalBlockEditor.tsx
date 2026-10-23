@@ -11,6 +11,7 @@ import {
   getCmsCourseModulesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { Checkbox } from "@/shared-module/components"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
@@ -19,51 +20,6 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import type { ConditionAttributes } from "."
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/buttons",
-  "core/button",
-  "core/paragraph",
-  "moocfi/exercise-custom-view-block",
-  "moocfi/aside",
-  "moocfi/chapter-progress",
-  "moocfi/congratulations",
-  "moocfi/course-chapter-grid",
-  "moocfi/course-progress",
-  "moocfi/exercise-slide",
-  "moocfi/exercise-task",
-  "moocfi/exercise-slides",
-  "moocfi/exercise-settings",
-  "moocfi/exercises-in-chapter",
-  "moocfi/glossary",
-  "moocfi/infobox",
-  "moocfi/latex",
-  "moocfi/learning-objectives",
-  "moocfi/pages-in-chapter",
-  "moocfi/unsupported-block-type",
-  "moocfi/highlightbox",
-  "moocfi/instructionbox",
-  "moocfi/tablebox",
-  "moocfi/iframe",
-  "moocfi/map",
-  "moocfi/author",
-  "moocfi/author-inner-block",
-  "moocfi/conditional-block",
-  "moocfi/exercise-custom-view-block",
-  "moocfi/top-level-pages",
-  "moocfi/expandable-content",
-  "moocfi/expandable-content-inner-block",
-  "moocfi/revelable-content",
-  "moocfi/revealable-hidden-content",
-  "moocfi/aside-with-image",
-  "moocfi/flip-card",
-  "moocfi/front-card",
-  "moocfi/back-card",
-  "moocfi/code-giveaway",
-  "moocfi/ingress",
-  "moocfi/terminology-block",
-]
 
 const Wrapper = styled.div`
   display: flex;
@@ -89,7 +45,7 @@ const toCheckedIds = (checked: Record<string, boolean>): string[] =>
 
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ attributes, setAttributes }) => {
+> = ({ name, attributes, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const courseModules = useQuery(
@@ -168,7 +124,7 @@ const ConditionalBlockEditor: React.FC<
         )}
       </InspectorControls>
       <InnerBlocksWrapper title={t("conditionally-shown-content")}>
-        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+        <InnerBlocks {...registeredInnerBlocksProps(name)} />
       </InnerBlocksWrapper>
     </BlockPlaceholderWrapper>
   )

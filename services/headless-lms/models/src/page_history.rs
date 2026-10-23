@@ -4,6 +4,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::{
+    agent_changesets::AgentAttribution,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
     peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
@@ -31,6 +32,9 @@ pub struct PageHistory {
     pub restored_from_id: Option<Uuid>,
     pub author_user_id: Uuid,
     pub page_id: Uuid,
+    /// The agent client the change was made through; `None` for the web UI.
+    pub agent_client_name: Option<String>,
+    pub agent_changeset_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -55,6 +59,7 @@ pub async fn insert(
     history_change_reason: HistoryChangeReason,
     author_user_id: Uuid,
     restored_from_id: Option<Uuid>,
+    attribution: Option<&AgentAttribution>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -65,10 +70,12 @@ INSERT INTO page_history (
     content,
     history_change_reason,
     author_user_id,
-    restored_from_id
+    restored_from_id,
+    agent_client_name,
+    agent_changeset_id
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING *
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id
         ",
         pkey_policy.into_uuid(),
         page_id,
@@ -76,7 +83,9 @@ RETURNING *
         serde_json::to_value(content)?,
         history_change_reason as HistoryChangeReason,
         author_user_id,
-        restored_from_id
+        restored_from_id,
+        attribution.map(|a| a.client_name.as_str()),
+        attribution.map(|a| a.changeset_id),
     )
     .fetch_one(&mut *conn)
     .await?;

@@ -2,6 +2,7 @@ use crate::domain::oauth::jwks::{Jwk, Jwks};
 use crate::domain::oauth::oidc::rsa_n_e_and_kid_from_pem;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
+use models::library::oauth::mcp::McpScope;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -117,8 +118,23 @@ pub async fn well_known_openid(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let server_token = skip_authorize();
-    let base_url = app_conf.base_url.trim_end_matches('/');
+    server_token.authorized_ok(HttpResponse::Ok().json(authorization_server_metadata(&app_conf)))
+}
 
+/// The authorization server metadata, served both as OIDC discovery and at the RFC 8414
+/// well-known location.
+pub(crate) fn authorization_server_metadata(
+    app_conf: &ApplicationConfiguration,
+) -> serde_json::Value {
+    let base_url = app_conf.base_url.trim_end_matches('/');
+    let mut scopes_supported = vec![
+        "openid".to_string(),
+        "profile".to_string(),
+        "email".to_string(),
+        "offline_access".to_string(),
+        "exercise-services".to_string(),
+    ];
+    scopes_supported.extend(McpScope::ALL.iter().map(|scope| scope.as_str().to_string()));
     // We advertise what the server *globally* supports. Per-client specifics (like allowed PKCE methods)
     // can be stricter; by default we allow only S256 for PKCE at the server level.
     let config = serde_json::json!({
@@ -143,6 +159,12 @@ pub async fn well_known_openid(
         // Token endpoint auth: public ("none") and confidential via client_secret_post
         "token_endpoint_auth_methods_supported": ["none","client_secret_post"],
 
+        // Client ID Metadata Documents: an https client_id is fetched as the client's registration
+        "client_id_metadata_document_supported": true,
+
+        // RFC 9207: authorization responses carry `iss`
+        "authorization_response_iss_parameter_supported": true,
+
         // PKCE (RFC 7636): server supports S256; "plain" discouraged and typically disabled
         "code_challenge_methods_supported": ["S256"],
 
@@ -150,13 +172,12 @@ pub async fn well_known_openid(
         "dpop_signing_alg_values_supported": ["ES256","RS256"],
 
         // Nice-to-have hints for clients (optional but common)
-        "scopes_supported":                ["openid","profile","email","offline_access","exercise-services"],
+        "scopes_supported":                scopes_supported,
         "claims_supported":                ["sub","iss","aud","exp","iat","auth_time","nonce","email","email_verified","name","given_name","family_name"],
         "response_modes_supported":        ["query"],
         "userinfo_signing_alg_values_supported": [], // we return plain JSON at /userinfo
     });
-
-    server_token.authorized_ok(HttpResponse::Ok().json(config))
+    config
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

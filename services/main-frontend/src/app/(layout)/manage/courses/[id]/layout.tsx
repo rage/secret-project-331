@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,13 +11,16 @@ import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
+import { getAgentChangesetsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
 import createFeedbackEditProposalCountsHook from "@/hooks/count/useFeedbackEditProposalCounts"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
+import createOpenAgentChangeCountHook from "@/hooks/count/useOpenAgentChangeCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
   courseStatsRoute,
+  manageCourseAgentChangesetsRoute,
   manageCourseExercisesRoute,
   manageCourseFeedbackRoute,
   manageCourseInstancesRoute,
@@ -43,6 +47,7 @@ const KEY_LANGUAGE_VERSIONS = "language-versions"
 const KEY_PERMISSIONS = "permissions"
 const KEY_STATS = "stats"
 const KEY_OTHER = "other"
+const KEY_AGENT_CHANGESETS = "agent-changesets"
 
 export default function CourseManagementLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
@@ -89,6 +94,12 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const feedbackCountHook = createFeedbackEditProposalCountsHook(courseId, "both")
   const answersCountHook = useCountAnswersRequiringAttentionHook(courseId)
   const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
+  const openAgentChangeCountHook = createOpenAgentChangeCountHook(courseId)
+  // Only teachers whose AI agent has staged changes in the course get the tab.
+  const agentChangesetsQuery = useQuery({
+    ...getAgentChangesetsOptions({ query: { course_id: courseId } }),
+  })
+  const hasAgentChangesets = (agentChangesetsQuery.data?.length ?? 0) > 0
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base: RouteTabDefinition[] = [
@@ -159,8 +170,25 @@ export default function CourseManagementLayout({ children }: { children: React.R
         countHook: flaggedCheaterCountHook,
       },
     )
+    if (hasAgentChangesets) {
+      base.push({
+        key: KEY_AGENT_CHANGESETS,
+        title: t("link-agent-changes"),
+        href: manageCourseAgentChangesetsRoute(courseId),
+        countHook: openAgentChangeCountHook,
+      })
+    }
     return base
-  }, [courseId, t, canViewStudents, feedbackCountHook, answersCountHook, flaggedCheaterCountHook])
+  }, [
+    courseId,
+    t,
+    canViewStudents,
+    feedbackCountHook,
+    answersCountHook,
+    flaggedCheaterCountHook,
+    hasAgentChangesets,
+    openAgentChangeCountHook,
+  ])
 
   return (
     <RouteTabListProvider tabs={tabs}>

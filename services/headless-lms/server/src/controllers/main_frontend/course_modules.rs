@@ -171,6 +171,8 @@ async fn enable_or_disable_certificate_generation(
     .await?;
     models::course_modules::update_certification_enabled(&mut conn, course_module_id, enabled)
         .await?;
+    models::course_module_history::insert_current(&mut conn, course_module_id, user.id, None)
+        .await?;
 
     token.authorized_ok(web::Json(true))
 }

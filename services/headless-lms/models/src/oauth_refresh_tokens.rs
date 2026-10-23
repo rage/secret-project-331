@@ -77,6 +77,8 @@ pub struct IssueTokensFromAuthCodeParams<'a> {
     pub access_token_type: TokenType,
     pub access_token_dpop_jkt: Option<&'a str>,
     pub refresh_token_dpop_jkt: Option<&'a str>,
+    /// RFC 8707 audience both tokens are bound to; refreshed tokens keep it.
+    pub audience: Option<&'a [String]>,
 }
 
 impl OAuthRefreshTokens {
@@ -418,7 +420,7 @@ impl OAuthRefreshTokens {
                 user_id: Some(params.user_id),
                 client_id: params.client_id,
                 scopes: params.scopes,
-                audience: None,
+                audience: params.audience,
                 token_type: params.access_token_type,
                 dpop_jkt: params.access_token_dpop_jkt,
                 metadata: serde_json::Map::new(),
@@ -452,7 +454,7 @@ impl OAuthRefreshTokens {
             params.user_id,
             params.client_id,
             params.scopes,
-            Option::<Vec<String>>::None as Option<Vec<String>>,
+            params.audience,
             params.refresh_token_expires_at,
             serde_json::Value::Object(serde_json::Map::new()),
             params.refresh_token_dpop_jkt

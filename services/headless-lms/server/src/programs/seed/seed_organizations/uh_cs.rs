@@ -23,8 +23,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
-            seed_peer_review_course_without_submissions, seed_sample_course,
+            CommonCourseData, seed_agent_changesets, seed_cs_course_material, seed_glossary,
+            seed_graded_course, seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::{create_exam, get_seed_spec_fetcher},
@@ -252,6 +252,13 @@ pub async fn seed_organization_uh_cs(
             cs_data.clone(),
             false,
             seed_users_result,
+        )),
+        run_parallelly(seed_agent_changesets::seed_agent_changesets_course(
+            app_config.clone(),
+            Uuid::parse_str("5b0e2a5c-4a26-4c55-9a0c-6f0f8c4f6a31")?,
+            "Agent changesets",
+            "agent-changesets",
+            cs_data.clone(),
         )),
         run_parallelly(seed_glossary::seed_glossary_course(
             app_config.clone(),

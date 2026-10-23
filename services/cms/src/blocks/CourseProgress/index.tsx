@@ -13,6 +13,7 @@ const CourseProgressConfiguration: BlockConfiguration = {
   title: "Course Progress",
   description: "Course Progress block.",
   category: MOOCFI_CATEGORY_SLUG,
+  allowedBlocks: [],
   edit: CourseProgressEditor,
   save: CourseProgressSave,
   attributes: {},

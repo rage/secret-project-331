@@ -7,7 +7,7 @@ use actix_multipart as mp;
 use actix_multipart::Field;
 use actix_web::http::header;
 use futures::{StreamExt, TryStreamExt};
-use headless_lms_utils::file_store::{FileStore, GenericPayload};
+use headless_lms_utils::file_store::{FileStore, GenericPayload, media_uploads};
 use headless_lms_utils::{
     file_store::file_utils::get_extension_from_filename, strings::generate_random_string,
 };
@@ -625,27 +625,8 @@ pub async fn upload_image_for_organization(
     }
 }
 
-// These limits must match the limits in CMS/src/services/backend/media/uploadMediaToServer.ts
-// If you modify these, update the TypeScript file as well.
-// Note: The nginx ingress also has a limit on max request size (see kubernetes/base/ingress.yml)
-const FILE_SIZE_LIMITS: &[(mime::Name, i32)] = &[
-    // 10 MB for images
-    (mime::IMAGE, 10 * 1024 * 1024),
-    // 100 MB for audio
-    (mime::AUDIO, 100 * 1024 * 1024),
-    // 100 MB for video
-    (mime::VIDEO, 100 * 1024 * 1024),
-    // 25 MB for documents/other files
-    (mime::APPLICATION, 25 * 1024 * 1024),
-];
-// 10 MB default fallback
-const DEFAULT_FILE_SIZE_LIMIT: i32 = 10 * 1024 * 1024;
-
 fn get_size_limit_for_mime(mime_type: Option<mime::Name>) -> i32 {
-    mime_type
-        .and_then(|mime| FILE_SIZE_LIMITS.iter().find(|(m, _)| *m == mime))
-        .map(|(_, size)| *size)
-        .unwrap_or(DEFAULT_FILE_SIZE_LIMIT)
+    media_uploads::size_limit_bytes(mime_type.as_ref().map(|m| m.as_str()))
 }
 
 /// Uploads the data from the multipart `field` to the given `path` in file storage.
@@ -971,17 +952,15 @@ enum FileType {
 }
 
 fn path(file_name: &str, file_type: FileType, store_kind: StoreKind) -> PathBuf {
-    let (base_dir, base_id) = match store_kind {
-        StoreKind::Organization(id) => ("organization", id),
-        StoreKind::Course(id) => ("course", id),
-        StoreKind::Exam(id) => ("exam", id),
+    let owner = match store_kind {
+        StoreKind::Organization(id) => media_uploads::MediaOwner::Organization(id),
+        StoreKind::Course(id) => media_uploads::MediaOwner::Course(id),
+        StoreKind::Exam(id) => media_uploads::MediaOwner::Exam(id),
     };
-    let file_type_subdir = match file_type {
-        FileType::Image => "images",
-        FileType::Audio => "audios",
-        FileType::File => "files",
+    let kind = match file_type {
+        FileType::Image => media_uploads::MediaKind::Image,
+        FileType::Audio => media_uploads::MediaKind::Audio,
+        FileType::File => media_uploads::MediaKind::File,
     };
-    [base_dir, &base_id.to_string(), file_type_subdir, file_name]
-        .iter()
-        .collect()
+    media_uploads::media_path(owner, kind, file_name)
 }

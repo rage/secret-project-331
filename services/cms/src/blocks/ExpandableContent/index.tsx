@@ -1,5 +1,7 @@
 "use client"
 
+/* oxlint-disable i18next/no-literal-string */
+
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
@@ -15,6 +17,8 @@ const ExpandableContentConfiguration: BlockConfiguration = {
   description: ExpandableContent,
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: ["moocfi/expandable-content-inner-block"],
+  innerBlocksArea: {},
   edit: ExpandableContentEditor,
   save: ExpandableContentSave,
 }

@@ -14,6 +14,7 @@ const TopLevePageConfiguration: BlockConfiguration = {
   description: "List of all top level page in a course",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: TopLevelPageEditor,
   save: TopLevelPageSave,
 }

@@ -1,0 +1,47 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT proposed_page_edits.id,\n  proposed_page_edits.page_id,\n  array_agg(\n    proposed_block_edits.block_id\n    ORDER BY proposed_block_edits.created_at,\n      proposed_block_edits.id\n  ) AS \"block_ids!\"\nFROM proposed_page_edits\n  JOIN proposed_block_edits ON proposed_block_edits.proposal_id = proposed_page_edits.id\n  AND proposed_block_edits.deleted_at IS NULL\nWHERE proposed_page_edits.page_id = ANY($1)\n  AND proposed_page_edits.deleted_at IS NULL\nGROUP BY proposed_page_edits.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "block_ids!",
+        "type_info": "UuidArray",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "590c46ae94737c65045ac720b27dff55c9ce41b696964d3e68db5b0c5331ae07"
+}

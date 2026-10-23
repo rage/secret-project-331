@@ -17,6 +17,7 @@ headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-chatbot = { path = "../chatbot" }
 headless-lms-credit-registration = { path = "../credit-registration" }
+headless-lms-mcp = { path = "../mcp" }
 exercise-services-api = { path = "../exercise-services-api", features = ["openapi"] }
 doc-macro = { path = "../doc-macro" }
 

@@ -9,15 +9,14 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
-import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ExerciseAttributes } from "."
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import ExerciseBlockContext from "../../contexts/ExerciseBlockContext"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
-
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 
 const ExerciseEditorCard = styled.div`
   padding: 2rem 1rem;
@@ -27,12 +26,8 @@ const ExerciseEditorCard = styled.div`
   margin-right: 0;
 `
 
-const INNER_BLOCKS_TEMPLATE: TemplateArray = [
-  ["moocfi/exercise-settings", {}],
-  ["moocfi/exercise-slides", {}],
-]
-
 const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAttributes>>> = ({
+  name,
   attributes,
   clientId,
   setAttributes,
@@ -69,11 +64,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                   {t("exercise-title")}
                 </div>
 
-                <InnerBlocks
-                  allowedBlocks={ALLOWED_NESTED_BLOCKS}
-                  template={INNER_BLOCKS_TEMPLATE}
-                  templateLock="all"
-                />
+                <InnerBlocks {...registeredInnerBlocksProps(name)} />
 
                 <div>
                   <Button variant="secondary" size="medium" onClick={handleAddNewSlide}>

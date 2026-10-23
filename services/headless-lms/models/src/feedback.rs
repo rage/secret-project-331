@@ -334,3 +334,60 @@ GROUP BY category_id
         categories: c,
     })
 }
+
+/// A feedback's page and the blocks it points at, in selection order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FeedbackBlockIds {
+    pub id: Uuid,
+    pub page_id: Uuid,
+    pub block_ids: Vec<Uuid>,
+}
+
+/// Block-level feedback on the given pages.
+pub async fn get_block_ids_by_page_ids(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<Vec<FeedbackBlockIds>> {
+    let res = sqlx::query_as!(
+        FeedbackBlockIds,
+        r#"
+SELECT feedback.id,
+  feedback.page_id AS "page_id!",
+  array_agg(
+    block_feedback.block_id
+    ORDER BY block_feedback.order_number
+  ) AS "block_ids!"
+FROM feedback
+  JOIN block_feedback ON block_feedback.feedback_id = feedback.id
+  AND block_feedback.deleted_at IS NULL
+WHERE feedback.page_id = ANY($1)
+  AND feedback.deleted_at IS NULL
+GROUP BY feedback.id
+        "#,
+        page_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Sets each feedback's page; `feedback_ids` and `page_ids` are parallel.
+pub async fn set_page_ids(
+    conn: &mut PgConnection,
+    feedback_ids: &[Uuid],
+    page_ids: &[Uuid],
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE feedback
+SET page_id = moved.page_id
+FROM UNNEST($1::uuid [], $2::uuid []) AS moved(id, page_id)
+WHERE feedback.id = moved.id
+        ",
+        feedback_ids,
+        page_ids
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

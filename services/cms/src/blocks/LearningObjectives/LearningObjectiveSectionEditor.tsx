@@ -5,13 +5,11 @@ import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = ["core/list"]
-const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [["core/list", { align: "left" }]]
 
 const Wrapper = styled.div`
   margin: 2rem auto;
@@ -96,7 +94,7 @@ const Content = styled.div`
 
 const LearningObjectiveSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
-> = () => {
+> = ({ name }) => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -105,11 +103,7 @@ const LearningObjectiveSectionEditor: React.FC<
           <h2>{t("learning-objectives-editor-title")}</h2>
         </Header>
         <Content>
-          <InnerBlocks
-            template={LEARNING_OBJECTIVE_SECTION_TEMPLATE}
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            templateLock="all"
-          />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
         </Content>
       </Wrapper>
     </BlockWrapper>

@@ -14,6 +14,7 @@ const ExercisesInChapterConfiguration: BlockConfiguration = {
   description: "Exercises In Chapter",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: ExercisesInChapterEditor,
   save: ExercisesInChapterSave,
 }

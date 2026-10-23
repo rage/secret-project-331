@@ -7,26 +7,13 @@ import { Notice } from "@wordpress/components"
 import React from "react"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/paragraph",
-  "core/image",
-  "core/video",
-  "core/code",
-  "core/list",
-  "core/quote",
-  "core/table",
-  "moocfi/latex",
-  "moocfi/iframe",
-  "moocfi/audio-upload",
-]
-
 const LockChapterEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = () => {
+> = ({ name }) => {
   const { t } = useTranslation()
   // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-lock-chapter" })
@@ -137,7 +124,7 @@ const LockChapterEditor: React.FC<
               }
             `}
           >
-            <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+            <InnerBlocks {...registeredInnerBlocksProps(name)} />
           </div>
         </div>
       </div>

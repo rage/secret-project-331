@@ -15,6 +15,7 @@ const MapConfiguration: BlockConfiguration = {
   description: MAP_DESCRIPTION,
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: MapEditor,
   save: MapSave,
 }

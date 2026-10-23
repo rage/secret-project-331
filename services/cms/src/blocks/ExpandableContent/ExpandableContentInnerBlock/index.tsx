@@ -19,6 +19,8 @@ const ExpandableContentInnerBlockConfiguration: BlockConfiguration<ExpandableCon
     category: MOOCFI_CATEGORY_SLUG,
     attributes: { name: { type: "string", default: "" } },
     parent: ["moocfi/expandable-content"],
+    allowedBlocks: ["core/heading", "core/paragraph", "core/image", "core/list", "core/html"],
+    innerBlocksArea: {},
     edit: ExpandableContentEditor,
     save: ExpandableContentSave,
   }

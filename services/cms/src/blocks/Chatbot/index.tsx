@@ -27,6 +27,7 @@ const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {
       default: undefined,
     },
   },
+  allowedBlocks: [],
   edit: ChatbotEditor,
   save: ChatbotSave,
 }

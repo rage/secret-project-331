@@ -295,6 +295,7 @@ RETURNING id,
                 crate::page_history::HistoryChangeReason::PageSaved,
                 user,
                 None,
+                None,
             )
             .await?;
 

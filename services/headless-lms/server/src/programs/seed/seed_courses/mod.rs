@@ -1,4 +1,5 @@
 pub mod seed_accessibility_course;
+pub mod seed_agent_changesets;
 use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
@@ -2373,6 +2374,7 @@ pub async fn seed_cs_course_material(
     pages::update_page(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: front_page.id,
             author: teacher_user_id,
             cms_page_update: CmsPageUpdate {
@@ -2439,6 +2441,7 @@ pub async fn seed_cs_course_material(
     pages::update_page(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: front_page_ch_1.id,
             author: teacher_user_id,
             cms_page_update: CmsPageUpdate {
@@ -2608,6 +2611,7 @@ pub async fn seed_cs_course_material(
     pages::update_page(
         &mut conn,
         PageUpdateArgs {
+            agent_attribution: None,
             page_id: front_page_ch_2.id,
             author: teacher_user_id,
             cms_page_update: CmsPageUpdate {

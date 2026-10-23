@@ -27,6 +27,7 @@ import {
   getCmsPage,
   getCmsPageInfo,
   getCmsPageNavigation,
+  getCmsPagePendingAgentChanges,
   getCmsRepositoryExercisesForCourse,
   getExercisesWithSubmissions,
   type Options,
@@ -85,6 +86,8 @@ import type {
   GetCmsPageInfoResponse,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponse,
+  GetCmsPagePendingAgentChangesData,
+  GetCmsPagePendingAgentChangesResponse,
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
@@ -1074,6 +1077,34 @@ export const getCmsPageNavigationOptions = (options: Options<GetCmsPageNavigatio
         throwOnError: true,
       }),
     queryKey: getCmsPageNavigationQueryKey(options),
+  })
+
+export const getCmsPagePendingAgentChangesQueryKey = (
+  options: Options<GetCmsPagePendingAgentChangesData>,
+) => createQueryKey("getCmsPagePendingAgentChanges", options)
+
+/**
+ *
+ * GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+ * unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+ */
+export const getCmsPagePendingAgentChangesOptions = (
+  options: Options<GetCmsPagePendingAgentChangesData>,
+) =>
+  queryOptions<
+    GetCmsPagePendingAgentChangesResponse,
+    DefaultError,
+    GetCmsPagePendingAgentChangesResponse,
+    ReturnType<typeof getCmsPagePendingAgentChangesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCmsPagePendingAgentChanges({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCmsPagePendingAgentChangesQueryKey(options),
   })
 
 export const getCmsRepositoryExercisesForCourseQueryKey = (

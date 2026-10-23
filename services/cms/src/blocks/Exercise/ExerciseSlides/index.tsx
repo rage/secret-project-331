@@ -16,6 +16,8 @@ const ExerciseSlidesConfiguration: BlockConfiguration<Record<string, never>> = {
   category: MOOCFI_CATEGORY_SLUG,
   parent: ["moocfi/exercise"],
   attributes: {},
+  allowedBlocks: ["moocfi/exercise-slide"],
+  innerBlocksArea: { template: [["moocfi/exercise-slide", {}]], templateLock: false },
   edit: ExerciseSlidesEditor,
   save: ExerciseSlidesSave,
 }

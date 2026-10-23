@@ -1,0 +1,162 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT c.id,\n  c.created_at,\n  c.changeset_id,\n  c.user_id,\n  c.oauth_client_id,\n  c.oauth_grant_id,\n  c.client_name,\n  c.tool_name,\n  c.ops,\n  c.summary,\n  c.entity_changes,\n  c.revert_of_call_id\nFROM agent_changeset_calls c\n  JOIN agent_changesets cs ON cs.id = c.changeset_id\nWHERE c.user_id = $1\n  AND cs.course_id = $2\n  AND cs.deleted_at IS NULL\nORDER BY c.created_at DESC,\n  c.id\nLIMIT $3\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "changeset_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "changeset_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "oauth_client_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "oauth_client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "oauth_grant_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "oauth_grant_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "client_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "client_name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "tool_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "tool_name"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "ops",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "ops"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "summary",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "summary"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "entity_changes",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "entity_changes"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "revert_of_call_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "revert_of_call_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "267542f3fc8deee2a6029481973ee2931d004f1b30c00ab428509fc91a731505"
+}

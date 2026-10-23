@@ -52,6 +52,8 @@ import type {
   GetCmsPageInfoResponses,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponses,
+  GetCmsPagePendingAgentChangesData,
+  GetCmsPagePendingAgentChangesResponses,
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
@@ -106,6 +108,7 @@ import {
   zGetCmsExerciseServicesResponse,
   zGetCmsPageInfoResponse,
   zGetCmsPageNavigationResponse,
+  zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
@@ -815,6 +818,27 @@ export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCmsPageNavigationResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/page-navigation",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+ * unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+ */
+export const getCmsPagePendingAgentChanges = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPagePendingAgentChangesData, ThrowOnError>,
+): RequestResult<GetCmsPagePendingAgentChangesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPagePendingAgentChangesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCmsPagePendingAgentChangesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/pending-agent-changes",
     ...options,
   })
 

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT snapshot\nFROM course_module_history\nWHERE course_module_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC,\n  id DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "snapshot",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "course_module_history",
+            "name": "snapshot"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "72755af766224bf6c1c0579652f9716d44495f21412393f3b13bced9dd0ea10e"
+}

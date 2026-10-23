@@ -170,6 +170,13 @@ pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<
 }
 
 /// Returns global runtime configuration loaded during startup.
+/// The OAuth issuer, or `None` before the server runtime configuration is set (as in unit tests).
+pub fn configured_oauth_issuer() -> Option<String> {
+    SERVER_RUNTIME_CONFIG
+        .get()
+        .map(|config| crate::domain::mcp_auth::oauth_issuer(&config.app_conf))
+}
+
 pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
     SERVER_RUNTIME_CONFIG
         .get()
@@ -367,6 +374,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .app_data(sisu_client)
         .app_data(suotar_client)
+        .service(web::scope("/.well-known").configure(crate::controllers::well_known::_add_routes))
         .service(
             web::scope("/api/v0")
                 .wrap(RateLimit::new(api_rate_limit_config).bypassable())

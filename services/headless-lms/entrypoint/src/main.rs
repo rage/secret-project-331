@@ -40,6 +40,10 @@ fn main() -> Result<()> {
             }),
         },
         Program {
+            name: "agent-changeset-expirer",
+            execute: Box::new(|| tokio_run(programs::agent_changeset_expirer::main())),
+        },
+        Program {
             name: "doc-file-generator",
             execute: Box::new(|| tokio_run(programs::doc_file_generator::main())),
         },

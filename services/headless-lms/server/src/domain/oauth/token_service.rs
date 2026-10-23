@@ -69,6 +69,8 @@ pub struct TokenGrantRequest<'a> {
     pub issued_token_type: TokenType,
     pub dpop_jkt: Option<&'a str>,
     pub token_hmac_key: &'a SecretString,
+    /// RFC 8707 `resource` of the token request; must match the grant's resource when present.
+    pub resource: Option<&'a str>,
 }
 
 #[derive(Debug)]
@@ -197,6 +199,15 @@ pub async fn process_token_grant(
             )
             .map_err(|_| TokenGrantError::PkceVerificationFailed)?;
 
+            if let Some(requested) = request.resource
+                && code_row.resource.as_deref() != Some(requested)
+            {
+                return Err(TokenGrantError::InvalidTarget(
+                    "resource does not match the authorization request".to_string(),
+                ));
+            }
+            let audience = code_row.resource.clone().map(|resource| vec![resource]);
+
             OAuthRefreshTokens::issue_tokens_from_auth_code_in_transaction(
                 &mut tx,
                 IssueTokensFromAuthCodeParams {
@@ -210,6 +221,7 @@ pub async fn process_token_grant(
                     access_token_type: request.issued_token_type,
                     access_token_dpop_jkt: request.dpop_jkt,
                     refresh_token_dpop_jkt: request.dpop_jkt,
+                    audience: audience.as_deref(),
                 },
             )
             .await
@@ -244,6 +256,17 @@ pub async fn process_token_grant(
             // On `Err` the caller rolls back the transaction, so the consumed-token
             // update above is undone too and the refresh token isn't burned.
             let effective_scopes = resolve_refresh_scopes(&old.scopes, scope.as_deref())?;
+
+            if let Some(requested) = request.resource
+                && !old
+                    .audience
+                    .as_ref()
+                    .is_some_and(|audience| audience.iter().any(|a| a == requested))
+            {
+                return Err(TokenGrantError::InvalidTarget(
+                    "resource does not match the refresh token".to_string(),
+                ));
+            }
 
             if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
                 let presented_jkt = request.dpop_jkt.ok_or_else(|| {
@@ -376,6 +399,7 @@ async fn process_device_code_grant(
                 access_token_type: request.issued_token_type,
                 access_token_dpop_jkt: request.dpop_jkt,
                 refresh_token_dpop_jkt: request.dpop_jkt,
+                audience: None,
             },
         )
         .await
@@ -453,6 +477,7 @@ mod tests {
             issued_token_type: TokenType::Bearer,
             dpop_jkt: None,
             token_hmac_key: key,
+            resource: None,
         }
     }
 
@@ -593,6 +618,7 @@ mod tests {
             issued_token_type: TokenType::Bearer,
             dpop_jkt: None,
             token_hmac_key: key,
+            resource: None,
         }
     }
 

@@ -9,6 +9,8 @@ pub struct TokenResponse {
     pub refresh_token: Option<String>,
     pub token_type: String,
     pub expires_in: u32,
+    /// The granted scopes, which may be narrower than the requested ones (RFC 6749 §5.1).
+    pub scope: String,
 }
 
 impl std::fmt::Debug for TokenResponse {
@@ -22,6 +24,7 @@ impl std::fmt::Debug for TokenResponse {
             )
             .field("token_type", &self.token_type)
             .field("expires_in", &self.expires_in)
+            .field("scope", &self.scope)
             .finish()
     }
 }

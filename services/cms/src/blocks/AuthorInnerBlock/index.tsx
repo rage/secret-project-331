@@ -15,6 +15,23 @@ const AuthorInnerBlockConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   parent: ["moocfi/author"],
+  innerBlocksArea: {
+    template: [
+      [
+        "core/columns",
+        { isStackedOnMobile: true },
+        [
+          ["core/column", {}, [["core/image", {}]]],
+          [
+            "core/column",
+            {},
+            [["core/paragraph", { placeholder: "Insert author's bio text...", align: "left" }]],
+          ],
+        ],
+      ],
+    ],
+    templateLock: "insert",
+  },
   edit: AuthorInnerBlockEditor,
   save: AuthorInnerBlockSave,
 }

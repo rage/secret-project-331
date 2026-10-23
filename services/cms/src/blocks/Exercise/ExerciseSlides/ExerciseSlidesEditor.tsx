@@ -2,24 +2,17 @@
 
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 
-import type { TemplateArray } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
-
-const INNER_BLOCKS_TEMPLATE: TemplateArray = [["moocfi/exercise-slide", {}]]
-
-const ExerciseSlidesEditor = () => {
+const ExerciseSlidesEditor: React.FC<BlockEditProps> = ({ name }) => {
   const blockProps = useBlockProps({ className: gutenbergControlsHidden })
 
   return (
     <div {...blockProps}>
-      <InnerBlocks
-        allowedBlocks={ALLOWED_NESTED_BLOCKS}
-        template={INNER_BLOCKS_TEMPLATE}
-        templateLock={false}
-      />
+      <InnerBlocks {...registeredInnerBlocksProps(name)} />
     </div>
   )
 }

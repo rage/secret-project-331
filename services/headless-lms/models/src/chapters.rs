@@ -1243,6 +1243,86 @@ pub async fn unlock_next_chapters_for_user(
     Ok(chapters_to_unlock)
 }
 
+/// Writes every field of the snapshot to the chapter, creating it with the snapshot's id if it does
+/// not exist and bringing it back if it is deleted. Does not touch the chapter's pages.
+pub async fn upsert_from_snapshot(
+    conn: &mut PgConnection,
+    snapshot: &crate::library::entity_snapshots::ChapterSnapshot,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+INSERT INTO chapters (
+    id,
+    course_id,
+    course_module_id,
+    name,
+    color,
+    chapter_number,
+    front_page_id,
+    opens_at,
+    deadline,
+    chapter_image_path
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
+UPDATE
+SET course_module_id = EXCLUDED.course_module_id,
+  name = EXCLUDED.name,
+  color = EXCLUDED.color,
+  chapter_number = EXCLUDED.chapter_number,
+  front_page_id = EXCLUDED.front_page_id,
+  opens_at = EXCLUDED.opens_at,
+  deadline = EXCLUDED.deadline,
+  chapter_image_path = EXCLUDED.chapter_image_path,
+  deleted_at = NULL
+WHERE chapters.course_id = EXCLUDED.course_id
+        "#,
+        snapshot.id,
+        snapshot.course_id,
+        snapshot.course_module_id,
+        snapshot.name,
+        snapshot.color,
+        snapshot.chapter_number,
+        snapshot.front_page_id,
+        snapshot.opens_at,
+        snapshot.deadline,
+        snapshot.chapter_image_path,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Moves the chapters' numbers out of the way of the unique constraint, so that a batch of chapters
+/// can swap them. Every parked chapter must get its final number in the same transaction.
+pub async fn park_chapter_numbers(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
+    if ids.is_empty() {
+        return Ok(());
+    }
+    sqlx::query!(
+        "
+UPDATE chapters
+SET chapter_number = 1000000 + v.position
+FROM unnest($1::uuid[]) WITH ORDINALITY AS v(id, position)
+WHERE chapters.id = v.id
+",
+        ids,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Unsets the front page of the chapters, so that their front pages can be deleted.
+pub async fn clear_front_pages(conn: &mut PgConnection, chapter_ids: &[Uuid]) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE chapters SET front_page_id = NULL WHERE id = ANY($1)",
+        chapter_ids
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

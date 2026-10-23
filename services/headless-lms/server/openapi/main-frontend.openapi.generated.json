@@ -115,6 +115,241 @@
         }
       }
     },
+    "/api/v0/main-frontend/agent-changesets": {
+      "get": {
+        "tags": ["agent_changesets"],
+        "summary": "\nGET `/api/v0/main-frontend/agent-changesets?course_id=` - The signed-in user's agent changesets in\nthe course, newest first, with what each changes.",
+        "operationId": "getAgentChangesets",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's changesets in the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChangesetSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}": {
+      "get": {
+        "tags": ["agent_changesets"],
+        "summary": "\nGET `/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}` - Whether the signed-in user\nhas unpublished agent changes on the page, for the notice in the page editor. `null` if not.",
+        "operationId": "getAgentChangesPendingForPage",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The open changeset changing the page, if any",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PendingAgentChanges"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-changesets/{changeset_id}": {
+      "get": {
+        "tags": ["agent_changesets"],
+        "summary": "\nGET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the\nreview page: each entity's base, staged and live snapshot, risk reasons, conflicts and the agent\ncalls that staged it.",
+        "operationId": "getAgentChangeset",
+        "parameters": [
+          {
+            "name": "changeset_id",
+            "in": "path",
+            "description": "Changeset id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The changeset with its entities and calls",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangesetReview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-changesets/{changeset_id}/discard": {
+      "post": {
+        "tags": ["agent_changesets"],
+        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open\nchangeset. Nothing of it reaches the live course.",
+        "operationId": "discardAgentChangeset",
+        "parameters": [
+          {
+            "name": "changeset_id",
+            "in": "path",
+            "description": "Changeset id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The discarded changeset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentChangeset"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}": {
+      "post": {
+        "tags": ["agent_changesets"],
+        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a\nshort-lived preview link for a page of the user's changeset, so the review page can open the staged\npage as students would see it.",
+        "operationId": "createAgentChangesetPreviewLink",
+        "parameters": [
+          {
+            "name": "changeset_id",
+            "in": "path",
+            "description": "Changeset id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The preview link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentPreviewLink"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-changesets/{changeset_id}/publish": {
+      "post": {
+        "tags": ["agent_changesets"],
+        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open\nchangeset, risky changes included. Rejected without changes if any staged page or entity changed\nlive since it was staged.",
+        "operationId": "publishAgentChangeset",
+        "parameters": [
+          {
+            "name": "changeset_id",
+            "in": "path",
+            "description": "Changeset id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published, or why it was not",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishOutcome"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/agent-preview/{token}": {
+      "get": {
+        "tags": ["agent_preview"],
+        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No\nlogin: the short-lived signed token is the authorization.",
+        "operationId": "getAgentPagePreview",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Preview token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The staged page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagePreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/certificates": {
       "post": {
         "tags": ["certificates"],
@@ -11545,7 +11780,7 @@
       "post": {
         "tags": ["oauth"],
         "summary": "Handles `/consent` approval after the user agrees to grant requested scopes.",
-        "description": "This endpoint:\n- Validates the redirect URI and requested scopes against the registered client.\n- Records granted scopes for the user-client pair.\n- Redirects back to `/authorize` to continue the OAuth flow.\n\n# Example\n```http\nGET /api/v0/main-frontend/oauth/consent?client_id=test-client-id&redirect_uri=http://localhost&scopes=openid%20profile&state=random123&nonce=secure_nonce_abc HTTP/1.1\nCookie: session=abc123\n\n```\n\nRedirect back to `/authorize`:\n```http\nHTTP/1.1 302 Found\nLocation: /api/v0/main-frontend/oauth/authorize?client_id=...\n```",
+        "description": "This endpoint:\n- Validates the redirect URI and the approved scopes against the registered client.\n- Records the approved scopes for the user-client pair.\n- Redirects back to `/authorize` with the approved scopes, so the code is issued for them.\n\n`scope` is what the user approved, which may be fewer scopes than requested. If it contains\nany MCP scope it must contain `material:read`.\n\n# Example\n```http\nPOST /api/v0/main-frontend/oauth/consent HTTP/1.1\nCookie: session=abc123\n\n{\"client_id\":\"test-client-id\",\"redirect_uri\":\"http://localhost\",\"scope\":\"openid profile\",\"state\":\"random123\",\"nonce\":\"secure_nonce_abc\",\"response_type\":\"code\"}\n```\n\nResponse:\n```json\n{\"redirect_uri\": \"/api/v0/main-frontend/oauth/authorize?client_id=...\"}\n```",
         "operationId": "approveOauthConsent",
         "requestBody": {
           "content": {
@@ -11571,11 +11806,57 @@
         }
       }
     },
+    "/api/v0/main-frontend/oauth/consent-info": {
+      "get": {
+        "tags": ["oauth"],
+        "summary": "\nGET `/api/v0/main-frontend/oauth/consent-info` - What the consent screen shows: the client asking\nand a checkbox state per requested scope. The client must already be known, which the authorize\nendpoint ensures before redirecting to the consent screen.",
+        "operationId": "getOauthConsentInfo",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "description": "The requested scopes, space-separated.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consent screen data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/oauth/consent/deny": {
       "post": {
         "tags": ["oauth"],
         "summary": "Handles `/consent/deny` when the user refuses to grant scopes.",
-        "description": "This endpoint:\n- Redirects back to the client with `error=access_denied`.\n\n# Example\n```http\nGET /api/v0/main-frontend/oauth/consent/deny?redirect_uri=http://localhost&state=random123 HTTP/1.1\n\n```\n\nResponse:\n```http\nHTTP/1.1 302 Found\nLocation: http://localhost?error=access_denied&state=random123\n```",
+        "description": "This endpoint:\n- Redirects back to the client with `error=access_denied` and `iss` (RFC 9207).\n\n# Example\n```http\nPOST /api/v0/main-frontend/oauth/consent/deny HTTP/1.1\n\n{\"client_id\":\"test-client-id\",\"redirect_uri\":\"http://localhost\",\"state\":\"random123\"}\n```\n\nResponse:\n```json\n{\"redirect_uri\": \"http://localhost?error=access_denied&state=random123&iss=...\"}\n```",
         "operationId": "denyOauthConsent",
         "requestBody": {
           "content": {
@@ -11733,6 +12014,52 @@
           },
           "404": {
             "description": "No pending device authorization for this user_code"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/grants": {
+      "get": {
+        "tags": ["oauth"],
+        "summary": "\nGET `/api/v0/main-frontend/oauth/grants` - The signed-in user's OAuth grants, including AI agent\nclients, with their scopes and when they were last used.",
+        "operationId": "getOauthGrants",
+        "responses": {
+          "200": {
+            "description": "The user's grants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OAuthGrant"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/oauth/grants/{grant_id}": {
+      "delete": {
+        "tags": ["oauth"],
+        "summary": "\nDELETE `/api/v0/main-frontend/oauth/grants/{grant_id}` - Revokes one of the signed-in user's grants\nand every token issued from it. The client has to ask for consent again.",
+        "operationId": "revokeOauthGrant",
+        "parameters": [
+          {
+            "name": "grant_id",
+            "in": "path",
+            "description": "Grant id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Grant revoked"
           }
         }
       }
@@ -16966,6 +17293,194 @@
           }
         }
       },
+      "AgentChangeset": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "course_id",
+          "status",
+          "expires_at"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "published_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "published_by": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentChangesetStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AgentChangesetCall": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "changeset_id",
+          "user_id",
+          "client_name",
+          "tool_name",
+          "ops",
+          "entity_changes"
+        ],
+        "properties": {
+          "changeset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "client_name": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entity_changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EntityChange"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "oauth_client_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "oauth_grant_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "ops": {},
+          "revert_of_call_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "summary": {
+            "type": ["string", "null"]
+          },
+          "tool_name": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AgentChangesetEntity": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "changeset_id",
+          "entity_type",
+          "entity_id",
+          "operation",
+          "risk_reasons"
+        ],
+        "properties": {
+          "after_snapshot": {
+            "description": "The staged entity; `None` for deletes."
+          },
+          "base_snapshot": {
+            "description": "The live entity when it was first staged; `None` for creates."
+          },
+          "base_version_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "changeset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "entity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/AgentChangesetEntityOperation"
+          },
+          "risk_reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiskReason"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AgentChangesetEntityOperation": {
+        "type": "string",
+        "enum": ["create", "update", "delete"]
+      },
+      "AgentChangesetEntityType": {
+        "type": "string",
+        "enum": ["page", "chapter", "module", "course_settings", "glossary_term", "reference"]
+      },
+      "AgentChangesetStatus": {
+        "type": "string",
+        "enum": ["open", "published", "discarded", "expired"]
+      },
+      "AgentPreviewLink": {
+        "type": "object",
+        "description": "A login-free link to one page of a changeset as staged.",
+        "required": ["preview_path"],
+        "properties": {
+          "preview_path": {
+            "type": "string",
+            "description": "Path of the preview page in the main frontend. Expires after\n`PREVIEW_TOKEN_LIFETIME_MINUTES`."
+          }
+        }
+      },
       "AnalysisCourseType": {
         "type": "string",
         "enum": ["compulsory", "elective"]
@@ -17794,6 +18309,96 @@
           },
           "old_password": {
             "type": "string"
+          }
+        }
+      },
+      "ChangesetEntitySummary": {
+        "type": "object",
+        "description": "One entity of a changeset, as listings and expiry warnings describe it.",
+        "required": ["entity_type", "entity_id", "operation", "label", "risk_reasons"],
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          },
+          "label": {
+            "type": "string"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/AgentChangesetEntityOperation"
+          },
+          "risk_reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiskReason"
+            }
+          }
+        }
+      },
+      "ChangesetReview": {
+        "type": "object",
+        "description": "Everything the review page shows for a changeset.",
+        "required": [
+          "changeset",
+          "entities",
+          "calls",
+          "conflicts",
+          "has_risky_changes",
+          "is_expiring_soon"
+        ],
+        "properties": {
+          "calls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentChangesetCall"
+            },
+            "description": "The agent calls that staged the changes, oldest first."
+          },
+          "changeset": {
+            "$ref": "#/components/schemas/AgentChangeset"
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishConflict"
+            }
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewEntity"
+            }
+          },
+          "has_risky_changes": {
+            "type": "boolean"
+          },
+          "is_expiring_soon": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ChangesetSummary": {
+        "type": "object",
+        "description": "A changeset with what it changes. While it is open and close to expiry, `is_expiring_soon` is\nset and `entities` is what expiry would drop.",
+        "required": ["changeset", "entities", "has_risky_changes", "is_expiring_soon"],
+        "properties": {
+          "changeset": {
+            "$ref": "#/components/schemas/AgentChangeset"
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChangesetEntitySummary"
+            }
+          },
+          "has_risky_changes": {
+            "type": "boolean"
+          },
+          "is_expiring_soon": {
+            "type": "boolean"
           }
         }
       },
@@ -18652,6 +19257,51 @@
           }
         }
       },
+      "ConsentInfo": {
+        "type": "object",
+        "description": "What the consent screen shows about the client asking for access.",
+        "required": [
+          "client_id",
+          "client_name",
+          "redirect_uri",
+          "is_loopback_redirect",
+          "is_metadata_document_client",
+          "scopes"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "The client's public id; for agents, the URL of its metadata document."
+          },
+          "client_name": {
+            "type": "string"
+          },
+          "client_uri": {
+            "type": ["string", "null"]
+          },
+          "is_loopback_redirect": {
+            "type": "boolean",
+            "description": "The redirect goes to a program on the user's own computer."
+          },
+          "is_metadata_document_client": {
+            "type": "boolean",
+            "description": "Whether the client registered itself through a client ID metadata document, as AI agents\ndo."
+          },
+          "logo_uri": {
+            "type": ["string", "null"]
+          },
+          "redirect_uri": {
+            "type": "string",
+            "description": "Where the browser goes after approving: shown so the user can see which client is asking,\nsince any client can claim any name."
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConsentScope"
+            }
+          }
+        }
+      },
       "ConsentQuery": {
         "type": "object",
         "required": ["client_id", "redirect_uri", "response_type", "scope", "state", "nonce"],
@@ -18671,6 +19321,10 @@
           "redirect_uri": {
             "type": "string"
           },
+          "resource": {
+            "type": ["string", "null"],
+            "description": "RFC 8707 resource indicator of the authorization request, passed back to `/authorize`."
+          },
           "response_type": {
             "type": "string"
           },
@@ -18688,6 +19342,27 @@
         "properties": {
           "redirect_uri": {
             "type": "string"
+          }
+        }
+      },
+      "ConsentScope": {
+        "type": "object",
+        "description": "One requested scope as the consent screen shows it.",
+        "required": ["scope", "is_required", "is_checked_by_default", "was_previously_granted"],
+        "properties": {
+          "is_checked_by_default": {
+            "type": "boolean"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "The user cannot uncheck it."
+          },
+          "scope": {
+            "type": "string"
+          },
+          "was_previously_granted": {
+            "type": "boolean",
+            "description": "The user already granted it to this client."
           }
         }
       },
@@ -20881,6 +21556,23 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "CreatedRedirect": {
+        "type": "object",
+        "description": "A redirect publishing created from a page's old path.",
+        "required": ["page_id", "old_url_path", "new_url_path"],
+        "properties": {
+          "new_url_path": {
+            "type": "string"
+          },
+          "old_url_path": {
+            "type": "string"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -23514,6 +24206,29 @@
           "roster_listing",
           "account_link"
         ]
+      },
+      "EntityChange": {
+        "type": "object",
+        "description": "One entity a call touched, with its full snapshot just before and just after the call.",
+        "required": ["entity_type", "entity_id", "operation"],
+        "properties": {
+          "after": {
+            "description": "`None` when the call deleted the entity."
+          },
+          "before": {
+            "description": "`None` when the entity did not exist before the call."
+          },
+          "entity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/AgentChangesetEntityOperation"
+          }
+        }
       },
       "EventInfo": {
         "type": "object",
@@ -26559,6 +27274,59 @@
           }
         }
       },
+      "OAuthGrant": {
+        "type": "object",
+        "description": "A user's consent to one client: what the account page lists and revokes.",
+        "required": [
+          "id",
+          "client_id",
+          "client_identifier",
+          "client_name",
+          "is_metadata_document_client",
+          "scopes",
+          "granted_at"
+        ],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "`oauth_clients.id`."
+          },
+          "client_identifier": {
+            "type": "string",
+            "description": "The client's public `client_id`; the metadata document URL for agent clients."
+          },
+          "client_name": {
+            "type": "string"
+          },
+          "client_uri": {
+            "type": ["string", "null"]
+          },
+          "granted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_metadata_document_client": {
+            "type": "boolean",
+            "description": "Whether the client registered through a Client ID Metadata Document, as AI agents do."
+          },
+          "last_used_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Minute resolution; `None` if no token from the grant was ever used."
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "OrgExam": {
         "type": "object",
         "required": [
@@ -26807,6 +27575,14 @@
           "page_id"
         ],
         "properties": {
+          "agent_changeset_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "agent_client_name": {
+            "type": ["string", "null"],
+            "description": "The agent client the change was made through; `None` for the web UI."
+          },
           "author_user_id": {
             "type": "string",
             "format": "uuid"
@@ -26870,6 +27646,46 @@
           }
         }
       },
+      "PagePreview": {
+        "type": "object",
+        "description": "What the preview of a staged page renders.",
+        "required": [
+          "changeset_id",
+          "course_id",
+          "course_name",
+          "course_slug",
+          "language_code",
+          "page",
+          "is_staged"
+        ],
+        "properties": {
+          "changeset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "course_slug": {
+            "type": "string"
+          },
+          "is_staged": {
+            "type": "boolean",
+            "description": "Whether the changeset changes this page."
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageSnapshot",
+            "description": "The page as staged, or as live if the changeset does not change it."
+          }
+        }
+      },
       "PageProposal": {
         "type": "object",
         "required": [
@@ -26912,6 +27728,75 @@
           "user_id": {
             "type": ["string", "null"],
             "format": "uuid"
+          }
+        }
+      },
+      "PageSnapshot": {
+        "type": "object",
+        "description": "A course page: its metadata, its stored blocks and its exercises, in the shape the CMS page\nsave takes. Exercise blocks in `content` are stored stripped to their id, as the CMS stores\nthem; the exercises themselves are in `exercises`, `exercise_slides` and `exercise_tasks`.",
+        "required": [
+          "id",
+          "course_id",
+          "url_path",
+          "title",
+          "hidden",
+          "order_number",
+          "content",
+          "exercises",
+          "exercise_slides",
+          "exercise_tasks"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` for top-level pages."
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GutenbergBlock"
+            }
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_slides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CmsPageExerciseSlide"
+            }
+          },
+          "exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CmsPageExerciseTask"
+            }
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CmsPageExercise"
+            }
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Position among the pages of the same chapter (or the top-level pages). 0 is reserved for\na chapter's front page."
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
           }
         }
       },
@@ -28165,6 +29050,25 @@
           }
         }
       },
+      "PendingAgentChanges": {
+        "type": "object",
+        "description": "The user's unpublished agent changes on a page.",
+        "required": ["changeset_id", "course_id", "review_path"],
+        "properties": {
+          "changeset_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "review_path": {
+            "type": "string",
+            "description": "Path of the review page in the main frontend."
+          }
+        }
+      },
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
@@ -28409,6 +29313,128 @@
       "ProposalStatus": {
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
+      },
+      "PublishConflict": {
+        "type": "object",
+        "description": "A staged entity whose live state changed after it was staged.",
+        "required": ["entity_type", "entity_id", "label"],
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          },
+          "label": {
+            "type": "string"
+          },
+          "last_changed_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the live entity was last changed, if its history knows."
+          },
+          "last_changed_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "last_changed_via_client": {
+            "type": ["string", "null"],
+            "description": "The agent client of the last change; `None` for the web UI or when unknown."
+          }
+        }
+      },
+      "PublishOutcome": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["changeset", "redirects", "outcome"],
+            "properties": {
+              "changeset": {
+                "$ref": "#/components/schemas/AgentChangeset"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": ["published"]
+              },
+              "redirects": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreatedRedirect"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["rejection", "outcome"],
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": ["rejected"]
+              },
+              "rejection": {
+                "$ref": "#/components/schemas/PublishRejection"
+              }
+            }
+          }
+        ]
+      },
+      "PublishRejection": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Live entities changed since they were staged; the agent must restage them.",
+            "required": ["conflicts", "reason"],
+            "properties": {
+              "conflicts": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublishConflict"
+                }
+              },
+              "reason": {
+                "type": "string",
+                "enum": ["conflicts"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The changeset holds risky changes, which only the user can publish on the review page.",
+            "required": ["risky_entities", "reason"],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "enum": ["needs_confirmation"]
+              },
+              "risky_entities": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RiskyEntity"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Pages would add tasks of exercise services only global admins may add.",
+            "required": ["service_names", "reason"],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "enum": ["global_admin_only_exercise_services"]
+              },
+              "service_names": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Why a publish was refused. Nothing was written."
       },
       "ReasoningEffortLevel": {
         "type": "string",
@@ -28918,6 +29944,26 @@
           "permanent_needs_config"
         ]
       },
+      "ReviewEntity": {
+        "type": "object",
+        "description": "One entity on the review page: its base, staged and current live state, so the page can render\nthe diff and flag conflicts.",
+        "required": ["entity", "label", "has_conflict"],
+        "properties": {
+          "entity": {
+            "$ref": "#/components/schemas/AgentChangesetEntity"
+          },
+          "has_conflict": {
+            "type": "boolean",
+            "description": "Whether the live entity changed after it was staged, which blocks publishing."
+          },
+          "label": {
+            "type": "string"
+          },
+          "live_snapshot": {
+            "description": "The live entity now; `None` if it does not exist."
+          }
+        }
+      },
       "ReviewingStage": {
         "type": "string",
         "description": "\nTells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.",
@@ -28931,6 +29977,46 @@
           "Locked",
           "NotAnsweredAndLocked"
         ]
+      },
+      "RiskReason": {
+        "type": "object",
+        "description": "Why a staged change needs the user's confirmation before it is published.",
+        "required": ["code", "message", "consequence"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Stable machine-readable identifier of the rule, e.g. `exercise_with_submissions_removed`."
+          },
+          "consequence": {
+            "type": "string",
+            "description": "What happens to students if the change is published."
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "RiskyEntity": {
+        "type": "object",
+        "required": ["entity_type", "entity_id", "label", "risk_reasons"],
+        "properties": {
+          "entity_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          },
+          "label": {
+            "type": "string"
+          },
+          "risk_reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiskReason"
+            }
+          }
+        }
       },
       "Role": {
         "type": "object",

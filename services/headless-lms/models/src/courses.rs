@@ -50,6 +50,21 @@ pub struct CourseMetadataUpdate {
     course_prerequisites: Vec<EditCoursePrerequisite>,
 }
 
+impl CourseMetadataUpdate {
+    /// Audiences and prerequisites left out of the lists are deleted.
+    pub fn new(
+        course_description: Option<String>,
+        course_audiences: Vec<EditCourseAudience>,
+        course_prerequisites: Vec<EditCoursePrerequisite>,
+    ) -> Self {
+        Self {
+            course_description,
+            course_audiences,
+            course_prerequisites,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CompleteCourseMetadata {
     course: Course,

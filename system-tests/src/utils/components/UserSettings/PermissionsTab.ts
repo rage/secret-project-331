@@ -154,6 +154,7 @@ export class PermissionsTab {
       try {
         await waitForSuccessNotification(this.page, async () => {
           await app.revokeButton.click()
+          await this.page.getByTestId("oauth-grant-revoke-confirm-button").click()
         })
       } catch {
         const appsAfterClick = await this.getAuthorizedApplications()

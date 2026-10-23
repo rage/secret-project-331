@@ -15,6 +15,7 @@ import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessib
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -24,31 +25,6 @@ import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
 import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/paragraph",
-  "core/image",
-  "core/heading",
-  "core/list",
-  "core/list-item",
-  "core/quote",
-  "core/audio",
-  "core/code",
-  "core/columns",
-  "core/column", // core/column is child of core/columns
-  "core/embed", // This is used by youtube, twitter etc.
-  "core/file",
-  "core/html",
-  "core/preformatted",
-  "core/pullquote",
-  "core/separator",
-  "core/block",
-  "core/spacer",
-  "core/table",
-  "core/verse",
-  "moocfi/latex",
-  "moocfi/iframe",
-]
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
@@ -123,7 +99,7 @@ export interface ExerciseTaskAttributes {
 
 const ExerciseTaskEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
-> = ({ attributes, clientId, setAttributes }) => {
+> = ({ name, attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
 
   const exerciseServicesQuery = useAllExerciseServices()
@@ -249,7 +225,7 @@ const ExerciseTaskEditor: React.FC<
                     className={cx(assignmentBox, gutenbergControlsVisible)}
                   >
                     <h3>{t("title-assignment")}</h3>
-                    <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+                    <InnerBlocks {...registeredInnerBlocksProps(name)} />
                   </div>
                   {!exerciseType ? (
                     <ChooseExerciseTaskType

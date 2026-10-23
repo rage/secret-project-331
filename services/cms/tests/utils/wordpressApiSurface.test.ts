@@ -133,6 +133,8 @@ const EXPECTED_PACKAGES = [
   "hooks",
   "icons",
   "keyboard-shortcuts",
+  "latex-to-mathml",
+  "rich-text",
 ]
 
 interface SourceContract {

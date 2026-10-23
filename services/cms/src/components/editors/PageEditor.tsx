@@ -27,11 +27,8 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-import {
-  blockTypeMapForFrontPages,
-  blockTypeMapForPages,
-  blockTypeMapForTopLevelPages,
-} from "../../blocks"
+import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
+import { customBlocksForPageType, pageTypeOfPage } from "../../blocks/pageTypeBlocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
@@ -45,6 +42,7 @@ import { coursePageRoute } from "../../utils/routing"
 import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
+import PendingAgentChangesNotice from "./PendingAgentChangesNotice"
 
 interface PageEditorProps {
   data: Page
@@ -68,29 +66,6 @@ const supportedBlocks = (chapter_id: string | null, exam_id: string | null): str
       : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
 
   return allSupportedBlocks
-}
-
-const customBlocks = (
-  chapterId: string | null,
-  examId: string | null,
-  urlPath: string,
-  canAddChatbot: boolean,
-  chapterLockingEnabled: boolean,
-) => {
-  if (chapterId !== null || examId !== null) {
-    let blocks = blockTypeMapForPages
-    if (!chapterLockingEnabled) {
-      blocks = blocks.filter((v) => v[0] !== "moocfi/lock-chapter")
-    }
-    if (!canAddChatbot) {
-      blocks = blocks.filter((v) => v[0] !== "moocfi/chatbot")
-    }
-    return blocks
-  }
-  if (urlPath === "/") {
-    return blockTypeMapForFrontPages
-  }
-  return blockTypeMapForTopLevelPages
 }
 
 const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
@@ -319,12 +294,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   const memoizedCustomBlocks = useMemo(
     () =>
-      customBlocks(
-        data.chapter_id ?? null,
-        data.exam_id ?? null,
-        data.url_path,
-        courseCanAddChatbot,
-        chapterLockingEnabled,
+      customBlocksForPageType(
+        pageTypeOfPage(data.chapter_id ?? null, data.exam_id ?? null, data.url_path),
+        { canAddChatbot: courseCanAddChatbot, chapterLockingEnabled },
       ),
     [data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot, chapterLockingEnabled],
   )
@@ -341,6 +313,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </BreakFromCentered>
       <div className="editor__component">
         <div>
+          {data.course_id && <PendingAgentChangesNotice pageId={data.id} />}
           {saveMutation.isError && <ErrorNotice error={saveMutation.error} />}
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>

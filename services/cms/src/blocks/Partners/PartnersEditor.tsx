@@ -5,16 +5,15 @@ import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image"]
-
-const PartnerEditor: React.FC<
-  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = () => {
+const PartnerEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
+  name,
+}) => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -40,7 +39,7 @@ const PartnerEditor: React.FC<
           </span>
         </div>
         <div>
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
         </div>
       </div>
     </BlockWrapper>

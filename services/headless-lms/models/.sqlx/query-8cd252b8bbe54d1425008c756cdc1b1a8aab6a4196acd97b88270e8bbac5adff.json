@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id AS history_id,\n  created_at,\n  author_user_id,\n  agent_client_name\nFROM chapter_history\nWHERE chapter_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC,\n  id DESC\nLIMIT 1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "history_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapter_history",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "chapter_history",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "author_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapter_history",
+            "name": "author_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "agent_client_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "chapter_history",
+            "name": "agent_client_name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "8cd252b8bbe54d1425008c756cdc1b1a8aab6a4196acd97b88270e8bbac5adff"
+}

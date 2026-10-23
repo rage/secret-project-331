@@ -119,7 +119,8 @@ pub async fn token(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let access_ttl = Duration::hours(1);
+    // Rotation gives every new refresh token a fresh lifetime, so it expires after this long
+    // without use.
     let refresh_ttl = Duration::days(30);
 
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
@@ -140,6 +141,11 @@ pub async fn token(
 
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &form.client_id);
+    let access_ttl = if client.is_metadata_document_client() {
+        Duration::minutes(15)
+    } else {
+        Duration::hours(1)
+    };
 
     // Check if client allows this grant type
     let grant_kind = form.grant.kind();
@@ -200,6 +206,7 @@ pub async fn token(
         issued_token_type,
         dpop_jkt: dpop_jkt_opt.as_deref(),
         token_hmac_key,
+        resource: form.resource.as_deref(),
     };
 
     let TokenGrantResult {
@@ -235,6 +242,7 @@ pub async fn token(
             TokenType::DPoP => "DPoP".to_string(),
         },
         expires_in: access_ttl.num_seconds() as u32,
+        scope: scope_vec.join(" "),
     };
 
     server_token.authorized_ok(ok_json_no_cache(response))

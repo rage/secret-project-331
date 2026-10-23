@@ -68,6 +68,10 @@ async fn update_course_auditing_data(
     )
     .await?;
 
+    models::course_settings_history::insert_current(&mut conn, *course_id, user.id, None).await?;
+    models::library::entity_history::record_course_structure(&mut conn, *course_id, user.id)
+        .await?;
+
     let updated_course = models::courses::course_auditing_data_by_id(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(updated_course))

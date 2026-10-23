@@ -11,6 +11,7 @@ members = [
   "chatbot",
   "credit-registration",
   "exercise-services-api",
+  "mcp",
 ]
 
 resolver = "2"

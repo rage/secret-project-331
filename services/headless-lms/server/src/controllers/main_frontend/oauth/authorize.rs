@@ -1,4 +1,8 @@
-use crate::domain::oauth::authorize_query::AuthorizeQuery;
+use crate::domain::mcp_auth::{mcp_resource_url, oauth_issuer};
+use crate::domain::oauth::authorize_query::{AuthorizeParams, AuthorizeQuery};
+use crate::domain::oauth::client_metadata_document::{
+    self, is_metadata_document_client_id, redirect_uri_matches,
+};
 use crate::domain::oauth::helpers::{oauth_error, oauth_invalid_request};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::pkce::parse_authorize_pkce;
@@ -11,7 +15,7 @@ use actix_web::web;
 use chrono::{Duration, Utc};
 use itertools::Itertools;
 use models::{
-    library::oauth::{generate_access_token, token_digest_sha256},
+    library::oauth::{generate_access_token, mcp::McpScope, token_digest_sha256},
     oauth_auth_code::{NewAuthCodeParams, OAuthAuthCode},
     oauth_client::OAuthClient,
     oauth_user_client_scopes::OAuthUserClientScopes,
@@ -52,6 +56,52 @@ fn parse_prompt(prompt: Option<&str>) -> Result<PromptFlags, &'static str> {
     }
 
     Ok(f)
+}
+
+/// Enforces RFC 8707 resource indicators: MCP scopes need the MCP server as `resource`, only
+/// metadata document clients get tokens for it, and such tokens carry no other scopes.
+fn check_resource(
+    client: &OAuthClient,
+    query: &AuthorizeParams,
+    mcp_resource: &str,
+) -> Result<(), ControllerError> {
+    let scopes: Vec<&str> = query.scope.split_whitespace().collect();
+    let requests_mcp_scope = scopes.iter().any(|scope| McpScope::parse(scope).is_some());
+    let redirect = Some(query.redirect_uri.as_str());
+    let state = query.state.as_deref();
+    match query.resource.as_deref().map(|r| r.trim_end_matches('/')) {
+        None if requests_mcp_scope => Err(oauth_invalid_request(
+            "resource is required for MCP scopes",
+            redirect,
+            state,
+        )),
+        None => Ok(()),
+        Some(resource) if resource != mcp_resource => Err(oauth_error(
+            "invalid_target",
+            "unknown resource",
+            redirect,
+            state,
+        )),
+        Some(_) if !client.is_metadata_document_client() => Err(oauth_error(
+            "invalid_target",
+            "the MCP server accepts only clients registered with a client ID metadata document",
+            redirect,
+            state,
+        )),
+        Some(_)
+            if scopes
+                .iter()
+                .any(|scope| McpScope::parse(scope).is_none() && *scope != "offline_access") =>
+        {
+            Err(oauth_error(
+                "invalid_scope",
+                "only MCP scopes can be requested for the MCP server",
+                redirect,
+                state,
+            ))
+        }
+        Some(_) => Ok(()),
+    }
 }
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE support.
@@ -99,28 +149,34 @@ pub async fn authorize(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id)
-        .await
-        .map_err(|e| {
-            tracing::error!(err = %e, "OAuth authorize: client lookup failed");
-            oauth_invalid_request(
-                "invalid client_id",
-                None, // Cannot verify redirect_uri without valid client_id (security: prevent open redirect)
-                query.state.as_deref(),
-            )
-        })?;
+    let client = if is_metadata_document_client_id(&query.client_id) {
+        client_metadata_document::resolve_client(&mut conn, &query.client_id).await?
+    } else {
+        OAuthClient::find_by_client_id(&mut conn, &query.client_id)
+            .await
+            .map_err(|e| {
+                tracing::error!(err = %e, "OAuth authorize: client lookup failed");
+                oauth_invalid_request(
+                    "invalid client_id",
+                    None, // Cannot verify redirect_uri without valid client_id (security: prevent open redirect)
+                    query.state.as_deref(),
+                )
+            })?
+    };
 
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &query.client_id);
     tracing::Span::current().record("response_type", &query.response_type);
 
-    if !client.redirect_uris.contains(&query.redirect_uri) {
+    if !redirect_uri_matches(&client.redirect_uris, &query.redirect_uri) {
         return Err(oauth_invalid_request(
             "redirect_uri does not match client",
             None, // Never redirect to an invalid redirect_uri (security)
             query.state.as_deref(),
         ));
     }
+
+    check_resource(&client, &query, &mcp_resource_url(&app_conf))?;
 
     if query.request.is_some() {
         return Err(oauth_error(
@@ -206,10 +262,16 @@ pub async fn authorize(
                     dpop_jkt: None, // DPoP binding occurs at /token endpoint, not at /authorize
                     expires_at,
                     metadata: serde_json::Map::new(),
+                    resource: query.resource.as_deref(),
                 };
 
                 OAuthAuthCode::insert(&mut conn, new_auth_code_params).await?;
-                redirect_with_code(&query.redirect_uri, &code, query.state.as_deref())
+                redirect_with_code(
+                    &query.redirect_uri,
+                    &code,
+                    query.state.as_deref(),
+                    &oauth_issuer(&app_conf),
+                )
             }
         }
         None => {

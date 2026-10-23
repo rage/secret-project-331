@@ -14,6 +14,7 @@ const PagesInChapterConfiguration: BlockConfiguration = {
   description: "Pages In Chapter",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: PagesInChapterEditor,
   save: PagesInChapterSave,
 }

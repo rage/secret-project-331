@@ -14,6 +14,7 @@ const CourseChapterGridConfiguration: BlockConfiguration = {
   description: "Chapters Grid.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: CourseGridEditor,
   save: CourseGridSave,
 }

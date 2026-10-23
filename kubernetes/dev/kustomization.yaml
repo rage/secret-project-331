@@ -3,6 +3,7 @@ resources:
   - ../base-data
   - ../mailpit
   - headless-lms/env.yml
+  - agent-validator-secret.yml
   - headless-lms/persistent-file-storage.yml
   - access-ingress-internally.yml
   - tmc-service-account.yml

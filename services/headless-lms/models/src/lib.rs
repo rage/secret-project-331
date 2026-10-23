@@ -5,10 +5,14 @@ Each submodule corresponds to a database table.
 */
 // we always use --document-private-items, so this warning is moot
 #![allow(rustdoc::private_intra_doc_links)]
+pub mod agent_changeset_calls;
+pub mod agent_changeset_entities;
+pub mod agent_changesets;
 pub mod application_task_default_language_models;
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
 pub mod certificate_fonts;
+pub mod chapter_history;
 pub mod chapter_lock_action_logs;
 pub mod chapters;
 pub mod chatbot_action_logs;
@@ -41,10 +45,12 @@ pub mod course_instances;
 pub mod course_language_groups;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
+pub mod course_module_history;
 pub mod course_module_suotar_configurations;
 pub mod course_modules;
 pub mod course_page_markdown_content;
 pub mod course_prerequisites;
+pub mod course_settings_history;
 pub mod courses;
 pub mod credit_registration_account_linking_emails;
 pub mod credit_registration_admin_actions;

@@ -427,6 +427,10 @@ impl error::ResponseError for ControllerError {
                     if let Some(state) = &data.state {
                         qp.append_pair("state", state);
                     }
+                    // RFC 9207: error responses carry the issuer too.
+                    if let Some(issuer) = crate::config::configured_oauth_issuer() {
+                        qp.append_pair("iss", &issuer);
+                    }
                 }
                 let loc = url.to_string();
                 return HttpResponse::Found()
@@ -618,6 +622,8 @@ pub enum OAuthErrorCode {
     UnauthorizedClient,
     UnsupportedGrantType,
     UnsupportedResponseType,
+    /// RFC 8707: the requested resource is unknown or not allowed.
+    InvalidTarget,
     ServerError,
     InvalidDpopProof,
     UseDpopNonce,
@@ -641,6 +647,7 @@ impl OAuthErrorCode {
             Self::UnauthorizedClient => "unauthorized_client",
             Self::UnsupportedGrantType => "unsupported_grant_type",
             Self::UnsupportedResponseType => "unsupported_response_type",
+            Self::InvalidTarget => "invalid_target",
             Self::ServerError => "server_error",
             Self::InvalidDpopProof => "invalid_dpop_proof",
             Self::UseDpopNonce => "use_dpop_nonce",

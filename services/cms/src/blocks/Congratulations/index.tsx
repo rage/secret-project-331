@@ -14,6 +14,7 @@ const CongratulationsConfiguration: BlockConfiguration = {
   description: CONGRATULATIONS,
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: CongratulationsEditor,
   save: CongratulationsSave,
 }

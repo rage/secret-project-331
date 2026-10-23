@@ -509,6 +509,7 @@ async fn update_course(
     let course =
         models::courses::update_course(&mut conn, app_conf.as_ref(), *course_id, course_update)
             .await?;
+    models::course_settings_history::insert_current(&mut conn, *course_id, user.id, None).await?;
 
     if locking_just_enabled {
         use models::{user_chapter_locking_statuses, user_course_settings};
@@ -1522,6 +1523,7 @@ pub async fn post_new_chapter_ordering(
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     models::pages::reorder_chapters(&mut conn, &payload, course_id).await?;
+    models::library::entity_history::record_course_structure(&mut conn, course_id, user.id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -1668,6 +1670,8 @@ pub async fn update_modules(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner(), user.id)
+        .await?;
+    models::library::entity_history::record_course_structure(&mut conn, *course_id, user.id)
         .await?;
     token.authorized_ok(web::Json(()))
 }
@@ -2811,6 +2815,7 @@ async fn update_metadata(
     let course =
         models::courses::set_metadata(&mut conn, app_conf.as_ref(), *course_id, metadata_update)
             .await?;
+    models::course_settings_history::insert_current(&mut conn, *course_id, user.id, None).await?;
 
     token.authorized_ok(web::Json(course))
 }

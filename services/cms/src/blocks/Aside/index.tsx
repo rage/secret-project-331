@@ -28,6 +28,7 @@ const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
       default: "#007acc",
     },
   },
+  innerBlocksArea: {},
   edit: AsideEditor,
   save: AsideSave,
   // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes

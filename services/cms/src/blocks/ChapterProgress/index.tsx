@@ -14,6 +14,7 @@ const ChapterProgressConfiguration: BlockConfiguration = {
   description: "Chapter Progress block.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: ChapterProgressEditor,
   save: ChapterProgressSave,
 }

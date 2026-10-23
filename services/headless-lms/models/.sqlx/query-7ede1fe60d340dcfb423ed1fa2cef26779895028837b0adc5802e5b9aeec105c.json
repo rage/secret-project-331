@@ -123,6 +123,28 @@
             "name": "author_user_id"
           }
         }
+      },
+      {
+        "ordinal": 10,
+        "name": "agent_client_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "page_history",
+            "name": "agent_client_name"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "agent_changeset_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_history",
+            "name": "agent_changeset_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -140,7 +162,9 @@
       false,
       false,
       true,
-      false
+      false,
+      true,
+      true
     ]
   },
   "hash": "7ede1fe60d340dcfb423ed1fa2cef26779895028837b0adc5802e5b9aeec105c"

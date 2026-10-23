@@ -961,6 +961,7 @@
   "field-cannot-be-empty": "Kenttä ei voi olla tyhjä",
   "field-enter-email": "Syötä sähköposti",
   "fieldset-helptext-current": "Nykyinen:",
+  "file-preview": "Esikatselu: {{fileName}}",
   "filter-by-year": "Suodata vuoden mukaan:",
   "filters": "Suodattimet",
   "finnish": "Suomi",

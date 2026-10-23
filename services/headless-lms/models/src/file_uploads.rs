@@ -74,10 +74,21 @@ WHERE id = ANY($1)
     Ok(res)
 }
 
-pub async fn get_filename(conn: &mut PgConnection, path: &str) -> ModelResult<String> {
-    let res = sqlx::query!(
+pub struct StoredFileDetails {
+    pub name: String,
+    pub mime: String,
+}
+
+/// The original file name and MIME type of the upload stored at `path`.
+pub async fn get_details_by_path(
+    conn: &mut PgConnection,
+    path: &str,
+) -> ModelResult<StoredFileDetails> {
+    let res = sqlx::query_as!(
+        StoredFileDetails,
         r#"
-SELECT *
+SELECT name,
+  mime
 FROM file_uploads
 WHERE path = $1
 "#,
@@ -85,7 +96,7 @@ WHERE path = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.name)
+    Ok(res)
 }
 
 pub async fn delete_and_fetch_path(conn: &mut PgConnection, id: Uuid) -> ModelResult<String> {

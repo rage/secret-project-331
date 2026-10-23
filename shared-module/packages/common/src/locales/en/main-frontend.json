@@ -1097,6 +1097,7 @@
   "field-cannot-be-empty": "Field cannot be empty",
   "field-enter-email": "Enter email",
   "fieldset-helptext-current": "Current:",
+  "file-preview": "Preview of {{fileName}}",
   "filter-by-year": "Filter by year:",
   "filters": "Filters",
   "finnish": "Finnish",

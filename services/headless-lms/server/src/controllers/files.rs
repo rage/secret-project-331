@@ -7,6 +7,7 @@ use crate::domain::models_requests::{DownloadClaim, JwtKey};
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
 use actix_files::NamedFile;
+use headless_lms_utils::file_store::attachment_content_disposition;
 use std::path::{Component, Path};
 use tokio::fs::read;
 use utoipa::{OpenApi, PartialSchema, ToSchema};
@@ -37,6 +38,46 @@ pub(crate) struct FilesApiDoc;
 #[derive(OpenApi)]
 #[openapi(paths(upload_from_exercise_service))]
 pub(crate) struct CmsFilesApiDoc;
+#[derive(Debug, Deserialize)]
+struct FileQuery {
+    /// Present when the browser should save the file instead of displaying it.
+    download: Option<String>,
+    /// The name to save the file as, such as the one a teacher typed into a file block.
+    name: Option<String>,
+}
+
+/// `requested_name`, else the uploaded file's original name, always ending in the stored file's
+/// extension so the saved file still opens in the right program.
+fn download_file_name(
+    requested_name: Option<&str>,
+    stored_name: Option<&str>,
+    path: &Path,
+) -> String {
+    let stem_name = path
+        .file_name()
+        .map(|name| name.to_string_lossy().to_string())
+        .unwrap_or_default();
+    let name = [requested_name, stored_name]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .find(|name| !name.is_empty())
+        .unwrap_or(&stem_name);
+    match path
+        .extension()
+        .map(|extension| extension.to_string_lossy())
+    {
+        Some(extension)
+            if !name
+                .to_lowercase()
+                .ends_with(&format!(".{}", extension.to_lowercase())) =>
+        {
+            format!("{name}.{extension}")
+        }
+        _ => name.to_string(),
+    }
+}
+
 /**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.
@@ -47,6 +88,7 @@ Redirection is done with HTTP status 302 Found and it has a max
 age of 5 minutes.
 
 Redirects to local file handler in development and to a service in production.
+With `?download=1`, the file is served as an attachment under its original name.
 
 
 # Example
@@ -68,12 +110,30 @@ Response headers:
 #[allow(clippy::async_yields_async)]
 async fn redirect_to_storage_service(
     tail: web::Path<String>,
+    query: web::Query<FileQuery>,
+    pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
 ) -> HttpResponse {
     let inner = tail.into_inner();
     let tail_path = Path::new(&inner);
 
-    match file_store.get_direct_download_url(tail_path).await {
+    let url = if query.download.is_some() {
+        let stored_name = match pool.acquire().await {
+            Ok(mut conn) => models::file_uploads::get_details_by_path(&mut conn, &inner)
+                .await
+                .ok()
+                .map(|details| details.name),
+            Err(_) => None,
+        };
+        let file_name =
+            download_file_name(query.name.as_deref(), stored_name.as_deref(), tail_path);
+        file_store
+            .get_direct_attachment_download_url(tail_path, &file_name)
+            .await
+    } else {
+        file_store.get_direct_download_url(tail_path).await
+    };
+    match url {
         Ok(url) => HttpResponse::Found()
             .append_header(("location", url))
             .append_header(("cache-control", "max-age=300, private"))
@@ -100,7 +160,11 @@ Result:
 The file.
 */
 #[instrument(skip(req))]
-async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerResult<HttpResponse> {
+async fn serve_upload(
+    req: HttpRequest,
+    query: web::Query<FileQuery>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
@@ -151,27 +215,38 @@ async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerRe
         )
     })?;
 
-    let extension = path.extension().map(|o| o.to_string_lossy().to_string());
-    let mut mime_type = None;
-    if let Some(ext_string) = extension {
-        mime_type = match ext_string.as_str() {
-            "jpg" => Some("image/jpg"),
-            "png" => Some("image/png"),
-            "svg" => Some("image/svg+xml"),
-            "webp" => Some("image/webp"),
-            "gif" => Some("image/gif"),
-            _ => None,
+    let details = models::file_uploads::get_details_by_path(&mut conn, relative_path)
+        .await
+        .optional()?;
+    // Files seeded straight onto disk have no upload row.
+    let mime_type = details.as_ref().map(|d| d.mime.clone()).or_else(|| {
+        let extension = path.extension()?.to_string_lossy().to_string();
+        let mime_type = match extension.as_str() {
+            "jpg" => "image/jpg",
+            "png" => "image/png",
+            "svg" => "image/svg+xml",
+            "webp" => "image/webp",
+            "gif" => "image/gif",
+            "pdf" => "application/pdf",
+            _ => return None,
         };
-    }
+        Some(mime_type.to_string())
+    });
     let mut response = HttpResponse::Ok();
     if let Some(m) = mime_type {
         response.append_header(("content-type", m));
     }
-    if let Some(filename) = models::file_uploads::get_filename(&mut conn, relative_path)
-        .await
-        .optional()?
-    {
-        response.append_header(("Content-Disposition", format!("filename=\"{}\"", filename)));
+    if let Some(details) = details {
+        let content_disposition = if query.download.is_some() {
+            attachment_content_disposition(&download_file_name(
+                query.name.as_deref(),
+                Some(&details.name),
+                path,
+            ))
+        } else {
+            format!("filename=\"{}\"", details.name)
+        };
+        response.append_header(("Content-Disposition", content_disposition));
     }
 
     // this endpoint is only used for development

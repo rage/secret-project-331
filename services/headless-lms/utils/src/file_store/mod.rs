@@ -48,6 +48,13 @@ pub trait FileStore: Send + Sync {
     /// Get a url that can be used to download the file without authentication for a while.
     /// In most cases you probably want to use get_download_url() instead.
     async fn get_direct_download_url(&self, path: &Path) -> UtilResult<String>;
+    /// Like [`Self::get_direct_download_url`], but browsers save the file as `file_name` instead
+    /// of displaying it.
+    async fn get_direct_attachment_download_url(
+        &self,
+        path: &Path,
+        file_name: &str,
+    ) -> UtilResult<String>;
     /// Get a url for a file in FileStore that can be used to access the resource.
     fn get_download_url(&self, path: &Path, app_conf: &ApplicationConfiguration) -> String {
         format!(
@@ -136,6 +143,24 @@ fn generate_cache_folder_dir() -> UtilResult<PathBuf> {
         std::fs::create_dir_all(&path)?;
     }
     Ok(path)
+}
+
+/// `Content-Disposition` that makes browsers save the file as `file_name`. The plain `filename`
+/// is an ASCII fallback for clients that ignore the RFC 6266 `filename*`.
+pub fn attachment_content_disposition(file_name: &str) -> String {
+    let ascii_file_name: String = file_name
+        .chars()
+        .map(|c| {
+            if c.is_ascii() && !c.is_ascii_control() && c != '"' && c != '\\' {
+                c
+            } else {
+                '_'
+            }
+        })
+        .collect();
+    let encoded_file_name =
+        percent_encoding::utf8_percent_encode(file_name, percent_encoding::NON_ALPHANUMERIC);
+    format!("attachment; filename=\"{ascii_file_name}\"; filename*=UTF-8''{encoded_file_name}")
 }
 
 fn path_to_str(path: &Path) -> UtilResult<&str> {

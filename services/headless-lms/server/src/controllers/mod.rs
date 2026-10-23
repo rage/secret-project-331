@@ -59,6 +59,11 @@ pub fn configure_controllers(
         )
         .service(web::scope("/health").configure(health::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
+        .service(
+            web::scope("/mcp")
+                .wrap(crate::domain::mcp_auth::McpAuth::new(app_conf.test_mode))
+                .configure(headless_lms_mcp::http::configure),
+        )
         .default_service(web::to(not_found));
     if app_conf.test_chatbot && app_conf.test_mode {
         cfg.service(web::scope("/mock-azure").configure(mock_azure::_add_routes))

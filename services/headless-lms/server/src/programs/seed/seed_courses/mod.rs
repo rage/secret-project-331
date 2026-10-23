@@ -1,4 +1,5 @@
 pub mod seed_accessibility_course;
+pub mod seed_agent_changesets;
 use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;

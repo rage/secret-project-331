@@ -133,3 +133,29 @@ pub fn ancestor_ids(blocks: &[GutenbergBlock], path: &[usize]) -> Vec<Uuid> {
         .map(|depth| get(blocks, &path[..depth]).client_id)
         .collect()
 }
+
+/// Visits every string value inside `attributes` with the name of the top-level attribute holding it.
+pub fn for_each_string_mut(
+    attributes: &mut serde_json::Map<String, serde_json::Value>,
+    visit: &mut dyn FnMut(&str, &mut String),
+) {
+    fn go(
+        attribute: &str,
+        value: &mut serde_json::Value,
+        visit: &mut dyn FnMut(&str, &mut String),
+    ) {
+        match value {
+            serde_json::Value::String(s) => visit(attribute, s),
+            serde_json::Value::Array(items) => {
+                items.iter_mut().for_each(|v| go(attribute, v, visit))
+            }
+            serde_json::Value::Object(map) => {
+                map.values_mut().for_each(|v| go(attribute, v, visit))
+            }
+            _ => {}
+        }
+    }
+    for (name, value) in attributes.iter_mut() {
+        go(name, value, visit);
+    }
+}

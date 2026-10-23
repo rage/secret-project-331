@@ -252,8 +252,8 @@ impl From<crate::validator::ValidatorError> for ToolError {
     }
 }
 
-/// Implements one tool. `S` is the application state the protocol layer passes through (for
-/// R3: the database pool, config and validator client).
+/// Implements one tool. `S` is the application state the protocol layer passes through, such as
+/// the database pool, config and validator client.
 #[async_trait]
 pub trait ToolHandler<S: Send + Sync>: Send + Sync {
     async fn call(

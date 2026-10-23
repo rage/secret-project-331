@@ -375,8 +375,6 @@ impl<'c> StructureEditor<'c> {
         }
     }
 
-    // ---- lookup -------------------------------------------------------------------------
-
     fn locate(&self, id: Uuid) -> Option<Loc> {
         let course = &self.doc.course;
         if let Some(index) = course.pages.iter().position(|p| p.id == id) {
@@ -620,8 +618,6 @@ impl<'c> StructureEditor<'c> {
         Ok(())
     }
 
-    // ---- placement ----------------------------------------------------------------------
-
     fn anchor(&self, address: &Address, position: Option<Position>) -> Result<Anchor, EditError> {
         let Some(position) = position else {
             return Err(EditError::new(EditErrorCode::PositionRequired, "this op needs \"position\"")
@@ -768,8 +764,6 @@ impl<'c> StructureEditor<'c> {
         let _ = end;
         Ok(())
     }
-
-    // ---- new entities -------------------------------------------------------------------
 
     fn new_entities(&mut self, kind: Kind, value: &Value) -> Result<Vec<Entity>, EditError> {
         let items: Vec<&Value> = match value {
@@ -1004,8 +998,6 @@ impl<'c> StructureEditor<'c> {
             }));
         Ok(result.page.blocks)
     }
-
-    // ---- ops ----------------------------------------------------------------------------
 
     fn add(&mut self, op: &PatchOp) -> Result<(), EditError> {
         let address = self.address(&op.path)?;
@@ -1481,8 +1473,6 @@ impl<'c> StructureEditor<'c> {
         }
         Ok(())
     }
-
-    // ---- end of call --------------------------------------------------------------------
 
     fn finish(mut self, before: &CourseStructure) -> Result<StructureResult, EditError> {
         let modules = &self.doc.course.modules;

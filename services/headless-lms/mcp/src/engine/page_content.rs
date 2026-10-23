@@ -263,8 +263,6 @@ impl<'c> Editor<'c> {
         }
     }
 
-    // ---- lookup -------------------------------------------------------------------------
-
     fn locate(&self, id: Uuid) -> Option<Loc> {
         self.pages.iter().enumerate().find_map(|(page, doc)| {
             blocks::find_path(&doc.blocks, id).map(|path| Loc { page, path })
@@ -430,8 +428,6 @@ impl<'c> Editor<'c> {
         Ok(())
     }
 
-    // ---- placement ----------------------------------------------------------------------
-
     fn anchor(&self, address: &Address, position: Option<Position>) -> Result<Anchor, EditError> {
         let Some(position) = position else {
             return Err(EditError::new(
@@ -594,8 +590,6 @@ impl<'c> Editor<'c> {
         raw.map(|r| self.resolve_reference(r)).transpose()
     }
 
-    // ---- new blocks ---------------------------------------------------------------------
-
     fn new_block(&mut self, value: &Value) -> Result<GutenbergBlock, EditError> {
         let object = value.as_object().ok_or_else(|| {
             EditError::new(
@@ -671,8 +665,6 @@ impl<'c> Editor<'c> {
             )),
         }
     }
-
-    // ---- ops ----------------------------------------------------------------------------
 
     fn add(&mut self, op: &PatchOp) -> Result<(), EditError> {
         let address = self.address(&op.path, 0)?;
@@ -1278,8 +1270,6 @@ impl<'c> Editor<'c> {
         Ok(())
     }
 
-    // ---- array replace ------------------------------------------------------------------
-
     fn parse_items(&self, value: &Value, what: &str) -> Result<Vec<Item>, EditError> {
         let Value::Array(items) = value else {
             return Err(EditError::new(
@@ -1565,8 +1555,6 @@ impl<'c> Editor<'c> {
             }
         }
     }
-
-    // ---- invariants ---------------------------------------------------------------------
 
     fn check_invariants(&self) -> Result<(), EditError> {
         let mut seen: HashMap<Uuid, Uuid> = HashMap::new();

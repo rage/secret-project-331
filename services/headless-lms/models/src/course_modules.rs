@@ -1134,7 +1134,8 @@ SELECT NOT EXISTS (
 ///
 /// Rejects the whole update if any referenced module or chapter is not in the course, or if a
 /// completion registration link fails [`validate_completion_registration_link`]. Switching a module's
-/// Sisu registration off cancels its registrations not yet sent, on behalf of `actor_user_id`.
+/// Sisu registration off cancels its registrations not yet sent, on behalf of `actor_user_id`, who
+/// is also recorded as the author of the deleted modules' history rows.
 pub async fn update_modules(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -1259,6 +1260,19 @@ pub async fn update_modules(
         chapters::set_module(&mut tx, chapter, module).await?;
     }
     for deleted in updates.deleted_modules {
+        if let Some(snapshot) =
+            crate::library::entity_snapshots::load_module(&mut tx, deleted).await?
+        {
+            crate::course_module_history::insert(
+                &mut tx,
+                &snapshot,
+                crate::library::entity_history::EntityHistoryChangeReason::Deleted,
+                actor_user_id,
+                None,
+                None,
+            )
+            .await?;
+        }
         delete(&mut tx, deleted).await?;
     }
     for module_id in sisu_switched_off_module_ids {

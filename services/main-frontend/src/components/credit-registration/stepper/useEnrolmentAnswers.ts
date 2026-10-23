@@ -35,9 +35,9 @@ export const storedAnswersOf = (enrolmentRoute: MyEnrolmentRoute): EnrolmentAnsw
  * Saving the answers and the student's word on enrolling or on taking the certificate.
  *
  * Answers are written into the cache before the request, so the next question opens under the
- * click instead of after a round trip; a failed save puts the old answers back.
+ * click instead of after a round trip; a failed save puts the old answers back. `courseId` is
+ * `null` before the pipeline has created the registration.
  */
-/** `courseId` is `null` before the pipeline has created the registration. */
 export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | null) => {
   const queryClient = useQueryClient()
   const routeQueryKey = getMyEnrolmentRouteQueryKey({
@@ -52,6 +52,8 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
     await Promise.all([invalidateRoute(), invalidateRegistrationViews(queryClient, courseId)])
   }
 
+  // Each save replaces every answer, so saves run in order and only the last one refetches.
+  const saveScopeId = `enrolment-answers-${courseModuleId}`
   const saveAnswers = useToastMutation<
     void,
     unknown,
@@ -63,6 +65,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
     },
     { notify: false },
     {
+      scope: { id: saveScopeId },
       onMutate: async (answers) => {
         await queryClient.cancelQueries({ queryKey: routeQueryKey })
         const previous = queryClient.getQueryData<MyEnrolmentRoute | null>(routeQueryKey)
@@ -76,7 +79,14 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
           queryClient.setQueryData(routeQueryKey, context.previous)
         }
       },
-      onSettled: invalidateRoute,
+      onSettled: async () => {
+        const pendingSaves = queryClient.isMutating({
+          predicate: (mutation) => mutation.options.scope?.id === saveScopeId,
+        })
+        if (pendingSaves === 1) {
+          await invalidateRoute()
+        }
+      },
     },
   )
 

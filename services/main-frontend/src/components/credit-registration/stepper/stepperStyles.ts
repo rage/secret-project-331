@@ -20,17 +20,10 @@ export const pageCss = css`
   }
 `
 
-export const srOnlyCss = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-`
+/** `VisuallyHidden.elementType` for a page's focus target, which has no visible title. */
+export const HIDDEN_HEADING = "h2"
+/** `VisuallyHidden.elementType` inside a button or a span, where its default `<div>` is invalid. */
+export const HIDDEN_INLINE = "span"
 
 export const pageHeadingCss = css`
   margin: 0;

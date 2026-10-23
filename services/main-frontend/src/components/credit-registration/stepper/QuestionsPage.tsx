@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
@@ -31,10 +32,10 @@ import {
   decisionCss,
   decisionTextCss,
   fullWidthCss,
+  HIDDEN_HEADING,
   noteBoxCss,
   noteTitleCss,
   pageCss,
-  srOnlyCss,
 } from "./stepperStyles"
 import type { DetourRoute } from "./stepperView"
 import { detourRoute } from "./stepperView"
@@ -202,9 +203,9 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
 
   return (
     <div className={pageCss}>
-      <h2 className={srOnlyCss} tabIndex={-1}>
+      <VisuallyHidden elementType={HIDDEN_HEADING} tabIndex={-1}>
         {t("credit-registration-questions-heading")}
-      </h2>
+      </VisuallyHidden>
       <RadioGroup
         name={ROUTE_FIELD}
         control={control}

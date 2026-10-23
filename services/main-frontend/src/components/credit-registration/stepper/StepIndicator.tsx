@@ -2,12 +2,13 @@
 
 import { css, cx } from "@emotion/css"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { CheckIcon } from "@/shared-module/components/components/primitives/CheckIcon"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
-import { srOnlyCss } from "./stepperStyles"
+import { HIDDEN_INLINE } from "./stepperStyles"
 import type { Step } from "./stepperView"
 
 const NARROW = "@media (max-width: 32rem)"
@@ -179,9 +180,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ steps, current, on
                 <span className={cx(labelCss, labelHiddenWhenNarrowCss)} aria-hidden="true">
                   {label}
                 </span>
-                <span className={srOnlyCss}>
+                <VisuallyHidden elementType={HIDDEN_INLINE}>
                   {t("credit-registration-step-done", { step: label })}
-                </span>
+                </VisuallyHidden>
               </>
             )
             return (
@@ -221,9 +222,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ steps, current, on
                     <span className={cx(labelCss, labelHiddenWhenNarrowCss)} aria-hidden="true">
                       {label}
                     </span>
-                    <span className={srOnlyCss}>
+                    <VisuallyHidden elementType={HIDDEN_INLINE}>
                       {t("credit-registration-step-upcoming", { step: label })}
-                    </span>
+                    </VisuallyHidden>
                   </>
                 )}
               </span>

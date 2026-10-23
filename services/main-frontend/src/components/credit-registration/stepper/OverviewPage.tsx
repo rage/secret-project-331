@@ -2,12 +2,13 @@
 
 import { css } from "@emotion/css"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS } from "../constants"
-import { fullWidthCss, overviewNumberCss, pageCss, srOnlyCss } from "./stepperStyles"
+import { fullWidthCss, HIDDEN_HEADING, overviewNumberCss, pageCss } from "./stepperStyles"
 
 const listCss = css`
   margin: 0;
@@ -54,9 +55,9 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({ studentNumber, onSta
   ]
   return (
     <div className={pageCss}>
-      <h2 className={srOnlyCss} tabIndex={-1}>
+      <VisuallyHidden elementType={HIDDEN_HEADING} tabIndex={-1}>
         {t("credit-registration-overview-heading")}
-      </h2>
+      </VisuallyHidden>
       <ol className={listCss}>
         {rows.map((title, index) => (
           <li key={title} className={rowCss}>

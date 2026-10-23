@@ -22,6 +22,14 @@ const FlipCardConfiguration: BlockConfiguration<FlipCardAttributes> = {
       default: "xl",
     },
   },
+  allowedBlocks: ["moocfi/front-card", "moocfi/back-card"],
+  innerBlocksArea: {
+    template: [
+      ["moocfi/front-card", {}],
+      ["moocfi/back-card", {}],
+    ],
+    templateLock: "all",
+  },
   edit: FlipCardEditor,
   save: FlipCardSave,
 }

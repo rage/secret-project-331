@@ -14,6 +14,40 @@ const LandingPageCopyTextConfiguration: BlockConfiguration = {
   description: "Block for adding copy text in landing page",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [
+    "core/table",
+    "core/paragraph",
+    "core/heading",
+    "core/list",
+    "core/quote",
+    "core/columns",
+  ],
+  innerBlocksArea: {
+    template: [
+      [
+        "core/columns",
+        { isStackedOnMobile: true },
+        [
+          [
+            "core/column",
+            {},
+            [
+              [
+                "core/heading",
+                {
+                  placeholder: "About this course",
+                  level: 3,
+                  textAlign: "left",
+                  anchor: "about-this-course",
+                },
+              ],
+              ["core/paragraph", { placeholder: "Insert text...", align: "left" }],
+            ],
+          ],
+        ],
+      ],
+    ],
+  },
   edit: LandingPageCopyTextEditor,
   save: LandingPageCopyTextSave,
 }

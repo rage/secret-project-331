@@ -7,14 +7,12 @@ import React, { useContext } from "react"
 
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
-import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
 import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
-
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
-const INNER_BLOCKS_TEMPLATE: TemplateArray = [["moocfi/exercise-task", {}]]
 
 const ExerciseSlideEditorCard = styled.div`
   padding: 2rem 2rem;
@@ -28,7 +26,7 @@ export interface ExerciseSlideAttributes {
 
 const ExerciseSlideEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>
-> = ({ attributes, clientId }) => {
+> = ({ name, attributes, clientId }) => {
   const dispatch = useContext(EditorContentDispatch)
 
   const { t } = useTranslation()
@@ -51,11 +49,7 @@ const ExerciseSlideEditor: React.FC<
           {t("slide-title", { number: attributes.order_number + 1 })}
         </div>
         <div className={gutenbergControlsHidden}>
-          <InnerBlocks
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            template={INNER_BLOCKS_TEMPLATE}
-            templateLock={false}
-          />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
         </div>
         <div>
           <Button variant="secondary" size="medium" onClick={handleAddNewTask}>

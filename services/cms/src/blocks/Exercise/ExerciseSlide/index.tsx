@@ -28,6 +28,8 @@ const ExerciseSlideConfiguration: BlockConfiguration<ExerciseSlideAttributes> = 
       default: 0,
     },
   },
+  allowedBlocks: ["moocfi/exercise-task"],
+  innerBlocksArea: { template: [["moocfi/exercise-task", {}]], templateLock: false },
   edit: enforceExerciseSlideIdDefined(ExerciseSlideEditor),
   save: ExerciseSlideSave,
 }

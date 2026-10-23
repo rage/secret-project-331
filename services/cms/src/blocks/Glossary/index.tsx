@@ -14,6 +14,7 @@ const GlossaryConfiguration: BlockConfiguration = {
   description: "Glossary.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [],
   edit: GlossaryEditor,
   save: GlossarySave,
 }

@@ -3,23 +3,16 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ConditionAttributes } from "."
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/paragraph",
-  "core/image",
-  "core/list",
-  "moocfi/revealable-hidden-content",
-]
-
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = () => {
+> = ({ name }) => {
   const { t } = useTranslation()
 
   return (
@@ -27,7 +20,7 @@ const ConditionalBlockEditor: React.FC<
       title={t("revealable-content-placeholder")}
       explanation={t("revealable-content-explanation")}
     >
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <InnerBlocks {...registeredInnerBlocksProps(name)} />
     </BlockPlaceholderWrapper>
   )
 }

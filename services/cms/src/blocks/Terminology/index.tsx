@@ -41,6 +41,12 @@ const TerminologyBlockConfiguration: BlockConfiguration<TerminologyBlockAttribut
       default: "Type the block's content here",
     },
   },
+  allowedBlocks: ["core/heading", "core/paragraph", "core/list"],
+  innerBlocksArea: {
+    template: [
+      ["core/paragraph", { content: "Insert body text...", placeholder: "Insert body text..." }],
+    ],
+  },
   edit: LandingPageHeroSectionEditor,
   save: LandingPageHeroSectionSave,
 }

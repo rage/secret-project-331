@@ -5,17 +5,16 @@ import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { AsideWithImageBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image"]
-
 const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
-> = ({ attributes: { title, content }, setAttributes }) => {
+> = ({ name, attributes: { title, content }, setAttributes }) => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -34,7 +33,7 @@ const AsideWithImageEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
           <div>
             <RichText
               className={css`

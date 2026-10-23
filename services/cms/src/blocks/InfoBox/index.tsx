@@ -28,6 +28,7 @@ const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
       default: false,
     },
   },
+  innerBlocksArea: {},
   edit: InfoBoxEditor,
   save: InfoBoxSave,
   // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes

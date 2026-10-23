@@ -15,6 +15,8 @@ const ExpandableContentConfiguration: BlockConfiguration = {
   description: ExpandableContent,
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: ["moocfi/expandable-content-inner-block"],
+  innerBlocksArea: {},
   edit: ExpandableContentEditor,
   save: ExpandableContentSave,
 }

@@ -6,22 +6,16 @@ import React from "react"
 
 import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { TextField } from "@/shared-module/components"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ExpandableContentConfigurationProps } from "."
 
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/paragraph",
-  "core/image",
-  "core/list",
-  "core/html",
-]
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
-> = ({ attributes, setAttributes }) => {
+> = ({ name, attributes, setAttributes }) => {
   const { t } = useTranslation()
   const { control } = useAttributeForm({ name: attributes.name }, ({ name }) =>
     setAttributes({ name }),
@@ -113,7 +107,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
         </div>
       </div>
     </div>

@@ -5,21 +5,17 @@ import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-edito
 import React from "react"
 
 import { primaryFont } from "@/shared-module/common/styles"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { TerminologyBlockAttributes } from "."
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/list"]
-const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
-  ["core/paragraph", { content: "Insert body text...", placeholder: "Insert body text..." }],
-]
-
 const TerminologyBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<TerminologyBlockAttributes>>
-> = ({ attributes, setAttributes }) => {
+> = ({ name, attributes, setAttributes }) => {
   const { title, blockName } = attributes
   const { t } = useTranslation()
 
@@ -78,10 +74,7 @@ const TerminologyBlockEditor: React.FC<
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={t("welcome-message-for-course")}
           />
-          <InnerBlocks
-            template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
         </div>
       </div>
     </BlockWrapper>

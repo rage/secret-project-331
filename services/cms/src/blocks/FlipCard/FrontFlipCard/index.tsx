@@ -15,6 +15,8 @@ const FrontFlipCardConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   parent: ["moocfi/flip-card"],
   attributes: {},
+  allowedBlocks: ["core/image", "core/paragraph", "core/heading", "core/list"],
+  innerBlocksArea: { templateLock: false },
   edit: FrontFlipCardEditor,
   save: FrontFlipCardSave,
 }

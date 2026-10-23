@@ -10,24 +10,17 @@ import {
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
 import { Button } from "@/shared-module/components"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { LandingPageHeroSectionAttributes } from "."
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
-const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
-  [
-    "core/paragraph",
-    { content: "Insert sales speech...", placeholder: "Insert sales speech...", align: "center" },
-  ],
-]
-
 const LandingPageHeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<LandingPageHeroSectionAttributes>>
-> = ({ attributes, setAttributes }) => {
+> = ({ name, attributes, setAttributes }) => {
   const { title } = attributes
   const { t } = useTranslation()
   return (
@@ -74,11 +67,7 @@ const LandingPageHeroSectionEditor: React.FC<
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={t("welcome-message-for-course")}
           />
-          <InnerBlocks
-            template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            templateLock="all"
-          />
+          <InnerBlocks {...registeredInnerBlocksProps(name)} />
           <div
             className={css`
               display: flex;

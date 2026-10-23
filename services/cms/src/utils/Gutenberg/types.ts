@@ -42,6 +42,8 @@ export type BlockEditProps<Attributes extends object = any> = Omit<
   GutenbergBlockEditProps<UnknownAttributes>,
   "attributes" | "setAttributes"
 > & {
+  /** The registered block name; Gutenberg passes it although its own props type omits it. */
+  name: string
   attributes: Attributes
   setAttributes: (
     attrs: Partial<Attributes> | ((prevAttrs: Attributes) => Partial<Attributes>),
@@ -96,6 +98,7 @@ export type BlockConfiguration<Attributes extends object = any> = Omit<
   getEditWrapperProps?: (attrs: Attributes) => Record<string, string | number | boolean>
   merge?: (attributes: Attributes, attributesToMerge: Attributes) => Partial<Attributes>
   __experimentalLabel?: (attributes: Attributes, options: { context: string }) => string
+  innerBlocksArea?: InnerBlocksArea
 }
 
 export type BlockType<Attributes extends object = any> = Omit<
@@ -119,6 +122,7 @@ export type BlockType<Attributes extends object = any> = Omit<
   getEditWrapperProps?: (attrs: Attributes) => Record<string, string | number | boolean>
   merge?: (attributes: Attributes, attributesToMerge: Attributes) => Partial<Attributes>
   __experimentalLabel?: (attributes: Attributes, options: { context: string }) => string
+  innerBlocksArea?: InnerBlocksArea
 }
 
 export type Category = BlockCategory
@@ -128,4 +132,16 @@ type UpstreamTemplateInput = NonNullable<Parameters<CreateBlocksFromInnerBlocksT
 export type Template = Exclude<UpstreamTemplateInput[number], GutenbergBlock<UnknownAttributes>>
 
 export type TemplateArray = Template[]
+
+export type TemplateLock = "all" | "insert" | "contentOnly" | false
+
+/**
+ * A custom block's InnerBlocks area. Gutenberg's registration has `allowedBlocks` but no template
+ * fields, so these live here for the editor and the headless block validator to share.
+ */
+export interface InnerBlocksArea {
+  template?: TemplateArray
+  /** Unset inherits the lock of the enclosing area, as InnerBlocks does. */
+  templateLock?: TemplateLock
+}
 /* oxlint-enable typescript/no-explicit-any */

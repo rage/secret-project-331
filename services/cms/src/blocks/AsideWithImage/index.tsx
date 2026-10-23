@@ -31,6 +31,8 @@ const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttribu
         "Coulrophobia brings on feelings of fear when you see clowns or clown images. It's a specific phobic disorder that causes anxiety, a racing heart, nausea and profuse sweating",
     },
   },
+  allowedBlocks: ["core/image"],
+  innerBlocksArea: {},
   edit: AsideWithImageEditor,
   save: AsideWithImageSave,
 }

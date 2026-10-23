@@ -11,6 +11,8 @@ import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.gener
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Checkbox, Disclosure, TextField } from "@/shared-module/components"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -18,8 +20,6 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
 import PageContext from "../../../contexts/PageContext"
-
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
 interface SettingsValues {
   name: string
@@ -144,7 +144,7 @@ const SettingsFields: React.FC<SettingsFieldsProps> = ({
   )
 }
 
-const ExerciseSettingsEditor = () => {
+const ExerciseSettingsEditor: React.FC<BlockEditProps> = ({ name }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const { attributes, setAttributes } = useContext(ExerciseBlockContext)
@@ -199,7 +199,7 @@ const ExerciseSettingsEditor = () => {
                   padding: 1rem;
                 `}
               >
-                <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
+                <InnerBlocks {...registeredInnerBlocksProps(name)} />
               </div>
             }
           />

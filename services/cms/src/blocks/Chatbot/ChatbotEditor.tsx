@@ -8,6 +8,7 @@ import React, { useContext, useEffect } from "react"
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { Select } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
@@ -17,9 +18,8 @@ import type { ChatbotBlockAttributes } from "."
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-const ALLOWED_NESTED_BLOCKS = [""]
-
 const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBlockAttributes>>> = ({
+  name,
   attributes,
   setAttributes,
 }) => {
@@ -103,7 +103,7 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
         )}
       </QueryResult>
 
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <InnerBlocks {...registeredInnerBlocksProps(name)} />
     </BlockPlaceholderWrapper>
   )
 }

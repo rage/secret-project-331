@@ -130,6 +130,7 @@ import {
   getCertificateByConfigurationId,
   getCertificateByVerificationId,
   getChatbotConfiguration,
+  getChatbotEmbedConf,
   getChatbotModel,
   getChatbotModels,
   getCodeGiveawayById,
@@ -622,6 +623,8 @@ import type {
   GetCertificateByVerificationIdData,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponse,
+  GetChatbotEmbedConfData,
+  GetChatbotEmbedConfResponse,
   GetChatbotModelData,
   GetChatbotModelResponse,
   GetChatbotModelsData,
@@ -1613,6 +1616,29 @@ export const getCourseChaptersOptions = (options: Options<GetCourseChaptersData>
         throwOnError: true,
       }),
     queryKey: getCourseChaptersQueryKey(options),
+  })
+
+export const getChatbotEmbedConfQueryKey = (options: Options<GetChatbotEmbedConfData>) =>
+  createQueryKey("getChatbotEmbedConf", options)
+
+/**
+ * GET `/api/v0/main-frontend/chatbot-embed/{chatbot_configuration_id}`
+ */
+export const getChatbotEmbedConfOptions = (options: Options<GetChatbotEmbedConfData>) =>
+  queryOptions<
+    GetChatbotEmbedConfResponse,
+    DefaultError,
+    GetChatbotEmbedConfResponse,
+    ReturnType<typeof getChatbotEmbedConfQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getChatbotEmbedConf({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getChatbotEmbedConfQueryKey(options),
   })
 
 export const getChatbotModelsQueryKey = (options?: Options<GetChatbotModelsData>) =>

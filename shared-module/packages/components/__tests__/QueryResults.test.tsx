@@ -2,8 +2,10 @@
 
 import type { UseQueryResult } from "@tanstack/react-query"
 import { screen } from "@testing-library/react"
+import { I18nextProvider } from "react-i18next"
 
 import { QueryResults } from "../src/components/queryResult/QueryResults"
+import { setupQueryResultI18N } from "./QueryResult.test"
 import { domClick, renderUi } from "./testUtils"
 
 function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQueryResult<T, E> {
@@ -47,9 +49,11 @@ test("renders when all queries have data", () => {
   expect(screen.getByText("a,b")).toBeInTheDocument()
 })
 
-test("blocking error and retry refetches only failed queries", () => {
+test("blocking error and retry refetches only failed queries", async () => {
   const refetchOk = jest.fn()
   const refetchFail = jest.fn()
+  const i18n = await setupQueryResultI18N()
+
   const queries = [
     makeQuery({ data: "a", refetch: refetchOk }),
     makeQuery({
@@ -60,7 +64,11 @@ test("blocking error and retry refetches only failed queries", () => {
     }),
   ] as unknown as readonly [UseQueryResult<string, unknown>, UseQueryResult<string, unknown>]
 
-  renderUi(<QueryResults themeMode="light" queries={queries} renderData={() => null} />)
+  renderUi(
+    <I18nextProvider i18n={i18n}>
+      <QueryResults themeMode="light" queries={queries} renderData={() => null} />
+    </I18nextProvider>,
+  )
 
   expect(screen.getByRole("alert")).toBeInTheDocument()
   domClick(screen.getByRole("button", { name: "Retry" }))
@@ -68,9 +76,10 @@ test("blocking error and retry refetches only failed queries", () => {
   expect(refetchOk).not.toHaveBeenCalled()
 })
 
-test("stale error retry refetches only errored queries", () => {
+test("stale error retry refetches only errored queries", async () => {
   const refetchOk = jest.fn()
   const refetchStale = jest.fn()
+  const i18n = await setupQueryResultI18N()
   const queries = [
     makeQuery({ data: "a", refetch: refetchOk }),
     makeQuery({
@@ -82,15 +91,17 @@ test("stale error retry refetches only errored queries", () => {
   ] as unknown as readonly [UseQueryResult<string, unknown>, UseQueryResult<string, unknown>]
 
   renderUi(
-    <QueryResults
-      themeMode="light"
-      queries={queries}
-      renderData={(t) => (
-        <span>
-          {t[0]},{t[1]}
-        </span>
-      )}
-    />,
+    <I18nextProvider i18n={i18n}>
+      <QueryResults
+        themeMode="light"
+        queries={queries}
+        renderData={(t) => (
+          <span>
+            {t[0]},{t[1]}
+          </span>
+        )}
+      />
+    </I18nextProvider>,
   )
 
   domClick(screen.getByRole("button", { name: "Retry" }))

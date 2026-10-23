@@ -4,7 +4,7 @@ import { css, cx } from "@emotion/css"
 import { useTooltipTriggerState } from "@react-stately/tooltip"
 import { CheckCircle, Link, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { mergeProps, useTooltip, useTooltipTrigger } from "react-aria"
+import { mergeProps, useTooltip, useTooltipTrigger, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { copyTextToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
@@ -23,6 +23,7 @@ type CopyStatus = (typeof COPY_STATUS)[keyof typeof COPY_STATUS]
 
 const FEEDBACK_VISIBLE_MS = 2000
 const ICON_SIZE_PX = 16
+const INLINE_SPAN = "span" as const
 
 /* Takes no space, so the icon never wraps onto a line of its own or makes a line taller. At the end of
    a full line the icon hangs into the margin instead. */
@@ -170,9 +171,9 @@ const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, heading
       </span>
       {/* Rendered even while empty: a live region has to be in the accessibility tree before its
           content changes, or the change goes unannounced. */}
-      <span role="status" className="screen-reader-only">
+      <VisuallyHidden elementType={INLINE_SPAN} role="status">
         {statusMessage}
-      </span>
+      </VisuallyHidden>
     </>
   )
 }

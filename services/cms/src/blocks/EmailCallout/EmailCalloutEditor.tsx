@@ -1,12 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
+import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React, { useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 
 import { Select } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -17,7 +17,7 @@ const ALLOWED_TITLE_FORMATS = ["core/italic", "core/link"]
 
 const EmailCalloutEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<EmailCalloutAttributes>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   const { control, watch, setValue } = useForm<{ icon: EmailCalloutIcon }>({
     defaultValues: { icon: attributes.icon },
@@ -105,7 +105,7 @@ const EmailCalloutEditor: React.FC<
             aria-label={t("email-callout-title")}
             allowedFormats={ALLOWED_TITLE_FORMATS}
           />
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
         </div>
       </div>
     </BlockWrapper>

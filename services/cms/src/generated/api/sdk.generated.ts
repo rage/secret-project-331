@@ -68,12 +68,14 @@ import type {
   SendCmsEmailTemplateTestData,
   SendCmsEmailTemplateTestResponses,
   UpdateCmsCourseDefaultPeerReviewData,
+  UpdateCmsCourseDefaultPeerReviewErrors,
   UpdateCmsCourseDefaultPeerReviewResponses,
   UpdateCmsEmailTemplateData,
   UpdateCmsEmailTemplateResponses,
   UpdateCmsExamInstructionsData,
   UpdateCmsExamInstructionsResponses,
   UpdateCmsPageData,
+  UpdateCmsPageErrors,
   UpdateCmsPageResponses,
   UploadCmsCourseMediaData,
   UploadCmsCourseMediaResponses,
@@ -315,10 +317,15 @@ export const getCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = tru
 
 export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsCourseDefaultPeerReviewData, ThrowOnError>,
-): RequestResult<UpdateCmsCourseDefaultPeerReviewResponses, unknown, ThrowOnError, "data"> =>
+): RequestResult<
+  UpdateCmsCourseDefaultPeerReviewResponses,
+  UpdateCmsCourseDefaultPeerReviewErrors,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).put<
     UpdateCmsCourseDefaultPeerReviewResponses,
-    unknown,
+    UpdateCmsCourseDefaultPeerReviewErrors,
     ThrowOnError,
     "data"
   >({
@@ -753,17 +760,19 @@ export const getCmsPage = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsPage = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsPageData, ThrowOnError>,
-): RequestResult<UpdateCmsPageResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<UpdateCmsPageResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/pages/{page_id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
+): RequestResult<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/cms/pages/{page_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
     },
-  })
+  )
 
 /**
  *

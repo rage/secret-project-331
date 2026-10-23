@@ -2,15 +2,15 @@
 
 use models::{
     CourseOrExamId,
+    agent_changesets::{self, AgentChangeset},
     page_history::HistoryChangeReason,
     pages::{
-        CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
+        CmsPageSave, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
         PageVisibility,
     },
 };
 
 use crate::{
-    controllers::main_frontend::agent_changesets::{self, PendingAgentChanges},
     domain::{
         models_requests::{self, JwtKey},
         request_id::RequestId,
@@ -122,14 +122,15 @@ Content-Type: application/json
     params(
         ("page_id" = Uuid, Path, description = "Page id")
     ),
-    request_body = CmsPageUpdate,
+    request_body = CmsPageSave,
     responses(
-        (status = 200, description = "Updated CMS page", body = ContentManagementPage)
+        (status = 200, description = "Updated CMS page", body = ContentManagementPage),
+        (status = 422, description = "`stale_version`: the page changed after the editor loaded it")
     )
 )]
 async fn update_page(
     request_id: RequestId,
-    payload: web::Json<CmsPageUpdate>,
+    payload: web::Json<CmsPageSave>,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     jwt_key: web::Data<JwtKey>,
@@ -139,7 +140,10 @@ async fn update_page(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
-    let cms_page_update = payload.0;
+    let CmsPageSave {
+        page: cms_page_update,
+        expected_updated_at,
+    } = payload.0;
     domain::authorization::ensure_user_can_add_exercise_tasks(
         &mut conn,
         user.id,
@@ -156,9 +160,8 @@ async fn update_page(
     let saved = models::pages::update_by_id_in_parent_context(
         &mut conn,
         PageUpdateArgs {
-            agent_attribution: None,
             page_id: *page_id,
-            author: user.id,
+            author: models::entity_history::HistoryAuthor::user(user.id),
             cms_page_update,
             retain_ids: false,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -166,6 +169,7 @@ async fn update_page(
         },
         expected_course_id,
         expected_exam_id,
+        expected_updated_at,
         models_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
@@ -259,18 +263,18 @@ unpublished AI agent changes on the page, for the notice in the page editor. `nu
         ("page_id" = Uuid, Path, description = "Page id")
     ),
     responses(
-        (status = 200, description = "The open changeset changing the page, if any", body = Option<PendingAgentChanges>)
+        (status = 200, description = "The open changeset changing the page, if any", body = Option<AgentChangeset>)
     )
 )]
 async fn get_pending_agent_changes(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Option<PendingAgentChanges>>> {
+) -> ControllerResult<web::Json<Option<AgentChangeset>>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let pending = agent_changesets::get_pending_agent_changes(&mut conn, user.id, *page_id).await?;
-    token.authorized_ok(web::Json(pending))
+    let changeset = agent_changesets::get_open_changing_page(&mut conn, user.id, *page_id).await?;
+    token.authorized_ok(web::Json(changeset))
 }
 
 /**

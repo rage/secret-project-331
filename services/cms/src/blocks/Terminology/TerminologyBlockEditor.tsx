@@ -1,11 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
+import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import { primaryFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -15,7 +15,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const TerminologyBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<TerminologyBlockAttributes>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title, blockName } = attributes
   const { t } = useTranslation()
 
@@ -74,7 +74,7 @@ const TerminologyBlockEditor: React.FC<
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={t("welcome-message-for-course")}
           />
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
         </div>
       </div>
     </BlockWrapper>

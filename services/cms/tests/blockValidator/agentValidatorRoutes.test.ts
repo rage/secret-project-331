@@ -41,7 +41,7 @@ const call = async (
   const req = {
     method,
     headers: authorization === undefined ? {} : { authorization },
-    body: { page_type: "course-page", blocks: [] },
+    body: { pages: [] },
   }
   await handler(req as unknown as NextApiRequest, res as unknown as NextApiResponse)
   return recorded
@@ -86,7 +86,7 @@ describe("agent validator routes", () => {
     expect(response.headers.Allow).toBe("POST")
   })
 
-  it("answers 503 retryable while the validator isn't running", async () => {
+  it("answers 503 while the validator isn't running", async () => {
     for (const [handler, method] of [
       [validateBlocks, "POST"],
       [blockSchemas, "GET"],
@@ -94,7 +94,6 @@ describe("agent validator routes", () => {
     ] as const) {
       const response = await call(handler, method, `Bearer ${SECRET}`)
       expect(response.status).toBe(503)
-      expect(response.body).toMatchObject({ retryable: true })
       expect(response.headers["Retry-After"]).toBe("1")
     }
   })

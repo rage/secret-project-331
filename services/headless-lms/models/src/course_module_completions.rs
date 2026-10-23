@@ -517,6 +517,31 @@ WHERE course_id = $1
     Ok(res.count.unwrap_or(0))
 }
 
+/// The course's modules that at least one student has completed.
+pub async fn get_completed_module_ids_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT m.id
+FROM course_modules m
+WHERE m.course_id = $1
+  AND EXISTS (
+    SELECT 1
+    FROM course_module_completions c
+    WHERE c.course_module_id = m.id
+      AND c.course_id = $1
+      AND c.deleted_at IS NULL
+  )
+",
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets automatically granted course module completion for the given user on the specified course.
 /// This entry is quaranteed to be unique in database by the index
 /// `course_module_automatic_completion_uniqueness`.

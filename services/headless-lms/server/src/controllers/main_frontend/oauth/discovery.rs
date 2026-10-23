@@ -2,7 +2,7 @@ use crate::domain::oauth::jwks::{Jwk, Jwks};
 use crate::domain::oauth::oidc::rsa_n_e_and_kid_from_pem;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use models::library::oauth::mcp::McpScope;
+use models::library::oauth::scopes::supported_scopes;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -126,25 +126,17 @@ pub async fn well_known_openid(
 pub(crate) fn authorization_server_metadata(
     app_conf: &ApplicationConfiguration,
 ) -> serde_json::Value {
-    let base_url = app_conf.base_url.trim_end_matches('/');
-    let mut scopes_supported = vec![
-        "openid".to_string(),
-        "profile".to_string(),
-        "email".to_string(),
-        "offline_access".to_string(),
-        "exercise-services".to_string(),
-    ];
-    scopes_supported.extend(McpScope::ALL.iter().map(|scope| scope.as_str().to_string()));
+    let issuer = app_conf.oauth_issuer();
     // We advertise what the server *globally* supports. Per-client specifics (like allowed PKCE methods)
     // can be stricter; by default we allow only S256 for PKCE at the server level.
     let config = serde_json::json!({
-        "issuer":                          format!("{}/api/v0/main-frontend/oauth", base_url),
-        "authorization_endpoint":          format!("{}/api/v0/main-frontend/oauth/authorize", base_url),
-        "token_endpoint":                  format!("{}/api/v0/main-frontend/oauth/token", base_url),
-        "userinfo_endpoint":               format!("{}/api/v0/main-frontend/oauth/userinfo", base_url),
-        "revocation_endpoint":             format!("{}/api/v0/main-frontend/oauth/revoke", base_url),
-        "device_authorization_endpoint":   format!("{}/api/v0/main-frontend/oauth/device_authorization", base_url),
-        "jwks_uri":                        format!("{}/api/v0/main-frontend/oauth/jwks.json", base_url),
+        "authorization_endpoint":          format!("{issuer}/authorize"),
+        "token_endpoint":                  format!("{issuer}/token"),
+        "userinfo_endpoint":               format!("{issuer}/userinfo"),
+        "revocation_endpoint":             format!("{issuer}/revoke"),
+        "device_authorization_endpoint":   format!("{issuer}/device_authorization"),
+        "jwks_uri":                        format!("{issuer}/jwks.json"),
+        "issuer":                          issuer,
 
         // Core capabilities
         "response_types_supported":        ["code"],
@@ -172,7 +164,7 @@ pub(crate) fn authorization_server_metadata(
         "dpop_signing_alg_values_supported": ["ES256","RS256"],
 
         // Nice-to-have hints for clients (optional but common)
-        "scopes_supported":                scopes_supported,
+        "scopes_supported":                supported_scopes(),
         "claims_supported":                ["sub","iss","aud","exp","iat","auth_time","nonce","email","email_verified","name","given_name","family_name"],
         "response_modes_supported":        ["query"],
         "userinfo_signing_alg_values_supported": [], // we return plain JSON at /userinfo

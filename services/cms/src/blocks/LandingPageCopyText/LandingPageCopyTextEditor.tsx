@@ -1,11 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { headingFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -13,7 +12,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const LandingPageCopyTextEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
-> = ({ name }) => {
+> = () => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -34,7 +33,7 @@ const LandingPageCopyTextEditor: React.FC<
             {t("landing-page-copy-text")}
           </h2>
         </div>
-        <InnerBlocks {...registeredInnerBlocksProps(name)} />
+        <RegisteredInnerBlocks />
       </div>
     </BlockWrapper>
   )

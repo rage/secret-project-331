@@ -7,6 +7,8 @@ import type { FileAttributes } from "@/../types/GutenbergBlockAttributes"
 import ExternalLinkSVG from "@/shared-module/common/img/external-link.svg"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link } from "@/shared-module/components"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
@@ -27,6 +29,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
     // textLinkHref,
     textLinkTarget,
   } = data.attributes
+  const fileNameText = richTextToPlainText(fileName ?? "")
   return (
     <div>
       <span>
@@ -35,7 +38,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           {...(textLinkTarget && { target: textLinkTarget })}
           rel={relForLinkTarget(undefined, textLinkTarget)}
         >
-          {fileName}
+          <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(fileName) }} />
           {textLinkTarget && textLinkTarget.includes("_blank") && (
             <div>
               <OpensInNewTabNotice linkTarget={textLinkTarget} />
@@ -53,13 +56,19 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           <Link
             href={href ?? ""}
             isDisabled={!href}
-            download={fileName}
+            download={fileNameText}
             styledAsButton
             size="medium"
             variant="tertiary"
-            {...(!downloadButtonText && { "aria-label": t("download-file", { fileName }) })}
+            {...(!downloadButtonText && {
+              "aria-label": t("download-file", { fileName: fileNameText }),
+            })}
           >
-            {downloadButtonText}
+            {downloadButtonText && (
+              <span
+                dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(downloadButtonText) }}
+              />
+            )}
           </Link>
         </span>
       )}

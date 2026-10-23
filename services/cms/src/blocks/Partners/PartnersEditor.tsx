@@ -1,19 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
 
-const PartnerEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
-  name,
-}) => {
+const PartnerEditor: React.FC<
+  React.PropsWithChildren<BlockEditProps<Record<string, never>>>
+> = () => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -39,7 +38,7 @@ const PartnerEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<stri
           </span>
         </div>
         <div>
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
         </div>
       </div>
     </BlockWrapper>

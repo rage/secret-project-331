@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM exercises\nWHERE course_id = $1\n  AND use_course_default_peer_or_self_review_config\n  AND (\n    needs_peer_review\n    OR needs_self_review\n  )\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "57e21cde5c8ab716bdd9e9cc8bc684532827a84876665a36cafc4cc1631030b1"
+}

@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import { useContext } from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -27,7 +27,6 @@ const ExerciseEditorCard = styled.div`
 `
 
 const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAttributes>>> = ({
-  name,
   attributes,
   clientId,
   setAttributes,
@@ -64,7 +63,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<BlockEditProps<ExerciseAt
                   {t("exercise-title")}
                 </div>
 
-                <InnerBlocks {...registeredInnerBlocksProps(name)} />
+                <RegisteredInnerBlocks />
 
                 <div>
                   <Button variant="secondary" size="medium" onClick={handleAddNewSlide}>

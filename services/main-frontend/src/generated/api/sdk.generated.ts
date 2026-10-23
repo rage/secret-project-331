@@ -183,8 +183,6 @@ import type {
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
-  DeleteOauthAuthorizedClientData,
-  DeleteOauthAuthorizedClientResponses,
   DeleteOrganizationImageData,
   DeleteOrganizationImageResponses,
   DeletePageAudioFileData,
@@ -262,12 +260,12 @@ import type {
   GetAccountLinkingUnlinkedEnroleesData,
   GetAccountLinkingUnlinkedEnroleesErrors,
   GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAgentChangesetCountsData,
+  GetAgentChangesetCountsResponses,
   GetAgentChangesetData,
   GetAgentChangesetResponses,
   GetAgentChangesetsData,
   GetAgentChangesetsResponses,
-  GetAgentChangesPendingForPageData,
-  GetAgentChangesPendingForPageResponses,
   GetAgentPagePreviewData,
   GetAgentPagePreviewResponses,
   GetAllChatbotsData,
@@ -543,8 +541,6 @@ import type {
   GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses,
   GetNumberOfPeopleStartedCourseData,
   GetNumberOfPeopleStartedCourseResponses,
-  GetOauthAuthorizedClientsData,
-  GetOauthAuthorizedClientsResponses,
   GetOauthConsentInfoData,
   GetOauthConsentInfoResponses,
   GetOauthDeviceVerificationData,
@@ -937,7 +933,6 @@ import {
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
   zDeleteExternalCourseResponse,
-  zDeleteOauthAuthorizedClientResponse,
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
   zDenyOauthConsentResponse,
@@ -967,9 +962,9 @@ import {
   zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
   zGetAccountLinkingUnlinkedEnroleesResponse,
+  zGetAgentChangesetCountsResponse,
   zGetAgentChangesetResponse,
   zGetAgentChangesetsResponse,
-  zGetAgentChangesPendingForPageResponse,
   zGetAgentPagePreviewResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
@@ -1099,7 +1094,6 @@ import {
   zGetNumberOfPeopleDoneAtLeastOneExerciseResponse,
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   zGetNumberOfPeopleStartedCourseResponse,
-  zGetOauthAuthorizedClientsResponse,
   zGetOauthConsentInfoResponse,
   zGetOauthDeviceVerificationResponse,
   zGetOauthGrantsResponse,
@@ -1332,30 +1326,25 @@ export const getAgentChangesets = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}` - Whether the signed-in user
- * has unpublished agent changes on the page, for the notice in the page editor. `null` if not.
+ * GET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent
+ * changesets in the course, and how many entities their open one stages, for the course management
+ * tab and its badge.
  */
-export const getAgentChangesPendingForPage = <ThrowOnError extends boolean = true>(
-  options: Options<GetAgentChangesPendingForPageData, ThrowOnError>,
-): RequestResult<GetAgentChangesPendingForPageResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
-    GetAgentChangesPendingForPageResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetAgentChangesPendingForPageResponse.parseAsync(data),
+export const getAgentChangesetCounts = <ThrowOnError extends boolean = true>(
+  options: Options<GetAgentChangesetCountsData, ThrowOnError>,
+): RequestResult<GetAgentChangesetCountsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetAgentChangesetCountsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAgentChangesetCountsResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}",
+    url: "/api/v0/main-frontend/agent-changesets/counts",
     ...options,
   })
 
 /**
  *
  * GET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the
- * review page: each entity's base, staged and live snapshot, risk reasons, conflicts and the agent
- * calls that staged it.
+ * review page: what each staged entity changes, field by field and for pages as students see them,
+ * its risk reasons, the conflicts and the agent calls that staged the changes.
  */
 export const getAgentChangeset = <ThrowOnError extends boolean = true>(
   options: Options<GetAgentChangesetData, ThrowOnError>,
@@ -1370,7 +1359,8 @@ export const getAgentChangeset = <ThrowOnError extends boolean = true>(
 /**
  *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open
- * changeset. Nothing of it reaches the live course.
+ * changeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no
+ * longer open or no longer the reviewed revision.
  */
 export const discardAgentChangeset = <ThrowOnError extends boolean = true>(
   options: Options<DiscardAgentChangesetData, ThrowOnError>,
@@ -1380,6 +1370,10 @@ export const discardAgentChangeset = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/discard",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -1407,8 +1401,9 @@ export const createAgentChangesetPreviewLink = <ThrowOnError extends boolean = t
 /**
  *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open
- * changeset, risky changes included. Rejected without changes if any staged page or entity changed
- * live since it was staged.
+ * changeset, risky changes included. Rejected without changes if the changeset is no longer open or no
+ * longer the reviewed revision, if any staged page or entity changed live since it was staged, or if
+ * saving a staged entity fails.
  */
 export const publishAgentChangeset = <ThrowOnError extends boolean = true>(
   options: Options<PublishAgentChangesetData, ThrowOnError>,
@@ -1418,12 +1413,16 @@ export const publishAgentChangeset = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/publish",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
  *
  * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No
- * login: the short-lived signed token is the authorization.
+ * login: the short-lived signed token stands in for it, while its user may still edit the course.
  */
 export const getAgentPagePreview = <ThrowOnError extends boolean = true>(
   options: Options<GetAgentPagePreviewData, ThrowOnError>,
@@ -7631,36 +7630,6 @@ export const authorizeOauthPost = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/x-www-form-urlencoded",
       ...options.headers,
     },
-  })
-
-export const getOauthAuthorizedClients = <ThrowOnError extends boolean = true>(
-  options?: Options<GetOauthAuthorizedClientsData, ThrowOnError>,
-): RequestResult<GetOauthAuthorizedClientsResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).get<
-    GetOauthAuthorizedClientsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zGetOauthAuthorizedClientsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/oauth/authorized-clients",
-    ...options,
-  })
-
-export const deleteOauthAuthorizedClient = <ThrowOnError extends boolean = true>(
-  options: Options<DeleteOauthAuthorizedClientData, ThrowOnError>,
-): RequestResult<DeleteOauthAuthorizedClientResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).delete<
-    DeleteOauthAuthorizedClientResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zDeleteOauthAuthorizedClientResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/oauth/authorized-clients/{client_id}",
-    ...options,
   })
 
 /**

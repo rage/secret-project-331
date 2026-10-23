@@ -1,26 +1,32 @@
 //! A live course with AI agent changesets waiting for review, for the review page, preview, page
 //! editor notice and agent grant system tests.
 
+use std::sync::Arc;
+
 use anyhow::{Context, Result};
 use chrono::Utc;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy,
     agent_changeset_calls::CallActor,
-    agent_changeset_entities::{AgentChangesetEntityType, RiskReason},
+    exercise_slide_submissions::{self, NewExerciseSlideSubmission},
+    exercise_task_gradings::UserPointsUpdateStrategy,
     library::{
-        agent_changesets::{StageCall, StagedEntity, stage_call},
-        entity_snapshots::{self, EntitySnapshot},
+        agent_changesets::{
+            RiskBaseline, StageCall, StagedEntity, StagedStateRead,
+            course_state::{ExerciseRecord, ExerciseReviewConfig},
+            stage_call,
+        },
+        entity_snapshots::{self, ContentEntityType, EntitySnapshot},
+        oauth::{mcp::McpScope, scopes::metadata_document_client_scopes},
     },
     oauth_client::{MetadataDocumentClient, OAuthClient},
-    oauth_user_client_scopes::{self, OAuthUserClientScopes},
+    oauth_user_client_scopes::OAuthUserClientScopes,
     pages::{self, PageDetailsUpdate},
+    peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfig, PeerReviewProcessingStrategy},
+    peer_or_self_review_submissions,
     roles::UserRole,
-    user_details,
-    user_passwords::{hash_password, upsert_user_password},
-    users,
 };
-use secrecy::SecretString;
 use serde_json::json;
 use sqlx::PgConnection;
 use tracing::info;
@@ -36,7 +42,7 @@ use crate::programs::seed::{
         page::PageBuilder,
     },
     seed_courses::CommonCourseData,
-    seed_helpers::{heading, paragraph},
+    seed_helpers::{heading, insert_user_with_password, paragraph},
 };
 
 /// The client id of the seeded agent: the URL of its client ID metadata document.
@@ -49,6 +55,7 @@ const PUBLISHER_EMAIL: &str = "agent-publisher@example.com";
 const DISCARDER_EMAIL: &str = "agent-discarder@example.com";
 const CONFLICTED_EMAIL: &str = "agent-conflicted@example.com";
 const GRANT_HOLDER_EMAIL: &str = "agent-grant-holder@example.com";
+const REVIEW_SETTINGS_EMAIL: &str = "agent-review-settings@example.com";
 
 pub async fn seed_agent_changesets_course(
     app_config: ApplicationConfiguration,
@@ -72,11 +79,54 @@ pub async fn seed_agent_changesets_course(
 
     info!("Inserting agent changesets course {}", course_name);
 
-    let publisher = insert_user(&mut conn, cx.v5(b"user:publisher"), PUBLISHER_EMAIL).await?;
-    let discarder = insert_user(&mut conn, cx.v5(b"user:discarder"), DISCARDER_EMAIL).await?;
-    let conflicted = insert_user(&mut conn, cx.v5(b"user:conflicted"), CONFLICTED_EMAIL).await?;
-    let grant_holder =
-        insert_user(&mut conn, cx.v5(b"user:grant-holder"), GRANT_HOLDER_EMAIL).await?;
+    let publisher = insert_user_with_password(
+        &mut conn,
+        cx.v5(b"user:publisher"),
+        PUBLISHER_EMAIL,
+        "Agent",
+        "Publisher",
+    )
+    .await?;
+    let discarder = insert_user_with_password(
+        &mut conn,
+        cx.v5(b"user:discarder"),
+        DISCARDER_EMAIL,
+        "Agent",
+        "Discarder",
+    )
+    .await?;
+    let conflicted = insert_user_with_password(
+        &mut conn,
+        cx.v5(b"user:conflicted"),
+        CONFLICTED_EMAIL,
+        "Agent",
+        "Conflicted",
+    )
+    .await?;
+    let grant_holder = insert_user_with_password(
+        &mut conn,
+        cx.v5(b"user:grant-holder"),
+        GRANT_HOLDER_EMAIL,
+        "Agent",
+        "Grant Holder",
+    )
+    .await?;
+    let review_settings = insert_user_with_password(
+        &mut conn,
+        cx.v5(b"user:review-settings"),
+        REVIEW_SETTINGS_EMAIL,
+        "Agent",
+        "Review Settings",
+    )
+    .await?;
+    let student = insert_user_with_password(
+        &mut conn,
+        cx.v5(b"user:student"),
+        "agent-student@example.com",
+        "Agent",
+        "Student",
+    )
+    .await?;
 
     let course = CourseBuilder::new(course_name, course_slug)
         .desc("Sample course with changes an AI agent has staged for review.")
@@ -94,6 +144,7 @@ pub async fn seed_agent_changesets_course(
         .role(publisher, UserRole::Teacher)
         .role(discarder, UserRole::Teacher)
         .role(conflicted, UserRole::Teacher)
+        .role(review_settings, UserRole::Teacher)
         .module(
             ModuleBuilder::new().order(0).chapter(
                 ChapterBuilder::new(1, "Getting started")
@@ -155,10 +206,54 @@ pub async fn seed_agent_changesets_course(
                             )),
                     )
                     .page(
+                        PageBuilder::new("/chapter-1/classes", "Classes")
+                            .block(paragraph(
+                                "A class describes what objects of one kind have in common.",
+                                cx.v5(b"classes:paragraph"),
+                            ))
+                            .exercise(ExerciseBuilder::example_exercise(
+                                "Classes quiz",
+                                ExerciseIds {
+                                    exercise_id: cx.v5(b"classes:exercise"),
+                                    slide_id: cx.v5(b"classes:exercise:slide"),
+                                    task_id: cx.v5(b"classes:exercise:task"),
+                                    block_id: cx.v5(b"classes:exercise:block"),
+                                },
+                                vec![paragraph(
+                                    "Which keyword defines a class in Python?",
+                                    cx.v5(b"classes:exercise:prompt"),
+                                )],
+                                json!([
+                                    {
+                                        "name": "class",
+                                        "correct": true,
+                                        "id": cx.v5(b"classes:exercise:option:1")
+                                    },
+                                    {
+                                        "name": "object",
+                                        "correct": false,
+                                        "id": cx.v5(b"classes:exercise:option:2")
+                                    }
+                                ]),
+                                false,
+                                None,
+                                None,
+                            )),
+                    )
+                    .page(
                         PageBuilder::new("/chapter-1/strings", "Strings").block(paragraph(
                             "A string is a piece of text.",
                             cx.v5(b"strings:paragraph"),
                         )),
+                    )
+                    .page(
+                        PageBuilder::new("/chapter-1/objects", "Objects")
+                            .block(paragraph(
+                                "An object is a value made from a class.",
+                                cx.v5(b"objects:paragraph"),
+                            ))
+                            .exercise(peer_reviewed_exercise(&cx, "Objects essay", "objects"))
+                            .exercise(peer_reviewed_exercise(&cx, "Methods essay", "methods")),
                     ),
             ),
         );
@@ -172,22 +267,23 @@ pub async fn seed_agent_changesets_course(
             client_name: AGENT_CLIENT_NAME,
             redirect_uris: &["http://127.0.0.1/callback".to_string()],
             client_uri: Some("https://agent.example.com"),
-            logo_uri: None,
-            scopes: &[
-                "material:read".to_string(),
-                "material:stage".to_string(),
-                "material:publish".to_string(),
-                "settings:write".to_string(),
-            ],
+            scopes: &metadata_document_client_scopes(),
         },
     )
     .await?;
     let agent_scopes = [
-        "material:read".to_string(),
-        "material:stage".to_string(),
-        "material:publish".to_string(),
-    ];
-    for user_id in [publisher, discarder, conflicted, grant_holder] {
+        McpScope::MaterialRead,
+        McpScope::MaterialStage,
+        McpScope::MaterialPublish,
+    ]
+    .map(|scope| scope.as_str().to_string());
+    for user_id in [
+        publisher,
+        discarder,
+        conflicted,
+        grant_holder,
+        review_settings,
+    ] {
         OAuthUserClientScopes::insert(&mut conn, user_id, agent_client.id, &agent_scopes).await?;
     }
 
@@ -201,13 +297,15 @@ pub async fn seed_agent_changesets_course(
         page_ids.variables,
         "Explain variables with an example",
         |snapshot| {
-            snapshot.content.push(paragraph(
+            Arc::make_mut(&mut snapshot.content).push(paragraph(
                 "For example, age = 30 stores the number 30 under the name age.",
                 cx.v5(b"variables:staged-example"),
             ));
         },
     )
     .await?;
+    let old_notes = (ContentEntityType::Page, page_ids.old_notes);
+    let read = StagedStateRead::current(&mut conn, publisher, course.id, &[old_notes]).await?;
     stage_call(
         &mut conn,
         StageCall {
@@ -216,22 +314,10 @@ pub async fn seed_agent_changesets_course(
             tool_name: "patch_course_structure",
             ops: &json!([{ "op": "remove", "path": format!("/pages/{}", page_ids.old_notes) }]),
             summary: Some("Remove the outdated notes page"),
-            entities: vec![StagedEntity {
-                entity_type: AgentChangesetEntityType::Page,
-                entity_id: page_ids.old_notes,
-                after: None,
-                risk_reasons: vec![RiskReason {
-                    code: "visible_page_removed".to_string(),
-                    message: format!(
-                        "removes page {}, which students can see",
-                        page_ids.old_notes
-                    ),
-                    consequence:
-                        "the page disappears for students and its address gets no redirect"
-                            .to_string(),
-                }],
-            }],
+            entities: vec![StagedEntity::Delete(old_notes)],
             revert_of_call_id: None,
+            read: &read,
+            risk: &RiskBaseline::Current,
         },
     )
     .await?;
@@ -244,7 +330,7 @@ pub async fn seed_agent_changesets_course(
         page_ids.loops,
         "Mention while loops",
         |snapshot| {
-            snapshot.content.push(paragraph(
+            Arc::make_mut(&mut snapshot.content).push(paragraph(
                 "A while loop repeats as long as its condition is true.",
                 cx.v5(b"loops:staged-while"),
             ));
@@ -260,11 +346,11 @@ pub async fn seed_agent_changesets_course(
         page_ids.functions,
         "Add a heading and an example to the functions page",
         |snapshot| {
-            snapshot.content.insert(
+            Arc::make_mut(&mut snapshot.content).insert(
                 0,
                 heading("Functions", cx.v5(b"functions:staged-heading"), 2),
             );
-            snapshot.content.insert(
+            Arc::make_mut(&mut snapshot.content).insert(
                 2,
                 paragraph(
                     "For example, def greet(): defines a function called greet.",
@@ -281,13 +367,132 @@ pub async fn seed_agent_changesets_course(
         page_ids.strings,
         "Explain string concatenation",
         |snapshot| {
-            snapshot.content.push(paragraph(
+            Arc::make_mut(&mut snapshot.content).push(paragraph(
                 "Strings can be joined with the + operator.",
                 cx.v5(b"strings:staged-concatenation"),
             ));
         },
     )
     .await?;
+    stage_page_edit_with_tool(
+        &mut conn,
+        &conflicted_actor,
+        course.id,
+        page_ids.classes,
+        "patch_exercise",
+        &json!([{ "op": "replace", "path": "/exercises/0/name" }]),
+        "Clarify the classes exercise",
+        |snapshot| {
+            snapshot.exercises[0].name = "Classes quiz: keywords".to_string();
+            snapshot.exercise_tasks[0].assignment = json!([paragraph(
+                "Which Python keyword starts the definition of a class?",
+                cx.v5(b"classes:exercise:staged-prompt"),
+            )]);
+        },
+    )
+    .await?;
+
+    let course_default = peer_or_self_review_configs::upsert_with_id(
+        &mut conn,
+        PKeyPolicy::Fixed(cx.v5(b"course-default-review")),
+        &CmsPeerOrSelfReviewConfig {
+            id: cx.v5(b"course-default-review"),
+            course_id: course.id,
+            exercise_id: None,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            accepting_threshold: 2.1,
+            processing_strategy: PeerReviewProcessingStrategy::AutomaticallyGradeByAverage,
+            points_are_all_or_nothing: true,
+            reset_answer_if_zero_points_from_review: false,
+            review_instructions: Some(json!([paragraph(
+                "Read the whole answer before you rate it.",
+                cx.v5(b"course-default-review:instructions"),
+            )])),
+        },
+    )
+    .await?;
+    let methods_exercise_id = cx.v5(b"methods:exercise");
+    let submission = exercise_slide_submissions::insert_exercise_slide_submission_with_id(
+        &mut conn,
+        cx.v5(b"methods:student-submission"),
+        &NewExerciseSlideSubmission {
+            exercise_slide_id: cx.v5(b"methods:exercise:slide"),
+            course_id: Some(course.id),
+            exam_id: None,
+            exercise_id: methods_exercise_id,
+            user_id: student,
+            user_points_update_strategy: UserPointsUpdateStrategy::CanAddPointsAndCanRemovePoints,
+        },
+    )
+    .await?;
+    peer_or_self_review_submissions::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(cx.v5(b"methods:student-review")),
+        student,
+        methods_exercise_id,
+        course.id,
+        course_default.id,
+        submission.id,
+    )
+    .await?;
+
+    let review_settings_actor = agent_actor(&mut conn, review_settings, agent_client.id).await?;
+    stage_course_default_review_instructions(
+        &mut conn,
+        &review_settings_actor,
+        course.id,
+        course_default.id,
+        json!([paragraph(
+            "Read the whole answer before you rate it, and say what was done well.",
+            cx.v5(b"course-default-review:staged-instructions"),
+        )]),
+    )
+    .await?;
+    let objects = entity_snapshots::load_page(&mut conn, page_ids.objects)
+        .await?
+        .context("seeded page not found")?;
+    let course_default_with_questions =
+        peer_or_self_review_configs::get_course_default_cms_peer_review_configuration(
+            &mut conn, course.id,
+        )
+        .await?;
+    let mut bundles = objects.exercise_bundles();
+    let methods = bundles
+        .iter_mut()
+        .find(|bundle| bundle.exercise.id == methods_exercise_id)
+        .context("seeded methods exercise not found")?;
+    let before = ExerciseRecord::of_bundle(objects.id, methods);
+    let forked = ExerciseRecord {
+        review_config: ExerciseReviewConfig::Own {
+            config_id: cx.v5(b"methods:own-review-config"),
+            review_instructions: Some(Arc::new(json!([paragraph(
+                "Check that the answer calls a method on an object.",
+                cx.v5(b"methods:staged-review-instructions"),
+            )]))),
+        },
+        ..before.clone()
+    };
+    forked
+        .apply_to(
+            &before,
+            methods,
+            course_default_with_questions.as_ref(),
+            Uuid::new_v4,
+        )
+        .map_err(|error| anyhow::anyhow!("forking the seeded review config failed: {error:?}"))?;
+    stage_page_edit_with_tool(
+        &mut conn,
+        &review_settings_actor,
+        course.id,
+        page_ids.objects,
+        "patch_exercise",
+        &json!([{ "op": "replace", "path": "/review_instructions/0" }]),
+        "Give the methods essay its own review instructions",
+        |snapshot| snapshot.set_exercise_bundles(&bundles),
+    )
+    .await?;
+
     // Someone else edits the page after the agent staged it, so publishing must be refused.
     pages::update_page_details(
         &mut conn,
@@ -307,7 +512,9 @@ struct PageIds {
     old_notes: Uuid,
     loops: Uuid,
     functions: Uuid,
+    classes: Uuid,
     strings: Uuid,
+    objects: Uuid,
 }
 
 impl PageIds {
@@ -325,29 +532,35 @@ impl PageIds {
             old_notes: find("/chapter-1/old-notes")?,
             loops: find("/chapter-1/loops")?,
             functions: find("/chapter-1/functions")?,
+            classes: find("/chapter-1/classes")?,
             strings: find("/chapter-1/strings")?,
+            objects: find("/chapter-1/objects")?,
         })
     }
 }
 
-async fn insert_user(conn: &mut PgConnection, user_id: Uuid, email: &str) -> Result<Uuid> {
-    let local_part = email
-        .split('@')
-        .next()
-        .expect("split always yields one element");
-    let user_id = users::insert(
-        conn,
-        PKeyPolicy::Fixed(user_id),
-        email,
-        Some("Agent"),
-        Some(local_part),
+/// A peer reviewed exercise that uses the course default review config; `key` namespaces its ids.
+fn peer_reviewed_exercise(cx: &SeedContext, name: &str, key: &str) -> ExerciseBuilder {
+    let id = |part: &str| cx.v5(format!("{key}:exercise{part}").as_bytes());
+    ExerciseBuilder::example_exercise(
+        name,
+        ExerciseIds {
+            exercise_id: id(""),
+            slide_id: id(":slide"),
+            task_id: id(":task"),
+            block_id: id(":block"),
+        },
+        vec![paragraph(
+            &format!("Write a short essay for the {name}."),
+            id(":prompt"),
+        )],
+        json!([
+            { "name": "Done", "correct": true, "id": id(":option:1") }
+        ]),
+        true,
+        None,
+        None,
     )
-    .await?;
-    user_details::update_user_country(conn, user_id, "fi").await?;
-    let hash = hash_password(&SecretString::new(local_part.to_string().into()))
-        .map_err(|e| anyhow::anyhow!("failed to hash a seeded password: {e}"))?;
-    upsert_user_password(conn, user_id, &hash).await?;
-    Ok(user_id)
 }
 
 async fn agent_actor(
@@ -355,15 +568,13 @@ async fn agent_actor(
     user_id: Uuid,
     oauth_client_id: Uuid,
 ) -> Result<CallActor> {
-    let grant = oauth_user_client_scopes::get_grants_for_user(conn, user_id)
+    let grant = OAuthUserClientScopes::find_grant(conn, user_id, oauth_client_id)
         .await?
-        .into_iter()
-        .find(|grant| grant.client_id == oauth_client_id)
         .context("seeded agent grant not found")?;
     Ok(CallActor {
         user_id,
-        oauth_client_id: Some(oauth_client_id),
-        oauth_grant_id: Some(grant.id),
+        oauth_client_id,
+        oauth_grant_id: grant.id,
         client_name: AGENT_CLIENT_NAME.to_string(),
     })
 }
@@ -377,25 +588,90 @@ async fn stage_page_edit(
     summary: &str,
     edit: impl FnOnce(&mut entity_snapshots::PageSnapshot),
 ) -> Result<()> {
-    let mut snapshot = entity_snapshots::load_page(conn, page_id)
-        .await?
-        .context("seeded page not found")?;
-    edit(&mut snapshot);
+    stage_page_edit_with_tool(
+        conn,
+        actor,
+        course_id,
+        page_id,
+        "patch_page_content",
+        &json!([{ "op": "add", "path": "/content/-" }]),
+        summary,
+        edit,
+    )
+    .await
+}
+
+/// Stages new course default review instructions, as a `patch_exercise` call with
+/// `review_config: edit_course_default` would.
+async fn stage_course_default_review_instructions(
+    conn: &mut PgConnection,
+    actor: &CallActor,
+    course_id: Uuid,
+    config_id: Uuid,
+    review_instructions: serde_json::Value,
+) -> Result<()> {
+    let key = (ContentEntityType::CourseDefaultReviewConfig, config_id);
+    let Some(Some(EntitySnapshot::CourseDefaultReviewConfig(mut snapshot))) =
+        entity_snapshots::load_live_many(conn, &[key])
+            .await?
+            .remove(&key)
+    else {
+        anyhow::bail!("seeded course default review config not found");
+    };
+    snapshot.review_instructions = Some(review_instructions);
+    let read = StagedStateRead::current(conn, actor.user_id, course_id, &[key]).await?;
     stage_call(
         conn,
         StageCall {
             actor,
             course_id,
-            tool_name: "patch_page_content",
-            ops: &json!([{ "op": "add", "path": "/content/-" }]),
-            summary: Some(summary),
-            entities: vec![StagedEntity {
-                entity_type: AgentChangesetEntityType::Page,
-                entity_id: page_id,
-                after: Some(EntitySnapshot::Page(snapshot).to_value()?),
-                risk_reasons: vec![],
-            }],
+            tool_name: "patch_exercise",
+            ops: &json!([{ "op": "replace", "path": "/review_instructions/0" }]),
+            summary: Some("Ask reviewers to say what was done well"),
+            entities: vec![StagedEntity::Write(snapshot.into())],
             revert_of_call_id: None,
+            read: &read,
+            risk: &RiskBaseline::Current,
+        },
+    )
+    .await?;
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn stage_page_edit_with_tool(
+    conn: &mut PgConnection,
+    actor: &CallActor,
+    course_id: Uuid,
+    page_id: Uuid,
+    tool_name: &str,
+    ops: &serde_json::Value,
+    summary: &str,
+    edit: impl FnOnce(&mut entity_snapshots::PageSnapshot),
+) -> Result<()> {
+    let mut snapshot = entity_snapshots::load_page(conn, page_id)
+        .await?
+        .context("seeded page not found")?;
+    edit(&mut snapshot);
+    let read = StagedStateRead::current(
+        conn,
+        actor.user_id,
+        course_id,
+        &[(ContentEntityType::Page, page_id)],
+    )
+    .await?;
+    stage_call(
+        conn,
+        StageCall {
+            actor,
+            course_id,
+            tool_name,
+            ops,
+            summary: Some(summary),
+            entities: vec![StagedEntity::Write(EntitySnapshot::Page(snapshot))],
+            revert_of_call_id: None,
+            read: &read,
+            risk: &RiskBaseline::Current,
         },
     )
     .await?;

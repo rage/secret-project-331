@@ -88,7 +88,6 @@ import {
   deleteExerciseService,
   deleteExternalCourse,
   deleteGlossaryTerm,
-  deleteOauthAuthorizedClient,
   deleteOrganizationImage,
   deletePage,
   deletePageAudioFile,
@@ -126,8 +125,8 @@ import {
   getAccountLinkingStats,
   getAccountLinkingUnlinkedEnrolees,
   getAgentChangeset,
+  getAgentChangesetCounts,
   getAgentChangesets,
-  getAgentChangesPendingForPage,
   getAgentPagePreview,
   getAllChatbots,
   getAllCourses,
@@ -263,7 +262,6 @@ import {
   getNumberOfPeopleDoneAtLeastOneExercise,
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
   getNumberOfPeopleStartedCourse,
-  getOauthAuthorizedClients,
   getOauthConsentInfo,
   getOauthDeviceVerification,
   getOauthGrants,
@@ -556,8 +554,6 @@ import type {
   DeleteExternalCourseData,
   DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
-  DeleteOauthAuthorizedClientData,
-  DeleteOauthAuthorizedClientResponse,
   DeleteOrganizationImageData,
   DeletePageAudioFileData,
   DeletePageData,
@@ -623,12 +619,12 @@ import type {
   GetAccountLinkingStatsResponse,
   GetAccountLinkingUnlinkedEnroleesData,
   GetAccountLinkingUnlinkedEnroleesResponse,
+  GetAgentChangesetCountsData,
+  GetAgentChangesetCountsResponse,
   GetAgentChangesetData,
   GetAgentChangesetResponse,
   GetAgentChangesetsData,
   GetAgentChangesetsResponse,
-  GetAgentChangesPendingForPageData,
-  GetAgentChangesPendingForPageResponse,
   GetAgentPagePreviewData,
   GetAgentPagePreviewResponse,
   GetAllChatbotsData,
@@ -893,8 +889,6 @@ import type {
   GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   GetNumberOfPeopleStartedCourseData,
   GetNumberOfPeopleStartedCourseResponse,
-  GetOauthAuthorizedClientsData,
-  GetOauthAuthorizedClientsResponse,
   GetOauthConsentInfoData,
   GetOauthConsentInfoResponse,
   GetOauthDeviceVerificationData,
@@ -1320,32 +1314,30 @@ export const getAgentChangesetsOptions = (options: Options<GetAgentChangesetsDat
     queryKey: getAgentChangesetsQueryKey(options),
   })
 
-export const getAgentChangesPendingForPageQueryKey = (
-  options: Options<GetAgentChangesPendingForPageData>,
-) => createQueryKey("getAgentChangesPendingForPage", options)
+export const getAgentChangesetCountsQueryKey = (options: Options<GetAgentChangesetCountsData>) =>
+  createQueryKey("getAgentChangesetCounts", options)
 
 /**
  *
- * GET `/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}` - Whether the signed-in user
- * has unpublished agent changes on the page, for the notice in the page editor. `null` if not.
+ * GET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent
+ * changesets in the course, and how many entities their open one stages, for the course management
+ * tab and its badge.
  */
-export const getAgentChangesPendingForPageOptions = (
-  options: Options<GetAgentChangesPendingForPageData>,
-) =>
+export const getAgentChangesetCountsOptions = (options: Options<GetAgentChangesetCountsData>) =>
   queryOptions<
-    GetAgentChangesPendingForPageResponse,
+    GetAgentChangesetCountsResponse,
     DefaultError,
-    GetAgentChangesPendingForPageResponse,
-    ReturnType<typeof getAgentChangesPendingForPageQueryKey>
+    GetAgentChangesetCountsResponse,
+    ReturnType<typeof getAgentChangesetCountsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getAgentChangesPendingForPage({
+      await getAgentChangesetCounts({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getAgentChangesPendingForPageQueryKey(options),
+    queryKey: getAgentChangesetCountsQueryKey(options),
   })
 
 export const getAgentChangesetQueryKey = (options: Options<GetAgentChangesetData>) =>
@@ -1354,8 +1346,8 @@ export const getAgentChangesetQueryKey = (options: Options<GetAgentChangesetData
 /**
  *
  * GET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the
- * review page: each entity's base, staged and live snapshot, risk reasons, conflicts and the agent
- * calls that staged it.
+ * review page: what each staged entity changes, field by field and for pages as students see them,
+ * its risk reasons, the conflicts and the agent calls that staged the changes.
  */
 export const getAgentChangesetOptions = (options: Options<GetAgentChangesetData>) =>
   queryOptions<
@@ -1377,7 +1369,8 @@ export const getAgentChangesetOptions = (options: Options<GetAgentChangesetData>
 /**
  *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open
- * changeset. Nothing of it reaches the live course.
+ * changeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no
+ * longer open or no longer the reviewed revision.
  */
 export const discardAgentChangesetMutation = (
   options?: Partial<Options<DiscardAgentChangesetData>>,
@@ -1432,8 +1425,9 @@ export const createAgentChangesetPreviewLinkMutation = (
 /**
  *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open
- * changeset, risky changes included. Rejected without changes if any staged page or entity changed
- * live since it was staged.
+ * changeset, risky changes included. Rejected without changes if the changeset is no longer open or no
+ * longer the reviewed revision, if any staged page or entity changed live since it was staged, or if
+ * saving a staged entity fails.
  */
 export const publishAgentChangesetMutation = (
   options?: Partial<Options<PublishAgentChangesetData>>,
@@ -1463,7 +1457,7 @@ export const getAgentPagePreviewQueryKey = (options: Options<GetAgentPagePreview
 /**
  *
  * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No
- * login: the short-lived signed token is the authorization.
+ * login: the short-lived signed token stands in for it, while its user may still edit the course.
  */
 export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewData>) =>
   queryOptions<
@@ -10072,51 +10066,6 @@ export const authorizeOauthPostMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await authorizeOauthPost({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-export const getOauthAuthorizedClientsQueryKey = (
-  options?: Options<GetOauthAuthorizedClientsData>,
-) => createQueryKey("getOauthAuthorizedClients", options)
-
-export const getOauthAuthorizedClientsOptions = (
-  options?: Options<GetOauthAuthorizedClientsData>,
-) =>
-  queryOptions<
-    GetOauthAuthorizedClientsResponse,
-    DefaultError,
-    GetOauthAuthorizedClientsResponse,
-    ReturnType<typeof getOauthAuthorizedClientsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getOauthAuthorizedClients({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getOauthAuthorizedClientsQueryKey(options),
-  })
-
-export const deleteOauthAuthorizedClientMutation = (
-  options?: Partial<Options<DeleteOauthAuthorizedClientData>>,
-): UseMutationOptions<
-  DeleteOauthAuthorizedClientResponse,
-  DefaultError,
-  Options<DeleteOauthAuthorizedClientData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteOauthAuthorizedClientResponse,
-    DefaultError,
-    Options<DeleteOauthAuthorizedClientData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await deleteOauthAuthorizedClient({
         ...options,
         ...fnOptions,
         throwOnError: true,

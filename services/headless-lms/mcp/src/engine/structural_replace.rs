@@ -1,5 +1,7 @@
 //! `structural_replace`: match blocks by type and text, then wrap, retype, unwrap or remove each.
 
+use std::borrow::Cow;
+
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use regex::Regex;
 use schemars::JsonSchema;
@@ -9,10 +11,12 @@ use uuid::Uuid;
 
 use super::blocks;
 use super::error::{EditError, EditErrorCode};
-use super::op::{OpKind, PatchOp};
-use super::page_content::{self, PageContentResult};
-use super::{EngineContext, PageDocument};
-use crate::text::{plain_text, preview};
+use super::op::Op;
+use super::page_content;
+use super::read::block_preview;
+use super::{BlockMatch, Document, DocumentRef, PageDocument};
+use crate::ids::IdGenerator;
+use crate::text::plain_text;
 
 /// Which blocks to act on. Every given condition must hold; text conditions look at the visible
 /// text of the block's `content`, without markup.
@@ -48,20 +52,11 @@ pub struct StructuralAction {
     pub remove: Option<bool>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct StructuralMatchFound {
-    pub page_id: Uuid,
-    pub block_id: Uuid,
-    pub path: String,
-    pub block_name: String,
-    pub preview: String,
-}
-
+/// The blocks that matched and the pages the action changed.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StructuralReplaceResult {
-    pub matches: Vec<StructuralMatchFound>,
-    /// Per changed page, the page engine's result (new blocks and created ids).
-    pub changed_pages: Vec<PageContentResult>,
+    pub matches: Vec<BlockMatch>,
+    pub changed_pages: Vec<Document>,
 }
 
 enum Action<'a> {
@@ -71,12 +66,14 @@ enum Action<'a> {
     Remove,
 }
 
+/// Applies `action` to each block of `pages` that `pattern` matches, by the page tool's rules.
+/// Fails without changing anything when `expected_count` differs from the matches.
 pub fn structural_replace(
-    pages: &[PageDocument],
+    pages: &[DocumentRef],
     pattern: &StructuralMatch,
     action: &StructuralAction,
     expected_count: Option<usize>,
-    ctx: &EngineContext,
+    ids: &dyn IdGenerator,
 ) -> Result<StructuralReplaceResult, EditError> {
     let action = parse_action(action)?;
     if pattern == &StructuralMatch::default() {
@@ -101,66 +98,65 @@ pub fn structural_replace(
     let mut changed_pages = Vec::new();
     for page in pages {
         let mut page_matches: Vec<(Uuid, Vec<usize>)> = Vec::new();
-        blocks::walk(&page.blocks, &mut |block, path| {
-            let inside_exercise = blocks::ancestor_ids(&page.blocks, path).iter().any(|a| {
-                blocks::find_path(&page.blocks, *a)
-                    .is_some_and(|p| blocks::is_exercise_name(&blocks::get(&page.blocks, &p).name))
-            });
-            if inside_exercise
-                || blocks::is_exercise_name(&block.name)
-                || !is_match(block, pattern, text_regex.as_ref())
-            {
-                return;
+        blocks::walk_outside_exercises(page.blocks, &mut |block, path| {
+            if is_match(block, pattern, text_regex.as_ref()) {
+                page_matches.push((block.client_id, path.to_vec()));
             }
-            page_matches.push((block.client_id, path.to_vec()));
         });
-        if matches!(action, Action::Remove | Action::Unwrap) {
-            // A removed or unwrapped ancestor already covers its matched descendants.
-            let ancestors: Vec<Vec<usize>> = page_matches.iter().map(|(_, p)| p.clone()).collect();
-            page_matches.retain(|(_, path)| {
-                !ancestors
-                    .iter()
-                    .any(|a| a.len() < path.len() && path.starts_with(a))
-            });
+        match action {
+            Action::Remove => {
+                // A removed ancestor already removes its matched descendants.
+                let ancestors: Vec<Vec<usize>> =
+                    page_matches.iter().map(|(_, p)| p.clone()).collect();
+                page_matches.retain(|(_, path)| {
+                    !ancestors
+                        .iter()
+                        .any(|a| a.len() < path.len() && path.starts_with(a))
+                });
+            }
+            Action::Unwrap => page_matches
+                .retain(|(_, path)| !blocks::get(page.blocks, path).inner_blocks.is_empty()),
+            _ => {}
         }
         for (block_id, path) in &page_matches {
-            let block = blocks::get(&page.blocks, path);
-            matches.push(StructuralMatchFound {
-                page_id: page.page_id,
-                block_id: *block_id,
-                path: format!("/{block_id}"),
-                block_name: block.name.clone(),
-                preview: preview(&block_text(block), 60),
-            });
+            let block = blocks::get(page.blocks, path);
+            matches.push(page.key.block_match(
+                block,
+                format!("/{block_id}"),
+                block_preview(block).unwrap_or_default(),
+            ));
         }
         if page_matches.is_empty() {
             continue;
         }
-        let ops: Vec<PatchOp> = page_matches
+        let ops: Vec<Op> = page_matches
             .iter()
-            .filter(|(_, path)| {
-                !matches!(action, Action::Unwrap)
-                    || !blocks::get(&page.blocks, path).inner_blocks.is_empty()
-            })
             .map(|(id, _)| op_for(&action, *id))
             .collect();
-        if ops.is_empty() {
-            continue;
-        }
-        let result = page_content::apply(page, &ops, ctx).map_err(|mut e| {
-            e.message = format!("on page {}: {}", page.page_id, e.message);
+        // Only ops that reach other pages use the id; these don't.
+        let document = PageDocument {
+            page_id: page.key.page_id().unwrap_or_default(),
+            page_type: page.page_type,
+            blocks: page.blocks.to_vec(),
+        };
+        let result = page_content::apply(document, &|_| None, &ops, ids).map_err(|mut e| {
+            e.message = format!("in {}: {}", page.key, e.message);
             e
         })?;
-        changed_pages.push(result);
+        changed_pages.push(Document {
+            key: page.key,
+            page_type: page.page_type,
+            blocks: result.page.blocks,
+        });
     }
     if let Some(expected) = expected_count
         && expected != matches.len()
     {
-        return Err(EditError::new(
-                EditErrorCode::ExpectedCountMismatch,
-                format!("expected {expected} matches but found {}; nothing was changed", matches.len()),
-            )
-            .with_details(json!({"matches": matches.iter().map(|m| json!({"page_id": m.page_id, "path": m.path})).collect::<Vec<_>>()})));
+        return Err(EditError::expected_count_mismatch(
+            expected,
+            matches.len(),
+            matches.iter().map(|m| m.location(None)).collect(),
+        ));
     }
     Ok(StructuralReplaceResult {
         matches,
@@ -191,41 +187,34 @@ fn parse_action(action: &StructuralAction) -> Result<Action<'_>, EditError> {
     Ok(chosen.remove(0))
 }
 
-fn op_for(action: &Action, id: Uuid) -> PatchOp {
-    let mut op = PatchOp {
-        op: OpKind::Remove,
-        path: format!("/{id}"),
-        from: None,
-        through: None,
-        value: None,
-        position: None,
-        to_page: None,
-        label: None,
-        at_text: None,
-    };
+fn op_for(action: &Action, id: Uuid) -> Op {
+    let path = format!("/{id}");
     match action {
-        Action::Wrap(name) => {
-            op.op = OpKind::Wrap;
-            op.value = Some(json!({"name": name}));
-        }
-        Action::Retype(name) => {
-            op.op = OpKind::Replace;
-            op.path = format!("/{id}/name");
-            op.value = Some(Value::String(name.to_string()));
-        }
-        Action::Unwrap => op.op = OpKind::Unwrap,
-        Action::Remove => {}
+        Action::Wrap(name) => Op::Wrap {
+            path,
+            through: None,
+            value: json!({ "name": name }),
+            label: None,
+        },
+        Action::Retype(name) => Op::Replace {
+            path: format!("{path}/name"),
+            value: Value::String(name.to_string()),
+        },
+        Action::Unwrap => Op::Unwrap { path },
+        Action::Remove => Op::Remove {
+            path,
+            through: None,
+        },
     }
-    op
 }
 
-fn block_text(block: &GutenbergBlock) -> String {
+/// The visible text of the block's `content`, without markup.
+fn block_text(block: &GutenbergBlock) -> Option<Cow<'_, str>> {
     block
         .attributes
         .get("content")
         .and_then(Value::as_str)
         .map(plain_text)
-        .unwrap_or_default()
 }
 
 fn is_match(block: &GutenbergBlock, pattern: &StructuralMatch, text_regex: Option<&Regex>) -> bool {
@@ -242,12 +231,7 @@ fn is_match(block: &GutenbergBlock, pattern: &StructuralMatch, text_regex: Optio
     if !needs_text {
         return true;
     }
-    let Some(text) = block
-        .attributes
-        .get("content")
-        .and_then(Value::as_str)
-        .map(plain_text)
-    else {
+    let Some(text) = block_text(block) else {
         return false;
     };
     pattern
@@ -268,7 +252,7 @@ mod tests {
     use super::*;
     use crate::engine::PageType;
     use crate::ids::SequentialIds;
-    use crate::test_fixtures::{id, infobox, page, para, top_level};
+    use crate::test_fixtures::{document_refs, id, infobox, page, para, top_level};
 
     fn pages() -> Vec<PageDocument> {
         vec![page(
@@ -292,21 +276,21 @@ mod tests {
 
     #[test]
     fn wraps_each_match_ignoring_markup() {
-        let ids = SequentialIds::new();
+        let ids = SequentialIds::default();
         let action = StructuralAction {
             wrap_in: Some("moocfi/infobox".into()),
             ..Default::default()
         };
         let result = structural_replace(
-            &pages(),
+            &document_refs(&pages()),
             &note_match(),
             &action,
             Some(2),
-            &EngineContext::new(&ids),
+            &ids,
         )
         .unwrap();
         assert_eq!(result.matches.len(), 2);
-        let blocks = &result.changed_pages[0].page.blocks;
+        let blocks = &result.changed_pages[0].blocks;
         assert_eq!(blocks[0].name, "moocfi/infobox");
         assert_eq!(top_level(&blocks[0].inner_blocks), vec![id("p1")]);
         assert_eq!(blocks[2].inner_blocks[0].name, "moocfi/infobox");
@@ -314,20 +298,15 @@ mod tests {
 
     #[test]
     fn retype_and_remove() {
-        let ids = SequentialIds::new();
+        let ids = SequentialIds::default();
         let retype = StructuralAction {
             retype_to: Some("core/heading".into()),
             ..Default::default()
         };
-        let result = structural_replace(
-            &pages(),
-            &note_match(),
-            &retype,
-            None,
-            &EngineContext::new(&ids),
-        )
-        .unwrap();
-        assert_eq!(result.changed_pages[0].page.blocks[0].name, "core/heading");
+        let result =
+            structural_replace(&document_refs(&pages()), &note_match(), &retype, None, &ids)
+                .unwrap();
+        assert_eq!(result.changed_pages[0].blocks[0].name, "core/heading");
         let remove = StructuralAction {
             remove: Some(true),
             ..Default::default()
@@ -337,27 +316,46 @@ mod tests {
             ..Default::default()
         };
         let result =
-            structural_replace(&pages(), &all, &remove, None, &EngineContext::new(&ids)).unwrap();
+            structural_replace(&document_refs(&pages()), &all, &remove, None, &ids).unwrap();
+        assert_eq!(top_level(&result.changed_pages[0].blocks), vec![id("box1")]);
+    }
+
+    #[test]
+    fn unwrap_reaches_nested_matches_and_skips_empty_ones() {
+        let ids = SequentialIds::default();
+        let doc = vec![page(
+            "pg1",
+            PageType::CoursePage,
+            vec![
+                infobox("box1", vec![infobox("box2", vec![para("p1", "Inside.")])]),
+                infobox("empty", vec![]),
+            ],
+        )];
+        let boxes = StructuralMatch {
+            name: Some("moocfi/infobox".into()),
+            ..Default::default()
+        };
+        let unwrap = StructuralAction {
+            unwrap: Some(true),
+            ..Default::default()
+        };
+        let result =
+            structural_replace(&document_refs(&doc), &boxes, &unwrap, Some(2), &ids).unwrap();
+        assert_eq!(result.matches.len(), 2);
         assert_eq!(
-            top_level(&result.changed_pages[0].page.blocks),
-            vec![id("box1")]
+            top_level(&result.changed_pages[0].blocks),
+            vec![id("p1"), id("empty")]
         );
     }
 
     #[test]
     fn action_and_count_checks() {
-        let ids = SequentialIds::new();
+        let ids = SequentialIds::default();
         let none = StructuralAction::default();
         assert_eq!(
-            structural_replace(
-                &pages(),
-                &note_match(),
-                &none,
-                None,
-                &EngineContext::new(&ids)
-            )
-            .unwrap_err()
-            .code,
+            structural_replace(&document_refs(&pages()), &note_match(), &none, None, &ids)
+                .unwrap_err()
+                .code,
             EditErrorCode::InvalidValue
         );
         let wrap = StructuralAction {
@@ -365,11 +363,11 @@ mod tests {
             ..Default::default()
         };
         let error = structural_replace(
-            &pages(),
+            &document_refs(&pages()),
             &note_match(),
             &wrap,
             Some(5),
-            &EngineContext::new(&ids),
+            &ids,
         )
         .unwrap_err();
         assert_eq!(error.code, EditErrorCode::ExpectedCountMismatch);

@@ -2,7 +2,7 @@ use futures::future::BoxFuture;
 use headless_lms_utils::document_schema_processor::{
     GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
 };
-use headless_lms_utils::strings::strip_html_tags;
+use headless_lms_utils::strings::{slugify, strip_html_tags};
 use url::Url;
 
 use std::collections::HashSet;
@@ -117,27 +117,6 @@ fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
         }
     }
     None
-}
-
-/// Generate a URL-safe slug from a title.
-///
-/// Lowercases, keeps alphanumeric characters, and collapses every run of other characters
-/// (whitespace and punctuation alike) into a single `-`, with no leading or trailing separator.
-fn slugify(text: &str) -> String {
-    let mut slug = String::with_capacity(text.len());
-    let mut pending_separator = false;
-    for c in text.to_lowercase().chars() {
-        if c.is_alphanumeric() {
-            if pending_separator && !slug.is_empty() {
-                slug.push('-');
-            }
-            pending_separator = false;
-            slug.push(c);
-        } else {
-            pending_separator = true;
-        }
-    }
-    slug
 }
 
 /// Appends a numeric suffix to `base_path` until it no longer collides with an existing

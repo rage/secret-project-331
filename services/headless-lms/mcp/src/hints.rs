@@ -1,15 +1,18 @@
 //! Just-in-time hints placed inside structured results. Hints state facts; they never tell the
 //! agent to run a command (the skill holds the procedures).
 
+use headless_lms_utils::version::Version;
 use serde::Serialize;
 
 use crate::protocol::context::ClientKind;
 use crate::validator::BlockSchemas;
 
-/// The skill version this server is built for, and the oldest it still works with.
-pub const CURRENT_SKILL_VERSION: &str = "0.1.0";
-pub const MINIMUM_SKILL_VERSION: &str = "0.1.0";
-pub const SKILL_SETUP_URL: &str = "https://github.com/rage/course-material-agent-skills#readme";
+/// The skill version this server is built for.
+pub const CURRENT_SKILL_VERSION: Version = Version(0, 0, 0);
+/// The oldest skill version this server still works with.
+pub const MINIMUM_SKILL_VERSION: Version = Version(0, 0, 0);
+pub const SKILL_SETUP_URL: &str =
+    "https://github.com/rage/course-material-agent-skills/blob/main/SETUP.md";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -36,22 +39,6 @@ impl Hint {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-struct Version(u64, u64, u64);
-
-fn parse_version(raw: &str) -> Option<Version> {
-    let mut parts = raw
-        .trim()
-        .trim_start_matches('v')
-        .split('.')
-        .map(|p| p.parse::<u64>().ok());
-    Some(Version(
-        parts.next()??,
-        parts.next().flatten().unwrap_or(0),
-        parts.next().flatten().unwrap_or(0),
-    ))
-}
-
 /// A skill too old to work with this server; the call is rejected.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 #[error("{message}")]
@@ -59,15 +46,16 @@ pub struct OutdatedSkill {
     pub message: String,
 }
 
-/// Checks the `skill_version` a call sent against [`CURRENT_SKILL_VERSION`] and [`MINIMUM_SKILL_VERSION`].
+/// Checks the `skill_version` a call sent against [`CURRENT_SKILL_VERSION`] and
+/// [`MINIMUM_SKILL_VERSION`]. No hint means the skill is current.
 pub fn skill_version(reported: Option<&str>) -> Result<Option<Hint>, OutdatedSkill> {
     check_skill_version(reported, CURRENT_SKILL_VERSION, MINIMUM_SKILL_VERSION)
 }
 
 fn check_skill_version(
     reported: Option<&str>,
-    current: &str,
-    minimum: &str,
+    current: Version,
+    minimum: Version,
 ) -> Result<Option<Hint>, OutdatedSkill> {
     let Some(reported) = reported else {
         return Ok(Some(Hint::new(
@@ -77,11 +65,7 @@ fn check_skill_version(
             ),
         )));
     };
-    let (Some(reported_version), Some(current_version), Some(minimum_version)) = (
-        parse_version(reported),
-        parse_version(current),
-        parse_version(minimum),
-    ) else {
+    let Some(reported_version) = Version::parse(reported) else {
         return Ok(Some(Hint::new(
             HintKind::SkillVersion,
             format!(
@@ -89,14 +73,14 @@ fn check_skill_version(
             ),
         )));
     };
-    if reported_version < minimum_version {
+    if reported_version < minimum {
         return Err(OutdatedSkill {
             message: format!(
                 "Skill version {reported} is older than {minimum}, the oldest this server works with (current {current}). Update the skill as its update section describes, re-read SKILL.md, then repeat the call."
             ),
         });
     }
-    if reported_version < current_version {
+    if reported_version < current {
         return Ok(Some(Hint::new(
             HintKind::SkillVersion,
             format!(
@@ -166,6 +150,15 @@ pub fn links_to_old_paths(count: usize) -> Hint {
     )
 }
 
+pub fn links_to_reused_paths(count: usize) -> Hint {
+    Hint::new(
+        HintKind::Consequence,
+        format!(
+            "{count} link(s) in course content point at old paths that other pages now have, so they will open those pages (now_opens_page in links_to_old_paths). Change them to the new paths if they should still open the moved pages."
+        ),
+    )
+}
+
 pub fn exercises_copied(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -182,6 +175,15 @@ pub fn blocks_moved_between_pages(count: usize) -> Hint {
     )
 }
 
+pub fn review_config_switched_with_reviews(review_count: i64) -> Hint {
+    Hint::new(
+        HintKind::Consequence,
+        format!(
+            "Students have given {review_count} review(s) on this exercise. After the switch students no longer see those reviews and they no longer match the review questions; the teacher sees this warning on the review page."
+        ),
+    )
+}
+
 pub fn submissions_affected(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -189,15 +191,13 @@ pub fn submissions_affected(count: usize) -> Hint {
     )
 }
 
-/// Format facts for the block types in a result, from the CMS schema export.
+/// Format facts for the block types in a result, from the CMS schema export. `block_names` are
+/// distinct.
 pub fn format_tips<'a>(
     block_names: impl IntoIterator<Item = &'a str>,
     schemas: &BlockSchemas,
 ) -> Vec<Hint> {
-    let mut names: Vec<&str> = block_names.into_iter().collect();
-    names.sort_unstable();
-    names.dedup();
-    names
+    block_names
         .into_iter()
         .filter_map(|name| {
             let schema = schemas.blocks.get(name)?;
@@ -243,11 +243,11 @@ mod tests {
 
     #[test]
     fn skill_versions() {
-        let missing = check_skill_version(None, "1.6.0", "1.2.0")
+        let missing = check_skill_version(None, Version(1, 6, 0), Version(1, 2, 0))
             .unwrap()
             .unwrap();
         assert!(missing.text.contains("not to be installed"));
-        let outdated = check_skill_version(Some("1.4.2"), "1.6.0", "1.2.0")
+        let outdated = check_skill_version(Some("1.4.2"), Version(1, 6, 0), Version(1, 2, 0))
             .unwrap()
             .unwrap();
         assert_eq!(
@@ -255,24 +255,29 @@ mod tests {
             "Skill version 1.4.2; current 1.6.0; see the skill's update section. An outdated skill can produce corrupted content."
         );
         assert!(
-            check_skill_version(Some("1.6.0"), "1.6.0", "1.2.0")
+            check_skill_version(Some("1.6.0"), Version(1, 6, 0), Version(1, 2, 0))
                 .unwrap()
                 .is_none()
         );
         assert!(
-            check_skill_version(Some("2.0"), "1.6.0", "1.2.0")
+            check_skill_version(Some("2.0"), Version(1, 6, 0), Version(1, 2, 0))
                 .unwrap()
                 .is_none()
         );
-        let too_old = check_skill_version(Some("1.1.9"), "1.6.0", "1.2.0").unwrap_err();
+        let too_old =
+            check_skill_version(Some("1.1.9"), Version(1, 6, 0), Version(1, 2, 0)).unwrap_err();
         assert!(too_old.message.contains("update section"));
-        assert!(
-            check_skill_version(Some("banana"), "1.6.0", "1.2.0")
+        for not_a_version in ["banana", "1.3.0-rc1", "1.x", "1.2.3.4"] {
+            let hint = check_skill_version(Some(not_a_version), Version(1, 6, 0), Version(1, 2, 0))
                 .unwrap()
-                .is_some()
-        );
+                .unwrap();
+            assert!(
+                hint.text.contains("isn't a version number"),
+                "{not_a_version}"
+            );
+        }
         assert!(
-            skill_version(Some(CURRENT_SKILL_VERSION))
+            skill_version(Some(&CURRENT_SKILL_VERSION.to_string()))
                 .unwrap()
                 .is_none()
         );

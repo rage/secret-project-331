@@ -6,18 +6,23 @@
 //! the checked addresses, redirects are not followed and the response size and time are capped.
 
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::num::NonZeroU32;
+use std::sync::LazyLock;
 use std::time::Duration;
 
 use chrono::Utc;
+use governor::{DefaultKeyedRateLimiter, Quota};
 use headless_lms_models::{
-    library::oauth::mcp::McpScope,
+    library::oauth::scopes::metadata_document_client_scopes,
     oauth_client::{MetadataDocumentClient, OAuthClient},
 };
 use serde::Deserialize;
-use sqlx::PgConnection;
+use sqlx::{PgConnection, PgPool};
 use url::Url;
+use uuid::Uuid;
 
-use crate::domain::error::ControllerError;
+use crate::domain::error::{ControllerError, OAuthErrorCode};
+use crate::domain::oauth::helpers::{oauth_error, oauth_invalid_request};
 
 /// The registration is re-fetched when the cached copy is older than this.
 const CACHE_LIFETIME: chrono::Duration = chrono::Duration::hours(1);
@@ -25,15 +30,23 @@ const CACHE_LIFETIME: chrono::Duration = chrono::Duration::hours(1);
 const STALE_CACHE_LIFETIME: chrono::Duration = chrono::Duration::days(7);
 const MAX_DOCUMENT_BYTES: usize = 5 * 1024;
 const FETCH_TIMEOUT: Duration = Duration::from_secs(5);
+/// Per server process; an agent registers one document, so this only bounds abuse.
+const NEW_DOCUMENTS_PER_USER_PER_HOUR: u32 = 10;
+/// Per server process; a document's host is fetched again at most this often, however many
+/// authorize requests name it.
+const REFETCHES_PER_DOCUMENT_PER_HOUR: u32 = 6;
 
-/// Scopes a metadata document client may request: the MCP scopes and `offline_access`.
-pub fn metadata_document_client_scopes() -> Vec<String> {
-    McpScope::ALL
-        .iter()
-        .map(|scope| scope.as_str().to_string())
-        .chain(std::iter::once("offline_access".to_string()))
-        .collect()
-}
+static NEW_DOCUMENT_FETCHES: LazyLock<DefaultKeyedRateLimiter<Uuid>> = LazyLock::new(|| {
+    DefaultKeyedRateLimiter::keyed(Quota::per_hour(
+        NonZeroU32::new(NEW_DOCUMENTS_PER_USER_PER_HOUR).expect("the quota is positive"),
+    ))
+});
+
+static DOCUMENT_REFETCHES: LazyLock<DefaultKeyedRateLimiter<String>> = LazyLock::new(|| {
+    DefaultKeyedRateLimiter::keyed(Quota::per_hour(
+        NonZeroU32::new(REFETCHES_PER_DOCUMENT_PER_HOUR).expect("the quota is positive"),
+    ))
+});
 
 /// Whether the client id names a metadata document rather than a registered client.
 pub fn is_metadata_document_client_id(client_id: &str) -> bool {
@@ -45,7 +58,6 @@ struct ClientMetadataDocument {
     client_id: String,
     client_name: Option<String>,
     client_uri: Option<String>,
-    logo_uri: Option<String>,
     #[serde(default)]
     redirect_uris: Vec<String>,
     token_endpoint_auth_method: Option<String>,
@@ -54,70 +66,112 @@ struct ClientMetadataDocument {
     client_secret: Option<String>,
 }
 
-/// The client registration for a metadata document `client_id`, fetched and cached as needed.
-pub async fn resolve_client(
+/// The stored registration for a metadata document `client_id`, as last fetched, without
+/// fetching; `None` if the document was never fetched.
+pub async fn find_cached_client(
     conn: &mut PgConnection,
     client_id: &str,
+) -> Result<Option<OAuthClient>, ControllerError> {
+    match OAuthClient::find_by_client_id_optional(conn, client_id).await? {
+        Some(cached) if !cached.is_metadata_document_client() => Err(oauth_invalid_request(
+            "client_id is registered without a metadata document",
+            None,
+            None,
+        )),
+        cached => Ok(cached),
+    }
+}
+
+/// The client registration for a metadata document `client_id`, fetched and cached as needed.
+/// `user_id` is the signed-in user the fetch is made for: fetching a document that was never
+/// fetched before counts against their hourly quota.
+///
+/// No pooled connection is held while the document is fetched. A cached copy older than the cache
+/// lifetime but still usable is returned at once and refreshed in the background.
+pub async fn resolve_client(
+    pool: &PgPool,
+    client_id: &str,
+    user_id: Uuid,
 ) -> Result<OAuthClient, ControllerError> {
-    let cached = OAuthClient::find_by_client_id_optional(conn, client_id).await?;
-    if let Some(cached) = &cached {
-        let Some(fetched_at) = cached.metadata_document_fetched_at else {
-            return Err(invalid_client(
-                "client_id is registered without a metadata document",
-            ));
-        };
-        if Utc::now() - fetched_at < CACHE_LIFETIME {
-            return Ok(OAuthClient::find_by_id(conn, cached.id).await?);
-        }
-    }
-    match fetch_and_validate(client_id).await {
-        Ok(document) => {
-            let scopes = metadata_document_client_scopes();
-            let client_name = document.client_name.clone().unwrap_or_else(|| {
-                Url::parse(client_id)
-                    .ok()
-                    .and_then(|url| url.host_str().map(str::to_string))
-                    .unwrap_or_else(|| client_id.to_string())
-            });
-            let client = OAuthClient::upsert_metadata_document_client(
-                conn,
-                MetadataDocumentClient {
-                    client_id,
-                    client_name: &client_name,
-                    redirect_uris: &document.redirect_uris,
-                    client_uri: document.client_uri.as_deref(),
-                    logo_uri: document.logo_uri.as_deref(),
-                    scopes: &scopes,
-                },
-            )
-            .await?;
-            Ok(client)
-        }
-        Err(reason) => {
-            tracing::warn!(client_id, %reason, "Fetching a client metadata document failed");
-            match cached {
-                Some(cached)
-                    if cached
-                        .metadata_document_fetched_at
-                        .is_some_and(|at| Utc::now() - at < STALE_CACHE_LIFETIME) =>
-                {
-                    Ok(cached)
-                }
-                _ => Err(invalid_client(
-                    "the client metadata document could not be fetched or is invalid",
-                )),
+    let cached = find_cached_client(&mut *pool.acquire().await?, client_id).await?;
+    let is_limited = match cached {
+        Some(cached) => {
+            let age = cached
+                .metadata_document_fetched_at
+                .map_or(chrono::TimeDelta::MAX, |fetched_at| Utc::now() - fetched_at);
+            if age < CACHE_LIFETIME {
+                return Ok(cached);
             }
+            if age < STALE_CACHE_LIFETIME {
+                if DOCUMENT_REFETCHES.check_key(&client_id.to_string()).is_ok() {
+                    let pool = pool.clone();
+                    let client_id = client_id.to_string();
+                    tokio::spawn(async move {
+                        if let Err(reason) = fetch_and_store(&pool, &client_id).await {
+                            tracing::warn!(
+                                client_id,
+                                %reason,
+                                "Refreshing a client metadata document failed"
+                            );
+                        }
+                    });
+                }
+                return Ok(cached);
+            }
+            DOCUMENT_REFETCHES
+                .check_key(&client_id.to_string())
+                .is_err()
         }
+        None => NEW_DOCUMENT_FETCHES.check_key(&user_id).is_err(),
+    };
+    if is_limited {
+        return Err(oauth_error(
+            OAuthErrorCode::TemporarilyUnavailable,
+            "too many client metadata documents were fetched; try again later",
+            None,
+            None,
+        ));
     }
+    fetch_and_store(pool, client_id).await.map_err(|reason| {
+        tracing::warn!(client_id, %reason, "Fetching a client metadata document failed");
+        oauth_invalid_request(
+            "the client metadata document could not be fetched or is invalid",
+            None,
+            None,
+        )
+    })
 }
 
-fn invalid_client(description: &'static str) -> ControllerError {
-    crate::domain::oauth::helpers::oauth_invalid_request(description, None, None)
+async fn fetch_and_store(pool: &PgPool, client_id: &str) -> Result<OAuthClient, String> {
+    let document = fetch_and_validate(client_id).await?;
+    let scopes = metadata_document_client_scopes();
+    let client_name = document.client_name.clone().unwrap_or_else(|| {
+        Url::parse(client_id)
+            .ok()
+            .and_then(|url| url.host_str().map(str::to_string))
+            .unwrap_or_else(|| client_id.to_string())
+    });
+    let mut conn = pool
+        .acquire()
+        .await
+        .map_err(|err| format!("no database connection: {err}"))?;
+    OAuthClient::upsert_metadata_document_client(
+        &mut conn,
+        MetadataDocumentClient {
+            client_id,
+            client_name: &client_name,
+            redirect_uris: &document.redirect_uris,
+            client_uri: document.client_uri.as_deref(),
+            scopes: &scopes,
+        },
+    )
+    .await
+    .map_err(|err| format!("storing the client failed: {err}"))
 }
 
-/// Checks the `client_id` URL as the draft requires: https, a path, no fragment, no credentials
-/// and no dot segments.
-fn validate_client_id_url(client_id: &str) -> Result<Url, String> {
+/// Checks the `client_id` URL as the draft requires: https, a host, a path, no fragment, no
+/// credentials and no dot segments. Returns the URL and its host.
+fn validate_client_id_url(client_id: &str) -> Result<(Url, String), String> {
     let url = Url::parse(client_id).map_err(|err| format!("client_id is not a URL: {err}"))?;
     if url.scheme() != "https" {
         return Err("client_id must use https".into());
@@ -138,15 +192,15 @@ fn validate_client_id_url(client_id: &str) -> Result<Url, String> {
     {
         return Err("client_id must not have dot path segments".into());
     }
-    if url.host_str().is_none() {
-        return Err("client_id must have a host".into());
-    }
-    Ok(url)
+    let host = url
+        .host_str()
+        .ok_or("client_id must have a host")?
+        .to_string();
+    Ok((url, host))
 }
 
 async fn fetch_and_validate(client_id: &str) -> Result<ClientMetadataDocument, String> {
-    let url = validate_client_id_url(client_id)?;
-    let host = url.host_str().ok_or("client_id has no host")?.to_string();
+    let (url, host) = validate_client_id_url(client_id)?;
     let port = url.port_or_known_default().unwrap_or(443);
     let addresses: Vec<SocketAddr> = tokio::time::timeout(
         FETCH_TIMEOUT,
@@ -166,7 +220,7 @@ async fn fetch_and_validate(client_id: &str) -> Result<ClientMetadataDocument, S
         ));
     }
 
-    let client = reqwest::Client::builder()
+    let client = headless_lms_utils::http::base_client_builder()
         .redirect(reqwest::redirect::Policy::none())
         .timeout(FETCH_TIMEOUT)
         .https_only(true)
@@ -199,6 +253,7 @@ async fn fetch_and_validate(client_id: &str) -> Result<ClientMetadataDocument, S
     Ok(document)
 }
 
+/// Redirect URIs are left to the database's `is_valid_oauth_uri`, the one rule for every client.
 fn validate_document(document: &ClientMetadataDocument, client_id: &str) -> Result<(), String> {
     if document.client_id != client_id {
         return Err("the document's client_id does not match its URL".into());
@@ -223,32 +278,10 @@ fn validate_document(document: &ClientMetadataDocument, client_id: &str) -> Resu
     {
         return Err("response_types must include code".into());
     }
-    if document.redirect_uris.is_empty() {
-        return Err("redirect_uris must not be empty".into());
-    }
-    for redirect_uri in &document.redirect_uris {
-        let parsed = Url::parse(redirect_uri)
-            .map_err(|_| format!("redirect_uri {redirect_uri} is not a URL"))?;
-        if parsed.fragment().is_some() {
-            return Err(format!("redirect_uri {redirect_uri} has a fragment"));
-        }
-        let is_allowed = match parsed.scheme() {
-            "https" => true,
-            "http" => is_loopback_host(&parsed),
-            "javascript" | "data" | "file" | "vbscript" => false,
-            _ => true,
-        };
-        if !is_allowed {
-            return Err(format!("redirect_uri {redirect_uri} is not allowed"));
-        }
-    }
-    for uri in [&document.client_uri, &document.logo_uri]
-        .into_iter()
-        .flatten()
+    if let Some(uri) = &document.client_uri
+        && !uri.starts_with("https://")
     {
-        if !uri.starts_with("https://") {
-            return Err(format!("{uri} must be an https URL"));
-        }
+        return Err(format!("{uri} must be an https URL"));
     }
     if let Some(name) = &document.client_name
         && (name.trim().is_empty() || name.chars().count() > 100)
@@ -258,21 +291,11 @@ fn validate_document(document: &ClientMetadataDocument, client_id: &str) -> Resu
     Ok(())
 }
 
-/// Whether the URL's host is a loopback address or `localhost`.
-pub fn is_loopback_host(url: &Url) -> bool {
-    match url.host() {
-        Some(url::Host::Domain(domain)) => domain.eq_ignore_ascii_case("localhost"),
-        Some(url::Host::Ipv4(ip)) => ip.is_loopback(),
-        Some(url::Host::Ipv6(ip)) => ip.is_loopback(),
-        None => false,
-    }
-}
-
 fn is_public_address(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => is_public_ipv4(ip),
-        IpAddr::V6(ip) => match ip.to_ipv4_mapped() {
-            Some(mapped) => is_public_ipv4(mapped),
+        IpAddr::V6(ip) => match ip.to_ipv4() {
+            Some(embedded) => is_public_ipv4(embedded),
             None => is_public_ipv6(ip),
         },
     }
@@ -295,35 +318,15 @@ fn is_public_ipv4(ip: Ipv4Addr) -> bool {
 }
 
 fn is_public_ipv6(ip: Ipv6Addr) -> bool {
-    let first = ip.segments()[0];
+    let [first, second, ..] = ip.segments();
     !(ip.is_loopback()
         || ip.is_unspecified()
         || ip.is_multicast()
         || (first & 0xfe00) == 0xfc00
         || (first & 0xffc0) == 0xfe80
-        || first == 0x2001 && ip.segments()[1] == 0x0db8
-        || first == 0x0064 && ip.segments()[1] == 0xff9b)
-}
-
-/// Whether a requested redirect URI matches one of the registered ones. Loopback redirect URIs
-/// match regardless of port, because native clients listen on whatever port is free (RFC 8252
-/// §7.3).
-pub fn redirect_uri_matches(registered: &[String], requested: &str) -> bool {
-    if registered.iter().any(|r| r == requested) {
-        return true;
-    }
-    let Ok(requested_url) = Url::parse(requested) else {
-        return false;
-    };
-    if requested_url.scheme() != "http" || !is_loopback_host(&requested_url) {
-        return false;
-    }
-    registered.iter().any(|r| {
-        Url::parse(r).is_ok_and(|registered_url| {
-            registered_url.scheme() == "http"
-                && registered_url.host() == requested_url.host()
-                && registered_url.path() == requested_url.path()
-                && registered_url.query() == requested_url.query()
-        })
-    })
+        || first == 0x2001 && second == 0x0db8
+        // 6to4 and Teredo tunnel to IPv4 addresses that may be private.
+        || first == 0x2002
+        || first == 0x2001 && second == 0
+        || first == 0x0064 && second == 0xff9b)
 }

@@ -2,18 +2,18 @@
 
 import { css } from "@emotion/css"
 import { Padlock } from "@vectopus/atlas-icons-react"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import { Notice } from "@wordpress/components"
 import React from "react"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 const LockChapterEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = ({ name }) => {
+> = () => {
   const { t } = useTranslation()
   // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-lock-chapter" })
@@ -124,7 +124,7 @@ const LockChapterEditor: React.FC<
               }
             `}
           >
-            <InnerBlocks {...registeredInnerBlocksProps(name)} />
+            <RegisteredInnerBlocks />
           </div>
         </div>
       </div>

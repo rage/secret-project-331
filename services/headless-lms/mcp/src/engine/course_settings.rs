@@ -2,22 +2,27 @@
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use serde_json::{Map, Value};
+use serde_json::Value;
 use uuid::Uuid;
 
-use super::error::{EditError, EditErrorCode, Warning};
+use super::error::{EditError, EditErrorCode};
 use super::labels::parse_uuid;
-use super::op::{OpKind, PatchOp, PatchTarget, parse_ops};
-use super::page_content::unescape_pointer;
-use super::{CreatedIds, EngineContext, push_created};
+use super::op::Op;
+use super::{
+    CreatedIdLog, CreatedIds, is_course_root, new_item_objects, non_empty_string, split_path,
+};
+use crate::ids::IdGenerator;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+/// The settings document `get_course_settings` shows and `patch_course_settings` edits.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CourseSettings {
     pub course: CourseSettingsCourse,
     pub modules: Vec<ModuleSettings>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+/// The course's own settings. Its fields are [`EDITABLE_COURSE_FIELDS`],
+/// [`READ_ONLY_COURSE_FIELDS`] and `audiences`.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CourseSettingsCourse {
     pub id: Uuid,
     pub slug: String,
@@ -34,6 +39,7 @@ pub struct CourseSettingsCourse {
     pub closed_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
+/// The course's AI policy with the names agents use; mirrors the models' `CourseAiPolicy`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
 pub enum AiPolicy {
@@ -45,13 +51,32 @@ pub enum AiPolicy {
     Required,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+impl AiPolicy {
+    /// Every policy's name as agents write it.
+    fn names() -> Vec<String> {
+        schemars::schema_for!(AiPolicy)
+            .get("enum")
+            .and_then(Value::as_array)
+            .map(|names| {
+                names
+                    .iter()
+                    .filter_map(Value::as_str)
+                    .map(str::to_string)
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+}
+
+/// A target audience of the course.
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Audience {
     pub id: Uuid,
     pub name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+/// One module's settings. Its fields are `id`, `name` and [`EDITABLE_MODULE_FIELDS`].
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ModuleSettings {
     pub id: Uuid,
     /// Shown for orientation; renamed with the structure tool.
@@ -61,18 +86,18 @@ pub struct ModuleSettings {
 }
 
 /// Module completion. The `treshold` spelling matches the stored field names.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct CompletionPolicy {
     pub policy: CompletionPolicyKind,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub number_of_points_treshold: Option<i32>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub number_of_exercises_attempted_treshold: Option<i32>,
-    #[serde(default)]
     pub requires_exam: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+/// Whether a module completes on its own when its thresholds are met.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum CompletionPolicyKind {
     Automatic,
@@ -80,6 +105,7 @@ pub enum CompletionPolicyKind {
 }
 
 impl CompletionPolicy {
+    /// The policy of a module completed by hand, which has no thresholds.
     pub fn manual() -> Self {
         Self {
             policy: CompletionPolicyKind::Manual,
@@ -90,18 +116,15 @@ impl CompletionPolicy {
     }
 }
 
+/// The new state after a successful call. Nothing is stored until the caller stages it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SettingsResult {
     pub settings: CourseSettings,
     pub created: Vec<CreatedIds>,
-    pub warnings: Vec<Warning>,
 }
 
-pub fn parse(raw: &[Value]) -> Result<Vec<PatchOp>, EditError> {
-    parse_ops(raw, PatchTarget::CourseSettings)
-}
-
-const EDITABLE_COURSE_FIELDS: [&str; 6] = [
+/// Course fields agents may set.
+pub(crate) const EDITABLE_COURSE_FIELDS: [&str; 6] = [
     "name",
     "description",
     "is_unlisted",
@@ -109,74 +132,67 @@ const EDITABLE_COURSE_FIELDS: [&str; 6] = [
     "base_module_completion_requires_n_submodule_completions",
     "ai_policy",
 ];
-const READ_ONLY_COURSE_FIELDS: [&str; 8] = [
+/// Course fields agents see but only teachers change.
+pub(crate) const READ_ONLY_COURSE_FIELDS: [&str; 6] = [
     "id",
     "slug",
     "language_code",
     "is_draft",
     "is_test_mode",
     "closed_at",
-    "closed_additional_message",
-    "closed_course_successor_id",
 ];
-const POLICY_FIELDS: [&str; 4] = [
+/// Module fields agents may set with this tool; the structure tool renames modules.
+pub(crate) const EDITABLE_MODULE_FIELDS: [&str; 2] = ["completion_policy", "certification_enabled"];
+/// The fields of a completion policy.
+pub(crate) const POLICY_FIELDS: [&str; 4] = [
     "policy",
     "number_of_points_treshold",
     "number_of_exercises_attempted_treshold",
     "requires_exam",
 ];
 
+/// Applies `ops` in order to `doc`.
 pub fn apply(
     doc: &CourseSettings,
-    ops: &[PatchOp],
-    ctx: &EngineContext,
+    ops: &[Op],
+    ids: &dyn IdGenerator,
 ) -> Result<SettingsResult, EditError> {
     let mut settings = doc.clone();
-    let mut created = Vec::new();
+    let mut ids = CreatedIdLog::new(ids);
     for (index, op) in ops.iter().enumerate() {
-        apply_op(&mut settings, op, ctx, index, &mut created).map_err(|e| e.at_op(index))?;
+        ids.set_op(index);
+        apply_op(&mut settings, op, &mut ids).map_err(|e| e.at_op(index))?;
     }
     Ok(SettingsResult {
         settings,
-        created,
-        warnings: Vec::new(),
+        created: ids.into_created(),
     })
 }
 
 fn apply_op(
     settings: &mut CourseSettings,
-    op: &PatchOp,
-    ctx: &EngineContext,
-    index: usize,
-    created: &mut Vec<CreatedIds>,
+    op: &Op,
+    ids: &mut CreatedIdLog,
 ) -> Result<(), EditError> {
-    let segments: Vec<String> = op
-        .path
-        .strip_prefix('/')
-        .ok_or_else(|| {
-            EditError::new(
-                EditErrorCode::InvalidPath,
-                "paths look like /course/name or /<module id>/completion_policy",
-            )
-        })?
-        .split('/')
-        .map(unescape_pointer)
-        .collect();
-    let is_course = segments[0] == "course"
-        || Uuid::parse_str(&segments[0]).is_ok_and(|id| id == settings.course.id);
-    if is_course {
-        return course_op(settings, op, &segments[1..], ctx, index, created);
+    let segments = split_path(op.path()).ok_or_else(|| {
+        EditError::new(
+            EditErrorCode::InvalidPath,
+            "paths look like /course/name or /<module id>/completion_policy",
+        )
+    })?;
+    if is_course_root(&segments[0], settings.course.id) {
+        return course_op(&mut settings.course, op, &segments[1..], ids);
     }
-    let id = parse_uuid(&segments[0], &op.path)?;
+    let id = parse_uuid(&segments[0], op.path())?;
     if let Some(position) = settings.course.audiences.iter().position(|a| a.id == id) {
-        return match (op.op, segments.get(1).map(String::as_str)) {
-            (OpKind::Remove, None) => {
+        return match (op, segments.get(1).map(String::as_str)) {
+            (Op::Remove { .. }, None) => {
                 settings.course.audiences.remove(position);
                 Ok(())
             }
-            (OpKind::Replace, Some("name")) => {
+            (Op::Replace { value, .. }, Some("name")) => {
                 settings.course.audiences[position].name =
-                    non_empty_string(op.value.as_ref(), "an audience name")?;
+                    non_empty_string(Some(value), "an audience name")?;
                 Ok(())
             }
             _ => Err(EditError::new(
@@ -200,14 +216,11 @@ fn apply_op(
 }
 
 fn course_op(
-    settings: &mut CourseSettings,
-    op: &PatchOp,
+    course: &mut CourseSettingsCourse,
+    op: &Op,
     rest: &[String],
-    ctx: &EngineContext,
-    index: usize,
-    created: &mut Vec<CreatedIds>,
+    ids: &mut CreatedIdLog,
 ) -> Result<(), EditError> {
-    let course = &mut settings.course;
     let Some(field) = rest.first().map(String::as_str) else {
         return Err(EditError::new(
             EditErrorCode::InvalidPath,
@@ -215,30 +228,20 @@ fn course_op(
         ));
     };
     if field == "audiences" {
-        return match op.op {
-            OpKind::Add if rest.len() == 1 => {
-                let object = op
-                    .value
-                    .as_ref()
-                    .and_then(Value::as_object)
-                    .ok_or_else(|| {
-                        EditError::new(
-                            EditErrorCode::InvalidValue,
-                            "a new audience is {\"name\":\"…\"}",
-                        )
-                    })?;
-                if let Some(key) = object.keys().find(|k| k.as_str() != "name") {
-                    return Err(EditError::new(
-                        EditErrorCode::UnknownField,
-                        format!("an audience has no \"{key}\""),
-                    ));
+        return match op {
+            Op::Add { value, .. } if rest.len() == 1 => {
+                for object in new_item_objects(
+                    value,
+                    "an audience",
+                    "a new audience is {\"name\":\"…\"}, or add a list of them",
+                    &["name"],
+                )? {
+                    let id = ids.new_id();
+                    course.audiences.push(Audience {
+                        id,
+                        name: non_empty_string(object.get("name"), "an audience name")?,
+                    });
                 }
-                let audience_id = ctx.ids.new_id();
-                push_created(created, index, audience_id);
-                course.audiences.push(Audience {
-                    id: audience_id,
-                    name: non_empty_string(object.get("name"), "an audience name")?,
-                });
                 Ok(())
             }
             _ => Err(EditError::new(
@@ -265,77 +268,75 @@ fn course_op(
             EDITABLE_COURSE_FIELDS.join(", ")
         )));
     }
-    if op.op == OpKind::Add {
-        return Err(EditError::new(
-            EditErrorCode::InvalidOp,
-            "course fields are set with replace",
-        ));
-    }
-    let value = if op.op == OpKind::Remove {
-        Some(&Value::Null)
-    } else {
-        op.value.as_ref()
+    let value = match op {
+        Op::Replace { value, .. } => value,
+        Op::Remove { .. } => &Value::Null,
+        _ => {
+            return Err(EditError::new(
+                EditErrorCode::InvalidOp,
+                "course fields are set with replace",
+            ));
+        }
     };
     match field {
-        "name" => course.name = non_empty_string(value, "the course name")?,
+        "name" => course.name = non_empty_string(Some(value), "the course name")?,
         "description" => {
             course.description = match value {
-                Some(Value::Null) | None => None,
-                Some(Value::String(s)) => Some(s.clone()),
-                Some(_) => return Err(EditError::new(EditErrorCode::InvalidValue, "description is a string or null")),
+                Value::Null => None,
+                Value::String(s) => Some(s.clone()),
+                _ => {
+                    return Err(EditError::new(
+                        EditErrorCode::InvalidValue,
+                        "description is a string or null",
+                    ));
+                }
             }
         }
-        "is_unlisted" => course.is_unlisted = boolean(value, field)?,
-        "chapter_locking_enabled" => course.chapter_locking_enabled = boolean(value, field)?,
+        "is_unlisted" => course.is_unlisted = boolean(Some(value), field)?,
+        "chapter_locking_enabled" => course.chapter_locking_enabled = boolean(Some(value), field)?,
         "base_module_completion_requires_n_submodule_completions" => {
-            course.base_module_completion_requires_n_submodule_completions = match value.and_then(Value::as_i64) {
-                Some(n) if (0..=i64::from(i32::MAX)).contains(&n) => n as i32,
-                _ => return Err(EditError::new(EditErrorCode::InvalidValue, format!("{field} is a whole number, 0 or more"))),
-            }
+            course.base_module_completion_requires_n_submodule_completions = whole_number(value)
+                .ok_or_else(|| {
+                    EditError::new(
+                        EditErrorCode::InvalidValue,
+                        format!("{field} is a whole number, 0 or more"),
+                    )
+                })?
         }
         "ai_policy" => {
-            course.ai_policy = value
-                .cloned()
-                .and_then(|v| serde_json::from_value(v).ok())
-                .ok_or_else(|| {
-                    EditError::new(EditErrorCode::InvalidValue, "ai_policy is one of not-set, no-ai, planning-only, limited, full-use, required")
-                })?
+            course.ai_policy = serde_json::from_value(value.clone()).map_err(|_| {
+                EditError::new(
+                    EditErrorCode::InvalidValue,
+                    format!("ai_policy is one of {}", AiPolicy::names().join(", ")),
+                )
+            })?
         }
         _ => unreachable!("checked against EDITABLE_COURSE_FIELDS"),
     }
     Ok(())
 }
 
-fn module_op(module: &mut ModuleSettings, op: &PatchOp, rest: &[String]) -> Result<(), EditError> {
-    let field = rest.first().map(String::as_str);
-    match field {
-        Some("name") => Err(EditError::new(
+fn module_op(module: &mut ModuleSettings, op: &Op, rest: &[String]) -> Result<(), EditError> {
+    match (rest.first().map(String::as_str), op) {
+        (Some("name"), _) => Err(EditError::new(
             EditErrorCode::WrongTool,
             "module names are edited with patch_course_structure",
         )),
-        Some("certification_enabled") if rest.len() == 1 && op.op == OpKind::Replace => {
-            module.certification_enabled = boolean(op.value.as_ref(), "certification_enabled")?;
+        (Some("certification_enabled"), Op::Replace { value, .. }) if rest.len() == 1 => {
+            module.certification_enabled = boolean(Some(value), "certification_enabled")?;
             Ok(())
         }
-        Some("completion_policy") if op.op == OpKind::Replace => match rest.get(1) {
-            None => {
-                module.completion_policy = parse_policy(op.value.as_ref())?;
-                Ok(())
+        (Some("completion_policy"), Op::Replace { value, .. }) if rest.len() <= 2 => {
+            match rest.get(1) {
+                None => {
+                    module.completion_policy = parse_policy(value)?;
+                    Ok(())
+                }
+                Some(field) => set_policy_field(&mut module.completion_policy, field, Some(value)),
             }
-            Some(sub) => set_policy_field(&mut module.completion_policy, sub, op.value.as_ref()),
-        },
-        Some(f) if f.contains("threshold") || rest.iter().any(|s| s.contains("threshold")) => {
-            Err(EditError::new(
-                EditErrorCode::UnknownField,
-                "the field names are spelled \"treshold\"",
-            )
-            .with_fix(format!(
-                "/{}/completion_policy/{}",
-                module.id,
-                rest.last()
-                    .map(|s| s.replace("threshold", "treshold"))
-                    .unwrap_or_default()
-            )))
+        }
+        (Some("completion_policy"), Op::Remove { .. }) if rest.len() == 2 => {
+            set_policy_field(&mut module.completion_policy, &rest[1], None)
         }
         _ => Err(EditError::new(
             EditErrorCode::InvalidPath,
@@ -344,45 +345,23 @@ fn module_op(module: &mut ModuleSettings, op: &PatchOp, rest: &[String]) -> Resu
     }
 }
 
-fn parse_policy(value: Option<&Value>) -> Result<CompletionPolicy, EditError> {
-    let object: &Map<String, Value> = value.and_then(Value::as_object).ok_or_else(|| {
+fn parse_policy(value: &Value) -> Result<CompletionPolicy, EditError> {
+    let object = value.as_object().ok_or_else(|| {
         EditError::new(
             EditErrorCode::InvalidValue,
             "completion_policy is an object such as {\"policy\":\"manual\"}",
         )
     })?;
-    if let Some(unknown) = object.keys().find(|k| !POLICY_FIELDS.contains(&k.as_str())) {
-        let fix = if unknown.contains("threshold") {
-            unknown.replace("threshold", "treshold")
-        } else {
-            POLICY_FIELDS.join(", ")
-        };
-        return Err(EditError::new(
-            EditErrorCode::UnknownField,
-            format!("completion_policy has no \"{unknown}\""),
-        )
-        .with_fix(fix));
-    }
     let mut policy = CompletionPolicy::manual();
-    policy.policy = match object.get("policy").and_then(Value::as_str) {
-        Some("automatic") => CompletionPolicyKind::Automatic,
-        Some("manual") => CompletionPolicyKind::Manual,
-        _ => {
-            return Err(EditError::new(
-                EditErrorCode::InvalidValue,
-                "policy is \"automatic\" or \"manual\"",
-            ));
-        }
-    };
-    for field in &POLICY_FIELDS[1..] {
-        if let Some(value) = object.get(*field) {
-            set_policy_field(&mut policy, field, Some(value))?;
-        }
+    set_policy_field(&mut policy, "policy", object.get("policy"))?;
+    for (field, value) in object.iter().filter(|(field, _)| *field != "policy") {
+        set_policy_field(&mut policy, field, Some(value))?;
     }
-    validate_policy(&policy)?;
     Ok(policy)
 }
 
+/// Sets one policy field, or clears it with `None`, and checks the result. Owns the errors for
+/// unknown and misspelled field names.
 fn set_policy_field(
     policy: &mut CompletionPolicy,
     field: &str,
@@ -391,13 +370,12 @@ fn set_policy_field(
     let threshold = |value: Option<&Value>| -> Result<Option<i32>, EditError> {
         match value {
             None | Some(Value::Null) => Ok(None),
-            Some(v) => match v.as_i64() {
-                Some(n) if (0..=i64::from(i32::MAX)).contains(&n) => Ok(Some(n as i32)),
-                _ => Err(EditError::new(
+            Some(value) => whole_number(value).map(Some).ok_or_else(|| {
+                EditError::new(
                     EditErrorCode::InvalidValue,
                     format!("{field} is a whole number, 0 or more, or null"),
-                )),
-            },
+                )
+            }),
         }
     };
     match field {
@@ -452,6 +430,14 @@ fn validate_policy(policy: &CompletionPolicy) -> Result<(), EditError> {
     Ok(())
 }
 
+/// The value as a whole number from 0 to `i32::MAX`.
+fn whole_number(value: &Value) -> Option<i32> {
+    value
+        .as_i64()
+        .and_then(|n| i32::try_from(n).ok())
+        .filter(|n| *n >= 0)
+}
+
 fn boolean(value: Option<&Value>, field: &str) -> Result<bool, EditError> {
     value.and_then(Value::as_bool).ok_or_else(|| {
         EditError::new(
@@ -461,26 +447,17 @@ fn boolean(value: Option<&Value>, field: &str) -> Result<bool, EditError> {
     })
 }
 
-fn non_empty_string(value: Option<&Value>, what: &str) -> Result<String, EditError> {
-    match value {
-        Some(Value::String(s)) if !s.trim().is_empty() => Ok(s.clone()),
-        _ => Err(EditError::new(
-            EditErrorCode::InvalidValue,
-            format!("{what} is a non-empty string"),
-        )),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
     use serde_json::json;
 
     use super::*;
+    use crate::engine::op::PatchTarget;
     use crate::ids::SequentialIds;
     use crate::test_fixtures::{id, p};
 
-    pub(crate) fn sample() -> CourseSettings {
+    fn sample() -> CourseSettings {
         CourseSettings {
             course: CourseSettingsCourse {
                 id: id("c1"),
@@ -523,14 +500,13 @@ mod tests {
     }
 
     fn run(ops: Value) -> Result<SettingsResult, EditError> {
-        let raw = ops.as_array().cloned().unwrap_or_default();
-        let ops = parse(&raw)?;
-        let ids = SequentialIds::new();
-        apply(&sample(), &ops, &EngineContext::new(&ids))
+        let ops = crate::test_fixtures::ops(ops, PatchTarget::CourseSettings)?;
+        let ids = SequentialIds::default();
+        apply(&sample(), &ops, &ids)
     }
 
     #[test]
-    fn row1_set_course_fields() {
+    fn set_course_fields() {
         let result = run(json!([
             {"op":"replace","path":"/course/name","value":"Ohjelmoinnin perusteet 2027"},
             {"op":"replace","path":"/course/description","value":null},
@@ -551,7 +527,7 @@ mod tests {
     }
 
     #[test]
-    fn row2_chapter_locking() {
+    fn chapter_locking() {
         let result =
             run(json!([{"op":"replace","path":"/course/chapter_locking_enabled","value":true}]))
                 .unwrap();
@@ -559,7 +535,7 @@ mod tests {
     }
 
     #[test]
-    fn row3_add_and_remove_audience() {
+    fn add_and_remove_audience() {
         let result = run(json!([
             {"op":"add","path":"/course/audiences","value":{"name":"Adults"}},
             {"op":"remove","path":p("au1")},
@@ -576,7 +552,7 @@ mod tests {
     }
 
     #[test]
-    fn row4_completion_policy_whole_and_one_threshold() {
+    fn completion_policy_whole_and_one_threshold() {
         let result = run(json!([
             {"op":"replace","path":format!("{}/completion_policy", p("m2")),"value":{"policy":"automatic","number_of_points_treshold":60,"number_of_exercises_attempted_treshold":null,"requires_exam":false}},
             {"op":"replace","path":format!("{}/completion_policy/number_of_points_treshold", p("m2")),"value":50},
@@ -588,7 +564,7 @@ mod tests {
     }
 
     #[test]
-    fn row4_partial_policy_defaults_and_manual_rules() {
+    fn partial_policy_defaults_and_manual_rules() {
         let result = run(json!([{"op":"replace","path":format!("{}/completion_policy", p("m1")),"value":{"policy":"automatic"}}])).unwrap();
         assert_eq!(
             result.settings.modules[0]
@@ -606,7 +582,7 @@ mod tests {
     }
 
     #[test]
-    fn row5_certificates() {
+    fn certificates() {
         let result = run(json!([{"op":"replace","path":format!("{}/certification_enabled", p("m2")),"value":true}])).unwrap();
         assert!(result.settings.modules[1].certification_enabled);
     }
@@ -638,5 +614,71 @@ mod tests {
         let error = run(json!([{"op":"replace","path":"/course/ai_policy","value":"whatever"}]))
             .unwrap_err();
         assert_eq!(error.code, EditErrorCode::InvalidValue);
+    }
+
+    #[test]
+    fn removing_a_threshold_clears_it_and_deeper_paths_are_rejected() {
+        let result = run(json!([
+            {"op":"remove","path":format!("{}/completion_policy/number_of_points_treshold", p("m1"))},
+        ]))
+        .unwrap();
+        assert_eq!(
+            result.settings.modules[0]
+                .completion_policy
+                .number_of_points_treshold,
+            None
+        );
+        assert!(
+            run(json!([
+                {"op":"replace","path":format!("{}/completion_policy/policy/whatever", p("m1")),"value":"manual"},
+            ]))
+            .is_err()
+        );
+    }
+
+    #[test]
+    fn every_field_is_editable_or_read_only() {
+        let document = serde_json::to_value(sample()).unwrap();
+        let fields = |value: &Value| {
+            let mut keys: Vec<String> = value.as_object().unwrap().keys().cloned().collect();
+            keys.sort();
+            keys
+        };
+        let declared = |lists: &[&[&str]]| {
+            let mut keys: Vec<String> = lists.concat().into_iter().map(String::from).collect();
+            keys.sort();
+            keys
+        };
+        assert_eq!(
+            fields(&document["course"]),
+            declared(&[
+                &EDITABLE_COURSE_FIELDS,
+                &READ_ONLY_COURSE_FIELDS,
+                &["audiences"]
+            ])
+        );
+        assert_eq!(
+            fields(&document["modules"][0]),
+            declared(&[&EDITABLE_MODULE_FIELDS, &["id", "name"]])
+        );
+    }
+
+    #[test]
+    fn an_unknown_ai_policy_lists_the_policies() {
+        let error = run(json!([{"op":"replace","path":"/course/ai_policy","value":"whatever"}]))
+            .unwrap_err();
+        assert_eq!(
+            error.message,
+            "ai_policy is one of not-set, no-ai, planning-only, limited, full-use, required"
+        );
+    }
+
+    #[test]
+    fn several_audiences_are_added_from_a_list() {
+        let result = run(json!([
+            {"op":"add","path":"/course/audiences","value":[{"name":"A"},{"name":"B"}]},
+        ]))
+        .unwrap();
+        assert_eq!(result.settings.course.audiences.len(), 3);
     }
 }

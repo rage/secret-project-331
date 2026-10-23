@@ -3,6 +3,7 @@
 /* oxlint-disable i18next/no-literal-string */
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { HEX_COLOR_OR_EMPTY } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
@@ -24,17 +25,17 @@ const TerminologyBlockConfiguration: BlockConfiguration<TerminologyBlockAttribut
   attributes: {
     title: {
       type: "string",
-      source: "html",
-      selector: "h1",
+      isRichText: true,
       default: "Welcome message for course...",
     },
     blockName: {
       type: "string",
-      source: "html",
+      isRichText: true,
       default: "Terminology",
     },
     primaryColor: {
       type: "string",
+      agentSchema: HEX_COLOR_OR_EMPTY,
       default: baseTheme.colors.purple[600],
     },
     content: {

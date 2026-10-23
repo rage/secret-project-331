@@ -67,7 +67,7 @@ function AgentPreviewPage() {
           <QueryResult query={previewQuery}>
             {(preview) => (
               <div id="content" data-testid="agent-preview-content">
-                <StagedPageContent snapshot={preview.page} />
+                <StagedPageContent page={preview.page} />
               </div>
             )}
           </QueryResult>

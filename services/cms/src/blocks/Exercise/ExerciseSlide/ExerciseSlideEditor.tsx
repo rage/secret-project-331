@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -26,7 +26,7 @@ export interface ExerciseSlideAttributes {
 
 const ExerciseSlideEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseSlideAttributes>>
-> = ({ name, attributes, clientId }) => {
+> = ({ attributes, clientId }) => {
   const dispatch = useContext(EditorContentDispatch)
 
   const { t } = useTranslation()
@@ -49,7 +49,7 @@ const ExerciseSlideEditor: React.FC<
           {t("slide-title", { number: attributes.order_number + 1 })}
         </div>
         <div className={gutenbergControlsHidden}>
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
         </div>
         <div>
           <Button variant="secondary" size="medium" onClick={handleAddNewTask}>

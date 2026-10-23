@@ -12,6 +12,7 @@ use sqlx::{AssertSqlSafe, Postgres, QueryBuilder, Row};
 use url::Url;
 use utoipa::ToSchema;
 
+use crate::error::ensure_version;
 use crate::{
     CourseOrExamId, SpecFetcher,
     chapters::{
@@ -19,6 +20,7 @@ use crate::{
     },
     course_instances::{self, CourseInstance},
     courses::{self, Course, CourseContextData, CourseMaterialCourse},
+    entity_history::HistoryAuthor,
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
@@ -31,6 +33,7 @@ use crate::{
         CmsPeerOrSelfReviewQuestion, normalize_cms_peer_or_self_review_questions,
     },
     prelude::*,
+    url_redirections::CreatedRedirect,
     user_chapter_locking_statuses,
     user_course_settings::{self, UserCourseSettings},
     user_exercise_states,
@@ -209,7 +212,7 @@ fn percent_escape_byte_at(chars: &[char], i: usize) -> Option<u8> {
 /// `/`, `-`, `.`, `_`, `~` are kept. Unsafe chars are removed, not `%xx`-encoded, so every save
 /// funnels through here and paths can't re-accumulate escapes. Mirrors `clean_url_path` (page
 /// migration) and the frontend `cleanUrlPath`; keep the three in agreement.
-pub(crate) fn normalize_url_path_for_storage(url_path: &str) -> String {
+pub fn normalize_url_path_for_storage(url_path: &str) -> String {
     decode_percent_runs(url_path)
         .split('/')
         .map(clean_url_path_segment)
@@ -628,42 +631,28 @@ pub async fn insert_course_page(
     author: Uuid,
 ) -> ModelResult<(Uuid, Uuid)> {
     let course = crate::courses::get_course(&mut *conn, new_course_page.course_id).await?;
-    let page_language_group_id = crate::page_language_groups::insert(
-        &mut *conn,
-        crate::PKeyPolicy::Generate,
-        course.course_language_group_id,
-    )
-    .await?;
-
     let mut tx = conn.begin().await?;
-    let page_res = sqlx::query!(
-        "
-INSERT INTO pages (
-    course_id,
-    content,
-    url_path,
-    title,
-    order_number,
-    hidden,
-    page_language_group_id
-  )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
-",
-        new_course_page.course_id,
-        serde_json::to_value(new_course_page.content.clone())?,
-        new_course_page.url_path,
-        new_course_page.title,
-        new_course_page.order_number,
-        new_course_page.hidden,
-        page_language_group_id,
+    let page = insert_page_row(
+        &mut tx,
+        PageRow {
+            id: PKeyPolicy::Generate,
+            course: Some(&course),
+            exam_id: None,
+            chapter_id: None,
+            url_path: new_course_page.url_path,
+            title: new_course_page.title,
+            order_number: new_course_page.order_number,
+            hidden: new_course_page.hidden,
+            content_search_language: None,
+            page_language_group_id: None,
+        },
+        &serde_json::to_value(&new_course_page.content)?,
     )
-    .fetch_one(&mut *tx)
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        page_res.id,
+        page.id,
         new_course_page.title,
         &PageHistoryContent {
             content: serde_json::Value::Array(vec![]),
@@ -674,13 +663,12 @@ RETURNING id
             peer_or_self_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
-        author,
-        None,
+        HistoryAuthor::user(author),
         None,
     )
     .await?;
     tx.commit().await?;
-    Ok((page_res.id, history_id))
+    Ok((page.id, history_id))
 }
 
 pub async fn insert_exam_page(
@@ -690,36 +678,28 @@ pub async fn insert_exam_page(
     author: Uuid,
 ) -> ModelResult<(Uuid, Uuid)> {
     let mut tx = conn.begin().await?;
-    let page_res = sqlx::query!(
-        "
-INSERT INTO pages (
-    content,
-    url_path,
-    title,
-    exam_id,
-    content_search_language,
-    hidden,
-    order_number
-  )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
-",
-        serde_json::to_value(page.content.clone())?,
-        page.url_path,
-        page.title,
-        exam_id,
-        page.content_search_language
-            .unwrap_or_else(|| "simple".to_string()),
-        page.hidden,
-        0_i32
+    let inserted = insert_page_row(
+        &mut tx,
+        PageRow {
+            id: PKeyPolicy::Generate,
+            course: None,
+            exam_id: Some(exam_id),
+            chapter_id: None,
+            url_path: &page.url_path,
+            title: &page.title,
+            order_number: 0,
+            hidden: page.hidden,
+            content_search_language: page.content_search_language.as_deref(),
+            page_language_group_id: None,
+        },
+        &serde_json::to_value(&page.content)?,
     )
-    .fetch_one(&mut *tx)
     .await?;
 
     let history_id = crate::page_history::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        page_res.id,
+        inserted.id,
         page.title.as_str(),
         &PageHistoryContent {
             content: serde_json::to_value(page.content)?,
@@ -730,13 +710,12 @@ RETURNING id
             peer_or_self_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
-        author,
-        None,
+        HistoryAuthor::user(author),
         None,
     )
     .await?;
     tx.commit().await?;
-    Ok((page_res.id, history_id))
+    Ok((inserted.id, history_id))
 }
 
 pub async fn get_course_and_exam_id(
@@ -1306,87 +1285,126 @@ pub async fn get_page_with_exercises(
     page_id: Uuid,
 ) -> ModelResult<ContentManagementPage> {
     let page = get_page(&mut *conn, page_id).await?;
+    with_exercises(conn, page).await
+}
 
+/// The fetched page with its exercises, as the CMS edits it.
+pub async fn with_exercises(
+    conn: &mut PgConnection,
+    page: Page,
+) -> ModelResult<ContentManagementPage> {
+    let exercises = exercises_of_pages(&mut *conn, &[page.id])
+        .await?
+        .remove(&page.id)
+        .unwrap_or_default();
+    let organization_id = get_organization_id(&mut *conn, page.id).await?;
+    Ok(ContentManagementPage {
+        page,
+        exercises: exercises.exercises,
+        exercise_slides: exercises.exercise_slides,
+        exercise_tasks: exercises.exercise_tasks,
+        peer_or_self_review_configs: exercises.peer_or_self_review_configs,
+        peer_or_self_review_questions: exercises.peer_or_self_review_questions,
+        organization_id,
+    })
+}
+
+/// A page's exercises with their slides, tasks and custom peer-review settings, as the CMS edits
+/// them.
+#[derive(Debug, Default)]
+pub struct PageExercises {
+    pub exercises: Vec<CmsPageExercise>,
+    pub exercise_slides: Vec<CmsPageExerciseSlide>,
+    pub exercise_tasks: Vec<CmsPageExerciseTask>,
+    pub peer_or_self_review_configs: Vec<CmsPeerOrSelfReviewConfig>,
+    pub peer_or_self_review_questions: Vec<CmsPeerOrSelfReviewQuestion>,
+}
+
+/// The exercises of each page, by page id. Pages without exercises are left out.
+pub async fn exercises_of_pages(
+    conn: &mut PgConnection,
+    page_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, PageExercises>> {
+    let mut by_page: HashMap<Uuid, PageExercises> = HashMap::new();
+    if page_ids.is_empty() {
+        return Ok(by_page);
+    }
     let peer_or_self_review_configs =
-        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(conn, page.id)
+        crate::peer_or_self_review_configs::get_peer_reviews_by_page_ids(conn, page_ids)
             .await?
             .into_iter()
             .flat_map(|pr| pr.exercise_id.map(|id| (id, pr)))
             .collect::<HashMap<_, _>>();
-
     let peer_or_self_review_questions =
-        crate::peer_or_self_review_questions::get_by_page_id(conn, page.id)
+        crate::peer_or_self_review_questions::get_by_page_ids(conn, page_ids)
             .await?
             .into_iter()
-            .into_group_map_by(|prq| prq.peer_or_self_review_config_id)
-            .into_iter()
-            .collect::<HashMap<_, _>>();
+            .into_group_map_by(|prq| prq.peer_or_self_review_config_id);
+    let exercises = crate::exercises::get_exercises_by_page_ids(&mut *conn, page_ids).await?;
 
-    let exercises = crate::exercises::get_exercises_by_page_id(&mut *conn, page.id)
-        .await?
-        .into_iter()
-        .map(|exercise| {
-            let (a, b) = if exercise.needs_peer_review
-                && exercise.use_course_default_peer_or_self_review_config
-            {
-                (None, None)
-            } else {
-                let peer_or_self_review_config =
-                    peer_or_self_review_configs.get(&exercise.id).cloned();
-                let peer_or_self_review_questions = peer_or_self_review_config
-                    .as_ref()
-                    .and_then(|prc| peer_or_self_review_questions.get(&prc.id).cloned());
-                (peer_or_self_review_config, peer_or_self_review_questions)
-            };
+    let mut page_of_exercise: HashMap<Uuid, Uuid> = HashMap::new();
+    for exercise in exercises {
+        page_of_exercise.insert(exercise.id, exercise.page_id);
+        let page = by_page.entry(exercise.page_id).or_default();
+        let config = peer_or_self_review_configs.get(&exercise.id);
+        let questions = config.and_then(|prc| peer_or_self_review_questions.get(&prc.id));
+        if let Some(config) = config {
+            page.peer_or_self_review_configs.push(config.clone());
+            page.peer_or_self_review_questions
+                .extend(questions.into_iter().flatten().cloned());
+        }
+        let (config, questions) = if exercise.needs_peer_review
+            && exercise.use_course_default_peer_or_self_review_config
+        {
+            (None, None)
+        } else {
+            (config.cloned(), questions.cloned())
+        };
+        page.exercises
+            .push(CmsPageExercise::from_exercise_and_peer_review_data(
+                exercise, config, questions,
+            ));
+    }
 
-            Ok(CmsPageExercise::from_exercise_and_peer_review_data(
-                exercise, a, b,
-            ))
-        })
-        .collect::<ModelResult<Vec<_>>>()?;
+    let exercise_ids: Vec<Uuid> = page_of_exercise.keys().copied().collect();
+    let slides =
+        crate::exercise_slides::get_exercise_slides_by_exercise_ids(&mut *conn, &exercise_ids)
+            .await?;
+    let mut page_of_slide: HashMap<Uuid, Uuid> = HashMap::new();
+    for slide in slides {
+        let Some(page_id) = page_of_exercise.get(&slide.exercise_id) else {
+            continue;
+        };
+        page_of_slide.insert(slide.id, *page_id);
+        by_page
+            .entry(*page_id)
+            .or_default()
+            .exercise_slides
+            .push(slide.into());
+    }
 
-    let exercise_slides: Vec<CmsPageExerciseSlide> =
-        crate::exercise_slides::get_exercise_slides_by_exercise_ids(
-            &mut *conn,
-            &exercises.iter().map(|x| x.id).collect::<Vec<_>>(),
-        )
-        .await?
-        .into_iter()
-        .map(|x| x.into())
-        .collect();
-
-    let tasks = crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(
-        &mut *conn,
-        &exercise_slides.iter().map(|x| x.id).collect::<Vec<Uuid>>(),
-    )
-    .await?;
+    let slide_ids: Vec<Uuid> = page_of_slide.keys().copied().collect();
+    let tasks =
+        crate::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(&mut *conn, &slide_ids)
+            .await?;
     let mut spec_files_by_task = crate::exercise_task_spec_files::get_by_exercise_task_ids(
         &mut *conn,
         &tasks.iter().map(|task| task.id).collect::<Vec<Uuid>>(),
         crate::exercise_task_spec_files::SpecKind::Private,
     )
     .await?;
-    let exercise_tasks: Vec<CmsPageExerciseTask> = tasks
-        .into_iter()
-        .map(|task| {
-            let private_spec_files = spec_files_by_task.remove(&task.id).unwrap_or_default();
-            CmsPageExerciseTask::from_task(task, private_spec_files)
-        })
-        .collect();
-
-    let organization_id = get_organization_id(&mut *conn, page_id).await?;
-    Ok(ContentManagementPage {
-        page,
-        exercises,
-        exercise_slides,
-        exercise_tasks,
-        peer_or_self_review_configs: peer_or_self_review_configs.into_values().collect(),
-        peer_or_self_review_questions: peer_or_self_review_questions
-            .into_values()
-            .flatten()
-            .collect(),
-        organization_id,
-    })
+    for task in tasks {
+        let Some(page_id) = page_of_slide.get(&task.exercise_slide_id) else {
+            continue;
+        };
+        let private_spec_files = spec_files_by_task.remove(&task.id).unwrap_or_default();
+        by_page
+            .entry(*page_id)
+            .or_default()
+            .exercise_tasks
+            .push(CmsPageExerciseTask::from_task(task, private_spec_files));
+    }
+    Ok(by_page)
 }
 
 /// Gets the page that belongs to the given exam. For exams, the page visibility is ignored.
@@ -1562,6 +1580,15 @@ pub struct CmsPageUpdate {
     pub hidden: bool,
 }
 
+/// A CMS page save. It is refused as stale when `expected_updated_at` is set and the page has
+/// changed since that version; leave it unset to overwrite.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CmsPageSave {
+    #[serde(flatten)]
+    pub page: CmsPageUpdate,
+    pub expected_updated_at: Option<DateTime<Utc>>,
+}
+
 impl CmsPageUpdate {
     /// Checks that each exercise has at least one slide and each slide has at least one task.
     pub fn validate_exercise_data(&self) -> ModelResult<()> {
@@ -1659,7 +1686,7 @@ impl CmsPageUpdate {
                         .peer_or_self_review_questions
                         .as_deref_mut()
                         .unwrap_or(&mut []);
-                    fork_peer_or_self_review_config(config, questions, new_id);
+                    fork_peer_or_self_review_config(config, questions, new_id, Uuid::new_v4);
                 }
             }
         }
@@ -1717,15 +1744,7 @@ impl CmsPageUpdate {
         // points at its newly created exercise. Exercise blocks only exist at the top level.
         let mut content_occurrence: HashMap<Uuid, usize> = HashMap::new();
         for block in self.content.iter_mut() {
-            if block.name != "moocfi/exercise" {
-                continue;
-            }
-            let Some(id) = block
-                .attributes
-                .get("id")
-                .and_then(|value| value.as_str())
-                .and_then(|value| Uuid::parse_str(value).ok())
-            else {
+            let Some(id) = block.exercise_id() else {
                 continue;
             };
             let occurrence = content_occurrence.entry(id).or_insert(0);
@@ -1766,20 +1785,21 @@ fn rekey_peer_or_self_review_questions(
         .collect()
 }
 
-/// Re-keys a custom peer-review config and its questions onto `new_exercise_id` with a fresh config id
-/// and fresh question ids, producing an independent copy for a within-page exercise duplicate so it
-/// does not collapse onto the original exercise's config (#148). All `questions` must belong to
+/// Re-keys a custom peer-review config and its questions onto `new_exercise_id` with config and
+/// question ids from `new_id`, producing an independent copy for a duplicated exercise so it does
+/// not collapse onto the original exercise's config (#148). All `questions` must belong to
 /// `config`.
-fn fork_peer_or_self_review_config(
+pub fn fork_peer_or_self_review_config(
     config: &mut CmsPeerOrSelfReviewConfig,
     questions: &mut [CmsPeerOrSelfReviewQuestion],
     new_exercise_id: Uuid,
+    mut new_id: impl FnMut() -> Uuid,
 ) {
-    let new_config_id = Uuid::new_v4();
+    let new_config_id = new_id();
     config.id = new_config_id;
     config.exercise_id = Some(new_exercise_id);
     for question in questions.iter_mut() {
-        question.id = Uuid::new_v4();
+        question.id = new_id();
         question.peer_or_self_review_config_id = new_config_id;
     }
 }
@@ -1787,13 +1807,11 @@ fn fork_peer_or_self_review_config(
 #[derive(Debug, Clone)]
 pub struct PageUpdateArgs {
     pub page_id: Uuid,
-    pub author: Uuid,
+    pub author: HistoryAuthor,
     pub cms_page_update: CmsPageUpdate,
     pub retain_ids: bool,
     pub history_change_reason: HistoryChangeReason,
     pub is_exam_page: bool,
-    /// Set when an agent publish writes the page, for "via <client>" in page history.
-    pub agent_attribution: Option<crate::agent_changesets::AgentAttribution>,
 }
 
 pub async fn update_page(
@@ -1816,7 +1834,6 @@ pub async fn update_page(
     }
 
     let content = replace_duplicate_client_ids(cms_page_update.content.clone());
-    let normalized_url_path = normalize_url_path_for_storage(&cms_page_update.url_path);
 
     if !page_update.is_exam_page
         && cms_page_update.chapter_id.is_none()
@@ -1827,16 +1844,15 @@ pub async fn update_page(
 
     let mut tx = conn.begin().await?;
 
-    // Updating page
+    set_paths(&mut tx, &[(page_update.page_id, &cms_page_update.url_path)]).await?;
     let page = sqlx::query_as!(
         Page,
         r"
 UPDATE pages
 SET content = $2,
-  url_path = $3,
-  title = $4,
-  chapter_id = $5,
-  hidden = $6
+  title = $3,
+  chapter_id = $4,
+  hidden = $5
 WHERE id = $1
 RETURNING id,
   created_at,
@@ -1855,7 +1871,6 @@ RETURNING id,
         ",
         page_update.page_id,
         serde_json::to_value(&content)?,
-        normalized_url_path,
         cms_page_update.title.trim(),
         cms_page_update.chapter_id,
         cms_page_update.hidden
@@ -1869,13 +1884,13 @@ RETURNING id,
     // preserve custom peer-review settings for exercises whose payload does not explicitly include
     // them (e.g. an inconsistent editor state) (#129).
     let existing_peer_or_self_review_configs_by_exercise_id =
-        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(&mut tx, page.id)
+        crate::peer_or_self_review_configs::get_peer_reviews_by_page_ids(&mut tx, &[page.id])
             .await?
             .into_iter()
             .filter_map(|pr| pr.exercise_id.map(|id| (id, pr)))
             .collect::<HashMap<Uuid, CmsPeerOrSelfReviewConfig>>();
     let existing_peer_or_self_review_questions_by_config_id =
-        crate::peer_or_self_review_questions::get_by_page_id(&mut tx, page.id)
+        crate::peer_or_self_review_questions::get_by_page_ids(&mut tx, &[page.id])
             .await?
             .into_iter()
             .into_group_map_by(|prq| prq.peer_or_self_review_config_id);
@@ -2013,7 +2028,12 @@ RETURNING id,
                     }
                     let (mut config, mut questions) =
                         original_exercise_id.and_then(&recover_peer_or_self_review)?;
-                    fork_peer_or_self_review_config(&mut config, &mut questions, exercise_id);
+                    fork_peer_or_self_review_config(
+                        &mut config,
+                        &mut questions,
+                        exercise_id,
+                        Uuid::new_v4,
+                    );
                     Some((config, questions))
                 }
             }
@@ -2160,7 +2180,6 @@ RETURNING id,
         page_update.history_change_reason,
         page_update.author,
         None,
-        page_update.agent_attribution.as_ref(),
     )
     .await?;
     let organization_id = get_organization_id(&mut tx, page.id).await?;
@@ -2178,18 +2197,21 @@ RETURNING id,
     })
 }
 
+/// With `expected_updated_at` set, refuses with [ModelErrorType::StaleVersion] unless the page row
+/// still has that `updated_at`. The check runs under the page row lock.
 pub async fn update_by_id_in_parent_context(
     conn: &mut PgConnection,
     page_update: PageUpdateArgs,
     expected_course_id: Option<Uuid>,
     expected_exam_id: Option<Uuid>,
+    expected_updated_at: Option<DateTime<Utc>>,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
     let mut tx = conn.begin().await?;
-    sqlx::query!(
+    let current_updated_at = sqlx::query_scalar!(
         r#"
-SELECT p.id
+SELECT p.updated_at
 FROM pages p
 LEFT JOIN chapters c
   ON c.id = $4
@@ -2215,20 +2237,38 @@ WHERE p.id = $1
     .fetch_one(&mut *tx)
     .await?;
 
+    ensure_version(
+        Some(current_updated_at),
+        expected_updated_at,
+        "The page was changed after it was opened.",
+    )?;
+
     let updated = update_page(&mut tx, page_update, spec_fetcher, fetch_service_info).await?;
     tx.commit().await?;
     Ok(updated)
 }
 
+/// Where a saved task already existing means that saving it adds nothing.
+#[derive(Debug, Clone, Copy)]
+pub enum ExistingTasks {
+    /// On the saved page; `None` for a page that does not exist yet.
+    OnPage(Option<Uuid>),
+    /// Anywhere in the course, for saves that move exercises between pages.
+    InCourse(Uuid),
+}
+
 /// Names of the exercise services that only global admins can add which saving `exercise_tasks`
-/// on the page would add: a task counts as added unless it is the first submitted task with its
-/// id and the page already has a task with that id and type. `page_id` is `None` for a page that
-/// does not exist yet.
+/// would add: a task counts as added unless it is the first submitted task with its id and a task
+/// with that id and type already exists where `existing` says.
 pub async fn get_global_admin_only_exercise_service_names_added_by_tasks(
     conn: &mut PgConnection,
-    page_id: Option<Uuid>,
+    existing: ExistingTasks,
     exercise_tasks: &[CmsPageExerciseTask],
 ) -> ModelResult<Vec<String>> {
+    let (page_id, course_id) = match existing {
+        ExistingTasks::OnPage(page_id) => (page_id, None),
+        ExistingTasks::InCourse(course_id) => (None, Some(course_id)),
+    };
     let task_ids: Vec<Uuid> = exercise_tasks.iter().map(|task| task.id).collect();
     let exercise_types: Vec<String> = exercise_tasks
         .iter()
@@ -2263,7 +2303,10 @@ WHERE es.is_global_admin_only
         AND et.deleted_at IS NULL
         AND slides.deleted_at IS NULL
         AND e.deleted_at IS NULL
-        AND e.page_id = $1
+        AND (
+          e.page_id = $1
+          OR e.course_id = $4
+        )
     )
   )
 ORDER BY es.name
@@ -2271,6 +2314,7 @@ ORDER BY es.name
         page_id,
         &task_ids,
         &exercise_types,
+        course_id,
     )
     .fetch_all(conn)
     .await?;
@@ -2304,7 +2348,7 @@ async fn upsert_exercises(
         if let Some(db_exercise) = db_exercise {
             exercise_language_group_id = db_exercise.exercise_language_group_id;
         }
-        if let Some(course_id) = page.course_id {
+        if let (None, Some(course_id)) = (exercise_language_group_id, page.course_id) {
             let course = crate::courses::get_course(&mut *conn, course_id).await?;
 
             exercise_language_group_id = Some(
@@ -2706,6 +2750,7 @@ SET course_id = excluded.course_id,
   processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
   points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  reset_answer_if_zero_points_from_review = excluded.reset_answer_if_zero_points_from_review,
   review_instructions = excluded.review_instructions,
   deleted_at = NULL
 RETURNING id;
@@ -3047,20 +3092,6 @@ pub async fn insert_page(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
-    let normalized_url_path = normalize_url_path_for_storage(&new_page.url_path);
-    let mut page_language_group_id = None;
-    if let Some(course_id) = new_page.course_id {
-        // insert language group
-        let course = crate::courses::get_course(&mut *conn, course_id).await?;
-        let new_language_group_id = crate::page_language_groups::insert(
-            &mut *conn,
-            crate::PKeyPolicy::Generate,
-            course.course_language_group_id,
-        )
-        .await?;
-        page_language_group_id = Some(new_language_group_id);
-    }
-
     let next_order_number = match (new_page.chapter_id, new_page.course_id) {
         (Some(id), _) => get_next_page_order_number_in_chapter(conn, id).await?,
         (None, Some(course_id)) => {
@@ -3079,53 +3110,22 @@ pub async fn insert_page(
 
     let mut tx = conn.begin().await?;
 
-    let content_search_language = course
-        .and_then(|c| c.content_search_language)
-        .or(new_page.content_search_language)
-        .unwrap_or_else(|| "simple".to_string());
-    let page = sqlx::query_as!(
-        Page,
-        r#"
-INSERT INTO pages(
-    course_id,
-    exam_id,
-    content,
-    url_path,
-    title,
-    order_number,
-    chapter_id,
-    content_search_language,
-    page_language_group_id,
-    hidden
-  )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id,
-  created_at,
-  updated_at,
-  course_id,
-  exam_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from,
-  pages.hidden,
-  page_language_group_id
-          "#,
-        new_page.course_id,
-        new_page.exam_id,
-        serde_json::to_value(content)?,
-        normalized_url_path,
-        new_page.title.trim(),
-        next_order_number,
-        new_page.chapter_id,
-        content_search_language as _,
-        page_language_group_id,
-        new_page.hidden,
+    let page = insert_page_row(
+        &mut tx,
+        PageRow {
+            id: PKeyPolicy::Generate,
+            course: course.as_ref(),
+            exam_id: new_page.exam_id,
+            chapter_id: new_page.chapter_id,
+            url_path: &new_page.url_path,
+            title: &new_page.title,
+            order_number: next_order_number,
+            hidden: new_page.hidden,
+            content_search_language: new_page.content_search_language.as_deref(),
+            page_language_group_id: None,
+        },
+        &serde_json::to_value(content)?,
     )
-    .fetch_one(&mut *tx)
     .await?;
 
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
@@ -3133,9 +3133,8 @@ RETURNING id,
     let cms_page = update_page(
         &mut tx,
         PageUpdateArgs {
-            agent_attribution: None,
             page_id: page.id,
-            author,
+            author: HistoryAuthor::user(author),
             cms_page_update: CmsPageUpdate {
                 content: parsed_content,
                 exercises: new_page.exercises,
@@ -3245,39 +3244,74 @@ pub async fn create_for_course_id(
     Ok(page)
 }
 
-/// Fields of a course page row that exist before its content is written.
-#[derive(Debug, Clone)]
-pub struct CoursePageRow<'a> {
+/// A feedback or edit proposal on a page and the blocks of the page it is about, in the order the
+/// record lists them.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PageBlockReferences {
     pub id: Uuid,
-    pub course_id: Uuid,
+    pub page_id: Uuid,
+    pub block_ids: Vec<Uuid>,
+}
+
+/// Fields of a page row that exist before its content is written.
+pub struct PageRow<'a> {
+    pub id: PKeyPolicy<Uuid>,
+    /// The page's course; `None` for an exam page.
+    pub course: Option<&'a Course>,
+    pub exam_id: Option<Uuid>,
     pub chapter_id: Option<Uuid>,
     pub url_path: &'a str,
     pub title: &'a str,
     pub order_number: i32,
     pub hidden: bool,
+    /// Used when the course has none.
+    pub content_search_language: Option<&'a str>,
+    /// The page language group of a course page's versions in other languages to join; `None`
+    /// puts the page in a new group.
+    pub page_language_group_id: Option<Uuid>,
 }
 
-/// Creates an empty course page with a fixed id, or brings back the deleted page with that id, so
-/// that [update_page] can write its content and exercises next. Writes no page history: the
-/// content save that follows does.
-pub async fn insert_or_undelete_course_page_row(
+/// Creates the snapshot's page empty under its id, or brings back the deleted page with that id,
+/// so that [update_page] can write its content and exercises next. Writes no page history: the
+/// content save that follows does. Errors with `PreconditionFailed` if the page belongs to another
+/// course.
+async fn insert_or_undelete_course_page_row(
     conn: &mut PgConnection,
-    row: CoursePageRow<'_>,
+    course: &Course,
+    page: &crate::library::entity_snapshots::PageSnapshot,
 ) -> ModelResult<()> {
-    let normalized_url_path = normalize_url_path_for_storage(row.url_path);
     let existing_course_id =
-        sqlx::query_scalar!("SELECT course_id FROM pages WHERE id = $1", row.id)
+        sqlx::query_scalar!("SELECT course_id FROM pages WHERE id = $1", page.id)
             .fetch_optional(&mut *conn)
             .await?;
-    if let Some(existing_course_id) = existing_course_id {
-        if existing_course_id != Some(row.course_id) {
-            return Err(model_err!(
-                PreconditionFailed,
-                "A page with this id belongs to another course".to_string()
-            ));
-        }
-        sqlx::query!(
-            r#"
+    let Some(existing_course_id) = existing_course_id else {
+        insert_page_row(
+            conn,
+            PageRow {
+                id: PKeyPolicy::Fixed(page.id),
+                course: Some(course),
+                exam_id: None,
+                chapter_id: page.chapter_id,
+                url_path: &page.url_path,
+                title: &page.title,
+                order_number: page.order_number,
+                hidden: page.hidden,
+                content_search_language: None,
+                page_language_group_id: page.joins_page_language_group_id,
+            },
+            &serde_json::json!([]),
+        )
+        .await?;
+        return Ok(());
+    };
+    if existing_course_id != Some(course.id) {
+        return Err(model_err!(
+            PreconditionFailed,
+            "A page with this id belongs to another course".to_string()
+        ));
+    }
+    sqlx::query!(
+        r#"
 UPDATE pages
 SET deleted_at = NULL,
   chapter_id = $2,
@@ -3286,34 +3320,50 @@ SET deleted_at = NULL,
   order_number = $5,
   hidden = $6
 WHERE id = $1
-            "#,
-            row.id,
-            row.chapter_id,
-            normalized_url_path,
-            row.title.trim(),
-            row.order_number,
-            row.hidden,
-        )
-        .execute(&mut *conn)
-        .await?;
-        return Ok(());
-    }
-
-    let course = crate::courses::get_course(&mut *conn, row.course_id).await?;
-    let page_language_group_id = crate::page_language_groups::insert(
-        &mut *conn,
-        PKeyPolicy::Generate,
-        course.course_language_group_id,
+        "#,
+        page.id,
+        page.chapter_id,
+        normalize_url_path_for_storage(&page.url_path),
+        page.title.trim(),
+        page.order_number,
+        page.hidden,
     )
+    .execute(&mut *conn)
     .await?;
-    let content_search_language = course
-        .content_search_language
-        .unwrap_or_else(|| "simple".to_string());
-    sqlx::query!(
+    Ok(())
+}
+
+/// Inserts a page with the given content, a course page in a new page language group of its
+/// course. Writes no page history.
+pub async fn insert_page_row(
+    conn: &mut PgConnection,
+    row: PageRow<'_>,
+    content: &serde_json::Value,
+) -> ModelResult<Page> {
+    let page_language_group_id = match row.course {
+        Some(_) if row.page_language_group_id.is_some() => row.page_language_group_id,
+        Some(course) => Some(
+            crate::page_language_groups::insert(
+                &mut *conn,
+                PKeyPolicy::Generate,
+                course.course_language_group_id,
+            )
+            .await?,
+        ),
+        None => None,
+    };
+    let content_search_language = row
+        .course
+        .and_then(|course| course.content_search_language.as_deref())
+        .or(row.content_search_language)
+        .unwrap_or("simple");
+    let page = sqlx::query_as!(
+        Page,
         r#"
 INSERT INTO pages(
     id,
     course_id,
+    exam_id,
     content,
     url_path,
     title,
@@ -3323,11 +3373,27 @@ INSERT INTO pages(
     page_language_group_id,
     hidden
   )
-VALUES($1, $2, '[]'::jsonb, $3, $4, $5, $6, $7, $8, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id,
+  created_at,
+  updated_at,
+  course_id,
+  exam_id,
+  chapter_id,
+  url_path,
+  title,
+  deleted_at,
+  content,
+  order_number,
+  copied_from,
+  hidden,
+  page_language_group_id
         "#,
-        row.id,
-        row.course_id,
-        normalized_url_path,
+        row.id.into_uuid(),
+        row.course.map(|course| course.id),
+        row.exam_id,
+        content,
+        normalize_url_path_for_storage(row.url_path),
         row.title.trim(),
         row.order_number,
         row.chapter_id,
@@ -3335,65 +3401,128 @@ VALUES($1, $2, '[]'::jsonb, $3, $4, $5, $6, $7, $8, $9)
         page_language_group_id,
         row.hidden,
     )
-    .execute(&mut *conn)
+    .fetch_one(&mut *conn)
     .await?;
-    Ok(())
+    Ok(page)
 }
 
-/// Sets the pages' order numbers as given, without the reordering logic of [reorder_pages].
-pub async fn set_order_numbers(
+/// Writes every field of the snapshot to the page through the CMS page save, creating the page
+/// with the snapshot's id first when `is_create`. The save records page history as `author`.
+/// Returns the redirect from the page's old path when its path changed.
+pub async fn upsert_from_snapshot(
     conn: &mut PgConnection,
-    ids: &[Uuid],
-    order_numbers: &[i32],
-) -> ModelResult<()> {
-    if ids.is_empty() {
-        return Ok(());
+    course: &Course,
+    page: &crate::library::entity_snapshots::PageSnapshot,
+    is_create: bool,
+    author: HistoryAuthor,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<Option<CreatedRedirect>> {
+    let mut redirect = None;
+    if is_create {
+        insert_or_undelete_course_page_row(conn, course, page).await?;
+    } else {
+        sqlx::query!(
+            "UPDATE pages SET order_number = $2 WHERE id = $1",
+            page.id,
+            page.order_number
+        )
+        .execute(&mut *conn)
+        .await?;
+        redirect = set_paths(conn, &[(page.id, &page.url_path)]).await?.pop();
     }
-    sqlx::query!(
-        "
-UPDATE pages
-SET order_number = v.order_number
-FROM unnest($1::uuid[], $2::int[]) AS v(id, order_number)
-WHERE pages.id = v.id
-",
-        ids,
-        order_numbers
+    update_page(
+        conn,
+        PageUpdateArgs {
+            page_id: page.id,
+            author,
+            cms_page_update: page.to_cms_page_update(),
+            retain_ids: true,
+            history_change_reason: HistoryChangeReason::PageSaved,
+            is_exam_page: false,
+        },
+        spec_fetcher,
+        fetch_service_info,
     )
-    .execute(conn)
     .await?;
-    Ok(())
+    Ok(redirect)
 }
 
-/// Moves the pages' order numbers and url paths out of the way of the unique constraints, so that
-/// a batch of pages can swap them. Every parked page must get its final values in the same
-/// transaction.
-pub async fn park_order_numbers_and_url_paths(
+/// Moves pages to new paths, normalized as the page save stores them, and redirects each moved
+/// course page's old path to it. Returns those redirects; pages already at their path, deleted
+/// pages and exam pages get none.
+pub async fn set_paths(
+    conn: &mut PgConnection,
+    new_paths: &[(Uuid, &str)],
+) -> ModelResult<Vec<CreatedRedirect>> {
+    let (ids, url_paths): (Vec<Uuid>, Vec<String>) = new_paths
+        .iter()
+        .map(|(id, url_path)| (*id, normalize_url_path_for_storage(url_path)))
+        .unzip();
+    write_paths(conn, &ids, &url_paths).await
+}
+
+/// [`set_paths`] with the paths written as given; `ids` and `url_paths` are parallel.
+async fn write_paths(
     conn: &mut PgConnection,
     ids: &[Uuid],
-) -> ModelResult<()> {
-    if ids.is_empty() {
-        return Ok(());
-    }
-    sqlx::query!(
-        "
-UPDATE pages
-SET order_number = 1000000 + v.position,
-  url_path = '/agent-publish-parking/' || pages.id::text
-FROM unnest($1::uuid[]) WITH ORDINALITY AS v(id, position)
-WHERE pages.id = v.id
-",
+    url_paths: &[String],
+) -> ModelResult<Vec<CreatedRedirect>> {
+    let redirects = sqlx::query_as!(
+        CreatedRedirect,
+        r#"
+WITH moved AS (
+  UPDATE pages
+  SET url_path = new.url_path
+  FROM UNNEST($1::uuid [], $2::text []) AS new(id, url_path)
+    JOIN pages old ON old.id = new.id
+  WHERE pages.id = new.id
+    AND pages.deleted_at IS NULL
+    AND old.url_path <> new.url_path
+  RETURNING pages.id,
+    pages.course_id,
+    old.url_path AS old_url_path,
+    pages.url_path AS new_url_path
+),
+redirected AS (
+  INSERT INTO url_redirections (destination_page_id, old_url_path, course_id)
+  SELECT id,
+    old_url_path,
+    course_id
+  FROM moved
+  WHERE course_id IS NOT NULL ON CONFLICT (old_url_path, course_id, deleted_at) DO
+  UPDATE
+  SET destination_page_id = EXCLUDED.destination_page_id
+)
+SELECT id AS "page_id!",
+  old_url_path AS "old_url_path!",
+  new_url_path AS "new_url_path!"
+FROM moved
+WHERE course_id IS NOT NULL
+        "#,
         ids,
+        url_paths,
     )
-    .execute(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(())
+    Ok(redirects)
+}
+
+/// Whether the page exists and is not deleted.
+pub async fn exists(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<bool> {
+    let exists = sqlx::query_scalar!(
+        r#"SELECT EXISTS (SELECT 1 FROM pages WHERE id = $1 AND deleted_at IS NULL) AS "exists!""#,
+        page_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exists)
 }
 
 pub async fn delete_page_and_exercises(
     conn: &mut PgConnection,
     page_id: Uuid,
-    author: Uuid,
-    attribution: Option<&crate::agent_changesets::AgentAttribution>,
+    author: HistoryAuthor,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
 
@@ -3525,7 +3654,6 @@ WHERE exercise_slide_id IN (
         HistoryChangeReason::PageDeleted,
         author,
         None,
-        attribution,
     )
     .await?;
 
@@ -4377,9 +4505,8 @@ pub async fn restore(
     update_page(
         conn,
         PageUpdateArgs {
-            agent_attribution: None,
             page_id: page.id,
-            author,
+            author: HistoryAuthor::user(author),
             cms_page_update: CmsPageUpdate {
                 content: parsed_content,
                 exercises: history_data.content.exercises,
@@ -4603,22 +4730,8 @@ pub async fn reorder_pages(
     }
 
     let mut tx = conn.begin().await?;
-
-    // First, randomize ALL page order numbers to avoid conflicts (except chapter front pages, which cannot be moved)
-    // This is necessary because unique indexes cannot be deferred in PostgreSQL
-    // The random numbers are temporary and will be replaced with the correct order numbers
-    sqlx::query!(
-        "
-UPDATE pages
-SET order_number = floor(random() * (2000000 -200000 + 1) + 200000)
-WHERE course_id = $1
-  AND order_number != 0
-  AND deleted_at IS NULL
-        ",
-        course_id
-    )
-    .execute(&mut *tx)
-    .await?;
+    // Pages swap order numbers and, when moved between chapters, paths.
+    crate::courses::defer_structure_constraints(&mut tx).await?;
 
     // Now update each page to its corrected order_number, using the normalized pages
     for page in normalized_pages {
@@ -4642,16 +4755,9 @@ WHERE course_id = $1
                             if let Some(new_chapter) =
                                 chapters.iter().find(|o| o.id == new_chapter_id)
                             {
-                                let old_path = &page.url_path;
-                                let new_path = old_path.replacen(
-                                    &old_chapter.chapter_number.to_string(),
-                                    &new_chapter.chapter_number.to_string(),
-                                    1,
-                                );
                                 sqlx::query!(
-                                    "UPDATE pages SET url_path = $2, chapter_id = $3, order_number = $4 WHERE pages.id = $1",
+                                    "UPDATE pages SET chapter_id = $2, order_number = $3 WHERE pages.id = $1",
                                     page.id,
-                                    new_path,
                                     new_chapter.id,
                                     page.order_number
                                 )
@@ -4664,14 +4770,14 @@ WHERE course_id = $1
                                 )
                                 .execute(&mut *tx)
                                 .await?;
-                                sqlx::query!(
-                                    "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
-                                    page.id,
-                                    old_path,
-                                    course_id
-                                )
-                                .execute(&mut *tx)
-                                .await?;
+                                if let Some(segment) = chapters::page_path_segment(
+                                    &matching_db_page.url_path,
+                                    old_chapter.chapter_number,
+                                ) {
+                                    let new_path =
+                                        chapters::page_path(new_chapter.chapter_number, segment);
+                                    set_paths(&mut tx, &[(page.id, &new_path)]).await?;
+                                }
                             } else {
                                 return Err(model_err!(
                                     InvalidRequest,
@@ -4715,150 +4821,67 @@ WHERE course_id = $1
     Ok(())
 }
 
-/// Writes pages' url paths as given, without normalizing them or adding redirections.
-///
-/// [reorder_chapters] rewrites paths in two passes and creates the redirections itself, so neither
-/// belongs here. Use [insert_page] or [update_page] for a path that comes from a user, since those
-/// canonicalize it.
-///
-/// Does not filter on `deleted_at`: a deleted page's path is written too.
-async fn set_url_paths(
-    conn: &mut PgConnection,
-    ids: &[Uuid],
-    url_paths: &[String],
-) -> ModelResult<()> {
-    if ids.is_empty() {
-        return Ok(());
-    }
-    sqlx::query!(
-        "
-UPDATE pages
-SET url_path = v.path
-FROM unnest($1::uuid[], $2::text[]) AS v(id, path)
-WHERE pages.id = v.id
-",
-        ids,
-        url_paths
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
+/// Saves new chapter numbers, moving the chapters' page paths along with redirects from the old
+/// ones, and records the reordered chapters in their history.
 pub async fn reorder_chapters(
     conn: &mut PgConnection,
     chapters: &[Chapter],
     course_id: Uuid,
+    author_user_id: Uuid,
 ) -> ModelResult<()> {
     let db_chapters = get_course_chapters(conn, course_id).await?;
     let mut tx = conn.begin().await?;
-    // Look for the modified chapter in the existing database
-
-    // TODO USE CHAPTER ID FOR THE LOOP
+    crate::courses::defer_structure_constraints(&mut tx).await?;
+    let mut new_paths = Vec::new();
     for chapter in chapters {
-        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id)
-            && let Some(old_chapter) = db_chapters.iter().find(|o| o.id == matching_db_chapter.id)
-        {
-            // to avoid conflicting chapter_number when chapter is modified
-            //Assign random number to modified chapters
-            sqlx::query!(
-                "UPDATE chapters
-                SET chapter_number = floor(random() * (20000000 - 2000000 + 1) + 200000)
-                WHERE chapters.id = $1
-                  AND chapters.course_id = $2
-                  AND deleted_at IS NULL",
-                matching_db_chapter.id,
-                course_id
-            )
-            .execute(&mut *tx)
-            .await?;
-
-            // get newly modified chapter
-            let chapter_with_randomized_chapter_number =
-                get_chapter(&mut tx, matching_db_chapter.id).await?;
-            let random_chapter_number = chapter_with_randomized_chapter_number.chapter_number;
-            let pages =
-                get_chapter_page_paths(&mut tx, chapter_with_randomized_chapter_number.id).await?;
-
-            let mut ids = Vec::with_capacity(pages.len());
-            let mut new_paths = Vec::with_capacity(pages.len());
-            for page in pages {
-                let new_path = page.url_path.replacen(
-                    &old_chapter.chapter_number.to_string(),
-                    &random_chapter_number.to_string(),
-                    1,
-                );
-                ids.push(page.id);
-                new_paths.push(new_path);
-            }
-            set_url_paths(&mut tx, &ids, &new_paths).await?;
-        }
-    }
-
-    for chapter in chapters {
-        if let Some(matching_db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) {
-            if let Some(new_chapter) = chapters.iter().find(|o| o.id == matching_db_chapter.id) {
-                let new_chapter_number = &new_chapter.chapter_number;
-
-                let randomized_chapter = get_chapter(&mut tx, chapter.id).await?;
-
-                let randomized_chapter_number = randomized_chapter.chapter_number;
-
-                // update chapter_number
-                sqlx::query!(
-                    "UPDATE chapters SET chapter_number = $2 WHERE chapters.id = $1",
-                    chapter.id,
-                    new_chapter_number
-                )
-                .execute(&mut *tx)
-                .await?;
-
-                // update all pages url in the modified chapter
-                let pages = get_chapter_page_paths(&mut tx, chapter.id).await?;
-
-                let mut ids = Vec::with_capacity(pages.len());
-                let mut new_paths = Vec::with_capacity(pages.len());
-                let mut old_paths = Vec::with_capacity(pages.len());
-                for page in pages {
-                    let new_path = page.url_path.replacen(
-                        &randomized_chapter_number.to_string(),
-                        &new_chapter_number.to_string(),
-                        1,
-                    );
-                    let old_path = page.url_path.replacen(
-                        &randomized_chapter_number.to_string(),
-                        &chapter.chapter_number.to_string(),
-                        1,
-                    );
-                    ids.push(page.id);
-                    new_paths.push(new_path);
-                    old_paths.push(old_path);
-                }
-                set_url_paths(&mut tx, &ids, &new_paths).await?;
-
-                for (page_id, old_path) in ids.iter().zip(old_paths.iter()) {
-                    crate::url_redirections::upsert(
-                        &mut tx,
-                        PKeyPolicy::Generate,
-                        *page_id,
-                        old_path,
-                        course_id,
-                    )
-                    .await?;
-                }
-            } else {
-                return Err(model_err!(
-                    InvalidRequest,
-                    "New chapter not found".to_string()
-                ));
-            }
-        } else {
+        let Some(db_chapter) = db_chapters.iter().find(|c| c.id == chapter.id) else {
             return Err(model_err!(
                 InvalidRequest,
                 "Matching DB chapters not found".to_string()
             ));
+        };
+        if db_chapter.chapter_number == chapter.chapter_number {
+            continue;
+        }
+        sqlx::query!(
+            "UPDATE chapters SET chapter_number = $2 WHERE id = $1",
+            chapter.id,
+            chapter.chapter_number
+        )
+        .execute(&mut *tx)
+        .await?;
+        for page in get_chapter_page_paths(&mut tx, chapter.id).await? {
+            if let Some(segment) =
+                chapters::page_path_segment(&page.url_path, db_chapter.chapter_number)
+            {
+                new_paths.push((
+                    page.id,
+                    chapters::page_path(chapter.chapter_number, segment),
+                ));
+            }
         }
     }
+    let new_paths: Vec<(Uuid, &str)> = new_paths
+        .iter()
+        .map(|(id, path)| (*id, path.as_str()))
+        .collect();
+    set_paths(&mut tx, &new_paths).await?;
+
+    let changed_chapters: Vec<_> = chapters
+        .iter()
+        .map(|chapter| {
+            (
+                crate::library::entity_snapshots::ContentEntityType::Chapter,
+                chapter.id,
+            )
+        })
+        .collect();
+    crate::entity_history::record_current_many(
+        &mut tx,
+        &changed_chapters,
+        HistoryAuthor::user(author_user_id),
+    )
+    .await?;
 
     tx.commit().await?;
     Ok(())
@@ -4885,37 +4908,15 @@ pub async fn update_page_details(
     page_id: Uuid,
     page_details_update: &PageDetailsUpdate,
 ) -> ModelResult<()> {
-    let normalized_url_path = normalize_url_path_for_storage(&page_details_update.url_path);
     let mut tx = conn.begin().await?;
-    let page_before_update = get_page(&mut tx, page_id).await?;
     sqlx::query!(
-        "
-UPDATE pages
-SET title = $2,
-  url_path = $3
-WHERE id = $1
-",
+        "UPDATE pages SET title = $2 WHERE id = $1",
         page_id,
         page_details_update.title,
-        normalized_url_path,
     )
     .execute(&mut *tx)
     .await?;
-
-    if let Some(course_id) = page_before_update.course_id
-        && page_before_update.url_path != normalized_url_path
-    {
-        // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
-        crate::url_redirections::upsert(
-            &mut tx,
-            PKeyPolicy::Generate,
-            page_id,
-            &page_before_update.url_path,
-            course_id,
-        )
-        .await?;
-    }
-
+    set_paths(&mut tx, &[(page_id, &page_details_update.url_path)]).await?;
     tx.commit().await?;
     Ok(())
 }
@@ -5137,7 +5138,7 @@ mod test {
         )
         .await
         .unwrap();
-        set_url_paths(
+        write_paths(
             tx.as_mut(),
             &[legacy_page.id],
             &["/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82".to_string()],
@@ -5334,33 +5335,20 @@ mod test {
         chapter_locking_enabled: bool,
     ) {
         let app_config = init_app_conf().expect("Application Configuration initialization failed");
-        let course_before_update = courses::get_course(tx, course_id).await.unwrap();
-        courses::update_course(
+        let course = courses::get_course(tx, course_id).await.unwrap();
+        let live = crate::library::entity_snapshots::course_settings_of(tx, &course)
+            .await
+            .unwrap();
+        courses::write_settings(
             tx,
             &app_config,
-            course_id,
-            courses::CourseUpdate {
+            &crate::library::entity_snapshots::CourseSettingsSnapshot {
                 chapter_locking_enabled,
-                name: course_before_update.name,
-                description: course_before_update.description,
-                is_draft: course_before_update.is_draft,
-                is_test_mode: course_before_update.is_test_mode,
-                can_add_chatbot: course_before_update.can_add_chatbot,
-                is_unlisted: course_before_update.is_unlisted,
-                is_joinable_by_code_only: course_before_update.is_joinable_by_code_only,
-                ask_marketing_consent: course_before_update.ask_marketing_consent,
-                flagged_answers_threshold: course_before_update
-                    .flagged_answers_threshold
-                    .unwrap_or_default(),
-                flagged_answers_skip_manual_review_and_allow_retry: course_before_update
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: course_before_update.closed_at,
-                closed_additional_message: course_before_update.closed_additional_message,
-                closed_course_successor_id: course_before_update.closed_course_successor_id,
-                ai_policy: course_before_update.ai_policy,
-                course_material_ai_instructions: course_before_update
-                    .course_material_ai_instructions,
+                ..live.clone()
             },
+            &live,
+            false,
+            &crate::courses::TextEmbeddings::default(),
         )
         .await
         .unwrap();
@@ -5721,7 +5709,7 @@ mod test {
                 .await
                 .unwrap();
         for page in existing_pages.iter().filter(|p| p.url_path.trim() != "/") {
-            delete_page_and_exercises(tx.as_mut(), page.id, user, None)
+            delete_page_and_exercises(tx.as_mut(), page.id, HistoryAuthor::user(user))
                 .await
                 .unwrap();
         }

@@ -3,79 +3,27 @@
 
 pub mod args;
 pub mod catalog;
-pub mod guide_tool;
 pub mod schema;
 
-use std::collections::HashMap;
-use std::sync::Arc;
-
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
+use indexmap::IndexMap;
+use schemars::JsonSchema;
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 use serde_json::{Map, Value, json};
-use uuid::Uuid;
 
-use crate::engine::EditError;
+use self::catalog::ToolDefinition;
+use crate::engine::{EditError, EditErrorCode};
 use crate::hints::{Hint, OutdatedSkill};
-use crate::protocol::context::CapabilityContext;
+use crate::protocol::context::ClientContext;
 use crate::protocol::progress::ProgressReporter;
+use crate::validator::ValidatorError;
 
-/// OAuth scopes. A tool is listed only when the token has its scope.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum Scope {
-    #[serde(rename = "material:read")]
-    MaterialRead,
-    #[serde(rename = "material:stage")]
-    MaterialStage,
-    #[serde(rename = "material:publish")]
-    MaterialPublish,
-    #[serde(rename = "settings:write")]
-    SettingsWrite,
-}
-
-impl Scope {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Scope::MaterialRead => "material:read",
-            Scope::MaterialStage => "material:stage",
-            Scope::MaterialPublish => "material:publish",
-            Scope::SettingsWrite => "settings:write",
-        }
-    }
-
-    pub fn parse(raw: &str) -> Option<Self> {
-        [
-            Scope::MaterialRead,
-            Scope::MaterialStage,
-            Scope::MaterialPublish,
-            Scope::SettingsWrite,
-        ]
-        .into_iter()
-        .find(|s| s.as_str() == raw)
-    }
-}
-
-/// Who is calling, as established by the OAuth layer.
-#[derive(Debug, Clone)]
-pub struct Principal {
-    pub user_id: Uuid,
-    pub scopes: Vec<Scope>,
-    pub oauth_client_id: Option<Uuid>,
-    pub grant_id: Option<Uuid>,
-    /// The OAuth client's display name, for "teacher X via <client>" attribution.
-    pub client_name: Option<String>,
-}
-
-impl Principal {
-    pub fn has_scope(&self, scope: Scope) -> bool {
-        self.scopes.contains(&scope)
-    }
-}
+pub use headless_lms_models::library::oauth::mcp::{McpPrincipal, McpScope};
 
 /// Echoed state of a confirmation round trip, already verified.
 #[derive(Debug, Clone)]
 pub struct RetryState {
-    /// The payload the handler put in [`ConfirmationRequest::state`].
-    pub state: Value,
     /// The client's answers keyed like the input requests (`"confirm"`).
     pub input_responses: Map<String, Value>,
 }
@@ -94,16 +42,16 @@ pub(crate) const CONFIRMATION_KEY: &str = "confirm";
 
 /// Everything a handler knows about the request besides its arguments.
 pub struct RequestContext {
-    pub principal: Principal,
-    pub capabilities: CapabilityContext,
-    pub tool_name: String,
+    pub principal: McpPrincipal,
+    pub client: ClientContext,
+    pub tool_name: &'static str,
     /// Set when this call is the retry after a confirmation round trip.
     pub retry: Option<RetryState>,
     pub progress: ProgressReporter,
 }
 
 impl RequestContext {
-    pub fn require_scope(&self, scope: Scope) -> Result<(), ToolError> {
+    pub fn require_scope(&self, scope: McpScope) -> Result<(), ToolError> {
         if self.principal.has_scope(scope) {
             Ok(())
         } else {
@@ -138,6 +86,15 @@ impl ToolResult {
         }
     }
 
+    /// A failed call's result: `{"error": error}`.
+    pub fn error(error: Value) -> Self {
+        Self {
+            structured: Map::from_iter([("error".to_string(), error)]),
+            hints: Vec::new(),
+            is_error: true,
+        }
+    }
+
     pub fn with_hint(mut self, hint: Hint) -> Self {
         self.hints.push(hint);
         self
@@ -166,8 +123,6 @@ pub struct ConfirmationRequest {
     /// A page on our domain where the human confirms.
     pub url: String,
     pub elicitation_id: String,
-    /// Sealed into `requestState` and handed back on the retry as [`RetryState::state`].
-    pub state: Value,
     /// Returned instead when the client can't do URL elicitation: the link as text.
     pub fallback: ToolResult,
 }
@@ -182,6 +137,33 @@ impl From<ToolResult> for ToolOutcome {
     fn from(result: ToolResult) -> Self {
         ToolOutcome::Complete(result)
     }
+}
+
+/// The `code` of an error result, other than an edit rejection's [`EditErrorCode`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ErrorCode {
+    OutdatedSkill,
+    InvalidArguments,
+    NotFound,
+    /// The user's roles don't allow editing the course.
+    Forbidden,
+    TemporarilyUnavailable,
+    StagedStateChanged,
+    InsufficientScope,
+    InternalError,
+    /// Saving the staged changes failed, or the course would break a rule publishing relies on.
+    PublishFailed,
+    /// Staged entities changed live after they were staged.
+    PublishConflict,
+    /// The staged pages add exercises of services only administrators may add.
+    AdminOnlyExerciseServices,
+    /// The changeset isn't at the revision the call gave.
+    ChangesetChanged,
+    /// Without the entities a partial discard names, the rest couldn't be published.
+    DiscardConflict,
+    /// Reverting would undo or clash with later changes.
+    RevertConflict,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -202,61 +184,184 @@ pub enum ToolError {
     #[error("{message}")]
     Retryable {
         message: String,
-        retry_after_seconds: Option<u64>,
+        retry_after_seconds: u64,
+    },
+    /// Another call changed the staged state this call read, so nothing was staged; the call can
+    /// be repeated after reading again.
+    #[error("{message}")]
+    StagedStateChanged {
+        message: String,
+        /// `{entity_type, entity_id}` of each entity that changed; empty when the whole changeset
+        /// closed.
+        entities: Vec<Value>,
+    },
+    /// The call changed nothing because it would break a rule of publishing or reverting; `code`
+    /// names the rule and `details` what to fix.
+    #[error("{message}")]
+    Refused {
+        code: ErrorCode,
+        message: String,
+        details: Map<String, Value>,
     },
     /// The token lacks a scope; answered with an HTTP 403 so the client can step up.
     #[error("this needs the {} scope", required.as_str())]
-    InsufficientScope { required: Scope },
+    InsufficientScope { required: McpScope },
     #[error("internal error: {0}")]
     Internal(String),
 }
 
 impl ToolError {
-    /// The structured body of an `isError` result, or None for errors that become protocol errors.
-    pub fn to_result(&self) -> Option<ToolResult> {
-        let error = match self {
-            ToolError::Edit(edit) => serde_json::to_value(edit).unwrap_or_default(),
-            ToolError::OutdatedSkill(outdated) => {
-                json!({"code": "outdated_skill", "message": outdated.message})
-            }
-            ToolError::InvalidArguments { message } => {
-                json!({"code": "invalid_arguments", "message": message})
-            }
-            ToolError::NotFound { message } => json!({"code": "not_found", "message": message}),
-            ToolError::Forbidden { message } => json!({"code": "forbidden", "message": message}),
+    /// The user's roles don't allow editing the course.
+    pub fn no_edit_rights() -> Self {
+        ToolError::Forbidden {
+            message: "Your teacher account doesn't have edit rights on this course.".to_string(),
+        }
+    }
+
+    /// A [`ToolError::Refused`] with the fields of `details`, a JSON object.
+    pub fn refused(code: ErrorCode, message: impl Into<String>, details: Value) -> Self {
+        ToolError::Refused {
+            code,
+            message: message.into(),
+            details: match details {
+                Value::Object(details) => details,
+                _ => Map::new(),
+            },
+        }
+    }
+
+    /// The `error` object of the result the agent gets. Dispatch answers insufficient scopes and
+    /// internal errors with protocol errors instead.
+    pub fn into_json(self) -> Value {
+        let (code, message) = match self {
+            ToolError::Edit(edit) => return serde_json::to_value(edit).unwrap_or_default(),
+            ToolError::OutdatedSkill(outdated) => (ErrorCode::OutdatedSkill, outdated.message),
+            ToolError::InvalidArguments { message } => (ErrorCode::InvalidArguments, message),
+            ToolError::NotFound { message } => (ErrorCode::NotFound, message),
+            ToolError::Forbidden { message } => (ErrorCode::Forbidden, message),
             ToolError::Retryable {
                 message,
                 retry_after_seconds,
             } => {
-                json!({"code": "temporarily_unavailable", "message": message, "retryable": true, "retry_after_seconds": retry_after_seconds})
+                return json!({"code": ErrorCode::TemporarilyUnavailable, "message": message, "retryable": true, "retry_after_seconds": retry_after_seconds});
             }
-            ToolError::InsufficientScope { .. } | ToolError::Internal(_) => return None,
+            ToolError::StagedStateChanged { message, entities } => {
+                return json!({"code": ErrorCode::StagedStateChanged, "message": message, "retryable": true, "entities": entities});
+            }
+            ToolError::Refused {
+                code,
+                message,
+                mut details,
+            } => {
+                details.insert("code".into(), json!(code));
+                details.insert("message".into(), json!(message));
+                return Value::Object(details);
+            }
+            ToolError::InsufficientScope { required } => {
+                return json!({"code": ErrorCode::InsufficientScope, "required_scope": required.as_str()});
+            }
+            ToolError::Internal(_) => (
+                ErrorCode::InternalError,
+                "Internal error; the call changed nothing".to_string(),
+            ),
         };
-        Some(ToolResult {
-            structured: Map::from_iter([("error".to_string(), error)]),
-            hints: Vec::new(),
-            is_error: true,
-        })
+        json!({"code": code, "message": message})
+    }
+
+    /// The `isError` result the agent gets; see [`ToolError::into_json`].
+    pub fn into_result(self) -> ToolResult {
+        ToolResult::error(self.into_json())
     }
 }
 
-impl From<crate::validator::ValidatorError> for ToolError {
-    fn from(error: crate::validator::ValidatorError) -> Self {
+impl From<ValidatorError> for ToolError {
+    fn from(error: ValidatorError) -> Self {
         match error {
-            crate::validator::ValidatorError::Unavailable { retry_after, .. } => ToolError::Retryable {
+            ValidatorError::Unavailable { retry_after, .. } => ToolError::Retryable {
                 message: "the content validator is unavailable, so nothing was staged; the same call can be retried".into(),
-                retry_after_seconds: retry_after.map(|d| d.as_secs()).or(Some(2)),
+                retry_after_seconds: retry_after.map_or(2, |d| d.as_secs()),
             },
-            rejected @ crate::validator::ValidatorError::Rejected { .. } => ToolError::Internal(rejected.to_string()),
+            ValidatorError::TooLarge { .. } => ToolError::InvalidArguments {
+                message: "Nothing was staged: the call writes too many or too large blocks for the validator to check at once. Write fewer or smaller blocks per call.".into(),
+            },
+            ValidatorError::FailedOnInput { message } => ToolError::Edit(
+                EditError::new(
+                    EditErrorCode::InvalidBlocks,
+                    format!("Nothing was staged: the validator failed on these blocks ({message})"),
+                )
+                .with_fix("check the written blocks against the guide's block reference, or write them in smaller calls to find the one that fails"),
+            ),
+            rejected @ ValidatorError::Rejected { .. } => ToolError::Internal(rejected.to_string()),
         }
     }
 }
 
+impl From<headless_lms_models::ModelError> for ToolError {
+    fn from(error: headless_lms_models::ModelError) -> Self {
+        use headless_lms_base::error::backend_error::BackendError;
+        use headless_lms_models::ModelErrorType;
+        match error.error_type() {
+            ModelErrorType::RecordNotFound | ModelErrorType::NotFound => ToolError::NotFound {
+                message: error.message().to_string(),
+            },
+            ModelErrorType::PreconditionFailed | ModelErrorType::InvalidRequest => {
+                ToolError::InvalidArguments {
+                    message: error.message().to_string(),
+                }
+            }
+            _ => ToolError::Internal(format!("{error:?}")),
+        }
+    }
+}
+
+impl From<headless_lms_authorization::error::AuthorizationError> for ToolError {
+    fn from(error: headless_lms_authorization::error::AuthorizationError) -> Self {
+        use headless_lms_authorization::error::AuthorizationErrorType;
+        use headless_lms_base::error::backend_error::BackendError;
+        match error.error_type() {
+            AuthorizationErrorType::Forbidden | AuthorizationErrorType::Unauthorized => {
+                ToolError::no_edit_rights()
+            }
+            _ => ToolError::Internal(format!("{error:?}")),
+        }
+    }
+}
+
+/// Runs CPU-heavy pure work, such as an engine pass over every page, on the blocking pool, so that
+/// the worker thread keeps serving other requests meanwhile.
+pub(crate) async fn off_worker<T: Send + 'static>(
+    work: impl FnOnce() -> T + Send + 'static,
+) -> Result<T, ToolError> {
+    tokio::task::spawn_blocking(work)
+        .await
+        .map_err(|e| ToolError::Internal(format!("a blocking task failed: {e}")))
+}
+
 /// Implements one tool. `S` is the application state the protocol layer passes through, such as
 /// the database pool, config and validator client.
-#[async_trait]
-pub trait ToolHandler<S: Send + Sync>: Send + Sync {
+#[async_trait(?Send)]
+pub trait ToolHandler<S>: Send + Sync {
+    /// The tool's arguments; their JSON Schema is the tool's input schema.
+    type Args: DeserializeOwned + JsonSchema + 'static;
+
+    /// Whether `call` can answer [`ToolOutcome::NeedsConfirmation`]. Only then does dispatch bind
+    /// the call's arguments to a confirmation, which costs a pass over them.
+    const ASKS_FOR_CONFIRMATION: bool = false;
+
     async fn call(
+        &self,
+        state: &S,
+        ctx: &RequestContext,
+        args: Self::Args,
+    ) -> Result<ToolOutcome, ToolError>;
+}
+
+/// A [`ToolHandler`] taking its arguments as JSON, so that one registry holds every tool.
+#[async_trait(?Send)]
+pub(crate) trait JsonToolHandler<S>: Send + Sync {
+    fn asks_for_confirmation(&self) -> bool;
+
+    async fn call_with_json(
         &self,
         state: &S,
         ctx: &RequestContext,
@@ -264,80 +369,63 @@ pub trait ToolHandler<S: Send + Sync>: Send + Sync {
     ) -> Result<ToolOutcome, ToolError>;
 }
 
-/// Placeholder for tools whose database-backed handler isn't registered yet.
-pub struct NotImplemented;
+#[async_trait(?Send)]
+impl<S, H: ToolHandler<S>> JsonToolHandler<S> for H {
+    fn asks_for_confirmation(&self) -> bool {
+        H::ASKS_FOR_CONFIRMATION
+    }
 
-#[async_trait]
-impl<S: Send + Sync> ToolHandler<S> for NotImplemented {
-    async fn call(
+    async fn call_with_json(
         &self,
-        _: &S,
+        state: &S,
         ctx: &RequestContext,
-        _: Map<String, Value>,
+        arguments: Map<String, Value>,
     ) -> Result<ToolOutcome, ToolError> {
-        Err(ToolError::Internal(format!(
-            "{} isn't available on this server yet",
-            ctx.tool_name
-        )))
+        let args = serde_json::from_value(Value::Object(arguments)).map_err(|e| {
+            ToolError::InvalidArguments {
+                message: format!("invalid arguments: {e}"),
+            }
+        })?;
+        self.call(state, ctx, args).await
     }
 }
 
-/// The tools in their fixed `tools/list` order, each with its handler.
-pub struct ToolRegistry<S> {
-    definitions: Vec<catalog::ToolDefinition>,
-    handlers: HashMap<&'static str, Arc<dyn ToolHandler<S>>>,
+/// A tool with its handler.
+pub struct Tool<S> {
+    pub definition: ToolDefinition,
+    pub(crate) handler: Box<dyn JsonToolHandler<S>>,
 }
 
-impl<S: Send + Sync + 'static> ToolRegistry<S> {
-    /// Every tool from the catalog, all answered by [`NotImplemented`] until registered.
-    pub fn with_catalog() -> Self {
-        let definitions = catalog::definitions();
-        let handlers = definitions
-            .iter()
-            .map(|d| (d.name, Arc::new(NotImplemented) as Arc<dyn ToolHandler<S>>))
-            .collect();
+/// The tools in their `tools/list` order.
+pub struct ToolRegistry<S> {
+    tools: IndexMap<&'static str, Tool<S>>,
+}
+
+impl<S> ToolRegistry<S> {
+    pub fn new(tools: Vec<Tool<S>>) -> Self {
         Self {
-            definitions,
-            handlers,
+            tools: tools
+                .into_iter()
+                .map(|tool| (tool.definition.name, tool))
+                .collect(),
         }
     }
 
-    /// Sets the handler for a catalog tool. Panics on a name the catalog doesn't have.
-    pub fn register(mut self, name: &str, handler: Arc<dyn ToolHandler<S>>) -> Self {
-        let definition = self
-            .definitions
-            .iter()
-            .find(|d| d.name == name)
-            .unwrap_or_else(|| panic!("{name} isn't in the tool catalog"));
-        self.handlers.insert(definition.name, handler);
-        self
+    pub fn get(&self, name: &str) -> Option<&Tool<S>> {
+        self.tools.get(name)
     }
 
-    pub fn definitions(&self) -> &[catalog::ToolDefinition] {
-        &self.definitions
+    #[cfg(test)]
+    pub fn definitions(&self) -> impl Iterator<Item = &ToolDefinition> {
+        self.tools.values().map(|tool| &tool.definition)
     }
 
-    pub fn definition(&self, name: &str) -> Option<&catalog::ToolDefinition> {
-        self.definitions.iter().find(|d| d.name == name)
+    /// The `tools/list` entries of the tools `principal` may call.
+    pub fn listings_for(&self, principal: &McpPrincipal) -> Vec<rmcp::model::Tool> {
+        self.tools
+            .values()
+            .filter(|tool| principal.has_scope(tool.definition.scope))
+            .map(|tool| tool.definition.listing.clone())
+            .collect()
     }
-
-    pub fn handler(&self, name: &str) -> Option<Arc<dyn ToolHandler<S>>> {
-        self.handlers.get(name).cloned()
-    }
-}
-
-/// Parses a tool's arguments object into its args struct, with a message the agent can act on.
-pub fn parse_arguments<T: for<'de> Deserialize<'de>>(
-    arguments: Map<String, Value>,
-) -> Result<T, ToolError> {
-    serde_json::from_value(Value::Object(arguments)).map_err(|e| ToolError::InvalidArguments {
-        message: format!("invalid arguments: {e}"),
-    })
-}
-
-/// Parses an id argument given as `pg7` or `/pg7`.
-pub fn parse_id(raw: &str, what: &str) -> Result<Uuid, ToolError> {
-    Uuid::parse_str(raw.trim().trim_start_matches('/')).map_err(|_| ToolError::InvalidArguments {
-        message: format!("{what} must be an id (a UUID), got \"{raw}\""),
-    })
 }

@@ -168,9 +168,9 @@ pub async fn get_all_by_peer_or_self_review_config_id_as_map(
     Ok(res)
 }
 
-pub async fn get_by_page_id(
+pub async fn get_by_page_ids(
     conn: &mut PgConnection,
-    page_id: Uuid,
+    page_ids: &[Uuid],
 ) -> ModelResult<Vec<CmsPeerOrSelfReviewQuestion>> {
     let res = sqlx::query_as!(
         CmsPeerOrSelfReviewQuestion,
@@ -186,13 +186,13 @@ from pages p
   join exercises e on p.id = e.page_id
   join peer_or_self_review_configs pr on e.id = pr.exercise_id
   join peer_or_self_review_questions prq on pr.id = prq.peer_or_self_review_config_id
-where p.id = $1
+where p.id = ANY($1)
   AND p.deleted_at IS NULL
   AND e.deleted_at IS NULL
   AND pr.deleted_at IS NULL
   AND prq.deleted_at IS NULL;
   "#,
-        page_id
+        page_ids
     )
     .fetch_all(conn)
     .await?;

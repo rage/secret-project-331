@@ -458,9 +458,8 @@ WHERE id = $1
     crate::pages::update_page(
         &mut tx,
         PageUpdateArgs {
-            agent_attribution: None,
             page_id: page_with_exercises.page.id,
-            author,
+            author: crate::entity_history::HistoryAuthor::user(author),
             cms_page_update,
             retain_ids: true,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -562,6 +561,59 @@ WHERE id = $2
     Ok(())
 }
 
+/// Edit proposals on the given pages of the course, handled ones included.
+pub async fn get_block_ids_by_page_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_ids: &[Uuid],
+) -> ModelResult<Vec<crate::pages::PageBlockReferences>> {
+    let res = sqlx::query_as!(
+        crate::pages::PageBlockReferences,
+        r#"
+SELECT proposed_page_edits.id,
+  proposed_page_edits.page_id,
+  array_agg(
+    proposed_block_edits.block_id
+    ORDER BY proposed_block_edits.created_at,
+      proposed_block_edits.id
+  ) AS "block_ids!"
+FROM proposed_page_edits
+  JOIN proposed_block_edits ON proposed_block_edits.proposal_id = proposed_page_edits.id
+  AND proposed_block_edits.deleted_at IS NULL
+WHERE proposed_page_edits.page_id = ANY($1)
+  AND proposed_page_edits.course_id = $2
+  AND proposed_page_edits.deleted_at IS NULL
+GROUP BY proposed_page_edits.id
+        "#,
+        page_ids,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Sets each proposal's page; `proposal_ids` and `page_ids` are parallel.
+pub async fn set_page_ids(
+    conn: &mut PgConnection,
+    proposal_ids: &[Uuid],
+    page_ids: &[Uuid],
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE proposed_page_edits
+SET page_id = moved.page_id
+FROM UNNEST($1::uuid [], $2::uuid []) AS moved(id, page_id)
+WHERE proposed_page_edits.id = moved.id
+        ",
+        proposal_ids,
+        page_ids
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use headless_lms_utils::document_schema_processor::{GutenbergBlock, attributes};
@@ -599,9 +651,8 @@ mod test {
         crate::pages::update_page(
             conn,
             PageUpdateArgs {
-                agent_attribution: None,
                 page_id: page,
-                author: user,
+                author: crate::entity_history::HistoryAuthor::user(user),
                 cms_page_update,
                 retain_ids: true,
                 history_change_reason: HistoryChangeReason::PageSaved,

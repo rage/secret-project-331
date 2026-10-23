@@ -1,11 +1,26 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { hasAgentValidatorSecret } from "./authorization"
-import type { ValidatorResponse } from "./validatorWorker"
+import type { ValidatorResponse } from "./protocol"
 
-/** An internal agent validator API route: bearer secret first, then one HTTP method. */
+/** How long the caller waits for the answer, from the `X-Client-Timeout-Ms` header headless-lms sends. */
+const clientTimeoutMs = (req: NextApiRequest): number | undefined => {
+  const timeout = Number(req.headers["x-client-timeout-ms"])
+  return Number.isFinite(timeout) && timeout > 0 ? timeout : undefined
+}
+
+/**
+ * Internal agent validator API route: checks the bearer secret, then the method. `respond` gets
+ * the caller's timeout, if any.
+ */
 export const agentValidatorRoute =
-  (method: "GET" | "POST", respond: (req: NextApiRequest) => Promise<ValidatorResponse>) =>
+  (
+    method: "GET" | "POST",
+    respond: (
+      req: NextApiRequest,
+      clientTimeoutMs: number | undefined,
+    ) => Promise<ValidatorResponse>,
+  ) =>
   async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
     res.setHeader("Cache-Control", "no-store")
     if (!hasAgentValidatorSecret(req.headers.authorization)) {
@@ -18,7 +33,7 @@ export const agentValidatorRoute =
       res.status(405).json({ error: `Use ${method}.` })
       return
     }
-    const response = await respond(req)
+    const response = await respond(req, clientTimeoutMs(req))
     if (response.status === 503) {
       res.setHeader("Retry-After", "1")
     }

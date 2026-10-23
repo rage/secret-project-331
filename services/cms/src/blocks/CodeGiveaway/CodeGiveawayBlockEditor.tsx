@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React, { useContext, useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 
@@ -10,7 +10,7 @@ import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import { getCmsCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { Select } from "@/shared-module/components"
 import type { SelectOption } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -102,7 +102,7 @@ const CodeGiveawaySelect: React.FC<CodeGiveawaySelectProps> = ({
 
 const CodeGiveawayBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
 
@@ -160,7 +160,7 @@ const CodeGiveawayBlockEditor: React.FC<
         )}
       </InspectorControls>
       <InnerBlocksWrapper title={t("instructions")}>
-        <InnerBlocks {...registeredInnerBlocksProps(name)} />
+        <RegisteredInnerBlocks />
       </InnerBlocksWrapper>
     </BlockPlaceholderWrapper>
   )

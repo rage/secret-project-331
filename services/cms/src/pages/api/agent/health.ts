@@ -6,6 +6,6 @@ export default agentValidatorRoute("GET", () => {
   return Promise.resolve(
     isBlockValidatorReady()
       ? { status: 200, body: { status: "ready" } }
-      : { status: 503, body: { status: "starting", retryable: true } },
+      : { status: 503, body: { status: "starting" } },
   )
 })

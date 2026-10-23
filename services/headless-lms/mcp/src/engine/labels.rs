@@ -2,11 +2,11 @@
 
 use std::collections::{BTreeMap, HashMap};
 
-use serde_json::Value;
+use serde_json::{Map, Value};
 use uuid::Uuid;
 
 use super::error::{EditError, EditErrorCode};
-use super::op::PatchOp;
+use super::op::Op;
 
 #[derive(Debug, Default)]
 pub(crate) struct Labels {
@@ -17,13 +17,13 @@ pub(crate) struct Labels {
 
 impl Labels {
     /// Scans every op for the labels it defines so out-of-order use gets a precise error.
-    pub(crate) fn prescan(ops: &[PatchOp]) -> Self {
+    pub(crate) fn prescan(ops: &[Op]) -> Self {
         let mut defined_by_op = HashMap::new();
         for (index, op) in ops.iter().enumerate() {
-            if let Some(label) = &op.label {
-                defined_by_op.entry(label.clone()).or_insert(index);
+            if let Some(label) = op.label() {
+                defined_by_op.entry(label.to_string()).or_insert(index);
             }
-            if let Some(value) = &op.value {
+            if let Some(value) = op.value() {
                 collect_value_labels(value, index, &mut defined_by_op);
             }
         }
@@ -46,7 +46,7 @@ impl Labels {
         Ok(())
     }
 
-    pub(crate) fn resolve(&self, label: &str, current_op: usize) -> Result<Uuid, EditError> {
+    fn resolve(&self, label: &str, current_op: usize) -> Result<Uuid, EditError> {
         if let Some(id) = self.assigned.get(label) {
             return Ok(*id);
         }
@@ -66,12 +66,44 @@ impl Labels {
         }
     }
 
+    /// The id a path segment names: a `$label` or a UUID. `whole` is the path, for errors.
+    pub(crate) fn resolve_segment(
+        &self,
+        segment: &str,
+        whole: &str,
+        current_op: usize,
+    ) -> Result<Uuid, EditError> {
+        if segment.starts_with('$') {
+            self.resolve(segment, current_op)
+        } else {
+            parse_uuid(segment, whole)
+        }
+    }
+
+    /// The id an item reference such as `through` names: a `$label` or an id path.
+    pub(crate) fn resolve_item_ref(&self, raw: &str, current_op: usize) -> Result<Uuid, EditError> {
+        match parse_item_ref(raw)? {
+            ItemRef::Label(label) => self.resolve(label, current_op),
+            ItemRef::Id(id) => Ok(id),
+        }
+    }
+
+    /// [`Self::resolve_item_ref`] for an optional field.
+    pub(crate) fn resolve_optional_item_ref(
+        &self,
+        raw: Option<&str>,
+        current_op: usize,
+    ) -> Result<Option<Uuid>, EditError> {
+        raw.map(|raw| self.resolve_item_ref(raw, current_op))
+            .transpose()
+    }
+
     pub(crate) fn into_map(self) -> BTreeMap<String, Uuid> {
         self.assigned
     }
 }
 
-pub(crate) fn check_label_syntax(label: &str) -> Result<(), EditError> {
+fn check_label_syntax(label: &str) -> Result<(), EditError> {
     let valid = label.len() > 1
         && label.starts_with('$')
         && label[1..]
@@ -110,13 +142,13 @@ fn collect_value_labels(value: &Value, op: usize, out: &mut HashMap<String, usiz
 }
 
 /// How an id-or-label reference outside a path (`from`, `to_page`, reorder values) was written.
-pub(crate) enum Reference<'a> {
+pub(crate) enum ItemRef<'a> {
     Label(&'a str),
     Id(Uuid),
 }
 
 /// Parses `pg7`, `/pg7`, `$x` or `/$x`.
-pub(crate) fn parse_reference(raw: &str) -> Result<Reference<'_>, EditError> {
+pub(crate) fn parse_item_ref(raw: &str) -> Result<ItemRef<'_>, EditError> {
     let trimmed = raw.strip_prefix('/').unwrap_or(raw);
     if trimmed.contains('/') {
         return Err(EditError::new(
@@ -125,9 +157,9 @@ pub(crate) fn parse_reference(raw: &str) -> Result<Reference<'_>, EditError> {
         ));
     }
     if trimmed.starts_with('$') {
-        return Ok(Reference::Label(trimmed));
+        return Ok(ItemRef::Label(trimmed));
     }
-    parse_uuid(trimmed, raw).map(Reference::Id)
+    parse_uuid(trimmed, raw).map(ItemRef::Id)
 }
 
 pub(crate) fn parse_uuid(segment: &str, whole: &str) -> Result<Uuid, EditError> {
@@ -152,6 +184,21 @@ pub(crate) fn parse_uuid(segment: &str, whole: &str) -> Result<Uuid, EditError> 
         )
         .with_fix("paths start with the full id of a block or entity: /<uuid>, /<uuid>/innerBlocks, /<uuid>/attributes/content")
     })
+}
+
+/// The `label` field of a new item, if it has one. `example` shows a label in the error.
+pub(crate) fn label_field(
+    object: &Map<String, Value>,
+    example: &str,
+) -> Result<Option<String>, EditError> {
+    match object.get("label") {
+        None | Some(Value::Null) => Ok(None),
+        Some(Value::String(label)) => Ok(Some(label.clone())),
+        Some(_) => Err(EditError::new(
+            EditErrorCode::LabelInvalid,
+            format!("label is a string like \"{example}\""),
+        )),
+    }
 }
 
 #[cfg(test)]

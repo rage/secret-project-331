@@ -1,23 +1,21 @@
-use crate::domain::mcp_auth::oauth_issuer;
-use crate::domain::oauth::client_metadata_document::{is_loopback_host, redirect_uri_matches};
+use crate::domain::oauth::authorize_query::AuthorizeParams;
 use crate::domain::oauth::consent_deny_query::ConsentDenyQuery;
 use crate::domain::oauth::consent_query::ConsentQuery;
 use crate::domain::oauth::consent_response::ConsentResponse;
 use crate::domain::oauth::helpers::{oauth_invalid_request, split_and_validate_scopes};
+use crate::domain::oauth::redirects::{
+    build_authorize_qs, error_redirect_url, is_loopback_host, redirect_uri_matches,
+};
 use crate::prelude::*;
-use actix_web::{Error, HttpResponse, web};
+use actix_web::{HttpResponse, web};
+use domain::error::OAuthErrorCode;
 use models::{
-    error::ModelErrorType, library::oauth::mcp::McpScope, oauth_client::OAuthClient,
+    library::oauth::mcp::McpScope, oauth_client::OAuthClient,
     oauth_user_client_scopes::OAuthUserClientScopes,
 };
 use sqlx::PgPool;
-use url::{Url, form_urlencoded};
-use utoipa::{IntoParams, OpenApi, ToSchema};
-
-#[derive(OpenApi)]
-#[openapi(paths(approve_consent, deny_consent, get_consent_info))]
-#[allow(dead_code)]
-pub(crate) struct MainFrontendOauthConsentApiDoc;
+use url::Url;
+use utoipa::{IntoParams, ToSchema};
 
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
@@ -42,14 +40,8 @@ pub struct ConsentScope {
 /// What the consent screen shows about the client asking for access.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ConsentInfo {
-    /// The client's public id; for agents, the URL of its metadata document.
-    pub client_id: String,
     pub client_name: String,
     pub client_uri: Option<String>,
-    pub logo_uri: Option<String>,
-    /// Where the browser goes after approving: shown so the user can see which client is asking,
-    /// since any client can claim any name.
-    pub redirect_uri: String,
     /// The redirect goes to a program on the user's own computer.
     pub is_loopback_redirect: bool,
     /// Whether the client registered itself through a client ID metadata document, as AI agents
@@ -81,21 +73,10 @@ pub async fn get_consent_info(
 ) -> ControllerResult<web::Json<ConsentInfo>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let client = OAuthClient::find_by_client_id(&mut conn, &query.client_id).await?;
-    if !redirect_uri_matches(&client.redirect_uris, &query.redirect_uri) {
-        return Err(controller_err!(
-            BadRequest,
-            "redirect_uri does not match client".to_string()
-        ));
-    }
+    let client = consent_client(&mut conn, &query.client_id, &query.redirect_uri).await?;
     let granted = OAuthUserClientScopes::find_scopes(&mut conn, user.id, client.id).await?;
     let mut requested: Vec<String> = query.scope.split_whitespace().map(str::to_string).collect();
-    let requests_mcp_scope = requested.iter().any(|s| McpScope::parse(s).is_some());
-    if requests_mcp_scope
-        && !requested
-            .iter()
-            .any(|s| s == McpScope::MaterialRead.as_str())
-    {
+    if McpScope::lacks_required(requested.iter().map(String::as_str)) {
         requested.insert(0, McpScope::MaterialRead.as_str().to_string());
     }
     let scopes = requested
@@ -115,11 +96,8 @@ pub async fn get_consent_info(
         .unwrap_or(false);
     token.authorized_ok(web::Json(ConsentInfo {
         is_metadata_document_client: client.is_metadata_document_client(),
-        client_id: client.client_id,
         client_name: client.client_name,
         client_uri: client.client_uri,
-        logo_uri: client.logo_uri,
-        redirect_uri: query.redirect_uri.clone(),
         is_loopback_redirect,
         scopes,
     }))
@@ -166,14 +144,7 @@ pub async fn approve_consent(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let client = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await?;
-    if !redirect_uri_matches(&client.redirect_uris, &form.redirect_uri) {
-        return Err(oauth_invalid_request(
-            "redirect_uri does not match client",
-            None, // Never redirect to an invalid redirect_uri (security)
-            Some(&form.state),
-        ));
-    }
+    let client = consent_client(&mut conn, &form.client_id, &form.redirect_uri).await?;
 
     let approved_scopes = split_and_validate_scopes(&form.scope, &client.scopes)
         .map_err(|_| oauth_invalid_request("invalid scope", None, Some(&form.state)))?;
@@ -184,14 +155,7 @@ pub async fn approve_consent(
             Some(&form.state),
         ));
     }
-    let approves_mcp_scope = approved_scopes
-        .iter()
-        .any(|scope| McpScope::parse(scope).is_some());
-    if approves_mcp_scope
-        && !approved_scopes
-            .iter()
-            .any(|scope| scope == McpScope::MaterialRead.as_str())
-    {
+    if McpScope::lacks_required(approved_scopes.iter().map(String::as_str)) {
         return Err(oauth_invalid_request(
             "material:read is required",
             None,
@@ -201,33 +165,24 @@ pub async fn approve_consent(
 
     OAuthUserClientScopes::insert(&mut conn, user.id, client.id, &approved_scopes).await?;
 
-    // Redirect to /authorize (the OAuth authorize endpoint typically remains a GET)
-    let mut query_string = String::new();
-    {
-        let mut query_builder = form_urlencoded::Serializer::new(&mut query_string);
-        query_builder
-            .append_pair("client_id", &form.client_id)
-            .append_pair("redirect_uri", &form.redirect_uri)
-            .append_pair("scope", &approved_scopes.join(" "))
-            .append_pair("state", &form.state)
-            .append_pair("nonce", &form.nonce)
-            .append_pair("response_type", &form.response_type);
-
-        // Preserve PKCE parameters if present
-        if let Some(code_challenge) = &form.code_challenge {
-            query_builder.append_pair("code_challenge", code_challenge);
-        }
-        if let Some(code_challenge_method) = &form.code_challenge_method {
-            query_builder.append_pair("code_challenge_method", code_challenge_method);
-        }
-        if let Some(resource) = &form.resource {
-            query_builder.append_pair("resource", resource);
-        }
-    }
-    let query = query_string;
-
+    let approved = AuthorizeParams {
+        response_type: form.response_type.clone(),
+        client_id: form.client_id.clone(),
+        redirect_uri: form.redirect_uri.clone(),
+        scope: approved_scopes.join(" "),
+        state: Some(form.state.clone()),
+        nonce: Some(form.nonce.clone()),
+        code_challenge: form.code_challenge.clone(),
+        code_challenge_method: form.code_challenge_method.clone(),
+        prompt: None,
+        request: None,
+        resource: form.resource.clone(),
+    };
     // Relative Location: browser resolves against current origin
-    let location = format!("/api/v0/main-frontend/oauth/authorize?{}", query);
+    let location = format!(
+        "/api/v0/main-frontend/oauth/authorize?{}",
+        build_authorize_qs(&approved)
+    );
 
     token.authorized_ok(HttpResponse::Ok().json(ConsentResponse {
         redirect_uri: location,
@@ -265,47 +220,36 @@ pub async fn deny_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentDenyQuery>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> Result<HttpResponse, Error> {
-    let mut conn = pool.acquire().await.map_err(|e| {
-        tracing::error!(err = %e, "OAuth consent/deny: pool acquire failed");
-        actix_web::error::ErrorInternalServerError(e)
-    })?;
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    consent_client(&mut conn, &form.client_id, &form.redirect_uri).await?;
+    let redirect_uri = error_redirect_url(
+        &form.redirect_uri,
+        OAuthErrorCode::AccessDenied.as_str(),
+        None,
+        Some(form.state.as_str()).filter(|state| !state.is_empty()),
+        Some(&app_conf.oauth_issuer()),
+    )
+    .ok_or_else(|| oauth_invalid_request("invalid redirect URI", None, None))?;
+    token.authorized_ok(HttpResponse::Ok().json(ConsentResponse { redirect_uri }))
+}
 
-    let client_result = OAuthClient::find_by_client_id(&mut conn, &form.client_id).await;
-    let client = match client_result {
-        Ok(c) => c,
-        Err(err) => {
-            return Err(match err.error_type() {
-                ModelErrorType::RecordNotFound | ModelErrorType::NotFound => {
-                    actix_web::error::ErrorNotFound("client not found")
-                }
-                _ => {
-                    tracing::error!(err = %err, "OAuth consent/deny: client lookup failed");
-                    actix_web::error::ErrorInternalServerError(err)
-                }
-            });
-        }
-    };
-
-    if !redirect_uri_matches(&client.redirect_uris, &form.redirect_uri) {
-        return Err(actix_web::error::ErrorBadRequest("invalid redirect URI"));
+/// The client a consent request names, provided `redirect_uri` is one of the client's.
+async fn consent_client(
+    conn: &mut PgConnection,
+    client_id: &str,
+    redirect_uri: &str,
+) -> Result<OAuthClient, ControllerError> {
+    let client = OAuthClient::find_by_client_id(conn, client_id).await?;
+    if !redirect_uri_matches(&client, redirect_uri) {
+        return Err(oauth_invalid_request(
+            "redirect_uri does not match client",
+            None,
+            None,
+        ));
     }
-
-    let mut url = Url::parse(&form.redirect_uri)
-        .map_err(|_| actix_web::error::ErrorBadRequest("invalid redirect URI"))?;
-
-    {
-        let mut qp = url.query_pairs_mut();
-        qp.append_pair("error", "access_denied");
-        if !form.state.is_empty() {
-            qp.append_pair("state", &form.state);
-        }
-        qp.append_pair("iss", &oauth_issuer(&app_conf));
-    }
-
-    Ok(HttpResponse::Ok().json(ConsentResponse {
-        redirect_uri: url.to_string(),
-    }))
+    Ok(client)
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

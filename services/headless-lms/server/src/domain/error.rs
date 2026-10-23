@@ -5,6 +5,7 @@ Contains error and result types for all the controllers.
 use std::panic::Location;
 
 use crate::domain::authorization::AuthorizedResponse;
+use crate::domain::oauth::redirects::error_redirect_url;
 use actix_web::{
     HttpResponse, HttpResponseBuilder, error,
     http::{StatusCode, header::ContentType},
@@ -20,6 +21,7 @@ use headless_lms_credit_registration::error::{
 };
 use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
+use headless_lms_utils::http::escape_auth_param;
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 
@@ -135,6 +137,9 @@ pub enum BadRequestReason {
     /// A submission named the same uploaded file more than once.
     #[display("Duplicate upload")]
     DuplicateUpload,
+    /// A save named a version of the record that is no longer the latest.
+    #[display("Stale version")]
+    StaleVersion,
 }
 
 impl BadRequestReason {
@@ -147,6 +152,7 @@ impl BadRequestReason {
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
+            Self::StaleVersion => "stale_version",
         }
     }
 
@@ -417,24 +423,17 @@ impl error::ResponseError for ControllerError {
             }
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
-            if let Some(uri) = &data.redirect_uri
-                && let Ok(mut url) = url::Url::parse(uri)
-            {
-                {
-                    let mut qp = url.query_pairs_mut();
-                    qp.append_pair("error", &data.error);
-                    qp.append_pair("error_description", &data.error_description);
-                    if let Some(state) = &data.state {
-                        qp.append_pair("state", state);
-                    }
-                    // RFC 9207: error responses carry the issuer too.
-                    if let Some(issuer) = crate::config::configured_oauth_issuer() {
-                        qp.append_pair("iss", &issuer);
-                    }
-                }
-                let loc = url.to_string();
+            if let Some(location) = data.redirect_uri.as_deref().and_then(|redirect_uri| {
+                error_redirect_url(
+                    redirect_uri,
+                    &data.error,
+                    Some(&data.error_description),
+                    data.state.as_deref(),
+                    data.issuer.as_deref(),
+                )
+            }) {
                 return HttpResponse::Found()
-                    .append_header(("Location", loc))
+                    .append_header(("Location", location))
                     .finish();
             }
 
@@ -448,10 +447,6 @@ impl error::ResponseError for ControllerError {
             };
 
             let mut res = HttpResponse::build(status);
-            // Small helper to safely embed values in WWW-Authenticate auth-param strings.
-            fn escape_auth_param(s: &str) -> String {
-                s.replace('\\', "\\\\").replace('"', "\\\"")
-            }
 
             match data.error.as_str() {
                 // OAuth2 Bearer challenges (RFC 6750 §3)
@@ -558,6 +553,16 @@ impl error::ResponseError for ControllerError {
 }
 
 impl ControllerError {
+    /// Adds the authorization server's issuer to an OAuth error that redirects to the client.
+    pub fn with_oauth_issuer(mut self, issuer: String) -> Self {
+        if let ControllerErrorType::OAuthError(data) = &mut self.error_type
+            && data.redirect_uri.is_some()
+        {
+            data.issuer = Some(issuer);
+        }
+        self
+    }
+
     fn error_type_and_message_key(&self) -> (&'static str, &'static str) {
         match self.error_type {
             ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
@@ -602,7 +607,7 @@ impl ControllerError {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "snake_case")]
 pub struct OAuthErrorData {
     pub error: String,
@@ -610,6 +615,20 @@ pub struct OAuthErrorData {
     pub redirect_uri: Option<String>,
     pub state: Option<String>,
     pub nonce: Option<String>,
+    /// Sent with errors redirected to the client (RFC 9207); see
+    /// [`ControllerError::with_oauth_issuer`].
+    pub issuer: Option<String>,
+}
+
+impl OAuthErrorData {
+    /// An error answered as JSON; set `redirect_uri` to send it to the client instead.
+    pub fn new(code: OAuthErrorCode, description: impl Into<String>) -> Self {
+        Self {
+            error: code.as_str().to_string(),
+            error_description: description.into(),
+            ..Default::default()
+        }
+    }
 }
 
 pub enum OAuthErrorCode {
@@ -625,6 +644,11 @@ pub enum OAuthErrorCode {
     /// RFC 8707: the requested resource is unknown or not allowed.
     InvalidTarget,
     ServerError,
+    TemporarilyUnavailable,
+    // OpenID Connect Core §3.1.2.6 authorization errors.
+    LoginRequired,
+    ConsentRequired,
+    RequestNotSupported,
     InvalidDpopProof,
     UseDpopNonce,
     // RFC 8628 Device Authorization Grant token-endpoint errors. All map to
@@ -649,6 +673,10 @@ impl OAuthErrorCode {
             Self::UnsupportedResponseType => "unsupported_response_type",
             Self::InvalidTarget => "invalid_target",
             Self::ServerError => "server_error",
+            Self::TemporarilyUnavailable => "temporarily_unavailable",
+            Self::LoginRequired => "login_required",
+            Self::ConsentRequired => "consent_required",
+            Self::RequestNotSupported => "request_not_supported",
             Self::InvalidDpopProof => "invalid_dpop_proof",
             Self::UseDpopNonce => "use_dpop_nonce",
             Self::AuthorizationPending => "authorization_pending",
@@ -781,6 +809,13 @@ impl From<ModelError> for ControllerError {
                         ControllerErrorType::BadRequestWithReason(reason)
                     }),
                 description.to_string(),
+                Some(err.into()),
+                backtrace,
+                span_trace,
+            ),
+            ModelErrorType::StaleVersion => Self::new_with_traces(
+                ControllerErrorType::BadRequestWithReason(BadRequestReason::StaleVersion),
+                err.message().to_string(),
                 Some(err.into()),
                 backtrace,
                 span_trace,
@@ -958,28 +993,17 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             | DpopError::NonceMismatch
             | DpopError::NonceStale
             | DpopError::InvalidHmacConfig
-            | DpopError::MissingNonce => OAuthErrorData {
-                error: OAuthErrorCode::InvalidDpopProof.as_str().into(),
-                error_description: err.to_string(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-
-            DpopError::Store(e) => OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: format!("DPoP storage error: {e}"),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-
+            | DpopError::MissingNonce => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidDpopProof, err.to_string())
+            }
+            DpopError::Store(e) => OAuthErrorData::new(
+                OAuthErrorCode::ServerError,
+                format!("DPoP storage error: {e}"),
+            ),
+            // RFC 9449 §12.2
             DpopError::UseDpopNonce { nonce } => OAuthErrorData {
-                error: OAuthErrorCode::UseDpopNonce.as_str().into(), // per RFC 9449 §12.2
-                error_description: "Server requires DPoP nonce".into(),
-                redirect_uri: None,
-                state: None,
                 nonce: Some(nonce.clone()),
+                ..OAuthErrorData::new(OAuthErrorCode::UseDpopNonce, "Server requires DPoP nonce")
             },
         };
 
@@ -1009,27 +1033,15 @@ pub enum PkceFlowError {
 impl From<PkceFlowError> for ControllerError {
     fn from(err: PkceFlowError) -> Self {
         let data = match &err {
-            PkceFlowError::InvalidRequest(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                error_description: (*msg).into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            PkceFlowError::InvalidGrant(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                error_description: (*msg).into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            PkceFlowError::ServerError(msg) => OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: (*msg).into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
+            PkceFlowError::InvalidRequest(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidRequest, *msg)
+            }
+            PkceFlowError::InvalidGrant(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidGrant, *msg)
+            }
+            PkceFlowError::ServerError(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::ServerError, *msg)
+            }
         };
 
         ControllerError::new(

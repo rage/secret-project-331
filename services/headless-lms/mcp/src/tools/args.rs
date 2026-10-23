@@ -1,244 +1,321 @@
 //! Tool arguments. Their JSON Schemas are the tools' input schemas; keep field docs short, every
 //! schema must stay well under the clients' size limits.
 
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+
+use schemars::{JsonSchema, Schema, SchemaGenerator};
+use serde::de::Error as _;
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 use crate::engine::op::PatchOp;
-use crate::engine::read::Selector;
+use crate::engine::read::{ReadState, Selector};
 use crate::engine::structural_replace::{StructuralAction, StructuralMatch};
 use crate::guide::GuideTopic;
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct ListCoursesArgs {
-    /// Version from the course-material skill's VERSION file.
-    #[serde(default)]
-    pub skill_version: Option<String>,
+/// An id argument: a UUID, also accepted with the leading `/` of a path to it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
+#[serde(transparent)]
+pub struct IdArgument(Uuid);
+
+impl IdArgument {
+    pub fn id(self) -> Uuid {
+        self.0
+    }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+/// A UUID's schema, without the type's description in every id field.
+impl JsonSchema for IdArgument {
+    fn schema_name() -> Cow<'static, str> {
+        Uuid::schema_name()
+    }
+
+    fn inline_schema() -> bool {
+        true
+    }
+
+    fn json_schema(generator: &mut SchemaGenerator) -> Schema {
+        Uuid::json_schema(generator)
+    }
+}
+
+impl<'de> Deserialize<'de> for IdArgument {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = String::deserialize(deserializer)?;
+        Uuid::parse_str(raw.trim().trim_start_matches('/'))
+            .map(IdArgument)
+            .map_err(|_| D::Error::custom(format!("expected an id (a UUID), got \"{raw}\"")))
+    }
+}
+
+/// A field that may be null: `Some(None)` for null, `None` (through `default`) when left out.
+fn present<'de, D: Deserializer<'de>, T: Deserialize<'de>>(
+    deserializer: D,
+) -> Result<Option<Option<T>>, D::Error> {
+    Option::<T>::deserialize(deserializer).map(Some)
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ListCoursesArgs {}
+
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GetCourseStructureArgs {
     /// Course id.
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     /// What to read; none reads an outline of the whole course.
-    #[serde(default)]
     pub selectors: Option<Vec<Selector>>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GetPageContentArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     /// Page id; the page must belong to the course.
-    pub page: String,
+    pub page: IdArgument,
     /// What to read; none reads an outline of the whole page.
-    #[serde(default)]
     pub selectors: Option<Vec<Selector>>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct CourseArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub course: IdArgument,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct PatchPageContentArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
-    pub page: String,
+    pub course: IdArgument,
+    pub page: IdArgument,
     /// Applied in order; all or nothing.
     #[schemars(with = "Vec<PatchOp>")]
     pub ops: Vec<Value>,
     /// Stage nothing; return the diff.
     #[serde(default)]
-    pub dry_run: Option<bool>,
+    pub dry_run: bool,
     /// Read after the ops; $labels allowed.
-    #[serde(default)]
     pub read_back: Option<Selector>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct GetExerciseArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    pub course: IdArgument,
+    /// Exercise id, from an exercise block's exercise_id.
+    pub exercise: IdArgument,
+    /// Paths start at /tasks/<task id>, /tasks/<task id>/specs or /review_instructions; none reads an outline of each.
+    pub selectors: Option<Vec<Selector>>,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ListExercisesArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    pub course: IdArgument,
+    pub scope: Option<ContentScope>,
+    /// staged (default, with your unpublished changes) or published.
+    pub state: Option<ReadState>,
+    pub offset: Option<u32>,
+    /// Default 100, at most 300.
+    pub limit: Option<u32>,
+}
+
+/// Which review settings `patch_exercise` changes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum ReviewConfigChoice {
+    /// Review ops edit the course default, which every exercise without its own uses.
+    EditCourseDefault,
+    /// The exercise gets its own copy of the course default; review ops edit the copy.
+    Fork,
+    /// The exercise drops its own settings and uses the course default.
+    UseCourseDefault,
+}
+
+/// Serialized as the call's audit record, without the course the record has already.
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct PatchExerciseArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    #[serde(skip_serializing)]
+    pub course: IdArgument,
+    pub exercise: IdArgument,
+    /// New name, plain text.
+    pub name: Option<String>,
+    /// Own deadline, RFC 3339 with offset; null clears it so the chapter's applies. Prefer chapter deadlines.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[schemars(with = "Option<String>")]
+    pub deadline: Option<Option<String>>,
+    /// Page-content ops; paths start at /tasks/<task id> or /review_instructions.
+    #[schemars(with = "Option<Vec<PatchOp>>")]
+    pub ops: Option<Vec<Value>>,
+    pub review_config: Option<ReviewConfigChoice>,
+    #[serde(default)]
+    pub dry_run: bool,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct PatchCourseStructureArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     #[schemars(with = "Vec<PatchOp>")]
     pub ops: Vec<Value>,
     #[serde(default)]
-    pub dry_run: Option<bool>,
-    #[serde(default)]
+    pub dry_run: bool,
     pub read_back: Option<Selector>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }
 
 /// Arguments of `patch_course_settings` and `patch_course_glossary_and_references`.
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct PatchCourseArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     #[schemars(with = "Vec<PatchOp>")]
     pub ops: Vec<Value>,
     #[serde(default)]
-    pub dry_run: Option<bool>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub dry_run: bool,
 }
 
 /// Part of a course; empty means the whole course.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ContentScope {
-    /// Same as the call's course, if given.
-    #[serde(default)]
-    pub course: Option<String>,
-    #[serde(default)]
-    pub chapter: Option<String>,
-    #[serde(default)]
-    pub page: Option<String>,
+    pub chapter: Option<IdArgument>,
+    pub page: Option<IdArgument>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+/// Serialized as the call's audit record, without the course the record has already.
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FindReplaceArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
-    #[serde(default)]
+    #[serde(skip_serializing)]
+    pub course: IdArgument,
     pub scope: Option<ContentScope>,
     /// Literal text (whole words at word edges) or, with regex, a pattern. Matches the stored HTML.
     pub find: String,
     /// Leave out to search only.
-    #[serde(default)]
     pub replace: Option<String>,
     #[serde(default)]
-    pub regex: Option<bool>,
+    pub regex: bool,
     /// Attribute names, or /regex/ on names; default: text attributes.
-    #[serde(default)]
     pub attributes: Option<Vec<String>>,
     /// Fail unless exactly this many matches.
-    #[serde(default)]
     pub expected_count: Option<u32>,
+    /// Also search exercises' task and review instructions. Default true.
+    pub include_exercise_instructions: Option<bool>,
+    /// Also search exercise names. Default false.
+    pub include_exercise_names: Option<bool>,
     #[serde(default)]
-    pub dry_run: Option<bool>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub dry_run: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+/// Serialized as the call's audit record, without the course the record has already.
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct StructuralReplaceArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
-    #[serde(default)]
+    #[serde(skip_serializing)]
+    pub course: IdArgument,
     pub scope: Option<ContentScope>,
     #[serde(rename = "match")]
     pub pattern: StructuralMatch,
     pub action: StructuralAction,
-    #[serde(default)]
     pub expected_count: Option<u32>,
+    /// Also match blocks in exercises' task and review instructions. Default true.
+    pub include_exercise_instructions: Option<bool>,
     #[serde(default)]
-    pub dry_run: Option<bool>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub dry_run: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct UploadFileArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     /// File name with extension, e.g. diagram.png.
     pub file_name: String,
     /// The file's bytes, base64-encoded.
     pub content_base64: String,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ListChangesetsArgs {
     /// Limit to one course.
-    #[serde(default)]
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: Option<String>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub course: Option<IdArgument>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct ChangesetArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     /// Changeset id from list_changesets or a write result.
-    pub changeset: String,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub changeset: IdArgument,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct DiscardChangesetArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    pub course: IdArgument,
+    /// Changeset id from list_changesets or a write result.
+    pub changeset: IdArgument,
+    /// Entity ids to drop, e.g. those a publish_conflict lists; the rest stays staged. Omit to drop everything.
+    pub entities: Option<Vec<IdArgument>>,
+    /// The changeset revision you last saw (changeset_revision of a write result, or list_changesets); if it changed since, nothing is dropped.
+    pub revision: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GetPreviewLinkArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
-    pub page: String,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub course: IdArgument,
+    pub page: IdArgument,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GetHistoryArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     /// A page, chapter, module, term or reference id; none lists the whole course.
-    #[serde(default)]
-    pub entity: Option<String>,
-    #[serde(default)]
+    pub entity: Option<IdArgument>,
     pub limit: Option<u32>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct RevertChangeArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: String,
+    pub course: IdArgument,
     /// The write call's id from get_history.
-    pub call: String,
+    pub call: IdArgument,
     #[serde(default)]
-    pub dry_run: Option<bool>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
+    pub dry_run: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct GuideArgs {
     /// e.g. ["core/paragraph", "moocfi/infobox"].
-    #[serde(default)]
     pub block_types: Option<Vec<String>>,
-    #[serde(default)]
     pub topics: Option<Vec<GuideTopic>>,
-    #[serde(default)]
-    pub skill_version: Option<String>,
 }

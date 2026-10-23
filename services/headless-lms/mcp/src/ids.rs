@@ -1,5 +1,6 @@
 //! Server-side id assignment for new blocks and entities.
 
+#[cfg(test)]
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use uuid::Uuid;
@@ -20,22 +21,21 @@ impl IdGenerator for RandomIds {
 }
 
 /// Predictable ids (`00000000-0000-4000-8000-00000000000n`), for tests.
+#[cfg(test)]
 #[derive(Debug, Default)]
 pub struct SequentialIds {
     issued: AtomicU64,
 }
 
+#[cfg(test)]
 impl SequentialIds {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     /// The id the n:th call (1-based) to `new_id` returns.
     pub fn nth(n: u64) -> Uuid {
         Uuid::from_u64_pair(0x0000_0000_0000_4000, 0x8000_0000_0000_0000 | n)
     }
 }
 
+#[cfg(test)]
 impl IdGenerator for SequentialIds {
     fn new_id(&self) -> Uuid {
         let n = self.issued.fetch_add(1, Ordering::Relaxed) + 1;

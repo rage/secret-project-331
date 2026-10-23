@@ -5,69 +5,56 @@ use std::collections::BTreeMap;
 
 use regex::Regex;
 use serde::Serialize;
-use serde_json::{Value, json};
-use uuid::Uuid;
+use serde_json::Value;
 
-use super::PageDocument;
-use super::blocks;
+use super::blocks::{self, TEXT_ATTRIBUTES};
 use super::error::{EditError, EditErrorCode};
-use crate::text::{plain_text, preview};
+use super::{BlockMatch, Document, DocumentRef};
+use crate::text::{plain_text, preview, whole_word_matches};
 
-/// Attributes searched when the call names none.
-pub const DEFAULT_ATTRIBUTES: [&str; 14] = [
-    "content",
-    "caption",
-    "alt",
-    "title",
-    "subtitle",
-    "citation",
-    "value",
-    "text",
-    "label",
-    "fileName",
-    "downloadButtonText",
-    "head",
-    "body",
-    "foot",
-];
-
+/// What a `find_replace` call searches for, where, and what it puts in place of each match.
 #[derive(Debug, Clone, Default)]
 pub struct FindReplaceRequest {
     pub find: String,
     /// None searches only.
     pub replace: Option<String>,
     pub is_regex: bool,
-    /// Attribute names, or `/regex/` patterns on names; None means [`DEFAULT_ATTRIBUTES`].
+    /// Attribute names, or `/regex/` patterns on names; None means [`TEXT_ATTRIBUTES`].
     pub attributes: Option<Vec<String>>,
     /// When set, a different number of matches fails the call.
     pub expected_count: Option<usize>,
 }
 
+/// An attribute whose text matched, with how many times.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct TextMatch {
-    pub page_id: Uuid,
-    pub block_id: Uuid,
-    /// Ready to read or patch: `/<block id>/attributes/<attribute>`.
-    pub path: String,
-    pub block_name: String,
+    #[serde(flatten)]
+    pub block: BlockMatch,
     pub count: usize,
-    pub preview: String,
 }
 
+/// A word that starts with a literal `find` but goes on, and how often it occurs.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct InflectedVariant {
     pub word: String,
     pub count: usize,
 }
 
+/// What a search found and, for a replace, the pages it changed.
 #[derive(Debug, Clone, PartialEq)]
 pub struct FindReplaceResult {
     pub matches: Vec<TextMatch>,
-    pub total: usize,
-    /// Pages with replacements applied; empty for a search.
-    pub changed_pages: Vec<PageDocument>,
+    /// Documents with replacements applied; empty for a search.
+    pub changed_pages: Vec<Document>,
     /// Words that start with a literal `find` but continue (e.g. "kurssin" for "kurssi"); not changed.
     pub inflected_variants: Vec<InflectedVariant>,
+}
+
+impl FindReplaceResult {
+    /// The number of matches over all pages.
+    pub fn total(&self) -> usize {
+        self.matches.iter().map(|m| m.count).sum()
+    }
 }
 
 enum Matcher {
@@ -84,31 +71,28 @@ impl Matcher {
                 .map(|m| (m.start(), m.end()))
                 .filter(|(s, e)| e > s)
                 .collect(),
-            Matcher::Literal(needle) => text
-                .match_indices(needle.as_str())
-                .map(|(start, m)| (start, start + m.len()))
-                .filter(|(start, end)| {
-                    let starts_word = needle.chars().next().is_some_and(char::is_alphanumeric);
-                    let ends_word = needle.chars().last().is_some_and(char::is_alphanumeric);
-                    let before_ok = !starts_word
-                        || !text[..*start]
-                            .chars()
-                            .last()
-                            .is_some_and(char::is_alphanumeric);
-                    let after_ok = !ends_word
-                        || !text[*end..]
-                            .chars()
-                            .next()
-                            .is_some_and(char::is_alphanumeric);
-                    before_ok && after_ok
-                })
-                .collect(),
+            Matcher::Literal(needle) => whole_word_matches(text, needle).collect(),
         }
     }
 
+    /// Replaces the matches [`Self::ranges`] counts, and no others: a pattern's empty matches
+    /// are left alone.
     fn replace(&self, text: &str, replacement: &str) -> String {
         match self {
-            Matcher::Pattern(re) => re.replace_all(text, replacement).into_owned(),
+            Matcher::Pattern(re) => {
+                let mut out = String::with_capacity(text.len());
+                let mut last = 0;
+                for captures in re.captures_iter(text) {
+                    let Some(found) = captures.get(0).filter(|m| !m.is_empty()) else {
+                        continue;
+                    };
+                    out.push_str(&text[last..found.start()]);
+                    captures.expand(replacement, &mut out);
+                    last = found.end();
+                }
+                out.push_str(&text[last..]);
+                out
+            }
             Matcher::Literal(_) => {
                 let mut out = String::with_capacity(text.len());
                 let mut last = 0;
@@ -132,7 +116,7 @@ enum AttributeFilter {
 fn attribute_filters(request: &FindReplaceRequest) -> Result<Vec<AttributeFilter>, EditError> {
     let names: Vec<String> = match &request.attributes {
         Some(names) if !names.is_empty() => names.clone(),
-        _ => DEFAULT_ATTRIBUTES.iter().map(|s| s.to_string()).collect(),
+        _ => TEXT_ATTRIBUTES.iter().map(|s| s.to_string()).collect(),
     };
     names
         .into_iter()
@@ -161,15 +145,15 @@ fn attribute_selected(filters: &[AttributeFilter], name: &str) -> bool {
 
 /// Strings of one attribute value that count as text: the value itself, or nested `content`
 /// strings (table cells).
-fn visit_text(value: &mut Value, is_top: bool, visit: &mut dyn FnMut(&mut String)) {
+fn for_each_text<'v>(value: &'v Value, is_top: bool, visit: &mut dyn FnMut(&'v str)) {
     match value {
         Value::String(s) if is_top => visit(s),
-        Value::Array(items) => items.iter_mut().for_each(|v| visit_text(v, false, visit)),
+        Value::Array(items) => items.iter().for_each(|v| for_each_text(v, false, visit)),
         Value::Object(map) => {
-            for (key, v) in map.iter_mut() {
+            for (key, v) in map {
                 match v {
                     Value::String(s) if key == "content" => visit(s),
-                    Value::Array(_) | Value::Object(_) => visit_text(v, false, visit),
+                    Value::Array(_) | Value::Object(_) => for_each_text(v, false, visit),
                     _ => {}
                 }
             }
@@ -178,8 +162,30 @@ fn visit_text(value: &mut Value, is_top: bool, visit: &mut dyn FnMut(&mut String
     }
 }
 
+/// [`for_each_text`], for changing the strings in place.
+fn for_each_text_mut(value: &mut Value, is_top: bool, visit: &mut dyn FnMut(&mut String)) {
+    match value {
+        Value::String(s) if is_top => visit(s),
+        Value::Array(items) => items
+            .iter_mut()
+            .for_each(|v| for_each_text_mut(v, false, visit)),
+        Value::Object(map) => {
+            for (key, v) in map.iter_mut() {
+                match v {
+                    Value::String(s) if key == "content" => visit(s),
+                    Value::Array(_) | Value::Object(_) => for_each_text_mut(v, false, visit),
+                    _ => {}
+                }
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Searches `pages` and, with `request.replace`, replaces every match. Fails without changing
+/// anything when `request.expected_count` differs from the matches found.
 pub fn find_replace(
-    pages: &[PageDocument],
+    pages: &[DocumentRef],
     request: &FindReplaceRequest,
 ) -> Result<FindReplaceResult, EditError> {
     if request.find.is_empty() {
@@ -213,63 +219,61 @@ pub fn find_replace(
     let mut changed_pages = Vec::new();
     let mut variants: BTreeMap<String, usize> = BTreeMap::new();
     for page in pages {
-        let mut doc = page.clone();
-        let mut page_changed = false;
-        let mut found: Vec<TextMatch> = Vec::new();
-        visit_blocks(&mut doc.blocks, &mut |block| {
-            let (block_id, block_name) = (block.client_id, block.name.clone());
-            for (name, value) in block.attributes.iter_mut() {
+        let page_first_match = matches.len();
+        blocks::walk_outside_exercises(page.blocks, &mut |block, _| {
+            for (name, value) in &block.attributes {
                 if !attribute_selected(&filters, name) {
                     continue;
                 }
                 let mut count = 0;
                 let mut first_preview = None;
-                visit_text(value, true, &mut |text| {
+                for_each_text(value, true, &mut |text| {
                     if let Some(pattern) = &variant_pattern {
                         for word in pattern.find_iter(&plain_text(text)) {
                             *variants.entry(word.as_str().to_string()).or_default() += 1;
                         }
                     }
                     let ranges = matcher.ranges(text);
-                    if ranges.is_empty() {
-                        return;
-                    }
-                    count += ranges.len();
-                    first_preview.get_or_insert_with(|| context_preview(text, ranges[0]));
-                    if let Some(replacement) = &request.replace {
-                        let replaced = matcher.replace(text, replacement);
-                        if replaced != *text {
-                            *text = replaced;
-                            page_changed = true;
-                        }
+                    if let Some(first) = ranges.first() {
+                        count += ranges.len();
+                        first_preview.get_or_insert_with(|| context_preview(text, *first));
                     }
                 });
                 if count > 0 {
-                    found.push(TextMatch {
-                        page_id: page.page_id,
-                        block_id,
-                        path: format!("/{block_id}/attributes/{name}"),
-                        block_name: block_name.clone(),
+                    matches.push(TextMatch {
+                        block: page.key.block_match(
+                            block,
+                            format!("/{}/attributes/{name}", block.client_id),
+                            first_preview.unwrap_or_default(),
+                        ),
                         count,
-                        preview: first_preview.unwrap_or_default(),
                     });
                 }
             }
         });
-        matches.extend(found);
-        if page_changed {
-            changed_pages.push(doc);
+        if let Some(replacement) = &request.replace
+            && matches.len() > page_first_match
+        {
+            let mut doc = page.to_document();
+            let mut is_changed = false;
+            blocks::walk_mut_outside_exercises(&mut doc.blocks, &mut |block| {
+                for (name, value) in block.attributes.iter_mut() {
+                    if !attribute_selected(&filters, name) {
+                        continue;
+                    }
+                    for_each_text_mut(value, true, &mut |text| {
+                        let replaced = matcher.replace(text, replacement);
+                        if replaced != *text {
+                            *text = replaced;
+                            is_changed = true;
+                        }
+                    });
+                }
+            });
+            if is_changed {
+                changed_pages.push(doc);
+            }
         }
-    }
-    let total = matches.iter().map(|m| m.count).sum();
-    if let Some(expected) = request.expected_count
-        && expected != total
-    {
-        return Err(EditError::new(
-                EditErrorCode::ExpectedCountMismatch,
-                format!("expected {expected} matches but found {total}; nothing was changed"),
-            )
-            .with_details(json!({"matches": matches.iter().map(|m| json!({"page_id": m.page_id, "path": m.path, "count": m.count})).collect::<Vec<_>>()})));
     }
     let find_lower = request.find.to_lowercase();
     let inflected_variants = variants
@@ -277,25 +281,25 @@ pub fn find_replace(
         .filter(|(word, _)| word.to_lowercase() != find_lower)
         .map(|(word, count)| InflectedVariant { word, count })
         .collect();
-    Ok(FindReplaceResult {
+    let result = FindReplaceResult {
         matches,
-        total,
         changed_pages,
         inflected_variants,
-    })
-}
-
-fn visit_blocks(
-    blocks: &mut [headless_lms_utils::document_schema_processor::GutenbergBlock],
-    visit: &mut dyn FnMut(&mut headless_lms_utils::document_schema_processor::GutenbergBlock),
-) {
-    for block in blocks.iter_mut() {
-        if blocks::is_exercise_name(&block.name) {
-            continue;
-        }
-        visit(block);
-        visit_blocks(&mut block.inner_blocks, visit);
+    };
+    if let Some(expected) = request.expected_count
+        && expected != result.total()
+    {
+        return Err(EditError::expected_count_mismatch(
+            expected,
+            result.total(),
+            result
+                .matches
+                .iter()
+                .map(|m| m.block.location(Some(m.count)))
+                .collect(),
+        ));
     }
+    Ok(result)
 }
 
 fn context_preview(text: &str, (start, end): (usize, usize)) -> String {
@@ -317,8 +321,8 @@ mod tests {
     use serde_json::json;
 
     use super::*;
-    use crate::engine::PageType;
-    use crate::test_fixtures::{block, exercise, heading, id, page, para};
+    use crate::engine::{PageDocument, PageType};
+    use crate::test_fixtures::{block, document_refs, exercise, heading, id, page, para};
 
     fn pages() -> Vec<PageDocument> {
         vec![
@@ -360,12 +364,12 @@ mod tests {
 
     #[test]
     fn literal_search_counts_whole_words_and_reports_variants() {
-        let result = find_replace(&pages(), &request("kurssi")).unwrap();
-        assert_eq!(result.total, 4);
+        let result = find_replace(&document_refs(&pages()), &request("kurssi")).unwrap();
+        assert_eq!(result.total(), 4);
         let paths: Vec<_> = result
             .matches
             .iter()
-            .map(|m| m.path.rsplit('/').next().unwrap().to_string())
+            .map(|m| m.block.path.rsplit('/').next().unwrap().to_string())
             .collect();
         assert_eq!(paths, vec!["content", "content", "alt", "body"]);
         let words: Vec<_> = result
@@ -383,7 +387,7 @@ mod tests {
         let mut req = request("kurssi");
         req.replace = Some("course".into());
         req.expected_count = Some(4);
-        let result = find_replace(&pages(), &req).unwrap();
+        let result = find_replace(&document_refs(&pages()), &req).unwrap();
         let page = &result.changed_pages[0];
         assert_eq!(
             page.blocks[1].attributes["content"],
@@ -403,8 +407,8 @@ mod tests {
             is_regex: true,
             ..Default::default()
         };
-        let result = find_replace(&pages(), &req).unwrap();
-        assert_eq!(result.total, 2);
+        let result = find_replace(&document_refs(&pages()), &req).unwrap();
+        assert_eq!(result.total(), 2);
         assert_eq!(
             result.changed_pages[1].blocks[0].attributes["content"],
             json!("Use <em>for</em> loops in Python 3.13 (was 3.12).")
@@ -413,15 +417,34 @@ mod tests {
     }
 
     #[test]
+    fn a_pattern_replaces_only_the_matches_it_counts() {
+        let doc = vec![page("pg1", PageType::CoursePage, vec![para("p1", "baaa")])];
+        let req = FindReplaceRequest {
+            find: "a*".into(),
+            replace: Some("X".into()),
+            is_regex: true,
+            expected_count: Some(1),
+            ..Default::default()
+        };
+        let result = find_replace(&document_refs(&doc), &req).unwrap();
+        assert_eq!(
+            result.changed_pages[0].blocks[0].attributes["content"],
+            json!("bX")
+        );
+    }
+
+    #[test]
     fn matching_sees_markup() {
         assert_eq!(
-            find_replace(&pages(), &request("for loops")).unwrap().total,
+            find_replace(&document_refs(&pages()), &request("for loops"))
+                .unwrap()
+                .total(),
             0
         );
         assert_eq!(
-            find_replace(&pages(), &request("<em>for</em> loops"))
+            find_replace(&document_refs(&pages()), &request("<em>for</em> loops"))
                 .unwrap()
-                .total,
+                .total(),
             1
         );
     }
@@ -430,14 +453,19 @@ mod tests {
     fn attribute_selection_by_name_and_regex() {
         let mut req = request("example.com");
         req.attributes = Some(vec!["/^ur.$/".into()]);
-        let result = find_replace(&pages(), &req).unwrap();
-        assert_eq!(result.total, 1);
+        let result = find_replace(&document_refs(&pages()), &req).unwrap();
+        assert_eq!(result.total(), 1);
         assert_eq!(
-            result.matches[0].path,
+            result.matches[0].block.path,
             format!("/{}/attributes/url", id("img"))
         );
         req.attributes = Some(vec!["href".into()]);
-        assert_eq!(find_replace(&pages(), &req).unwrap().total, 0);
+        assert_eq!(
+            find_replace(&document_refs(&pages()), &req)
+                .unwrap()
+                .total(),
+            0
+        );
     }
 
     #[test]
@@ -445,7 +473,7 @@ mod tests {
         let mut req = request("kurssi");
         req.replace = Some("x".into());
         req.expected_count = Some(2);
-        let error = find_replace(&pages(), &req).unwrap_err();
+        let error = find_replace(&document_refs(&pages()), &req).unwrap_err();
         assert_eq!(error.code, EditErrorCode::ExpectedCountMismatch);
         assert_eq!(
             error.details.unwrap()["matches"].as_array().unwrap().len(),
@@ -461,7 +489,9 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(
-            find_replace(&pages(), &req).unwrap_err().code,
+            find_replace(&document_refs(&pages()), &req)
+                .unwrap_err()
+                .code,
             EditErrorCode::InvalidRegex
         );
     }

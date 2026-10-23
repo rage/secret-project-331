@@ -4,7 +4,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
 
-use crate::engine::{EditError, EditErrorCode};
+use crate::engine::{EditError, EditErrorCode, PageType};
 use crate::validator::BlockSchemas;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -16,28 +16,19 @@ pub enum GuideTopic {
     PreviewsAndChecks,
     CitationsAndGlossary,
     RichText,
+    Exercises,
 }
 
 impl GuideTopic {
-    pub const ALL: [GuideTopic; 6] = [
+    pub const ALL: [GuideTopic; 7] = [
         GuideTopic::Editing,
         GuideTopic::CourseStructure,
         GuideTopic::PublishingAndRisk,
         GuideTopic::PreviewsAndChecks,
         GuideTopic::CitationsAndGlossary,
         GuideTopic::RichText,
+        GuideTopic::Exercises,
     ];
-
-    fn name(self) -> &'static str {
-        match self {
-            GuideTopic::Editing => "editing",
-            GuideTopic::CourseStructure => "course-structure",
-            GuideTopic::PublishingAndRisk => "publishing-and-risk",
-            GuideTopic::PreviewsAndChecks => "previews-and-checks",
-            GuideTopic::CitationsAndGlossary => "citations-and-glossary",
-            GuideTopic::RichText => "rich-text",
-        }
-    }
 
     fn text(self) -> &'static str {
         match self {
@@ -47,6 +38,7 @@ impl GuideTopic {
             GuideTopic::PreviewsAndChecks => PREVIEWS_AND_CHECKS,
             GuideTopic::CitationsAndGlossary => CITATIONS_AND_GLOSSARY,
             GuideTopic::RichText => RICH_TEXT,
+            GuideTopic::Exercises => EXERCISES,
         }
     }
 }
@@ -60,7 +52,7 @@ patch_page_content takes ops {op, path, from, through, value, position, to_page,
 - move/copy: from (+through) to path+position; to_page moves or copies to another page. move keeps ids, copy assigns new ones (a copied exercise becomes a new exercise without submissions).
 - remove: a block or a range (path + through).
 - wrap (path, through, value: the container), unwrap (path), split (path, at_text: the second block starts there), merge (from into path; from must be the next sibling).
-- Exercise blocks can be moved, copied and removed, not replaced or edited.
+- Exercise blocks can be moved, copied and removed, not replaced or edited; patch_exercise edits an exercise's name, own deadline and instructions.
 - dry_run: true stages nothing and returns the diff; read_back reads the result in the same call.";
 
 const COURSE_STRUCTURE: &str = "\
@@ -68,6 +60,7 @@ get_course_structure returns {course: {pages, modules: [{chapters: [{pages}]}]}}
 patch_course_structure ops: replace fields (module name; chapter name, color, opens_at, deadline; page title, url_path, hidden), remove (field to null, or an entity or page range), add (module, chapter or page; a chapter gets a front page; a page may carry blocks), move, copy (page or chapter; new ids, -copy suffix), reorder (value: exactly the current ids in the new order).
 - Chapter numbers and /chapter-N paths are recomputed after every call. A chapter page's url_path is its last segment, e.g. \"loops\" for /chapter-2/loops; the front page's path is always /chapter-N.
 - url_path is unique in the course after the call; paths can be swapped in one call. Changed paths get redirects automatically; removed pages get none.
+- A new page that translates a page of another language version of the course takes pair_with: <that page's id>; it joins that page's page_language_group_id at publish, so language switching links the two. The source page must be published, and the group can't already have a page in this course.
 - Pages with exercises stay inside chapters. Settings (completion, certificates) are edited with patch_course_settings.";
 
 const PUBLISHING_AND_RISK: &str = "\
@@ -76,70 +69,93 @@ A change is risky only in live content (not draft, not test mode, not a hidden p
 - removing an exercise block whose exercise has submissions, or a page or chapter containing one
 - removing a visible page or an open chapter
 - moving a deadline earlier or adding one to an open chapter; moving an open chapter's opening time later
+- changing an exercise's own deadline so that the deadline that applies to it moves earlier, or it gets one, while its chapter is open
 - changing a completion policy or the module completion requirement after completions exist; turning chapter locking on or off
-publish_changeset refuses changesets with risky changes; the teacher publishes those on the review page. Size alone is never risky; moving exercises is never risky. Publishing fails if a staged page or entity changed live meanwhile; restage then.
+publish_changeset refuses changesets with risky changes; the teacher publishes those on the review page. Size alone is never risky; moving exercises is never risky, even when the move changes which chapter deadline applies. Publishing fails if a staged page or entity changed live meanwhile: drop just those with discard_changeset and entities, read their published state again and redo your edits to them.
+A write fails with staged_state_changed when a parallel call changed what it read; read again and repeat it.
 After publishing, get_history lists changes and revert_change undoes one write call.";
 
 const PREVIEWS_AND_CHECKS: &str = "\
-get_preview_link returns a read-only URL for one page's staged state, valid about 15 minutes, no login needed. Open it with your own browser tooling (playwright-cli) in a desktop or mobile viewport and check: render and console errors, LaTeX errors (.katex-error), broken links and images, and accessibility (axe). The preview shows exercises as placeholders and has no chapter navigation. Checks are expected before a changeset is published.";
+get_preview_link returns a read-only URL for one page's staged state, valid about 15 minutes, no login needed. Open it with your own browser tooling (playwright-cli) in a desktop or mobile viewport and check: render and console errors, LaTeX errors (.katex-error), broken links and images, and accessibility (axe). The preview shows each exercise's name, task instructions and review instructions, but not the exercise itself to answer, and has no chapter navigation. Checks are expected before a changeset is published.";
 
 const CITATIONS_AND_GLOSSARY: &str = "\
 Citations are written in rich text as \\cite{key}, \\cite[postnote]{key} or \\cite[prenote][postnote]{key}, where key is a reference's citation_key. References hold one BibTeX entry each (fields citation_key, bibtex); the entry's key must equal citation_key and be unique in the course.
-Glossary terms (fields term, definition) are highlighted automatically wherever the exact term appears as a whole word; nothing is marked up in the content.
-Renaming a citation_key rewrites its citations in page content. Removing a reference, or renaming or removing a term, changes no content; the result lists the pages that use it.";
+Glossary terms (fields term, definition) are highlighted automatically wherever the exact term appears, case-sensitively, as a whole word: a letter (ä and ö included), digit or _ at the term's edge never touches another one, so \"äly\" isn't highlighted in \"tekoäly\" and an inflected form like \"algoritmin\" isn't highlighted for \"algoritmi\". A tag counts as a word edge. Nothing is marked up in the content.
+Renaming a citation_key rewrites its citations in page content and exercise instructions. Removing a reference, or renaming or removing a term, changes no content; the result lists the pages and exercise instructions that use it.";
 
 const RICH_TEXT: &str = "\
 Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math uses the editor's math format (see rich_text_formats). Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
 
-/// Builds the guide for the requested block types and topics; with neither, an index.
-pub fn build_guide(
+const EXERCISES: &str = "\
+An exercise block on a page holds only the exercise id (exercise_id in reads). get_exercise reads the exercise: name, tasks, review settings and its instructions; patch_exercise edits the name, the own deadline, each task's instructions (/tasks/<task id>) and the review instructions (/review_instructions) with page-content ops. Everything else (points, tries, task specs, review thresholds and questions) is read-only; the teacher edits it in the editor.
+- The effective deadline is the exercise's own, else its chapter's. Chapter deadlines are strongly preferred: own deadlines are easy to miss when dates change. Add one only when the teacher asks; deadline: null clears it. Times are RFC 3339 with an offset.
+- /tasks/<task id>/specs reads a task's private, public and model solution specs together; the private spec is what the editor saves and the only authoritative one, and the service derives the others from it, so they can lag behind a staged change until publish. Specs hold answer keys: never copy them into what students see.
+- Instructions take the blocks the editor allows there, which the validator checks; exercise blocks can't be nested in them.
+- Review instructions show only for exercises with peer or self reviews. Most exercises use the course default review config, so its instructions are shared: review_config edit_course_default edits them for every exercise using it. Prefer that. fork gives one exercise its own copy of the default settings and questions, for an exercise with special needs; use_course_default drops an exercise's own settings again, and the result lists what it drops.
+- Switching review settings is allowed after students have given reviews, but the result and the review page warn about it.
+- Name and instruction edits are never risky; a deadline change is risky as in publishing-and-risk.
+- find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork.";
+
+/// The `guide` tool's result: the guide of each block type and topic asked for, or with neither
+/// asked for, the index of both. `schemas` may be `None` only when only topics are asked for.
+pub fn answer(
     schemas: Option<&BlockSchemas>,
     block_types: &[String],
     topics: &[GuideTopic],
 ) -> Result<Value, EditError> {
-    let mut out = Map::new();
-    if block_types.is_empty() && topics.is_empty() {
-        out.insert(
-            "topics".into(),
-            json!(GuideTopic::ALL.iter().map(|t| t.name()).collect::<Vec<_>>()),
-        );
-        if let Some(schemas) = schemas {
-            out.insert("block_types_by_page_type".into(), json!(schemas.page_types));
-            out.insert("schema_version".into(), json!(schemas.version));
+    let mut answer = Map::new();
+    if let Some(schemas) = schemas {
+        if block_types.is_empty() && topics.is_empty() {
+            return Ok(index(schemas));
         }
-        out.insert(
-            "usage".into(),
-            json!("Call guide with block_types and/or topics for details."),
-        );
-        return Ok(Value::Object(out));
-    }
-    if !block_types.is_empty() {
-        let schemas = schemas.ok_or_else(|| {
-            EditError::new(
-                EditErrorCode::InvalidValue,
-                "block schemas are unavailable right now; try again shortly",
-            )
-        })?;
-        let mut blocks = Vec::new();
-        for name in block_types {
-            blocks.push(block_guide(schemas, name)?);
+        if !block_types.is_empty() {
+            answer = blocks_guide(schemas, block_types)?;
         }
-        out.insert("blocks".into(), Value::Array(blocks));
-        out.insert("rich_text_formats".into(), json!(schemas.rich_text_formats));
-        out.insert("schema_version".into(), json!(schemas.version));
     }
     if !topics.is_empty() {
-        out.insert(
-            "topics".into(),
-            Value::Array(
-                topics
-                    .iter()
-                    .map(|t| json!({"topic": t.name(), "text": t.text()}))
-                    .collect(),
-            ),
-        );
+        answer.insert("topics".into(), topics_guide(topics));
     }
-    Ok(Value::Object(out))
+    Ok(Value::Object(answer))
+}
+
+/// What the guide covers: its topics and the block types each page type allows.
+fn index(schemas: &BlockSchemas) -> Value {
+    json!({
+        "topics": GuideTopic::ALL,
+        "block_types_by_page_type": schemas.page_types,
+        "schema_version": schemas.version,
+        "usage": "Call guide with block_types and/or topics for details.",
+    })
+}
+
+/// The hand-written guide of each topic.
+fn topics_guide(topics: &[GuideTopic]) -> Value {
+    json!(
+        topics
+            .iter()
+            .map(|topic| json!({"topic": topic, "text": topic.text()}))
+            .collect::<Vec<_>>()
+    )
+}
+
+/// Each block type's schema, nesting rules and an example add op, with the rich-text formats.
+/// Errors on an unknown block type, listing similar ones.
+fn blocks_guide(
+    schemas: &BlockSchemas,
+    block_types: &[String],
+) -> Result<Map<String, Value>, EditError> {
+    let blocks = block_types
+        .iter()
+        .map(|name| block_guide(schemas, name))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(Map::from_iter([
+        ("blocks".to_string(), Value::Array(blocks)),
+        (
+            "rich_text_formats".to_string(),
+            json!(schemas.rich_text_formats),
+        ),
+        ("schema_version".to_string(), json!(schemas.version)),
+    ]))
 }
 
 fn block_guide(schemas: &BlockSchemas, name: &str) -> Result<Value, EditError> {
@@ -157,7 +173,7 @@ fn block_guide(schemas: &BlockSchemas, name: &str) -> Result<Value, EditError> {
                 ),
         );
     };
-    let page_types: Vec<&String> = schemas
+    let page_types: Vec<&PageType> = schemas
         .page_types
         .iter()
         .filter(|(_, names)| names.iter().any(|n| n == name))
@@ -198,10 +214,11 @@ mod tests {
         BlockSchemas {
             version: "abc".into(),
             page_types: BTreeMap::from([(
-                "course-page".into(),
+                PageType::CoursePage,
                 vec!["core/paragraph".into(), "core/list-item".into()],
             )]),
             course_feature_gated_blocks: BTreeMap::new(),
+            max_request_bytes: 1_000_000,
             rich_text_formats: vec![RichTextFormat {
                 name: "core/bold".into(),
                 tag: "strong".into(),
@@ -243,12 +260,12 @@ mod tests {
 
     #[test]
     fn index_blocks_and_topics() {
-        let index = build_guide(Some(&schemas()), &[], &[]).unwrap();
-        assert_eq!(index["topics"].as_array().unwrap().len(), 6);
-        let guide = build_guide(
-            Some(&schemas()),
+        let index = index(&schemas());
+        assert_eq!(index["topics"].as_array().unwrap().len(), 7);
+        assert_eq!(index["topics"][1], json!("course-structure"));
+        let guide = blocks_guide(
+            &schemas(),
             &["core/paragraph".into(), "core/list-item".into()],
-            &[GuideTopic::RichText],
         )
         .unwrap();
         assert_eq!(guide["blocks"][0]["example_op"]["path"], json!(""));
@@ -257,23 +274,14 @@ mod tests {
             json!("/<parent id>/innerBlocks")
         );
         assert_eq!(guide["blocks"][0]["page_types"], json!(["course-page"]));
-        assert!(
-            guide["topics"][0]["text"]
-                .as_str()
-                .unwrap()
-                .contains("math format")
-        );
+        let topics = topics_guide(&[GuideTopic::RichText]);
+        assert_eq!(topics[0]["topic"], json!("rich-text"));
+        assert!(topics[0]["text"].as_str().unwrap().contains("math format"));
     }
 
     #[test]
     fn unknown_block_lists_similar() {
-        let error = build_guide(Some(&schemas()), &["moocfi/paragraph".into()], &[]).unwrap_err();
+        let error = blocks_guide(&schemas(), &["moocfi/paragraph".into()]).unwrap_err();
         assert_eq!(error.details.unwrap()["similar"], json!(["core/paragraph"]));
-    }
-
-    #[test]
-    fn topics_work_without_schemas() {
-        assert!(build_guide(None, &[], &[GuideTopic::PublishingAndRisk]).is_ok());
-        assert!(build_guide(None, &["core/paragraph".into()], &[]).is_err());
     }
 }

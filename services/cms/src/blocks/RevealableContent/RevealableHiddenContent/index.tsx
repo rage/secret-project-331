@@ -19,7 +19,6 @@ const RevealableHiddenContentConfiguration: BlockConfiguration<ConditionAttribut
   attributes: {},
   parent: ["moocfi/revelable-content"],
   allowedBlocks: ["core/heading", "core/paragraph", "core/image", "core/list"],
-  innerBlocksArea: {},
   edit: RevealableHiddenContentEditor,
   save: RevealableHiddenContentSave,
 }

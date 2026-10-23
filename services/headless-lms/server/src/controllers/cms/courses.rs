@@ -9,7 +9,9 @@ use models::{
     courses::Course,
     pages::{Page, PageVisibility},
     partner_block::PartnersBlock,
-    peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfiguration},
+    peer_or_self_review_configs::{
+        self, CmsPeerOrSelfReviewConfigurationSave, VersionedCmsPeerOrSelfReviewConfiguration,
+    },
     peer_or_self_review_questions::normalize_cms_peer_or_self_review_questions,
 };
 
@@ -113,7 +115,7 @@ async fn add_media(
     let media_path = upload_file_from_cms(
         request.headers(),
         payload,
-        StoreKind::Course(course.id),
+        MediaOwner::Course(course.id),
         file_store.as_ref(),
         &mut conn,
         user,
@@ -134,14 +136,14 @@ async fn add_media(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Default peer review configuration", body = CmsPeerOrSelfReviewConfiguration)
+        (status = 200, description = "Default peer review configuration", body = VersionedCmsPeerOrSelfReviewConfiguration)
     )
 )]
 async fn get_course_default_peer_or_self_review_configuration(
     course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<CmsPeerOrSelfReviewConfiguration>> {
+) -> ControllerResult<web::Json<VersionedCmsPeerOrSelfReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -151,23 +153,12 @@ async fn get_course_default_peer_or_self_review_configuration(
     )
     .await?;
 
-    let peer_or_self_review_config =
-        models::peer_or_self_review_configs::get_course_default_cms_peer_review(
-            &mut conn, *course_id,
-        )
-        .await?;
+    let configuration = peer_or_self_review_configs::get_course_default_versioned_cms_peer_review(
+        &mut conn, *course_id,
+    )
+    .await?;
 
-    let peer_or_self_review_questions =
-        models::peer_or_self_review_questions::get_course_default_cms_peer_or_self_review_questions(
-            &mut conn,
-            peer_or_self_review_config.id,
-        )
-        .await?;
-
-    token.authorized_ok(web::Json(CmsPeerOrSelfReviewConfiguration {
-        peer_or_self_review_config,
-        peer_or_self_review_questions,
-    }))
+    token.authorized_ok(web::Json(configuration))
 }
 
 #[instrument(skip(pool))]
@@ -179,17 +170,18 @@ async fn get_course_default_peer_or_self_review_configuration(
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = CmsPeerOrSelfReviewConfiguration,
+    request_body = CmsPeerOrSelfReviewConfigurationSave,
     responses(
-        (status = 200, description = "Updated default peer review configuration", body = CmsPeerOrSelfReviewConfiguration)
+        (status = 200, description = "Updated default peer review configuration", body = VersionedCmsPeerOrSelfReviewConfiguration),
+        (status = 422, description = "`stale_version`: the configuration changed after the editor loaded it")
     )
 )]
 async fn put_course_default_peer_or_self_review_configuration(
     course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-    payload: web::Json<CmsPeerOrSelfReviewConfiguration>,
-) -> ControllerResult<web::Json<CmsPeerOrSelfReviewConfiguration>> {
+    payload: web::Json<CmsPeerOrSelfReviewConfigurationSave>,
+) -> ControllerResult<web::Json<VersionedCmsPeerOrSelfReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -198,10 +190,27 @@ async fn put_course_default_peer_or_self_review_configuration(
         Res::Course(*course_id),
     )
     .await?;
-    let mut config = payload.0;
+    let CmsPeerOrSelfReviewConfigurationSave {
+        configuration: mut config,
+        expected_updated_at,
+    } = payload.0;
     normalize_cms_peer_or_self_review_questions(&mut config.peer_or_self_review_questions);
-    let cms_peer_or_self_review_configuration =
-        peer_or_self_review_configs::upsert_for_course_id(&mut conn, *course_id, &config).await?;
+    let cms_peer_or_self_review_configuration = models::entity_history::save_recording(
+        &mut conn,
+        models::library::entity_snapshots::ContentEntityType::CourseDefaultReviewConfig,
+        config.peer_or_self_review_config.id,
+        models::entity_history::HistoryAuthor::user(user.id),
+        async |tx| {
+            peer_or_self_review_configs::upsert_for_course_id(
+                tx,
+                *course_id,
+                &config,
+                expected_updated_at,
+            )
+            .await
+        },
+    )
+    .await?;
     token.authorized_ok(web::Json(cms_peer_or_self_review_configuration))
 }
 

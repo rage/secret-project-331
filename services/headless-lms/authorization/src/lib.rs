@@ -441,10 +441,8 @@ pub async fn is_permitted(
     resource: Resource,
     user_roles: &[Role],
 ) -> AuthorizationResult<bool> {
-    for role in user_roles {
-        if role.is_global() && has_permission(role.role, action) {
-            return Ok(true);
-        }
+    if has_global_permission(user_roles, action) {
+        return Ok(true);
     }
 
     // for this resource, the domain of the role does not matter (e.g. organization role, course role, etc.)
@@ -515,6 +513,31 @@ pub async fn is_permitted(
     }
 }
 
+/// [`is_permitted`] on a course whose organization the caller already knows, without querying the
+/// database.
+pub fn is_permitted_on_course(
+    user_roles: &[Role],
+    action: Action,
+    course_id: Uuid,
+    organization_id: Uuid,
+) -> bool {
+    has_global_permission(user_roles, action)
+        || has_course_role_permission(user_roles, action, course_id)
+        || check_organization_permission(user_roles, action, organization_id)
+}
+
+fn has_global_permission(roles: &[Role], action: Action) -> bool {
+    roles
+        .iter()
+        .any(|role| role.is_global() && has_permission(role.role, action))
+}
+
+fn has_course_role_permission(roles: &[Role], action: Action, course_id: Uuid) -> bool {
+    roles
+        .iter()
+        .any(|role| role.is_role_for_course(course_id) && has_permission(role.role, action))
+}
+
 fn check_organization_permission(roles: &[Role], action: Action, organization_id: Uuid) -> bool {
     if action == Action::View {
         return true;
@@ -532,10 +555,7 @@ async fn check_course_permission(
     action: Action,
     course_id: Uuid,
 ) -> AuthorizationResult<bool> {
-    if roles
-        .iter()
-        .any(|role| role.is_role_for_course(course_id) && has_permission(role.role, action))
-    {
+    if has_course_role_permission(roles, action, course_id) {
         return Ok(true);
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;

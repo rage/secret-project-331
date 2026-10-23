@@ -5,7 +5,7 @@
 
 pub use crate::controllers::UploadResult;
 pub use crate::controllers::helpers::file_uploading::{
-    StoreKind, upload_field_from_cms, upload_file_from_cms,
+    upload_field_from_cms, upload_file_from_cms,
 };
 pub use crate::controllers::helpers::multi_query::MultiQuery;
 pub use crate::controllers::helpers::non_empty;
@@ -28,6 +28,7 @@ pub use actix_web::{HttpRequest, HttpResponse};
 pub use headless_lms_base::prelude_base_and_re_exports::*;
 pub use headless_lms_models as models;
 pub use headless_lms_models::re_exports::*;
+pub use headless_lms_utils::file_store::media_uploads::MediaOwner;
 pub use headless_lms_utils::prelude::*;
 pub use headless_lms_utils::{cache::Cache, file_store::FileStore, pagination::Pagination};
 pub use rand::Rng;

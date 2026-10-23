@@ -1,4 +1,14 @@
+use utoipa::ToSchema;
+
 use crate::prelude::*;
+
+/// A redirect from a page's old path, created when the page moved to a new one.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+pub struct CreatedRedirect {
+    pub page_id: Uuid,
+    pub old_url_path: String,
+    pub new_url_path: String,
+}
 
 pub async fn upsert(
     conn: &mut PgConnection,

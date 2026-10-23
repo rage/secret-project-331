@@ -400,8 +400,13 @@ pub async fn seed_organization_uh_cs(
         }),
     )
     .await?;
-    course_modules::update_certification_enabled(&mut conn, certificates_default_module.id, true)
-        .await?;
+    course_modules::update_certification_enabled(
+        &mut conn,
+        certificates_default_module.id,
+        true,
+        teacher_user_id,
+    )
+    .await?;
 
     roles::insert(
         &mut conn,

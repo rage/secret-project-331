@@ -1,38 +1,31 @@
-//! Compares two states of everything a changeset touches, matching blocks and entities by id.
-//! Validation, risk rules and audit run on this diff, whatever ops produced it.
+//! Compares two states of course content: blocks matched by id, and modules, chapters and pages
+//! by the fields models compare.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
+use headless_lms_models::library::{
+    agent_changesets::{StagedEntity, course_state::CourseState},
+    entity_snapshots::ContentEntityType,
+};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde::Serialize;
-use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::engine::PageDocument;
-use crate::engine::blocks;
-use crate::engine::course_settings::CourseSettings;
-use crate::engine::course_structure::CourseStructure;
-use crate::engine::glossary_references::GlossaryAndReferences;
+use crate::engine::PageRef;
+use crate::snapshots;
 
-/// One side of a diff. Leave out what the change didn't touch; pages must appear on both sides
-/// when they exist on both.
-#[derive(Debug, Clone, Default)]
-pub struct Snapshot {
-    pub pages: Vec<PageDocument>,
-    pub structure: Option<CourseStructure>,
-    pub settings: Option<CourseSettings>,
-    pub glossary: Option<GlossaryAndReferences>,
-}
-
+/// How a block or an entity differs between two states.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ChangeKind {
     Added,
     Removed,
     Changed,
+    /// Only its place differs.
     Moved,
 }
 
+/// One block that differs between two states of the same pages.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct BlockChange {
     pub block_id: Uuid,
@@ -52,86 +45,16 @@ pub struct BlockChange {
     pub is_moved: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum EntityType {
-    Module,
-    Chapter,
-    Page,
-    GlossaryTerm,
-    Reference,
-    Course,
-    ModuleSettings,
-    Audience,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct FieldChange {
-    pub field: String,
-    pub before: Value,
-    pub after: Value,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct EntityChange {
-    pub entity_type: EntityType,
-    pub entity_id: Uuid,
-    pub kind: ChangeKind,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub fields: Vec<FieldChange>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_before: Option<Uuid>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent_after: Option<Uuid>,
-    pub is_moved: bool,
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Serialize)]
-pub struct Diff {
-    pub blocks: Vec<BlockChange>,
-    pub entities: Vec<EntityChange>,
-}
-
-impl Diff {
-    pub fn is_empty(&self) -> bool {
-        self.blocks.is_empty() && self.entities.is_empty()
-    }
-
-    pub fn entity(&self, entity_type: EntityType, id: Uuid) -> Option<&EntityChange> {
-        self.entities
-            .iter()
-            .find(|e| e.entity_type == entity_type && e.entity_id == id)
-    }
-
-    /// Pages whose content changed (blocks added, removed, changed or moved in or out).
-    pub fn pages_with_block_changes(&self) -> Vec<Uuid> {
-        let mut pages: Vec<Uuid> = self
-            .blocks
-            .iter()
-            .flat_map(|b| [b.page_before, b.page_after])
-            .flatten()
-            .collect();
-        pages.sort();
-        pages.dedup();
-        pages
-    }
-}
-
-pub fn diff(before: &Snapshot, after: &Snapshot) -> Diff {
-    let mut result = Diff {
-        blocks: diff_blocks(&before.pages, &after.pages),
-        entities: Vec::new(),
-    };
-    if let (Some(b), Some(a)) = (&before.structure, &after.structure) {
-        result.entities.extend(diff_structure(b, a));
-    }
-    if let (Some(b), Some(a)) = (&before.settings, &after.settings) {
-        result.entities.extend(diff_settings(b, a));
-    }
-    if let (Some(b), Some(a)) = (&before.glossary, &after.glossary) {
-        result.entities.extend(diff_glossary(b, a));
-    }
-    result
+/// Pages whose content changed (blocks added, removed, changed or moved in or out).
+pub fn pages_with_block_changes(blocks: &[BlockChange]) -> Vec<Uuid> {
+    let mut pages: Vec<Uuid> = blocks
+        .iter()
+        .flat_map(|b| [b.page_before, b.page_after])
+        .flatten()
+        .collect();
+    pages.sort();
+    pages.dedup();
+    pages
 }
 
 struct Placed<'a> {
@@ -141,48 +64,57 @@ struct Placed<'a> {
     block: &'a GutenbergBlock,
 }
 
-fn place_blocks(pages: &[PageDocument]) -> HashMap<Uuid, Placed<'_>> {
-    let mut placed = HashMap::new();
-    for page in pages {
-        blocks::walk(&page.blocks, &mut |block, path| {
-            let parent = (path.len() > 1)
-                .then(|| blocks::get(&page.blocks, &path[..path.len() - 1]).client_id);
-            let index = path[path.len() - 1];
-            let previous_sibling = (index > 0)
-                .then(|| blocks::list(&page.blocks, &path[..path.len() - 1])[index - 1].client_id);
+/// Where every block of the pages is, and the block ids in page order.
+fn place_blocks<'a>(pages: &[PageRef<'a>]) -> (HashMap<Uuid, Placed<'a>>, Vec<Uuid>) {
+    fn place<'a>(
+        page: Uuid,
+        parent: Option<Uuid>,
+        blocks: &'a [GutenbergBlock],
+        placed: &mut HashMap<Uuid, Placed<'a>>,
+        order: &mut Vec<Uuid>,
+    ) {
+        let mut previous_sibling = None;
+        for block in blocks {
+            order.push(block.client_id);
             placed.insert(
                 block.client_id,
                 Placed {
-                    page: page.page_id,
+                    page,
                     parent,
                     previous_sibling,
                     block,
                 },
             );
-        });
-    }
-    placed
-}
-
-fn diff_blocks(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChange> {
-    let old = place_blocks(before);
-    let new = place_blocks(after);
-    let mut changes = Vec::new();
-    let exercise = |block: &GutenbergBlock| {
-        blocks::is_exercise(block)
-            .then(|| blocks::exercise_id(block))
-            .flatten()
-    };
-
-    let mut order: Vec<Uuid> = Vec::new();
-    for page in before.iter().chain(after) {
-        for id in blocks::all_ids(&page.blocks) {
-            if !order.contains(&id) {
-                order.push(id);
-            }
+            place(
+                page,
+                Some(block.client_id),
+                &block.inner_blocks,
+                placed,
+                order,
+            );
+            previous_sibling = Some(block.client_id);
         }
     }
-    for id in order {
+    let mut placed = HashMap::new();
+    let mut order = Vec::new();
+    for page in pages {
+        place(page.page_id, None, page.blocks, &mut placed, &mut order);
+    }
+    (placed, order)
+}
+
+/// The blocks that differ between the pages of `before` and `after`. A page must be on both sides
+/// when it exists on both.
+pub fn diff_blocks(before: &[PageRef], after: &[PageRef]) -> Vec<BlockChange> {
+    let (old, old_order) = place_blocks(before);
+    let (new, new_order) = place_blocks(after);
+    let mut changes = Vec::new();
+
+    let mut seen: HashSet<Uuid> = HashSet::new();
+    for id in old_order.into_iter().chain(new_order) {
+        if !seen.insert(id) {
+            continue;
+        }
         match (old.get(&id), new.get(&id)) {
             (Some(o), None) => changes.push(BlockChange {
                 block_id: id,
@@ -190,7 +122,7 @@ fn diff_blocks(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChan
                 kind: ChangeKind::Removed,
                 page_before: Some(o.page),
                 page_after: None,
-                exercise_id: exercise(o.block),
+                exercise_id: o.block.exercise_id(),
                 changed_fields: Vec::new(),
                 is_moved: false,
             }),
@@ -200,7 +132,7 @@ fn diff_blocks(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChan
                 kind: ChangeKind::Added,
                 page_before: None,
                 page_after: Some(n.page),
-                exercise_id: exercise(n.block),
+                exercise_id: n.block.exercise_id(),
                 changed_fields: Vec::new(),
                 is_moved: false,
             }),
@@ -222,12 +154,11 @@ fn diff_blocks(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChan
                         changed_fields.push(format!("attributes/{key}"));
                     }
                 }
-                let new_previous_existed = n.previous_sibling.is_none_or(|p| old.contains_key(&p));
-                let is_moved = o.page != n.page
-                    || o.parent != n.parent
-                    || (new_previous_existed
-                        && o.previous_sibling != n.previous_sibling
-                        && !previous_was_removed(o.previous_sibling, &new));
+                // A block next to an added or removed one hasn't moved just because of that.
+                let is_moved_among_siblings = o.previous_sibling != n.previous_sibling
+                    && n.previous_sibling.is_none_or(|p| old.contains_key(&p))
+                    && o.previous_sibling.is_none_or(|p| new.contains_key(&p));
+                let is_moved = o.page != n.page || o.parent != n.parent || is_moved_among_siblings;
                 if changed_fields.is_empty() && !is_moved {
                     continue;
                 }
@@ -241,7 +172,7 @@ fn diff_blocks(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChan
                     },
                     page_before: Some(o.page),
                     page_after: Some(n.page),
-                    exercise_id: exercise(n.block),
+                    exercise_id: n.block.exercise_id(),
                     changed_fields,
                     is_moved,
                 });
@@ -252,257 +183,83 @@ fn diff_blocks(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChan
     changes
 }
 
-/// A block whose previous sibling disappeared hasn't moved just because of that.
-fn previous_was_removed(previous: Option<Uuid>, new: &HashMap<Uuid, Placed>) -> bool {
-    previous.is_some_and(|p| !new.contains_key(&p))
-}
-
-struct EntityState {
-    entity_type: EntityType,
-    parent: Option<Uuid>,
-    previous_sibling: Option<Uuid>,
-    fields: Vec<(&'static str, Value)>,
-}
-
-fn structure_states(doc: &CourseStructure) -> Vec<(Uuid, EntityState)> {
-    let mut states = Vec::new();
-    let page_state = |p: &crate::engine::course_structure::StructurePage,
-                      parent: Option<Uuid>,
-                      previous: Option<Uuid>| EntityState {
-        entity_type: EntityType::Page,
-        parent,
-        previous_sibling: previous,
-        fields: vec![
-            ("title", json!(p.title)),
-            ("url_path", json!(p.url_path)),
-            ("hidden", json!(p.hidden)),
-        ],
-    };
-    for (index, page) in doc.course.pages.iter().enumerate() {
-        let previous = index.checked_sub(1).map(|i| doc.course.pages[i].id);
-        states.push((page.id, page_state(page, None, previous)));
-    }
-    for (module_index, module) in doc.course.modules.iter().enumerate() {
-        states.push((
-            module.id,
-            EntityState {
-                entity_type: EntityType::Module,
-                parent: None,
-                previous_sibling: module_index
-                    .checked_sub(1)
-                    .map(|i| doc.course.modules[i].id),
-                fields: vec![("name", json!(module.name))],
-            },
-        ));
-        for (chapter_index, chapter) in module.chapters.iter().enumerate() {
-            states.push((
-                chapter.id,
-                EntityState {
-                    entity_type: EntityType::Chapter,
-                    parent: Some(module.id),
-                    previous_sibling: chapter_index.checked_sub(1).map(|i| module.chapters[i].id),
-                    fields: vec![
-                        ("name", json!(chapter.name)),
-                        ("color", json!(chapter.color)),
-                        ("opens_at", json!(chapter.opens_at)),
-                        ("deadline", json!(chapter.deadline)),
-                        ("chapter_number", json!(chapter.chapter_number)),
-                    ],
-                },
-            ));
-            for (index, page) in chapter.pages.iter().enumerate() {
-                let previous = index.checked_sub(1).map(|i| chapter.pages[i].id);
-                states.push((page.id, page_state(page, Some(chapter.id), previous)));
-            }
-        }
-    }
-    states
-}
-
-fn diff_states(
-    before: Vec<(Uuid, EntityState)>,
-    after: Vec<(Uuid, EntityState)>,
-) -> Vec<EntityChange> {
-    let old: HashMap<Uuid, &EntityState> = before.iter().map(|(id, s)| (*id, s)).collect();
-    let new: HashMap<Uuid, &EntityState> = after.iter().map(|(id, s)| (*id, s)).collect();
-    let mut changes = Vec::new();
-    for (id, state) in &before {
-        if !new.contains_key(id) {
-            changes.push(EntityChange {
-                entity_type: state.entity_type,
-                entity_id: *id,
-                kind: ChangeKind::Removed,
-                fields: Vec::new(),
-                parent_before: state.parent,
-                parent_after: None,
-                is_moved: false,
-            });
-        }
-    }
-    for (id, state) in &after {
-        let Some(previous) = old.get(id) else {
-            changes.push(EntityChange {
-                entity_type: state.entity_type,
-                entity_id: *id,
-                kind: ChangeKind::Added,
-                fields: state
-                    .fields
-                    .iter()
-                    .map(|(f, v)| FieldChange {
-                        field: f.to_string(),
-                        before: Value::Null,
-                        after: v.clone(),
-                    })
-                    .collect(),
-                parent_before: None,
-                parent_after: state.parent,
-                is_moved: false,
-            });
-            continue;
-        };
-        let fields: Vec<FieldChange> = state
-            .fields
+/// The blocks that differ between two states of the pages. A page a state doesn't have has no
+/// blocks there.
+pub fn diff_pages(
+    before: &CourseState,
+    after: &CourseState,
+    page_ids: &[Uuid],
+) -> Vec<BlockChange> {
+    fn blocks<'a>(state: &'a CourseState, page_ids: &[Uuid]) -> Vec<PageRef<'a>> {
+        page_ids
             .iter()
-            .zip(previous.fields.iter())
-            .filter(|((_, a), (_, b))| a != b)
-            .map(|((field, a), (_, b))| FieldChange {
-                field: field.to_string(),
-                before: b.clone(),
-                after: a.clone(),
-            })
-            .collect();
-        let sibling_moved = state.previous_sibling != previous.previous_sibling
-            && state.previous_sibling.is_none_or(|p| old.contains_key(&p))
-            && previous
-                .previous_sibling
-                .is_none_or(|p| new.contains_key(&p));
-        let is_moved = state.parent != previous.parent || sibling_moved;
-        let only_renumbered = fields.iter().all(|f| f.field == "chapter_number");
-        if fields.is_empty() && !is_moved {
-            continue;
-        }
-        changes.push(EntityChange {
-            entity_type: state.entity_type,
-            entity_id: *id,
-            kind: if fields.is_empty() || (only_renumbered && is_moved) {
-                ChangeKind::Moved
-            } else {
-                ChangeKind::Changed
-            },
-            fields,
-            parent_before: previous.parent,
-            parent_after: state.parent,
-            is_moved,
-        });
+            .filter_map(|id| Some(snapshots::page_ref(state.page(*id)?)))
+            .collect()
     }
-    changes
+    diff_blocks(&blocks(before, page_ids), &blocks(after, page_ids))
 }
 
-fn diff_structure(before: &CourseStructure, after: &CourseStructure) -> Vec<EntityChange> {
-    diff_states(structure_states(before), structure_states(after))
-}
-
-fn settings_states(doc: &CourseSettings) -> Vec<(Uuid, EntityState)> {
-    let course = &doc.course;
-    let mut states = vec![(
-        course.id,
-        EntityState {
-            entity_type: EntityType::Course,
-            parent: None,
-            previous_sibling: None,
-            fields: vec![
-                ("name", json!(course.name)),
-                ("description", json!(course.description)),
-                ("is_unlisted", json!(course.is_unlisted)),
-                (
-                    "chapter_locking_enabled",
-                    json!(course.chapter_locking_enabled),
-                ),
-                (
-                    "base_module_completion_requires_n_submodule_completions",
-                    json!(course.base_module_completion_requires_n_submodule_completions),
-                ),
-                ("ai_policy", json!(course.ai_policy)),
-            ],
-        },
-    )];
-    for audience in &course.audiences {
-        states.push((
-            audience.id,
-            EntityState {
-                entity_type: EntityType::Audience,
-                parent: None,
-                previous_sibling: None,
-                fields: vec![("name", json!(audience.name))],
-            },
-        ));
-    }
-    for module in &doc.modules {
-        states.push((
-            module.id,
-            EntityState {
-                entity_type: EntityType::ModuleSettings,
-                parent: None,
-                previous_sibling: None,
-                fields: vec![
-                    ("completion_policy", json!(module.completion_policy)),
-                    ("certification_enabled", json!(module.certification_enabled)),
-                ],
-            },
-        ));
-    }
-    states
-}
-
-fn diff_settings(before: &CourseSettings, after: &CourseSettings) -> Vec<EntityChange> {
-    diff_states(settings_states(before), settings_states(after))
-}
-
-fn glossary_states(doc: &GlossaryAndReferences) -> Vec<(Uuid, EntityState)> {
-    doc.glossary
+/// The modules, chapters and pages that `after` adds or changes of `before`, by id.
+pub fn structure_changes(before: &CourseState, after: &CourseState) -> HashMap<Uuid, ChangeKind> {
+    let changes = after.changes_since(before);
+    let written = changes
+        .entities
         .iter()
-        .map(|t| {
-            (
-                t.id,
-                EntityState {
-                    entity_type: EntityType::GlossaryTerm,
-                    parent: None,
-                    previous_sibling: None,
-                    fields: vec![("term", json!(t.term)), ("definition", json!(t.definition))],
-                },
+        .filter(|entity| entity.after().is_some())
+        .map(StagedEntity::key)
+        .filter(|(entity_type, _)| {
+            matches!(
+                entity_type,
+                ContentEntityType::Module | ContentEntityType::Chapter
             )
         })
-        .chain(doc.references.iter().map(|r| {
-            (
-                r.id,
-                EntityState {
-                    entity_type: EntityType::Reference,
-                    parent: None,
-                    previous_sibling: None,
-                    fields: vec![
-                        ("citation_key", json!(r.citation_key)),
-                        ("bibtex", json!(r.bibtex)),
-                    ],
-                },
-            )
-        }))
+        .chain(
+            changes
+                .pages
+                .iter()
+                .filter(|page_id| after.page(**page_id).is_some())
+                .map(|page_id| (ContentEntityType::Page, *page_id)),
+        );
+    written
+        .map(|key| {
+            let kind = if !before.has_entity(key) {
+                ChangeKind::Added
+            } else {
+                let is_content_changed = key.0 == ContentEntityType::Page
+                    && before.page(key.1).map(|page| &page.content)
+                        != after.page(key.1).map(|page| &page.content);
+                let fields = after.field_changes_since(before, key);
+                let is_placed_only = !is_content_changed
+                    && !fields.is_empty()
+                    && fields.iter().all(|change| change.field.is_placement());
+                if is_placed_only {
+                    ChangeKind::Moved
+                } else {
+                    ChangeKind::Changed
+                }
+            };
+            (key.1, kind)
+        })
         .collect()
-}
-
-fn diff_glossary(
-    before: &GlossaryAndReferences,
-    after: &GlossaryAndReferences,
-) -> Vec<EntityChange> {
-    diff_states(glossary_states(before), glossary_states(after))
 }
 
 #[cfg(test)]
 mod tests {
     use pretty_assertions::assert_eq;
 
+    use serde_json::json;
+
     use super::*;
-    use crate::engine::PageType;
+    use crate::engine::{PageDocument, PageType};
     use crate::test_fixtures::{exercise, id, infobox, page, para};
+
+    fn blocks(documents: &[PageDocument]) -> Vec<PageRef<'_>> {
+        documents.iter().map(PageDocument::as_page_ref).collect()
+    }
+
+    fn diff(before: &[PageDocument], after: &[PageDocument]) -> Vec<BlockChange> {
+        diff_blocks(&blocks(before), &blocks(after))
+    }
 
     fn before() -> Vec<PageDocument> {
         vec![
@@ -530,18 +287,8 @@ mod tests {
         let moved = after[0].blocks.remove(2);
         after[1].blocks.push(moved);
         after[0].blocks[1].inner_blocks.push(para("new", "n"));
-        let result = diff(
-            &Snapshot {
-                pages: before(),
-                ..Default::default()
-            },
-            &Snapshot {
-                pages: after,
-                ..Default::default()
-            },
-        );
-        let kinds: Vec<(Uuid, ChangeKind)> =
-            result.blocks.iter().map(|b| (b.block_id, b.kind)).collect();
+        let result = diff(&before(), &after);
+        let kinds: Vec<(Uuid, ChangeKind)> = result.iter().map(|b| (b.block_id, b.kind)).collect();
         assert_eq!(
             kinds,
             vec![
@@ -551,49 +298,31 @@ mod tests {
                 (id("new"), ChangeKind::Added)
             ]
         );
-        let exercise_move = &result.blocks[2];
+        let exercise_move = &result[2];
         assert_eq!(
             (exercise_move.page_before, exercise_move.page_after),
             (Some(id("pg1")), Some(id("pg2")))
         );
         assert_eq!(exercise_move.exercise_id, Some(id("e1")));
         assert_eq!(
-            result.blocks[1].changed_fields,
+            result[1].changed_fields,
             vec!["attributes/content".to_string()]
         );
-        assert_eq!(result.pages_with_block_changes().len(), 2);
+        assert_eq!(pages_with_block_changes(&result).len(), 2);
     }
 
     #[test]
     fn reordering_siblings_is_a_move() {
         let mut after = before();
         after[0].blocks.swap(0, 1);
-        let result = diff(
-            &Snapshot {
-                pages: before(),
-                ..Default::default()
-            },
-            &Snapshot {
-                pages: after,
-                ..Default::default()
-            },
-        );
-        assert!(result.blocks.iter().all(|b| b.kind == ChangeKind::Moved));
+        let result = diff(&before(), &after);
+        assert!(result.iter().all(|b| b.kind == ChangeKind::Moved));
         assert!(!result.is_empty());
     }
 
     #[test]
     fn unchanged_is_empty() {
-        let result = diff(
-            &Snapshot {
-                pages: before(),
-                ..Default::default()
-            },
-            &Snapshot {
-                pages: before(),
-                ..Default::default()
-            },
-        );
+        let result = diff(&before(), &before());
         assert!(result.is_empty());
     }
 }

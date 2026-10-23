@@ -6,27 +6,33 @@ import {
   agentStorageState,
 } from "@/utils/agentChangesets"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { openAuthorizedApplications } from "@/utils/oauth/authorizedClients"
 
 test.use({ storageState: agentStorageState(AGENT_GRANT_HOLDER_EMAIL) })
+// Revoking uses up the seeded grant, so a retry would fail for a different reason.
+test.describe.configure({ retries: 0 })
 
 test("teacher revokes an AI agent's access", async ({ page }) => {
-  await page.goto("http://project-331.local/user-settings/permissions")
+  const permissions = await openAuthorizedApplications(page)
 
-  const section = page.getByTestId("authorized-applications-section")
-  const grant = section.locator('[data-testid^="authorized-app-"]').filter({
-    hasText: AGENT_CLIENT_NAME,
-  })
-  await expect(grant).toContainText("AI agent")
-  await expect(grant).toContainText("material:read, material:stage, material:publish")
-  await expect(grant).toContainText("not used yet")
+  const grant = await permissions.getAuthorizedApplication(AGENT_CLIENT_NAME)
+  expect(grant.scopes).toBe("material:read, material:stage, material:publish")
+  await expect(grant.row).toContainText("AI agent")
+  await expect(grant.row).toContainText("not used yet")
+  await expect(grant.revokeButton).toHaveAccessibleName(`Revoke access from ${AGENT_CLIENT_NAME}`)
 
-  await grant.getByRole("button", { name: "Revoke" }).click()
-  const dialog = page.getByRole("dialog")
-  await expect(dialog).toContainText(`Remove access from ${AGENT_CLIENT_NAME}?`)
-  await waitForSuccessNotification(page, async () => {
-    await page.getByTestId("oauth-grant-revoke-confirm-button").click()
-  })
+  await grant.revokeButton.click()
+  await expect(page.getByRole("dialog")).toContainText(`Remove access from ${AGENT_CLIENT_NAME}?`)
+  await waitForSuccessNotification(
+    page,
+    async () => {
+      await page.getByTestId("oauth-grant-revoke-confirm-button").click()
+    },
+    "Successfully deleted",
+  )
 
-  await expect(grant).toHaveCount(0)
-  await expect(section).toContainText("No authorized applications")
+  await expect(grant.row).toHaveCount(0)
+  await expect(page.getByTestId("authorized-applications-section")).toContainText(
+    "No authorized applications",
+  )
 })

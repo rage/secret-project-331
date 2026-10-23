@@ -148,16 +148,15 @@
         }
       }
     },
-    "/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}": {
+    "/api/v0/main-frontend/agent-changesets/counts": {
       "get": {
         "tags": ["agent_changesets"],
-        "summary": "\nGET `/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}` - Whether the signed-in user\nhas unpublished agent changes on the page, for the notice in the page editor. `null` if not.",
-        "operationId": "getAgentChangesPendingForPage",
+        "summary": "\nGET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent\nchangesets in the course, and how many entities their open one stages, for the course management\ntab and its badge.",
+        "operationId": "getAgentChangesetCounts",
         "parameters": [
           {
-            "name": "page_id",
-            "in": "path",
-            "description": "Page id",
+            "name": "course_id",
+            "in": "query",
             "required": true,
             "schema": {
               "type": "string",
@@ -167,18 +166,11 @@
         ],
         "responses": {
           "200": {
-            "description": "The open changeset changing the page, if any",
+            "description": "The user's changeset counts in the course",
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "type": "null"
-                    },
-                    {
-                      "$ref": "#/components/schemas/PendingAgentChanges"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/AgentChangesetCounts"
                 }
               }
             }
@@ -189,7 +181,7 @@
     "/api/v0/main-frontend/agent-changesets/{changeset_id}": {
       "get": {
         "tags": ["agent_changesets"],
-        "summary": "\nGET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the\nreview page: each entity's base, staged and live snapshot, risk reasons, conflicts and the agent\ncalls that staged it.",
+        "summary": "\nGET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the\nreview page: what each staged entity changes, field by field and for pages as students see them,\nits risk reasons, the conflicts and the agent calls that staged the changes.",
         "operationId": "getAgentChangeset",
         "parameters": [
           {
@@ -220,7 +212,7 @@
     "/api/v0/main-frontend/agent-changesets/{changeset_id}/discard": {
       "post": {
         "tags": ["agent_changesets"],
-        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open\nchangeset. Nothing of it reaches the live course.",
+        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open\nchangeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no\nlonger open or no longer the reviewed revision.",
         "operationId": "discardAgentChangeset",
         "parameters": [
           {
@@ -234,13 +226,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewedRevisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "The discarded changeset",
+            "description": "Discarded, or why it was not",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentChangeset"
+                  "$ref": "#/components/schemas/DiscardOutcome"
                 }
               }
             }
@@ -292,7 +294,7 @@
     "/api/v0/main-frontend/agent-changesets/{changeset_id}/publish": {
       "post": {
         "tags": ["agent_changesets"],
-        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open\nchangeset, risky changes included. Rejected without changes if any staged page or entity changed\nlive since it was staged.",
+        "summary": "\nPOST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open\nchangeset, risky changes included. Rejected without changes if the changeset is no longer open or no\nlonger the reviewed revision, if any staged page or entity changed live since it was staged, or if\nsaving a staged entity fails.",
         "operationId": "publishAgentChangeset",
         "parameters": [
           {
@@ -306,6 +308,16 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewedRevisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Published, or why it was not",
@@ -323,7 +335,7 @@
     "/api/v0/main-frontend/agent-preview/{token}": {
       "get": {
         "tags": ["agent_preview"],
-        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No\nlogin: the short-lived signed token is the authorization.",
+        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No\nlogin: the short-lived signed token stands in for it, while its user may still edit the course.",
         "operationId": "getAgentPagePreview",
         "parameters": [
           {
@@ -11732,50 +11744,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/oauth/authorized-clients": {
-      "get": {
-        "tags": ["oauth"],
-        "operationId": "getOauthAuthorizedClients",
-        "responses": {
-          "200": {
-            "description": "Authorized OAuth clients",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AuthorizedClientInfo"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/oauth/authorized-clients/{client_id}": {
-      "delete": {
-        "tags": ["oauth"],
-        "operationId": "deleteOauthAuthorizedClient",
-        "parameters": [
-          {
-            "name": "client_id",
-            "in": "path",
-            "description": "OAuth client id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Authorized client revoked"
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/oauth/consent": {
       "post": {
         "tags": ["oauth"],
@@ -17302,7 +17270,8 @@
           "user_id",
           "course_id",
           "status",
-          "expires_at"
+          "expires_at",
+          "revision"
         ],
         "properties": {
           "course_id": {
@@ -17325,12 +17294,14 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
-          "published_by": {
-            "type": ["string", "null"],
-            "format": "uuid"
+          "revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Incremented by every change to the staged entities; see [`increment_revision`]."
           },
           "status": {
-            "$ref": "#/components/schemas/AgentChangesetStatus"
+            "$ref": "#/components/schemas/AgentChangesetStatus",
+            "description": "The status now: `Expired` for an open changeset past `expires_at`, which the table records\nonly at the next write to the course."
           },
           "updated_at": {
             "type": "string",
@@ -17338,27 +17309,16 @@
           },
           "user_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The only user who can publish or discard the changeset."
           }
         }
       },
-      "AgentChangesetCall": {
+      "AgentChangesetCallSummary": {
         "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "changeset_id",
-          "user_id",
-          "client_name",
-          "tool_name",
-          "ops",
-          "entity_changes"
-        ],
+        "description": "A call as the review page lists it, without its operations and snapshots.",
+        "required": ["id", "created_at", "client_name", "tool_name"],
         "properties": {
-          "changeset_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "client_name": {
             "type": "string"
           },
@@ -17366,25 +17326,10 @@
             "type": "string",
             "format": "date-time"
           },
-          "entity_changes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EntityChange"
-            }
-          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "oauth_client_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "oauth_grant_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "ops": {},
           "revert_of_call_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -17394,77 +17339,28 @@
           },
           "tool_name": {
             "type": "string"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },
-      "AgentChangesetEntity": {
+      "AgentChangesetCounts": {
         "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "changeset_id",
-          "entity_type",
-          "entity_id",
-          "operation",
-          "risk_reasons"
-        ],
+        "description": "What the course management view shows of the user's changesets in a course without listing\nthem.",
+        "required": ["has_changesets", "open_entity_count"],
         "properties": {
-          "after_snapshot": {
-            "description": "The staged entity; `None` for deletes."
+          "has_changesets": {
+            "type": "boolean",
+            "description": "Whether the user has any changeset in the course, open or not."
           },
-          "base_snapshot": {
-            "description": "The live entity when it was first staged; `None` for creates."
-          },
-          "base_version_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "changeset_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "entity_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "entity_type": {
-            "$ref": "#/components/schemas/AgentChangesetEntityType"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "operation": {
-            "$ref": "#/components/schemas/AgentChangesetEntityOperation"
-          },
-          "risk_reasons": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RiskReason"
-            }
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
+          "open_entity_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "How many entities the user's open changeset stages; 0 without one."
           }
         }
       },
       "AgentChangesetEntityOperation": {
         "type": "string",
         "enum": ["create", "update", "delete"]
-      },
-      "AgentChangesetEntityType": {
-        "type": "string",
-        "enum": ["page", "chapter", "module", "course_settings", "glossary_term", "reference"]
       },
       "AgentChangesetStatus": {
         "type": "string",
@@ -17477,7 +17373,7 @@
         "properties": {
           "preview_path": {
             "type": "string",
-            "description": "Path of the preview page in the main frontend. Expires after\n`PREVIEW_TOKEN_LIFETIME_MINUTES`."
+            "description": "Path of the preview page in the main frontend. It stops working after a few minutes."
           }
         }
       },
@@ -17754,25 +17650,6 @@
         "type": "string",
         "description": "Which section of the Needs attention tab a picked row belongs to. Exactly one per row.",
         "enum": ["needs_attention", "running_late", "dismissed", "explained_by_problem"]
-      },
-      "AuthorizedClientInfo": {
-        "type": "object",
-        "required": ["client_id", "client_name", "scopes"],
-        "properties": {
-          "client_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "client_name": {
-            "type": "string"
-          },
-          "scopes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
       },
       "AutomaticCompletionRequirements": {
         "type": "object",
@@ -18312,48 +18189,50 @@
           }
         }
       },
-      "ChangesetEntitySummary": {
+      "ChangedSinceReview": {
         "type": "object",
-        "description": "One entity of a changeset, as listings and expiry warnings describe it.",
-        "required": ["entity_type", "entity_id", "operation", "label", "risk_reasons"],
+        "description": "The staged changes changed after the revision the user based a publish or discard on. Nothing\nwas written.",
+        "required": ["revision"],
         "properties": {
-          "entity_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "entity_type": {
-            "$ref": "#/components/schemas/AgentChangesetEntityType"
-          },
-          "label": {
-            "type": "string"
-          },
-          "operation": {
-            "$ref": "#/components/schemas/AgentChangesetEntityOperation"
-          },
-          "risk_reasons": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RiskReason"
-            }
+          "revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The changeset's revision now."
           }
         }
+      },
+      "ChangesetEntitySummary": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "required": ["operation"],
+            "properties": {
+              "operation": {
+                "$ref": "#/components/schemas/AgentChangesetEntityOperation"
+              },
+              "risk_reasons": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RiskReason"
+                }
+              }
+            }
+          }
+        ],
+        "description": "One entity of a changeset, as listings and expiry warnings describe it."
       },
       "ChangesetReview": {
         "type": "object",
         "description": "Everything the review page shows for a changeset.",
-        "required": [
-          "changeset",
-          "entities",
-          "calls",
-          "conflicts",
-          "has_risky_changes",
-          "is_expiring_soon"
-        ],
+        "required": ["changeset", "entities", "calls", "conflicts", "is_expiring_soon"],
         "properties": {
           "calls": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AgentChangesetCall"
+              "$ref": "#/components/schemas/AgentChangesetCallSummary"
             },
             "description": "The agent calls that staged the changes, oldest first."
           },
@@ -18364,16 +18243,14 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PublishConflict"
-            }
+            },
+            "description": "Staged entities whose live state changed after they were staged, which blocks publishing."
           },
           "entities": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ReviewEntity"
             }
-          },
-          "has_risky_changes": {
-            "type": "boolean"
           },
           "is_expiring_soon": {
             "type": "boolean"
@@ -19261,18 +19138,12 @@
         "type": "object",
         "description": "What the consent screen shows about the client asking for access.",
         "required": [
-          "client_id",
           "client_name",
-          "redirect_uri",
           "is_loopback_redirect",
           "is_metadata_document_client",
           "scopes"
         ],
         "properties": {
-          "client_id": {
-            "type": "string",
-            "description": "The client's public id; for agents, the URL of its metadata document."
-          },
           "client_name": {
             "type": "string"
           },
@@ -19286,13 +19157,6 @@
           "is_metadata_document_client": {
             "type": "boolean",
             "description": "Whether the client registered itself through a client ID metadata document, as AI agents\ndo."
-          },
-          "logo_uri": {
-            "type": ["string", "null"]
-          },
-          "redirect_uri": {
-            "type": "string",
-            "description": "Where the browser goes after approving: shown so the user can see which client is asking,\nsince any client can claim any name."
           },
           "scopes": {
             "type": "array",
@@ -19365,6 +19229,19 @@
             "description": "The user already granted it to this client."
           }
         }
+      },
+      "ContentEntityType": {
+        "type": "string",
+        "description": "A kind of course content entity that agent changesets stage and history records.",
+        "enum": [
+          "page",
+          "chapter",
+          "module",
+          "course_settings",
+          "glossary_term",
+          "reference",
+          "course_default_review_config"
+        ]
       },
       "CopyCourseMode": {
         "oneOf": [
@@ -20308,6 +20185,25 @@
             "minimum": 0
           }
         }
+      },
+      "CourseDefaultReviewConfigChange": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityChange"
+          },
+          {
+            "type": "object",
+            "required": ["exercise_count"],
+            "properties": {
+              "exercise_count": {
+                "type": "integer",
+                "format": "int64",
+                "description": "How many published exercises with peer or self reviews use the course default."
+              }
+            }
+          }
+        ],
+        "description": "A change to the course default review config, which every exercise without its own uses."
       },
       "CourseDesignerCourseSize": {
         "type": "string",
@@ -21561,7 +21457,7 @@
       },
       "CreatedRedirect": {
         "type": "object",
-        "description": "A redirect publishing created from a page's old path.",
+        "description": "A redirect from a page's old path, created when the page moved to a new one.",
         "required": ["page_id", "old_url_path", "new_url_path"],
         "properties": {
           "new_url_path": {
@@ -23619,6 +23515,92 @@
           }
         }
       },
+      "DiscardOutcome": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["changeset", "outcome"],
+            "properties": {
+              "changeset": {
+                "$ref": "#/components/schemas/AgentChangeset"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": ["discarded"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["rejection", "outcome"],
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "enum": ["rejected"]
+              },
+              "rejection": {
+                "$ref": "#/components/schemas/DiscardRejection"
+              }
+            }
+          }
+        ],
+        "description": "What discarding a whole changeset did."
+      },
+      "DiscardRejection": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The changeset was published, discarded or expired before.",
+            "required": ["status", "reason"],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "enum": ["not_open"]
+              },
+              "status": {
+                "$ref": "#/components/schemas/AgentChangesetStatus"
+              }
+            }
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChangedSinceReview",
+                "description": "The staged changes changed after the revision the discard was based on."
+              },
+              {
+                "type": "object",
+                "required": ["reason"],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": ["changed_since_review"]
+                  }
+                }
+              }
+            ],
+            "description": "The staged changes changed after the revision the discard was based on."
+          },
+          {
+            "type": "object",
+            "description": "Without the entities to drop, the rest of the changeset would break these rules of\npublishing.",
+            "required": ["blockers", "reason"],
+            "properties": {
+              "blockers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublishBlocker"
+                }
+              },
+              "reason": {
+                "type": "string",
+                "enum": ["blockers"]
+              }
+            }
+          }
+        ],
+        "description": "Why a discard was refused. Nothing was dropped."
+      },
       "DomainCompletionStats": {
         "type": "object",
         "required": [
@@ -24208,25 +24190,102 @@
         ]
       },
       "EntityChange": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "required": ["operation", "risk_reasons", "field_changes"],
+            "properties": {
+              "field_changes": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FieldChange"
+                },
+                "description": "The fields that differ between the entity when it was staged and as staged."
+              },
+              "operation": {
+                "$ref": "#/components/schemas/AgentChangesetEntityOperation"
+              },
+              "risk_reasons": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RiskReason"
+                }
+              }
+            }
+          }
+        ],
+        "description": "What a change does to one entity, apart from a page's content."
+      },
+      "EntityField": {
+        "type": "string",
+        "description": "A field of an entity snapshot that a change can set, named as the snapshot names it. Ids and\npage content are no fields: content is shown rendered.",
+        "enum": [
+          "title",
+          "url_path",
+          "hidden",
+          "chapter_id",
+          "order_number",
+          "name",
+          "color",
+          "chapter_number",
+          "course_module_id",
+          "front_page_id",
+          "opens_at",
+          "deadline",
+          "chapter_image_path",
+          "completion_policy",
+          "certification_enabled",
+          "uh_course_code",
+          "ects_credits",
+          "completion_registration_link_override",
+          "completions_can_be_registered_to_sisu",
+          "description",
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "can_add_chatbot",
+          "is_joinable_by_code_only",
+          "ask_marketing_consent",
+          "flagged_answers_threshold",
+          "flagged_answers_skip_manual_review_and_allow_retry",
+          "closed_at",
+          "closed_additional_message",
+          "closed_course_successor_id",
+          "chapter_locking_enabled",
+          "ai_policy",
+          "course_material_ai_instructions",
+          "base_module_completion_requires_n_submodule_completions",
+          "audiences",
+          "term",
+          "definition",
+          "citation_key",
+          "reference",
+          "review_instructions",
+          "exercise_name",
+          "exercise_deadline",
+          "task_instructions",
+          "review_config"
+        ]
+      },
+      "EntityRef": {
         "type": "object",
-        "description": "One entity a call touched, with its full snapshot just before and just after the call.",
-        "required": ["entity_type", "entity_id", "operation"],
+        "description": "A content entity and what people call it.",
+        "required": ["entity_type", "entity_id", "label"],
         "properties": {
-          "after": {
-            "description": "`None` when the call deleted the entity."
-          },
-          "before": {
-            "description": "`None` when the entity did not exist before the call."
-          },
           "entity_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The entity's id; the course id for course settings."
           },
           "entity_type": {
-            "$ref": "#/components/schemas/AgentChangesetEntityType"
+            "$ref": "#/components/schemas/ContentEntityType"
           },
-          "operation": {
-            "$ref": "#/components/schemas/AgentChangesetEntityOperation"
+          "label": {
+            "type": "string",
+            "description": "A page title, chapter, module or course name, glossary term or citation key; empty for the\ndefault module and the course default review config."
           }
         }
       },
@@ -24499,6 +24558,36 @@
           }
         }
       },
+      "ExerciseChangeWarning": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The exercise switches between the course default review config and its own while students\nhave already given reviews under the old one.",
+            "required": ["exercise_id", "exercise_name", "to", "review_count", "kind"],
+            "properties": {
+              "exercise_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "exercise_name": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["review_config_switched_with_reviews"]
+              },
+              "review_count": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "to": {
+                "$ref": "#/components/schemas/ReviewConfigKind"
+              }
+            }
+          }
+        ],
+        "description": "A consequence of an exercise change the reviewer should know of. Never makes the change risky."
+      },
       "ExerciseCsvExportTaskOption": {
         "type": "object",
         "required": [
@@ -24529,6 +24618,26 @@
           },
           "supports_csv_export_definitions": {
             "type": "boolean"
+          }
+        }
+      },
+      "ExerciseFieldOwner": {
+        "type": "object",
+        "description": "The exercise of a page a field change is in.",
+        "required": ["exercise_id", "exercise_name"],
+        "properties": {
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_name": {
+            "type": "string",
+            "description": "The exercise's name after the change."
+          },
+          "task_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The task, for [`EntityField::TaskInstructions`]."
           }
         }
       },
@@ -25470,6 +25579,192 @@
             "minimum": 0
           }
         }
+      },
+      "FieldChange": {
+        "type": "object",
+        "description": "One field a change sets to another value.",
+        "required": ["field"],
+        "properties": {
+          "after": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldValue",
+                "description": "`None` when the entity or the value doesn't exist after the change."
+              }
+            ]
+          },
+          "before": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FieldValue",
+                "description": "`None` when the entity or the value didn't exist."
+              }
+            ]
+          },
+          "exercise": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseFieldOwner",
+                "description": "The exercise whose field this is; `None` for the entity's own fields."
+              }
+            ]
+          },
+          "field": {
+            "$ref": "#/components/schemas/EntityField"
+          }
+        }
+      },
+      "FieldValue": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["text"]
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["number"]
+              },
+              "value": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["bool"]
+              },
+              "value": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["date_time"]
+              },
+              "value": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Another entity, labelled as it is or will be called.",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["reference"]
+              },
+              "value": {
+                "$ref": "#/components/schemas/EntityRef",
+                "description": "Another entity, labelled as it is or will be called."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["text_list"]
+              },
+              "value": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["completion_policy"]
+              },
+              "value": {
+                "$ref": "#/components/schemas/CompletionPolicy"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["ai_policy"]
+              },
+              "value": {
+                "$ref": "#/components/schemas/CourseAiPolicy"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Blocks, as stored.",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["blocks"]
+              },
+              "value": {
+                "description": "Blocks, as stored."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["review_config"]
+              },
+              "value": {
+                "$ref": "#/components/schemas/ReviewConfigKind"
+              }
+            }
+          }
+        ],
+        "description": "A field's value, typed for display."
       },
       "FlaggedAnswer": {
         "type": "object",
@@ -27277,25 +27572,8 @@
       "OAuthGrant": {
         "type": "object",
         "description": "A user's consent to one client: what the account page lists and revokes.",
-        "required": [
-          "id",
-          "client_id",
-          "client_identifier",
-          "client_name",
-          "is_metadata_document_client",
-          "scopes",
-          "granted_at"
-        ],
+        "required": ["id", "client_name", "is_metadata_document_client", "scopes", "granted_at"],
         "properties": {
-          "client_id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "`oauth_clients.id`."
-          },
-          "client_identifier": {
-            "type": "string",
-            "description": "The client's public `client_id`; the metadata document URL for agent clients."
-          },
           "client_name": {
             "type": "string"
           },
@@ -27549,6 +27827,53 @@
           }
         }
       },
+      "PageChange": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityChange"
+          },
+          {
+            "type": "object",
+            "required": ["is_content_changed", "warnings"],
+            "properties": {
+              "after": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreviewPage",
+                    "description": "The page as staged; `None` for deletes."
+                  }
+                ]
+              },
+              "base": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PreviewPage",
+                    "description": "The page when it was staged; `None` for creates."
+                  }
+                ]
+              },
+              "is_content_changed": {
+                "type": "boolean",
+                "description": "Whether the blocks or exercises differ; always for creates and deletes."
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ExerciseChangeWarning"
+                },
+                "description": "What the reviewer should know before publishing the page's exercise changes."
+              }
+            }
+          }
+        ],
+        "description": "What a change does to a page: its fields, and its content as students see it."
+      },
       "PageDetailsUpdate": {
         "type": "object",
         "description": "Represents the subset of page fields that can be updated from the main frontend dialog \"Edit page details\".",
@@ -27575,10 +27900,6 @@
           "page_id"
         ],
         "properties": {
-          "agent_changeset_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
           "agent_client_name": {
             "type": ["string", "null"],
             "description": "The agent client the change was made through; `None` for the web UI."
@@ -27649,39 +27970,16 @@
       "PagePreview": {
         "type": "object",
         "description": "What the preview of a staged page renders.",
-        "required": [
-          "changeset_id",
-          "course_id",
-          "course_name",
-          "course_slug",
-          "language_code",
-          "page",
-          "is_staged"
-        ],
+        "required": ["course_name", "language_code", "page"],
         "properties": {
-          "changeset_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_name": {
             "type": "string"
-          },
-          "course_slug": {
-            "type": "string"
-          },
-          "is_staged": {
-            "type": "boolean",
-            "description": "Whether the changeset changes this page."
           },
           "language_code": {
             "type": "string"
           },
           "page": {
-            "$ref": "#/components/schemas/PageSnapshot",
+            "$ref": "#/components/schemas/PreviewPage",
             "description": "The page as staged, or as live if the changeset does not change it."
           }
         }
@@ -27728,75 +28026,6 @@
           "user_id": {
             "type": ["string", "null"],
             "format": "uuid"
-          }
-        }
-      },
-      "PageSnapshot": {
-        "type": "object",
-        "description": "A course page: its metadata, its stored blocks and its exercises, in the shape the CMS page\nsave takes. Exercise blocks in `content` are stored stripped to their id, as the CMS stores\nthem; the exercises themselves are in `exercises`, `exercise_slides` and `exercise_tasks`.",
-        "required": [
-          "id",
-          "course_id",
-          "url_path",
-          "title",
-          "hidden",
-          "order_number",
-          "content",
-          "exercises",
-          "exercise_slides",
-          "exercise_tasks"
-        ],
-        "properties": {
-          "chapter_id": {
-            "type": ["string", "null"],
-            "format": "uuid",
-            "description": "`None` for top-level pages."
-          },
-          "content": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GutenbergBlock"
-            }
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "exercise_slides": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CmsPageExerciseSlide"
-            }
-          },
-          "exercise_tasks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CmsPageExerciseTask"
-            }
-          },
-          "exercises": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CmsPageExercise"
-            }
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "order_number": {
-            "type": "integer",
-            "format": "int32",
-            "description": "Position among the pages of the same chapter (or the top-level pages). 0 is reserved for\na chapter's front page."
-          },
-          "title": {
-            "type": "string"
-          },
-          "url_path": {
-            "type": "string"
           }
         }
       },
@@ -29050,25 +29279,6 @@
           }
         }
       },
-      "PendingAgentChanges": {
-        "type": "object",
-        "description": "The user's unpublished agent changes on a page.",
-        "required": ["changeset_id", "course_id", "review_path"],
-        "properties": {
-          "changeset_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "review_path": {
-            "type": "string",
-            "description": "Path of the review page in the main frontend."
-          }
-        }
-      },
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
@@ -29310,39 +29520,315 @@
           }
         }
       },
+      "PreviewExercise": {
+        "type": "object",
+        "description": "An exercise of a previewed page.",
+        "required": [
+          "id",
+          "name",
+          "assignment",
+          "has_reviews",
+          "uses_course_default_review_config"
+        ],
+        "properties": {
+          "assignment": {
+            "type": "array",
+            "items": {},
+            "description": "The assignment blocks of its tasks, in slide and task order."
+          },
+          "has_reviews": {
+            "type": "boolean",
+            "description": "Whether students review answers to it, themselves or each other."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "review_instructions": {
+            "description": "The review instructions blocks students see while reviewing. For an exercise that uses the\ncourse default, only a preview link fills them in."
+          },
+          "uses_course_default_review_config": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PreviewPage": {
+        "type": "object",
+        "description": "A page as students see it before answering anything. The preview needs no login, so exercise\nspecs, model solutions and review settings other than the instructions are left out.",
+        "required": [
+          "id",
+          "course_id",
+          "url_path",
+          "title",
+          "hidden",
+          "order_number",
+          "content",
+          "exercises"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GutenbergBlock"
+            }
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewExercise"
+            }
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
       "ProposalStatus": {
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
       },
-      "PublishConflict": {
-        "type": "object",
-        "description": "A staged entity whose live state changed after it was staged.",
-        "required": ["entity_type", "entity_id", "label"],
-        "properties": {
-          "entity_id": {
-            "type": "string",
-            "format": "uuid"
+      "PublishBlocker": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The page is in a chapter the course doesn't have.",
+            "required": ["page", "chapter_id", "kind"],
+            "properties": {
+              "chapter_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["page_in_missing_chapter"]
+              },
+              "page": {
+                "$ref": "#/components/schemas/EntityRef"
+              }
+            }
           },
-          "entity_type": {
-            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          {
+            "type": "object",
+            "description": "The pages share a path, which must be unique in the course.",
+            "required": ["url_path", "pages", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_path"]
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EntityRef"
+                }
+              },
+              "url_path": {
+                "type": "string"
+              }
+            }
           },
-          "label": {
-            "type": "string"
+          {
+            "type": "object",
+            "description": "The pages share a position in their chapter, or among the top-level pages with no\n`chapter`.",
+            "required": ["order_number", "pages", "kind"],
+            "properties": {
+              "chapter": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/EntityRef"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_page_order_number"]
+              },
+              "order_number": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EntityRef"
+                }
+              }
+            }
           },
-          "last_changed_at": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "When the live entity was last changed, if its history knows."
+          {
+            "type": "object",
+            "description": "The chapter is in a module the course doesn't have.",
+            "required": ["chapter", "module_id", "kind"],
+            "properties": {
+              "chapter": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["chapter_in_missing_module"]
+              },
+              "module_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
           },
-          "last_changed_by_user_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
+          {
+            "type": "object",
+            "description": "The chapter's front page is a page the course doesn't have.",
+            "required": ["chapter", "front_page_id", "kind"],
+            "properties": {
+              "chapter": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "front_page_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["missing_front_page"]
+              }
+            }
           },
-          "last_changed_via_client": {
-            "type": ["string", "null"],
-            "description": "The agent client of the last change; `None` for the web UI or when unknown."
+          {
+            "type": "object",
+            "description": "The chapter's front page is in another chapter.",
+            "required": ["chapter", "front_page", "kind"],
+            "properties": {
+              "chapter": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "front_page": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["front_page_in_other_chapter"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The chapter's front page isn't at the path its chapter number gives it.",
+            "required": ["chapter", "front_page", "url_path", "expected_url_path", "kind"],
+            "properties": {
+              "chapter": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "expected_url_path": {
+                "type": "string"
+              },
+              "front_page": {
+                "$ref": "#/components/schemas/EntityRef"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["front_page_off_path"]
+              },
+              "url_path": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The chapters share a number, which must be unique in the course.",
+            "required": ["chapter_number", "chapters", "kind"],
+            "properties": {
+              "chapter_number": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "chapters": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EntityRef"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_chapter_number"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The modules share an order number, which must be unique in the course.",
+            "required": ["order_number", "modules", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_module_order_number"]
+              },
+              "modules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EntityRef"
+                }
+              },
+              "order_number": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           }
-        }
+        ],
+        "description": "A rule publishing relies on that a course state breaks. Pages, chapters and modules are named\nas the state has them."
+      },
+      "PublishConflict": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "last_changed_at": {
+                "type": ["string", "null"],
+                "format": "date-time",
+                "description": "When the live entity was last changed, if its history knows."
+              },
+              "last_changed_by_user_id": {
+                "type": ["string", "null"],
+                "format": "uuid"
+              },
+              "last_changed_via_client": {
+                "type": ["string", "null"],
+                "description": "The agent client of the last change; `None` for the web UI or when unknown."
+              }
+            }
+          }
+        ],
+        "description": "A staged entity whose live state changed after it was staged."
       },
       "PublishOutcome": {
         "oneOf": [
@@ -29384,7 +29870,7 @@
         "oneOf": [
           {
             "type": "object",
-            "description": "Live entities changed since they were staged; the agent must restage them.",
+            "description": "Live entities changed since they were staged; their staged edits must be redone on the\ncurrent live state.",
             "required": ["conflicts", "reason"],
             "properties": {
               "conflicts": {
@@ -29411,7 +29897,7 @@
               "risky_entities": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/RiskyEntity"
+                  "$ref": "#/components/schemas/ChangesetEntitySummary"
                 }
               }
             }
@@ -29430,6 +29916,80 @@
                 "items": {
                   "type": "string"
                 }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The course with the staged changes would break these rules publishing relies on, which\nthe live course doesn't.",
+            "required": ["blockers", "reason"],
+            "properties": {
+              "blockers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublishBlocker"
+                }
+              },
+              "reason": {
+                "type": "string",
+                "enum": ["blockers"]
+              }
+            }
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChangedSinceReview",
+                "description": "The staged changes changed after the user opened the review page."
+              },
+              {
+                "type": "object",
+                "required": ["reason"],
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": ["changed_since_review"]
+                  }
+                }
+              }
+            ],
+            "description": "The staged changes changed after the user opened the review page."
+          },
+          {
+            "type": "object",
+            "description": "The changeset was published, discarded or expired before.",
+            "required": ["status", "reason"],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "enum": ["not_open"]
+              },
+              "status": {
+                "$ref": "#/components/schemas/AgentChangesetStatus"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A save path refused what was staged for `entity`; `None` when the refusal came only once\nevery write was in. `message` is the save path's own, in English.",
+            "required": ["message", "reason"],
+            "properties": {
+              "entity": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/EntityRef"
+                  }
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string",
+                "enum": ["save_failed"]
               }
             }
           }
@@ -29944,23 +30504,78 @@
           "permanent_needs_config"
         ]
       },
+      "ReviewConfigKind": {
+        "type": "string",
+        "description": "Which review settings an exercise uses.",
+        "enum": ["course_default", "own"]
+      },
       "ReviewEntity": {
+        "oneOf": [
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PageChange"
+              },
+              {
+                "type": "object",
+                "required": ["kind"],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["page"]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CourseDefaultReviewConfigChange"
+              },
+              {
+                "type": "object",
+                "required": ["kind"],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["course_default_review_config"]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EntityChange",
+                "description": "Any other entity, which changes only field by field."
+              },
+              {
+                "type": "object",
+                "required": ["kind"],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["fields"]
+                  }
+                }
+              }
+            ],
+            "description": "Any other entity, which changes only field by field."
+          }
+        ],
+        "description": "One staged entity on the review page."
+      },
+      "ReviewedRevisionRequest": {
         "type": "object",
-        "description": "One entity on the review page: its base, staged and current live state, so the page can render\nthe diff and flag conflicts.",
-        "required": ["entity", "label", "has_conflict"],
+        "description": "A publish or discard of the changeset as the user reviewed it.",
+        "required": ["reviewed_revision"],
         "properties": {
-          "entity": {
-            "$ref": "#/components/schemas/AgentChangesetEntity"
-          },
-          "has_conflict": {
-            "type": "boolean",
-            "description": "Whether the live entity changed after it was staged, which blocks publishing."
-          },
-          "label": {
-            "type": "string"
-          },
-          "live_snapshot": {
-            "description": "The live entity now; `None` if it does not exist."
+          "reviewed_revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "`changeset.revision` of the review the user acted on."
           }
         }
       },
@@ -29979,44 +30594,195 @@
         ]
       },
       "RiskReason": {
-        "type": "object",
-        "description": "Why a staged change needs the user's confirmation before it is published.",
-        "required": ["code", "message", "consequence"],
-        "properties": {
-          "code": {
-            "type": "string",
-            "description": "Stable machine-readable identifier of the rule, e.g. `exercise_with_submissions_removed`."
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The page loses an exercise that has submissions.",
+            "required": ["exercise_id", "code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["exercise_with_submissions_removed"]
+              },
+              "exercise_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
           },
-          "consequence": {
-            "type": "string",
-            "description": "What happens to students if the change is published."
+          {
+            "type": "object",
+            "description": "The page is removed, with exercises that have submissions.",
+            "required": ["code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["page_with_submissions_removed"]
+              }
+            }
           },
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "RiskyEntity": {
-        "type": "object",
-        "required": ["entity_type", "entity_id", "label", "risk_reasons"],
-        "properties": {
-          "entity_id": {
-            "type": "string",
-            "format": "uuid"
+          {
+            "type": "object",
+            "description": "The chapter is removed, with exercises that have submissions.",
+            "required": ["code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["chapter_with_submissions_removed"]
+              }
+            }
           },
-          "entity_type": {
-            "$ref": "#/components/schemas/AgentChangesetEntityType"
+          {
+            "type": "object",
+            "description": "The page is removed while students can see it.",
+            "required": ["code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["visible_page_removed"]
+              }
+            }
           },
-          "label": {
-            "type": "string"
+          {
+            "type": "object",
+            "description": "The chapter is removed while it is open.",
+            "required": ["code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["open_chapter_removed"]
+              }
+            }
           },
-          "risk_reasons": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RiskReason"
+          {
+            "type": "object",
+            "description": "The open chapter's deadline moves earlier.",
+            "required": ["before", "after", "code"],
+            "properties": {
+              "after": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "before": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "code": {
+                "type": "string",
+                "enum": ["deadline_moved_earlier"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The open chapter gets a deadline.",
+            "required": ["deadline", "code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["deadline_added_to_open_chapter"]
+              },
+              "deadline": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The deadline that applies to the exercise on the page, open to students, moves earlier\nthrough a change to the exercise's own deadline.",
+            "required": ["exercise_id", "before", "after", "code"],
+            "properties": {
+              "after": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "before": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "code": {
+                "type": "string",
+                "enum": ["exercise_deadline_moved_earlier"]
+              },
+              "exercise_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The exercise on the page, open to students and without a deadline so far, gets its own.",
+            "required": ["exercise_id", "deadline", "code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["exercise_deadline_added"]
+              },
+              "deadline": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "exercise_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The open chapter opens again only later.",
+            "required": ["opens_at", "code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["opening_moved_later"]
+              },
+              "opens_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The module's completion policy changes after students have completed it.",
+            "required": ["code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["completion_policy_changed_after_completions"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The number of module completions the base module requires changes after modules have\ncompletions.",
+            "required": ["code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["completion_requirement_changed_after_completions"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Chapter locking is turned on, or off.",
+            "required": ["is_enabled", "code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["chapter_locking_toggled"]
+              },
+              "is_enabled": {
+                "type": "boolean"
+              }
             }
           }
-        }
+        ],
+        "description": "Why a staged change needs the user's confirmation before it is published: a rule it breaks,\nwith the facts the rule found. It belongs to the entity the change is to, so it doesn't name\nthat entity again."
       },
       "Role": {
         "type": "object",

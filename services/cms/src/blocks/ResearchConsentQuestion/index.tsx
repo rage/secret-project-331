@@ -21,8 +21,7 @@ const ResearchConsentQuestionConfiguration: BlockConfiguration<ResearchConsentQu
     attributes: {
       content: {
         type: "string",
-        source: "html",
-        selector: "span",
+        isRichText: true,
       },
     },
     icon: formatLTR,

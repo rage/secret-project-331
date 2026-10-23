@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, RichText } from "@wordpress/block-editor"
+import { RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -10,7 +10,7 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import type { CourseObjectiveSectionAttributes } from "."
@@ -18,7 +18,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const CourseObjectiveSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<CourseObjectiveSectionAttributes>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title } = attributes
   return (
     <BlockWrapper>
@@ -47,7 +47,7 @@ const CourseObjectiveSectionEditor: React.FC<
               "In this course you'll..."
             }
           />
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
         </div>
       </BreakFromCentered>
     </BlockWrapper>

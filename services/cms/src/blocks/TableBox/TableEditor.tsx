@@ -1,11 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -14,7 +14,6 @@ import TableBoxWidthCustomizer from "../../components/blocks/TableBoxWidthCustom
 import BlockWrapper from "../BlockWrapper"
 
 const TableEditor: React.FC<React.PropsWithChildren<BlockEditProps<TableBoxAttributes>>> = ({
-  name,
   attributes,
   setAttributes,
 }) => {
@@ -45,7 +44,7 @@ const TableEditor: React.FC<React.PropsWithChildren<BlockEditProps<TableBoxAttri
             {t("table-box-description")}
           </span>
         </div>
-        <InnerBlocks {...registeredInnerBlocksProps(name)} />
+        <RegisteredInnerBlocks />
       </div>
     </BlockWrapper>
   )

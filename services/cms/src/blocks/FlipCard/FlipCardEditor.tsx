@@ -1,11 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -13,7 +13,6 @@ import type { FlipCardAttributes } from "."
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAttributes>>> = ({
-  name,
   attributes,
   setAttributes,
 }) => {
@@ -32,7 +31,7 @@ const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAt
           width: 100%;
         `}
       >
-        <InnerBlocks {...registeredInnerBlocksProps(name)} />
+        <RegisteredInnerBlocks />
       </div>
     </BlockPlaceholderWrapper>
   )

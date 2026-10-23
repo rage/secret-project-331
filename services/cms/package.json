@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production next build && node scripts/buildBlockValidatorWorker.mjs",
-    "build:block-validator": "node scripts/buildBlockValidatorWorker.mjs",
     "dev": "next dev --turbopack",
     "export": "next export",
     "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\",\\\"verbatimModuleSyntax\\\":false}\" scripts/listGutenbergBlockNames.ts",

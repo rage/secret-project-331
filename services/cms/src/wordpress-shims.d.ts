@@ -27,6 +27,7 @@ declare module "@wordpress/block-editor" {
   export const __experimentalListView: any
   export const __unstableEditorStyles: any
   export const __unstableUseBlockSelectionClearer: any
+  export const useBlockEditContext: any
   export const useBlockProps: any
 }
 

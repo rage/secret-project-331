@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import ChapterProgressEditor from "./ChapterProgressEditor"
-import ChapterProgressSave from "./ChapterProgressSave"
 
 const ChapterProgressConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -14,9 +14,8 @@ const ChapterProgressConfiguration: BlockConfiguration = {
   description: "Chapter Progress block.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
-  allowedBlocks: [],
   edit: ChapterProgressEditor,
-  save: ChapterProgressSave,
+  save: EmptyBlockSave,
 }
 
 export default ChapterProgressConfiguration

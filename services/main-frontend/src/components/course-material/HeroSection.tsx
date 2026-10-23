@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useRef } from "react"
 
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
@@ -124,6 +124,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   // oxlint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
+  const labelRef = useRef<HTMLElement>(null)
 
   const backgroundImages = resolveHeroBackgroundImages({
     backgroundImage,
@@ -185,16 +186,16 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       `}
     >
       <TextBox backgroundImages={backgroundImages} color={fontColor} direction={direction}>
-        {label !== undefined && (
-          <ParsedText
-            text={label}
-            tag="span"
-            // oxlint-disable-next-line i18next/no-literal-string
-            tagProps={{ className: "chapter" }}
-            options={{ glossary: false }}
-            useWrapperElement={true}
-          />
-        )}
+        {/* No wrapper: the label must stay a flex item for its margin to apply. */}
+        <ParsedText
+          text={label}
+          tag="span"
+          // oxlint-disable-next-line i18next/no-literal-string
+          tagProps={{ className: "chapter" }}
+          options={{ glossary: false }}
+          useWrapperElement={false}
+          wrapperRef={labelRef}
+        />
         <ParsedText
           text={title}
           tag="h1"

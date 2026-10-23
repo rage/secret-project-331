@@ -5,21 +5,27 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import { ChangesetStatusBadge } from "@/components/agent-changesets/ChangesetReview"
+import { ChangesetStatusBadge } from "@/components/agent-changesets/ChangesetStatusBadge"
 import { getAgentChangesetsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChangesetSummary } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseAgentChangesetRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Badge, EmptyState, Link, QueryResult, Table, TONE } from "@/shared-module/components"
+import {
+  Badge,
+  EmptyState,
+  Link,
+  QueryResult,
+  RelativeTime,
+  Table,
+  TONE,
+} from "@/shared-module/components"
 
 function AgentChangesetsPage() {
   const params = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const changesetsQuery = useQuery({
-    ...getAgentChangesetsOptions({ query: { course_id: params.id } }),
-  })
+  const changesetsQuery = useQuery(getAgentChangesetsOptions({ query: { course_id: params.id } }))
 
   return (
     <div
@@ -53,7 +59,7 @@ function AgentChangesetsPage() {
                     href={manageCourseAgentChangesetRoute(params.id, summary.changeset.id)}
                     data-testid="agent-changeset-link"
                   >
-                    {dateToString(summary.changeset.updated_at)}
+                    <RelativeTime at={summary.changeset.updated_at} />
                   </Link>
                 ),
               },

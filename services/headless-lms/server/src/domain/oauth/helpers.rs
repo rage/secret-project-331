@@ -3,57 +3,74 @@ use crate::prelude::*;
 use models::{library::oauth::token_digest_sha256, oauth_client::OAuthClient};
 use secrecy::{ExposeSecret, SecretString};
 
+/// An OAuth error response (RFC 6749 §4.1.2.1, §5.2). With `redirect`, which must be a redirect URI
+/// verified for the client, it is sent to the client as a redirect; otherwise it is answered as
+/// JSON.
+#[track_caller]
 pub fn oauth_error(
-    error: &'static str,
-    desc: &'static str,
+    code: OAuthErrorCode,
+    description: impl Into<String>,
     redirect: Option<&str>,
     state: Option<&str>,
 ) -> ControllerError {
+    let description = description.into();
     ControllerError::new(
         ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-            error: error.into(),
-            error_description: desc.into(),
             redirect_uri: redirect.map(str::to_string),
             state: state.map(str::to_string),
-            nonce: None,
+            ..OAuthErrorData::new(code, description.clone())
         })),
-        desc,
+        description,
         None::<anyhow::Error>,
     )
 }
 
+/// A `server_error` answered as JSON, keeping the internal cause for the logs.
+#[track_caller]
+pub fn oauth_server_error(description: &'static str, source: anyhow::Error) -> ControllerError {
+    ControllerError::new(
+        ControllerErrorType::OAuthError(Box::new(OAuthErrorData::new(
+            OAuthErrorCode::ServerError,
+            description,
+        ))),
+        description,
+        Some(source),
+    )
+}
+
+#[track_caller]
 pub fn oauth_invalid_request(
-    desc: &'static str,
+    description: impl Into<String>,
     redirect: Option<&str>,
     state: Option<&str>,
 ) -> ControllerError {
-    oauth_error(
-        OAuthErrorCode::InvalidRequest.as_str(),
-        desc,
-        redirect,
-        state,
-    )
+    oauth_error(OAuthErrorCode::InvalidRequest, description, redirect, state)
 }
 
-pub fn oauth_invalid_client(desc: &'static str) -> ControllerError {
-    oauth_error(OAuthErrorCode::InvalidClient.as_str(), desc, None, None)
+#[track_caller]
+pub fn oauth_invalid_client(description: impl Into<String>) -> ControllerError {
+    oauth_error(OAuthErrorCode::InvalidClient, description, None, None)
 }
 
-pub fn oauth_invalid_scope(desc: &'static str) -> ControllerError {
-    oauth_error(OAuthErrorCode::InvalidScope.as_str(), desc, None, None)
+/// `invalid_token` for a request to a protected resource (RFC 6750 §3.1).
+#[track_caller]
+pub fn oauth_invalid_token(description: impl Into<String>) -> ControllerError {
+    oauth_error(OAuthErrorCode::InvalidToken, description, None, None)
 }
 
-pub fn oauth_unauthorized_client(desc: &'static str) -> ControllerError {
-    oauth_error(
-        OAuthErrorCode::UnauthorizedClient.as_str(),
-        desc,
-        None,
-        None,
-    )
+#[track_caller]
+pub fn oauth_invalid_scope(description: impl Into<String>) -> ControllerError {
+    oauth_error(OAuthErrorCode::InvalidScope, description, None, None)
 }
 
-pub fn oauth_invalid_grant(desc: &'static str) -> ControllerError {
-    oauth_error(OAuthErrorCode::InvalidGrant.as_str(), desc, None, None)
+#[track_caller]
+pub fn oauth_unauthorized_client(description: impl Into<String>) -> ControllerError {
+    oauth_error(OAuthErrorCode::UnauthorizedClient, description, None, None)
+}
+
+#[track_caller]
+pub fn oauth_invalid_grant(description: impl Into<String>) -> ControllerError {
+    oauth_error(OAuthErrorCode::InvalidGrant, description, None, None)
 }
 
 pub fn scope_has_openid(scope: &[String]) -> bool {

@@ -25,7 +25,6 @@ const LockChapterConfiguration: BlockConfiguration = {
     "moocfi/latex",
     "moocfi/iframe",
   ],
-  innerBlocksArea: {},
   edit: LockChapterEditor,
   save: LockChapterSave,
 }

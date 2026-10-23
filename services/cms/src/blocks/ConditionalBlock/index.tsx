@@ -21,10 +21,12 @@ const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
   attributes: {
     module_completion: {
       type: "array",
+      agentSchema: { type: "array", items: { type: "string" } },
       default: [],
     },
     instance_enrollment: {
       type: "array",
+      agentSchema: { type: "array", items: { type: "string" } },
       default: [],
     },
   },
@@ -60,7 +62,6 @@ const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
     "moocfi/ingress",
     "moocfi/terminology-block",
   ],
-  innerBlocksArea: {},
   edit: ConditionalBlockEditor,
   save: ConditionalBlockSave,
 }

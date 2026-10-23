@@ -12,11 +12,11 @@ use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
 use super::PageDocument;
-use super::blocks;
+use super::blocks::{self, BlockPart, BlockPath, parse_block_path};
 use super::error::{EditError, EditErrorCode};
 use super::labels::parse_uuid;
-use super::page_content::unescape_pointer;
-use crate::text::{plain_text, preview};
+use crate::diff::ChangeKind;
+use crate::text::{plain_text, preview, serialized_len};
 
 /// What to read. All fields are optional; an empty selector is an outline of the whole page or course.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -44,6 +44,7 @@ pub struct Selector {
     pub state: Option<ReadState>,
 }
 
+/// How much of each item a read returns.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ReadMode {
@@ -54,7 +55,8 @@ pub enum ReadMode {
     Raw,
 }
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+/// Which state of the course a read sees.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ReadState {
     #[default]
@@ -62,15 +64,7 @@ pub enum ReadState {
     Published,
 }
 
-/// How a staged block or entity differs from the published version.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum PendingKind {
-    Added,
-    Changed,
-    Moved,
-}
-
+/// Why a read returned fewer items than its selector covers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum StopReason {
@@ -79,20 +73,13 @@ pub enum StopReason {
 }
 
 /// Read settings the caller derives from the client and the staged changeset.
-#[derive(Debug, Clone)]
-pub struct ReadOptions {
+#[derive(Debug, Clone, Copy)]
+pub struct ReadOptions<'a> {
     /// Serialized size the returned units may use; whole units only.
     pub budget_bytes: usize,
-    pub pending: HashMap<Uuid, PendingKind>,
-}
-
-impl Default for ReadOptions {
-    fn default() -> Self {
-        Self {
-            budget_bytes: 24_000,
-            pending: HashMap::new(),
-        }
-    }
+    /// How staged blocks or entities differ from the published ones, to mark them; `None` marks
+    /// nothing.
+    pub pending: Option<&'a HashMap<Uuid, ChangeKind>>,
 }
 
 /// One selector's result.
@@ -154,51 +141,120 @@ pub(crate) fn check_selector(selector: &Selector) -> Result<(), EditError> {
     Ok(())
 }
 
+/// What a read path names, with the index path of the block it starts from.
 enum PageAddress {
-    List(Option<Uuid>),
-    Block(Uuid),
-    Field(Uuid, Vec<String>),
+    /// The top level, or the children of the block.
+    List(Option<(Uuid, Vec<usize>)>),
+    Block(Uuid, Vec<usize>),
+    Name(Vec<usize>),
+    /// The block's attributes and a JSON Pointer into them, `""` for all of them.
+    Attribute(Vec<usize>, String),
 }
 
 fn page_address(page: &PageDocument, path: &str) -> Result<PageAddress, EditError> {
-    if path.is_empty() || path == "/" {
-        return Ok(PageAddress::List(None));
-    }
-    let rest = path.strip_prefix('/').ok_or_else(|| {
+    let parsed = parse_block_path(path).ok_or_else(|| {
         EditError::new(
             EditErrorCode::InvalidPath,
             format!("path \"{path}\" must start with /"),
         )
     })?;
-    let segments: Vec<String> = rest.split('/').map(unescape_pointer).collect();
-    if segments[0].starts_with('$') {
+    let (root, part) = match parsed {
+        BlockPath::TopLevel => return Ok(PageAddress::List(None)),
+        BlockPath::Block { root, part } => (root, part),
+    };
+    if root.starts_with('$') {
         return Err(EditError::new(
             EditErrorCode::LabelUndefined,
             "labels only exist inside the call that created them; use the returned ids",
         ));
     }
-    let id = parse_uuid(&segments[0], path)?;
-    if blocks::find_path(&page.blocks, id).is_none() {
-        return Err(EditError::new(
+    let id = parse_uuid(&root, path)?;
+    let location = blocks::find_path(&page.blocks, id).ok_or_else(|| {
+        EditError::new(
             EditErrorCode::NotFound,
             format!("no block {id} on this page"),
         )
-        .with_fix("read the outline (no path) to get current ids"));
-    }
-    match segments.get(1).map(String::as_str) {
-        None => Ok(PageAddress::Block(id)),
-        Some("innerBlocks") if segments.len() == 2 => Ok(PageAddress::List(Some(id))),
-        Some("innerBlocks") => Err(EditError::new(
+        .with_fix("read the outline (no path) to get current ids")
+    })?;
+    match part {
+        BlockPart::Whole => Ok(PageAddress::Block(id, location)),
+        BlockPart::Children => Ok(PageAddress::List(Some((id, location)))),
+        BlockPart::ChildIndex(_) => Err(EditError::new(
             EditErrorCode::NumericIndex,
             "children are addressed by id; use offset and limit for windows",
         )),
-        Some("attributes" | "name") => Ok(PageAddress::Field(id, segments[1..].to_vec())),
-        Some(other) => Err(EditError::new(
+        BlockPart::Attributes(pointer) => Ok(PageAddress::Attribute(location, pointer.to_string())),
+        BlockPart::Name => Ok(PageAddress::Name(location)),
+        BlockPart::Other {
+            field,
+            is_deeper: true,
+        } if field == "name" => Err(EditError::new(
             EditErrorCode::InvalidPath,
-            format!("blocks have no \"{other}\""),
+            format!("a block's name is a string; read /{id}/name"),
+        )),
+        BlockPart::Other { field, .. } => Err(EditError::new(
+            EditErrorCode::InvalidPath,
+            format!("blocks have no \"{field}\""),
         )
-        .with_fix(format!("/{id}/attributes/{other}"))),
+        .with_fix(format!("/{id}/attributes/{field}"))),
     }
+}
+
+/// A window over a whole list, which `offset` and `limit` select. `noun` names what a path that
+/// `through` and `around` start from points at, e.g. "a block".
+pub(crate) fn list_read<T: HasId>(
+    selector: &Selector,
+    items: &[T],
+    parent: Option<String>,
+    options: &ReadOptions,
+    render: &dyn Fn(&T) -> Value,
+    noun: &str,
+) -> Result<ReadResult, EditError> {
+    if selector.through.is_some() || selector.around.is_some() {
+        return Err(EditError::new(
+            EditErrorCode::InvalidValue,
+            format!("through and around start from {noun} path, not a list"),
+        ));
+    }
+    let start = selector.offset.unwrap_or(0) as usize;
+    let end = selector
+        .limit
+        .map(|l| start + l as usize)
+        .unwrap_or(items.len());
+    Ok(window(selector, items, start, end, parent, options, render))
+}
+
+/// The `[start, end)` window `through`, `around` or `limit` select from the siblings around the
+/// one at `index`; `None` when the selector reads that sibling alone.
+pub(crate) fn sibling_window(
+    selector: &Selector,
+    index: usize,
+    sibling_ids: &[Uuid],
+) -> Result<Option<(usize, usize)>, EditError> {
+    if let Some(through) = &selector.through {
+        let last = parse_uuid(through.trim_start_matches('/'), through)?;
+        let last_index = sibling_ids
+            .iter()
+            .position(|id| *id == last)
+            .filter(|last_index| *last_index >= index);
+        return match last_index {
+            Some(last_index) => Ok(Some((index, last_index + 1))),
+            None => Err(EditError::new(
+                EditErrorCode::InvalidRange,
+                "through must be a later sibling of path",
+            )
+            .with_details(json!({
+                "siblings_in_order": sibling_ids.iter().map(|id| format!("/{id}")).collect::<Vec<_>>()
+            }))),
+        };
+    }
+    if let Some(around) = selector.around {
+        return Ok(Some((
+            index.saturating_sub(around as usize),
+            (index + around as usize + 1).min(sibling_ids.len()),
+        )));
+    }
+    Ok(selector.limit.map(|limit| (index, index + limit as usize)))
 }
 
 /// Runs one selector against a page.
@@ -210,68 +266,46 @@ pub fn read_page(
     check_selector(selector)?;
     let mode = selector.mode.unwrap_or_default();
     let path = selector.path.as_deref().unwrap_or("");
-    let render = |block: &GutenbergBlock| render_block(block, mode, &options.pending);
+    let render = |block: &GutenbergBlock| render_block(block, mode, options.pending);
     match page_address(page, path)? {
-        PageAddress::Field(id, segments) => {
+        PageAddress::Name(location) => {
             reject_window(selector, "a field")?;
-            let location = blocks::find_path(&page.blocks, id).unwrap_or_default();
-            let block = blocks::get(&page.blocks, &location);
-            let value = if segments[0] == "name" {
-                Some(Value::String(block.name.clone()))
+            let name = blocks::get(&page.blocks, &location).name.clone();
+            Ok(field_result(selector, Value::String(name)))
+        }
+        PageAddress::Attribute(location, pointer) => {
+            reject_window(selector, "a field")?;
+            let attributes = &blocks::get(&page.blocks, &location).attributes;
+            let value = if pointer.is_empty() {
+                Value::Object(attributes.clone())
             } else {
-                let mut current = Value::Object(block.attributes.clone());
-                for segment in &segments[1..] {
-                    current = match &current {
-                        Value::Object(map) => map.get(segment).cloned(),
-                        Value::Array(items) => segment
-                            .parse::<usize>()
-                            .ok()
-                            .and_then(|i| items.get(i).cloned()),
-                        _ => None,
-                    }
+                blocks::attribute(attributes, &pointer)
+                    .cloned()
                     .ok_or_else(|| {
                         EditError::new(EditErrorCode::NotFound, format!("{path} isn't set"))
-                    })?;
-                }
-                Some(current)
+                    })?
             };
-            Ok(ReadResult {
-                value,
-                ..ReadResult::single(selector, Vec::new())
-            })
+            Ok(field_result(selector, value))
         }
         PageAddress::List(parent) => {
-            if selector.through.is_some() || selector.around.is_some() {
-                return Err(EditError::new(
-                    EditErrorCode::InvalidValue,
-                    "through and around start from a block path, not a list",
-                ));
-            }
             let parent_path = parent
-                .and_then(|id| blocks::find_path(&page.blocks, id))
-                .unwrap_or_default();
-            let list = blocks::list(&page.blocks, &parent_path);
-            let start = selector.offset.unwrap_or(0) as usize;
-            let end = selector
-                .limit
-                .map(|l| start + l as usize)
-                .unwrap_or(list.len());
-            Ok(window(
+                .as_ref()
+                .map(|(_, path)| path.as_slice())
+                .unwrap_or(&[]);
+            list_read(
                 selector,
-                list,
-                start,
-                end,
-                parent.map(|id| format!("/{id}/innerBlocks")),
+                blocks::list(&page.blocks, parent_path),
+                parent.map(|(id, _)| format!("/{id}/innerBlocks")),
                 options,
                 &render,
-            ))
+                "a block",
+            )
         }
-        PageAddress::Block(id) => {
+        PageAddress::Block(id, location) => {
             if selector.offset.is_some() {
                 return Err(EditError::new(EditErrorCode::InvalidValue, "offset works on a children list; with a block path use limit to read on from that block")
                     .with_fix(format!("{{\"path\":\"/{id}\",\"limit\":20}}")));
             }
-            let location = blocks::find_path(&page.blocks, id).unwrap_or_default();
             let parent_path = &location[..location.len() - 1];
             let list = blocks::list(&page.blocks, parent_path);
             let index = location[location.len() - 1];
@@ -281,37 +315,26 @@ pub fn read_page(
                     blocks::get(&page.blocks, parent_path).client_id
                 )
             });
-            let (start, end) = if let Some(through) = &selector.through {
-                let last = parse_uuid(through.trim_start_matches('/'), through)?;
-                let last_location = blocks::find_path(&page.blocks, last).ok_or_else(|| {
-                    EditError::new(
-                        EditErrorCode::NotFound,
-                        format!("no block {last} on this page"),
-                    )
-                })?;
-                if last_location[..last_location.len() - 1] != *parent_path
-                    || last_location[last_location.len() - 1] < index
-                {
-                    return Err(EditError::new(EditErrorCode::InvalidRange, "through must be a later sibling of path")
-                        .with_details(json!({"siblings_in_order": list.iter().map(|b| format!("/{}", b.client_id)).collect::<Vec<_>>()})));
+            let sibling_ids: Vec<Uuid> = list.iter().map(|b| b.client_id).collect();
+            match sibling_window(selector, index, &sibling_ids)? {
+                Some((start, end)) => {
+                    Ok(window(selector, list, start, end, parent, options, &render))
                 }
-                (index, last_location[last_location.len() - 1] + 1)
-            } else if let Some(around) = selector.around {
-                (
-                    index.saturating_sub(around as usize),
-                    (index + around as usize + 1).min(list.len()),
-                )
-            } else if let Some(limit) = selector.limit {
-                (index, index + limit as usize)
-            } else {
-                return Ok(single_unit(
+                None => Ok(single_unit(
                     selector,
                     render(blocks::get(&page.blocks, &location)),
                     options,
-                ));
-            };
-            Ok(window(selector, list, start, end, parent, options, &render))
+                )),
+            }
         }
+    }
+}
+
+/// The result of reading one field.
+pub(crate) fn field_result(selector: &Selector, value: Value) -> ReadResult {
+    ReadResult {
+        value: Some(value),
+        ..ReadResult::single(selector, Vec::new())
     }
 }
 
@@ -343,7 +366,7 @@ pub(crate) fn single_unit(
 
 /// Replaces every child list of `unit` (`innerBlocks`, `modules`, `chapters`, `pages`) with a
 /// count and the path to read it from.
-pub(crate) fn collapse_children(unit: &mut Value) {
+fn collapse_children(unit: &mut Value) {
     if let Some(object) = unit.as_object_mut() {
         let path = object
             .get("path")
@@ -353,12 +376,7 @@ pub(crate) fn collapse_children(unit: &mut Value) {
         for key in ["innerBlocks", "modules", "chapters", "pages"] {
             if let Some(Value::Array(children)) = object.get_mut(key) {
                 let count = children.len();
-                let list_path = if path == "/course" {
-                    format!("/course/{key}")
-                } else {
-                    format!("{path}/{key}")
-                };
-                *children = vec![json!({"collapsed": count, "path": list_path})];
+                *children = vec![json!({"collapsed": count, "path": format!("{path}/{key}")})];
             }
         }
     }
@@ -383,8 +401,12 @@ where
     let mut stopped_by = None;
     let mut next_index = None;
     for (index, item) in list.iter().enumerate().take(end).skip(start) {
-        let unit = render(item);
-        let size = serialized_len(&unit);
+        let mut unit = render(item);
+        let mut size = serialized_len(&unit);
+        if items.is_empty() && size > options.budget_bytes {
+            collapse_children(&mut unit);
+            size = serialized_len(&unit);
+        }
         if !items.is_empty() && used + size > options.budget_bytes {
             stopped_by = Some(StopReason::Budget);
             next_index = Some(index);
@@ -402,26 +424,22 @@ where
         next_index = Some(end);
     }
     let next = next_index.map(|index| {
-        let remaining = selector.limit.map(|limit| {
-            let returned = items.len() as u32;
-            if stopped_by == Some(StopReason::Budget) {
-                limit.saturating_sub(returned).max(1)
-            } else {
-                limit
+        let path = Some(format!("/{}", list[index].id()));
+        // A budget stop continues the same window; a limit stop starts the next one.
+        let (through, limit) = match (stopped_by, &selector.through, selector.limit) {
+            (Some(StopReason::Budget), Some(through), _) => (Some(through.clone()), None),
+            (Some(StopReason::Budget), None, Some(limit)) => {
+                (None, Some(limit.saturating_sub(items.len() as u32).max(1)))
             }
-        });
+            (Some(StopReason::Budget), None, None) => {
+                (Some(format!("/{}", list[end - 1].id())), None)
+            }
+            _ => (None, selector.limit),
+        };
         Selector {
-            path: Some(format!("/{}", list[index].id())),
-            through: if stopped_by == Some(StopReason::Budget) {
-                selector.through.clone()
-            } else {
-                None
-            },
-            limit: if selector.through.is_some() && stopped_by == Some(StopReason::Budget) {
-                None
-            } else {
-                remaining
-            },
+            path,
+            through,
+            limit,
             mode: selector.mode,
             state: selector.state,
             ..Selector::default()
@@ -449,17 +467,9 @@ impl HasId for GutenbergBlock {
     }
 }
 
-pub(crate) fn serialized_len(value: &Value) -> usize {
-    serde_json::to_vec(value).map(|v| v.len()).unwrap_or(0)
-}
-
-const PREVIEW_ATTRIBUTES: [&str; 9] = [
-    "content", "title", "text", "caption", "alt", "name", "citation", "value", "label",
-];
-
 /// The 40-60 character preview of a block's visible text.
-pub fn block_preview(block: &GutenbergBlock) -> Option<String> {
-    PREVIEW_ATTRIBUTES
+pub(crate) fn block_preview(block: &GutenbergBlock) -> Option<String> {
+    blocks::TEXT_ATTRIBUTES
         .iter()
         .filter_map(|key| block.attributes.get(*key).and_then(Value::as_str))
         .map(plain_text)
@@ -467,55 +477,45 @@ pub fn block_preview(block: &GutenbergBlock) -> Option<String> {
         .map(|text| preview(&text, 60))
 }
 
+/// Keys [`render_block`] adds besides a block's stored fields. Writes ignore them, so a block read
+/// back can be written again.
+pub(crate) const RENDERED_BLOCK_KEYS: [&str; 5] =
+    ["path", "pending", "children", "preview", "exercise_id"];
+
 fn render_block(
     block: &GutenbergBlock,
     mode: ReadMode,
-    pending: &HashMap<Uuid, PendingKind>,
+    pending: Option<&HashMap<Uuid, ChangeKind>>,
 ) -> Value {
     let mut object = Map::new();
     object.insert("clientId".into(), json!(block.client_id));
     object.insert("path".into(), json!(format!("/{}", block.client_id)));
     object.insert("name".into(), json!(block.name));
+    let children: Vec<Value> = block
+        .inner_blocks
+        .iter()
+        .map(|b| render_block(b, mode, pending))
+        .collect();
     match mode {
         ReadMode::Outline => {
             if let Some(preview) = block_preview(block) {
                 object.insert("preview".into(), json!(preview));
             }
-            if blocks::is_exercise(block)
-                && let Some(exercise_id) = blocks::exercise_id(block)
-            {
+            if let Some(exercise_id) = block.exercise_id() {
                 object.insert("exercise_id".into(), json!(exercise_id));
             }
-            if !block.inner_blocks.is_empty() {
-                object.insert("children".into(), json!(block.inner_blocks.len()));
-                object.insert(
-                    "innerBlocks".into(),
-                    Value::Array(
-                        block
-                            .inner_blocks
-                            .iter()
-                            .map(|b| render_block(b, mode, pending))
-                            .collect(),
-                    ),
-                );
+            if !children.is_empty() {
+                object.insert("children".into(), json!(children.len()));
+                object.insert("innerBlocks".into(), Value::Array(children));
             }
         }
         ReadMode::Raw => {
             object.insert("isValid".into(), json!(block.is_valid));
             object.insert("attributes".into(), Value::Object(block.attributes.clone()));
-            object.insert(
-                "innerBlocks".into(),
-                Value::Array(
-                    block
-                        .inner_blocks
-                        .iter()
-                        .map(|b| render_block(b, mode, pending))
-                        .collect(),
-                ),
-            );
+            object.insert("innerBlocks".into(), Value::Array(children));
         }
     }
-    if let Some(kind) = pending.get(&block.client_id) {
+    if let Some(kind) = pending.and_then(|p| p.get(&block.client_id)) {
         object.insert("pending".into(), json!(kind));
     }
     Value::Object(object)
@@ -527,7 +527,7 @@ mod tests {
 
     use super::*;
     use crate::engine::PageType;
-    use crate::test_fixtures::{exercise, heading, id, infobox, p, page, para};
+    use crate::test_fixtures::{exercise, heading, id, infobox, p, page, para, read_options};
 
     fn sample() -> PageDocument {
         let mut blocks = vec![
@@ -551,7 +551,7 @@ mod tests {
     }
 
     fn read(selector: Selector) -> Result<ReadResult, EditError> {
-        read_page(&sample(), &selector, &ReadOptions::default())
+        read_page(&sample(), &selector, &read_options(24_000))
     }
 
     #[test]
@@ -651,10 +651,7 @@ mod tests {
 
     #[test]
     fn budget_stops_at_whole_units() {
-        let options = ReadOptions {
-            budget_bytes: 600,
-            ..Default::default()
-        };
+        let options = read_options(600);
         let result = read_page(
             &sample(),
             &Selector {
@@ -671,12 +668,97 @@ mod tests {
         assert_eq!(continued.items[0]["path"], json!(next.path.unwrap()));
     }
 
+    /// Follows `next` from `first` to the end and returns every item's path in order.
+    fn read_to_end(first: Selector, options: &ReadOptions) -> Vec<String> {
+        let mut paths = Vec::new();
+        let mut selector = Some(first);
+        while let Some(current) = selector {
+            let result = read_page(&sample(), &current, options).unwrap();
+            paths.extend(
+                result
+                    .items
+                    .iter()
+                    .map(|item| item["path"].as_str().unwrap().to_string()),
+            );
+            assert_eq!(result.has_more, result.next.is_some());
+            selector = result.next;
+        }
+        paths
+    }
+
+    #[test]
+    fn budget_stopped_reads_continue_to_the_end_of_their_window() {
+        let options = read_options(600);
+        let all: Vec<String> = sample()
+            .blocks
+            .iter()
+            .map(|b| format!("/{}", b.client_id))
+            .collect();
+        let raw = |selector: Selector| Selector {
+            mode: Some(ReadMode::Raw),
+            ..selector
+        };
+        assert_eq!(read_to_end(raw(Selector::default()), &options), all);
+        assert_eq!(
+            read_to_end(
+                raw(Selector {
+                    offset: Some(5),
+                    ..Default::default()
+                }),
+                &options
+            ),
+            all[5..].to_vec()
+        );
+        assert_eq!(
+            read_to_end(
+                raw(Selector {
+                    path: Some(p("p10")),
+                    around: Some(8),
+                    ..Default::default()
+                }),
+                &options
+            ),
+            all[4..21].to_vec()
+        );
+    }
+
+    #[test]
+    fn an_oversized_first_unit_of_a_window_collapses_children() {
+        let options = read_options(50);
+        let result = read_page(
+            &sample(),
+            &Selector {
+                offset: Some(1),
+                mode: Some(ReadMode::Raw),
+                ..Default::default()
+            },
+            &options,
+        )
+        .unwrap();
+        assert_eq!(result.items.len(), 1);
+        assert_eq!(result.items[0]["innerBlocks"][0]["collapsed"], json!(2));
+    }
+
+    #[test]
+    fn a_block_name_has_no_fields() {
+        assert!(
+            read(Selector {
+                path: Some(format!("{}/name/foo", p("h1"))),
+                ..Default::default()
+            })
+            .is_err()
+        );
+        let name = read(Selector {
+            path: Some(format!("{}/name", p("h1"))),
+            ..Default::default()
+        })
+        .unwrap();
+        assert_eq!(name.value, Some(json!("core/heading")));
+    }
+
     #[test]
     fn oversized_single_block_collapses_children() {
-        let options = ReadOptions {
-            budget_bytes: 50,
-            ..Default::default()
-        };
+        let options = read_options(50);
         let result = read_page(
             &sample(),
             &Selector {
@@ -692,9 +774,10 @@ mod tests {
 
     #[test]
     fn pending_marks_and_bad_selectors() {
+        let pending = HashMap::from([(id("h1"), ChangeKind::Changed)]);
         let options = ReadOptions {
-            pending: HashMap::from([(id("h1"), PendingKind::Changed)]),
-            ..Default::default()
+            pending: Some(&pending),
+            ..read_options(24_000)
         };
         let result = read_page(&sample(), &Selector::default(), &options).unwrap();
         assert_eq!(result.items[0]["pending"], json!("changed"));

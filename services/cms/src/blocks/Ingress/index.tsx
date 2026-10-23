@@ -21,14 +21,12 @@ const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> 
   attributes: {
     title: {
       type: "string",
-      source: "html",
-      selector: "h1",
+      isRichText: true,
       default: "Welcome message for course...",
     },
     subtitle: {
       type: "string",
-      source: "html",
-      selector: "p",
+      isRichText: true,
     },
   },
   icon: formatLTR,

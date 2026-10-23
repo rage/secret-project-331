@@ -11,28 +11,35 @@ import { getOauthConsentInfoOptions } from "@/generated/api/@tanstack/react-quer
 import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
 import type { ConsentInfo, ConsentQuery } from "@/generated/api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
-import { Button, Checkbox, Infobox, QueryResult, TONE } from "@/shared-module/components"
+import { fontWeights } from "@/shared-module/common/styles"
+import {
+  Button,
+  Checkbox,
+  DescriptionList,
+  type DescriptionListItem,
+  Infobox,
+  QueryResult,
+  TONE,
+} from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 interface ConsentFormValues {
   approved: boolean[]
 }
 
-const detailLabelCss = css`
-  font-size: 0.8125rem;
-  font-weight: ${fontWeights.medium};
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: ${baseTheme.colors.gray[500]};
-  margin: 0;
-`
-
-const detailValueCss = css`
-  margin: 0 0 0.75rem 0;
-  overflow-wrap: anywhere;
-  font-family: monospace;
-`
+const DetailValue: React.FC<{ "data-testid": string; children: string }> = ({
+  "data-testid": testId,
+  children,
+}) => (
+  <span
+    className={css`
+      font-family: monospace;
+    `}
+    data-testid={testId}
+  >
+    {children}
+  </span>
+)
 
 interface ConsentFormProps {
   consentInfo: ConsentInfo
@@ -49,6 +56,30 @@ const ConsentForm: React.FC<ConsentFormProps> = ({ consentInfo, request }) => {
       ),
     },
   })
+
+  const optionalDetails: (DescriptionListItem | false | null | undefined)[] = [
+    consentInfo.client_uri
+      ? {
+          label: t("oauth-consent-client-website"),
+          value: (
+            <DetailValue data-testid="oauth-consent-client-uri">
+              {consentInfo.client_uri}
+            </DetailValue>
+          ),
+        }
+      : null,
+    consentInfo.is_metadata_document_client && {
+      label: t("oauth-consent-client-id"),
+      value: <DetailValue data-testid="oauth-consent-client-id">{request.client_id}</DetailValue>,
+    },
+    {
+      label: t("oauth-consent-redirect-uri"),
+      value: (
+        <DetailValue data-testid="oauth-consent-redirect-uri">{request.redirect_uri}</DetailValue>
+      ),
+    },
+  ]
+  const details = optionalDetails.filter((item): item is DescriptionListItem => Boolean(item))
 
   const onApprove = handleSubmit(async (values) => {
     const approvedScopes = consentInfo.scopes
@@ -84,34 +115,13 @@ const ConsentForm: React.FC<ConsentFormProps> = ({ consentInfo, request }) => {
         width: 100%;
       `}
     >
-      <div
+      <h2
         className={css`
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
+          margin: 0;
         `}
       >
-        {consentInfo.logo_uri && (
-          // oxlint-disable-next-line nextjs/no-img-element -- any host; next/image needs allow-listed ones
-          <img
-            src={consentInfo.logo_uri}
-            alt=""
-            width={40}
-            height={40}
-            className={css`
-              border-radius: 6px;
-              object-fit: contain;
-            `}
-          />
-        )}
-        <h2
-          className={css`
-            margin: 0;
-          `}
-        >
-          {consentInfo.client_name}
-        </h2>
-      </div>
+        {consentInfo.client_name}
+      </h2>
 
       <p
         className={css`
@@ -121,28 +131,8 @@ const ConsentForm: React.FC<ConsentFormProps> = ({ consentInfo, request }) => {
         {t("oauth-application-requesting-access")}
       </p>
 
-      <div>
-        {consentInfo.client_uri && (
-          <>
-            <p className={detailLabelCss}>{t("oauth-consent-client-website")}</p>
-            <p className={detailValueCss} data-testid="oauth-consent-client-uri">
-              {consentInfo.client_uri}
-            </p>
-          </>
-        )}
-        {consentInfo.is_metadata_document_client && (
-          <>
-            <p className={detailLabelCss}>{t("oauth-consent-client-id")}</p>
-            <p className={detailValueCss} data-testid="oauth-consent-client-id">
-              {consentInfo.client_id}
-            </p>
-          </>
-        )}
-        <p className={detailLabelCss}>{t("oauth-consent-redirect-uri")}</p>
-        <p className={detailValueCss} data-testid="oauth-consent-redirect-uri">
-          {consentInfo.redirect_uri}
-        </p>
-      </div>
+      {/* oxlint-disable-next-line i18next/no-literal-string */}
+      <DescriptionList layout="stacked" items={details} />
 
       {consentInfo.is_metadata_document_client && (
         <Infobox tone={TONE.INFO} data-testid="oauth-consent-agent-note">
@@ -234,16 +224,13 @@ export default function ConsentPage() {
   const { t } = useTranslation("main-frontend")
   usePageTitle(t("title-authorize-application"))
 
-  const optionalParam = (name: string) => {
-    const value = searchParams.get(name)
-    return value ? String(value) : null
-  }
+  const optionalParam = (name: string) => searchParams.get(name) || null
   const request: Omit<ConsentQuery, "scope"> = {
-    client_id: String(searchParams.get("client_id") ?? ""),
-    redirect_uri: String(searchParams.get("redirect_uri") ?? ""),
-    response_type: String(searchParams.get("response_type") ?? ""),
-    state: String(searchParams.get("state") ?? ""),
-    nonce: String(searchParams.get("nonce") ?? ""),
+    client_id: searchParams.get("client_id") ?? "",
+    redirect_uri: searchParams.get("redirect_uri") ?? "",
+    response_type: searchParams.get("response_type") ?? "",
+    state: searchParams.get("state") ?? "",
+    nonce: searchParams.get("nonce") ?? "",
     // oxlint-disable-next-line i18next/no-literal-string
     code_challenge: optionalParam("code_challenge"),
     // oxlint-disable-next-line i18next/no-literal-string
@@ -251,15 +238,15 @@ export default function ConsentPage() {
     // oxlint-disable-next-line i18next/no-literal-string
     resource: optionalParam("resource"),
   }
-  const consentInfoQuery = useQuery({
-    ...getOauthConsentInfoOptions({
+  const consentInfoQuery = useQuery(
+    getOauthConsentInfoOptions({
       query: {
         client_id: request.client_id,
         redirect_uri: request.redirect_uri,
-        scope: String(searchParams.get("scope") ?? ""),
+        scope: searchParams.get("scope") ?? "",
       },
     }),
-  })
+  )
 
   return (
     <section

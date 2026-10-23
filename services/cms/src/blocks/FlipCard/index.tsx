@@ -19,6 +19,7 @@ const FlipCardConfiguration: BlockConfiguration<FlipCardAttributes> = {
   attributes: {
     size: {
       type: "string",
+      agentSchema: { type: "string", enum: ["xl", "m", "s"] },
       default: "xl",
     },
   },

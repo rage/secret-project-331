@@ -20,8 +20,7 @@ const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSec
   attributes: {
     title: {
       type: "string",
-      source: "html",
-      selector: "h2",
+      isRichText: true,
       default: "In this course you'll...",
     },
   },

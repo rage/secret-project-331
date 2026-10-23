@@ -32,13 +32,10 @@ use headless_lms_models::{
     secret::DbSecret,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
     study_registry_registrars::{self, get_or_create_default_registrar},
-    user_ai_usage_notice_acknowledgements, user_details,
-    user_passwords::{hash_password, upsert_user_password},
-    users,
+    user_ai_usage_notice_acknowledgements, users,
     verified_student_numbers::{self, NewVerifiedStudentNumber, StudentNumberVerificationMethod},
 };
 use headless_lms_utils::http::REQWEST_CLIENT;
-use secrecy::SecretString;
 use sqlx::{Connection, PgConnection};
 use tracing::info;
 use uuid::Uuid;
@@ -54,7 +51,7 @@ use crate::programs::seed::builder::{
     page::PageBuilder,
 };
 use crate::programs::seed::seed_courses::CommonCourseData;
-use crate::programs::seed::seed_helpers::paragraph;
+use crate::programs::seed::seed_helpers::{insert_user_with_password, paragraph};
 
 /// The certificate detour's own course. Not in `mock_suotar::fixtures` with the others: this one
 /// never reaches Suotar, so the mock registry knows nothing about it.
@@ -597,7 +594,7 @@ async fn seed_certificate_detour_course(
     .seed(conn, app_config, &cx)
     .await?;
 
-    course_modules::update_certification_enabled(conn, module.id, true).await?;
+    course_modules::update_certification_enabled(conn, module.id, true, teacher_user_id).await?;
     open_university_registration_links::upsert(conn, CRS_DETOUR_101, "https://www.example.com")
         .await?;
     for enrolled_student in [student, failed_save_student] {
@@ -1046,24 +1043,7 @@ async fn insert_student(
     first_name: &str,
     last_name: &str,
 ) -> Result<SeededStudent> {
-    let user_id = users::insert(
-        conn,
-        PKeyPolicy::Fixed(user_id),
-        email,
-        Some(first_name),
-        Some(last_name),
-    )
-    .await?;
-    user_details::update_user_country(conn, user_id, "fi").await?;
-    // The local part of the address is the password, so these students can log in through the
-    // stored-password fallback without an entry in `authenticate_test_user`.
-    let password = email
-        .split('@')
-        .next()
-        .expect("split always yields one element");
-    let hash = hash_password(&SecretString::new(password.to_string().into()))
-        .map_err(|e| anyhow::anyhow!("failed to hash a seeded password: {e}"))?;
-    upsert_user_password(conn, user_id, &hash).await?;
+    let user_id = insert_user_with_password(conn, user_id, email, first_name, last_name).await?;
     Ok(SeededStudent {
         user_id,
         email: email.to_string(),

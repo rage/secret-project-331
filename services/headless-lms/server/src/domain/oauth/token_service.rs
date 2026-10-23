@@ -7,10 +7,11 @@ use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::split_and_validate_scopes;
 use crate::domain::oauth::pkce::verify_token_pkce;
+use crate::domain::oauth::resource_indicator::ResourceIndicator;
 use headless_lms_utils::cache::Cache;
 
-use headless_lms_models::library::oauth::Digest;
 use headless_lms_models::library::oauth::tokens::token_digest_sha256;
+use headless_lms_models::library::oauth::{Digest, is_bound_to};
 use headless_lms_models::oauth_access_token::TokenType;
 use headless_lms_models::oauth_auth_code::OAuthAuthCode;
 use headless_lms_models::oauth_client::OAuthClient;
@@ -69,8 +70,8 @@ pub struct TokenGrantRequest<'a> {
     pub issued_token_type: TokenType,
     pub dpop_jkt: Option<&'a str>,
     pub token_hmac_key: &'a SecretString,
-    /// RFC 8707 `resource` of the token request; must match the grant's resource when present.
-    pub resource: Option<&'a str>,
+    /// The `resource` of the token request; must match the grant's resource when present.
+    pub resource: Option<&'a ResourceIndicator>,
 }
 
 #[derive(Debug)]
@@ -200,7 +201,7 @@ pub async fn process_token_grant(
             .map_err(|_| TokenGrantError::PkceVerificationFailed)?;
 
             if let Some(requested) = request.resource
-                && code_row.resource.as_deref() != Some(requested)
+                && code_row.resource.as_deref() != Some(requested.as_str())
             {
                 return Err(TokenGrantError::InvalidTarget(
                     "resource does not match the authorization request".to_string(),
@@ -258,10 +259,7 @@ pub async fn process_token_grant(
             let effective_scopes = resolve_refresh_scopes(&old.scopes, scope.as_deref())?;
 
             if let Some(requested) = request.resource
-                && !old
-                    .audience
-                    .as_ref()
-                    .is_some_and(|audience| audience.iter().any(|a| a == requested))
+                && !is_bound_to(old.audience.as_deref(), requested.as_str())
             {
                 return Err(TokenGrantError::InvalidTarget(
                     "resource does not match the refresh token".to_string(),

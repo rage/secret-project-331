@@ -8,7 +8,7 @@ import { test } from "@playwright/test"
 
 import { AGENT_CHANGESET_USER_EMAILS } from "../utils/agentChangesets"
 import { CREDIT_REGISTRATION_STUDENT_EMAILS } from "../utils/creditRegistration"
-import { login } from "../utils/login"
+import { login, storageStatePath } from "../utils/login"
 
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
 
@@ -43,14 +43,9 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
-    // Seeded by `seed_agent_changesets.rs`; the password is the address's local part.
-    ...AGENT_CHANGESET_USER_EMAILS.map((email) => ({
-      email,
-      password: email.replace(/@.*$/, ""),
-    })),
-    // The password is the address's local part, for `seed_credit_registration.rs`'s accounts and
-    // the general `studentN` ones alike.
-    ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({
+    // The password is the address's local part, for the accounts `seed_agent_changesets.rs` and
+    // `seed_credit_registration.rs` seed and the general `studentN` ones alike.
+    ...[...AGENT_CHANGESET_USER_EMAILS, ...CREDIT_REGISTRATION_STUDENT_EMAILS].map((email) => ({
       email,
       password: email.replace(/@.*$/, ""),
     })),
@@ -60,7 +55,9 @@ async function createLoginStates(page: Page, context: BrowserContext) {
   // to remove the cookie expiry times
   const allStorageStatesRecentlyCreated = usersLoginInformationToCache.every((loginInformation) => {
     try {
-      const fileStats = statSync(path.join(__dirname, `../states/${loginInformation.email}.json`))
+      const fileStats = statSync(
+        path.join(__dirname, "..", "..", storageStatePath(loginInformation.email)),
+      )
       if (Date.now() - fileStats.mtime.getTime() < ONE_WEEK_MS) {
         return true
       }

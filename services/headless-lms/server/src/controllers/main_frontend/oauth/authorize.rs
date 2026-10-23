@@ -1,18 +1,18 @@
-use crate::domain::mcp_auth::{mcp_resource_url, oauth_issuer};
 use crate::domain::oauth::authorize_query::{AuthorizeParams, AuthorizeQuery};
-use crate::domain::oauth::client_metadata_document::{
-    self, is_metadata_document_client_id, redirect_uri_matches,
-};
+use crate::domain::oauth::client_metadata_document::{self, is_metadata_document_client_id};
 use crate::domain::oauth::helpers::{oauth_error, oauth_invalid_request};
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::pkce::parse_authorize_pkce;
 use crate::domain::oauth::redirects::{
-    build_authorize_qs, build_consent_redirect, build_login_redirect, redirect_with_code,
+    build_authorize_qs, build_consent_redirect, build_login_redirect, redirect_uri_matches,
+    redirect_with_code,
 };
+use crate::domain::oauth::resource_indicator::ResourceIndicator;
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::web;
 use chrono::{Duration, Utc};
+use domain::error::OAuthErrorCode;
 use itertools::Itertools;
 use models::{
     library::oauth::{generate_access_token, mcp::McpScope, token_digest_sha256},
@@ -58,50 +58,65 @@ fn parse_prompt(prompt: Option<&str>) -> Result<PromptFlags, &'static str> {
     Ok(f)
 }
 
-/// Enforces RFC 8707 resource indicators: MCP scopes need the MCP server as `resource`, only
-/// metadata document clients get tokens for it, and such tokens carry no other scopes.
+/// Enforces RFC 8707 resource indicators for the MCP server: its scopes need its URL as `resource`,
+/// and it takes tokens only for metadata document clients.
 fn check_resource(
     client: &OAuthClient,
     query: &AuthorizeParams,
-    mcp_resource: &str,
+    app_conf: &ApplicationConfiguration,
 ) -> Result<(), ControllerError> {
-    let scopes: Vec<&str> = query.scope.split_whitespace().collect();
-    let requests_mcp_scope = scopes.iter().any(|scope| McpScope::parse(scope).is_some());
     let redirect = Some(query.redirect_uri.as_str());
     let state = query.state.as_deref();
-    match query.resource.as_deref().map(|r| r.trim_end_matches('/')) {
-        None if requests_mcp_scope => Err(oauth_invalid_request(
-            "resource is required for MCP scopes",
-            redirect,
-            state,
-        )),
-        None => Ok(()),
-        Some(resource) if resource != mcp_resource => Err(oauth_error(
-            "invalid_target",
+    let Some(resource) = &query.resource else {
+        let requests_mcp_scope = query
+            .scope
+            .split_whitespace()
+            .any(|scope| McpScope::parse(scope).is_some());
+        if requests_mcp_scope {
+            return Err(oauth_invalid_request(
+                "resource is required for MCP scopes",
+                redirect,
+                state,
+            ));
+        }
+        return Ok(());
+    };
+    if resource.as_str() != app_conf.mcp_resource_url() {
+        return Err(oauth_error(
+            OAuthErrorCode::InvalidTarget,
             "unknown resource",
             redirect,
             state,
-        )),
-        Some(_) if !client.is_metadata_document_client() => Err(oauth_error(
-            "invalid_target",
+        ));
+    }
+    if !client.is_metadata_document_client() {
+        return Err(oauth_error(
+            OAuthErrorCode::InvalidTarget,
             "the MCP server accepts only clients registered with a client ID metadata document",
             redirect,
             state,
-        )),
-        Some(_)
-            if scopes
-                .iter()
-                .any(|scope| McpScope::parse(scope).is_none() && *scope != "offline_access") =>
-        {
-            Err(oauth_error(
-                "invalid_scope",
-                "only MCP scopes can be requested for the MCP server",
-                redirect,
-                state,
-            ))
-        }
-        Some(_) => Ok(()),
+        ));
     }
+    Ok(())
+}
+
+/// The answer to an authorization request without a signed-in user: `login_required` for
+/// `prompt=none`, else the login page. The error is redirected to `error_redirect`, which must be
+/// a verified redirect URI of the client.
+fn anonymous_response(
+    query: &AuthorizeParams,
+    is_prompt_none: bool,
+    error_redirect: Option<&str>,
+) -> Result<String, ControllerError> {
+    if is_prompt_none {
+        return Err(oauth_error(
+            OAuthErrorCode::LoginRequired,
+            "end-user is not logged in",
+            error_redirect,
+            query.state.as_deref(),
+        ));
+    }
+    Ok(build_login_redirect(query))
 }
 
 /// Handles the `/authorize` endpoint for OAuth 2.0 and OpenID Connect with PKCE support.
@@ -146,11 +161,46 @@ pub async fn authorize(
     user: Option<AuthUser>,
     app_conf: web::Data<headless_lms_base::config::ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
-    let mut conn = pool.acquire().await?;
-    let server_token = skip_authorize();
+    let issuer = app_conf.oauth_issuer();
+    respond_to_authorize(pool, query, user, app_conf)
+        .await
+        .map_err(|err| err.with_oauth_issuer(issuer))
+}
 
-    let client = if is_metadata_document_client_id(&query.client_id) {
-        client_metadata_document::resolve_client(&mut conn, &query.client_id).await?
+async fn respond_to_authorize(
+    pool: web::Data<PgPool>,
+    query: AuthorizeParams,
+    user: Option<AuthUser>,
+    app_conf: web::Data<headless_lms_base::config::ApplicationConfiguration>,
+) -> ControllerResult<HttpResponse> {
+    let server_token = skip_authorize();
+    // Resolved before taking a connection: it may fetch the document from the client's host.
+    let resolved_client = match &user {
+        Some(user) if is_metadata_document_client_id(&query.client_id) => {
+            Some(client_metadata_document::resolve_client(&pool, &query.client_id, user.id).await?)
+        }
+        _ => None,
+    };
+    let mut conn = pool.acquire().await?;
+
+    let client = if let Some(client) = resolved_client {
+        client
+    } else if is_metadata_document_client_id(&query.client_id) {
+        // Fetching for anonymous requests would let anyone make the server fetch URLs and store
+        // clients; an unknown client is checked after login instead.
+        match client_metadata_document::find_cached_client(&mut conn, &query.client_id).await? {
+            Some(client) => client,
+            None => {
+                let is_prompt_none =
+                    parse_prompt(query.prompt.as_deref()).is_ok_and(|prompt| prompt.none);
+                let location = anonymous_response(&query, is_prompt_none, None)?;
+                return server_token.authorized_ok(
+                    HttpResponse::Found()
+                        .append_header(("Location", location))
+                        .finish(),
+                );
+            }
+        }
     } else {
         OAuthClient::find_by_client_id(&mut conn, &query.client_id)
             .await
@@ -168,7 +218,7 @@ pub async fn authorize(
     tracing::Span::current().record("client_id", &query.client_id);
     tracing::Span::current().record("response_type", &query.response_type);
 
-    if !redirect_uri_matches(&client.redirect_uris, &query.redirect_uri) {
+    if !redirect_uri_matches(&client, &query.redirect_uri) {
         return Err(oauth_invalid_request(
             "redirect_uri does not match client",
             None, // Never redirect to an invalid redirect_uri (security)
@@ -176,11 +226,11 @@ pub async fn authorize(
         ));
     }
 
-    check_resource(&client, &query, &mcp_resource_url(&app_conf))?;
+    check_resource(&client, &query, &app_conf)?;
 
     if query.request.is_some() {
         return Err(oauth_error(
-            "request_not_supported",
+            OAuthErrorCode::RequestNotSupported,
             "request object is not supported",
             Some(&query.redirect_uri),
             query.state.as_deref(),
@@ -192,8 +242,7 @@ pub async fn authorize(
     })?;
 
     if prompt.login {
-        return Err(oauth_error(
-            "inalid_request",
+        return Err(oauth_invalid_request(
             "prompt=login is not supported",
             Some(&query.redirect_uri),
             query.state.as_deref(),
@@ -201,8 +250,7 @@ pub async fn authorize(
     }
 
     if prompt.select_account {
-        return Err(oauth_error(
-            "inalid_request",
+        return Err(oauth_invalid_request(
             "prompt=select_account is not supported",
             Some(&query.redirect_uri),
             query.state.as_deref(),
@@ -227,7 +275,7 @@ pub async fn authorize(
             let missing: Vec<&str> = requested.difference(&granted).copied().collect();
             if prompt.none && !missing.is_empty() {
                 return Err(oauth_error(
-                    "consent_required",
+                    OAuthErrorCode::ConsentRequired,
                     "end-user consent is required",
                     Some(&query.redirect_uri),
                     query.state.as_deref(),
@@ -262,7 +310,7 @@ pub async fn authorize(
                     dpop_jkt: None, // DPoP binding occurs at /token endpoint, not at /authorize
                     expires_at,
                     metadata: serde_json::Map::new(),
-                    resource: query.resource.as_deref(),
+                    resource: query.resource.as_ref().map(ResourceIndicator::as_str),
                 };
 
                 OAuthAuthCode::insert(&mut conn, new_auth_code_params).await?;
@@ -270,21 +318,11 @@ pub async fn authorize(
                     &query.redirect_uri,
                     &code,
                     query.state.as_deref(),
-                    &oauth_issuer(&app_conf),
+                    &app_conf.oauth_issuer(),
                 )
             }
         }
-        None => {
-            if prompt.none {
-                return Err(oauth_error(
-                    "login_required",
-                    "end-user is not logged in",
-                    Some(&query.redirect_uri),
-                    query.state.as_deref(),
-                ));
-            }
-            build_login_redirect(&query)
-        }
+        None => anonymous_response(&query, prompt.none, Some(&query.redirect_uri))?,
     };
 
     server_token.authorized_ok(

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 import { useWatch } from "react-hook-form"
 
@@ -11,8 +11,7 @@ import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.gener
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Checkbox, Disclosure, TextField } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -144,7 +143,7 @@ const SettingsFields: React.FC<SettingsFieldsProps> = ({
   )
 }
 
-const ExerciseSettingsEditor: React.FC<BlockEditProps> = ({ name }) => {
+const ExerciseSettingsEditor = () => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const { attributes, setAttributes } = useContext(ExerciseBlockContext)
@@ -199,7 +198,7 @@ const ExerciseSettingsEditor: React.FC<BlockEditProps> = ({ name }) => {
                   padding: 1rem;
                 `}
               >
-                <InnerBlocks {...registeredInnerBlocksProps(name)} />
+                <RegisteredInnerBlocks />
               </div>
             }
           />

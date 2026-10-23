@@ -16,7 +16,14 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Button, ConfirmDialog, MIDDLE_DOT, QueryResult } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  MIDDLE_DOT,
+  QueryResult,
+} from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 const listCss = css`
@@ -99,17 +106,10 @@ const OAuthGrantsSection: React.FC = () => {
         <QueryResult
           query={grantsQuery}
           emptyFallback={
-            <div data-testid="authorized-applications-list" className={listCss}>
-              <p
-                className={css`
-                  color: ${baseTheme.colors.gray[500]};
-                  font-size: 0.875rem;
-                  margin: 0;
-                `}
-              >
-                {t("no-authorized-applications")}
-              </p>
-            </div>
+            <EmptyState
+              title={t("no-authorized-applications")}
+              data-testid="authorized-applications-list"
+            />
           }
         >
           {(grants) => (
@@ -185,6 +185,9 @@ const OAuthGrantsSection: React.FC = () => {
                     data-testid={`revoke-app-${grant.id}`}
                     variant="tertiary"
                     size="small"
+                    aria-label={t("oauth-grant-revoke-button-label", {
+                      client: grant.client_name,
+                    })}
                     onPress={() => setGrantToRevoke(grant)}
                   >
                     {t("revoke")}
@@ -206,8 +209,13 @@ const OAuthGrantsSection: React.FC = () => {
         confirmTestId="oauth-grant-revoke-confirm-button"
         isDestructive
         onConfirm={async () => {
-          if (grantToRevoke) {
+          if (!grantToRevoke) {
+            return
+          }
+          try {
             await revokeMutation.mutateAsync({ path: { grant_id: grantToRevoke.id } })
+          } catch {
+            // The mutation's error toast shows it.
           }
         }}
       />

@@ -172,6 +172,11 @@ export const choiceIndicatorCss = css`
     background: var(--field-disabled-bg);
     border-color: var(--field-disabled-border);
   }
+
+  &[data-disabled="true"][data-selected="true"] {
+    background: var(--field-disabled-fg);
+    border-color: var(--field-disabled-fg);
+  }
 `
 
 export const checkboxIndicatorCss = css`

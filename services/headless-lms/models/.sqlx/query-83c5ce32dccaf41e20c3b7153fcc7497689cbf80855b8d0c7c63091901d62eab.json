@@ -280,17 +280,6 @@
             "name": "client_uri"
           }
         }
-      },
-      {
-        "ordinal": 20,
-        "name": "logo_uri",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "oauth_clients",
-            "name": "logo_uri"
-          }
-        }
       }
     ],
     "parameters": {
@@ -386,7 +375,6 @@
       false,
       false,
       false,
-      true,
       true,
       true,
       true,

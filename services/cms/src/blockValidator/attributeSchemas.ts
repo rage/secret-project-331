@@ -1,45 +1,10 @@
 /* oxlint-disable i18next/no-literal-string */
 
-import { allowedBlockVariants } from "@/blocks/supportedGutenbergBlocks"
-import type { BlockType } from "@/utils/Gutenberg/types"
+import { type AttributeSchema, JSON_TYPES, type JsonType } from "@/utils/Gutenberg/agentSchema"
+import type { BlockType, CmsBlockAttribute } from "@/utils/Gutenberg/types"
 
-import { NON_INTERACTIVE_FORMATS, type RichTextFormat, TOOLBAR_FORMATS } from "./richText"
-
-type JsonType = "string" | "number" | "integer" | "boolean" | "array" | "object" | "null"
-
-/** The JSON Schema subset attribute schemas use; `x-` keywords carry checks JSON Schema can't. */
-export interface AttributeSchema {
-  type?: JsonType | JsonType[]
-  enum?: unknown[]
-  default?: unknown
-  description?: string
-  items?: AttributeSchema
-  properties?: Record<string, AttributeSchema>
-  required?: string[]
-  additionalProperties?: boolean
-  minimum?: number
-  maximum?: number
-  maxItems?: number
-  maxProperties?: number
-  pattern?: string
-  /** "uri-reference" values must also be http(s), mailto, tel or relative URLs. */
-  format?: "uri-reference"
-  /** Rich text: validated and normalised as the editor stores it. */
-  "x-rich-text"?: true
-  contentMediaType?: "text/html"
-  "x-rich-text-formats"?: readonly RichTextFormat[]
-  /** A Vega-Lite spec as a JSON string, which must render. */
-  "x-vega-lite-spec"?: true
-}
-
-interface GutenbergAttribute {
-  type?: string | string[]
-  source?: string
-  default?: unknown
-  enum?: unknown[]
-  role?: string
-  query?: Record<string, GutenbergAttribute>
-}
+import { BLOCK_REFINEMENTS, SHARED_REFINEMENTS } from "./attributeRefinements"
+import { NON_INTERACTIVE_FORMATS, TOOLBAR_FORMATS } from "./richText"
 
 /** Why agents may not write an attribute, phrased as the fix. */
 const FORBIDDEN_ATTRIBUTES: Record<string, string> = {
@@ -52,87 +17,8 @@ const FORBIDDEN_ATTRIBUTES: Record<string, string> = {
 
 const FORBIDDEN_ROLE_FIX = "Remove it; it only holds a temporary upload in the editor."
 
-const URL_ATTRIBUTES = new Set([
-  "url",
-  "href",
-  "src",
-  "poster",
-  "textLinkHref",
-  "dataFileUrl",
-  "backgroundImage",
-  "backgroundImageMedium",
-  "backgroundImageLarge",
-  "backgroundImageXLarge",
-  "exercise_iframe_url",
-])
-
-const CSS_CLASS_LIST = "^-?[A-Za-z_][A-Za-z0-9_-]*( -?[A-Za-z_][A-Za-z0-9_-]*)*$"
-
-/** Refinements for attributes Gutenberg registers by name on many blocks. */
-const SHARED_REFINEMENTS: Record<string, AttributeSchema> = {
-  className: { type: "string", pattern: CSS_CLASS_LIST },
-  anchor: { type: "string", pattern: "^[A-Za-z][A-Za-z0-9_:.-]*$" },
-  lock: {
-    type: "object",
-    properties: { move: { type: "boolean" }, remove: { type: "boolean" } },
-    additionalProperties: false,
-  },
-  layout: {
-    type: "object",
-    properties: {
-      type: { type: "string", enum: ["default", "flow", "constrained", "flex", "grid"] },
-      justifyContent: {
-        type: "string",
-        enum: ["left", "center", "right", "space-between", "stretch"],
-      },
-      orientation: { type: "string", enum: ["horizontal", "vertical"] },
-      flexWrap: { type: "string", enum: ["wrap", "nowrap"] },
-      verticalAlignment: {
-        type: "string",
-        enum: ["top", "center", "bottom", "space-between", "stretch"],
-      },
-    },
-    additionalProperties: false,
-  },
-}
-
-const LEGACY_EMPTY: AttributeSchema = {
-  type: "string",
-  enum: [""],
-  description: "Legacy attribute; leave it empty and use inner blocks.",
-}
-
-/**
- * Constraints the editor's UI enforces but the registration doesn't state, keyed by
- * `<block name>.<attribute>`.
- */
-const BLOCK_REFINEMENTS: Record<string, AttributeSchema> = {
-  "core/heading.level": { type: "integer", minimum: 1, maximum: 6 },
-  "core/heading.levelOptions": {
-    type: "array",
-    items: { type: "integer", minimum: 1, maximum: 6 },
-  },
-  "core/image.focalPoint": {
-    type: "object",
-    properties: {
-      x: { type: "number", minimum: 0, maximum: 1 },
-      y: { type: "number", minimum: 0, maximum: 1 },
-    },
-    required: ["x", "y"],
-    additionalProperties: false,
-  },
-  "core/image.lightbox": {
-    type: "object",
-    properties: { enabled: { type: "boolean" } },
-    additionalProperties: false,
-  },
-  "core/embed.providerNameSlug": { type: "string", enum: allowedBlockVariants["core/embed"] ?? [] },
-  "core/list.values": LEGACY_EMPTY,
-  "core/quote.value": LEGACY_EMPTY,
-  "moocfi/conditional-block.module_completion": { type: "array", items: { type: "string" } },
-  "moocfi/conditional-block.instance_enrollment": { type: "array", items: { type: "string" } },
-  "moocfi/chart.spec": { type: "string", "x-vega-lite-spec": true },
-}
+/** Core block attributes holding a URL; custom blocks set `agentSchema: URL_REFERENCE`. */
+const URL_ATTRIBUTES = new Set(["url", "href", "src", "poster", "textLinkHref"])
 
 /** Rich-text fields Gutenberg renders with `withoutInteractiveFormatting`, so links are out. */
 const NON_INTERACTIVE_FIELDS = new Set([
@@ -141,29 +27,44 @@ const NON_INTERACTIVE_FIELDS = new Set([
   "core/file.downloadButtonText",
 ])
 
-const isRichText = (attribute: GutenbergAttribute): boolean =>
-  attribute.type === "rich-text" || attribute.source === "html" || attribute.source === "rich-text"
+const isRichText = (attribute: CmsBlockAttribute): boolean =>
+  attribute.isRichText === true ||
+  attribute.type === "rich-text" ||
+  attribute.source === "html" ||
+  attribute.source === "rich-text"
 
-const JSON_TYPES = new Set<string>([
-  "string",
-  "number",
-  "integer",
-  "boolean",
-  "array",
-  "object",
-  "null",
-])
+const isJsonType = (type: string): type is JsonType =>
+  (JSON_TYPES as readonly string[]).includes(type)
 
 const toJsonType = (type: string | string[] | undefined): JsonType | JsonType[] | undefined => {
   if (Array.isArray(type)) {
-    return type.filter((item): item is JsonType => JSON_TYPES.has(item))
+    return type.filter((item) => isJsonType(item))
   }
-  return type !== undefined && JSON_TYPES.has(type) ? (type as JsonType) : undefined
+  return type !== undefined && isJsonType(type) ? type : undefined
 }
 
-const convertAttribute = (fieldKey: string, attribute: GutenbergAttribute): AttributeSchema => {
+/**
+ * The schema of a registered attribute or query field: the registration's `agentSchema`, a
+ * refinement, or one derived from its type, with the registered default.
+ */
+const schemaFor = (
+  fieldKey: string,
+  attribute: CmsBlockAttribute,
+  sharedRefinement?: AttributeSchema,
+): AttributeSchema => {
+  const schema =
+    attribute.agentSchema ??
+    BLOCK_REFINEMENTS[fieldKey] ??
+    sharedRefinement ??
+    convertAttribute(fieldKey, attribute)
+  return attribute.default === undefined || schema.default !== undefined
+    ? schema
+    : { ...schema, default: attribute.default }
+}
+
+const convertAttribute = (fieldKey: string, attribute: CmsBlockAttribute): AttributeSchema => {
   if (isRichText(attribute)) {
-    const schema: AttributeSchema = {
+    return {
       type: "string",
       "x-rich-text": true,
       contentMediaType: "text/html",
@@ -171,10 +72,6 @@ const convertAttribute = (fieldKey: string, attribute: GutenbergAttribute): Attr
         ? NON_INTERACTIVE_FORMATS
         : TOOLBAR_FORMATS,
     }
-    if (attribute.default !== undefined) {
-      schema.default = attribute.default
-    }
-    return schema
   }
   const schema: AttributeSchema = {}
   const type = toJsonType(attribute.type)
@@ -191,7 +88,7 @@ const convertAttribute = (fieldKey: string, attribute: GutenbergAttribute): Attr
       properties: Object.fromEntries(
         Object.entries(attribute.query).map(([key, nested]) => [
           key,
-          convertAttribute(`${fieldKey}.${key}`, nested),
+          schemaFor(`${fieldKey}.${key}`, nested),
         ]),
       ),
       additionalProperties: false,
@@ -204,9 +101,6 @@ const convertAttribute = (fieldKey: string, attribute: GutenbergAttribute): Attr
   if (type === "string" && URL_ATTRIBUTES.has(fieldKey.split(".").at(-1) ?? "")) {
     schema.format = "uri-reference"
   }
-  if (attribute.default !== undefined) {
-    schema.default = attribute.default
-  }
   return schema
 }
 
@@ -217,12 +111,13 @@ export interface BlockAttributeSchemas {
   forbidden: Record<string, string>
 }
 
-/** Attribute schemas for a registered block, from its registration plus the refinements above. */
+/** Attribute schemas for a registered block, from its registration and the refinements. */
 export const blockAttributeSchemas = (blockType: BlockType): BlockAttributeSchemas => {
   const writable: Record<string, AttributeSchema> = {}
   const forbidden: Record<string, string> = {}
-  const attributes = blockType.attributes as Record<string, GutenbergAttribute>
-  for (const [attributeName, attribute] of Object.entries(attributes)) {
+  for (const [attributeName, attribute] of Object.entries<CmsBlockAttribute>(
+    blockType.attributes,
+  )) {
     const forbiddenFix =
       FORBIDDEN_ATTRIBUTES[attributeName] ??
       (attribute.role === "local" ? FORBIDDEN_ROLE_FIX : undefined)
@@ -230,15 +125,11 @@ export const blockAttributeSchemas = (blockType: BlockType): BlockAttributeSchem
       forbidden[attributeName] = forbiddenFix
       continue
     }
-    const refinement =
-      BLOCK_REFINEMENTS[`${blockType.name}.${attributeName}`] ?? SHARED_REFINEMENTS[attributeName]
-    const schema = refinement
-      ? { ...refinement }
-      : convertAttribute(`${blockType.name}.${attributeName}`, attribute)
-    if (attribute.default !== undefined && schema.default === undefined) {
-      schema.default = attribute.default
-    }
-    writable[attributeName] = schema
+    writable[attributeName] = schemaFor(
+      `${blockType.name}.${attributeName}`,
+      attribute,
+      SHARED_REFINEMENTS[attributeName],
+    )
   }
   return { writable, forbidden }
 }

@@ -480,27 +480,22 @@ impl CourseBuilder {
         if self.chapter_locking_enabled || self.flagged_answers_skip_manual_review_and_allow_retry {
             use headless_lms_models::courses::CourseUpdate;
             let course_update = CourseUpdate {
-                name: course.name.clone(),
-                description: course.description.clone(),
-                is_draft: course.is_draft,
-                is_test_mode: course.is_test_mode,
-                can_add_chatbot: course.can_add_chatbot,
-                is_unlisted: course.is_unlisted,
-                is_joinable_by_code_only: course.is_joinable_by_code_only,
-                ask_marketing_consent: course.ask_marketing_consent,
                 flagged_answers_threshold: self.flagged_answers_threshold.unwrap_or(3),
                 flagged_answers_skip_manual_review_and_allow_retry: self
                     .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: course.closed_at,
-                closed_additional_message: course.closed_additional_message.clone(),
-                closed_course_successor_id: course.closed_course_successor_id,
                 chapter_locking_enabled: self.chapter_locking_enabled,
-                ai_policy: course.ai_policy,
-                course_material_ai_instructions: course.course_material_ai_instructions,
+                ..CourseUpdate::from(&course)
             };
-            let updated_course = courses::update_course(conn, app_config, course.id, course_update)
-                .await
-                .context("updating course")?;
+            let updated_course = courses::update_course(
+                conn,
+                app_config,
+                course.id,
+                course_update,
+                cx.teacher,
+                false,
+            )
+            .await
+            .context("updating course")?;
             return Ok((
                 updated_course,
                 default_instance,

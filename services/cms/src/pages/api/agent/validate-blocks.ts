@@ -1,8 +1,9 @@
 import { agentValidatorRoute } from "@/blockValidator/agentValidatorRoute"
 import { callBlockValidator } from "@/blockValidator/validatorWorker"
 
-export const config = { api: { bodyParser: { sizeLimit: "20mb" } } }
+// Twice MAX_REQUEST_BYTES (validateBlocks.ts); Next needs a literal here.
+export const config = { api: { bodyParser: { sizeLimit: "2mb" } } }
 
-export default agentValidatorRoute("POST", (req) =>
-  callBlockValidator({ kind: "validate", body: req.body }),
+export default agentValidatorRoute("POST", (req, clientTimeoutMs) =>
+  callBlockValidator({ kind: "validate", body: req.body }, clientTimeoutMs),
 )

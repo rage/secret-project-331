@@ -1,173 +1,83 @@
-//! Read selectors over the course structure tree.
+//! Read selectors over the course structure.
 
 use serde_json::{Map, Value, json};
 use uuid::Uuid;
 
-use super::course_structure::{CourseStructure, StructureChapter, StructureModule, StructurePage};
+use super::course_structure::{CourseStructure, EntityRef, ListRef, Loc, parse_structure_path};
 use super::error::{EditError, EditErrorCode};
 use super::labels::parse_uuid;
 use super::read::{
-    HasId, ReadMode, ReadOptions, ReadResult, Selector, check_selector, reject_window, single_unit,
-    window,
+    HasId, ReadMode, ReadOptions, ReadResult, Selector, check_selector, field_result, list_read,
+    reject_window, sibling_window, single_unit, window,
 };
 
-#[derive(Clone, Copy)]
-enum EntityRef<'a> {
-    Module(&'a StructureModule),
-    Chapter(&'a StructureChapter),
-    Page(&'a StructurePage),
-}
+/// Keys a read adds to an entity besides its fields. Writes ignore them, so an entity read back
+/// can be written again.
+pub(crate) const RENDERED_KEYS: [&str; 3] = ["path", "kind", "pending"];
 
 impl HasId for EntityRef<'_> {
     fn id(&self) -> Uuid {
-        match self {
-            EntityRef::Module(m) => m.id,
-            EntityRef::Chapter(c) => c.id,
-            EntityRef::Page(p) => p.id,
-        }
+        EntityRef::id(*self)
     }
 }
 
 struct Renderer<'a> {
     mode: ReadMode,
-    options: &'a ReadOptions,
+    options: &'a ReadOptions<'a>,
 }
 
 impl Renderer<'_> {
     fn entity(&self, entity: EntityRef) -> Value {
-        match entity {
-            EntityRef::Module(m) => self.module(m),
-            EntityRef::Chapter(c) => self.chapter(c),
-            EntityRef::Page(p) => self.page(p),
+        let mut value = serde_json::to_value(entity).expect("structure entities serialize");
+        if let Value::Object(object) = &mut value {
+            self.add_read_keys(object, entity);
         }
+        value
     }
 
-    fn base(&self, id: Uuid, kind: &str) -> Map<String, Value> {
-        let mut object = Map::new();
-        object.insert("id".into(), json!(id));
+    /// Adds [`RENDERED_KEYS`] to the serialized `entity` and its children; outlines leave out
+    /// chapter colours.
+    fn add_read_keys(&self, object: &mut Map<String, Value>, entity: EntityRef) {
+        let id = entity.id();
         object.insert("path".into(), json!(format!("/{id}")));
-        object.insert("kind".into(), json!(kind));
-        if let Some(pending) = self.options.pending.get(&id) {
+        object.insert("kind".into(), json!(entity.kind().noun()));
+        if let Some(pending) = self.options.pending.and_then(|p| p.get(&id)) {
             object.insert("pending".into(), json!(pending));
         }
-        object
-    }
-
-    fn module(&self, module: &StructureModule) -> Value {
-        let mut object = self.base(module.id, "module");
-        object.insert("default".into(), json!(module.default));
-        object.insert("name".into(), json!(module.name));
-        object.insert(
-            "chapters".into(),
-            Value::Array(module.chapters.iter().map(|c| self.chapter(c)).collect()),
-        );
-        Value::Object(object)
-    }
-
-    fn chapter(&self, chapter: &StructureChapter) -> Value {
-        let mut object = self.base(chapter.id, "chapter");
-        object.insert("chapter_number".into(), json!(chapter.chapter_number));
-        object.insert("name".into(), json!(chapter.name));
-        if self.mode == ReadMode::Raw {
-            object.insert("color".into(), json!(chapter.color));
+        let (key, children): (&str, Vec<EntityRef>) = match entity {
+            EntityRef::Module(module) => (
+                "chapters",
+                module.chapters.iter().map(EntityRef::Chapter).collect(),
+            ),
+            EntityRef::Chapter(chapter) => {
+                if self.mode == ReadMode::Outline {
+                    object.remove("color");
+                }
+                ("pages", chapter.pages.iter().map(EntityRef::Page).collect())
+            }
+            EntityRef::Page(_) => return,
+        };
+        if let Some(Value::Array(rendered)) = object.get_mut(key) {
+            for (child, child_entity) in rendered.iter_mut().zip(children) {
+                if let Value::Object(child) = child {
+                    self.add_read_keys(child, child_entity);
+                }
+            }
         }
-        object.insert("opens_at".into(), json!(chapter.opens_at));
-        object.insert("deadline".into(), json!(chapter.deadline));
-        object.insert(
-            "pages".into(),
-            Value::Array(chapter.pages.iter().map(|p| self.page(p)).collect()),
-        );
-        Value::Object(object)
-    }
-
-    fn page(&self, page: &StructurePage) -> Value {
-        let mut object = self.base(page.id, "page");
-        object.insert("title".into(), json!(page.title));
-        object.insert("url_path".into(), json!(page.url_path));
-        object.insert("hidden".into(), json!(page.hidden));
-        object.insert("block_count".into(), json!(page.block_count));
-        object.insert("exercise_count".into(), json!(page.exercise_count));
-        if page.has_submissions {
-            object.insert("has_submissions".into(), json!(true));
-        }
-        Value::Object(object)
     }
 
     fn course(&self, doc: &CourseStructure) -> Value {
         json!({
-            "id": doc.course.id,
+            "id": doc.id,
             "path": "/course",
             "kind": "course",
-            "pages": doc.course.pages.iter().map(|p| self.page(p)).collect::<Vec<_>>(),
-            "modules": doc.course.modules.iter().map(|m| self.module(m)).collect::<Vec<_>>(),
+            "pages": doc.pages.iter().map(|p| self.entity(EntityRef::Page(p))).collect::<Vec<_>>(),
+            "modules": doc.modules.iter().map(|m| self.entity(EntityRef::Module(m))).collect::<Vec<_>>(),
         })
     }
 }
 
-/// Where an entity sits: its siblings and the list path, when it isn't a module.
-fn locate(doc: &CourseStructure, id: Uuid) -> Option<(Vec<EntityRef<'_>>, usize, String)> {
-    let course_pages: Vec<EntityRef> = doc.course.pages.iter().map(EntityRef::Page).collect();
-    if let Some(index) = doc.course.pages.iter().position(|p| p.id == id) {
-        return Some((course_pages, index, "/course/pages".into()));
-    }
-    if let Some(index) = doc.course.modules.iter().position(|m| m.id == id) {
-        return Some((
-            doc.course.modules.iter().map(EntityRef::Module).collect(),
-            index,
-            "/course/modules".into(),
-        ));
-    }
-    for module in &doc.course.modules {
-        if let Some(index) = module.chapters.iter().position(|c| c.id == id) {
-            return Some((
-                module.chapters.iter().map(EntityRef::Chapter).collect(),
-                index,
-                format!("/{}/chapters", module.id),
-            ));
-        }
-        for chapter in &module.chapters {
-            if let Some(index) = chapter.pages.iter().position(|p| p.id == id) {
-                return Some((
-                    chapter.pages.iter().map(EntityRef::Page).collect(),
-                    index,
-                    format!("/{}/pages", chapter.id),
-                ));
-            }
-        }
-    }
-    None
-}
-
-fn list<'a>(
-    doc: &'a CourseStructure,
-    owner: &str,
-    key: &str,
-) -> Result<Vec<EntityRef<'a>>, EditError> {
-    if owner == "course" {
-        return match key {
-            "pages" => Ok(doc.course.pages.iter().map(EntityRef::Page).collect()),
-            "modules" => Ok(doc.course.modules.iter().map(EntityRef::Module).collect()),
-            _ => Err(EditError::new(
-                EditErrorCode::InvalidPath,
-                "the course's lists are /course/pages and /course/modules",
-            )),
-        };
-    }
-    let id = parse_uuid(owner, owner)?;
-    if let (Some(module), "chapters") = (doc.course.modules.iter().find(|m| m.id == id), key) {
-        return Ok(module.chapters.iter().map(EntityRef::Chapter).collect());
-    }
-    if let (Some(chapter), "pages") = (doc.chapters().find(|c| c.id == id), key) {
-        return Ok(chapter.pages.iter().map(EntityRef::Page).collect());
-    }
-    Err(EditError::new(
-        EditErrorCode::InvalidPath,
-        format!(
-            "/{owner}/{key} isn't a list; lists are /<module id>/chapters and /<chapter id>/pages"
-        ),
-    ))
-}
-
+/// Runs one selector against the course structure.
 pub fn read_structure(
     doc: &CourseStructure,
     selector: &Selector,
@@ -176,73 +86,53 @@ pub fn read_structure(
     check_selector(selector)?;
     let mode = selector.mode.unwrap_or_default();
     let renderer = Renderer { mode, options };
-    let path = selector.path.as_deref().unwrap_or("");
-    if path.is_empty() || path == "/" || path == "/course" {
+    let render = |entity: &EntityRef| renderer.entity(*entity);
+    let whole_course = || -> Result<ReadResult, EditError> {
         reject_window(selector, "the whole course")?;
-        return Ok(single_unit(selector, renderer.course(doc), options));
+        Ok(single_unit(selector, renderer.course(doc), options))
+    };
+    let path = selector.path.as_deref().unwrap_or("");
+    if path.is_empty() || path == "/" {
+        return whole_course();
     }
-    let rest = path.strip_prefix('/').ok_or_else(|| {
+    let parsed = parse_structure_path(path).ok_or_else(|| {
         EditError::new(
             EditErrorCode::InvalidPath,
             format!("path \"{path}\" must start with /"),
         )
     })?;
-    let segments: Vec<&str> = rest.split('/').collect();
-    let render = |entity: &EntityRef| renderer.entity(*entity);
-    match segments.as_slice() {
-        [owner, key @ ("pages" | "modules" | "chapters")] => {
-            if selector.through.is_some() || selector.around.is_some() {
-                return Err(EditError::new(
-                    EditErrorCode::InvalidValue,
-                    "through and around start from an entity path, not a list",
-                ));
-            }
-            let items = list(doc, owner, key)?;
-            let start = selector.offset.unwrap_or(0) as usize;
-            let end = selector
-                .limit
-                .map(|l| start + l as usize)
-                .unwrap_or(items.len());
-            let parent = format!("/{owner}/{key}");
-            Ok(window(
-                selector,
-                &items,
-                start,
-                end,
-                Some(parent),
-                options,
-                &render,
-            ))
-        }
-        [raw_id] => {
-            let id = parse_uuid(raw_id, path)?;
-            let (siblings, index, parent) = locate(doc, id).ok_or_else(|| {
+    if parsed.is_course(doc.id) {
+        let Some(child) = parsed.child.as_deref() else {
+            return whole_course();
+        };
+        let list = ListRef::of_course(child)
+            .filter(|_| !parsed.is_deeper)
+            .ok_or_else(|| {
                 EditError::new(
-                    EditErrorCode::NotFound,
-                    format!("no module, chapter or page {id}"),
+                    EditErrorCode::InvalidPath,
+                    "the course's lists are /course/pages and /course/modules",
                 )
             })?;
+        return read_list(doc, selector, list, options, &render);
+    }
+    let id = parse_uuid(&parsed.root, path)?;
+    let Loc { list, index } = doc.locate(id).ok_or_else(|| {
+        EditError::new(
+            EditErrorCode::NotFound,
+            format!("no module, chapter or page {id}"),
+        )
+    })?;
+    let siblings = doc.list(list);
+    match (parsed.child.as_deref(), parsed.is_deeper) {
+        (None, _) => {
             if selector.offset.is_some() {
                 return Err(EditError::new(
                     EditErrorCode::InvalidValue,
                     "offset works on a list path such as /<chapter id>/pages",
                 ));
             }
-            let (start, end) = if let Some(through) = &selector.through {
-                let last = parse_uuid(through.trim_start_matches('/'), through)?;
-                let last_index = siblings.iter().position(|e| e.id() == last).filter(|i| *i >= index).ok_or_else(|| {
-                    EditError::new(EditErrorCode::InvalidRange, "through must be a later sibling of path")
-                        .with_details(json!({"siblings_in_order": siblings.iter().map(|e| format!("/{}", e.id())).collect::<Vec<_>>()}))
-                })?;
-                (index, last_index + 1)
-            } else if let Some(around) = selector.around {
-                (
-                    index.saturating_sub(around as usize),
-                    (index + around as usize + 1).min(siblings.len()),
-                )
-            } else if let Some(limit) = selector.limit {
-                (index, index + limit as usize)
-            } else {
+            let sibling_ids: Vec<Uuid> = siblings.iter().map(|e| e.id()).collect();
+            let Some((start, end)) = sibling_window(selector, index, &sibling_ids)? else {
                 return Ok(single_unit(
                     selector,
                     renderer.entity(siblings[index]),
@@ -254,38 +144,61 @@ pub fn read_structure(
                 &siblings,
                 start,
                 end,
-                Some(parent),
+                Some(list.path()),
                 options,
                 &render,
             ))
         }
-        [raw_id, field] => {
-            reject_window(selector, "a field")?;
-            let id = parse_uuid(raw_id, path)?;
-            let (siblings, index, _) = locate(doc, id).ok_or_else(|| {
+        (Some(key @ ("pages" | "modules" | "chapters")), false) => {
+            let child_list = ListRef::of_entity(list.kind(), id, key).ok_or_else(|| {
                 EditError::new(
-                    EditErrorCode::NotFound,
-                    format!("no module, chapter or page {id}"),
+                    EditErrorCode::InvalidPath,
+                    format!(
+                        "/{id}/{key} isn't a list; lists are /<module id>/chapters and /<chapter id>/pages"
+                    ),
                 )
             })?;
+            read_list(doc, selector, child_list, options, &render)
+        }
+        (Some(field), false) => {
+            reject_window(selector, "a field")?;
             let full = Renderer {
                 mode: ReadMode::Raw,
                 options,
             }
             .entity(siblings[index]);
-            let value = full.get(*field).cloned().ok_or_else(|| {
-                EditError::new(EditErrorCode::NotFound, format!("{path} isn't a field"))
-            })?;
-            Ok(ReadResult {
-                value: Some(value),
-                ..ReadResult::single(selector, Vec::new())
-            })
+            let value = full
+                .get(field)
+                .filter(|_| field != "id" && !RENDERED_KEYS.contains(&field))
+                .cloned()
+                .ok_or_else(|| {
+                    EditError::new(EditErrorCode::NotFound, format!("{path} isn't a field"))
+                })?;
+            Ok(field_result(selector, value))
         }
-        _ => Err(EditError::new(
+        (Some(_), true) => Err(EditError::new(
             EditErrorCode::InvalidPath,
             format!("\"{path}\" goes deeper than an entity field"),
         )),
     }
+}
+
+/// A window over one of the structure's lists.
+fn read_list(
+    doc: &CourseStructure,
+    selector: &Selector,
+    list: ListRef,
+    options: &ReadOptions,
+    render: &dyn Fn(&EntityRef) -> Value,
+) -> Result<ReadResult, EditError> {
+    list_read(
+        selector,
+        &doc.list(list),
+        Some(list.path()),
+        options,
+        render,
+        "an entity",
+    )
 }
 
 #[cfg(test)]
@@ -293,52 +206,39 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use super::*;
+    use crate::engine::course_structure::StructureModule;
     use crate::engine::read::StopReason;
-    use crate::test_fixtures::{id, p};
+    use crate::test_fixtures::{id, p, read_options, structure_chapter, structure_page};
 
     fn sample() -> CourseStructure {
-        let page = |name: &str, path: &str| StructurePage {
-            id: id(name),
-            title: name.to_uppercase(),
-            url_path: path.into(),
-            hidden: false,
-            block_count: 2,
-            exercise_count: 0,
-            has_submissions: false,
-        };
+        let page = |name: &str, path: &str| structure_page(name, &name.to_uppercase(), path);
         let chapters = (1..=15)
-            .map(|n| StructureChapter {
-                id: id(&format!("ch{n}")),
-                chapter_number: n,
-                name: format!("Chapter {n}"),
-                color: None,
-                opens_at: None,
-                deadline: None,
-                pages: (0..10)
-                    .map(|k| page(&format!("ch{n}pg{k}"), &format!("/chapter-{n}/p{k}")))
-                    .collect(),
+            .map(|n| {
+                structure_chapter(
+                    &format!("ch{n}"),
+                    n,
+                    &format!("Chapter {n}"),
+                    (0..10)
+                        .map(|k| page(&format!("ch{n}pg{k}"), &format!("/chapter-{n}/p{k}")))
+                        .collect(),
+                )
             })
             .collect();
         CourseStructure {
-            course: super::super::course_structure::StructureCourse {
-                id: id("c1"),
-                pages: vec![page("pg0", "/")],
-                modules: vec![StructureModule {
-                    id: id("m1"),
-                    default: true,
-                    name: None,
-                    chapters,
-                }],
-            },
+            id: id("c1"),
+            pages: vec![page("pg0", "/")],
+            modules: vec![StructureModule {
+                id: id("m1"),
+                default: true,
+                name: None,
+                chapters,
+            }],
         }
     }
 
     #[test]
     fn whole_course_collapses_when_over_budget() {
-        let options = ReadOptions {
-            budget_bytes: 2_000,
-            ..Default::default()
-        };
+        let options = read_options(2_000);
         let result = read_structure(&sample(), &Selector::default(), &options).unwrap();
         assert_eq!(result.items[0]["modules"][0]["collapsed"], json!(1));
         assert_eq!(
@@ -354,7 +254,7 @@ mod tests {
             limit: Some(4),
             ..Default::default()
         };
-        let result = read_structure(&sample(), &selector, &ReadOptions::default()).unwrap();
+        let result = read_structure(&sample(), &selector, &read_options(24_000)).unwrap();
         assert_eq!(result.items.len(), 4);
         assert_eq!(result.total, Some(15));
         assert_eq!(result.stopped_by, Some(StopReason::Limit));
@@ -368,7 +268,7 @@ mod tests {
             through: Some(p("ch2pg5")),
             ..Default::default()
         };
-        let result = read_structure(&sample(), &range, &ReadOptions::default()).unwrap();
+        let result = read_structure(&sample(), &range, &read_options(24_000)).unwrap();
         assert_eq!(result.items.len(), 3);
         assert_eq!(result.items[0]["kind"], json!("page"));
         let field = Selector {
@@ -376,7 +276,7 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(
-            read_structure(&sample(), &field, &ReadOptions::default())
+            read_structure(&sample(), &field, &read_options(24_000))
                 .unwrap()
                 .value,
             Some(Value::Null)
@@ -385,7 +285,26 @@ mod tests {
             path: Some(p("ch3")),
             ..Default::default()
         };
-        let result = read_structure(&sample(), &chapter, &ReadOptions::default()).unwrap();
+        let result = read_structure(&sample(), &chapter, &read_options(24_000)).unwrap();
         assert_eq!(result.items[0]["pages"].as_array().unwrap().len(), 10);
+        for rendered_only in ["kind", "path", "pending"] {
+            let selector = Selector {
+                path: Some(format!("{}/{rendered_only}", p("ch3"))),
+                ..Default::default()
+            };
+            assert!(read_structure(&sample(), &selector, &read_options(24_000)).is_err());
+        }
+    }
+
+    #[test]
+    fn a_large_only_module_collapses_when_its_list_is_read() {
+        let options = read_options(2_000);
+        let selector = Selector {
+            path: Some("/course/modules".into()),
+            ..Default::default()
+        };
+        let result = read_structure(&sample(), &selector, &options).unwrap();
+        assert_eq!(result.items.len(), 1);
+        assert_eq!(result.items[0]["chapters"][0]["collapsed"], json!(15));
     }
 }

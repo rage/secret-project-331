@@ -2,6 +2,7 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
+import { URL_REFERENCE } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
@@ -25,6 +26,7 @@ const ExerciseCustomViewBlockConfiguration: BlockConfiguration<ExerciseCustomVie
     },
     exercise_iframe_url: {
       type: "string",
+      agentSchema: URL_REFERENCE,
       default: undefined,
     },
   },

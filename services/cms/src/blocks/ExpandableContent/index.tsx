@@ -8,7 +8,6 @@ import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCateg
 import ExpandableContentEditor from "./ExpandableContentEditor"
 import ExpandableContentSave from "./ExpandableContentSave"
 
-// oxlint-disable-next-line i18next/no-literal-string
 const ExpandableContent = "ExpandableContent"
 
 const ExpandableContentConfiguration: BlockConfiguration = {
@@ -18,7 +17,6 @@ const ExpandableContentConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   allowedBlocks: ["moocfi/expandable-content-inner-block"],
-  innerBlocksArea: {},
   edit: ExpandableContentEditor,
   save: ExpandableContentSave,
 }

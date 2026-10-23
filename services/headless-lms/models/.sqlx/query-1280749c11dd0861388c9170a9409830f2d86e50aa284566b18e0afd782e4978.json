@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH saved_task AS (\n  SELECT id,\n    exercise_type,\n    row_number() OVER (\n      PARTITION BY id\n      ORDER BY submitted_order\n    ) AS occurrence\n  FROM UNNEST($2::uuid [], $3::text []) WITH ORDINALITY AS t(id, exercise_type, submitted_order)\n)\nSELECT DISTINCT es.name\nFROM saved_task\n  JOIN exercise_services es ON es.slug = saved_task.exercise_type\nWHERE es.is_global_admin_only\n  AND es.deleted_at IS NULL\n  -- update_page gives repeated task ids fresh ids, inserting them as new tasks\n  AND (\n    saved_task.occurrence > 1\n    OR NOT EXISTS (\n      SELECT 1\n      FROM exercise_tasks et\n        JOIN exercise_slides slides ON slides.id = et.exercise_slide_id\n        JOIN exercises e ON e.id = slides.exercise_id\n      WHERE et.id = saved_task.id\n        AND et.exercise_type = saved_task.exercise_type\n        AND et.deleted_at IS NULL\n        AND slides.deleted_at IS NULL\n        AND e.deleted_at IS NULL\n        AND (\n          e.page_id = $1\n          OR e.course_id = $4\n        )\n    )\n  )\nORDER BY es.name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray",
+        "TextArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1280749c11dd0861388c9170a9409830f2d86e50aa284566b18e0afd782e4978"
+}

@@ -20,6 +20,7 @@ const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
   attributes: {
     width: {
       type: "string",
+      agentSchema: { type: "string", pattern: "^\\d*$" },
       default: "",
     },
   },

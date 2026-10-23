@@ -8,7 +8,7 @@ import path from "path"
 import * as esbuild from "esbuild"
 
 const CMS_ROOT = path.join(import.meta.dirname, "..")
-export const DEFAULT_OUTFILE = path.join(CMS_ROOT, "dist", "block-validator-worker.cjs")
+const DEFAULT_OUTFILE = path.join(CMS_ROOT, "dist", "block-validator-worker.cjs")
 
 /** Editor-only packages that can't load in a CommonJS bundle and that validation never calls. */
 const EDITOR_ONLY_PACKAGES =
@@ -104,8 +104,10 @@ const reportBuilds = {
   },
 }
 
-/** Options for building the worker bundle to `outfile`. */
-export const buildOptions = (outfile = DEFAULT_OUTFILE) => ({
+const outfileFlag = process.argv.indexOf("--outfile")
+const outfile = outfileFlag === -1 ? DEFAULT_OUTFILE : path.resolve(process.argv[outfileFlag + 1])
+
+const buildOptions = {
   absWorkingDir: CMS_ROOT,
   entryPoints: ["src/blockValidator/worker.ts"],
   outfile,
@@ -122,16 +124,11 @@ export const buildOptions = (outfile = DEFAULT_OUTFILE) => ({
   logLevel: "error",
   external: ["canvas"],
   plugins: [editorOnlyStubs, jsdomFileReads, reportBuilds],
-})
+}
 
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === import.meta.filename
-if (isMain) {
-  const outfileFlag = process.argv.indexOf("--outfile")
-  const outfile = outfileFlag === -1 ? DEFAULT_OUTFILE : path.resolve(process.argv[outfileFlag + 1])
-  if (process.argv.includes("--watch")) {
-    const context = await esbuild.context(buildOptions(outfile))
-    await context.watch()
-  } else {
-    await esbuild.build(buildOptions(outfile))
-  }
+if (process.argv.includes("--watch")) {
+  const context = await esbuild.context(buildOptions)
+  await context.watch()
+} else {
+  await esbuild.build(buildOptions)
 }

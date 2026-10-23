@@ -12,14 +12,16 @@ use uuid::Uuid;
 
 use crate::strings::strip_html_tags;
 
+/// The name of the block that embeds an exercise; its `id` attribute is the exercise id.
+pub const EXERCISE_BLOCK: &str = "moocfi/exercise";
+
 /// Blocks that are not allowed in top-level pages (pages without chapter_id).
 /// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
-static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
-    "moocfi/exercise",
+const DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
+    EXERCISE_BLOCK,
     "moocfi/exercise-task",
     "moocfi/exercises-in-chapter",
     "moocfi/pages-in-chapter",
-    "moocfi/exercises-in-chapter",
     "moocfi/chapter-progress",
 ];
 
@@ -38,7 +40,7 @@ macro_rules! attributes {
     }};
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
 
 pub struct GutenbergBlock {
     #[serde(rename = "clientId")]
@@ -246,14 +248,69 @@ impl GutenbergBlock {
             ..self
         }
     }
+
+    /// The exercise an exercise block embeds; `None` for other blocks and for an exercise block
+    /// whose `id` attribute names none.
+    pub fn exercise_id(&self) -> Option<Uuid> {
+        if self.name != EXERCISE_BLOCK {
+            return None;
+        }
+        self.attributes
+            .get("id")
+            .and_then(Value::as_str)
+            .and_then(|id| Uuid::parse_str(id).ok())
+    }
 }
 
-/// Checks if blocks contain any that are not allowed in top-level pages (pages without chapter_id).
+/// Depth-first, pre-order visit of every block with its index path (`[2, 0]` is the first child of
+/// the third top-level block).
+pub fn walk<'a>(blocks: &'a [GutenbergBlock], visit: &mut dyn FnMut(&'a GutenbergBlock, &[usize])) {
+    fn go<'a>(
+        blocks: &'a [GutenbergBlock],
+        prefix: &mut Vec<usize>,
+        visit: &mut dyn FnMut(&'a GutenbergBlock, &[usize]),
+    ) {
+        for (index, block) in blocks.iter().enumerate() {
+            prefix.push(index);
+            visit(block, prefix);
+            go(&block.inner_blocks, prefix, visit);
+            prefix.pop();
+        }
+    }
+    go(blocks, &mut Vec::new(), visit);
+}
+
+/// Depth-first, pre-order visit of every block.
+pub fn walk_mut(blocks: &mut [GutenbergBlock], visit: &mut dyn FnMut(&mut GutenbergBlock)) {
+    for block in blocks.iter_mut() {
+        visit(block);
+        walk_mut(&mut block.inner_blocks, visit);
+    }
+}
+
+/// The `clientId` of every block in the tree, in [`walk`] order.
+pub fn all_client_ids(blocks: &[GutenbergBlock]) -> Vec<Uuid> {
+    let mut ids = Vec::new();
+    walk(blocks, &mut |block, _| ids.push(block.client_id));
+    ids
+}
+
+/// The blocks, at any depth, that aren't allowed in top-level pages (pages without chapter_id).
 /// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
+pub fn blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> Vec<&GutenbergBlock> {
+    let mut found = Vec::new();
+    walk(input, &mut |block, _| {
+        if DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()) {
+            found.push(block);
+        }
+    });
+    found
+}
+
+/// Checks if blocks, at any depth, contain any that are not allowed in top-level pages (pages
+/// without chapter_id). See [`blocks_not_allowed_in_top_level_pages`].
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
-    input
-        .iter()
-        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()))
+    !blocks_not_allowed_in_top_level_pages(input).is_empty()
 }
 
 pub fn remap_ids_in_content(
@@ -466,13 +523,6 @@ mod tests {
         assert_eq!(get_learning_objectives(&[objectives_block(&[])]), None);
     }
 
-    fn collect_ids(blocks: &Vec<GutenbergBlock>, ids: &mut Vec<Uuid>) {
-        for block in blocks {
-            ids.push(block.client_id);
-            collect_ids(&block.inner_blocks, ids);
-        }
-    }
-
     #[test]
     fn replace_duplicate_client_ids_makes_all_ids_unique_flat_and_nested() {
         let dup_id = Uuid::new_v4();
@@ -493,8 +543,7 @@ mod tests {
         let input = vec![block_a, block_b];
         let output = replace_duplicate_client_ids(input);
 
-        let mut ids: Vec<Uuid> = Vec::new();
-        collect_ids(&output, &mut ids);
+        let ids = all_client_ids(&output);
         let unique: HashSet<Uuid> = ids.iter().cloned().collect();
         assert_eq!(
             unique.len(),

@@ -70,7 +70,6 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
     "moocfi/latex",
     "moocfi/iframe",
   ],
-  innerBlocksArea: {},
   edit: enforceExerciseTaskIdDefined(ExerciseTaskEditor),
   save: ExerciseTaskSave,
 }

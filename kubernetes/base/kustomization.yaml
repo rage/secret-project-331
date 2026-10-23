@@ -23,6 +23,5 @@ resources:
   - headless-lms/email-deliver.yml
   - headless-lms/exercise-answer-upload-reaper.yml
   - headless-lms/exercise-spec-upload-reaper.yml
-  - headless-lms/agent-changeset-expirer.yml
   - headless-lms/credit-registrar.yml
   - headless-lms/suotar-syncer.yml

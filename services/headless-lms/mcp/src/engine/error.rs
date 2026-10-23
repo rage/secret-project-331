@@ -1,5 +1,6 @@
 use serde::Serialize;
-use serde_json::Value;
+use serde_json::{Value, json};
+use uuid::Uuid;
 
 /// Why an edit was rejected. Serialised as the `code` of a tool error.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -39,7 +40,6 @@ pub enum EditErrorCode {
     ChapterNeedsPage,
     DuplicatePath,
     InvalidUrlPath,
-    PageNotLoaded,
     InvariantViolated,
     ExpectedCountMismatch,
     InvalidRegex,
@@ -47,6 +47,11 @@ pub enum EditErrorCode {
     CitationKey,
     InvalidBibtex,
     DuplicateTerm,
+    /// A read's value is over the result budget; `details` lists smaller paths to read instead.
+    TooLarge,
+    /// The CMS validator rejected blocks (`details` lists its errors), or a page outside chapters
+    /// would hold exercises or chapter listings.
+    InvalidBlocks,
 }
 
 /// An edit rejected before anything was staged. Every message names the correct form where one
@@ -67,6 +72,7 @@ pub struct EditError {
 }
 
 impl EditError {
+    /// An error without a fix or details; the builders below add them.
     pub fn new(code: EditErrorCode, message: impl Into<String>) -> Self {
         Self {
             code,
@@ -91,6 +97,40 @@ impl EditError {
     pub fn at_op(mut self, index: usize) -> Self {
         self.op.get_or_insert(index);
         self
+    }
+
+    /// A bulk edit found `found` matches where the call expected `expected`; `matches` describes
+    /// each one for the agent.
+    pub(crate) fn expected_count_mismatch(
+        expected: usize,
+        found: usize,
+        matches: Vec<Value>,
+    ) -> Self {
+        Self::new(
+            EditErrorCode::ExpectedCountMismatch,
+            format!("expected {expected} matches but found {found}; nothing was changed"),
+        )
+        .with_details(json!({ "matches": matches }))
+    }
+
+    /// An op that places items came without `position`; `fix` shows where items can go.
+    pub(crate) fn position_required(fix: &str) -> Self {
+        Self::new(
+            EditErrorCode::PositionRequired,
+            "this op needs \"position\"",
+        )
+        .with_fix(fix)
+    }
+
+    /// A range's `through` (`last`) comes before its start; `siblings` are the list's paths in
+    /// order.
+    pub(crate) fn reversed_range(first: Uuid, last: Uuid, siblings: Vec<String>) -> Self {
+        Self::new(
+            EditErrorCode::InvalidRange,
+            format!("the range is reversed: /{last} comes before /{first}"),
+        )
+        .with_fix(format!("swap the ends: from /{last} through /{first}"))
+        .with_details(json!({ "siblings_in_order": siblings }))
     }
 }
 
@@ -118,6 +158,18 @@ pub struct Warning {
     pub op: Option<usize>,
 }
 
+impl Warning {
+    /// A warning not yet attributed to an op; the engines' apply loops attribute it.
+    pub fn new(code: WarningCode, message: impl Into<String>) -> Self {
+        Self {
+            code,
+            message: message.into(),
+            op: None,
+        }
+    }
+}
+
+/// What a [`Warning`] is about.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum WarningCode {
@@ -129,6 +181,8 @@ pub enum WarningCode {
     NewPageHidden,
     /// A url_path was adjusted to fit the chapter or to be unique.
     UrlPathAdjusted,
-    /// Content still mentions something the call removed or renamed.
-    StillReferenced,
+    /// An exercise got a deadline of its own, which chapter deadlines are preferred to.
+    OwnExerciseDeadline,
+    /// An exercise's own deadline is before its chapter opens or after the chapter's deadline.
+    DeadlineOutsideChapterWindow,
 }

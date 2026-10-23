@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import PagesInChapterEditor from "./PagesInChapterEditor"
-import PagesInChapterSave from "./PagesInChapterSave"
 
 const PagesInChapterConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -14,9 +14,8 @@ const PagesInChapterConfiguration: BlockConfiguration = {
   description: "Pages In Chapter",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
-  allowedBlocks: [],
   edit: PagesInChapterEditor,
-  save: PagesInChapterSave,
+  save: EmptyBlockSave,
 }
 
 export default PagesInChapterConfiguration

@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React, { useContext, useState } from "react"
 
 import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
@@ -15,7 +15,7 @@ import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessib
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -99,7 +99,7 @@ export interface ExerciseTaskAttributes {
 
 const ExerciseTaskEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseTaskAttributes>>
-> = ({ name, attributes, clientId, setAttributes }) => {
+> = ({ attributes, clientId, setAttributes }) => {
   const dispatch = useContext(EditorContentDispatch)
 
   const exerciseServicesQuery = useAllExerciseServices()
@@ -225,7 +225,7 @@ const ExerciseTaskEditor: React.FC<
                     className={cx(assignmentBox, gutenbergControlsVisible)}
                   >
                     <h3>{t("title-assignment")}</h3>
-                    <InnerBlocks {...registeredInnerBlocksProps(name)} />
+                    <RegisteredInnerBlocks />
                   </div>
                   {!exerciseType ? (
                     <ChooseExerciseTaskType

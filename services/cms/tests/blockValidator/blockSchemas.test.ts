@@ -2,57 +2,41 @@
  * @jest-environment node
  */
 
+import { ALL_COURSE_FEATURES } from "@/blocks/pageTypes"
+import { BLOCK_REFINEMENTS } from "@/blockValidator/attributeRefinements"
+import type { BlockSchemasDocument } from "@/blockValidator/blockSchemas"
+import { pageTypeOf, withClientIds } from "@/blockValidator/exampleBlocks"
 import { callBlockValidator } from "@/blockValidator/validatorWorker"
+import type { AttributeSchema } from "@/utils/Gutenberg/agentSchema"
 
 import { startBuiltValidator, stopBlockValidator, validate } from "./runValidator"
 
-interface BlockSchemaBody {
-  description: string
-  attributes: Record<string, Record<string, unknown>>
-  allowed_parents: string[] | null
-  allowed_children: string[] | null
-  template: unknown[] | null
-  template_lock: string | false | null
-  example: { name: string; attributes: Record<string, unknown>; innerBlocks: unknown[] }
-}
-
-interface SchemasBody {
-  version: string
-  page_types: Record<string, string[]>
-  course_feature_gated_blocks: Record<string, string>
-  rich_text_formats: { name: string; tag: string; description: string }[]
-  blocks: Record<string, BlockSchemaBody>
-}
-
-let schemas: SchemasBody
+let schemas: BlockSchemasDocument
 
 beforeAll(async () => {
   await startBuiltValidator()
   const response = await callBlockValidator({ kind: "block-schemas" })
   expect(response.status).toBe(200)
-  schemas = response.body as SchemasBody
+  schemas = response.body as BlockSchemasDocument
 }, 120_000)
 afterAll(stopBlockValidator)
 
-const withClientIds = (example: BlockSchemaBody["example"], prefix: string): unknown => ({
-  clientId: prefix,
-  name: example.name,
-  attributes: example.attributes,
-  innerBlocks: (example.innerBlocks as BlockSchemaBody["example"][]).map((child, index) =>
-    withClientIds(child, `${prefix}-${index}`),
-  ),
-})
+/** Blocks that can be validated alone at the top level of a page. */
+const topLevelBlocks = () =>
+  Object.entries(schemas.blocks).filter(
+    ([name, schema]) =>
+      !schema.allowed_parents?.some((parent) => parent !== "root") && name !== "moocfi/exercise",
+  )
 
 describe("block schemas", () => {
   it("has a stable content version", async () => {
     const again = await callBlockValidator({ kind: "block-schemas" })
-    expect((again.body as SchemasBody).version).toBe(schemas.version)
+    expect((again.body as BlockSchemasDocument).version).toBe(schemas.version)
     expect(schemas.version).toMatch(/^[0-9a-f]{16}$/)
   })
 
   it("lists the blocks agents may write per page type", () => {
     expect(Object.keys(schemas.page_types).toSorted()).toEqual([
-      "chapter-front-page",
       "course-front-page",
       "course-page",
       "top-level-page",
@@ -69,6 +53,21 @@ describe("block schemas", () => {
       "moocfi/lock-chapter": "chapter_locking_enabled",
       "moocfi/chatbot": "can_add_chatbot",
     })
+  })
+
+  it("applies every core block refinement to a registered attribute", () => {
+    // Query fields are keyed `<block>.<attribute>.<field>`, and sit under the array's items.
+    const exportedSchema = (key: string): AttributeSchema | undefined => {
+      const [blockName = "", attributeName = "", ...fields] = key.split(".")
+      let schema = schemas.blocks[blockName]?.attributes[attributeName]
+      for (const field of fields) {
+        schema = schema?.items?.properties?.[field]
+      }
+      return schema
+    }
+    for (const [key, refinement] of Object.entries(BLOCK_REFINEMENTS)) {
+      expect([key, exportedSchema(key)]).toEqual([key, expect.objectContaining(refinement)])
+    }
   })
 
   it("describes rich-text formats and marks rich-text attributes", () => {
@@ -119,21 +118,34 @@ describe("block schemas", () => {
   })
 
   it("gives examples that validate as they are", async () => {
-    const pageTypeOf = (name: string) =>
-      Object.keys(schemas.page_types).find((pageType) =>
-        schemas.page_types[pageType]?.includes(name),
-      ) ?? "course-page"
-    for (const [name, schema] of Object.entries(schemas.blocks)) {
-      if (
-        schema.allowed_parents?.some((parent) => parent !== "root") ||
-        name === "moocfi/exercise"
-      ) {
-        continue
+    for (const [name, schema] of topLevelBlocks()) {
+      const result = await validate(
+        withClientIds([schema.example], "example"),
+        pageTypeOf(schemas.page_types, name),
+        {},
+        { ...ALL_COURSE_FEATURES },
+      )
+      expect([name, result.errors]).toEqual([name, []])
+    }
+  })
+
+  it("accepts every attribute's registered default when written out", async () => {
+    for (const [name, schema] of topLevelBlocks()) {
+      const defaults = Object.fromEntries(
+        Object.entries(schema.attributes)
+          .filter(([, attribute]) => attribute.default !== undefined)
+          .map(([key, attribute]) => [key, attribute.default]),
+      )
+      const example = {
+        ...schema.example,
+        attributes: { ...schema.example.attributes, ...defaults },
       }
-      const result = await validate([withClientIds(schema.example, "example")], pageTypeOf(name), {
-        chapter_locking_enabled: true,
-        can_add_chatbot: true,
-      })
+      const result = await validate(
+        withClientIds([example], "defaults"),
+        pageTypeOf(schemas.page_types, name),
+        {},
+        { ...ALL_COURSE_FEATURES },
+      )
       expect([name, result.errors]).toEqual([name, []])
     }
   })

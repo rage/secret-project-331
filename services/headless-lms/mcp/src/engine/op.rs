@@ -1,11 +1,16 @@
 //! The JSON-Patch-style op shared by every patch tool, and its parsing with teaching errors.
 
+use std::fmt;
+
 use schemars::JsonSchema;
+use serde::de::IntoDeserializer;
+use serde::de::value::{Error as ValueError, StrDeserializer};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
 
 use super::error::{EditError, EditErrorCode};
 
+/// What a patch op does, as agents name it in `op`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum OpKind {
@@ -21,40 +26,14 @@ pub enum OpKind {
     Reorder,
 }
 
-impl OpKind {
-    pub const ALL: [OpKind; 10] = [
-        OpKind::Add,
-        OpKind::Remove,
-        OpKind::Replace,
-        OpKind::Move,
-        OpKind::Copy,
-        OpKind::Wrap,
-        OpKind::Unwrap,
-        OpKind::Split,
-        OpKind::Merge,
-        OpKind::Reorder,
-    ];
-
-    pub fn as_str(self) -> &'static str {
-        match self {
-            OpKind::Add => "add",
-            OpKind::Remove => "remove",
-            OpKind::Replace => "replace",
-            OpKind::Move => "move",
-            OpKind::Copy => "copy",
-            OpKind::Wrap => "wrap",
-            OpKind::Unwrap => "unwrap",
-            OpKind::Split => "split",
-            OpKind::Merge => "merge",
-            OpKind::Reorder => "reorder",
-        }
-    }
-
-    fn parse(s: &str) -> Option<Self> {
-        Self::ALL.into_iter().find(|kind| kind.as_str() == s)
+/// The op's name on the wire, e.g. `move`.
+impl fmt::Display for OpKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.serialize(f)
     }
 }
 
+/// Where an op puts items: next to the sibling at `path`, or at an end of the list at `path`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum Position {
@@ -65,19 +44,25 @@ pub enum Position {
 }
 
 impl Position {
-    fn parse(s: &str) -> Option<Self> {
-        match s {
-            "before" => Some(Position::Before),
-            "after" => Some(Position::After),
-            "start" => Some(Position::Start),
-            "end" => Some(Position::End),
-            _ => None,
-        }
-    }
+    const ALL: [Position; 4] = [
+        Position::Before,
+        Position::After,
+        Position::Start,
+        Position::End,
+    ];
+}
 
-    pub fn is_sibling_relative(self) -> bool {
-        matches!(self, Position::Before | Position::After)
+/// The position's name on the wire, e.g. `before`.
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.serialize(f)
     }
+}
+
+/// The unit variant whose wire name is `name`.
+fn from_wire_name<'de, T: Deserialize<'de>>(name: &'de str) -> Option<T> {
+    let deserializer: StrDeserializer<'de, ValueError> = name.into_deserializer();
+    T::deserialize(deserializer).ok()
 }
 
 /// One edit. Which fields an op takes depends on `op` and the tool; parsing checks them.
@@ -109,6 +94,124 @@ pub struct PatchOp {
     pub at_text: Option<String>,
 }
 
+/// One op after [`parse_ops`]: it has every field its tool requires for it and no field it doesn't
+/// take.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Op {
+    Add {
+        path: String,
+        value: Value,
+        position: Option<Position>,
+    },
+    Remove {
+        path: String,
+        through: Option<String>,
+    },
+    Replace {
+        path: String,
+        value: Value,
+    },
+    Move(Transfer),
+    Copy {
+        transfer: Transfer,
+        label: Option<String>,
+    },
+    Wrap {
+        path: String,
+        through: Option<String>,
+        value: Value,
+        label: Option<String>,
+    },
+    Unwrap {
+        path: String,
+    },
+    Split {
+        path: String,
+        at_text: String,
+        label: Option<String>,
+    },
+    Merge {
+        path: String,
+        from: String,
+    },
+    Reorder {
+        path: String,
+        value: Value,
+    },
+}
+
+/// What a `move` or `copy` takes and where it puts it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Transfer {
+    pub from: String,
+    pub through: Option<String>,
+    pub path: String,
+    pub position: Position,
+    pub to_page: Option<String>,
+}
+
+impl Op {
+    /// The op's name.
+    pub fn kind(&self) -> OpKind {
+        match self {
+            Op::Add { .. } => OpKind::Add,
+            Op::Remove { .. } => OpKind::Remove,
+            Op::Replace { .. } => OpKind::Replace,
+            Op::Move(_) => OpKind::Move,
+            Op::Copy { .. } => OpKind::Copy,
+            Op::Wrap { .. } => OpKind::Wrap,
+            Op::Unwrap { .. } => OpKind::Unwrap,
+            Op::Split { .. } => OpKind::Split,
+            Op::Merge { .. } => OpKind::Merge,
+            Op::Reorder { .. } => OpKind::Reorder,
+        }
+    }
+
+    /// Where the op acts; for `move` and `copy`, where the items go.
+    pub fn path(&self) -> &str {
+        match self {
+            Op::Move(transfer) | Op::Copy { transfer, .. } => &transfer.path,
+            Op::Add { path, .. }
+            | Op::Remove { path, .. }
+            | Op::Replace { path, .. }
+            | Op::Wrap { path, .. }
+            | Op::Unwrap { path }
+            | Op::Split { path, .. }
+            | Op::Merge { path, .. }
+            | Op::Reorder { path, .. } => path,
+        }
+    }
+
+    /// What the op writes, for the ops that take a value.
+    pub fn value(&self) -> Option<&Value> {
+        match self {
+            Op::Add { value, .. }
+            | Op::Replace { value, .. }
+            | Op::Wrap { value, .. }
+            | Op::Reorder { value, .. } => Some(value),
+            _ => None,
+        }
+    }
+
+    /// The op-level `$label` for the item the op creates.
+    pub fn label(&self) -> Option<&str> {
+        match self {
+            Op::Copy { label, .. } | Op::Wrap { label, .. } | Op::Split { label, .. } => {
+                label.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    /// The page a `move` or `copy` puts items on, when not the edited one.
+    pub fn to_page(&self) -> Option<&str> {
+        match self {
+            Op::Move(transfer) | Op::Copy { transfer, .. } => transfer.to_page.as_deref(),
+            _ => None,
+        }
+    }
+}
+
 /// Which patch tool the ops are for; decides the allowed ops and fields.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PatchTarget {
@@ -119,7 +222,8 @@ pub enum PatchTarget {
 }
 
 impl PatchTarget {
-    fn tool_name(self) -> &'static str {
+    /// The name of the tool that takes these ops.
+    pub fn tool_name(self) -> &'static str {
         match self {
             PatchTarget::PageContent => "patch_page_content",
             PatchTarget::CourseStructure => "patch_course_structure",
@@ -128,6 +232,7 @@ impl PatchTarget {
         }
     }
 
+    /// The ops the tool takes.
     pub fn allowed_ops(self) -> &'static [OpKind] {
         match self {
             PatchTarget::PageContent => &[
@@ -159,8 +264,6 @@ impl PatchTarget {
     fn fields(self, op: OpKind) -> (&'static [&'static str], &'static [&'static str]) {
         use OpKind::*;
         match (self, op) {
-            (PatchTarget::PageContent, Add) => (&["value"], &["position", "label"]),
-            (PatchTarget::CourseStructure, Add) => (&["value"], &["position", "label"]),
             (_, Add) => (&["value"], &["position"]),
             (PatchTarget::PageContent | PatchTarget::CourseStructure, Remove) => {
                 (&[], &["through"])
@@ -181,30 +284,27 @@ impl PatchTarget {
         }
     }
 
-    fn unsupported_op_fix(self, op: OpKind) -> String {
-        match (self, op) {
-            (PatchTarget::PageContent, OpKind::Reorder) => {
-                "reorder blocks with replace on the children list using stubs: {\"op\":\"replace\",\"path\":\"/box1/innerBlocks\",\"value\":[{\"clientId\":\"c2\"},{\"clientId\":\"c1\"}]}".to_string()
-            }
-            _ => format!(
-                "{} takes: {}",
-                self.tool_name(),
-                self.allowed_ops()
-                    .iter()
-                    .map(|op| op.as_str())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
-        }
+    fn allowed_ops_fix(self) -> String {
+        format!(
+            "{} takes: {}",
+            self.tool_name(),
+            self.allowed_ops()
+                .iter()
+                .map(OpKind::to_string)
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
     }
 }
+
+const REORDER_ON_PAGE_FIX: &str = "reorder blocks with replace on the children list using stubs: {\"op\":\"replace\",\"path\":\"/box1/innerBlocks\",\"value\":[{\"clientId\":\"c2\"},{\"clientId\":\"c1\"}]}";
 
 const ALL_FIELDS: [&str; 9] = [
     "op", "path", "from", "through", "value", "position", "to_page", "label", "at_text",
 ];
 
 /// Parses raw op objects, rejecting unknown fields and fields the op doesn't take.
-pub fn parse_ops(raw: &[Value], target: PatchTarget) -> Result<Vec<PatchOp>, EditError> {
+pub fn parse_ops(raw: &[Value], target: PatchTarget) -> Result<Vec<Op>, EditError> {
     if raw.is_empty() {
         return Err(EditError::new(
             EditErrorCode::MissingField,
@@ -217,7 +317,7 @@ pub fn parse_ops(raw: &[Value], target: PatchTarget) -> Result<Vec<PatchOp>, Edi
         .collect()
 }
 
-fn parse_op(raw: &Value, target: PatchTarget) -> Result<PatchOp, EditError> {
+fn parse_op(raw: &Value, target: PatchTarget) -> Result<Op, EditError> {
     let Some(object) = raw.as_object() else {
         return Err(EditError::new(
             EditErrorCode::InvalidOp,
@@ -233,21 +333,27 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<PatchOp, EditError> {
             ));
         }
     };
-    let Some(op) = OpKind::parse(op_name) else {
+    let Some(op) = from_wire_name::<OpKind>(op_name) else {
         let message = if op_name == "test" {
             "op \"test\" isn't supported; ops already apply all-or-nothing, and an op whose target is gone fails on its own".to_string()
         } else {
             format!("unknown op \"{op_name}\"")
         };
-        return Err(EditError::new(EditErrorCode::InvalidOp, message)
-            .with_fix(target.unsupported_op_fix(OpKind::Add)));
+        return Err(
+            EditError::new(EditErrorCode::InvalidOp, message).with_fix(target.allowed_ops_fix())
+        );
     };
     if !target.allowed_ops().contains(&op) {
+        let fix = if target == PatchTarget::PageContent && op == OpKind::Reorder {
+            REORDER_ON_PAGE_FIX.to_string()
+        } else {
+            target.allowed_ops_fix()
+        };
         return Err(EditError::new(
             EditErrorCode::InvalidOp,
             format!("{} doesn't take op \"{op_name}\"", target.tool_name()),
         )
-        .with_fix(target.unsupported_op_fix(op)));
+        .with_fix(fix));
     }
 
     check_unknown_fields(object)?;
@@ -264,7 +370,7 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<PatchOp, EditError> {
             return Err(field_not_allowed(op, field, target));
         }
         if !present && required.contains(field) {
-            return Err(missing_field(op, field, target));
+            return Err(missing_field(op, field));
         }
     }
 
@@ -286,20 +392,63 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<PatchOp, EditError> {
 
     let position = match object.get("position") {
         None | Some(Value::Null) => None,
-        Some(Value::String(s)) => Some(Position::parse(s).ok_or_else(|| invalid_position(s))?),
+        Some(Value::String(name)) => {
+            Some(from_wire_name::<Position>(name).ok_or_else(|| invalid_position(name))?)
+        }
         Some(other) => return Err(invalid_position(&other.to_string())),
     };
 
-    Ok(PatchOp {
-        op,
-        path,
-        from: optional_string(object, "from")?,
-        through: optional_string(object, "through")?,
-        value: object.get("value").cloned(),
-        position,
-        to_page: optional_string(object, "to_page")?,
-        label: optional_string(object, "label")?,
-        at_text: optional_string(object, "at_text")?,
+    const CHECKED: &str = "the field rules above require it";
+    let string = |field| optional_string(object, field);
+    let value = || object.get("value").cloned().expect(CHECKED);
+    let transfer = || -> Result<Transfer, EditError> {
+        Ok(Transfer {
+            from: string("from")?.expect(CHECKED),
+            through: string("through")?,
+            path: path.clone(),
+            position: position.expect(CHECKED),
+            to_page: string("to_page")?,
+        })
+    };
+    Ok(match op {
+        OpKind::Add => Op::Add {
+            path,
+            value: value(),
+            position,
+        },
+        OpKind::Remove => Op::Remove {
+            through: string("through")?,
+            path,
+        },
+        OpKind::Replace => Op::Replace {
+            path,
+            value: value(),
+        },
+        OpKind::Move => Op::Move(transfer()?),
+        OpKind::Copy => Op::Copy {
+            transfer: transfer()?,
+            label: string("label")?,
+        },
+        OpKind::Wrap => Op::Wrap {
+            through: string("through")?,
+            label: string("label")?,
+            path,
+            value: value(),
+        },
+        OpKind::Unwrap => Op::Unwrap { path },
+        OpKind::Split => Op::Split {
+            label: string("label")?,
+            at_text: string("at_text")?.expect(CHECKED),
+            path,
+        },
+        OpKind::Merge => Op::Merge {
+            from: string("from")?.expect(CHECKED),
+            path,
+        },
+        OpKind::Reorder => Op::Reorder {
+            path,
+            value: value(),
+        },
     })
 }
 
@@ -335,7 +484,6 @@ fn field_not_allowed(op: OpKind, field: &str, target: PatchTarget) -> EditError 
         (OpKind::Add, "through") => {
             Some("add inserts the values given; ranges belong to move, copy, remove and wrap")
         }
-        (OpKind::Add, "label") if target == PatchTarget::CourseSettings => None,
         (OpKind::Replace, "position") => {
             Some("replace edits the thing at path in place; use move to relocate it")
         }
@@ -345,29 +493,25 @@ fn field_not_allowed(op: OpKind, field: &str, target: PatchTarget) -> EditError 
         }
         _ => None,
     };
-    let mut accepted: Vec<&str> = vec!["op", "path"];
-    accepted.extend_from_slice(required);
-    accepted.extend_from_slice(optional);
-    let mut error = EditError::new(
+    let fix = if (op, field) == (OpKind::Add, "label") {
+        "put \"label\" inside each value item: {\"op\":\"add\",...,\"value\":{\"label\":\"$x\",...}}".to_string()
+    } else {
+        let accepted = [["op", "path"].as_slice(), required, optional].concat();
+        format!("{op} takes: {}", accepted.join(", "))
+    };
+    EditError::new(
         EditErrorCode::FieldNotAllowed,
         format!(
             "{} doesn't take \"{field}\"{}",
-            op.as_str(),
+            op,
             hint.map(|h| format!("; {h}")).unwrap_or_default()
         ),
     )
-    .with_fix(format!("{} takes: {}", op.as_str(), accepted.join(", ")));
-    if field == "label" && op == OpKind::Add {
-        error = error.with_fix("put \"label\" inside each value item: {\"op\":\"add\",...,\"value\":{\"label\":\"$x\",...}}");
-    }
-    error
+    .with_fix(fix)
 }
 
-fn missing_field(op: OpKind, field: &str, target: PatchTarget) -> EditError {
+fn missing_field(op: OpKind, field: &str) -> EditError {
     let fix = match (op, field) {
-        (OpKind::Add, "position") if target == PatchTarget::PageContent => {
-            "position is before/after a sibling (\"path\":\"/p2\") or start/end of a children list (\"path\":\"/box1/innerBlocks\" or \"\" for the page)".to_string()
-        }
         (OpKind::Move | OpKind::Copy, "position") => {
             "position is before/after a sibling at path, or start/end of the children list at path".to_string()
         }
@@ -384,7 +528,7 @@ fn missing_field(op: OpKind, field: &str, target: PatchTarget) -> EditError {
     };
     EditError::new(
         EditErrorCode::MissingField,
-        format!("{} needs \"{field}\"", op.as_str()),
+        format!("{op} needs \"{field}\""),
     )
     .with_fix(fix)
 }
@@ -395,7 +539,7 @@ fn invalid_position(given: &str) -> EditError {
         format!("position {given} isn't supported; numeric indexes and \"-\" are rejected"),
     )
     .with_fix("position is \"before\" or \"after\" a sibling at path, or \"start\" or \"end\" of the children list at path, e.g. {\"path\":\"/box1/innerBlocks\",\"position\":\"end\"}")
-    .with_details(json!({"positions": ["before", "after", "start", "end"]}))
+    .with_details(json!({"positions": Position::ALL}))
 }
 
 fn optional_string(object: &Map<String, Value>, field: &str) -> Result<Option<String>, EditError> {
@@ -421,7 +565,7 @@ pub(crate) fn quote_list<S: AsRef<str>>(items: &[S]) -> String {
 mod tests {
     use super::*;
 
-    fn parse_one(op: Value, target: PatchTarget) -> Result<PatchOp, EditError> {
+    fn parse_one(op: Value, target: PatchTarget) -> Result<Op, EditError> {
         parse_ops(&[op], target).map(|mut ops| ops.remove(0))
     }
 
@@ -432,9 +576,11 @@ mod tests {
             PatchTarget::PageContent,
         )
         .unwrap();
-        assert_eq!(op.op, OpKind::Move);
-        assert_eq!(op.position, Some(Position::After));
-        assert_eq!(op.through.as_deref(), Some("/p9"));
+        let Op::Move(transfer) = op else {
+            panic!("expected a move, got {op:?}");
+        };
+        assert_eq!(transfer.position, Position::After);
+        assert_eq!(transfer.through.as_deref(), Some("/p9"));
     }
 
     #[test]
@@ -506,6 +652,6 @@ mod tests {
             PatchTarget::CourseStructure,
         )
         .unwrap();
-        assert_eq!(op.value, Some(Value::Null));
+        assert_eq!(op.value(), Some(&Value::Null));
     }
 }

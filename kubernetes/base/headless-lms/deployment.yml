@@ -87,11 +87,13 @@ spec:
             # The CMS's in-cluster address including its base path; agent writes are validated there.
             - name: CMS_INTERNAL_URL
               value: "http://cms:3000/cms"
+            # Optional so that the server starts without it; agent writes then fail closed.
             - name: AGENT_VALIDATOR_SECRET
               valueFrom:
                 secretKeyRef:
                   name: agent-validator
                   key: AGENT_VALIDATOR_SECRET
+                  optional: true
           envFrom:
             - secretRef:
                 name: headless-lms-secrets

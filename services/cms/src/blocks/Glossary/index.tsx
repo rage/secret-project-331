@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import GlossaryEditor from "./GlossaryEditor"
-import GlossarySave from "./GlossarySave"
 
 const GlossaryConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -14,9 +14,8 @@ const GlossaryConfiguration: BlockConfiguration = {
   description: "Glossary.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
-  allowedBlocks: [],
   edit: GlossaryEditor,
-  save: GlossarySave,
+  save: EmptyBlockSave,
 }
 
 export default GlossaryConfiguration

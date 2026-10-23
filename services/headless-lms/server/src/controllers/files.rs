@@ -528,7 +528,7 @@ mod answer_upload_tests {
     /// the tests send is the path a browser sends.
     macro_rules! files_app {
         () => {{
-            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let pool = PgPool::connect(&dev_database_url()).await.expect("pool");
             let file_store: Arc<dyn FileStore> = Arc::new(temp_file_store());
             test::init_service(
                 App::new()
@@ -845,7 +845,7 @@ mod claimed_file_tests {
 
     macro_rules! claimed_files_app {
         ($file_store:expr) => {{
-            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let pool = PgPool::connect(&dev_database_url()).await.expect("pool");
             test::init_service(
                 App::new()
                     .app_data(web::Data::new(pool))

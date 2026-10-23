@@ -140,8 +140,12 @@ async fn delete_page(
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let deleted_page =
-        models::pages::delete_page_and_exercises(&mut conn, *page_id, user.id, None).await?;
+    let deleted_page = models::pages::delete_page_and_exercises(
+        &mut conn,
+        *page_id,
+        models::entity_history::HistoryAuthor::user(user.id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(deleted_page))
 }

@@ -7,9 +7,11 @@ use chrono::{DateTime, Utc};
 use futures_util::{FutureExt, future::LocalBoxFuture};
 use headless_lms_utils::cache::Cache;
 use models::{
-    library::oauth::{Digest, EXERCISE_SERVICES_SCOPE, token_digest_sha256},
-    oauth_access_token::{OAuthAccessToken, TokenType},
-    oauth_client::OAuthClient,
+    library::oauth::{
+        Digest, EXERCISE_SERVICES_SCOPE,
+        bearer::{BearerTokenError, bearer_token, resolve_bearer_token},
+        token_digest_sha256,
+    },
     users::User,
 };
 use secrecy::{ExposeSecret, SecretString};
@@ -57,20 +59,15 @@ fn forbidden(message: &str) -> ControllerError {
     controller_err!(Forbidden, message.to_string())
 }
 
-/// Classify a model lookup error raised while resolving a Bearer token.
+/// The response to a token `resolve_bearer_token` rejected.
 ///
-/// An absent row (token, client or user missing, or the user soft-deleted) is an
-/// authentication failure and maps to `401`; anything else is infrastructure and must
-/// propagate as `500`. The distinction is load-bearing: langs turns a `401` into
-/// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401` would
-/// force-log-out every user for the duration of the outage.
-fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> ControllerError {
-    use headless_lms_base::error::backend_error::BackendError;
-    match err.error_type() {
-        models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound => {
-            unauthorized(unauthorized_message)
-        }
-        _ => {
+/// A database failure is a `500`, never a `401`: langs turns a `401` into
+/// refresh-then-DELETE-credentials, so collapsing a transient DB blip into `401` would force-log-out
+/// every user for the duration of the outage.
+fn bearer_error(err: BearerTokenError) -> ControllerError {
+    match err {
+        BearerTokenError::Invalid(message) => unauthorized(message),
+        BearerTokenError::Database(err) => {
             let source: anyhow::Error = err.into();
             controller_err!(
                 InternalServerError,
@@ -81,45 +78,20 @@ fn lookup_error(err: models::ModelError, unauthorized_message: &str) -> Controll
     }
 }
 
-/// Resolve an opaque Bearer access token to the local user that owns it.
+/// Resolve an opaque Bearer access token to the local user that owns it, requiring the
+/// `exercise-services` scope.
 ///
-/// Pure DB work (no actix, no cache) so it can be unit-tested directly. Flow:
-/// digest the token → look up a still-valid `oauth_access_tokens` row → reject
-/// sender-constrained (DPoP) tokens (this API is Bearer-only, so
-/// `find_valid_for_sender` is deliberately not used) → require the issuing
-/// client to allow Bearer tokens → require the `exercise-services` scope → load
-/// the user.
-///
-/// Also returns the token's `expires_at`, so the caller can cap cache TTL to it.
+/// Pure DB work (no actix, no cache) so it can be unit-tested directly. Also returns the token's
+/// `expires_at`, so the caller can cap cache TTL to it.
 async fn resolve_oauth_user(
     conn: &mut PgConnection,
     token: &SecretString,
     token_hmac_key: &SecretString,
 ) -> Result<(User, DateTime<Utc>), ControllerError> {
-    let digest = token_digest_sha256(token.expose_secret(), token_hmac_key);
-    let access_token = OAuthAccessToken::find_valid(conn, digest)
+    let token = resolve_bearer_token(conn, token.expose_secret(), token_hmac_key)
         .await
-        .map_err(|e| lookup_error(e, "The access token is missing, invalid, or expired."))?;
-
-    // Bearer-only: a DPoP (sender-constrained) token must be presented with a
-    // proof, which this API does not verify, so reject it rather than accept it
-    // unbound.
-    if access_token.token_type != TokenType::Bearer {
-        return Err(unauthorized(
-            "This API accepts only Bearer tokens; the presented token is sender-constrained.",
-        ));
-    }
-
-    let client = OAuthClient::find_by_id(conn, access_token.client_id)
-        .await
-        .map_err(|e| lookup_error(e, "The access token's client could not be found."))?;
-    if !client.allows_bearer() {
-        return Err(unauthorized(
-            "The access token's client is not permitted to use Bearer tokens.",
-        ));
-    }
-
-    if !access_token
+        .map_err(bearer_error)?;
+    if !token
         .scopes
         .iter()
         .any(|scope| scope == EXERCISE_SERVICES_SCOPE)
@@ -128,19 +100,7 @@ async fn resolve_oauth_user(
             "The access token does not grant the required exercise-services scope.",
         ));
     }
-
-    let user_id = access_token
-        .user_id
-        .ok_or_else(|| unauthorized("The access token is not associated with a user."))?;
-
-    // `get_active_by_id` filters `deleted_at IS NULL`, so a soft-deleted
-    // (banned/removed) user resolves to RecordNotFound -> 401, rather than
-    // continuing to authenticate until the token expires.
-    let user = models::users::get_active_by_id(conn, user_id)
-        .await
-        .map_err(|e| lookup_error(e, "The access token's user could not be found."))?;
-
-    Ok((user, access_token.expires_at))
+    Ok((token.user, token.expires_at))
 }
 
 impl FromRequest for UserFromOAuthToken {
@@ -174,9 +134,9 @@ impl FromRequest for UserFromOAuthToken {
         let auth_header = req
             .headers()
             .get(header::AUTHORIZATION)
-            .map(|hv| String::from_utf8_lossy(hv.as_bytes()))
-            .and_then(|h| h.strip_prefix("Bearer ").map(str::to_string))
-            .map(|o| SecretString::new(o.into()));
+            .and_then(|value| value.to_str().ok())
+            .and_then(bearer_token)
+            .map(|token| SecretString::new(token.into()));
 
         async move {
             let (pool, app_conf, cache) = app_data?;
@@ -245,19 +205,19 @@ fn digest_to_cache_key(digest: &Digest, token_hmac_key: &SecretString) -> String
 /// Upper bound on cache TTL, independent of the token's own expiry.
 ///
 /// A cache hit skips every authorization check in `resolve_oauth_user`, so this is the window in
-/// which a change that nothing evicts for goes unnoticed. Every mutation this application performs
-/// does evict: token revocation (`/revoke`), refresh-family revocation on reuse, consent withdrawal
-/// (`authorized_clients`), and user deletion — both self-service and the `sync_tmc_users` batch —
+/// which a change that nothing evicts for goes unnoticed. Every revocation this application performs
+/// evicts: token revocation (`/revoke`), refresh-family revocation on reuse, consent withdrawal
+/// (`grants`), and user deletion — both self-service and the `sync_tmc_users` batch —
 /// all go through code that holds the affected digests.
 ///
-/// What remains is only out-of-band SQL, and it cannot be hooked from here:
+/// What remains is a grant narrowed by a new consent, which keeps its tokens and only caps their
+/// scopes, and out-of-band SQL, which cannot be hooked from here:
 ///  - a hard `DELETE FROM users`/`oauth_clients`, whose `ON DELETE CASCADE` into
 ///    `oauth_access_tokens` holds no digests and runs no Rust;
 ///  - `oauth_clients` changes — `bearer_allowed = false`, a soft delete, a narrowed `scopes` — for
 ///    which no Rust mutator exists at all, so there is no call site to evict from.
 ///
-/// For those paths this bound is still the only guard, which is why it is minutes and not an hour:
-/// a change made by hand has to take effect without also flushing Redis.
+/// For those paths this bound is the only guard, which is why it is minutes and not an hour.
 const MAX_CACHE_TTL: Duration = Duration::from_secs(15 * 60);
 
 /// `min(MAX_CACHE_TTL, expires_at - now)`, floored at zero — a flat TTL could otherwise
@@ -343,10 +303,13 @@ mod tests {
     use chrono::{Duration as ChronoDuration, Utc};
     use headless_lms_models::library::oauth::pkce::PkceMethod;
     use headless_lms_models::library::oauth::{GrantTypeName, generate_access_token};
-    use headless_lms_models::oauth_access_token::NewAccessTokenParams;
+    use headless_lms_models::oauth_access_token::{
+        NewAccessTokenParams, OAuthAccessToken, TokenType,
+    };
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
     };
+    use headless_lms_models::oauth_user_client_scopes::OAuthUserClientScopes;
 
     fn hmac_key() -> SecretString {
         SecretString::new("test-exercise-services-hmac-key".to_string().into())
@@ -381,7 +344,8 @@ mod tests {
         .unwrap()
     }
 
-    /// Insert an access token for the given user/client and return its plaintext.
+    /// Insert an access token, and the grant it comes from, for the given user/client and return
+    /// its plaintext.
     async fn insert_token(
         conn: &mut PgConnection,
         client: &OAuthClient,
@@ -413,6 +377,9 @@ mod tests {
         )
         .await
         .unwrap();
+        OAuthUserClientScopes::insert(conn, user_id, client.id, scopes)
+            .await
+            .unwrap();
         plaintext
     }
 
@@ -631,33 +598,22 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn lookup_error_maps_not_found_to_401_and_db_errors_to_500() {
+    async fn bearer_error_maps_invalid_to_401_and_db_errors_to_500() {
         use headless_lms_models::{ModelError, ModelErrorType};
 
-        // A missing row (token/client/user absent or soft-deleted) -> 401 with the
-        // exact unauthorized body the langs client keys on.
-        let not_found = lookup_error(
-            ModelError::new(
-                ModelErrorType::RecordNotFound,
-                "no such row".to_string(),
-                None::<anyhow::Error>,
-            ),
-            "missing",
-        );
-        assert_eq!(not_found.status_code(), StatusCode::UNAUTHORIZED);
-        assert_unauthorized_body(not_found);
+        // A rejected token -> 401 with the exact unauthorized body the langs client keys on.
+        let invalid = bearer_error(BearerTokenError::Invalid("missing"));
+        assert_eq!(invalid.status_code(), StatusCode::UNAUTHORIZED);
+        assert_unauthorized_body(invalid);
 
         // An infrastructure error (sqlx surfaces connection/statement failures as
         // ModelErrorType::Database) -> 500, so a DB blip never masquerades as an
         // invalid token and forces the client to drop its credentials.
-        let db_error = lookup_error(
-            ModelError::new(
-                ModelErrorType::Database,
-                "connection reset".to_string(),
-                None::<anyhow::Error>,
-            ),
-            "missing",
-        );
+        let db_error = bearer_error(BearerTokenError::Database(ModelError::new(
+            ModelErrorType::Database,
+            "connection reset".to_string(),
+            None::<anyhow::Error>,
+        )));
         assert_eq!(
             db_error.status_code(),
             StatusCode::INTERNAL_SERVER_ERROR,

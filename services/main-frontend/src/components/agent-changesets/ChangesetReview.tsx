@@ -7,38 +7,26 @@ import { useTranslation } from "react-i18next"
 
 import {
   discardAgentChangesetMutation,
+  getAgentChangesetCountsQueryKey,
   getAgentChangesetQueryKey,
   getAgentChangesetsQueryKey,
   publishAgentChangesetMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
-  AgentChangesetStatus,
   ChangesetReview as ChangesetReviewData,
+  DiscardRejection,
   PublishOutcome,
 } from "@/generated/api/types.generated"
+import { showSuccessNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Button, ConfirmDialog, Infobox, TONE } from "@/shared-module/components"
+import { Button, ConfirmDialog, ErrorNotice, Infobox, TONE } from "@/shared-module/components"
 
 import AgentCallList from "./AgentCallList"
-import EntityChange, { useEntityTypeLabel } from "./EntityChange"
-import PublishOutcomeNotice from "./PublishOutcomeNotice"
-
-/** A changeset's status in words a teacher reads. */
-export const ChangesetStatusBadge: React.FC<{ status: AgentChangesetStatus }> = ({ status }) => {
-  const { t } = useTranslation()
-  switch (status) {
-    case "open":
-      return <Badge tone={TONE.INFO}>{t("agent-changeset-status-open")}</Badge>
-    case "published":
-      return <Badge tone={TONE.SUCCESS}>{t("agent-changeset-status-published")}</Badge>
-    case "discarded":
-      return <Badge tone={TONE.NEUTRAL}>{t("agent-changeset-status-discarded")}</Badge>
-    case "expired":
-      return <Badge tone={TONE.NEUTRAL}>{t("agent-changeset-status-expired")}</Badge>
-  }
-}
+import { ChangesetStatusBadge } from "./ChangesetStatusBadge"
+import EntityChange, { ConflictList, EntityLabelList } from "./EntityChange"
+import PublishOutcomeNotice, { RejectionNotice } from "./PublishOutcomeNotice"
 
 const sectionHeadingCss = css`
   font-size: 1.25rem;
@@ -55,13 +43,13 @@ interface ChangesetReviewProps {
 const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const entityTypeLabel = useEntityTypeLabel()
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false)
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false)
   const [publishOutcome, setPublishOutcome] = useState<PublishOutcome | null>(null)
+  const [discardRejection, setDiscardRejection] = useState<DiscardRejection | null>(null)
   const { changeset, entities, calls, conflicts } = review
   const isOpen = changeset.status === "open"
-  const riskyEntityCount = entities.filter((e) => e.entity.risk_reasons.length > 0).length
+  const riskyEntityCount = entities.filter((e) => e.risk_reasons.length > 0).length
   const clientNames = [...new Set(calls.map((call) => call.client_name))]
 
   const invalidateChangesets = async () => {
@@ -71,6 +59,9 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
     await queryClient.invalidateQueries({
       queryKey: getAgentChangesetsQueryKey({ query: { course_id: changeset.course_id } }),
     })
+    await queryClient.invalidateQueries({
+      queryKey: getAgentChangesetCountsQueryKey({ query: { course_id: changeset.course_id } }),
+    })
   }
 
   const publishMutation = useToastMutationOptions(
@@ -79,21 +70,29 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
     {
       onSuccess: async (outcome) => {
         setPublishOutcome(outcome)
+        setDiscardRejection(null)
         setIsPublishDialogOpen(false)
+        await invalidateChangesets()
+      },
+      // The changeset may have expired or been discarded meanwhile; show its current status.
+      onError: async () => {
         await invalidateChangesets()
       },
     },
   )
   const discardMutation = useToastMutationOptions(
     discardAgentChangesetMutation(),
+    { notify: false },
     {
-      notify: true,
-      method: "POST",
-      successMessage: t("agent-discarded-message"),
-    },
-    {
-      onSuccess: async () => {
+      onSuccess: async (outcome) => {
         setIsDiscardDialogOpen(false)
+        setPublishOutcome(null)
+        if (outcome.outcome === "discarded") {
+          setDiscardRejection(null)
+          showSuccessNotification({ message: t("agent-discarded-message") })
+        } else {
+          setDiscardRejection(outcome.rejection)
+        }
         await invalidateChangesets()
       },
     },
@@ -142,6 +141,14 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
 
       {publishOutcome && <PublishOutcomeNotice outcome={publishOutcome} />}
 
+      {discardRejection && (
+        <RejectionNotice
+          heading={t("agent-not-discarded-heading")}
+          rejection={discardRejection}
+          data-testid="agent-discard-outcome"
+        />
+      )}
+
       {isOpen && review.is_expiring_soon && (
         <Infobox
           tone={TONE.WARNING}
@@ -149,13 +156,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
           data-testid="agent-expiry-warning"
         >
           <p>{t("agent-expiry-description")}</p>
-          <ul>
-            {entities.map((e) => (
-              <li key={e.entity.id}>
-                {entityTypeLabel(e.entity.entity_type)}: {e.label}
-              </li>
-            ))}
-          </ul>
+          <EntityLabelList entities={entities} />
         </Infobox>
       )}
 
@@ -166,24 +167,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
           data-testid="agent-conflicts"
         >
           <p>{t("agent-conflicts-description")}</p>
-          <ul>
-            {conflicts.map((conflict) => (
-              <li key={`${conflict.entity_type}-${conflict.entity_id}`}>
-                {entityTypeLabel(conflict.entity_type)}: {conflict.label}
-                {conflict.last_changed_at &&
-                  ` (${
-                    conflict.last_changed_via_client
-                      ? t("agent-conflict-changed-via", {
-                          time: dateToString(conflict.last_changed_at),
-                          client: conflict.last_changed_via_client,
-                        })
-                      : t("agent-conflict-changed-at", {
-                          time: dateToString(conflict.last_changed_at),
-                        })
-                  })`}
-              </li>
-            ))}
-          </ul>
+          <ConflictList conflicts={conflicts} />
         </Infobox>
       )}
 
@@ -240,9 +224,11 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
         ) : (
           entities.map((reviewEntity) => (
             <EntityChange
-              key={reviewEntity.entity.id}
+              key={`${reviewEntity.entity_type}-${reviewEntity.entity_id}`}
               reviewEntity={reviewEntity}
+              changesetId={changeset.id}
               isChangesetOpen={isOpen}
+              conflicts={conflicts}
             />
           ))
         )}
@@ -252,7 +238,10 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
 
       <ConfirmDialog
         open={isPublishDialogOpen}
-        onClose={() => setIsPublishDialogOpen(false)}
+        onClose={() => {
+          setIsPublishDialogOpen(false)
+          publishMutation.reset()
+        }}
         title={t("agent-publish-dialog-title")}
         description={
           <>
@@ -260,26 +249,63 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
             {riskyEntityCount > 0 && (
               <p>{t("agent-publish-dialog-risky", { count: riskyEntityCount })}</p>
             )}
+            {publishMutation.isError && (
+              <ErrorNotice
+                error={publishMutation.error}
+                context={t("agent-publish-failed")}
+                headingLevel={3}
+                data-testid="agent-publish-error"
+              />
+            )}
           </>
         }
         confirmLabel={t("agent-publish-changes")}
         // oxlint-disable-next-line i18next/no-literal-string
         confirmTestId="agent-publish-confirm-button"
         onConfirm={async () => {
-          await publishMutation.mutateAsync({ path: { changeset_id: changeset.id } })
+          try {
+            await publishMutation.mutateAsync({
+              path: { changeset_id: changeset.id },
+              body: { reviewed_revision: changeset.revision },
+            })
+          } catch {
+            // Shown in the dialog from publishMutation.error.
+          }
         }}
       />
       <ConfirmDialog
         open={isDiscardDialogOpen}
-        onClose={() => setIsDiscardDialogOpen(false)}
+        onClose={() => {
+          setIsDiscardDialogOpen(false)
+          discardMutation.reset()
+        }}
         title={t("agent-discard-dialog-title")}
-        description={t("agent-discard-dialog-description", { count: entities.length })}
+        description={
+          <>
+            <p>{t("agent-discard-dialog-description", { count: entities.length })}</p>
+            {discardMutation.isError && (
+              <ErrorNotice
+                error={discardMutation.error}
+                context={t("agent-discard-failed")}
+                headingLevel={3}
+                data-testid="agent-discard-error"
+              />
+            )}
+          </>
+        }
         confirmLabel={t("agent-discard-changes")}
         // oxlint-disable-next-line i18next/no-literal-string
         confirmTestId="agent-discard-confirm-button"
         isDestructive
         onConfirm={async () => {
-          await discardMutation.mutateAsync({ path: { changeset_id: changeset.id } })
+          try {
+            await discardMutation.mutateAsync({
+              path: { changeset_id: changeset.id },
+              body: { reviewed_revision: changeset.revision },
+            })
+          } catch {
+            // Shown in the dialog from discardMutation.error.
+          }
         }}
       />
     </div>

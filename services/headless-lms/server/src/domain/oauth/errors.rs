@@ -60,90 +60,46 @@ pub enum TokenGrantError {
 impl From<TokenGrantError> for ControllerError {
     fn from(err: TokenGrantError) -> Self {
         let data = match &err {
-            TokenGrantError::InvalidGrant(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                error_description: msg.clone(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::InvalidClient(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidClient.as_str().into(),
-                error_description: msg.clone(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::InvalidScope(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidScope.as_str().into(),
-                error_description: msg.clone(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::PkceVerificationFailed => OAuthErrorData {
-                error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                error_description: "PKCE verification failed".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::UnsupportedGrantType => OAuthErrorData {
-                error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
-                error_description: "unsupported grant type".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::DpopMismatch => OAuthErrorData {
-                error: OAuthErrorCode::InvalidToken.as_str().into(),
-                error_description: "DPoP JKT mismatch".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::AuthorizationPending => OAuthErrorData {
-                error: OAuthErrorCode::AuthorizationPending.as_str().into(),
-                error_description: "authorization request is still pending".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::SlowDown => OAuthErrorData {
-                error: OAuthErrorCode::SlowDown.as_str().into(),
-                error_description: "polling too frequently; slow down".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::ExpiredToken => OAuthErrorData {
-                error: OAuthErrorCode::ExpiredToken.as_str().into(),
-                error_description: "device code has expired".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::AccessDenied => OAuthErrorData {
-                error: OAuthErrorCode::AccessDenied.as_str().into(),
-                error_description: "authorization request was denied".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::InvalidTarget(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidTarget.as_str().into(),
-                error_description: msg.clone(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            TokenGrantError::ServerError(msg) => OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: msg.clone(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
+            TokenGrantError::InvalidGrant(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidGrant, msg)
+            }
+            TokenGrantError::InvalidClient(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidClient, msg)
+            }
+            TokenGrantError::InvalidScope(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidScope, msg)
+            }
+            TokenGrantError::PkceVerificationFailed => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidGrant, "PKCE verification failed")
+            }
+            TokenGrantError::UnsupportedGrantType => OAuthErrorData::new(
+                OAuthErrorCode::UnsupportedGrantType,
+                "unsupported grant type",
+            ),
+            TokenGrantError::DpopMismatch => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidToken, "DPoP JKT mismatch")
+            }
+            TokenGrantError::AuthorizationPending => OAuthErrorData::new(
+                OAuthErrorCode::AuthorizationPending,
+                "authorization request is still pending",
+            ),
+            TokenGrantError::SlowDown => OAuthErrorData::new(
+                OAuthErrorCode::SlowDown,
+                "polling too frequently; slow down",
+            ),
+            TokenGrantError::ExpiredToken => {
+                OAuthErrorData::new(OAuthErrorCode::ExpiredToken, "device code has expired")
+            }
+            TokenGrantError::AccessDenied => OAuthErrorData::new(
+                OAuthErrorCode::AccessDenied,
+                "authorization request was denied",
+            ),
+            TokenGrantError::InvalidTarget(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidTarget, msg)
+            }
+            TokenGrantError::ServerError(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::ServerError, msg)
+            }
         };
 
         ControllerError::new(

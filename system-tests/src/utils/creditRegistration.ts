@@ -71,6 +71,7 @@
 import type { APIRequestContext } from "@playwright/test"
 
 import { omitUndefined } from "../shared-module/common/utils/nullability"
+import { storageStatePath } from "./login"
 import { listMockSuotarCalls, type MockSuotarEndpoint } from "./mockSuotar"
 import { pollUntil } from "./waitingUtils"
 
@@ -91,6 +92,7 @@ export const CERTIFICATE_DETOUR_COURSE_SLUG = "credit-registration-certificate-d
 /** Must match the `*_COURSE_ID` constants in `mock_suotar::fixtures`. */
 export const SUOTAR_COURSE_ID = "c5ed17ea-0001-4a5e-9e6e-c0de00000001"
 export const SUOTAR_B_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
+export const IMPORT_OUTCOMES_COURSE_ID = "c5ed17ea-0004-4a5e-9e6e-c0de00000004"
 export const GRADE_IMPROVEMENT_COURSE_ID = "c5ed17ea-0005-4a5e-9e6e-c0de00000005"
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"
@@ -200,7 +202,7 @@ export type CreditRegistrationStudentEmail = (typeof CREDIT_REGISTRATION_STUDENT
  * an address the setup never logs in fails to compile rather than at run time on a missing file.
  */
 export const seededStudentStorageState = (email: CreditRegistrationStudentEmail): string =>
-  `src/states/${email}.json`
+  storageStatePath(email)
 
 /**
  * The subset of `getMyCreditRegistrations` these specs assert on.

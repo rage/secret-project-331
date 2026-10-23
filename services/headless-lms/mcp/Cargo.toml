@@ -7,18 +7,23 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+headless-lms-authorization = { path = "../authorization" }
+headless-lms-base = { path = "../base" }
+headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 
 # MCP protocol types only; dispatch is ours. Upgrades are deliberate because rmcp moves fast.
 rmcp = { version = "=3.7.0", default-features = false, features = ["request-state", "schemars", "elicitation"] }
 # JSON Schema generation for tool input schemas.
 schemars = { version = "1.2.2", features = ["chrono04", "uuid1"] }
+# OpenAPI schemas of the CMS validator protocol, which the CMS's generated types are built from.
+utoipa.workspace = true
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.151"
+serde_json = { version = "1.0.151", features = ["raw_value"] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.26.0", features = ["serde", "v4"] }
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # An implementation of regular expressions for Rust.
@@ -39,12 +44,33 @@ tracing = "0.1.44"
 base64 = "0.23.1"
 # Hash map that keeps insertion order, so tool lists and result keys stay in a fixed order.
 indexmap = { version = "2.14.1", features = ["serde"] }
+# Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
+actix-web = "4.15.0"
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
+sqlx.workspace = true
+# An implementation of futures and streams featuring zero allocations, composability, and itera…
+futures = "0.3.34"
+# URL library for Rust, based on the WHATWG URL Standard
+url = "2.5.8"
+# Derives the request-state key from the JWT secret.
+blake3 = "1.8.7"
+# Provides a function to guess the MIME type of a path or extension
+mime_guess = "2.0.5"
+
+[features]
+# Compiles `test_support` for the database tests. Off otherwise.
+test-support = []
 
 [dev-dependencies]
+# Name-based ids for the test fixtures.
+uuid = { version = "1.26.0", features = ["v5"] }
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
 # HTTP mocking for Rust.
 mockito = "1.7.2"
+# Switches on `test_support` and `headless_lms_models::test_helper` for the database tests.
+headless-lms-mcp = { path = ".", features = ["test-support"] }
+headless-lms-models = { path = "../models", features = ["test-helpers"] }
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -1,15 +1,15 @@
 //! Standard request headers (`MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name`, `Mcp-Param-*`),
 //! which let rate limiting and logging route without parsing the body. They must agree with it.
 
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 const BASE64_PREFIX: &str = "=?base64?";
 const BASE64_SUFFIX: &str = "?=";
 
-pub const PROTOCOL_VERSION_HEADER: &str = "mcp-protocol-version";
-pub const METHOD_HEADER: &str = "mcp-method";
-pub const NAME_HEADER: &str = "mcp-name";
-pub const PARAM_HEADER_PREFIX: &str = "mcp-param-";
+pub(crate) const PROTOCOL_VERSION_HEADER: &str = "mcp-protocol-version";
+pub(crate) const METHOD_HEADER: &str = "mcp-method";
+pub(crate) const NAME_HEADER: &str = "mcp-name";
+pub(crate) const PARAM_HEADER_PREFIX: &str = "mcp-param-";
 
 /// Request headers with lowercase names.
 #[derive(Debug, Clone, Default)]
@@ -18,6 +18,7 @@ pub struct RequestHeaders {
 }
 
 impl RequestHeaders {
+    /// Headers from name-value pairs; names match case-insensitively.
     pub fn new<N: AsRef<str>, V: Into<String>>(entries: impl IntoIterator<Item = (N, V)>) -> Self {
         Self {
             entries: entries
@@ -28,7 +29,7 @@ impl RequestHeaders {
     }
 
     /// The single value of `name`; an error when it is repeated.
-    pub fn single(&self, name: &str) -> Result<Option<&str>, String> {
+    pub(crate) fn single(&self, name: &str) -> Result<Option<&str>, String> {
         let name = name.to_ascii_lowercase();
         let mut values = self
             .entries
@@ -40,10 +41,6 @@ impl RequestHeaders {
             return Err(format!("duplicate {name} header"));
         }
         Ok(first)
-    }
-
-    pub fn get(&self, name: &str) -> Option<&str> {
-        self.single(name).ok().flatten()
     }
 }
 
@@ -72,10 +69,10 @@ fn primitive(value: &Value) -> Option<String> {
 
 /// Checks the routing headers against the body. `header_params` are the called tool's
 /// `(argument, header suffix)` pairs.
-pub fn validate(
+pub(crate) fn validate(
     headers: &RequestHeaders,
     method: &str,
-    params: Option<&Value>,
+    params: &Map<String, Value>,
     header_params: &[(String, String)],
 ) -> Result<(), String> {
     match headers.single(METHOD_HEADER)? {
@@ -89,7 +86,7 @@ pub fn validate(
     }
     if method == "tools/call" {
         let name = params
-            .and_then(|p| p.get("name"))
+            .get("name")
             .and_then(Value::as_str)
             .unwrap_or_default();
         match headers.single(NAME_HEADER)? {
@@ -103,13 +100,10 @@ pub fn validate(
                 }
             }
         }
-        let arguments = params.and_then(|p| p.get("arguments"));
+        let arguments = params.get("arguments");
         for (argument, suffix) in header_params {
             let header = format!("{PARAM_HEADER_PREFIX}{}", suffix.to_ascii_lowercase());
-            let body = arguments
-                .and_then(|a| a.get(argument))
-                .filter(|v| !v.is_null())
-                .and_then(primitive);
+            let body = arguments.and_then(|a| a.get(argument)).and_then(primitive);
             match (headers.single(&header)?, body) {
                 (None, None) => {}
                 (Some(_), None) => {
@@ -149,25 +143,26 @@ mod tests {
     fn method_name_and_params_must_match() {
         let params =
             json!({"name": "get_page_content", "arguments": {"course": "c1", "page": "p1"}});
+        let params = params.as_object().unwrap();
         let course = vec![("course".to_string(), "Course".to_string())];
         let ok = headers(&[
             ("Mcp-Method", "tools/call"),
             ("Mcp-Name", "get_page_content"),
             ("Mcp-Param-Course", "c1"),
         ]);
-        assert!(validate(&ok, "tools/call", Some(&params), &course).is_ok());
+        assert!(validate(&ok, "tools/call", params, &course).is_ok());
         let wrong_course = headers(&[
             ("Mcp-Method", "tools/call"),
             ("Mcp-Name", "get_page_content"),
             ("Mcp-Param-Course", "c2"),
         ]);
-        assert!(validate(&wrong_course, "tools/call", Some(&params), &course).is_err());
+        assert!(validate(&wrong_course, "tools/call", params, &course).is_err());
         let missing_name = headers(&[("Mcp-Method", "tools/call")]);
-        assert!(validate(&missing_name, "tools/call", Some(&params), &course).is_err());
+        assert!(validate(&missing_name, "tools/call", params, &course).is_err());
         let wrong_method = headers(&[("Mcp-Method", "tools/list")]);
-        assert!(validate(&wrong_method, "tools/call", Some(&params), &course).is_err());
+        assert!(validate(&wrong_method, "tools/call", params, &course).is_err());
         let duplicated = headers(&[("Mcp-Method", "tools/list"), ("mcp-method", "tools/list")]);
-        assert!(validate(&duplicated, "tools/list", None, &[]).is_err());
+        assert!(validate(&duplicated, "tools/list", &Map::new(), &[]).is_err());
     }
 
     #[test]

@@ -16,7 +16,9 @@ use headless_lms_models::{
     },
     peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfig},
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
-    user_exercise_slide_states, user_exercise_states,
+    user_details, user_exercise_slide_states, user_exercise_states,
+    user_passwords::{hash_password, upsert_user_password},
+    users,
 };
 use headless_lms_utils::{
     attributes,
@@ -24,6 +26,7 @@ use headless_lms_utils::{
     file_store::FileStore,
 };
 use once_cell::sync::OnceCell;
+use secrecy::SecretString;
 use serde_json::Value;
 use sqlx::PgConnection;
 use std::sync::Arc;
@@ -31,6 +34,34 @@ use std::{collections::HashMap, vec};
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
+
+/// Inserts a user in Finland whose password is the local part of their email address, so they can
+/// log in through the stored-password fallback without an entry in `authenticate_test_user`.
+pub async fn insert_user_with_password(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    email: &str,
+    first_name: &str,
+    last_name: &str,
+) -> Result<Uuid> {
+    let user_id = users::insert(
+        conn,
+        PKeyPolicy::Fixed(user_id),
+        email,
+        Some(first_name),
+        Some(last_name),
+    )
+    .await?;
+    user_details::update_user_country(conn, user_id, "fi").await?;
+    let password = email
+        .split('@')
+        .next()
+        .expect("split always yields one element");
+    let hash = hash_password(&SecretString::new(password.to_string().into()))
+        .map_err(|e| anyhow!("failed to hash a seeded password: {e}"))?;
+    upsert_user_password(conn, user_id, &hash).await?;
+    Ok(user_id)
+}
 
 // Static holder for our cached spec fetcher
 static SEED_SPEC_FETCHER: OnceCell<Box<dyn SpecFetcher + Send + Sync>> = OnceCell::new();
@@ -90,9 +121,8 @@ pub async fn create_page(
     pages::update_page(
         conn,
         PageUpdateArgs {
-            agent_attribution: None,
             page_id: page.id,
-            author,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(author),
             cms_page_update: CmsPageUpdate {
                 content: page_data.content,
                 exercises: page_data.exercises,

@@ -467,7 +467,7 @@ pub async fn get_link_states(
 ) -> ModelResult<HashMap<Uuid, LinkingMailLinkState>> {
     let rows = sqlx::query!(
         r#"
-SELECT e.id,
+SELECT e.id AS "id!",
   (
     e.student_number_verification_token_id IS NULL
     OR is_usable_verification_token(t)

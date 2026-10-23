@@ -1,0 +1,86 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT entity_type,\n  entity_id,\n  label,\n  before_snapshot::text AS \"before_snapshot?\",\n  after_digest\nFROM agent_changeset_call_entities\nWHERE call_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "entity_type",
+        "type_info": {
+          "Custom": {
+            "name": "content_entity_type",
+            "kind": {
+              "Enum": [
+                "page",
+                "chapter",
+                "module",
+                "course_settings",
+                "glossary_term",
+                "reference",
+                "course_default_review_config"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "entity_type"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "entity_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "entity_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "label",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "before_snapshot?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "after_digest",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "after_digest"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      true
+    ]
+  },
+  "hash": "b67af17a293fac871bafd0840947bd619a83f6a4f2c6cf41cce02efd79cfd046"
+}

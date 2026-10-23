@@ -28,7 +28,6 @@ use utoipa::OpenApi;
 ///   - §10 — JWKS endpoint for key discovery (`/jwks.json`) — Note: Currently exposes a single key; key rotation not implemented
 /// - [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html) (`/.well-known/openid-configuration`)
 mod authorize;
-mod authorized_clients;
 mod consent;
 mod device;
 mod discovery;
@@ -56,8 +55,6 @@ mod userinfo;
     device::device_verification,
     device::approve_device_verification,
     device::deny_device_verification,
-    authorized_clients::get_authorized_clients,
-    authorized_clients::delete_authorized_client,
     grants::get_grants,
     grants::revoke_grant,
     introspect::introspect
@@ -72,7 +69,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     revoke::_add_routes(cfg);
     consent::_add_routes(cfg);
     device::_add_routes(cfg);
-    authorized_clients::_add_routes(cfg);
     grants::_add_routes(cfg);
     introspect::_add_routes(cfg);
 }

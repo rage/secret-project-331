@@ -1,0 +1,105 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT changeset_id,\n  entity_type,\n  entity_id,\n  base_snapshot IS NOT NULL AS \"has_base!\",\n  after_snapshot IS NOT NULL AS \"has_after!\",\n  label,\n  risk_reasons AS \"risk_reasons: Json<Vec<RiskReason>>\"\nFROM agent_changeset_entities\nWHERE changeset_id = ANY($1)\nORDER BY created_at,\n  id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "changeset_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "changeset_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "entity_type",
+        "type_info": {
+          "Custom": {
+            "name": "content_entity_type",
+            "kind": {
+              "Enum": [
+                "page",
+                "chapter",
+                "module",
+                "course_settings",
+                "glossary_term",
+                "reference",
+                "course_default_review_config"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "entity_type"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "entity_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "entity_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "has_base!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "has_after!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "label",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "risk_reasons: Json<Vec<RiskReason>>",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "risk_reasons"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "fc3ad433b1865dc274db07833d128bcc00308da4390b4fa00f9b24b1788a1eec"
+}

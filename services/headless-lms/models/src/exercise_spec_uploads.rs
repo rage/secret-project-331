@@ -406,8 +406,7 @@ mod test {
                 peer_or_self_review_questions: vec![],
             },
             crate::page_history::HistoryChangeReason::PageSaved,
-            user_id,
-            None,
+            crate::entity_history::HistoryAuthor::user(user_id),
             None,
         )
         .await

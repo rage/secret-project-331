@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_modules cm\nSET uh_course_code = v.uh_course_code,\n  completion_registration_link_override = v.completion_registration_link_override,\n  ects_credits = v.ects_credits\nFROM (\n    SELECT *\n    FROM UNNEST(\n        $1::uuid [],\n        $2::TEXT [],\n        $3::TEXT [],\n        $4::FLOAT8 []\n      ) AS v(\n        id,\n        uh_course_code,\n        completion_registration_link_override,\n        ects_credits\n      )\n  ) AS v\nWHERE cm.id = v.id\n  AND cm.course_id = $5\n  AND cm.deleted_at IS NULL\nRETURNING cm.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "Float8Array",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "45b95532ef3474f26c722148ff496e89a2197c01c3228ecf5f350a2d879552fa"
+}

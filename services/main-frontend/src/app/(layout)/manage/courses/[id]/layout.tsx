@@ -11,7 +11,7 @@ import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
-import { getAgentChangesetsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getAgentChangesetCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
 import createFeedbackEditProposalCountsHook from "@/hooks/count/useFeedbackEditProposalCounts"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
@@ -54,12 +54,13 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const courseId = params.id
   const { t } = useTranslation()
 
-  const canViewStudentsQuery = useAuthorizeMultiple([
+  const permissionsQuery = useAuthorizeMultiple([
     { action: { type: "administrate" }, resource: { type: "global_permissions" } },
     { action: { type: "teach" }, resource: { type: "course", id: courseId } },
+    { action: { type: "edit" }, resource: { type: "course", id: courseId } },
   ])
-  const canViewStudents =
-    (canViewStudentsQuery.isSuccess && canViewStudentsQuery.data?.some(Boolean)) ?? false
+  const [isGlobalAdmin = false, canTeach = false, canEdit = false] = permissionsQuery.data ?? []
+  const canViewStudents = isGlobalAdmin || canTeach
 
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
@@ -96,10 +97,11 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
   const openAgentChangeCountHook = createOpenAgentChangeCountHook(courseId)
   // Only teachers whose AI agent has staged changes in the course get the tab.
-  const agentChangesetsQuery = useQuery({
-    ...getAgentChangesetsOptions({ query: { course_id: courseId } }),
+  const { data: hasAgentChangesets = false } = useQuery({
+    ...getAgentChangesetCountsOptions({ query: { course_id: courseId } }),
+    select: (counts) => counts.has_changesets,
+    enabled: canEdit,
   })
-  const hasAgentChangesets = (agentChangesetsQuery.data?.length ?? 0) > 0
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base: RouteTabDefinition[] = [

@@ -1,6 +1,8 @@
+use super::helpers::{oauth_error, oauth_invalid_client, oauth_invalid_request};
 use super::oauth_validate::OAuthValidate;
+use super::resource_indicator::ResourceIndicator;
 use crate::prelude::*;
-use domain::error::{OAuthErrorCode, OAuthErrorData};
+use domain::error::OAuthErrorCode;
 use models::library::oauth::GrantTypeName;
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
@@ -12,8 +14,7 @@ pub struct TokenQuery {
     pub client_secret: Option<SecretString>, // optional: public clients won't send this
     #[serde(flatten)]
     pub grant: Option<TokenGrant>,
-    /// RFC 8707 resource indicator.
-    pub resource: Option<String>,
+    pub resource: Option<ResourceIndicator>,
     // OAuth 2.0 requires unknown params be ignored at /token (RFC 6749 §3.2)
     #[serde(flatten)]
     pub _extra: HashMap<String, String>,
@@ -24,7 +25,7 @@ pub struct TokenParams {
     pub client_id: String,
     pub client_secret: Option<SecretString>, // carry through; validation for presence is done per-client later
     pub grant: TokenGrant,
-    pub resource: Option<String>,
+    pub resource: Option<ResourceIndicator>,
 }
 
 impl OAuthValidate for TokenQuery {
@@ -34,17 +35,7 @@ impl OAuthValidate for TokenQuery {
         let client_id = self.client_id.as_deref().unwrap_or_default();
 
         if client_id.is_empty() {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidClient.as_str().into(),
-                    error_description: "client_id is required".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Missing client_id",
-                None::<anyhow::Error>,
-            ));
+            return Err(oauth_invalid_client("client_id is required"));
         }
 
         // Grant-specific required params
@@ -55,32 +46,18 @@ impl OAuthValidate for TokenQuery {
                 } = &grant
                 {
                     if code.expose_secret().is_empty() {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                                error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                                error_description: "code is required for authorization_code grant"
-                                    .into(),
-                                redirect_uri: None,
-                                state: None,
-                                nonce: None,
-                            })),
-                            "Missing authorization code",
-                            None::<anyhow::Error>,
+                        return Err(oauth_invalid_request(
+                            "code is required for authorization_code grant",
+                            None,
+                            None,
                         ));
                     }
                     // If redirect_uri is provided, it must not be empty
                     if matches!(redirect_uri.as_deref(), Some("")) {
-                        return Err(ControllerError::new(
-                            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                                error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                                error_description: "redirect_uri must not be empty when provided"
-                                    .into(),
-                                redirect_uri: None,
-                                state: None,
-                                nonce: None,
-                            })),
-                            "Empty redirect_uri",
-                            None::<anyhow::Error>,
+                        return Err(oauth_invalid_request(
+                            "redirect_uri must not be empty when provided",
+                            None,
+                            None,
                         ));
                     }
                 }
@@ -91,16 +68,10 @@ impl OAuthValidate for TokenQuery {
                 if let TokenGrant::RefreshToken { refresh_token, .. } = &grant
                     && refresh_token.expose_secret().is_empty()
                 {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                            error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                            error_description: "refresh_token is required".into(),
-                            redirect_uri: None,
-                            state: None,
-                            nonce: None,
-                        })),
-                        "Missing refresh token",
-                        None::<anyhow::Error>,
+                    return Err(oauth_invalid_request(
+                        "refresh_token is required",
+                        None,
+                        None,
                     ));
                 }
                 grant
@@ -109,45 +80,20 @@ impl OAuthValidate for TokenQuery {
                 if let TokenGrant::DeviceCode { device_code } = &grant
                     && device_code.expose_secret().is_empty()
                 {
-                    return Err(ControllerError::new(
-                        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                            error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                            error_description: "device_code is required".into(),
-                            redirect_uri: None,
-                            state: None,
-                            nonce: None,
-                        })),
-                        "Missing device code",
-                        None::<anyhow::Error>,
-                    ));
+                    return Err(oauth_invalid_request("device_code is required", None, None));
                 }
                 grant
             }
             Some(TokenGrant::Unknown) => {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
-                        error_description: "unsupported grant type".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "Unsupported grant type",
-                    None::<anyhow::Error>,
+                return Err(oauth_error(
+                    OAuthErrorCode::UnsupportedGrantType,
+                    "unsupported grant type",
+                    None,
+                    None,
                 ));
             }
             None => {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                        error_description: "grant_type is required".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "Missing grant type",
-                    None::<anyhow::Error>,
-                ));
+                return Err(oauth_invalid_request("grant_type is required", None, None));
             }
         };
 

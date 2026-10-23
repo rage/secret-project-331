@@ -55,7 +55,7 @@ async fn add_media(
     let media_path = upload_file_from_cms(
         request.headers(),
         payload,
-        StoreKind::Exam(*exam_id),
+        MediaOwner::Exam(*exam_id),
         file_store.as_ref(),
         &mut conn,
         user,

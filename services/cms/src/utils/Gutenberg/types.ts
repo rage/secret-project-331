@@ -11,14 +11,29 @@ import type {
 } from "@wordpress/blocks"
 import type { ComponentType } from "react"
 
+import type { AttributeSchema } from "./agentSchema"
+
 /* oxlint-disable typescript/no-explicit-any */
 type UnknownAttributes = Record<string, unknown>
 type CreateBlock = typeof import("@wordpress/blocks").createBlock
 type CreateBlocksFromInnerBlocksTemplate =
   typeof import("@wordpress/blocks").createBlocksFromInnerBlocksTemplate
 
+export type CmsBlockAttribute = BlockAttribute & {
+  /**
+   * Edited with RichText but stored without `source`: custom saves render only the inner blocks,
+   * so a sourced attribute is lost on copy and paste. The agent validator reads this.
+   */
+  isRichText?: true
+  /**
+   * The schema agent writes must match, in place of the one the agent validator derives from
+   * `type`, for constraints the editor's UI enforces but the type can't state.
+   */
+  agentSchema?: AttributeSchema
+}
+
 type BlockAttributeMap<Attributes extends object> = {
-  [Key in keyof Attributes]: BlockAttribute
+  [Key in keyof Attributes]: CmsBlockAttribute
 }
 
 type UpstreamBlockInstance = ReturnType<CreateBlock>
@@ -42,8 +57,6 @@ export type BlockEditProps<Attributes extends object = any> = Omit<
   GutenbergBlockEditProps<UnknownAttributes>,
   "attributes" | "setAttributes"
 > & {
-  /** The registered block name; Gutenberg passes it although its own props type omits it. */
-  name: string
   attributes: Attributes
   setAttributes: (
     attrs: Partial<Attributes> | ((prevAttrs: Attributes) => Partial<Attributes>),

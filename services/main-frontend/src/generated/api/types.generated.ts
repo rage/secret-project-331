@@ -1033,56 +1033,50 @@ export type AgentChangeset = {
   expires_at: string
   id: string
   published_at?: string | null
-  published_by?: string | null
+  /**
+   * Incremented by every change to the staged entities; see [`increment_revision`].
+   */
+  revision: number
+  /**
+   * The status now: `Expired` for an open changeset past `expires_at`, which the table records
+   * only at the next write to the course.
+   */
   status: AgentChangesetStatus
   updated_at: string
+  /**
+   * The only user who can publish or discard the changeset.
+   */
   user_id: string
 }
 
-export type AgentChangesetCall = {
-  changeset_id: string
+/**
+ * A call as the review page lists it, without its operations and snapshots.
+ */
+export type AgentChangesetCallSummary = {
   client_name: string
   created_at: string
-  entity_changes: Array<EntityChange>
   id: string
-  oauth_client_id?: string | null
-  oauth_grant_id?: string | null
-  ops: unknown
   revert_of_call_id?: string | null
   summary?: string | null
   tool_name: string
-  user_id: string
 }
 
-export type AgentChangesetEntity = {
+/**
+ * What the course management view shows of the user's changesets in a course without listing
+ * them.
+ */
+export type AgentChangesetCounts = {
   /**
-   * The staged entity; `None` for deletes.
+   * Whether the user has any changeset in the course, open or not.
    */
-  after_snapshot?: unknown
+  has_changesets: boolean
   /**
-   * The live entity when it was first staged; `None` for creates.
+   * How many entities the user's open changeset stages; 0 without one.
    */
-  base_snapshot?: unknown
-  base_version_id?: string | null
-  changeset_id: string
-  created_at: string
-  entity_id: string
-  entity_type: AgentChangesetEntityType
-  id: string
-  operation: AgentChangesetEntityOperation
-  risk_reasons: Array<RiskReason>
-  updated_at: string
+  open_entity_count: number
 }
 
 export type AgentChangesetEntityOperation = "create" | "update" | "delete"
-
-export type AgentChangesetEntityType =
-  | "page"
-  | "chapter"
-  | "module"
-  | "course_settings"
-  | "glossary_term"
-  | "reference"
 
 export type AgentChangesetStatus = "open" | "published" | "discarded" | "expired"
 
@@ -1091,8 +1085,7 @@ export type AgentChangesetStatus = "open" | "published" | "discarded" | "expired
  */
 export type AgentPreviewLink = {
   /**
-   * Path of the preview page in the main frontend. Expires after
-   * `PREVIEW_TOKEN_LIFETIME_MINUTES`.
+   * Path of the preview page in the main frontend. It stops working after a few minutes.
    */
   preview_path: string
 }
@@ -1206,12 +1199,6 @@ export type AttentionStanding =
   | "running_late"
   | "dismissed"
   | "explained_by_problem"
-
-export type AuthorizedClientInfo = {
-  client_id: string
-  client_name: string
-  scopes: Array<string>
-}
 
 export type AutomaticCompletionRequirements = {
   /**
@@ -1397,14 +1384,22 @@ export type ChangePasswordData = {
 }
 
 /**
+ * The staged changes changed after the revision the user based a publish or discard on. Nothing
+ * was written.
+ */
+export type ChangedSinceReview = {
+  /**
+   * The changeset's revision now.
+   */
+  revision: number
+}
+
+/**
  * One entity of a changeset, as listings and expiry warnings describe it.
  */
-export type ChangesetEntitySummary = {
-  entity_id: string
-  entity_type: AgentChangesetEntityType
-  label: string
+export type ChangesetEntitySummary = EntityRef & {
   operation: AgentChangesetEntityOperation
-  risk_reasons: Array<RiskReason>
+  risk_reasons?: Array<RiskReason>
 }
 
 /**
@@ -1414,11 +1409,13 @@ export type ChangesetReview = {
   /**
    * The agent calls that staged the changes, oldest first.
    */
-  calls: Array<AgentChangesetCall>
+  calls: Array<AgentChangesetCallSummary>
   changeset: AgentChangeset
+  /**
+   * Staged entities whose live state changed after they were staged, which blocks publishing.
+   */
   conflicts: Array<PublishConflict>
   entities: Array<ReviewEntity>
-  has_risky_changes: boolean
   is_expiring_soon: boolean
 }
 
@@ -1724,10 +1721,6 @@ export type ConsentDenyQuery = {
  * What the consent screen shows about the client asking for access.
  */
 export type ConsentInfo = {
-  /**
-   * The client's public id; for agents, the URL of its metadata document.
-   */
-  client_id: string
   client_name: string
   client_uri?: string | null
   /**
@@ -1739,12 +1732,6 @@ export type ConsentInfo = {
    * do.
    */
   is_metadata_document_client: boolean
-  logo_uri?: string | null
-  /**
-   * Where the browser goes after approving: shown so the user can see which client is asking,
-   * since any client can claim any name.
-   */
-  redirect_uri: string
   scopes: Array<ConsentScope>
 }
 
@@ -1782,6 +1769,18 @@ export type ConsentScope = {
    */
   was_previously_granted: boolean
 }
+
+/**
+ * A kind of course content entity that agent changesets stage and history records.
+ */
+export type ContentEntityType =
+  | "page"
+  | "chapter"
+  | "module"
+  | "course_settings"
+  | "glossary_term"
+  | "reference"
+  | "course_default_review_config"
 
 export type CopyCourseMode =
   | {
@@ -2092,6 +2091,16 @@ export type CourseCreditRegistrationUserIdsPayload = {
 export type CourseCreditRegistrationsPage = {
   data: Array<CourseCreditRegistration>
   total_pages: number
+}
+
+/**
+ * A change to the course default review config, which every exercise without its own uses.
+ */
+export type CourseDefaultReviewConfigChange = EntityChange & {
+  /**
+   * How many published exercises with peer or self reviews use the course default.
+   */
+  exercise_count: number
 }
 
 export type CourseDesignerCourseSize = "small" | "medium" | "large"
@@ -2566,7 +2575,7 @@ export type CreateCourseDesignerStageTaskRequest = {
 }
 
 /**
- * A redirect publishing created from a page's old path.
+ * A redirect from a page's old path, created when the page moved to a new one.
  */
 export type CreatedRedirect = {
   new_url_path: string
@@ -3589,6 +3598,35 @@ export type DeviceVerificationInfo = {
   user_code: string
 }
 
+/**
+ * What discarding a whole changeset did.
+ */
+export type DiscardOutcome =
+  | {
+      changeset: AgentChangeset
+      outcome: "discarded"
+    }
+  | {
+      outcome: "rejected"
+      rejection: DiscardRejection
+    }
+
+/**
+ * Why a discard was refused. Nothing was dropped.
+ */
+export type DiscardRejection =
+  | {
+      reason: "not_open"
+      status: AgentChangesetStatus
+    }
+  | (ChangedSinceReview & {
+      reason: "changed_since_review"
+    })
+  | {
+      blockers: Array<PublishBlocker>
+      reason: "blockers"
+    }
+
 export type DomainCompletionStats = {
   email_domain: string
   not_registered_completions: number
@@ -3845,20 +3883,82 @@ export type EnrolmentCheckSource =
   | "account_link"
 
 /**
- * One entity a call touched, with its full snapshot just before and just after the call.
+ * What a change does to one entity, apart from a page's content.
  */
-export type EntityChange = {
+export type EntityChange = EntityRef & {
   /**
-   * `None` when the call deleted the entity.
+   * The fields that differ between the entity when it was staged and as staged.
    */
-  after?: unknown
-  /**
-   * `None` when the entity did not exist before the call.
-   */
-  before?: unknown
-  entity_id: string
-  entity_type: AgentChangesetEntityType
+  field_changes: Array<FieldChange>
   operation: AgentChangesetEntityOperation
+  risk_reasons: Array<RiskReason>
+}
+
+/**
+ * A field of an entity snapshot that a change can set, named as the snapshot names it. Ids and
+ * page content are no fields: content is shown rendered.
+ */
+export type EntityField =
+  | "title"
+  | "url_path"
+  | "hidden"
+  | "chapter_id"
+  | "order_number"
+  | "name"
+  | "color"
+  | "chapter_number"
+  | "course_module_id"
+  | "front_page_id"
+  | "opens_at"
+  | "deadline"
+  | "chapter_image_path"
+  | "completion_policy"
+  | "certification_enabled"
+  | "uh_course_code"
+  | "ects_credits"
+  | "completion_registration_link_override"
+  | "completions_can_be_registered_to_sisu"
+  | "description"
+  | "is_draft"
+  | "is_test_mode"
+  | "is_unlisted"
+  | "can_add_chatbot"
+  | "is_joinable_by_code_only"
+  | "ask_marketing_consent"
+  | "flagged_answers_threshold"
+  | "flagged_answers_skip_manual_review_and_allow_retry"
+  | "closed_at"
+  | "closed_additional_message"
+  | "closed_course_successor_id"
+  | "chapter_locking_enabled"
+  | "ai_policy"
+  | "course_material_ai_instructions"
+  | "base_module_completion_requires_n_submodule_completions"
+  | "audiences"
+  | "term"
+  | "definition"
+  | "citation_key"
+  | "reference"
+  | "review_instructions"
+  | "exercise_name"
+  | "exercise_deadline"
+  | "task_instructions"
+  | "review_config"
+
+/**
+ * A content entity and what people call it.
+ */
+export type EntityRef = {
+  /**
+   * The entity's id; the course id for course settings.
+   */
+  entity_id: string
+  entity_type: ContentEntityType
+  /**
+   * A page title, chapter, module or course name, glossary term or citation key; empty for the
+   * default module and the course default review config.
+   */
+  label: string
 }
 
 export type EventInfo = {
@@ -3935,6 +4035,18 @@ export type ExerciseAnswersInCourseRequiringAttentionCount = {
   page_id: string
 }
 
+/**
+ * The exercise switches between the course default review config and its own while students
+ * have already given reviews under the old one.
+ */
+export type ExerciseChangeWarning = {
+  exercise_id: string
+  exercise_name: string
+  kind: "review_config_switched_with_reviews"
+  review_count: number
+  to: ReviewConfigKind
+}
+
 export type ExerciseCsvExportTaskOption = {
   exercise_task_id: string
   exercise_type: string
@@ -3942,6 +4054,21 @@ export type ExerciseCsvExportTaskOption = {
   produces_file_answers: boolean
   supports_csv_export_answers: boolean
   supports_csv_export_definitions: boolean
+}
+
+/**
+ * The exercise of a page a field change is in.
+ */
+export type ExerciseFieldOwner = {
+  exercise_id: string
+  /**
+   * The exercise's name after the change.
+   */
+  exercise_name: string
+  /**
+   * The task, for [`EntityField::TaskInstructions`].
+   */
+  task_id?: string | null
 }
 
 export type ExerciseRepository = {
@@ -4232,6 +4359,67 @@ export type FeedbackEditProposalCounts = {
   total_waiting: number
   unread_feedback: number
 }
+
+/**
+ * One field a change sets to another value.
+ */
+export type FieldChange = {
+  after?: null | FieldValue
+  before?: null | FieldValue
+  exercise?: null | ExerciseFieldOwner
+  field: EntityField
+}
+
+/**
+ * A field's value, typed for display.
+ */
+export type FieldValue =
+  | {
+      type: "text"
+      value: string
+    }
+  | {
+      type: "number"
+      value: number
+    }
+  | {
+      type: "bool"
+      value: boolean
+    }
+  | {
+      type: "date_time"
+      value: string
+    }
+  | {
+      type: "reference"
+      /**
+       * Another entity, labelled as it is or will be called.
+       */
+      value: EntityRef
+    }
+  | {
+      type: "text_list"
+      value: Array<string>
+    }
+  | {
+      type: "completion_policy"
+      value: CompletionPolicy
+    }
+  | {
+      type: "ai_policy"
+      value: CourseAiPolicy
+    }
+  | {
+      type: "blocks"
+      /**
+       * Blocks, as stored.
+       */
+      value: unknown
+    }
+  | {
+      type: "review_config"
+      value: ReviewConfigKind
+    }
 
 export type FlaggedAnswer = {
   created_at: string
@@ -4960,14 +5148,6 @@ export type NotificationEmailStatus = {
  * A user's consent to one client: what the account page lists and revokes.
  */
 export type OAuthGrant = {
-  /**
-   * `oauth_clients.id`.
-   */
-  client_id: string
-  /**
-   * The client's public `client_id`; the metadata document URL for agent clients.
-   */
-  client_identifier: string
   client_name: string
   client_uri?: string | null
   granted_at: string
@@ -5050,6 +5230,22 @@ export type PageAudioFile = {
 }
 
 /**
+ * What a change does to a page: its fields, and its content as students see it.
+ */
+export type PageChange = EntityChange & {
+  after?: null | PreviewPage
+  base?: null | PreviewPage
+  /**
+   * Whether the blocks or exercises differ; always for creates and deletes.
+   */
+  is_content_changed: boolean
+  /**
+   * What the reviewer should know before publishing the page's exercise changes.
+   */
+  warnings: Array<ExerciseChangeWarning>
+}
+
+/**
  * Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
  */
 export type PageDetailsUpdate = {
@@ -5058,7 +5254,6 @@ export type PageDetailsUpdate = {
 }
 
 export type PageHistory = {
-  agent_changeset_id?: string | null
   /**
    * The agent client the change was made through; `None` for the web UI.
    */
@@ -5088,19 +5283,12 @@ export type PageInfo = {
  * What the preview of a staged page renders.
  */
 export type PagePreview = {
-  changeset_id: string
-  course_id: string
   course_name: string
-  course_slug: string
-  /**
-   * Whether the changeset changes this page.
-   */
-  is_staged: boolean
   language_code: string
   /**
    * The page as staged, or as live if the changeset does not change it.
    */
-  page: PageSnapshot
+  page: PreviewPage
 }
 
 export type PageProposal = {
@@ -5112,32 +5300,6 @@ export type PageProposal = {
   page_url_path: string
   pending: boolean
   user_id?: string | null
-}
-
-/**
- * A course page: its metadata, its stored blocks and its exercises, in the shape the CMS page
- * save takes. Exercise blocks in `content` are stored stripped to their id, as the CMS stores
- * them; the exercises themselves are in `exercises`, `exercise_slides` and `exercise_tasks`.
- */
-export type PageSnapshot = {
-  /**
-   * `None` for top-level pages.
-   */
-  chapter_id?: string | null
-  content: Array<GutenbergBlock>
-  course_id: string
-  exercise_slides: Array<CmsPageExerciseSlide>
-  exercise_tasks: Array<CmsPageExerciseTask>
-  exercises: Array<CmsPageExercise>
-  hidden: boolean
-  id: string
-  /**
-   * Position among the pages of the same chapter (or the top-level pages). 0 is reserved for
-   * a chapter's front page.
-   */
-  order_number: number
-  title: string
-  url_path: string
 }
 
 export type PageVisitDatumSummaryByCourse = {
@@ -5544,18 +5706,6 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 /**
- * The user's unpublished agent changes on a page.
- */
-export type PendingAgentChanges = {
-  changeset_id: string
-  course_id: string
-  /**
-   * Path of the review page in the main frontend.
-   */
-  review_path: string
-}
-
-/**
  * Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
  */
 export type PendingReasonCounts = {
@@ -5635,15 +5785,104 @@ export type Points = {
   users: Array<UserDetail>
 }
 
+/**
+ * An exercise of a previewed page.
+ */
+export type PreviewExercise = {
+  /**
+   * The assignment blocks of its tasks, in slide and task order.
+   */
+  assignment: Array<unknown>
+  /**
+   * Whether students review answers to it, themselves or each other.
+   */
+  has_reviews: boolean
+  id: string
+  name: string
+  /**
+   * The review instructions blocks students see while reviewing. For an exercise that uses the
+   * course default, only a preview link fills them in.
+   */
+  review_instructions?: unknown
+  uses_course_default_review_config: boolean
+}
+
+/**
+ * A page as students see it before answering anything. The preview needs no login, so exercise
+ * specs, model solutions and review settings other than the instructions are left out.
+ */
+export type PreviewPage = {
+  chapter_id?: string | null
+  content: Array<GutenbergBlock>
+  course_id: string
+  exercises: Array<PreviewExercise>
+  hidden: boolean
+  id: string
+  order_number: number
+  title: string
+  url_path: string
+}
+
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
+
+/**
+ * A rule publishing relies on that a course state breaks. Pages, chapters and modules are named
+ * as the state has them.
+ */
+export type PublishBlocker =
+  | {
+      chapter_id: string
+      kind: "page_in_missing_chapter"
+      page: EntityRef
+    }
+  | {
+      kind: "duplicate_path"
+      pages: Array<EntityRef>
+      url_path: string
+    }
+  | {
+      chapter?: null | EntityRef
+      kind: "duplicate_page_order_number"
+      order_number: number
+      pages: Array<EntityRef>
+    }
+  | {
+      chapter: EntityRef
+      kind: "chapter_in_missing_module"
+      module_id: string
+    }
+  | {
+      chapter: EntityRef
+      front_page_id: string
+      kind: "missing_front_page"
+    }
+  | {
+      chapter: EntityRef
+      front_page: EntityRef
+      kind: "front_page_in_other_chapter"
+    }
+  | {
+      chapter: EntityRef
+      expected_url_path: string
+      front_page: EntityRef
+      kind: "front_page_off_path"
+      url_path: string
+    }
+  | {
+      chapter_number: number
+      chapters: Array<EntityRef>
+      kind: "duplicate_chapter_number"
+    }
+  | {
+      kind: "duplicate_module_order_number"
+      modules: Array<EntityRef>
+      order_number: number
+    }
 
 /**
  * A staged entity whose live state changed after it was staged.
  */
-export type PublishConflict = {
-  entity_id: string
-  entity_type: AgentChangesetEntityType
-  label: string
+export type PublishConflict = EntityRef & {
   /**
    * When the live entity was last changed, if its history knows.
    */
@@ -5676,11 +5915,27 @@ export type PublishRejection =
     }
   | {
       reason: "needs_confirmation"
-      risky_entities: Array<RiskyEntity>
+      risky_entities: Array<ChangesetEntitySummary>
     }
   | {
       reason: "global_admin_only_exercise_services"
       service_names: Array<string>
+    }
+  | {
+      blockers: Array<PublishBlocker>
+      reason: "blockers"
+    }
+  | (ChangedSinceReview & {
+      reason: "changed_since_review"
+    })
+  | {
+      reason: "not_open"
+      status: AgentChangesetStatus
+    }
+  | {
+      entity?: null | EntityRef
+      message: string
+      reason: "save_failed"
     }
 
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
@@ -5905,20 +6160,32 @@ export type Retryability =
   | "permanent_needs_config"
 
 /**
- * One entity on the review page: its base, staged and current live state, so the page can render
- * the diff and flag conflicts.
+ * Which review settings an exercise uses.
  */
-export type ReviewEntity = {
-  entity: AgentChangesetEntity
+export type ReviewConfigKind = "course_default" | "own"
+
+/**
+ * One staged entity on the review page.
+ */
+export type ReviewEntity =
+  | (PageChange & {
+      kind: "page"
+    })
+  | (CourseDefaultReviewConfigChange & {
+      kind: "course_default_review_config"
+    })
+  | (EntityChange & {
+      kind: "fields"
+    })
+
+/**
+ * A publish or discard of the changeset as the user reviewed it.
+ */
+export type ReviewedRevisionRequest = {
   /**
-   * Whether the live entity changed after it was staged, which blocks publishing.
+   * `changeset.revision` of the review the user acted on.
    */
-  has_conflict: boolean
-  label: string
-  /**
-   * The live entity now; `None` if it does not exist.
-   */
-  live_snapshot?: unknown
+  reviewed_revision: number
 }
 
 /**
@@ -5936,26 +6203,61 @@ export type ReviewingStage =
   | "NotAnsweredAndLocked"
 
 /**
- * Why a staged change needs the user's confirmation before it is published.
+ * Why a staged change needs the user's confirmation before it is published: a rule it breaks,
+ * with the facts the rule found. It belongs to the entity the change is to, so it doesn't name
+ * that entity again.
  */
-export type RiskReason = {
-  /**
-   * Stable machine-readable identifier of the rule, e.g. `exercise_with_submissions_removed`.
-   */
-  code: string
-  /**
-   * What happens to students if the change is published.
-   */
-  consequence: string
-  message: string
-}
-
-export type RiskyEntity = {
-  entity_id: string
-  entity_type: AgentChangesetEntityType
-  label: string
-  risk_reasons: Array<RiskReason>
-}
+export type RiskReason =
+  | {
+      code: "exercise_with_submissions_removed"
+      exercise_id: string
+    }
+  | {
+      code: "page_with_submissions_removed"
+    }
+  | {
+      code: "chapter_with_submissions_removed"
+    }
+  | {
+      code: "visible_page_removed"
+    }
+  | {
+      code: "open_chapter_removed"
+    }
+  | {
+      after: string
+      before: string
+      code: "deadline_moved_earlier"
+    }
+  | {
+      code: "deadline_added_to_open_chapter"
+      deadline: string
+    }
+  | {
+      after: string
+      before: string
+      code: "exercise_deadline_moved_earlier"
+      exercise_id: string
+    }
+  | {
+      code: "exercise_deadline_added"
+      deadline: string
+      exercise_id: string
+    }
+  | {
+      code: "opening_moved_later"
+      opens_at: string
+    }
+  | {
+      code: "completion_policy_changed_after_completions"
+    }
+  | {
+      code: "completion_requirement_changed_after_completions"
+    }
+  | {
+      code: "chapter_locking_toggled"
+      is_enabled: boolean
+    }
 
 export type Role = {
   course_id?: string | null
@@ -6854,27 +7156,24 @@ export type GetAgentChangesetsResponses = {
 export type GetAgentChangesetsResponse =
   GetAgentChangesetsResponses[keyof GetAgentChangesetsResponses]
 
-export type GetAgentChangesPendingForPageData = {
+export type GetAgentChangesetCountsData = {
   body?: never
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
+  path?: never
+  query: {
+    course_id: string
   }
-  query?: never
-  url: "/api/v0/main-frontend/agent-changesets/pending-for-page/{page_id}"
+  url: "/api/v0/main-frontend/agent-changesets/counts"
 }
 
-export type GetAgentChangesPendingForPageResponses = {
+export type GetAgentChangesetCountsResponses = {
   /**
-   * The open changeset changing the page, if any
+   * The user's changeset counts in the course
    */
-  200: null | PendingAgentChanges
+  200: AgentChangesetCounts
 }
 
-export type GetAgentChangesPendingForPageResponse =
-  GetAgentChangesPendingForPageResponses[keyof GetAgentChangesPendingForPageResponses]
+export type GetAgentChangesetCountsResponse =
+  GetAgentChangesetCountsResponses[keyof GetAgentChangesetCountsResponses]
 
 export type GetAgentChangesetData = {
   body?: never
@@ -6898,7 +7197,7 @@ export type GetAgentChangesetResponses = {
 export type GetAgentChangesetResponse = GetAgentChangesetResponses[keyof GetAgentChangesetResponses]
 
 export type DiscardAgentChangesetData = {
-  body?: never
+  body: ReviewedRevisionRequest
   path: {
     /**
      * Changeset id
@@ -6911,9 +7210,9 @@ export type DiscardAgentChangesetData = {
 
 export type DiscardAgentChangesetResponses = {
   /**
-   * The discarded changeset
+   * Discarded, or why it was not
    */
-  200: AgentChangeset
+  200: DiscardOutcome
 }
 
 export type DiscardAgentChangesetResponse =
@@ -6946,7 +7245,7 @@ export type CreateAgentChangesetPreviewLinkResponse =
   CreateAgentChangesetPreviewLinkResponses[keyof CreateAgentChangesetPreviewLinkResponses]
 
 export type PublishAgentChangesetData = {
-  body?: never
+  body: ReviewedRevisionRequest
   path: {
     /**
      * Changeset id
@@ -14152,45 +14451,6 @@ export type AuthorizeOauthPostData = {
   query?: never
   url: "/api/v0/main-frontend/oauth/authorize"
 }
-
-export type GetOauthAuthorizedClientsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorized-clients"
-}
-
-export type GetOauthAuthorizedClientsResponses = {
-  /**
-   * Authorized OAuth clients
-   */
-  200: Array<AuthorizedClientInfo>
-}
-
-export type GetOauthAuthorizedClientsResponse =
-  GetOauthAuthorizedClientsResponses[keyof GetOauthAuthorizedClientsResponses]
-
-export type DeleteOauthAuthorizedClientData = {
-  body?: never
-  path: {
-    /**
-     * OAuth client id
-     */
-    client_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorized-clients/{client_id}"
-}
-
-export type DeleteOauthAuthorizedClientResponses = {
-  /**
-   * Authorized client revoked
-   */
-  204: void
-}
-
-export type DeleteOauthAuthorizedClientResponse =
-  DeleteOauthAuthorizedClientResponses[keyof DeleteOauthAuthorizedClientResponses]
 
 export type ApproveOauthConsentData = {
   body: ConsentQuery

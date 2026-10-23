@@ -4,13 +4,13 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import type { AgentChangesetCall } from "@/generated/api/types.generated"
+import type { AgentChangesetCallSummary } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Disclosure } from "@/shared-module/components"
 
 interface AgentCallListProps {
-  calls: AgentChangesetCall[]
+  calls: AgentChangesetCallSummary[]
 }
 
 /** The agent's write calls that make up the changeset: the audit trail of what it did. */

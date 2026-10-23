@@ -3,62 +3,53 @@
 
 use std::time::Duration;
 
-use rmcp::model::{ErrorCode, RequestStateCodec, SealOptions};
+use headless_lms_utils::stable_digest::stable_digest;
+use rmcp::model::{
+    CacheScope, CallToolResult, ContentBlock, DiscoverResult, ElicitRequest, ElicitRequestParams,
+    ErrorCode, ErrorData, Implementation, InputRequest, InputRequests, InputRequiredResult,
+    JsonRpcError, JsonRpcResponse, JsonRpcVersion2_0, ListToolsResult, MetaObject, RequestId,
+    RequestStateCodec, ResultType, SealOptions, ServerCapabilities, ToolsCapability,
+};
+use serde::Serialize;
 use serde_json::{Map, Value, json};
 use tokio::sync::mpsc::UnboundedSender;
 
-use super::context::CapabilityContext;
+use super::context::ClientContext;
 use super::error_codes;
 use super::headers::{self, PROTOCOL_VERSION_HEADER, RequestHeaders};
 use super::progress::ProgressReporter;
-use super::{PROTOCOL_VERSION, SETUP_DOCS_URL};
+use super::{PROTOCOL_VERSION, SETUP_DOCS_URL, www_authenticate_challenge};
 use crate::hints;
+use crate::instructions::SERVER_INSTRUCTIONS;
 use crate::tools::{
-    CONFIRMATION_KEY, ConfirmationRequest, Principal, RequestContext, RetryState, ToolError,
-    ToolOutcome, ToolRegistry, ToolResult,
+    CONFIRMATION_KEY, ConfirmationRequest, McpPrincipal, McpScope, RequestContext, RetryState,
+    Tool, ToolError, ToolOutcome, ToolRegistry, ToolResult,
 };
 
 const SERVER_INFO_META_KEY: &str = "io.modelcontextprotocol/serverInfo";
 const CONFIRMATION_TTL: Duration = Duration::from_secs(15 * 60);
+const SERVER_NAME: &str = "courses-mooc-fi";
+const SERVER_TITLE: &str = "courses.mooc.fi course material";
+/// Short, so scope and role changes show up promptly.
+const TOOLS_LIST_TTL_MS: u64 = 60_000;
+const DISCOVER_TTL_MS: u64 = 300_000;
 
-pub struct ServerConfig {
-    pub server_name: String,
-    pub server_title: String,
+pub(crate) struct ServerConfig {
     pub server_version: String,
-    pub instructions: String,
-    pub setup_docs_url: String,
     /// The RFC 9728 metadata URL advertised in `WWW-Authenticate`.
-    pub resource_metadata_url: Option<String>,
-    /// Seals `requestState`. Without it, confirmations always use the text fallback.
-    pub request_state_codec: Option<RequestStateCodec>,
-    /// Short, so scope and role changes show up promptly.
-    pub tools_list_ttl_ms: u64,
-    pub discover_ttl_ms: u64,
-}
-
-impl ServerConfig {
-    pub fn new(server_version: impl Into<String>) -> Self {
-        Self {
-            server_name: "courses-mooc-fi".into(),
-            server_title: "courses.mooc.fi course material".into(),
-            server_version: server_version.into(),
-            instructions: crate::instructions::SERVER_INSTRUCTIONS.into(),
-            setup_docs_url: SETUP_DOCS_URL.into(),
-            resource_metadata_url: None,
-            request_state_codec: None,
-            tools_list_ttl_ms: 60_000,
-            discover_ttl_ms: 300_000,
-        }
-    }
+    pub resource_metadata_url: String,
+    /// Seals `requestState`.
+    pub request_state_codec: RequestStateCodec,
 }
 
 /// One HTTP request to the MCP endpoint, framework-independent.
-pub struct HttpRequest<'a> {
-    pub method: &'a str,
+pub struct HttpRequest {
+    pub method: String,
     pub headers: RequestHeaders,
-    pub body: &'a [u8],
+    pub body: serde_json::Result<Value>,
 }
 
+/// The answer to one HTTP request, framework-independent.
 #[derive(Debug, Clone, PartialEq)]
 pub struct HttpResponse {
     pub status: u16,
@@ -109,43 +100,34 @@ impl RpcError {
         self
     }
 
-    fn into_response(self, id: Option<&Value>) -> HttpResponse {
-        let mut error = json!({"code": self.code.0, "message": self.message});
-        if let Some(data) = self.data {
-            error["data"] = data;
-        }
-        let mut body = json!({"jsonrpc": "2.0", "error": error});
-        if let Some(id) = id {
-            body["id"] = id.clone();
-        }
-        let mut response = HttpResponse::json(self.status, body);
+    /// `id` is `None` when the request's id couldn't be read.
+    fn into_response(self, id: Option<RequestId>) -> HttpResponse {
+        let error = JsonRpcError::new(id, ErrorData::new(self.code, self.message, self.data));
+        let mut response = HttpResponse::json(self.status, to_json(&error));
         response.headers.extend(self.headers);
         response
     }
 }
 
+/// The MCP server: answers each request with the tools of its registry, run against the state
+/// `S`.
 pub struct McpServer<S> {
     registry: ToolRegistry<S>,
     config: ServerConfig,
 }
 
 impl<S: Send + Sync + 'static> McpServer<S> {
-    pub fn new(registry: ToolRegistry<S>, config: ServerConfig) -> Self {
+    pub(crate) fn new(registry: ToolRegistry<S>, config: ServerConfig) -> Self {
         Self { registry, config }
     }
 
-    pub fn config(&self) -> &ServerConfig {
-        &self.config
-    }
-
-    /// Handles one request. `principal` is None when no valid bearer token came with it.
-    /// `progress_sink`, when given, receives progress notifications the transport may stream
-    /// before the response.
+    /// Handles one request. `progress_sink`, when given, receives progress notifications the
+    /// transport may stream before the response.
     pub async fn handle(
         &self,
         state: &S,
-        principal: Option<&Principal>,
-        request: HttpRequest<'_>,
+        principal: &McpPrincipal,
+        request: HttpRequest,
         progress_sink: Option<UnboundedSender<Value>>,
     ) -> HttpResponse {
         if request.method != "POST" {
@@ -153,44 +135,58 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             response.headers.push(("Allow".into(), "POST".into()));
             return response;
         }
-        let message: Value = match serde_json::from_slice(request.body) {
-            Ok(message) => message,
+        let mut object = match request.body {
+            Ok(Value::Object(object)) => object,
+            Ok(_) => {
+                return RpcError::new(
+                    400,
+                    ErrorCode::INVALID_REQUEST,
+                    "Invalid Request: send one JSON-RPC object per request; batches aren't supported",
+                )
+                .into_response(None);
+            }
             Err(e) => {
-                return RpcError::new(400, error_codes::PARSE_ERROR, format!("Parse error: {e}"))
+                return RpcError::new(400, ErrorCode::PARSE_ERROR, format!("Parse error: {e}"))
                     .into_response(None);
             }
         };
-        let Some(object) = message.as_object() else {
-            return RpcError::new(
+        let is_response = object.contains_key("result") || object.contains_key("error");
+        let invalid = || {
+            RpcError::new(
                 400,
-                error_codes::INVALID_REQUEST,
-                "Invalid Request: send one JSON-RPC object per request; batches aren't supported",
+                ErrorCode::INVALID_REQUEST,
+                "Invalid Request: a request needs a string method and a string or number id",
             )
-            .into_response(None);
+            .into_response(None)
         };
-        let id = object
-            .get("id")
-            .filter(|id| id.is_string() || id.is_number());
-        let Some(method) = object.get("method").and_then(Value::as_str) else {
-            return HttpResponse::empty(202);
-        };
-        let Some(id) = id else {
-            return HttpResponse::empty(202);
+        let (id, method) = match (object.remove("id"), object.remove("method")) {
+            (Some(id), Some(Value::String(method))) => match serde_json::from_value(id) {
+                Ok(id) => (id, method),
+                Err(_) => return invalid(),
+            },
+            (None, Some(Value::String(_))) => return HttpResponse::empty(202),
+            (Some(_), None) if is_response => return HttpResponse::empty(202),
+            _ => return invalid(),
         };
         match self
             .dispatch(
                 state,
                 principal,
                 &request.headers,
-                method,
-                object.get("params"),
+                &method,
+                object.remove("params"),
                 progress_sink,
             )
             .await
         {
-            Ok(result) => {
-                HttpResponse::json(200, json!({"jsonrpc": "2.0", "id": id, "result": result}))
-            }
+            Ok(result) => HttpResponse::json(
+                200,
+                to_json(&JsonRpcResponse {
+                    jsonrpc: JsonRpcVersion2_0,
+                    id,
+                    result,
+                }),
+            ),
             Err(error) => error.into_response(Some(id)),
         }
     }
@@ -198,60 +194,60 @@ impl<S: Send + Sync + 'static> McpServer<S> {
     async fn dispatch(
         &self,
         state: &S,
-        principal: Option<&Principal>,
+        principal: &McpPrincipal,
         headers: &RequestHeaders,
         method: &str,
-        params: Option<&Value>,
+        params: Option<Value>,
         progress_sink: Option<UnboundedSender<Value>>,
     ) -> Result<Value, RpcError> {
         if method == "initialize" {
             let requested = params
+                .as_ref()
                 .and_then(|p| p.get("protocolVersion"))
                 .cloned()
                 .unwrap_or(Value::Null);
             return Err(self.unsupported_version(requested));
         }
-        let meta = params
-            .and_then(|p| p.get("_meta"))
-            .and_then(Value::as_object)
-            .cloned()
+        let mut params = match params {
+            Some(Value::Object(params)) => params,
+            _ => Map::new(),
+        };
+        let client = ClientContext::from_meta(match params.remove("_meta") {
+            Some(Value::Object(meta)) => meta,
+            _ => Map::new(),
+        });
+        let tool_name = params
+            .get("name")
+            .and_then(Value::as_str)
             .unwrap_or_default();
-        let capabilities = CapabilityContext::from_meta(&meta);
+        let tool = match method {
+            "tools/call" => self.registry.get(tool_name),
+            _ => None,
+        };
         if method != "server/discover" {
-            self.check_version(&capabilities, headers)?;
-            let header_params = if method == "tools/call" {
-                params
-                    .and_then(|p| p.get("name"))
-                    .and_then(Value::as_str)
-                    .and_then(|name| self.registry.definition(name))
-                    .map(|d| d.header_params())
-                    .unwrap_or_default()
-            } else {
-                Vec::new()
-            };
-            headers::validate(headers, method, params, &header_params)
-                .map_err(|reason| RpcError::new(400, error_codes::HEADER_MISMATCH, reason))?;
+            self.check_version(&client, headers)?;
+            let header_params = tool.map_or(&[][..], |tool| &tool.definition.header_params);
+            headers::validate(headers, method, &params, header_params)
+                .map_err(|reason| RpcError::new(400, ErrorCode::HEADER_MISMATCH, reason))?;
         }
         match method {
             "server/discover" => Ok(self.discover()),
-            "tools/list" => {
-                let principal = self.require_principal(principal)?;
-                Ok(self.list_tools(principal))
-            }
+            "tools/list" => Ok(self.list_tools(principal)),
             "tools/call" => {
-                let principal = self.require_principal(principal)?;
-                let params = params
-                    .and_then(Value::as_object)
-                    .cloned()
-                    .unwrap_or_default();
-                let progress =
-                    ProgressReporter::new(capabilities.progress_token.clone(), progress_sink);
-                self.call_tool(state, principal, capabilities, params, progress)
+                let Some(tool) = tool else {
+                    return Err(RpcError::new(
+                        200,
+                        ErrorCode::INVALID_PARAMS,
+                        format!("Unknown tool: {tool_name}"),
+                    ));
+                };
+                let progress = ProgressReporter::new(client.progress_token.clone(), progress_sink);
+                self.call_tool(state, principal, client, tool, params, progress)
                     .await
             }
             other => Err(RpcError::new(
                 404,
-                error_codes::METHOD_NOT_FOUND,
+                ErrorCode::METHOD_NOT_FOUND,
                 format!("Method not found: {other}"),
             )),
         }
@@ -260,35 +256,35 @@ impl<S: Send + Sync + 'static> McpServer<S> {
     fn unsupported_version(&self, requested: Value) -> RpcError {
         RpcError::new(
             400,
-            error_codes::UNSUPPORTED_PROTOCOL_VERSION,
+            ErrorCode::UNSUPPORTED_PROTOCOL_VERSION,
             format!(
                 "This server supports MCP protocol revision {PROTOCOL_VERSION} only. Update the agent, or enable its {PROTOCOL_VERSION} support (Codex needs an opt-in); see {}",
-                self.config.setup_docs_url
+                SETUP_DOCS_URL
             ),
         )
-        .with_data(json!({"requested": requested, "supported": [PROTOCOL_VERSION], "setup": self.config.setup_docs_url}))
+        .with_data(json!({"requested": requested, "supported": [PROTOCOL_VERSION], "setup": SETUP_DOCS_URL}))
     }
 
     fn check_version(
         &self,
-        capabilities: &CapabilityContext,
+        client: &ClientContext,
         headers: &RequestHeaders,
     ) -> Result<(), RpcError> {
-        let Some(version) = &capabilities.protocol_version else {
+        let Some(version) = &client.protocol_version else {
             return Err(RpcError::new(
                 400,
-                error_codes::INVALID_PARAMS,
+                ErrorCode::INVALID_PARAMS,
                 "Invalid params: request _meta must include io.modelcontextprotocol/protocolVersion and io.modelcontextprotocol/clientCapabilities",
             ));
         };
-        if version.as_str() != PROTOCOL_VERSION {
-            return Err(self.unsupported_version(json!(version.as_str())));
+        if *version != PROTOCOL_VERSION {
+            return Err(self.unsupported_version(json!(version)));
         }
         match headers.single(PROTOCOL_VERSION_HEADER) {
             Ok(Some(header)) if header == version.as_str() => Ok(()),
             Ok(Some(header)) => Err(RpcError::new(
                 400,
-                error_codes::HEADER_MISMATCH,
+                ErrorCode::HEADER_MISMATCH,
                 format!(
                     "MCP-Protocol-Version header {header} doesn't match the request _meta version {}",
                     version.as_str()
@@ -296,237 +292,198 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             )),
             Ok(None) => Err(RpcError::new(
                 400,
-                error_codes::HEADER_MISMATCH,
+                ErrorCode::HEADER_MISMATCH,
                 "missing MCP-Protocol-Version header",
             )),
-            Err(reason) => Err(RpcError::new(400, error_codes::HEADER_MISMATCH, reason)),
+            Err(reason) => Err(RpcError::new(400, ErrorCode::HEADER_MISMATCH, reason)),
         }
     }
 
-    fn require_principal<'p>(
-        &self,
-        principal: Option<&'p Principal>,
-    ) -> Result<&'p Principal, RpcError> {
-        principal.ok_or_else(|| {
-            let mut error = RpcError::new(
-                401,
-                error_codes::UNAUTHORIZED,
-                "Sign in to courses.mooc.fi: this endpoint needs an OAuth bearer token",
-            );
-            error
-                .headers
-                .push(("WWW-Authenticate".into(), self.www_authenticate(None)));
-            error
-        })
-    }
-
-    fn www_authenticate(&self, insufficient_scope: Option<&str>) -> String {
-        let mut parts = vec![];
-        if let Some(scope) = insufficient_scope {
-            parts.push("error=\"insufficient_scope\"".to_string());
-            parts.push(format!("scope=\"{scope}\""));
-        }
-        if let Some(url) = &self.config.resource_metadata_url {
-            parts.push(format!("resource_metadata=\"{url}\""));
-        }
-        if parts.is_empty() {
-            "Bearer".to_string()
-        } else {
-            format!("Bearer {}", parts.join(", "))
-        }
-    }
-
-    fn server_info_meta(&self) -> Value {
-        json!({SERVER_INFO_META_KEY: {"name": self.config.server_name, "title": self.config.server_title, "version": self.config.server_version}})
+    fn server_info_meta(&self) -> MetaObject {
+        let server_info =
+            Implementation::new(SERVER_NAME, &self.config.server_version).with_title(SERVER_TITLE);
+        MetaObject::from(Map::from_iter([(
+            SERVER_INFO_META_KEY.to_string(),
+            to_json(&server_info),
+        )]))
     }
 
     fn discover(&self) -> Value {
-        json!({
-            "resultType": "complete",
-            "supportedVersions": [PROTOCOL_VERSION],
-            "capabilities": {"tools": {"listChanged": false}},
-            "instructions": self.config.instructions,
-            "ttlMs": self.config.discover_ttl_ms,
-            "cacheScope": "private",
-            "_meta": self.server_info_meta(),
-        })
+        let mut tools = ToolsCapability::default();
+        tools.list_changed = Some(false);
+        let mut capabilities = ServerCapabilities::default();
+        capabilities.tools = Some(tools);
+        let mut result = DiscoverResult::new(vec![PROTOCOL_VERSION], capabilities);
+        result.instructions = Some(SERVER_INSTRUCTIONS.to_string());
+        result.ttl_ms = DISCOVER_TTL_MS;
+        result.meta = Some(self.server_info_meta());
+        to_json(&result)
     }
 
-    fn list_tools(&self, principal: &Principal) -> Value {
-        let tools: Vec<Value> = self
-            .registry
-            .definitions()
-            .iter()
-            .filter(|d| principal.has_scope(d.scope))
-            .map(|d| d.to_json())
-            .collect();
-        json!({
-            "resultType": "complete",
-            "tools": tools,
-            "ttlMs": self.config.tools_list_ttl_ms,
-            "cacheScope": "private",
-            "_meta": self.server_info_meta(),
+    fn list_tools(&self, principal: &McpPrincipal) -> Value {
+        to_json(&ListToolsResult {
+            result_type: Some(ResultType::COMPLETE),
+            meta: Some(self.server_info_meta()),
+            next_cursor: None,
+            ttl_ms: Some(TOOLS_LIST_TTL_MS),
+            cache_scope: Some(CacheScope::Private),
+            tools: self.registry.listings_for(principal),
         })
     }
 
     async fn call_tool(
         &self,
         state: &S,
-        principal: &Principal,
-        capabilities: CapabilityContext,
-        params: Map<String, Value>,
+        principal: &McpPrincipal,
+        client: ClientContext,
+        tool: &Tool<S>,
+        mut params: Map<String, Value>,
         progress: ProgressReporter,
     ) -> Result<Value, RpcError> {
-        let name = params
-            .get("name")
-            .and_then(Value::as_str)
-            .unwrap_or_default()
-            .to_string();
-        let Some(definition) = self.registry.definition(&name) else {
-            return Err(RpcError::new(
-                200,
-                error_codes::INVALID_PARAMS,
-                format!("Unknown tool: {name}"),
-            ));
-        };
-        if !principal.has_scope(definition.scope) {
-            return Err(self.insufficient_scope(definition.scope.as_str()));
+        let name = tool.definition.name;
+        if !principal.has_scope(tool.definition.scope) {
+            return Err(self.insufficient_scope(principal, tool.definition.scope));
         }
-        let arguments = match params.get("arguments") {
+        let mut arguments = match params.remove("arguments") {
             None | Some(Value::Null) => Map::new(),
-            Some(Value::Object(arguments)) => arguments.clone(),
+            Some(Value::Object(arguments)) => arguments,
             Some(_) => {
                 return Err(RpcError::new(
                     200,
-                    error_codes::INVALID_PARAMS,
+                    ErrorCode::INVALID_PARAMS,
                     "arguments must be an object",
                 ));
             }
         };
-        let skill_hint =
-            match hints::skill_version(arguments.get("skill_version").and_then(Value::as_str)) {
-                Ok(hint) => hint,
-                Err(outdated) => {
-                    return Ok(self.tool_result(
-                        &ToolError::from(outdated)
-                            .to_result()
-                            .unwrap_or_else(|| ToolResult::success(json!({}))),
-                    ));
-                }
-            };
-        let associated_data = confirmation_binding(principal, &name, &arguments);
-        let retry = match params.get("requestState").and_then(Value::as_str) {
-            None => None,
-            Some(sealed) => Some(self.open_request_state(
-                sealed,
-                &associated_data,
-                params.get("inputResponses"),
-            )?),
+        let skill_version = arguments.remove("skill_version");
+        let skill_hint = match hints::skill_version(skill_version.as_ref().and_then(Value::as_str))
+        {
+            Ok(hint) => hint,
+            Err(outdated) => {
+                return Ok(self.tool_result(ToolError::from(outdated).into_result()));
+            }
         };
+        let binding = || confirmation_binding(principal, name, &arguments);
+        let retry = match params.remove("requestState") {
+            Some(Value::String(sealed)) => Some(self.open_request_state(
+                &sealed,
+                binding().as_bytes(),
+                params.remove("inputResponses"),
+            )?),
+            _ => None,
+        };
+        let sealing_binding = tool.handler.asks_for_confirmation().then(binding);
         let ctx = RequestContext {
             principal: principal.clone(),
-            capabilities,
-            tool_name: name.clone(),
+            client,
+            tool_name: name,
             retry,
             progress,
         };
-        let Some(handler) = self.registry.handler(&name) else {
-            return Err(RpcError::new(
-                200,
-                error_codes::INTERNAL_ERROR,
-                "tool has no handler",
-            ));
-        };
-        let outcome = handler.call(state, &ctx, arguments).await;
-        match outcome {
+        match tool.handler.call_with_json(state, &ctx, arguments).await {
             Ok(ToolOutcome::Complete(result)) => {
-                Ok(self.tool_result(&result.with_hints(skill_hint)))
+                Ok(self.tool_result(result.with_hints(skill_hint)))
             }
             Ok(ToolOutcome::NeedsConfirmation(request)) => {
-                Ok(self.confirmation(&ctx, request, &associated_data, skill_hint))
+                Ok(self.confirmation(&ctx, request, sealing_binding.as_deref(), skill_hint))
             }
             Err(ToolError::InsufficientScope { required }) => {
-                Err(self.insufficient_scope(required.as_str()))
+                Err(self.insufficient_scope(principal, required))
             }
             Err(ToolError::Internal(message)) => {
-                tracing::error!(tool = %name, %message, "MCP tool failed");
+                tracing::error!(tool = %ctx.tool_name, %message, "MCP tool failed");
                 Err(RpcError::new(
                     200,
-                    error_codes::INTERNAL_ERROR,
-                    "Internal error; the call staged nothing",
+                    ErrorCode::INTERNAL_ERROR,
+                    "Internal error; the call changed nothing",
                 ))
             }
-            Err(error) => Ok(self.tool_result(
-                &error
-                    .to_result()
-                    .unwrap_or_else(|| ToolResult::success(json!({})))
-                    .with_hints(skill_hint),
-            )),
+            Err(error) => Ok(self.tool_result(error.into_result().with_hints(skill_hint))),
         }
     }
 
-    fn insufficient_scope(&self, scope: &str) -> RpcError {
+    /// The 403 for a missing scope. Its challenge asks for the scopes the token has as well, since
+    /// a client stepping up requests exactly the challenged scopes and would lose the others.
+    fn insufficient_scope(&self, principal: &McpPrincipal, required: McpScope) -> RpcError {
+        let scope = required.as_str();
         let mut error = RpcError::new(
             403,
             error_codes::UNAUTHORIZED,
             format!("This needs the {scope} scope, which the agent's sign-in doesn't include"),
         )
         .with_data(json!({"required_scope": scope}));
+        let challenged: Vec<&str> = McpScope::ALL
+            .into_iter()
+            .filter(|s| *s == required || principal.has_scope(*s))
+            .map(McpScope::as_str)
+            .collect();
         error.headers.push((
             "WWW-Authenticate".into(),
-            self.www_authenticate(Some(scope)),
+            www_authenticate_challenge(
+                &self.config.resource_metadata_url,
+                &challenged.join(" "),
+                Some((
+                    "insufficient_scope",
+                    "the token lacks a scope this tool needs",
+                )),
+            ),
         ));
         error
     }
 
-    fn tool_result(&self, result: &ToolResult) -> Value {
+    fn tool_result(&self, result: ToolResult) -> Value {
         let structured = result.structured_content();
-        json!({
-            "resultType": "complete",
-            "content": [{"type": "text", "text": structured.to_string()}],
-            "structuredContent": structured,
-            "isError": result.is_error,
-            "_meta": self.server_info_meta(),
-        })
+        let content = vec![ContentBlock::text(structured.to_string())];
+        let mut call_result = if result.is_error {
+            CallToolResult::error(content)
+        } else {
+            CallToolResult::success(content)
+        };
+        call_result.structured_content = Some(structured);
+        call_result.meta = Some(self.server_info_meta());
+        to_json(&call_result)
     }
 
+    /// `binding` is `None` when the handler doesn't declare that it asks for confirmation; the
+    /// text fallback is then the only safe answer.
     fn confirmation(
         &self,
         ctx: &RequestContext,
         request: ConfirmationRequest,
-        associated_data: &[u8],
+        binding: Option<&str>,
         skill_hint: Option<hints::Hint>,
     ) -> Value {
-        let codec = self.config.request_state_codec.as_ref();
-        let usable = ctx.capabilities.supports_url_elicitation()
-            && ctx.capabilities.can_use_input_required();
-        let (Some(codec), true) = (codec, usable) else {
-            return self.tool_result(&request.fallback.with_hints(skill_hint));
+        let is_usable =
+            ctx.client.supports_url_elicitation() && ctx.client.can_use_input_required();
+        let (true, Some(binding)) = (is_usable, binding) else {
+            return self.tool_result(request.fallback.with_hints(skill_hint));
         };
         let options = SealOptions::new()
-            .associated_data(associated_data)
+            .associated_data(binding.as_bytes())
             .ttl(CONFIRMATION_TTL);
-        let Ok(sealed) = codec.seal_json_with(&request.state, &options) else {
-            return self.tool_result(&request.fallback.with_hints(skill_hint));
-        };
-        json!({
-            "resultType": "input_required",
-            "inputRequests": {
-                CONFIRMATION_KEY: {
-                    "method": "elicitation/create",
-                    "params": {"mode": "url", "message": request.message, "url": request.url, "elicitationId": request.elicitation_id},
-                },
-            },
-            "requestState": sealed,
-            "_meta": self.server_info_meta(),
-        })
+        // The confirmation is bound through the associated data; the state itself carries nothing.
+        let sealed = self.config.request_state_codec.seal_with(&[], &options);
+        let elicitation = ElicitRequest::new(ElicitRequestParams::UrlElicitationParams {
+            meta: None,
+            message: request.message,
+            url: request.url,
+            elicitation_id: request.elicitation_id,
+        });
+        let input_requests = InputRequests::from([(
+            CONFIRMATION_KEY.to_string(),
+            InputRequest::Elicitation(elicitation),
+        )]);
+        to_json(
+            &InputRequiredResult::new(Some(input_requests), Some(sealed))
+                .with_meta(self.server_info_meta()),
+        )
     }
 
     fn open_request_state(
         &self,
         sealed: &str,
         associated_data: &[u8],
-        responses: Option<&Value>,
+        responses: Option<Value>,
     ) -> Result<RetryState, RpcError> {
         let invalid = || {
             RpcError::new(
@@ -535,64 +492,36 @@ impl<S: Send + Sync + 'static> McpServer<S> {
                 "requestState is invalid or expired; repeat the call without it",
             )
         };
-        let codec = self
-            .config
+        self.config
             .request_state_codec
-            .as_ref()
-            .ok_or_else(invalid)?;
-        let state: Value = codec
-            .open_json_with(sealed, associated_data)
+            .open_with(sealed, associated_data)
             .map_err(|_| invalid())?;
-        let input_responses = responses
-            .and_then(Value::as_object)
-            .cloned()
-            .unwrap_or_default();
-        Ok(RetryState {
-            state,
-            input_responses,
-        })
+        let input_responses = match responses {
+            Some(Value::Object(responses)) => responses,
+            _ => Map::new(),
+        };
+        Ok(RetryState { input_responses })
     }
 }
 
 /// Binds a confirmation to the user, the tool and its exact arguments, so a sealed state can't
 /// be replayed by someone else or for another change.
 fn confirmation_binding(
-    principal: &Principal,
+    principal: &McpPrincipal,
     tool: &str,
     arguments: &Map<String, Value>,
-) -> Vec<u8> {
-    let mut arguments = arguments.clone();
-    arguments.remove("skill_version");
-    format!(
-        "{}|{tool}|{}",
-        principal.user_id,
-        canonical_json(&Value::Object(arguments))
-    )
-    .into_bytes()
+) -> String {
+    // Canonical because serde_json's `Map` keeps keys sorted (the `preserve_order` feature is off).
+    let arguments = serde_json::to_vec(arguments).expect("a JSON object serializes");
+    stable_digest(&[
+        principal.actor.user_id.as_bytes(),
+        tool.as_bytes(),
+        &arguments,
+    ])
 }
 
-/// JSON with object keys sorted, independent of map ordering features.
-fn canonical_json(value: &Value) -> String {
-    match value {
-        Value::Object(map) => {
-            let mut keys: Vec<&String> = map.keys().collect();
-            keys.sort();
-            let fields: Vec<String> = keys
-                .into_iter()
-                .map(|k| format!("{}:{}", Value::String(k.clone()), canonical_json(&map[k])))
-                .collect();
-            format!("{{{}}}", fields.join(","))
-        }
-        Value::Array(items) => format!(
-            "[{}]",
-            items
-                .iter()
-                .map(canonical_json)
-                .collect::<Vec<_>>()
-                .join(",")
-        ),
-        other => other.to_string(),
-    }
+fn to_json(value: &impl Serialize) -> Value {
+    serde_json::to_value(value).expect("the protocol types serialize to JSON")
 }
 
 #[cfg(test)]

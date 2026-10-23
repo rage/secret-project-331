@@ -1,5 +1,8 @@
 import type { Page } from "playwright"
 
+/** Where `login` stores a user's session, for `test.use({ storageState })`. */
+export const storageStatePath = (email: string): string => `src/states/${email}.json`
+
 export async function login(
   user: string,
   password: string,
@@ -18,7 +21,7 @@ export async function login(
   await loginButton.waitFor({ state: "hidden" })
 
   // Store login state
-  await page.context().storageState({ path: `src/states/${user}.json` })
+  await page.context().storageState({ path: storageStatePath(user) })
   if (!stayLoggedIn) {
     await page.locator("id=topbar-user-menu").click()
     await page.getByText("Log out").click()

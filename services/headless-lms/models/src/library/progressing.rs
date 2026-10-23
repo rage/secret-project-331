@@ -1079,11 +1079,13 @@ mod tests {
             conn: &mut PgConnection,
             course_module_id: Uuid,
             certification_enabled: bool,
+            user_id: Uuid,
         ) -> CourseModule {
             course_modules::update_certification_enabled(
                 conn,
                 course_module_id,
                 certification_enabled,
+                user_id,
             )
             .await
             .unwrap();
@@ -1190,7 +1192,7 @@ mod tests {
         #[tokio::test]
         async fn offers_the_certificate_a_passed_completion_has_earned() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             complete(tx.as_mut(), course, module.id, user, true).await;
             let configuration_id =
                 certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
@@ -1208,7 +1210,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_when_the_module_has_certification_off() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, false).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, false, user).await;
             complete(tx.as_mut(), course, module.id, user, true).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
 
@@ -1222,7 +1224,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_for_a_failed_completion() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             complete(tx.as_mut(), course, module.id, user, false).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
 
@@ -1236,7 +1238,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_while_the_completion_is_under_review() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let completion = complete(tx.as_mut(), course, module.id, user, true).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
             course_module_completions::update_needs_to_be_reviewed(
@@ -1257,7 +1259,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_this_module_alone_does_not_earn() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let other_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
                 .await
                 .unwrap();
@@ -1274,7 +1276,7 @@ mod tests {
         #[tokio::test]
         async fn carries_back_the_answer_the_student_already_gave() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let completion = complete(tx.as_mut(), course, module.id, user, true).await;
             crate::completion_registration_credit_justifications::upsert(
                 tx.as_mut(),

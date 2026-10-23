@@ -4,6 +4,7 @@
 
 # Enums
 'activity_progress' = "crate::exercises::ActivityProgress"
+'agent_changeset_status' = "crate::agent_changesets::AgentChangesetStatus"
 'answer_kind' = "crate::exercise_task_submissions::AnswerKind"
 'answer_upload_origin' = "crate::exercise_answer_uploads::AnswerUploadOrigin"
 'application_task' = "crate::application_task_default_language_models::ApplicationTask"
@@ -12,6 +13,8 @@
 'certificate_text_anchor' = "crate::certificate_configurations::CertificateTextAnchor"
 'chapter_locking_status' = "crate::user_chapter_locking_statuses::ChapterLockingStatus"
 'chatbot_tool_category[]' = "Vec<crate::chatbot_configurations::ToolCategory>"
+'content_entity_type' = "crate::library::entity_snapshots::ContentEntityType"
+'content_entity_type[]' = "Vec<crate::library::entity_snapshots::ContentEntityType>"
 'course_ai_policy' = "crate::courses::CourseAiPolicy"
 'course_background_question_type' = "crate::course_background_questions::CourseBackgroundQuestionType"
 'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"
@@ -27,6 +30,7 @@
 'enrolment_check_group' = "crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckGroup"
 'enrolment_check_source' = "crate::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource"
 'email_verification_method' = "crate::user_details::EmailVerificationMethod"
+'entity_history_change_reason' = "crate::entity_history::EntityHistoryChangeReason"
 'error_source' = "crate::errors::ErrorSource"
 'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
 'grant_type' = "crate::library::oauth::grant_type::GrantTypeName"

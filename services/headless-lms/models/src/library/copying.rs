@@ -881,8 +881,7 @@ async fn insert_page_history_for_copies(
                 peer_or_self_review_questions: page.peer_or_self_review_questions,
             },
             HistoryChangeReason::PageSaved,
-            author_user_id,
-            None,
+            crate::entity_history::HistoryAuthor::user(author_user_id),
             None,
         )
         .await?;

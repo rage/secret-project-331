@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
@@ -11,7 +11,7 @@ import {
   getCmsCourseModulesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { Checkbox } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
@@ -45,7 +45,7 @@ const toCheckedIds = (checked: Record<string, boolean>): string[] =>
 
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
   const courseModules = useQuery(
@@ -124,7 +124,7 @@ const ConditionalBlockEditor: React.FC<
         )}
       </InspectorControls>
       <InnerBlocksWrapper title={t("conditionally-shown-content")}>
-        <InnerBlocks {...registeredInnerBlocksProps(name)} />
+        <RegisteredInnerBlocks />
       </InnerBlocksWrapper>
     </BlockPlaceholderWrapper>
   )

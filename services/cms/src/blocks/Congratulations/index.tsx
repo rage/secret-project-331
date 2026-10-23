@@ -3,8 +3,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import CongratulationsEditor from "./CongratulationsEditor"
-import CongratulationsSave from "./CongratulationsSave"
 
 const CONGRATULATIONS = "Congratulations"
 
@@ -14,9 +14,8 @@ const CongratulationsConfiguration: BlockConfiguration = {
   description: CONGRATULATIONS,
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
-  allowedBlocks: [],
   edit: CongratulationsEditor,
-  save: CongratulationsSave,
+  save: EmptyBlockSave,
 }
 
 export default CongratulationsConfiguration

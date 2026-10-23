@@ -3,15 +3,9 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::cache::Cache;
-use models::oauth_user_client_scopes::{self, OAuthGrant};
+use models::oauth_user_client_scopes::{OAuthGrant, OAuthUserClientScopes};
 use sqlx::PgPool;
-use utoipa::OpenApi;
 use uuid::Uuid;
-
-#[derive(OpenApi)]
-#[openapi(paths(get_grants, revoke_grant))]
-#[allow(dead_code)]
-pub(crate) struct MainFrontendOauthGrantsApiDoc;
 
 /**
 GET `/api/v0/main-frontend/oauth/grants` - The signed-in user's OAuth grants, including AI agent
@@ -33,7 +27,7 @@ pub async fn get_grants(
 ) -> ControllerResult<web::Json<Vec<OAuthGrant>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let grants = oauth_user_client_scopes::get_grants_for_user(&mut conn, auth_user.id).await?;
+    let grants = OAuthUserClientScopes::get_grants_for_user(&mut conn, auth_user.id).await?;
     token.authorized_ok(web::Json(grants))
 }
 
@@ -64,7 +58,7 @@ pub async fn revoke_grant(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let revoked_digests =
-        oauth_user_client_scopes::revoke_grant_by_id(&mut conn, auth_user.id, *grant_id).await?;
+        OAuthUserClientScopes::revoke_grant_by_id(&mut conn, auth_user.id, *grant_id).await?;
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
     invalidate_cached_users(&cache, &revoked_digests, token_hmac_key).await;
     token.authorized_ok(HttpResponse::NoContent().finish())

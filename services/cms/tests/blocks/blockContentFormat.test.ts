@@ -102,3 +102,23 @@ describe("stored page content stays block JSON", () => {
     expect(parsingImports).toEqual([])
   })
 })
+
+describe("custom block attributes survive copy and paste", () => {
+  // Copying serializes blocks and pasting parses them back. Custom saves render only the inner
+  // blocks, so an attribute sourced from the save markup comes back empty.
+  const registrations = sources.filter(
+    ({ file }) => file.startsWith("blocks/") && file.endsWith("/index.tsx"),
+  )
+
+  it("finds the custom block registrations", () => {
+    expect(registrations.length).toBeGreaterThan(20)
+  })
+
+  it("keeps every attribute in the block comment, without a source", () => {
+    const sourced = registrations
+      .filter(({ source }) => /\bsource:\s*"/.test(source))
+      .map(({ file }) => file)
+
+    expect(sourced).toEqual([])
+  })
+})

@@ -495,37 +495,21 @@ async fn update_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
-    let course_update = payload.0;
     let course_before_update = models::courses::get_course(&mut conn, *course_id).await?;
-    if course_update.can_add_chatbot != course_before_update.can_add_chatbot {
+    if payload.can_add_chatbot != course_before_update.can_add_chatbot {
         // Only global admins can change the chatbot status
-        let _token2 =
-            authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
     }
 
-    let locking_just_enabled =
-        !course_before_update.chapter_locking_enabled && course_update.chapter_locking_enabled;
-
-    let course =
-        models::courses::update_course(&mut conn, app_conf.as_ref(), *course_id, course_update)
-            .await?;
-    models::course_settings_history::insert_current(&mut conn, *course_id, user.id, None).await?;
-
-    if locking_just_enabled {
-        use models::{user_chapter_locking_statuses, user_course_settings};
-
-        let all_user_settings =
-            user_course_settings::get_all_by_course_id(&mut conn, *course_id).await?;
-
-        for settings in all_user_settings {
-            let _ = user_chapter_locking_statuses::get_or_init_all_for_course(
-                &mut conn,
-                settings.user_id,
-                *course_id,
-            )
-            .await?;
-        }
-    }
+    let course = models::courses::update_course(
+        &mut conn,
+        app_conf.as_ref(),
+        *course_id,
+        payload.0,
+        user.id,
+        true,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(course))
 }
@@ -695,7 +679,7 @@ async fn add_media_for_course(
     let media_path = upload_file_from_cms(
         request.headers(),
         payload,
-        StoreKind::Course(course.id),
+        MediaOwner::Course(course.id),
         file_store.as_ref(),
         &mut conn,
         user,
@@ -1522,8 +1506,7 @@ pub async fn post_new_chapter_ordering(
     let course_id = course_id.into_inner();
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::pages::reorder_chapters(&mut conn, &payload, course_id).await?;
-    models::library::entity_history::record_course_structure(&mut conn, course_id, user.id).await?;
+    models::pages::reorder_chapters(&mut conn, &payload, course_id, user.id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -1670,8 +1653,6 @@ pub async fn update_modules(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
     models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner(), user.id)
-        .await?;
-    models::library::entity_history::record_course_structure(&mut conn, *course_id, user.id)
         .await?;
     token.authorized_ok(web::Json(()))
 }
@@ -2812,10 +2793,14 @@ async fn update_metadata(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let metadata_update = payload.0;
-    let course =
-        models::courses::set_metadata(&mut conn, app_conf.as_ref(), *course_id, metadata_update)
-            .await?;
-    models::course_settings_history::insert_current(&mut conn, *course_id, user.id, None).await?;
+    let course = models::courses::set_metadata(
+        &mut conn,
+        app_conf.as_ref(),
+        *course_id,
+        metadata_update,
+        user.id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(course))
 }

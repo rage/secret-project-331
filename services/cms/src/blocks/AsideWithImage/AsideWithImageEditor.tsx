@@ -1,11 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, RichText } from "@wordpress/block-editor"
+import { RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -14,7 +14,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
-> = ({ name, attributes: { title, content }, setAttributes }) => {
+> = ({ attributes: { title, content }, setAttributes }) => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -33,7 +33,7 @@ const AsideWithImageEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
           <div>
             <RichText
               className={css`

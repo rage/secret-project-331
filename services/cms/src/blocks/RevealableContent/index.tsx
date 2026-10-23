@@ -24,7 +24,6 @@ const RevealableContentConfiguration: BlockConfiguration<ConditionAttributes> = 
     "core/list",
     "moocfi/revealable-hidden-content",
   ],
-  innerBlocksArea: {},
   edit: RevealableContentEditor,
   save: RevealableContentSave,
 }

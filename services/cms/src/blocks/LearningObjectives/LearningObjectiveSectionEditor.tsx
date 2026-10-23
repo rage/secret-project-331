@@ -1,11 +1,10 @@
 "use client"
 
 import styled from "@emotion/styled"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -94,7 +93,7 @@ const Content = styled.div`
 
 const LearningObjectiveSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
-> = ({ name }) => {
+> = () => {
   const { t } = useTranslation()
   return (
     <BlockWrapper>
@@ -103,7 +102,7 @@ const LearningObjectiveSectionEditor: React.FC<
           <h2>{t("learning-objectives-editor-title")}</h2>
         </Header>
         <Content>
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
         </Content>
       </Wrapper>
     </BlockWrapper>

@@ -4,7 +4,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::{
-    agent_changesets::AgentAttribution,
+    entity_history::HistoryAuthor,
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
     peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
@@ -34,7 +34,6 @@ pub struct PageHistory {
     pub page_id: Uuid,
     /// The agent client the change was made through; `None` for the web UI.
     pub agent_client_name: Option<String>,
-    pub agent_changeset_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -57,9 +56,8 @@ pub async fn insert(
     title: &str,
     content: &PageHistoryContent,
     history_change_reason: HistoryChangeReason,
-    author_user_id: Uuid,
+    author: HistoryAuthor,
     restored_from_id: Option<Uuid>,
-    attribution: Option<&AgentAttribution>,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -71,10 +69,9 @@ INSERT INTO page_history (
     history_change_reason,
     author_user_id,
     restored_from_id,
-    agent_client_name,
-    agent_changeset_id
+    agent_call_id
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
         ",
         pkey_policy.into_uuid(),
@@ -82,10 +79,9 @@ RETURNING id
         title,
         serde_json::to_value(content)?,
         history_change_reason as HistoryChangeReason,
-        author_user_id,
+        author.user_id,
         restored_from_id,
-        attribution.map(|a| a.client_name.as_str()),
-        attribution.map(|a| a.changeset_id),
+        author.agent_call_id,
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -134,10 +130,21 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PageHis
     let res = sqlx::query_as!(
         PageHistory,
         r#"
-SELECT *
-FROM page_history
-WHERE id = $1
-  AND deleted_at IS NULL
+SELECT h.id AS "id!",
+  h.created_at AS "created_at!",
+  h.updated_at AS "updated_at!",
+  h.deleted_at,
+  h.title AS "title!",
+  h.content AS "content!",
+  h.history_change_reason AS "history_change_reason!: HistoryChangeReason",
+  h.restored_from_id,
+  h.author_user_id AS "author_user_id!",
+  h.page_id AS "page_id!",
+  c.client_name AS "agent_client_name?"
+FROM page_history h
+  LEFT JOIN agent_changeset_calls c ON c.id = h.agent_call_id
+WHERE h.id = $1
+  AND h.deleted_at IS NULL
         "#,
         id
     )
@@ -154,13 +161,24 @@ pub async fn history(
     let res = sqlx::query_as!(
         PageHistory,
         r#"
-SELECT *
-FROM page_history
-WHERE page_id = $1
-AND deleted_at IS NULL
-ORDER BY created_at DESC, id
-LIMIT $2
-OFFSET $3
+SELECT h.id AS "id!",
+  h.created_at AS "created_at!",
+  h.updated_at AS "updated_at!",
+  h.deleted_at,
+  h.title AS "title!",
+  h.content AS "content!",
+  h.history_change_reason AS "history_change_reason!: HistoryChangeReason",
+  h.restored_from_id,
+  h.author_user_id AS "author_user_id!",
+  h.page_id AS "page_id!",
+  c.client_name AS "agent_client_name?"
+FROM page_history h
+  LEFT JOIN agent_changeset_calls c ON c.id = h.agent_call_id
+WHERE h.page_id = $1
+  AND h.deleted_at IS NULL
+ORDER BY h.created_at DESC,
+  h.id
+LIMIT $2 OFFSET $3
 "#,
         page_id,
         pagination.limit(),

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  course_id,\n  review_instructions\nFROM peer_or_self_review_configs\nWHERE id = ANY($1)\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_configs",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_configs",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "review_instructions",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_configs",
+            "name": "review_instructions"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "d96c0d5f885828a711978bb5adea1a1ea37ed22c09d8a7adf2429baf610ac57b"
+}

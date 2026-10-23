@@ -15,9 +15,9 @@ import { Link, QueryResult } from "@/shared-module/components"
 function AgentChangesetReviewPage() {
   const params = useParams<{ id: string; changesetId: string }>()
   const { t } = useTranslation()
-  const reviewQuery = useQuery({
-    ...getAgentChangesetOptions({ path: { changeset_id: params.changesetId } }),
-  })
+  const reviewQuery = useQuery(
+    getAgentChangesetOptions({ path: { changeset_id: params.changesetId } }),
+  )
 
   return (
     <div

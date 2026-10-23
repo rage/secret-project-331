@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
+import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -10,7 +10,7 @@ import {
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
 import { Button } from "@/shared-module/components"
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -20,7 +20,7 @@ import BlockWrapper from "../BlockWrapper"
 
 const LandingPageHeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<LandingPageHeroSectionAttributes>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ attributes, setAttributes }) => {
   const { title } = attributes
   const { t } = useTranslation()
   return (
@@ -67,7 +67,7 @@ const LandingPageHeroSectionEditor: React.FC<
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={t("welcome-message-for-course")}
           />
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <RegisteredInnerBlocks />
           <div
             className={css`
               display: flex;

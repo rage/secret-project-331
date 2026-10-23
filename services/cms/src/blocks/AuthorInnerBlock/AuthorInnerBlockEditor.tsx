@@ -1,17 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import { registeredInnerBlocksProps } from "@/utils/Gutenberg/registeredInnerBlocksProps"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import BlockWrapper from "../BlockWrapper"
 
 const AuthorInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
-> = ({ name }) => {
+> = () => {
   return (
     <BlockWrapper>
       <div
@@ -21,7 +20,7 @@ const AuthorInnerBlockEditor: React.FC<
           }
         `}
       >
-        <InnerBlocks {...registeredInnerBlocksProps(name)} />
+        <RegisteredInnerBlocks />
       </div>
     </BlockWrapper>
   )

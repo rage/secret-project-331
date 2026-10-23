@@ -15,10 +15,11 @@ if (!("Module" in vm)) {
   )
 }
 
-// Any custom config you want to pass to Jest
-const customJestConfig = {
+/** Tests that run the built validator worker bundle, which takes a while to build. */
+const BUNDLE_TESTS = "/tests/blockValidator/(validateBlocks|blockSchemas)\\.test\\.ts$"
+
+const sharedJestConfig = {
   testEnvironment: "jsdom",
-  testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
   // A local production build copies package.json into .next/standalone.
   modulePathIgnorePatterns: ["<rootDir>/.next/"],
   moduleNameMapper: {
@@ -30,5 +31,20 @@ const customJestConfig = {
   extensionsToTreatAsEsm: [".ts", ".tsx"],
 }
 
-// createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async
-module.exports = createJestConfig(customJestConfig)
+// A project's global setup runs only when one of its tests does, so other runs skip the bundle build.
+module.exports = async () => ({
+  projects: await Promise.all([
+    createJestConfig({
+      ...sharedJestConfig,
+      displayName: "cms",
+      testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/", BUNDLE_TESTS],
+    })(),
+    createJestConfig({
+      ...sharedJestConfig,
+      displayName: "block-validator-bundle",
+      testRegex: BUNDLE_TESTS,
+      globalSetup: "<rootDir>/tests/blockValidator/globalSetup.mjs",
+      globalTeardown: "<rootDir>/tests/blockValidator/globalTeardown.mjs",
+    })(),
+  ]),
+})

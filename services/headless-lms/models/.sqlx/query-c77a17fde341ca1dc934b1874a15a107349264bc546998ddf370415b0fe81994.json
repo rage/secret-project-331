@@ -1,0 +1,105 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT entity_type,\n  entity_id,\n  base_snapshot IS NOT NULL AS \"has_base!\",\n  after_snapshot::text AS \"after_snapshot?\",\n  label,\n  risk_reasons AS \"risk_reasons: Json<Vec<RiskReason>>\",\n  revision\nFROM agent_changeset_entities\nWHERE changeset_id = $1\nORDER BY created_at,\n  id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "entity_type",
+        "type_info": {
+          "Custom": {
+            "name": "content_entity_type",
+            "kind": {
+              "Enum": [
+                "page",
+                "chapter",
+                "module",
+                "course_settings",
+                "glossary_term",
+                "reference",
+                "course_default_review_config"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "entity_type"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "entity_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "entity_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "has_base!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "after_snapshot?",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "label",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "risk_reasons: Json<Vec<RiskReason>>",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "risk_reasons"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "revision",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_entities",
+            "name": "revision"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c77a17fde341ca1dc934b1874a15a107349264bc546998ddf370415b0fe81994"
+}

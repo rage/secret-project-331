@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SET CONSTRAINTS unique_chapters_chapter_number_course_id_when_not_deleted,\n  course_modules_order_number_uniqueness,\n  pages_order_number_uniqueness,\n  unique_pages_url_path_course_id_when_not_deleted,\n  citation_key_uniqueness,\n  chapters_front_page_id_fkey DEFERRED",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "84d5405b3a856e545fa276914458bd2b8a098836b97048d8ec287c57806c71fa"
+}

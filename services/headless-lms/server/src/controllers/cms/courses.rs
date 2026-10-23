@@ -14,9 +14,7 @@ use models::{
 };
 
 use crate::prelude::models::course_modules::CourseModule;
-use models::research_forms::{
-    NewResearchForm, NewResearchFormQuestion, ResearchForm, ResearchFormQuestion,
-};
+use models::research_forms::{NewResearchForm, ResearchForm};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -27,7 +25,6 @@ use models::research_forms::{
     get_all_pages,
     upsert_course_research_form,
     get_research_form_with_course_id,
-    upsert_course_research_form_questions,
     get_course_modules,
     get_course_instances,
     post_partners_block,
@@ -240,7 +237,7 @@ async fn get_all_pages(
 }
 
 /**
-PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
+PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.
 */
 
 #[instrument(skip(pool, payload))]
@@ -266,14 +263,10 @@ async fn upsert_course_research_form(
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let new_research_form = NewResearchForm {
-        course_id: *course_id,
-        ..payload.into_inner()
-    };
-    let res = models::research_forms::upsert_research_form(
+    let res = models::research_forms::save_research_form(
         &mut conn,
-        PKeyPolicy::Generate,
-        &new_research_form,
+        *course_id,
+        payload.into_inner().content,
     )
     .await?;
 
@@ -307,49 +300,6 @@ async fn get_research_form_with_course_id(
     let res = models::research_forms::get_research_form_with_course_id(&mut conn, *course_id)
         .await
         .optional()?;
-
-    token.authorized_ok(web::Json(res))
-}
-
-/**
-PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
-*/
-
-#[instrument(skip(pool, payload))]
-#[utoipa::path(
-    put,
-    path = "/{course_id}/research-consent-form-questions",
-    operation_id = "upsertCmsCourseResearchFormQuestions",
-    tag = "cms_courses",
-    params(
-        ("course_id" = Uuid, Path, description = "Course id")
-    ),
-    request_body = Vec<NewResearchFormQuestion>,
-    responses(
-        (status = 200, description = "Research form questions", body = Vec<ResearchFormQuestion>)
-    )
-)]
-async fn upsert_course_research_form_questions(
-    payload: web::Json<Vec<NewResearchFormQuestion>>,
-    pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ResearchFormQuestion>>> {
-    let mut conn = pool.acquire().await?;
-
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-
-    let mut questions = payload.into_inner();
-    if !questions.is_empty() {
-        let research_form =
-            models::research_forms::get_research_form_with_course_id(&mut conn, *course_id).await?;
-        for question in &mut questions {
-            question.course_id = *course_id;
-            question.research_consent_form_id = research_form.id;
-        }
-    }
-
-    let res = models::research_forms::upsert_research_form_questions(&mut conn, &questions).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -571,10 +521,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::put().to(put_course_default_peer_or_self_review_configuration),
         )
         .route("/{course_id}/pages", web::get().to(get_all_pages))
-        .route(
-            "/{courseId}/research-consent-form-questions",
-            web::put().to(upsert_course_research_form_questions),
-        )
         .route(
             "/{course_id}/research-consent-form",
             web::get().to(get_research_form_with_course_id),

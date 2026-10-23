@@ -372,13 +372,6 @@ export type NewResearchForm = {
   course_id: string
 }
 
-export type NewResearchFormQuestion = {
-  course_id: string
-  question: string
-  question_id: string
-  research_consent_form_id: string
-}
-
 export type Page = {
   chapter_id?: string | null
   content: unknown
@@ -522,16 +515,6 @@ export type ResearchForm = {
   created_at: string
   deleted_at?: string | null
   id: string
-  updated_at: string
-}
-
-export type ResearchFormQuestion = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  question: string
-  research_consent_form_id: string
   updated_at: string
 }
 
@@ -939,28 +922,6 @@ export type UpsertCmsCourseResearchFormResponses = {
 
 export type UpsertCmsCourseResearchFormResponse =
   UpsertCmsCourseResearchFormResponses[keyof UpsertCmsCourseResearchFormResponses]
-
-export type UpsertCmsCourseResearchFormQuestionsData = {
-  body: Array<NewResearchFormQuestion>
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/cms/courses/{course_id}/research-consent-form-questions"
-}
-
-export type UpsertCmsCourseResearchFormQuestionsResponses = {
-  /**
-   * Research form questions
-   */
-  200: Array<ResearchFormQuestion>
-}
-
-export type UpsertCmsCourseResearchFormQuestionsResponse =
-  UpsertCmsCourseResearchFormQuestionsResponses[keyof UpsertCmsCourseResearchFormQuestionsResponses]
 
 export type UploadCmsCourseMediaData = {
   body: string

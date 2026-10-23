@@ -708,6 +708,22 @@ async fn the_route_takes_oauth_tokens_and_enforces_their_scopes() {
     .await;
     assert_eq!(read["result"]["isError"], json!(false), "{read}");
     assert!(read.to_string().contains(&fixture.page_id.to_string()));
+
+    let courses: Value = test::call_and_read_body_json(
+        &app,
+        rpc_request(
+            "tools/call",
+            json!({"name": "list_courses", "arguments": {}}),
+            Some(&read_only_token),
+        )
+        .to_request(),
+    )
+    .await;
+    assert_eq!(
+        courses["result"]["structuredContent"]["courses"][0]["id"],
+        json!(fixture.course_id),
+        "{courses}"
+    );
 }
 
 #[tokio::test]
@@ -752,6 +768,13 @@ async fn structure_settings_and_glossary_edits_publish_together() {
         )
         .await;
     assert_eq!(replaced["total"], json!(1), "{replaced}");
+    let wrapped = fixture
+        .call(
+            "structural_replace",
+            json!({"course": course, "match": {"name": "core/paragraph", "text_starts_with": "Halt"}, "action": {"wrap_in": "moocfi/infobox"}, "expected_count": 1}),
+        )
+        .await;
+    assert_eq!(wrapped["total"], json!(1), "{wrapped}");
 
     let published = fixture
         .call(
@@ -778,6 +801,7 @@ async fn structure_settings_and_glossary_edits_publish_together() {
         .await;
     let text = new_page_content.to_string();
     assert!(text.contains("Halt somewhere."), "{text}");
+    assert!(text.contains("moocfi/infobox"), "{text}");
     assert!(text.contains(&fixture.paragraph_id.to_string()), "{text}");
     let old_page = fixture
         .call(

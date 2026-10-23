@@ -9,7 +9,7 @@ export const colorMap: Record<string, string | undefined> = {
   white: "#FFFFFF",
   "pale-pink": "#F78DA7",
   "vivid-red": "#CF2E2E",
-  "luminous-vivid-orange": "#F78DA7",
+  "luminous-vivid-orange": "#FF6900",
   "luminous-vivid-amber": "#FCB900",
   "light-green-cyan": "#7BDCB5",
   "vivid-green-cyan": "#00D084",

@@ -30,6 +30,7 @@ const TerminologyBlockConfiguration: BlockConfiguration<TerminologyBlockAttribut
     },
     blockName: {
       type: "string",
+      source: "html",
       default: "Terminology",
     },
     primaryColor: {

@@ -15,7 +15,7 @@ import type { ExpandableContentConfigurationProps } from "."
 
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
-> = ({ name, attributes, setAttributes }) => {
+> = ({ name: blockName, attributes, setAttributes }) => {
   const { t } = useTranslation()
   const { control } = useAttributeForm({ name: attributes.name }, ({ name }) =>
     setAttributes({ name }),
@@ -107,7 +107,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks {...registeredInnerBlocksProps(name)} />
+          <InnerBlocks {...registeredInnerBlocksProps(blockName)} />
         </div>
       </div>
     </div>

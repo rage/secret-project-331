@@ -354,6 +354,7 @@
   "conversation-with": "Keskustelu botin {{ name }} kanssa",
   "copied": "Kopioitu!",
   "copied-course-is-a-language-version": "Kopioitu kurssi on kieliversio",
+  "copy-link-to-section": "Kopioi linkki osioon: {{heading}}",
   "copy-the-email-address": "Kopioi sähköpostiosoite",
   "copy-to-clipboard": "Kopioi leikepöydälle",
   "copying-failed": "Kopiointi epäonnistui!",

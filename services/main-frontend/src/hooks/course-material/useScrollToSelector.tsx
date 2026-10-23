@@ -4,6 +4,29 @@ import { useEffect } from "react"
 
 import { tryToScrollToSelector } from "@/utils/course-material/dom"
 
+/** Ids that are not plain ASCII reach us percent-encoded, but the element carries the decoded id. */
+function decodeHash(hash: string): string {
+  try {
+    return decodeURIComponent(hash)
+  } catch {
+    return hash
+  }
+}
+
+/**
+ * Tries the hash as written before decoding it, like the browser does, so an id containing "%"
+ * still matches.
+ */
+function scrollToHash(hash: string): Element | null {
+  // oxlint-disable-next-line unicorn/prefer-query-selector -- ids from a url fragment need no escaping with getElementById
+  const literalMatch = document.getElementById(hash)
+  if (literalMatch) {
+    literalMatch.scrollIntoView()
+    return literalMatch
+  }
+  return tryToScrollToSelector(decodeHash(hash))
+}
+
 /**
  * This hook will see if window.location contains an anchor.
  * If it does, it will try to scroll to the selector with timeouts.
@@ -16,14 +39,14 @@ import { tryToScrollToSelector } from "@/utils/course-material/dom"
 export default function useScrollToSelector(path: string): void {
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
-      const selector = window.location.hash.slice(1)
+      const hash = window.location.hash.slice(1)
       let elementToScrollTo: Element | null = null
       let lastOffsetRelativeToDocument = 0
       const setScrollTimeout = (timeout: number) => {
         setTimeout(() => {
           if (!elementToScrollTo) {
             // We try to scroll to element
-            elementToScrollTo = tryToScrollToSelector(selector)
+            elementToScrollTo = scrollToHash(hash)
             // If element exists, we get the offset relative to the document
             if (elementToScrollTo) {
               lastOffsetRelativeToDocument =

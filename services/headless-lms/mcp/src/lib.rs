@@ -6,6 +6,7 @@ pub mod ids;
 pub mod risk;
 pub mod text;
 pub mod tools;
+pub mod validator;
 
 #[cfg(test)]
 pub(crate) mod test_fixtures;

@@ -35,8 +35,7 @@ function AgentPreviewPage() {
   return (
     <>
       <NoIndexMeta noIndex />
-      <div
-        role="note"
+      <header
         data-testid="agent-preview-banner"
         className={css`
           background: ${baseTheme.colors.gray[700]};
@@ -46,16 +45,19 @@ function AgentPreviewPage() {
           text-align: center;
         `}
       >
-        <span
+        <h1
           className={css`
+            display: inline;
+            font-size: inherit;
             font-weight: ${fontWeights.semibold};
+            margin: 0;
           `}
         >
           {t("agent-preview-banner")}
-        </span>{" "}
+        </h1>{" "}
         {previewQuery.data &&
           t("agent-preview-banner-course", { course: previewQuery.data.course_name })}
-      </div>
+      </header>
       <main
         className={css`
           padding: 2rem 0 4rem;

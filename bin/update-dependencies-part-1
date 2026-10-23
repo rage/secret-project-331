@@ -230,6 +230,10 @@ def git_has_staged_changes_for_paths(cwd: Path, paths: list[str]) -> bool:
     return cp.returncode != 0
 
 
+def existing_paths(cwd: Path, paths: list[str]) -> list[str]:
+    return [path for path in paths if (cwd / path).exists()]
+
+
 def is_worktree_clean(repo_root: Path) -> bool:
     return not git_has_changes(repo_root)
 
@@ -1099,11 +1103,9 @@ class StepRunner(StepRunnerProtocol):
                 "The script will then commit your changes..."
             )
 
-        to_add = [
-            path
-            for path in ["package.json", "pnpm-lock.yaml"]
-            if (step.cwd / path).exists()
-        ]
+        to_add = existing_paths(
+            step.cwd, ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"]
+        )
         if to_add and git_has_changes_for_paths(step.cwd, to_add):
             self.command_runner.run(
                 ["git", "add", *to_add],
@@ -1165,16 +1167,18 @@ class StepRunner(StepRunnerProtocol):
             print(colorize(warning, BLUE, self.use_color))
         # Keep fix/install output live; the separate JSON pass is only for reports.
         self.capture_pnpm_audit_json(step, substep_id)
-        if git_has_changes_for_paths(step.cwd, ["pnpm-lock.yaml"]):
+        # The fix can add minimumReleaseAgeExclude entries to pnpm-workspace.yaml.
+        to_add = existing_paths(step.cwd, ["pnpm-lock.yaml", "pnpm-workspace.yaml"])
+        if to_add and git_has_changes_for_paths(step.cwd, to_add):
             self.command_runner.run(
-                ["git", "add", "pnpm-lock.yaml"],
+                ["git", "add", *to_add],
                 cwd=step.cwd,
                 step_id=step.id,
                 substep_id=substep_id,
             )
             commit = self.git_commit_paths(
                 cwd=step.cwd,
-                paths=["pnpm-lock.yaml"],
+                paths=to_add,
                 message=f"pnpm audit for {step.target_name}",
                 step_id=step.id,
                 substep_id=substep_id,

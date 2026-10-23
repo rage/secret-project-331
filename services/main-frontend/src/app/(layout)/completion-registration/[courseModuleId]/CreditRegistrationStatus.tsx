@@ -65,9 +65,9 @@ import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
 import {
   DescriptionList,
   Link,
-  DefaultBlockingError,
   QueryResults,
   RelativeTime,
+  ErrorNotice,
 } from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
@@ -329,10 +329,7 @@ const Tracker: React.FC<TrackerProps> = ({
             hasLinkedStudentNumber={numberQuery.data !== null}
           />
         ) : numberQuery.isError ? (
-          <DefaultBlockingError
-            error={numberQuery.error}
-            retry={() => void numberQuery.refetch()}
-          />
+          <ErrorNotice error={numberQuery.error} retry={() => void numberQuery.refetch()} />
         ) : null}
 
         {isWaitingForEnrolment(view) ? (

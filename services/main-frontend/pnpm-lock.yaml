@@ -227,8 +227,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.57.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@next/bundle-analyzer':
-        specifier: ^16.4.1
-        version: 16.4.1
+        specifier: ^16.4.2
+        version: 16.4.2
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -311,8 +311,8 @@ importers:
         specifier: ^9.3.1
         version: 9.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-virtual':
-        specifier: ^3.14.19
-        version: 3.14.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^3.14.20
+        version: 3.14.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tsparticles/engine':
         specifier: ^4.4.0
         version: 4.4.0
@@ -353,8 +353,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(supports-color@10.2.2)
       i18next:
-        specifier: ^26.4.5
-        version: 26.4.5(@typescript/typescript6@6.0.2)
+        specifier: ^26.4.7
+        version: 26.4.7(@typescript/typescript6@6.0.2)
       immer:
         specifier: ^11.1.21
         version: 11.1.21
@@ -377,11 +377,11 @@ importers:
         specifier: ^0.57.0
         version: 0.57.0
       motion:
-        specifier: ^14.2.0
-        version: 14.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^14.3.0
+        version: 14.3.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       next:
-        specifier: 16.4.1
-        version: 16.4.1(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@26.6.5)(babel-plugin-macros@3.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 16.4.2
+        version: 16.4.2(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@26.6.5)(babel-plugin-macros@3.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       papaparse:
         specifier: ^5.7.0
         version: 5.7.0
@@ -404,8 +404,8 @@ importers:
         specifier: ^2.6.1
         version: 2.6.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-i18next:
-        specifier: ^17.0.16
-        version: 17.0.16(@typescript/typescript6@6.0.2)(i18next@26.4.5(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1)
+        specifier: ^17.0.19
+        version: 17.0.19(@typescript/typescript6@6.0.2)(i18next@26.4.7(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1)
       react-is:
         specifier: ^19.3.1
         version: 19.3.1
@@ -507,8 +507,8 @@ importers:
         specifier: runtime:24.21.0
         version: runtime:24.21.0
       postcss-styled-syntax:
-        specifier: ^0.7.3
-        version: 0.7.3(postcss@8.5.29)
+        specifier: ^0.7.4
+        version: 0.7.4(postcss@8.5.29)
       stylelint:
         specifier: ^17.16.0
         version: 17.16.0(@typescript/typescript6@6.0.2)(supports-color@10.2.2)
@@ -1760,60 +1760,60 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
-  '@next/bundle-analyzer@16.4.1':
-    resolution: {integrity: sha512-d/Q9is3bTt9Qlf4yIPI1+0CqMJTPHKS6+XZeFVVL3QUAR3ppRhRbKU4Ce4AgFxOoA/oo3nSH8vqvJoezHSMJGA==}
+  '@next/bundle-analyzer@16.4.2':
+    resolution: {integrity: sha512-tpNTC/WZYsmmixg3MZfx5JUuTh+Sgryu4eKhe7leQRcXHabztqtTkPCQM1Bk1VsE0trZ3w7NUCC3Zf7SeIBVzg==}
 
-  '@next/env@16.4.1':
-    resolution: {integrity: sha512-5sUUrrSvs/2/2LnLoesybMGx12EtPB46fdZ6RhAw0XDGSPxU2LFyQBB7yuEiOFFJPKmBY6+q2jTr1/AMbnp0/g==}
+  '@next/env@16.4.2':
+    resolution: {integrity: sha512-nTUTFH7G5/J/fmpkjVLegOkqyKOP0CEsJcMsyO4UCYeN1su+YMW/MfaSErnJskL7XM+UDK6aTvslxsRCyya/sA==}
 
-  '@next/swc-darwin-arm64@16.4.1':
-    resolution: {integrity: sha512-U+hQ5Gj3fpzf4fveTIF3dpUFYhaSW8vHhdAnbiIomzXzg7boreYFgBqprepXFtW4sw+aTttiNmg0gew/iFNhbg==}
+  '@next/swc-darwin-arm64@16.4.2':
+    resolution: {integrity: sha512-ONkhFvZNFWlsEHOM/81AtxdyuJP2KRYKYR0JxPwvcu1AuPMMMgcL+wW2luldJvMtZwKtUxoSkCychW5wIeoYSw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
 
-  '@next/swc-darwin-x64@16.4.1':
-    resolution: {integrity: sha512-/hqC3V1XLUjhMASf/WridKdO9FXoEgN3HBWmtKbj00MPgnltutfraWJ3bYTpCRIgEIpbjJyOVLpYgAhh/BkdcQ==}
+  '@next/swc-darwin-x64@16.4.2':
+    resolution: {integrity: sha512-luPCMbOsCoaF+kXJEUjmjmOZg1lC3BflhmUu+ZmW4tBu2vW/4AXak8JBFvePizGkxVmNiAw/r9ra+6UviCWtWQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
 
-  '@next/swc-linux-arm64-gnu@16.4.1':
-    resolution: {integrity: sha512-GHzncHbcaS9g95kcvTNtKQW3aCLoR+xc3Jm7qrkpk1R+D2BjMHIPyvQGRPKCdMX95BsH/421jBUK06q9tEwzjw==}
+  '@next/swc-linux-arm64-gnu@16.4.2':
+    resolution: {integrity: sha512-xhwFTAncJyaCNy5KqKKuKaIIdCy1/1ZV1s5S1G0hhT7wGMkDTlfJ6aQbfRFnIG/s3/kDrxQ8aycVe+c5QnP8ow==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@next/swc-linux-arm64-musl@16.4.1':
-    resolution: {integrity: sha512-1SuJyDxW/PR9dHJat/ZRgcYLhuSZ+1psP4DlKb2tKIuXbjygqpLrJWRSq+onZQBv8LcmU67EIrmb6c3XTaJLjw==}
+  '@next/swc-linux-arm64-musl@16.4.2':
+    resolution: {integrity: sha512-T1PNmfbPcxr5ndtWUL/3wQtLXsz808lq6sc2GrNT5k2oquF7UyqZddHSuAewHVsWsGXe6nsl9HoN1YNriVjuSg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@next/swc-linux-x64-gnu@16.4.1':
-    resolution: {integrity: sha512-Istng1hMGp9TGO4lUqeKLd70MPN/OOkucVTP2Nmj+gLkwBgmPqUw8CJYBCC7nbl/B/23bBCcjCI5Hsh6hazC1A==}
+  '@next/swc-linux-x64-gnu@16.4.2':
+    resolution: {integrity: sha512-N9cDUOCGtkJG5PNKDFZUF3xXndrJJcpLp121uAGjIGvO/U2p9tfdNOM9htj7+5f72l0m8rMw/cvYacUJBQoudg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@next/swc-linux-x64-musl@16.4.1':
-    resolution: {integrity: sha512-aSC9wMNiZRRFVpPkPWBzRwLQxIGm/CiQcXyFF1XNcgodb+uMxdk7aSSGGpDXCbnvZdf4itjHxpOd5h7i7zaiYw==}
+  '@next/swc-linux-x64-musl@16.4.2':
+    resolution: {integrity: sha512-yY2uh1YhX6ufuYy2FCbw1dqblbhI57GLYAJfCkqD9auTv6pLrH67Uccjc3QMKBeCYAG6lkgu08ExmX1bbjejjQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@next/swc-win32-arm64-msvc@16.4.1':
-    resolution: {integrity: sha512-t/myvwFDlypMUjRvbBf8qLPyuaB0iXYYdBtwMt6DM6f+60wtGr4bSYholdPqNeV5VUXZhrpMwfza829kmhS3iA==}
+  '@next/swc-win32-arm64-msvc@16.4.2':
+    resolution: {integrity: sha512-j/ArWRIHpMMB6wYLMhr2puTguBt70lNU/Cmjl9p6dTDE8DGknYJMP9PdwPk2dqpCNL/KIX9yfngDvIesxJPmsg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [win32]
 
-  '@next/swc-win32-x64-msvc@16.4.1':
-    resolution: {integrity: sha512-6ICqPo9awCkrtYNPhwkx1uU7rlFWrZRrIboDHS2LU+jv088UBYQtmJ25h6pCp27/+FZjF6BQ4Te4ErugyMeuBg==}
+  '@next/swc-win32-x64-msvc@16.4.2':
+    resolution: {integrity: sha512-AA4edyWHDko3NCSo0x6GomsdgFb0oR1J3MXU1b5xt6FRFg4AucrMPW3S0hCe/9onU0O1BbpGQBsqo1r0Gneu1g==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -2288,8 +2288,8 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@tanstack/react-virtual@3.14.19':
-    resolution: {integrity: sha512-zmVdJO8DDqHphZ2H6SnTmgpVXcUy5DprB+clZF0ik679/d0MQ1UPEb2jtaX6F5VTAX4o3ozSLQaRCnybS2KYLA==}
+  '@tanstack/react-virtual@3.14.20':
+    resolution: {integrity: sha512-9hbhFlc0lznjXmWYDB/KEl7PJxEPz0Qnj2FzJFse98miGvXtx7jzjE5jlasmtczmZ6TxXsyI4v7PuyGQm2q1nQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -2301,8 +2301,8 @@ packages:
     resolution: {integrity: sha512-zQvlxSNi2qGM3L4jh85Z6hqMfdIR5qOfD9KHOU32nuKFJGN0RlJ7UvV1lsPb1fPVhpFYI0VP3jJGxLdLDpTKjQ==}
     engines: {node: '>=20'}
 
-  '@tanstack/virtual-core@3.19.4':
-    resolution: {integrity: sha512-ygZ3O99Il18dl0gG0q7sH78iSkb96F07G+xK9V83eCgV8NQbcNd7R+cgcJJMFO7llBoebd0A82sCCstQq2Vp6Q==}
+  '@tanstack/virtual-core@3.19.5':
+    resolution: {integrity: sha512-X/wq6DtSK/XClznMM+I4JE63yyIwmyPk4Ts83bD0VKaIbwHNdRsO5QipCPX+3OovqYyr0puQNpbmp8+SPhspNg==}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -3803,8 +3803,8 @@ packages:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
 
-  framer-motion@14.2.0:
-    resolution: {integrity: sha512-cD2gfFujHt4r/+dZpcn5yziu7VRwQAQDakwIm/bICYXbafnpHCYokV+PnEXqErnSdv6Eh28a+SRF+f3ndGcMsQ==}
+  framer-motion@14.3.0:
+    resolution: {integrity: sha512-d8WCrU0ZQn7ukKMykCsDyIOwb/taZeDqqrDBK0du5GO0AO/ynz8fdR/LIIz9Pyy3n3tGwrneR+n0egyrrLa3fw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -4002,8 +4002,8 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
 
-  i18next@26.4.5:
-    resolution: {integrity: sha512-CY9xqbWNQ+eLGDhFX3eNl1kDO1amJixszVKjC4Nd0tvfxUFLKqarN0VUHRt+2b88U7bkNIhnL84dRKQ5mFI+fg==}
+  i18next@26.4.7:
+    resolution: {integrity: sha512-p/3hqy6EcuqRs6wNwBYwGGC1fzBJSMxV9zMuN814ab/7QjdZbXfjXwuPZdQbngX6KDOTxM01uUiZyqmMB8ghZg==}
     peerDependencies:
       typescript: ^5 || ^6 || ^7
     peerDependenciesMeta:
@@ -4646,14 +4646,14 @@ packages:
   moo@0.5.3:
     resolution: {integrity: sha512-m2fmM2dDm7GZQsY7KK2cme8agi+AAljILjQnof7p1ZMDe6dQ4bdnSMx0cPppudoeNv5hEFQirN6u+O4fDE0IWA==}
 
-  motion-dom@14.2.0:
-    resolution: {integrity: sha512-TDdxnjAavh2Qm4lQCQI3uoTx9IR/Id2PI8JNEXW3AcwwV2yvhoimAX3/TnE+x82gDHfPq2yx/cJ58TTw5mMr0A==}
+  motion-dom@14.3.0:
+    resolution: {integrity: sha512-rcKO4aEJzAqDEsrH6qFzhLZxs7bNqZpiUEuEATz9LaRwt6dG7hZEbcFUSHNR8NECaKYM0Iuw6Iv6NpWEGXDI+w==}
 
   motion-utils@14.1.1:
     resolution: {integrity: sha512-3VvN5Uvf8B6qG+OfOui6Nht5EWp+vLuU3IqcAj7ItZGKqtmTjCebl5sGZF7/08gEHRnEl1AP/fIwbcEyVrcQGQ==}
 
-  motion@14.2.0:
-    resolution: {integrity: sha512-45cDwjZh0yOMZtnX3hIFPIPmzCWz/RC2bD/niWVIssGBjJlMmosbDILG9a+ZyoP635Z5xrbKvuo10spv9dBdnw==}
+  motion@14.3.0:
+    resolution: {integrity: sha512-yh/nHYjikl68+FTxAMywFYzzj21/oGY7RGCfkqN5zpuT1rk3rp0lKfVU8EUq0A64qQeGnxuKUJWP85MipqdLBw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -4693,8 +4693,8 @@ packages:
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
-  next@16.4.1:
-    resolution: {integrity: sha512-uc657V62E34fOI6W5NtG9IzwsPcms0Z60grz2MJGtglgD+pTFnNt4Yw2PzaU622tfX4vhrDgLZzicE2YlhI20Q==}
+  next@16.4.2:
+    resolution: {integrity: sha512-r+oBJojfefUjOiWkBhXgLS+igxX/7BWyK59uHnyOyplMSLtBZ+QLP3okrdYTbrfrbrmNTVWLBPaHDX9KRaIt3w==}
     engines: {node: '>=20.9.0'}
     hasBin: true
     peerDependencies:
@@ -5005,8 +5005,8 @@ packages:
     resolution: {integrity: sha512-7qASPzhKF2l2KLboRZux8CCTRMdGiV08vWmyKzPz22qZ7ZjQBOeY7rNzNoCLSUiftJ7HUq0GERHmxw/t0dCdMw==}
     engines: {node: '>=4'}
 
-  postcss-styled-syntax@0.7.3:
-    resolution: {integrity: sha512-F6PSmNJKnOk1E5BWNqp6lEg3qlVYexKPf9C5eoBflPxNyS29goTATFVU7vUi0WWMmpAK+Pf2yHuUdjKXL2bOTg==}
+  postcss-styled-syntax@0.7.4:
+    resolution: {integrity: sha512-wRRWfMTQEFtFv94NpfOAx/GLM7vfHRsgHQIEhBlBw3C7XXuFG6ASTGbR8VdINoF84uBx4lxHdWRUQ+VDi5jNpA==}
     engines: {node: '>=14.17'}
     peerDependencies:
       postcss: ^8.5.1
@@ -5136,8 +5136,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  react-i18next@17.0.16:
-    resolution: {integrity: sha512-7uImVD9hG5yUOaP5KHVied1x0A004Di/KU031ULR35Ma+9e9H5GdnNZHgQEIByyAz+IAXBkRDTedNVzjPUH8ZA==}
+  react-i18next@17.0.19:
+    resolution: {integrity: sha512-BRHqiqOfW4J/LBVtbBFHoBoZm/Ez2/tkHPitYtn0CSpkYhEaEAsZMPsg7hZlomu30UJYQ6ZKiP3pwa3QnxGvQw==}
     peerDependencies:
       i18next: '>= 26.2.0'
       react: '>= 16.8.0'
@@ -7608,37 +7608,37 @@ snapshots:
       '@tybys/wasm-util': 0.10.2
     optional: true
 
-  '@next/bundle-analyzer@16.4.1':
+  '@next/bundle-analyzer@16.4.2':
     dependencies:
       webpack-bundle-analyzer: 4.10.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@next/env@16.4.1': {}
+  '@next/env@16.4.2': {}
 
-  '@next/swc-darwin-arm64@16.4.1':
+  '@next/swc-darwin-arm64@16.4.2':
     optional: true
 
-  '@next/swc-darwin-x64@16.4.1':
+  '@next/swc-darwin-x64@16.4.2':
     optional: true
 
-  '@next/swc-linux-arm64-gnu@16.4.1':
+  '@next/swc-linux-arm64-gnu@16.4.2':
     optional: true
 
-  '@next/swc-linux-arm64-musl@16.4.1':
+  '@next/swc-linux-arm64-musl@16.4.2':
     optional: true
 
-  '@next/swc-linux-x64-gnu@16.4.1':
+  '@next/swc-linux-x64-gnu@16.4.2':
     optional: true
 
-  '@next/swc-linux-x64-musl@16.4.1':
+  '@next/swc-linux-x64-musl@16.4.2':
     optional: true
 
-  '@next/swc-win32-arm64-msvc@16.4.1':
+  '@next/swc-win32-arm64-msvc@16.4.2':
     optional: true
 
-  '@next/swc-win32-x64-msvc@16.4.1':
+  '@next/swc-win32-x64-msvc@16.4.2':
     optional: true
 
   '@nodelib/fs.scandir@2.1.5':
@@ -8150,9 +8150,9 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  '@tanstack/react-virtual@3.14.19(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-virtual@3.14.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@tanstack/virtual-core': 3.19.4
+      '@tanstack/virtual-core': 3.19.5
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
@@ -8162,7 +8162,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.2
 
-  '@tanstack/virtual-core@3.19.4': {}
+  '@tanstack/virtual-core@3.19.5': {}
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -9635,9 +9635,9 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  framer-motion@14.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  framer-motion@14.3.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
-      motion-dom: 14.2.0
+      motion-dom: 14.3.0
       motion-utils: 14.1.1
       tslib: 2.8.1
     optionalDependencies:
@@ -9851,7 +9851,7 @@ snapshots:
 
   human-signals@2.1.0: {}
 
-  i18next@26.4.5(@typescript/typescript6@6.0.2):
+  i18next@26.4.7(@typescript/typescript6@6.0.2):
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
 
@@ -10816,15 +10816,15 @@ snapshots:
 
   moo@0.5.3: {}
 
-  motion-dom@14.2.0:
+  motion-dom@14.3.0:
     dependencies:
       motion-utils: 14.1.1
 
   motion-utils@14.1.1: {}
 
-  motion@14.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  motion@14.3.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
-      framer-motion: 14.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      framer-motion: 14.3.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.3.1
@@ -10847,9 +10847,9 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@16.4.1(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@26.6.5)(babel-plugin-macros@3.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  next@16.4.2(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@26.6.5)(babel-plugin-macros@3.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
-      '@next/env': 16.4.1
+      '@next/env': 16.4.2
       '@swc/helpers': 0.5.23
       baseline-browser-mapping: 2.11.27
       caniuse-lite: 1.0.30001815
@@ -10858,14 +10858,14 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       styled-jsx: 5.1.6(@babel/core@7.29.7(supports-color@10.2.2))(babel-plugin-macros@3.1.0)(react@19.3.1)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 16.4.1
-      '@next/swc-darwin-x64': 16.4.1
-      '@next/swc-linux-arm64-gnu': 16.4.1
-      '@next/swc-linux-arm64-musl': 16.4.1
-      '@next/swc-linux-x64-gnu': 16.4.1
-      '@next/swc-linux-x64-musl': 16.4.1
-      '@next/swc-win32-arm64-msvc': 16.4.1
-      '@next/swc-win32-x64-msvc': 16.4.1
+      '@next/swc-darwin-arm64': 16.4.2
+      '@next/swc-darwin-x64': 16.4.2
+      '@next/swc-linux-arm64-gnu': 16.4.2
+      '@next/swc-linux-arm64-musl': 16.4.2
+      '@next/swc-linux-x64-gnu': 16.4.2
+      '@next/swc-linux-x64-musl': 16.4.2
+      '@next/swc-win32-arm64-msvc': 16.4.2
+      '@next/swc-win32-x64-msvc': 16.4.2
       sharp: 0.35.5(@types/node@26.6.5)
     transitivePeerDependencies:
       - '@babel/core'
@@ -11022,7 +11022,7 @@ snapshots:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
 
-  postcss-styled-syntax@0.7.3(postcss@8.5.29):
+  postcss-styled-syntax@0.7.4(postcss@8.5.29):
     dependencies:
       postcss: 8.5.29
       typescript: 6.0.3
@@ -11197,11 +11197,11 @@ snapshots:
       '@types/react': 19.3.0
       '@types/react-dom': 19.3.0(@types/react@19.3.0)
 
-  react-i18next@17.0.16(@typescript/typescript6@6.0.2)(i18next@26.4.5(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1):
+  react-i18next@17.0.19(@typescript/typescript6@6.0.2)(i18next@26.4.7(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
       html-parse-stringify: 4.0.1
-      i18next: 26.4.5(@typescript/typescript6@6.0.2)
+      i18next: 26.4.7(@typescript/typescript6@6.0.2)
       react: 19.3.1
       use-sync-external-store: 1.6.0(react@19.3.1)
     optionalDependencies:
@@ -12425,7 +12425,7 @@ time:
   '@internationalized/date@3.12.4': '2026-09-01T14:27:23.965Z'
   '@json2csv/plainjs@7.0.8': '2026-08-06T07:19:15.059Z'
   '@monaco-editor/react@4.7.0': '2025-02-13T16:13:41.390Z'
-  '@next/bundle-analyzer@16.4.1': '2026-10-14T17:30:09.796Z'
+  '@next/bundle-analyzer@16.4.2': '2026-10-15T20:43:07.579Z'
   '@popperjs/core@2.11.8': '2023-05-26T17:27:25.366Z'
   '@react-aria/dialog@3.6.1': '2026-05-28T17:28:39.778Z'
   '@react-aria/focus@3.22.1': '2026-05-28T17:28:40.839Z'
@@ -12454,7 +12454,7 @@ time:
   '@svgr/webpack@8.1.0': '2023-08-15T06:46:24.158Z'
   '@tanstack/react-query@5.104.3': '2026-10-15T07:53:35.788Z'
   '@tanstack/react-table@9.3.1': '2026-10-12T16:50:44.806Z'
-  '@tanstack/react-virtual@3.14.19': '2026-10-13T18:25:23.539Z'
+  '@tanstack/react-virtual@3.14.20': '2026-10-15T13:54:14.594Z'
   '@testing-library/jest-dom@7.0.1': '2026-08-09T23:44:33.598Z'
   '@testing-library/react@16.3.3': '2026-08-27T17:41:18.735Z'
   '@tsparticles/engine@4.4.0': '2026-08-31T00:24:30.157Z'
@@ -12480,7 +12480,7 @@ time:
   express@5.3.0: '2026-10-09T12:56:54.505Z'
   highlight.js@11.12.0: '2026-08-12T04:06:58.019Z'
   http-proxy-middleware@4.2.0: '2026-07-04T21:49:09.221Z'
-  i18next@26.4.5: '2026-10-14T14:28:21.868Z'
+  i18next@26.4.7: '2026-10-16T06:24:36.405Z'
   immer@11.1.21: '2026-10-02T18:30:41.965Z'
   jest-axe@11.0.0: '2026-07-26T19:08:15.954Z'
   jest-environment-jsdom@30.5.2: '2026-09-18T13:56:40.727Z'
@@ -12491,16 +12491,16 @@ time:
   katex@0.19.0: '2026-10-01T16:54:54.994Z'
   lodash@4.18.1: '2026-04-01T21:01:20.458Z'
   monaco-editor@0.57.0: '2026-09-24T21:33:55.189Z'
-  motion@14.2.0: '2026-10-13T11:31:57.230Z'
-  next@16.4.1: '2026-10-14T17:43:55.246Z'
+  motion@14.3.0: '2026-10-15T14:27:25.734Z'
+  next@16.4.2: '2026-10-15T20:57:24.007Z'
   papaparse@5.7.0: '2026-08-24T14:28:22.981Z'
-  postcss-styled-syntax@0.7.3: '2026-09-27T10:55:05.845Z'
+  postcss-styled-syntax@0.7.4: '2026-10-15T18:16:34.419Z'
   react-aria-components@1.22.1: '2026-10-09T20:23:49.939Z'
   react-aria@3.53.1: '2026-10-09T20:26:19.910Z'
   react-dom@19.3.1: '2026-10-14T16:49:10.081Z'
   react-hook-form@7.90.0: '2026-10-11T12:13:46.090Z'
   react-hot-toast@2.6.1: '2026-09-16T12:45:49.652Z'
-  react-i18next@17.0.16: '2026-10-06T12:19:42.259Z'
+  react-i18next@17.0.19: '2026-10-16T06:26:13.966Z'
   react-is@19.3.1: '2026-10-14T16:47:50.866Z'
   react-medium-image-zoom@5.4.9: '2026-08-12T01:13:19.594Z'
   react-popper@2.3.0: '2022-04-28T10:21:57.798Z'

@@ -1,8 +1,10 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useTooltipTriggerState } from "@react-stately/tooltip"
 import { CheckCircle, Link, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { mergeProps, useTooltip, useTooltipTrigger } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { copyTextToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
@@ -70,7 +72,6 @@ const linkStyles = css`
 `
 
 const tooltipStyles = css`
-  display: none;
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
@@ -83,10 +84,6 @@ const tooltipStyles = css`
   font-weight: 400;
   white-space: nowrap;
   pointer-events: none;
-
-  &[data-show="true"] {
-    display: block;
-  }
 `
 
 interface HeadingAnchorLinkProps {
@@ -105,6 +102,7 @@ interface HeadingAnchorLinkProps {
 const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, headingText }) => {
   const { t } = useTranslation()
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(COPY_STATUS.DEFAULT)
+  const linkRef = useRef<HTMLAnchorElement>(null)
 
   useEffect(() => {
     if (copyStatus === COPY_STATUS.DEFAULT) {
@@ -136,12 +134,22 @@ const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, heading
         ? t("copying-failed")
         : ""
 
+  // Controlled so the tooltip shows only the copy feedback, not on hover or focus.
+  const tooltipState = useTooltipTriggerState({ isOpen: statusMessage !== "" })
+  const { triggerProps, tooltipProps: triggerTooltipProps } = useTooltipTrigger(
+    {},
+    tooltipState,
+    linkRef,
+  )
+  const { tooltipProps } = useTooltip({}, tooltipState)
+
   return (
     <>
       <span className={slotStyles}>
         <a
+          {...mergeProps(triggerProps, { onClick: handleClick })}
+          ref={linkRef}
           href={`#${anchorId}`}
-          onClick={handleClick}
           className={cx(HEADING_ANCHOR_LINK_CLASS, linkStyles)}
           data-status={copyStatus}
           aria-label={t("copy-link-to-section", { heading: headingText })}
@@ -153,9 +161,11 @@ const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, heading
           ) : (
             <Link size={ICON_SIZE_PX} />
           )}
-          <span className={tooltipStyles} data-show={statusMessage !== ""} aria-hidden="true">
-            {statusMessage}
-          </span>
+          {tooltipState.isOpen && (
+            <span {...mergeProps(triggerTooltipProps, tooltipProps)} className={tooltipStyles}>
+              {statusMessage}
+            </span>
+          )}
         </a>
       </span>
       {/* Rendered even while empty: a live region has to be in the accessibility tree before its

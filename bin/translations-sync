@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Syncs non-English i18next locale files with English using the Azure API: translates missing keys, optionally retranslates (--force) or prunes (--prune).
+# Syncs non-English i18next locale files with English using the Azure API: translates missing keys, optionally retranslates (--force), prunes (--prune) or removes unused keys (--remove-unused).
 
 import argparse
 import http.client
@@ -10,14 +10,22 @@ import re
 import sys
 import time
 from collections import Counter
-from typing import Any, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Dict, List, NamedTuple, Optional, Set, Tuple
 from urllib.parse import urlparse
 
-LOCALES_DIR = os.path.abspath(
-    os.path.join(
-        __file__, "..", "..", "shared-module", "packages", "common", "src", "locales"
-    )
+REPO_ROOT = os.path.abspath(os.path.join(__file__, "..", ".."))
+LOCALES_DIR = os.path.join(
+    REPO_ROOT, "shared-module", "packages", "common", "src", "locales"
 )
+
+SOURCE_DIRS = ("services", "shared-module", "system-tests")
+SOURCE_EXTENSIONS = (".ts", ".tsx", ".js", ".jsx", ".mjs")
+SOURCE_SKIPPED_DIRS = {"node_modules", ".next", "generated", "target", ".git", "locales", "dist", "storybook-static"}
+STRING_LITERAL_RE = re.compile(r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|`((?:[^`\\]|\\.)*)`')
+PLURAL_SUFFIX_RE = re.compile(r"(_ordinal)?_(zero|one|two|few|many|other)$")
+
+# Keys are assembled from backend error codes and ISO country codes, so no literal appears in the source.
+UNUSED_CHECK_EXEMPT_FILES = {"errors.json", "countries.json"}
 
 # Azure structured outputs allow at most 100 object properties per schema, intermediate objects included.
 MAX_SCHEMA_PROPERTIES = 100
@@ -220,6 +228,41 @@ def remove_leaf(data: Dict[str, Any], path: Path) -> None:
         del parent[key]
 
 
+def scan_source_strings() -> Tuple[Set[str], Set[str]]:
+    """String literals in the frontend sources, and the literal prefixes of template strings."""
+    literals: Set[str] = set()
+    template_prefixes: Set[str] = set()
+    for source_dir in SOURCE_DIRS:
+        for directory, subdirs, filenames in os.walk(os.path.join(REPO_ROOT, source_dir)):
+            subdirs[:] = [d for d in subdirs if d not in SOURCE_SKIPPED_DIRS]
+            for filename in filenames:
+                if not filename.endswith(SOURCE_EXTENSIONS):
+                    continue
+                with open(os.path.join(directory, filename), encoding="utf-8", errors="ignore") as file:
+                    for double, single, template in STRING_LITERAL_RE.findall(file.read()):
+                        literals.add(double or single or template)
+                        if "${" in template and template.split("${")[0]:
+                            template_prefixes.add(template.split("${")[0])
+    literals.discard("")
+    return literals, template_prefixes
+
+
+def find_unused(
+    english_leaves: Dict[Path, str], literals: Set[str], template_prefixes: Set[str]
+) -> Set[Path]:
+    """Keys whose name never appears as a string literal; deliberately conservative, namespaces are ignored."""
+    unused = set()
+    for path in english_leaves:
+        base_key = PLURAL_SUFFIX_RE.sub("", path[-1])
+        names = {".".join(path), path[-1], ".".join(path[:-1] + (base_key,)), base_key}
+        if names & literals:
+            continue
+        if any(name.startswith(prefix) for name in names for prefix in template_prefixes):
+            continue
+        unused.add(path)
+    return unused
+
+
 def expected_entries(
     english_leaves: Dict[Path, str], plural_categories: Tuple[str, ...]
 ) -> Dict[Path, Entry]:
@@ -327,10 +370,11 @@ def sync_file(
     filename: str,
     english_path: str,
     target_path: str,
+    unused: Set[Path],
 ) -> bool:
     """Sync one locale file; returns False if any batch failed."""
     entries = expected_entries(
-        flatten(load_json_file(english_path)),
+        {path: text for path, text in flatten(load_json_file(english_path)).items() if path not in unused},
         PLURAL_CATEGORIES.get(language_slug, DEFAULT_PLURAL_CATEGORIES),
     )
     target = load_json_file(target_path) if os.path.exists(target_path) else {}
@@ -402,8 +446,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=100, help="Keys per API request.")
     parser.add_argument("--force", action="store_true", help="Retranslate keys that already exist.")
     parser.add_argument("--prune", action="store_true", help="Remove keys that no longer exist in English.")
+    parser.add_argument(
+        "--remove-unused",
+        action="store_true",
+        help="Remove keys never referenced as a string literal in the sources, from English too. Implies --prune.",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Report what would change without calling the API or writing.")
     args = parser.parse_args()
+    args.prune |= args.remove_unused
     if args.name and (not args.languages or len(args.languages) != 1):
         parser.error("--name requires exactly one language in --languages")
     if args.batch_size < 1:
@@ -434,6 +484,25 @@ def main() -> bool:
 
     config = None if args.dry_run else get_azure_config()
 
+    unused_by_file: Dict[str, Set[Path]] = {filename: set() for filename in filenames}
+    if args.remove_unused:
+        literals, template_prefixes = scan_source_strings()
+        for filename in filenames:
+            if filename in UNUSED_CHECK_EXEMPT_FILES:
+                continue
+            english_path = os.path.join(english_dir, filename)
+            english = load_json_file(english_path)
+            unused = find_unused(flatten(english), literals, template_prefixes)
+            unused_by_file[filename] = unused
+            logging.info(f"'en/{filename}': {len(unused)} unused keys")
+            if args.dry_run:
+                for path in sorted(unused):
+                    logging.info(f"  {'.'.join(path)}")
+            elif unused:
+                for path in unused:
+                    remove_leaf(english, path)
+                save_json_file(english, english_path)
+
     is_ok = True
     for slug in slugs:
         language = args.name or LANGUAGE_NAMES.get(slug)
@@ -455,6 +524,7 @@ def main() -> bool:
                 filename,
                 os.path.join(english_dir, filename),
                 os.path.join(target_dir, filename),
+                unused_by_file[filename],
             )
 
     if not is_ok:

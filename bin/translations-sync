@@ -46,7 +46,7 @@ PLACEHOLDER_RE = re.compile(r"\{\{[^}]*\}\}|</?\d+>|\$t\([^)]*\)")
 
 SYSTEM_PROMPT = (
     "Translate the given i18next translation JSON from English to {language}. "
-    "Return only a valid JSON object with exactly the same keys and nesting, and no code fences. "
+    "Return only a valid JSON object with exactly the same keys and nesting. "
     "Keep {{{{...}}}} interpolations, <0>-style tags and $t(...) references unchanged. "
     "Keys ending in _zero, _one, _two, _few, _many or _other are plural forms: write the grammatically "
     "correct form of that category in {language}; the English value is only a reference "
@@ -115,7 +115,8 @@ def fetch_completion(config: AzureConfig, system_prompt: str, user_message: str)
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
-            ]
+            ],
+            "response_format": {"type": "json_object"},
         },
         ensure_ascii=False,
     ).encode("utf-8")
@@ -147,10 +148,6 @@ def fetch_completion(config: AzureConfig, system_prompt: str, user_message: str)
         time.sleep(delay)
 
     raise AssertionError("unreachable")
-
-
-def strip_code_fence(text: str) -> str:
-    return re.sub(r"^```[a-zA-Z]*\s*|\s*```$", "", text.strip())
 
 
 def flatten(data: Dict[str, Any], prefix: Path = ()) -> Dict[Path, Any]:
@@ -268,9 +265,7 @@ def translate_batch(
     )
     for attempt in range(1, BATCH_MAX_ATTEMPTS + 1):
         try:
-            reply = json.loads(
-                strip_code_fence(fetch_completion(config, system_prompt, user_message))
-            )
+            reply = json.loads(fetch_completion(config, system_prompt, user_message))
             if not isinstance(reply, dict):
                 raise ValueError("reply is not a JSON object")
             translated = flatten(reply)

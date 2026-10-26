@@ -455,7 +455,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
           </dl>
         </div>
       ) : null}
-      {retry ? (
+      {retry && (
         <Button
           className={css`
             justify-self: start;
@@ -467,7 +467,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
         >
           {t("errorNotice.retry")}
         </Button>
-      ) : null}
+      )}
 
       <div className={actionsCss}>
         <CopyButton value={report} label={t("errorNotice.copyReport")}>

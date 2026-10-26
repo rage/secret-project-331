@@ -77,7 +77,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         id="topbar-user-menu"
-        ariaLabel="Open account menu"
+        ariaLabel={`${displayName}. Open account menu`}
         tooltipText="Account menu"
       >
         <div

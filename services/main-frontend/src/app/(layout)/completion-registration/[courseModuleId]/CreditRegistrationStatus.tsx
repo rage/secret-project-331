@@ -31,10 +31,6 @@ import type {
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import { profileStudiesRoute } from "@/shared-module/common/utils/routes"
-import {
-  Link,
-  QueryResults,
-} from "@/shared-module/components"
 import { Link, QueryResults } from "@/shared-module/components"
 export interface CreditRegistrationStatusProps {
   courseModuleId: string

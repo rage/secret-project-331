@@ -1,0 +1,450 @@
+#!/usr/bin/env python3
+# Syncs non-English i18next locale files with English using the Azure API: translates missing keys, optionally retranslates (--force) or prunes (--prune).
+
+import argparse
+import http.client
+import json
+import logging
+import os
+import re
+import sys
+import time
+from collections import Counter
+from typing import Any, Dict, List, NamedTuple, Optional, Tuple
+from urllib.parse import urlparse
+
+LOCALES_DIR = os.path.abspath(
+    os.path.join(
+        __file__, "..", "..", "shared-module", "packages", "common", "src", "locales"
+    )
+)
+
+API_VERSION = "2024-06-01"
+API_MAX_ATTEMPTS = 4
+BATCH_MAX_ATTEMPTS = 2
+
+LANGUAGE_NAMES = {
+    "ar": "Arabic",
+    "fi": "Finnish",
+    "no": "Norwegian (Bokmål)",
+    "sv": "Swedish",
+    "uk": "Ukrainian",
+}
+
+# CLDR cardinal plural categories, matching the i18next suffixes (`key_one`, `key_few`, ...).
+PLURAL_CATEGORIES = {
+    "ar": ("zero", "one", "two", "few", "many", "other"),
+    "fi": ("one", "other"),
+    "no": ("one", "other"),
+    "sv": ("one", "other"),
+    "uk": ("one", "few", "many", "other"),
+}
+DEFAULT_PLURAL_CATEGORIES = ("one", "other")
+
+# Interpolations, <0>-style tags and nested `$t(...)` references must survive translation.
+PLACEHOLDER_RE = re.compile(r"\{\{[^}]*\}\}|</?\d+>|\$t\([^)]*\)")
+
+SYSTEM_PROMPT = (
+    "Translate the given i18next translation JSON from English to {language}. "
+    "Return only a valid JSON object with exactly the same keys and nesting, and no code fences. "
+    "Keep {{{{...}}}} interpolations, <0>-style tags and $t(...) references unchanged. "
+    "Keys ending in _zero, _one, _two, _few, _many or _other are plural forms: write the grammatically "
+    "correct form of that category in {language}; the English value is only a reference "
+    "(the singular for _one, the plural otherwise)."
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
+Path = Tuple[str, ...]
+
+
+class AzureConfig(NamedTuple):
+    host: str
+    base_path: str
+    model: str
+    api_key: str
+
+
+class Entry(NamedTuple):
+    english: str
+    is_plural_form: bool
+
+
+def get_azure_config() -> AzureConfig:
+    api_host = os.getenv("AZURE_API_HOST")
+    api_model = os.getenv("AZURE_API_MODEL")
+    api_key = os.getenv("AZURE_API_KEY")
+    if not api_host or not api_model or not api_key:
+        raise ValueError(
+            "AZURE_API_HOST, AZURE_API_MODEL and AZURE_API_KEY environment variables must be set"
+        )
+    host, base_path = normalize_api_host(api_host)
+    return AzureConfig(host, base_path, api_model, api_key)
+
+
+def normalize_api_host(api_host: str) -> Tuple[str, str]:
+    """Return HTTPSConnection host and the base deployment path."""
+    if api_host.startswith("//"):
+        api_host = f"https:{api_host}"
+    elif "://" not in api_host:
+        api_host = f"https://{api_host}"
+
+    parsed = urlparse(api_host)
+    host = parsed.netloc
+    if not host:
+        raise ValueError(f"AZURE_API_HOST must include a hostname: {api_host!r}")
+
+    base_path = parsed.path.rstrip("/") or "/openai/deployments"
+    deployment_scoped_path_match = re.fullmatch(
+        r"(?P<deployment_base>.*/openai/deployments)/[^/]+", base_path
+    )
+    if deployment_scoped_path_match:
+        base_path = deployment_scoped_path_match.group("deployment_base")
+
+    return host, base_path
+
+
+def fetch_completion(config: AzureConfig, system_prompt: str, user_message: str) -> str:
+    """Return the model's reply text, retrying on 429 and 5xx with backoff."""
+    body = json.dumps(
+        {
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ]
+        },
+        ensure_ascii=False,
+    ).encode("utf-8")
+    headers = {
+        "api-key": config.api_key,
+        "Content-Type": "application/json; charset=utf-8",
+    }
+    path = f"{config.base_path}/{config.model}/chat/completions?api-version={API_VERSION}"
+
+    for attempt in range(1, API_MAX_ATTEMPTS + 1):
+        conn = http.client.HTTPSConnection(config.host)
+        try:
+            conn.request("POST", path, body, headers)
+            res = conn.getresponse()
+            status = res.status
+            retry_after = res.getheader("Retry-After")
+            data = res.read().decode("utf-8")
+        finally:
+            conn.close()
+
+        if status == 200:
+            return json.loads(data)["choices"][0]["message"]["content"]
+
+        is_transient = status == 429 or status >= 500
+        if not is_transient or attempt == API_MAX_ATTEMPTS:
+            raise RuntimeError(f"Azure API returned HTTP {status}: {data}")
+        delay = float(retry_after) if retry_after and retry_after.isdigit() else 2**attempt
+        logging.warning(f"HTTP {status}, retrying in {delay:.0f}s ({attempt}/{API_MAX_ATTEMPTS})")
+        time.sleep(delay)
+
+    raise AssertionError("unreachable")
+
+
+def strip_code_fence(text: str) -> str:
+    return re.sub(r"^```[a-zA-Z]*\s*|\s*```$", "", text.strip())
+
+
+def flatten(data: Dict[str, Any], prefix: Path = ()) -> Dict[Path, Any]:
+    """Map each leaf to its key path; keys may contain dots, so paths are tuples."""
+    leaves: Dict[Path, Any] = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            leaves.update(flatten(value, prefix + (key,)))
+        else:
+            leaves[prefix + (key,)] = value
+    return leaves
+
+
+def unflatten(leaves: Dict[Path, Any]) -> Dict[str, Any]:
+    data: Dict[str, Any] = {}
+    for path, value in leaves.items():
+        set_leaf(data, path, value)
+    return data
+
+
+def set_leaf(data: Dict[str, Any], path: Path, value: Any) -> None:
+    node = data
+    for key in path[:-1]:
+        if not isinstance(node.get(key), dict):
+            node[key] = {}
+        node = node[key]
+    node[path[-1]] = value
+
+
+def remove_leaf(data: Dict[str, Any], path: Path) -> None:
+    """Delete a leaf and any parents left empty."""
+    parents = [data]
+    for key in path[:-1]:
+        parents.append(parents[-1][key])
+    del parents[-1][path[-1]]
+    for parent, key in zip(reversed(parents[:-1]), reversed(path[:-1])):
+        if parent[key]:
+            break
+        del parent[key]
+
+
+def expected_entries(
+    english_leaves: Dict[Path, str], plural_categories: Tuple[str, ...]
+) -> Dict[Path, Entry]:
+    """Keys the target language needs: English keys, with cardinal plurals expanded to the language's categories."""
+    plural_bases = set()
+    for path in english_leaves:
+        key = path[-1]
+        if key.endswith("_one") and not key.endswith("_ordinal_one"):
+            base = key[: -len("_one")]
+            if path[:-1] + (base + "_other",) in english_leaves:
+                plural_bases.add(path[:-1] + (base,))
+
+    entries: Dict[Path, Entry] = {}
+    for path, text in english_leaves.items():
+        key = path[-1]
+        base = next(
+            (
+                path[:-1] + (key[: -len(suffix)],)
+                for suffix in ("_one", "_other")
+                if key.endswith(suffix) and path[:-1] + (key[: -len(suffix)],) in plural_bases
+            ),
+            None,
+        )
+        if base is None:
+            entries[path] = Entry(text, False)
+            continue
+        parent, name = base[:-1], base[-1]
+        if parent + (f"{name}_{plural_categories[0]}",) in entries:
+            continue
+        for category in plural_categories:
+            reference = english_leaves[parent + (f"{name}_{'one' if category == 'one' else 'other'}",)]
+            entries[parent + (f"{name}_{category}",)] = Entry(reference, True)
+    return entries
+
+
+def placeholders(text: str) -> Counter:
+    return Counter(re.sub(r"\s+", "", match) for match in PLACEHOLDER_RE.findall(text))
+
+
+def find_problems(sources: Dict[Path, Entry], translated: Dict[Path, Any]) -> List[str]:
+    problems = []
+    missing = sources.keys() - translated.keys()
+    extra = translated.keys() - sources.keys()
+    if missing:
+        problems.append(f"missing keys: {sorted(missing)[:5]}")
+    if extra:
+        problems.append(f"unexpected keys: {sorted(extra)[:5]}")
+    for path, entry in sources.items():
+        text = translated.get(path)
+        if text is None:
+            continue
+        if not isinstance(text, str):
+            problems.append(f"non-string value at {path}")
+            continue
+        expected, actual = placeholders(entry.english), placeholders(text)
+        # A plural form may legitimately drop {{count}}, but must not invent or rename placeholders.
+        is_valid = (
+            set(actual) <= set(expected) if entry.is_plural_form else actual == expected
+        )
+        if not is_valid:
+            problems.append(f"placeholders differ at {path}: {dict(expected)} vs {dict(actual)}")
+    return problems
+
+
+def translate_batch(
+    config: AzureConfig, sources: Dict[Path, Entry], language: str
+) -> Optional[Dict[Path, str]]:
+    """Translate one batch, re-asking once if the reply is malformed; None on failure."""
+    system_prompt = SYSTEM_PROMPT.format(language=language)
+    user_message = json.dumps(
+        unflatten({path: entry.english for path, entry in sources.items()}),
+        indent=2,
+        ensure_ascii=False,
+    )
+    for attempt in range(1, BATCH_MAX_ATTEMPTS + 1):
+        try:
+            reply = json.loads(
+                strip_code_fence(fetch_completion(config, system_prompt, user_message))
+            )
+            if not isinstance(reply, dict):
+                raise ValueError("reply is not a JSON object")
+            translated = flatten(reply)
+            problems = find_problems(sources, translated)
+        except (RuntimeError, OSError, KeyError, ValueError) as e:
+            problems = [str(e)]
+        if not problems:
+            return translated
+        logging.error(f"Attempt {attempt}/{BATCH_MAX_ATTEMPTS} failed: {'; '.join(problems)}")
+    return None
+
+
+def get_all_language_slugs(locales_dir: str) -> List[str]:
+    """All locale directories except 'en'."""
+    return sorted(
+        lang
+        for lang in os.listdir(locales_dir)
+        if os.path.isdir(os.path.join(locales_dir, lang)) and lang.lower() != "en"
+    )
+
+
+def load_json_file(filepath: str) -> Dict[str, Any]:
+    with open(filepath, "r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def save_json_file(data: Dict[str, Any], filepath: str) -> None:
+    """Write sorted like `bin/translations-sort`, so the pre-commit hook leaves no diff."""
+    with open(filepath, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2, ensure_ascii=False, sort_keys=True)
+        file.write("\n")
+
+
+def sync_file(
+    config: Optional[AzureConfig],
+    args: argparse.Namespace,
+    language_slug: str,
+    language: str,
+    filename: str,
+    english_path: str,
+    target_path: str,
+) -> bool:
+    """Sync one locale file; returns False if any batch failed."""
+    entries = expected_entries(
+        flatten(load_json_file(english_path)),
+        PLURAL_CATEGORIES.get(language_slug, DEFAULT_PLURAL_CATEGORIES),
+    )
+    target = load_json_file(target_path) if os.path.exists(target_path) else {}
+    target_leaves = flatten(target)
+
+    todo = {
+        path: entry
+        for path, entry in entries.items()
+        if args.force or path not in target_leaves
+    }
+    stale = [path for path in target_leaves if path not in entries]
+    label = f"'{language_slug}/{filename}'"
+
+    if args.dry_run:
+        logging.info(f"{label}: would translate {len(todo)} keys, {len(stale)} stale")
+        return True
+
+    is_changed = False
+    is_ok = True
+    items = list(todo.items())
+    for start in range(0, len(items), args.batch_size):
+        batch = dict(items[start : start + args.batch_size])
+        logging.info(f"{label}: translating keys {start + 1}-{start + len(batch)}/{len(items)}")
+        assert config is not None
+        translated = translate_batch(config, batch, language)
+        if translated is None:
+            is_ok = False
+            continue
+        for path, text in translated.items():
+            set_leaf(target, path, text)
+        is_changed = True
+
+    if stale:
+        if args.prune:
+            for path in stale:
+                remove_leaf(target, path)
+            is_changed = True
+        else:
+            logging.info(f"{label}: {len(stale)} stale keys (use --prune to remove), e.g. {stale[:3]}")
+
+    if is_changed:
+        save_json_file(target, target_path)
+        logging.info(f"{label}: saved")
+    return is_ok
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Sync non-English i18next locales with English: translate missing keys, optionally retranslate or prune.",
+        epilog="To add a new language: -l <slug> --name '<Language name>'.",
+    )
+    parser.add_argument(
+        "-l",
+        "--languages",
+        nargs="+",
+        help="Language codes to process (e.g. fi sv ar). Defaults to every non-English locale directory.",
+    )
+    parser.add_argument(
+        "-f",
+        "--files",
+        nargs="+",
+        help="Locale files to process (e.g. cms errors.json). Defaults to every English file.",
+    )
+    parser.add_argument(
+        "--name",
+        help="English name of the language, for slugs not in the built-in list. Needs exactly one -l.",
+    )
+    parser.add_argument("--batch-size", type=int, default=100, help="Keys per API request.")
+    parser.add_argument("--force", action="store_true", help="Retranslate keys that already exist.")
+    parser.add_argument("--prune", action="store_true", help="Remove keys that no longer exist in English.")
+    parser.add_argument("--dry-run", action="store_true", help="Report what would change without calling the API or writing.")
+    args = parser.parse_args()
+    if args.name and (not args.languages or len(args.languages) != 1):
+        parser.error("--name requires exactly one language in --languages")
+    if args.batch_size < 1:
+        parser.error("--batch-size must be positive")
+    return args
+
+
+def main() -> bool:
+    args = parse_args()
+
+    english_dir = os.path.join(LOCALES_DIR, "en")
+    if not os.path.exists(english_dir):
+        raise FileNotFoundError(f"English locale directory not found at {english_dir}")
+
+    english_files = sorted(f for f in os.listdir(english_dir) if f.endswith(".json"))
+    if args.files:
+        filenames = [f if f.endswith(".json") else f"{f}.json" for f in args.files]
+        unknown = [f for f in filenames if f not in english_files]
+        if unknown:
+            raise ValueError(f"No such English locale file: {unknown}")
+    else:
+        filenames = english_files
+
+    slugs = sorted(set(args.languages)) if args.languages else get_all_language_slugs(LOCALES_DIR)
+    if "en" in slugs:
+        raise ValueError("English is the source language")
+    logging.info(f"Languages: {slugs}")
+
+    config = None if args.dry_run else get_azure_config()
+
+    is_ok = True
+    for slug in slugs:
+        language = args.name or LANGUAGE_NAMES.get(slug)
+        if language is None:
+            logging.warning(f"No language name known for '{slug}', using the slug; pass --name")
+            language = slug
+        if slug not in PLURAL_CATEGORIES:
+            logging.warning(f"No plural categories known for '{slug}', assuming one/other")
+
+        target_dir = os.path.join(LOCALES_DIR, slug)
+        if not args.dry_run:
+            os.makedirs(target_dir, exist_ok=True)
+        for filename in filenames:
+            is_ok &= sync_file(
+                config,
+                args,
+                slug,
+                language,
+                filename,
+                os.path.join(english_dir, filename),
+                os.path.join(target_dir, filename),
+            )
+
+    if not is_ok:
+        logging.error("Some batches failed; rerun to retry them.")
+    return is_ok
+
+
+if __name__ == "__main__":
+    sys.exit(0 if main() else 1)

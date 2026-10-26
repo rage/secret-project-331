@@ -22,6 +22,7 @@ SOURCE_DIRS = ("services", "shared-module", "system-tests")
 SOURCE_EXTENSIONS = (".ts", ".tsx", ".js", ".jsx", ".mjs")
 SOURCE_SKIPPED_DIRS = {"node_modules", ".next", "generated", "target", ".git", "locales", "dist", "storybook-static"}
 STRING_LITERAL_RE = re.compile(r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'|`((?:[^`\\]|\\.)*)`')
+QUOTED_LITERAL_RE = re.compile(r'"((?:[^"\\\n]|\\.)*)"|\'((?:[^\'\\\n]|\\.)*)\'')
 PLURAL_SUFFIX_RE = re.compile(r"(_ordinal)?_(zero|one|two|few|many|other)$")
 
 # Keys are assembled from backend error codes and ISO country codes, so no literal appears in the source.
@@ -228,6 +229,16 @@ def remove_leaf(data: Dict[str, Any], path: Path) -> None:
         del parent[key]
 
 
+def collect_string_literals(source: str, literals: Set[str], template_prefixes: Set[str]) -> None:
+    for double, single, template in STRING_LITERAL_RE.findall(source):
+        literals.add(double or single or template)
+        if "${" in template:
+            template_prefixes.add(template.split("${")[0])
+            # The template match swallows quoted literals inside `${...}`.
+            for inner_double, inner_single in QUOTED_LITERAL_RE.findall(template):
+                literals.add(inner_double or inner_single)
+
+
 def scan_source_strings() -> Tuple[Set[str], Set[str]]:
     """String literals in the frontend sources, and the literal prefixes of template strings."""
     literals: Set[str] = set()
@@ -239,11 +250,9 @@ def scan_source_strings() -> Tuple[Set[str], Set[str]]:
                 if not filename.endswith(SOURCE_EXTENSIONS):
                     continue
                 with open(os.path.join(directory, filename), encoding="utf-8", errors="ignore") as file:
-                    for double, single, template in STRING_LITERAL_RE.findall(file.read()):
-                        literals.add(double or single or template)
-                        if "${" in template and template.split("${")[0]:
-                            template_prefixes.add(template.split("${")[0])
+                    collect_string_literals(file.read(), literals, template_prefixes)
     literals.discard("")
+    template_prefixes.discard("")
     return literals, template_prefixes
 
 

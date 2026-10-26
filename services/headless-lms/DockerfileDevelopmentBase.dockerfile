@@ -12,11 +12,10 @@ RUN git clone --depth 1 --branch v3.0.0 https://github.com/rui314/mold.git \
   && cd mold \
   && RUSTUP_TOOLCHAIN="$(rustup show active-toolchain | cut -d' ' -f1)" cargo build --release --locked
 
-# Provides a mapping from ip to country
-RUN mkdir -p /etc/apt/keyrings \
-  && curl -fsSL -o /etc/apt/keyrings/ipfire-libloc.asc https://packages.ipfire.org/debian/libloc/E4D20FA6FAA108D54ABDFC6541836ADF9D5E2AD9.asc \
-  && echo "deb [signed-by=/etc/apt/keyrings/ipfire-libloc.asc] https://packages.ipfire.org/debian/libloc bookworm main" > /etc/apt/sources.list.d/location.list \
-  && apt-get update \
+FROM debian:trixie-slim AS ips-to-country-builder
+
+# Provides a mapping from ip to country. Only trixie and later package `location`.
+RUN apt-get update \
   && apt-get install -yy location \
   && rm -rf /var/lib/apt/lists/*
 
@@ -60,7 +59,7 @@ RUN cargo install sqlx-cli --no-default-features --features postgres,rustls && \
 COPY --from=icu4x-builder /icu4x.postcard /icu4x.postcard
 COPY --from=icu4x-builder /icu4x.postcard /icu4x.postcard.2
 
-COPY --from=dep-builder /ips-to-country /ips-to-country
+COPY --from=ips-to-country-builder /ips-to-country /ips-to-country
 
 WORKDIR /app
 

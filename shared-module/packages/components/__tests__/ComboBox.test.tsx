@@ -1,6 +1,7 @@
 "use client"
 
 import { fireEvent, render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 
 import { ComboBox } from "../src/components/ComboBox"
@@ -67,6 +68,28 @@ describe("ComboBox", () => {
 
     fireEvent.click(toggle)
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument()
+  })
+
+  test("shows every option when opened with a value already selected", async () => {
+    renderWithForm<{ c: string | number | null }>(
+      (control) => (
+        <ComboBox<Item, { c: string | number | null }>
+          name="c"
+          control={control}
+          getItemKey={(item) => item.id}
+          getItemTextValue={(item) => item.label}
+          label="Framework"
+          items={items}
+        >
+          {(item) => item.label}
+        </ComboBox>
+      ),
+      { defaultValues: { c: "alpha" } },
+    )
+
+    await userEvent.click(screen.getByRole("combobox"))
+    expect(screen.getByRole("option", { name: "Beta" })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Gamma" })).toBeInTheDocument()
   })
 
   test("opens from the keyboard and filters results", () => {

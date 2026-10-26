@@ -865,10 +865,7 @@ pub struct TeacherNewsletterContent {
 
 impl TeacherNewsletterContent {
     pub fn as_html(&self) -> String {
-        format!(
-            r#"<table role="presentation" class="email-teacher-newsletter" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 0 0 18px;"><tr><td align="center" border: none; font-size: 22px; line-height: 30px; mso-line-height-rule: exactly; overflow-wrap: anywhere; word-break: break-word; user-select: all;">{}</td></tr></table>"#,
-            self.html
-        )
+        self.html.to_owned()
     }
 
     pub fn as_text(&self) -> String {

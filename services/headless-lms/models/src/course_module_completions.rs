@@ -517,6 +517,35 @@ WHERE course_id = $1
     Ok(res.count.unwrap_or(0))
 }
 
+pub async fn get_count_of_distinct_completors_by_course_id_and_start_and_end_date(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+    from: DateTime<Utc>,
+    to: DateTime<Utc>,
+) -> ModelResult<HashMap<Uuid, i64>> {
+    let res = sqlx::query!(
+        "
+SELECT course_id, COUNT(DISTINCT user_id) AS COUNT
+FROM course_module_completions
+WHERE course_id = ANY($1)
+  AND completion_date >= $2
+  AND completion_date < $3
+  AND deleted_at IS NULL
+GROUP BY course_id
+",
+        course_ids,
+        from,
+        to
+    )
+    .fetch_all(conn)
+    .await?
+    .iter()
+    .map(|row| (row.course_id, row.count.unwrap_or(0)))
+    .collect::<HashMap<Uuid, i64>>();
+
+    Ok(res)
+}
+
 /// Gets automatically granted course module completion for the given user on the specified course.
 /// This entry is quaranteed to be unique in database by the index
 /// `course_module_automatic_completion_uniqueness`.

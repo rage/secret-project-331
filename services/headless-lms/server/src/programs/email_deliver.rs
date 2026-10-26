@@ -467,12 +467,40 @@ async fn build_teacher_newsletter_email_content(
 ) -> Result<TeacherNewsletterContent> {
     let courses =
         headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
+    let course_ids_vec: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
+    let course_ids = &course_ids_vec;
+
+    let from = DateTime::parse_from_rfc3339("2026-10-20T00:00:00Z")
+        .unwrap()
+        .to_utc();
+    let to = DateTime::parse_from_rfc3339("2026-10-27T23:59:59Z")
+        .unwrap()
+        .to_utc();
+
+    let completors_counts = headless_lms_models::course_module_completions::get_count_of_distinct_completors_by_course_id_and_start_and_end_date(conn, course_ids, from, to).await?;
+
+    let mut returned_counts: HashMap<Uuid, i64> = HashMap::new();
+
+    for course_id in course_ids_vec {
+        let total_users =
+            models::library::course_stats::get_total_users_returned_exercises_custom_time_period(
+                conn,
+                course_id,
+                "2026-10-27",
+                "2026-10-27",
+            )
+            .await?;
+        returned_counts.insert(course_id, total_users.count);
+    }
+
     let mut course_html = Vec::new();
     if !courses.is_empty() {
         for course in &courses {
+            let completor_count = completors_counts.get(&course.id).copied().unwrap_or(0);
+            let returned_count = returned_counts.get(&course.id).copied().unwrap_or(0);
             let summary_html = format!(
-                r#"<h2 style="font-family: sans-serif; font-size: 18px; margin: 24px 0 12px; color: #1a2333;">{}</h2><ul style="font-family: sans-serif; font-size: 14px; line-height: 20px; color: #4a5568; margin: 0 0 16px; padding-left: 20px;"><li>lorem ipsum</li><li>lorem ipsum</li></ul><hr>"#,
-                course.name
+                r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;"><tbody><tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed the course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td></tr></tbody></table>"#,
+                course.name, completor_count, returned_count
             );
             course_html.push(summary_html);
         }

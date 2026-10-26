@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_id, COUNT(DISTINCT user_id) AS COUNT\nFROM course_module_completions\nWHERE course_id = ANY($1)\n  AND completion_date >= $2\n  AND completion_date < $3\n  AND deleted_at IS NULL\nGROUP BY course_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "count",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "7ab53bebc2c0fd113a510c27a48a8ff8f963e92a685a313fe88b573babae40f0"
+}

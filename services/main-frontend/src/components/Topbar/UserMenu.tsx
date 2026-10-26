@@ -4,6 +4,7 @@
 import { css } from "@emotion/css"
 import React, { useContext, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -56,6 +57,7 @@ export interface UserMenuProps {
 }
 
 const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOptions }) => {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -77,8 +79,8 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         id="topbar-user-menu"
-        ariaLabel={`${displayName}. Open account menu`}
-        tooltipText="Account menu"
+        ariaLabel={`${displayName}. ${t("open-account-menu")}`}
+        tooltipText={t("account-menu")}
       >
         <div
           aria-hidden

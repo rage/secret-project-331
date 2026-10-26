@@ -40,7 +40,7 @@ indexmap = { version = "2.14.2", features = ["serde"] }
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.28.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.29.0", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.104"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
@@ -67,7 +67,7 @@ backtrace = "0.3.76"
 rand = "0.10.3"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
-jsonschema = { version = "0.60.0", default-features = false }
+jsonschema = { version = "0.60.1", default-features = false }
 
 [dev-dependencies]
 # `#[tokio::test]`, for the tool permission tests, which need a database connection.

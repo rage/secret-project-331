@@ -22,7 +22,7 @@ dotenvy = "0.15"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.28.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.29.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.

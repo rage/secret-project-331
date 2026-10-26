@@ -15,7 +15,7 @@ headless-lms-models = { path = "../models" }
 
 serde = { version = "1.0.229", features = ["derive"] }
 sqlx.workspace = true
-uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.29.0", features = ["serde", "v4", "v5"] }
 utoipa.workspace = true
 tracing = "0.1.44"
 tracing-error = "0.2.1"

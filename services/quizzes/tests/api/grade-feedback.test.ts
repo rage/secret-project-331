@@ -104,17 +104,17 @@ const allVisibilityItemFeedback: QuizFeedbackMessage[] = [
   { visibility: "on-model-solution", message: "ITEM_MODEL" },
 ]
 
-describe("grade feedback per item correctness", () => {
-  // 2 correct of 4 with points-off-incorrect-options: [1,2] => 1, [1] => 0.5, [3] => 0.
-  const partialItem = (selected: string[]): ItemConfig => ({
-    id: "item",
-    numberOfOptions: 4,
-    numberOfCorrect: 2,
-    policy: "points-off-incorrect-options",
-    selected,
-    itemFeedbackMessages: allVisibilityItemFeedback,
-  })
+// 2 correct of 4 with points-off-incorrect-options: [1,2] => 1, [1] => 0.5, [3] => 0.
+const partialItem = (selected: string[]): ItemConfig => ({
+  id: "item",
+  numberOfOptions: 4,
+  numberOfCorrect: 2,
+  policy: "points-off-incorrect-options",
+  selected,
+  itemFeedbackMessages: allVisibilityItemFeedback,
+})
 
+describe("grade feedback per item correctness", () => {
   test("correctness coefficient 1 shows the after-correct message only", async () => {
     const feedbacks = await gradeFeedback(
       buildMultipleChoiceRequest([partialItem([optionId("item", 0), optionId("item", 1)])]),
@@ -216,6 +216,15 @@ describe("grade option feedback", () => {
   })
 })
 
+// Two single-correct items (default policy): picking option-1 => 1, option-2 => 0.
+const item = (id: string, selectCorrect: boolean): ItemConfig => ({
+  id,
+  numberOfOptions: 2,
+  numberOfCorrect: 1,
+  policy: "default",
+  selected: [optionId(id, selectCorrect ? 0 : 1)],
+})
+
 describe("grade quiz-level feedback from the overall ratio", () => {
   const quizFeedback: QuizFeedbackMessage[] = [
     { visibility: "after-any-answer", message: "QUIZ_ANY" },
@@ -223,15 +232,6 @@ describe("grade quiz-level feedback from the overall ratio", () => {
     { visibility: "after-partially-correct-answer", message: "QUIZ_PARTIAL" },
     { visibility: "after-incorrect-answer", message: "QUIZ_INCORRECT" },
   ]
-
-  // Two single-correct items (default policy): picking option-1 => 1, option-2 => 0.
-  const item = (id: string, selectCorrect: boolean): ItemConfig => ({
-    id,
-    numberOfOptions: 2,
-    numberOfCorrect: 1,
-    policy: "default",
-    selected: [optionId(id, selectCorrect ? 0 : 1)],
-  })
 
   test("an all-correct quiz drives the after-correct quiz-level message", async () => {
     const feedbacks = await gradeFeedback(
@@ -286,20 +286,20 @@ describe("grade quiz-level feedback from the overall ratio", () => {
   })
 })
 
+// Two single-correct items, both answered wrong.
+const wrongItem = (id: string): ItemConfig => ({
+  id,
+  numberOfOptions: 2,
+  numberOfCorrect: 1,
+  policy: "default",
+  selected: [optionId(id, 1)],
+})
+
 describe("grade quiz-level feedback with awardPointsEvenIfWrong", () => {
   const quizFeedback: QuizFeedbackMessage[] = [
     { visibility: "after-correct-answer", message: "QUIZ_CORRECT" },
     { visibility: "after-incorrect-answer", message: "QUIZ_INCORRECT" },
   ]
-
-  // Two single-correct items, both answered wrong.
-  const wrongItem = (id: string): ItemConfig => ({
-    id,
-    numberOfOptions: 2,
-    numberOfCorrect: 1,
-    policy: "default",
-    selected: [optionId(id, 1)],
-  })
 
   test("all-wrong answers get full points but the quiz-level after-correct message stays hidden", async () => {
     const request = buildMultipleChoiceRequest([wrongItem("a"), wrongItem("b")], quizFeedback)

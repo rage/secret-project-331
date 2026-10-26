@@ -18,6 +18,31 @@ const items: Item[] = [
   { id: "gamma", label: "Gamma" },
 ]
 
+function FilterableCombo() {
+  const [filterText, setFilterText] = useState("")
+  const filtered = items.filter((item) =>
+    item.label.toLowerCase().includes(filterText.toLowerCase()),
+  )
+  return (
+    <FormHarness<{ c: string | number | null }> defaultValues={{ c: null }}>
+      {(control) => (
+        <ComboBox<Item, { c: string | number | null }>
+          name="c"
+          control={control}
+          getItemKey={(item) => item.id}
+          getItemTextValue={(item) => item.label}
+          label="Framework"
+          items={filtered}
+          inputValue={filterText}
+          onInputChange={setFilterText}
+        >
+          {(item) => item.label}
+        </ComboBox>
+      )}
+    </FormHarness>
+  )
+}
+
 describe("ComboBox", () => {
   test("opens and closes from the toggle button", () => {
     renderWithForm<{ c: string | number | null }>(
@@ -73,31 +98,6 @@ describe("ComboBox", () => {
     // useComboBoxState's `!allowsEmptyCollection && filteredCollection.size === 0` guard) rather than
     // rendering ListBox's "no results" placeholder, so assert it closes cleanly instead of leaving
     // aria-controls pointed at a listbox that's no longer in the document.
-    function FilterableCombo() {
-      const [filterText, setFilterText] = useState("")
-      const filtered = items.filter((item) =>
-        item.label.toLowerCase().includes(filterText.toLowerCase()),
-      )
-      return (
-        <FormHarness<{ c: string | number | null }> defaultValues={{ c: null }}>
-          {(control) => (
-            <ComboBox<Item, { c: string | number | null }>
-              name="c"
-              control={control}
-              getItemKey={(item) => item.id}
-              getItemTextValue={(item) => item.label}
-              label="Framework"
-              items={filtered}
-              inputValue={filterText}
-              onInputChange={setFilterText}
-            >
-              {(item) => item.label}
-            </ComboBox>
-          )}
-        </FormHarness>
-      )
-    }
-
     render(<FilterableCombo />)
 
     const input = screen.getByRole("combobox", { name: "Framework" })

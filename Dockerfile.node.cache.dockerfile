@@ -19,6 +19,6 @@ RUN cd /tmp/cache-build && pnpm fetch \
 FROM base
 
 # Copy the cached dependencies
-COPY --from=cache-dependencies --chown=node:node $PNPM_HOME $PNPM_HOME
+COPY --from=cache-dependencies --chown=node:node /app/pnpm /app/pnpm
 
 USER root

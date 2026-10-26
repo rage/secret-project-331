@@ -154,13 +154,13 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "props GutenbergEditor passes to __experimentalListView",
     packageName: "block-editor",
-    files: ["src/components/list-view/index.js"],
+    files: ["src/components/list-view/index.jsx"],
     identifiers: ["showBlockMovers", "isExpanded"],
   },
   {
     usage: "props GutenbergEditor passes to BlockTools and __unstableEditorStyles",
     packageName: "block-editor",
-    files: ["src/components/block-tools/index.js", "src/components/editor-styles/index.js"],
+    files: ["src/components/block-tools/index.jsx", "src/components/editor-styles/index.jsx"],
     identifiers: ["__unstableContentRef", "scope", "transformOptions"],
   },
   {
@@ -172,14 +172,14 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "props GutenbergEditor passes to BlockEditorProvider",
     packageName: "block-editor",
-    files: ["src/components/provider/index.js"],
+    files: ["src/components/provider/index.jsx"],
     identifiers: ["settings", "value", "onInput", "onChange", "selection", "onChangeSelection"],
   },
   {
     usage: "keys in the settings object GutenbergEditor hands BlockEditorProvider",
     packageName: "block-editor",
     files: [
-      "src/components/provider/index.js",
+      "src/components/provider/index.jsx",
       "src/store/defaults.js",
       "src/store/get-block-settings.js",
     ],
@@ -213,7 +213,7 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "the editor.BlockEdit filter every one of our block HOCs hangs off",
     packageName: "block-editor",
-    files: ["src/components/block-edit/edit.js"],
+    files: ["src/components/block-edit/edit.jsx"],
     identifiers: ["editor.BlockEdit"],
   },
   {
@@ -376,7 +376,7 @@ describe("@wordpress identifiers our code passes as strings", () => {
 
   it.each(LIST_VIEW_PROPS_REMOVED_UPSTREAM)("reports %s as gone from ListView", (propName) => {
     const source = fs.readFileSync(
-      packageFile("block-editor", "src/components/list-view/index.js"),
+      packageFile("block-editor", "src/components/list-view/index.jsx"),
       "utf8",
     )
     expect(source).not.toContain(propName)

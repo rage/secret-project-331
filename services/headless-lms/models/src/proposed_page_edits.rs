@@ -413,7 +413,7 @@ RETURNING *
                         .ok_or_else(|| {
                             ModelError::new(
                                 ModelErrorType::Generic,
-                                format!("Edited block has no attribute {}", &res.block_attribute),
+                                format!("Edited block has no attribute {}", res.block_attribute),
                                 None,
                             )
                         })?;

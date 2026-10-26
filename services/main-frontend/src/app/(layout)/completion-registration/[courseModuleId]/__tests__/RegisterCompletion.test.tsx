@@ -41,6 +41,9 @@ const renderPage = (overrides: Partial<RegisterCompletionProps> = {}) => {
   )
 }
 
+const renderWithCertificate = (overrides: Partial<RegisterCompletionProps> = {}) =>
+  renderPage({ certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID, ...overrides })
+
 /** Every question on the page answers yes/no or certificate/credits, so queries have to be scoped. */
 const question = (name: string) => within(screen.getByRole("radiogroup", { name }))
 
@@ -163,9 +166,6 @@ describe("RegisterCompletion", () => {
   })
 
   describe("with a certificate the student could take instead", () => {
-    const renderWithCertificate = (overrides: Partial<RegisterCompletionProps> = {}) =>
-      renderPage({ certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID, ...overrides })
-
     it("holds back the Open University instructions until the detour has been answered", () => {
       renderWithCertificate()
 

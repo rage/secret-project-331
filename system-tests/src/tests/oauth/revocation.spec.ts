@@ -30,84 +30,84 @@ test.afterAll(async () => {
 
 const { email: REVOCATION_EMAIL, password: REVOCATION_PASSWORD } = getOAuthTestUser("revocation")
 
+// Helper to get a valid access token using PKCE
+async function getAccessToken(page: Page): Promise<string> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state, scopes } = await oauthUrl(["openid", "email"], {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
+
+  // Handle login - user might already be logged in
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    // User needs to login
+    await performLogin(page, REVOCATION_EMAIL, REVOCATION_PASSWORD)
+  } catch {
+    // User is already logged in, skip login page
+    // We might already be on consent page or callback, so continue
+  }
+
+  // Handle both cases: consent page may appear or may be skipped if already granted
+  // Wait for navigation after login - we'll either go to consent page or directly to callback
+  try {
+    // Try to wait for consent page first (with short timeout)
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    // If we get here, we're on consent page
+    const consent = new ConsentPage(page, scopes)
+    await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
+    await consent.approve()
+  } catch {
+    // Consent page didn't appear (already granted)
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+  return tok.access_token
+}
+
+// Helper to get a valid refresh token using PKCE
+async function getRefreshToken(page: Page): Promise<string> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state, scopes } = await oauthUrl(["openid", "offline_access"], {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
+
+  // Handle login - user might already be logged in
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    // User needs to login
+    await performLogin(page, REVOCATION_EMAIL, REVOCATION_PASSWORD)
+  } catch {
+    // User is already logged in, skip login page
+    // We might already be on consent page or callback, so continue
+  }
+
+  // Handle both cases: consent page may appear or may be skipped if already granted
+  // Wait for navigation after login - we'll either go to consent page or directly to callback
+  try {
+    // Try to wait for consent page first (with short timeout)
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    // If we get here, we're on consent page
+    const consent = new ConsentPage(page, scopes)
+    await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
+    await consent.approve()
+  } catch {
+    // Consent page didn't appear (already granted)
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+  expect(tok.refresh_token).toBeTruthy()
+  return tok.refresh_token!
+}
+
 test.describe("Token Revocation (RFC 7009)", () => {
-  // Helper to get a valid access token using PKCE
-  async function getAccessToken(page: Page): Promise<string> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state, scopes } = await oauthUrl(["openid", "email"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
-
-    // Handle login - user might already be logged in
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      // User needs to login
-      await performLogin(page, REVOCATION_EMAIL, REVOCATION_PASSWORD)
-    } catch {
-      // User is already logged in, skip login page
-      // We might already be on consent page or callback, so continue
-    }
-
-    // Handle both cases: consent page may appear or may be skipped if already granted
-    // Wait for navigation after login - we'll either go to consent page or directly to callback
-    try {
-      // Try to wait for consent page first (with short timeout)
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      // If we get here, we're on consent page
-      const consent = new ConsentPage(page, scopes)
-      await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
-      await consent.approve()
-    } catch {
-      // Consent page didn't appear (already granted)
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    return tok.access_token
-  }
-
-  // Helper to get a valid refresh token using PKCE
-  async function getRefreshToken(page: Page): Promise<string> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state, scopes } = await oauthUrl(["openid", "offline_access"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
-
-    // Handle login - user might already be logged in
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      // User needs to login
-      await performLogin(page, REVOCATION_EMAIL, REVOCATION_PASSWORD)
-    } catch {
-      // User is already logged in, skip login page
-      // We might already be on consent page or callback, so continue
-    }
-
-    // Handle both cases: consent page may appear or may be skipped if already granted
-    // Wait for navigation after login - we'll either go to consent page or directly to callback
-    try {
-      // Try to wait for consent page first (with short timeout)
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      // If we get here, we're on consent page
-      const consent = new ConsentPage(page, scopes)
-      await consent.expectVisible(new RegExp(`${APP_DISPLAY_NAME}|${TEST_CLIENT_ID}`))
-      await consent.approve()
-    } catch {
-      // Consent page didn't appear (already granted)
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    expect(tok.refresh_token).toBeTruthy()
-    return tok.refresh_token!
-  }
-
   test("revokes access token successfully", async ({ page }) => {
     const accessToken = await getAccessToken(page)
 

@@ -76,7 +76,8 @@ minimumReleaseAgeExclude:
   - postcss@8.5.23
   - "@babel/plugin-transform-modules-systemjs@7.29.4"
   - tmp@0.2.7
-  - body-parser@2.3.0
+  - body-parser@2.4.0
+  - fast-uri@3.1.9
 
 # Docker installs use the global virtual store, which has no hoisted fallback; match it everywhere
 # so undeclared dependencies fail locally instead of only in image builds.

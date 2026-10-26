@@ -1916,6 +1916,17 @@ export const zCreditRegistrationEventKind = z.enum([
 ])
 
 /**
+ * How a student without a Finnish personal identity code said they can identify themselves for
+ * enrolling.
+ */
+export const zCreditRegistrationIdentification = z.enum(["eidas", "other_suomi_fi", "none"])
+
+/**
+ * Whether a student said they need a certificate or credits in the study registry.
+ */
+export const zCreditRegistrationNeed = z.enum(["certificate", "credits"])
+
+/**
  * A note an admin left on a registration for whoever handles it next.
  */
 export const zCreditRegistrationNote = z.object({
@@ -3698,8 +3709,13 @@ export const zMyCreditJustification = z.object({
  */
 export const zMyEnrolmentRoute = z.object({
   can_change: z.boolean(),
+  certificate_chosen_at: z.iso.datetime().nullish(),
   course_module_completion_id: z.uuid(),
   enrolment_confirmed_at: z.iso.datetime().nullish(),
+  has_finnish_personal_identity_code: z.boolean().nullish(),
+  identification: zCreditRegistrationIdentification.nullish(),
+  need: zCreditRegistrationNeed.nullish(),
+  need_after_reconsider: zCreditRegistrationNeed.nullish(),
   route: zCreditRegistrationEnrolmentRoute.nullish(),
 })
 
@@ -5094,7 +5110,14 @@ export const zSetCreditJustificationPayload = z.object({
   justification: z.string(),
 })
 
+/**
+ * Every answer at once, replacing the stored ones: an answer left out is cleared.
+ */
 export const zSetEnrolmentRoutePayload = z.object({
+  has_finnish_personal_identity_code: z.boolean().nullish(),
+  identification: zCreditRegistrationIdentification.nullish(),
+  need: zCreditRegistrationNeed.nullish(),
+  need_after_reconsider: zCreditRegistrationNeed.nullish(),
   route: zCreditRegistrationEnrolmentRoute,
 })
 
@@ -5166,51 +5189,6 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
   "failed",
   "not_registering",
 ])
-
-export const zMyCreditRegistration = z.object({
-  attempt_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  can_request_enrolment_recheck: z.boolean(),
-  completion_date: z.iso.datetime(),
-  course_id: z.uuid(),
-  course_module_id: z.uuid(),
-  course_module_name: z.string().nullish(),
-  course_name: z.string(),
-  course_slug: z.string(),
-  credits: z.number().nullish(),
-  ects_credits: z.number().nullish(),
-  enrolment_checked_at: z.iso.datetime().nullish(),
-  enrolment_found: z.boolean(),
-  enrolment_link: z.string().nullish(),
-  enrolment_realisation_name: z.string().nullish(),
-  error_code: zCreditRegistrationErrorCode.nullish(),
-  grade_id: z.string().nullish(),
-  grade_scale_id: z.string().nullish(),
-  id: z.uuid(),
-  is_processing_in_sisu: z.boolean(),
-  linking_email: zLinkingEmailStatus.nullish(),
-  next_attempt_at: z.iso.datetime(),
-  notification_email: zNotificationEmailStatus.nullish(),
-  registered_at: z.iso.datetime().nullish(),
-  registry_already_held_equal_or_better: z.boolean(),
-  sisu_attainment_id: z.string().nullish(),
-  status_is_moving: z.boolean(),
-  student_facing_status: zStudentFacingCreditRegistrationStatus,
-  student_number: z.string().nullish(),
-  submitted_at: z.iso.datetime().nullish(),
-  superseded: z.boolean(),
-  uh_course_code: z.string().nullish(),
-})
-
-/**
- * The live registration for one course module, with the attempts a newer one replaced.
- */
-export const zMyCreditRegistrationForCourseModule = z.object({
-  earlier_attempts: z.array(zMyCreditRegistration),
-  registration: zMyCreditRegistration,
-})
 
 /**
  * How a student number was proven to belong to an account.
@@ -5348,6 +5326,73 @@ export const zStudentNumberVerificationTokenPreview = z.object({
   student_number: z.string(),
   target_account_email: z.string(),
   target_account_name: z.string().nullish(),
+})
+
+/**
+ * One row of the step list, in the order a registration passes them.
+ */
+export const zStudentRegistrationProgressStep = z.enum([
+  "enrolment_found",
+  "sent_to_sisu",
+  "accepted_by_sisu",
+  "partially_registered",
+])
+
+export const zCompletedProgressStep = z.object({
+  reached_at: z.iso.datetime().nullish(),
+  step: zStudentRegistrationProgressStep,
+})
+
+export const zStudentRegistrationProgress = z.object({
+  completed_steps: z.array(zCompletedProgressStep),
+  current_step: zStudentRegistrationProgressStep.nullish(),
+  submission_uncertain: z.boolean(),
+})
+
+export const zMyCreditRegistration = z.object({
+  attempt_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  can_request_enrolment_recheck: z.boolean(),
+  completion_date: z.iso.datetime(),
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+  course_module_name: z.string().nullish(),
+  course_name: z.string(),
+  course_slug: z.string(),
+  credits: z.number().nullish(),
+  ects_credits: z.number().nullish(),
+  enrolment_checked_at: z.iso.datetime().nullish(),
+  enrolment_found: z.boolean(),
+  enrolment_link: z.string().nullish(),
+  enrolment_realisation_name: z.string().nullish(),
+  error_code: zCreditRegistrationErrorCode.nullish(),
+  grade_id: z.string().nullish(),
+  grade_scale_id: z.string().nullish(),
+  id: z.uuid(),
+  is_processing_in_sisu: z.boolean(),
+  linking_email: zLinkingEmailStatus.nullish(),
+  next_attempt_at: z.iso.datetime(),
+  notification_email: zNotificationEmailStatus.nullish(),
+  progress: zStudentRegistrationProgress.nullish(),
+  registered_at: z.iso.datetime().nullish(),
+  registry_already_held_equal_or_better: z.boolean(),
+  sisu_attainment_id: z.string().nullish(),
+  status_is_moving: z.boolean(),
+  student_facing_status: zStudentFacingCreditRegistrationStatus,
+  student_number: z.string().nullish(),
+  submitted_at: z.iso.datetime().nullish(),
+  superseded: z.boolean(),
+  uh_course_code: z.string().nullish(),
+})
+
+/**
+ * The live registration for one course module, with the attempts a newer one replaced.
+ */
+export const zMyCreditRegistrationForCourseModule = z.object({
+  earlier_attempts: z.array(zMyCreditRegistration),
+  registration: zMyCreditRegistration,
 })
 
 export const zStudentsByCountryTotalsResult = z.object({
@@ -6390,6 +6435,7 @@ export const zUserCompletionInformation = z.object({
   credit_justification: z.string().nullish(),
   ects_credits: z.number().nullish(),
   email: z.string(),
+  enrolment_link: z.string().nullish(),
   register_credits_via_suotar: z.boolean(),
   registers_credits: z.boolean(),
   status_before_registration: zStudentFacingCreditRegistrationStatus,
@@ -9456,6 +9502,24 @@ export const zSetMyEnrolmentRoutePath = z.object({
  * The stored answer
  */
 export const zSetMyEnrolmentRouteResponse = zMyEnrolmentRoute
+
+export const zWithdrawMyCertificateChoicePath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zWithdrawMyCertificateChoiceResponse = zMyEnrolmentRoute
+
+export const zChooseMyCertificatePath = z.object({
+  course_module_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zChooseMyCertificateResponse = zMyEnrolmentRoute
 
 export const zWithdrawMyEnrolmentConfirmationPath = z.object({
   course_module_id: z.uuid(),

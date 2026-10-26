@@ -20,6 +20,7 @@ import {
   DEMO_STAGES,
   type DemoStage,
   type DemoVariants,
+  fixesCertificate,
   isStudentNumberLinkedIn,
   studentNumberRuleOf,
 } from "./demoData"
@@ -42,6 +43,7 @@ interface PickerForm extends DemoVariants {
 const STAGE_LABEL_KEYS = {
   starting: "credit-registration-demo-stage-starting",
   asks_where_enrolled: "credit-registration-demo-stage-asks-where-enrolled",
+  certificate_chosen: "credit-registration-demo-stage-certificate-chosen",
   enrolment_confirmed: "credit-registration-demo-stage-enrolment-confirmed",
   linking_email_sent: "credit-registration-demo-stage-linking-email-sent",
   waiting_for_course_setup: "credit-registration-demo-stage-waiting-for-course-setup",
@@ -89,7 +91,8 @@ const CreditRegistrationDemo: React.FC = () => {
     },
   })
   const stage = watch(STAGE_FIELD)
-  const hasCertificate = watch(CERTIFICATE_FIELD)
+  const isCertificateFixed = fixesCertificate(stage)
+  const hasCertificate = watch(CERTIFICATE_FIELD) || isCertificateFixed
   const studentNumberRule = studentNumberRuleOf(stage)
   // The effective value, so a stage that fixes it does not rebuild the demo when the switch follows.
   const isLinked = isStudentNumberLinkedIn({
@@ -134,12 +137,17 @@ const CreditRegistrationDemo: React.FC = () => {
     }
   }, [i18n, watch])
 
-  // A stage that fixes the number shows the switch the way the stage has it.
+  // A stage that fixes the number or the certificate shows the switch the way the stage has it.
   useEffect(() => {
     if (studentNumberRule !== "either") {
       setValue(LINKED_FIELD, isLinked)
     }
   }, [isLinked, setValue, studentNumberRule])
+  useEffect(() => {
+    if (isCertificateFixed) {
+      setValue(CERTIFICATE_FIELD, true)
+    }
+  }, [isCertificateFixed, setValue])
 
   return (
     <>
@@ -168,7 +176,10 @@ const CreditRegistrationDemo: React.FC = () => {
               name={CERTIFICATE_FIELD}
               control={control}
               label={t("credit-registration-demo-certificate")}
-              description={t("credit-registration-demo-certificate-description")}
+              description={
+                isCertificateFixed ? t("credit-registration-demo-student-number-fixed") : undefined
+              }
+              isDisabled={isCertificateFixed}
             />
             <Select
               name={LANGUAGE_FIELD}

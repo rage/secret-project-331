@@ -67,9 +67,6 @@ export type Action =
       type: "administrate_credit_registrations"
     }
   | {
-      type: "view_credit_registration_demo"
-    }
-  | {
       type: "administrate"
     }
 

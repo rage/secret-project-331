@@ -40,7 +40,6 @@ export {
   uploadFilesFromExerciseService,
   upsertCmsCoursePartnersBlock,
   upsertCmsCourseResearchForm,
-  upsertCmsCourseResearchFormQuestions,
 } from "./sdk.generated"
 export type {
   AutomaticCompletionRequirements,
@@ -140,7 +139,6 @@ export type {
   GetExercisesWithSubmissionsResponses,
   GutenbergBlock,
   NewResearchForm,
-  NewResearchFormQuestion,
   Page,
   PageInfo,
   PageNavigationInformation,
@@ -165,7 +163,6 @@ export type {
   RequestParagraphSuggestionsResponse,
   RequestParagraphSuggestionsResponses,
   ResearchForm,
-  ResearchFormQuestion,
   SendCmsEmailTemplateTestData,
   SendCmsEmailTemplateTestResponse,
   SendCmsEmailTemplateTestResponses,
@@ -195,9 +192,6 @@ export type {
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
-  UpsertCmsCourseResearchFormQuestionsData,
-  UpsertCmsCourseResearchFormQuestionsResponse,
-  UpsertCmsCourseResearchFormQuestionsResponses,
   UpsertCmsCourseResearchFormResponse,
   UpsertCmsCourseResearchFormResponses,
   VerbosityLevel,

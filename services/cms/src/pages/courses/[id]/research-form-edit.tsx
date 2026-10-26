@@ -2,13 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
+import { v4 } from "uuid"
 
-import type { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
+import type { NewResearchForm, ResearchForm } from "@/generated/api"
 import { getCmsCourseResearchFormOptions } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  upsertCmsCourseResearchForm,
-  upsertCmsCourseResearchFormQuestions,
-} from "@/generated/api/sdk.generated"
+import { upsertCmsCourseResearchForm } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
@@ -22,7 +20,6 @@ import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-import type { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
 import CmsPageTitle from "../../../components/CmsPageTitle"
 import CourseContext from "../../../contexts/CourseContext"
 
@@ -30,18 +27,35 @@ interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
 }
 
-interface ResearchContent {
-  name: string
-  clientId: string
-  attributes: { content: string }
-}
-
 const ResearchFormEditor = dynamicImport(
   () => import("../../../components/editors/ResearchConsentFormEditor"),
 )
 
+/** A new form starts as an introduction and one empty question; nothing is saved until Save. */
+function starterContent(introduction: string): BlockInstance[] {
+  return [
+    {
+      // oxlint-disable-next-line i18next/no-literal-string
+      name: "core/paragraph",
+      clientId: v4(),
+      isValid: true,
+      attributes: { content: introduction },
+      innerBlocks: [],
+    },
+    {
+      // oxlint-disable-next-line i18next/no-literal-string
+      name: "moocfi/research-consent-question",
+      clientId: v4(),
+      isValid: true,
+      attributes: { content: "" },
+      innerBlocks: [],
+    },
+  ]
+}
+
 const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ query }) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
   const courseId = query.id
   const { t } = useTranslation()
 
@@ -57,16 +71,6 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
         }),
     }),
     gcTime: 0,
-    select: (data) => {
-      if (data === null) {
-        return null
-      }
-      const form: ResearchForm = {
-        ...data,
-        content: data.content as ResearchContent,
-      }
-      return form
-    },
   })
 
   useEffect(() => {
@@ -75,48 +79,14 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
     }
   }, [getResearchForm.isSuccess])
 
-  const handleCreateNewForm = async () => {
-    await upsertCmsCourseResearchForm({
-      path: {
-        course_id: assertNotNullOrUndefined(courseId),
-      },
-      body: {
-        course_id: assertNotNullOrUndefined(courseId),
-        content: [],
-      },
-    })
-    await getResearchForm.refetch()
-  }
   const mutate = useToastMutation(
-    async (form: NewResearchForm) => {
-      if (!isBlockInstanceArray(form.content)) {
-        throw new Error("content is not block instance")
-      }
-      const researchForm = await upsertCmsCourseResearchForm({
+    (form: NewResearchForm) =>
+      upsertCmsCourseResearchForm({
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
         body: form,
-      })
-      const questions: NewResearchFormQuestion[] = []
-      form.content.forEach((block: BlockInstance) => {
-        if (isMoocfiCheckbox(block)) {
-          const newResearchQuestion: NewResearchFormQuestion = {
-            question_id: block.clientId,
-            course_id: researchForm.course_id,
-            research_consent_form_id: researchForm.id,
-            question: block.attributes.content,
-          }
-          questions.push(newResearchQuestion)
-        }
-      })
-      await upsertCmsCourseResearchFormQuestions({
-        path: {
-          course_id: researchForm.course_id,
-        },
-        body: questions,
-      })
-    },
+      }),
     {
       notify: true,
       dismissable: true,
@@ -134,46 +104,32 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
     <>
       <CmsPageTitle title={t("edit-research-form")} />
       <QueryResult query={getResearchForm}>
-        {(data) => (
-          <>
-            {data !== null && (
-              <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
-                <ResearchFormEditor
-                  data={data}
-                  handleSave={handleSave}
-                  needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-                  setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-                />
-              </CourseContext.Provider>
-            )}
-            {data === null && (
-              <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
+        {(data) =>
+          data !== null || isCreating ? (
+            <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
+              <ResearchFormEditor
+                initialContent={
+                  data !== null
+                    ? (data.content as BlockInstance[])
+                    : starterContent(t("research-form-starter-introduction"))
+                }
+                handleSave={handleSave}
+                needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+                setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+              />
+            </CourseContext.Provider>
+          ) : (
+            <>
+              <p>{t("research-form-create-explanation")}</p>
+              <Button variant="primary" size="medium" onClick={() => setIsCreating(true)}>
                 {t("button-text-create")}
               </Button>
-            )}
-          </>
-        )}
+            </>
+          )
+        }
       </QueryResult>
     </>
   )
-}
-
-function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
-  if (!Array.isArray(obj)) {
-    return false
-  }
-  for (const o of obj) {
-    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
-      return false
-    }
-  }
-  return true
-}
-
-function isMoocfiCheckbox(
-  obj: BlockInstance,
-): obj is BlockInstance<ResearchConsentQuestionAttributes> {
-  return obj.name === "moocfi/research-consent-question"
 }
 
 const exported = withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))

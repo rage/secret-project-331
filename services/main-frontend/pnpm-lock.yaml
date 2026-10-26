@@ -305,14 +305,14 @@ importers:
         specifier: ^3.37.0
         version: 3.37.0(react@19.3.1)
       '@tanstack/react-query':
-        specifier: ^5.104.3
-        version: 5.104.3(react@19.3.1)
+        specifier: ^5.104.4
+        version: 5.104.4(@types/react@19.3.0)(react@19.3.1)
       '@tanstack/react-table':
         specifier: ^9.3.1
         version: 9.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-virtual':
-        specifier: ^3.14.20
-        version: 3.14.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^3.14.21
+        version: 3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tsparticles/engine':
         specifier: ^4.4.0
         version: 4.4.0
@@ -353,8 +353,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0(supports-color@10.2.2)
       i18next:
-        specifier: ^26.4.7
-        version: 26.4.7(@typescript/typescript6@6.0.2)
+        specifier: ^26.5.2
+        version: 26.5.2(@typescript/typescript6@6.0.2)
       immer:
         specifier: ^11.1.21
         version: 11.1.21
@@ -366,7 +366,7 @@ importers:
         version: 1.1.0(jotai@3.0.1(@types/react@19.3.0)(react@19.3.1))
       jotai-tanstack-query:
         specifier: ^0.11.0
-        version: 0.11.0(@tanstack/query-core@5.104.3)(@tanstack/react-query@5.104.3(react@19.3.1))(jotai@3.0.1(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)
+        version: 0.11.0(@tanstack/query-core@5.104.4)(@tanstack/react-query@5.104.4(@types/react@19.3.0)(react@19.3.1))(jotai@3.0.1(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)
       katex:
         specifier: ^0.19.0
         version: 0.19.0
@@ -404,8 +404,8 @@ importers:
         specifier: ^2.6.1
         version: 2.6.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-i18next:
-        specifier: ^17.0.19
-        version: 17.0.19(@typescript/typescript6@6.0.2)(i18next@26.4.7(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1)
+        specifier: ^17.1.0
+        version: 17.1.0(@typescript/typescript6@6.0.2)(i18next@26.5.2(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1)
       react-is:
         specifier: ^19.3.1
         version: 19.3.1
@@ -2268,13 +2268,17 @@ packages:
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
 
-  '@tanstack/query-core@5.104.3':
-    resolution: {integrity: sha512-DZY9TuJAOgU3UyHUhXb4CcTYEHNZszlwkPg4VViIwTxOKzLprPUU+rbaPZQd3srqkGOtpaDdKpW972UV/LKlcg==}
+  '@tanstack/query-core@5.104.4':
+    resolution: {integrity: sha512-nU4Yrb8Sjn0DeVb7PKG9uiepNavys3yoxy1FX0hViY4/P6Ng/mBje2SMl7i9812rtyHKtHyqiaC/td6GkI8StA==}
 
-  '@tanstack/react-query@5.104.3':
-    resolution: {integrity: sha512-5Ts1ImwJKqoJgPkLxl9WrPQy1JEoEmti3MaaODCfBamHUGFk57IFrc+AIksPq+BAm10EsroX56qm398Z42LG7w==}
+  '@tanstack/react-query@5.104.4':
+    resolution: {integrity: sha512-YD5QkvUNy8Ey3LbOy2vwL97JjoYycwDv++cWAibTe+9BLYvl3c09XpYp5dZ2VcxcguwoDhGF+utYJYb79RB36w==}
     peerDependencies:
+      '@types/react': ^18 || ^19
       react: ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@tanstack/react-store@0.11.2':
     resolution: {integrity: sha512-oj5O5DmiMWE+ih+SioX2ayC1kbK7d3fpLx0B75fPJr9nY3zU+hoW010yr64qXsY/9fyiLVE2bn5mGNV3owm8RQ==}
@@ -2288,8 +2292,8 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@tanstack/react-virtual@3.14.20':
-    resolution: {integrity: sha512-9hbhFlc0lznjXmWYDB/KEl7PJxEPz0Qnj2FzJFse98miGvXtx7jzjE5jlasmtczmZ6TxXsyI4v7PuyGQm2q1nQ==}
+  '@tanstack/react-virtual@3.14.21':
+    resolution: {integrity: sha512-wWE/ZJDNNDp18JHWy7n5PQooqerHePVkEEu6Op0twKQ2InF9DPhYMQptQY0syDEviMd3/r8D0OUvKJibDGm9HQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -2301,8 +2305,8 @@ packages:
     resolution: {integrity: sha512-zQvlxSNi2qGM3L4jh85Z6hqMfdIR5qOfD9KHOU32nuKFJGN0RlJ7UvV1lsPb1fPVhpFYI0VP3jJGxLdLDpTKjQ==}
     engines: {node: '>=20'}
 
-  '@tanstack/virtual-core@3.19.5':
-    resolution: {integrity: sha512-X/wq6DtSK/XClznMM+I4JE63yyIwmyPk4Ts83bD0VKaIbwHNdRsO5QipCPX+3OovqYyr0puQNpbmp8+SPhspNg==}
+  '@tanstack/virtual-core@3.19.6':
+    resolution: {integrity: sha512-CsTW892z23gy7IyxYTTorVu1uZWB+0N349rSMgKz4rFLPpLza7F7TpcCKeI5iUAwYQCt8QUlOU67J+KXCxtpGw==}
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -4002,8 +4006,8 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
 
-  i18next@26.4.7:
-    resolution: {integrity: sha512-p/3hqy6EcuqRs6wNwBYwGGC1fzBJSMxV9zMuN814ab/7QjdZbXfjXwuPZdQbngX6KDOTxM01uUiZyqmMB8ghZg==}
+  i18next@26.5.2:
+    resolution: {integrity: sha512-6fIXt//2MZNok3tULyjnypxe3vbsy3pV1bVg8p2x3yKrzZvp7z3T+wXx/88LQsATRdhyJeAUAvUxEtxsHdJ29w==}
     peerDependencies:
       typescript: ^5 || ^6 || ^7
     peerDependenciesMeta:
@@ -5136,8 +5140,8 @@ packages:
       '@types/react-dom':
         optional: true
 
-  react-i18next@17.0.19:
-    resolution: {integrity: sha512-BRHqiqOfW4J/LBVtbBFHoBoZm/Ez2/tkHPitYtn0CSpkYhEaEAsZMPsg7hZlomu30UJYQ6ZKiP3pwa3QnxGvQw==}
+  react-i18next@17.1.0:
+    resolution: {integrity: sha512-4VouOnTDyvhvqXx6WZ+s3/cgSiaLutILdYkO3P1Ms+4qcKR7At+JP4Vi7IeHkVLyVV+DmN1l23Pn73UcwSGGPA==}
     peerDependencies:
       i18next: '>= 26.2.0'
       react: '>= 16.8.0'
@@ -8128,12 +8132,14 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/query-core@5.104.3': {}
+  '@tanstack/query-core@5.104.4': {}
 
-  '@tanstack/react-query@5.104.3(react@19.3.1)':
+  '@tanstack/react-query@5.104.4(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.104.3
+      '@tanstack/query-core': 5.104.4
       react: 19.3.1
+    optionalDependencies:
+      '@types/react': 19.3.0
 
   '@tanstack/react-store@0.11.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -8150,9 +8156,9 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
-  '@tanstack/react-virtual@3.14.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@tanstack/react-virtual@3.14.21(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@tanstack/virtual-core': 3.19.5
+      '@tanstack/virtual-core': 3.19.6
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
@@ -8162,7 +8168,7 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.11.2
 
-  '@tanstack/virtual-core@3.19.5': {}
+  '@tanstack/virtual-core@3.19.6': {}
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -9851,7 +9857,7 @@ snapshots:
 
   human-signals@2.1.0: {}
 
-  i18next@26.4.7(@typescript/typescript6@6.0.2):
+  i18next@26.5.2(@typescript/typescript6@6.0.2):
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
 
@@ -10414,12 +10420,12 @@ snapshots:
     dependencies:
       jotai: 3.0.1(@types/react@19.3.0)(react@19.3.1)
 
-  jotai-tanstack-query@0.11.0(@tanstack/query-core@5.104.3)(@tanstack/react-query@5.104.3(react@19.3.1))(jotai@3.0.1(@types/react@19.3.0)(react@19.3.1))(react@19.3.1):
+  jotai-tanstack-query@0.11.0(@tanstack/query-core@5.104.4)(@tanstack/react-query@5.104.4(@types/react@19.3.0)(react@19.3.1))(jotai@3.0.1(@types/react@19.3.0)(react@19.3.1))(react@19.3.1):
     dependencies:
-      '@tanstack/query-core': 5.104.3
+      '@tanstack/query-core': 5.104.4
       jotai: 3.0.1(@types/react@19.3.0)(react@19.3.1)
     optionalDependencies:
-      '@tanstack/react-query': 5.104.3(react@19.3.1)
+      '@tanstack/react-query': 5.104.4(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
 
   jotai@3.0.1(@types/react@19.3.0)(react@19.3.1):
@@ -11197,11 +11203,11 @@ snapshots:
       '@types/react': 19.3.0
       '@types/react-dom': 19.3.0(@types/react@19.3.0)
 
-  react-i18next@17.0.19(@typescript/typescript6@6.0.2)(i18next@26.4.7(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1):
+  react-i18next@17.1.0(@typescript/typescript6@6.0.2)(i18next@26.5.2(@typescript/typescript6@6.0.2))(react-dom@19.3.1(react@19.3.1))(react-native@0.81.4(@babel/core@7.29.7(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.1)(supports-color@10.2.2))(react@19.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
       html-parse-stringify: 4.0.1
-      i18next: 26.4.7(@typescript/typescript6@6.0.2)
+      i18next: 26.5.2(@typescript/typescript6@6.0.2)
       react: 19.3.1
       use-sync-external-store: 1.6.0(react@19.3.1)
     optionalDependencies:
@@ -12452,9 +12458,9 @@ time:
   '@react-types/dialog@3.6.0': '2026-04-14T22:43:55.173Z'
   '@react-types/shared@3.37.0': '2026-10-08T01:00:02.830Z'
   '@svgr/webpack@8.1.0': '2023-08-15T06:46:24.158Z'
-  '@tanstack/react-query@5.104.3': '2026-10-15T07:53:35.788Z'
+  '@tanstack/react-query@5.104.4': '2026-10-17T17:55:14.077Z'
   '@tanstack/react-table@9.3.1': '2026-10-12T16:50:44.806Z'
-  '@tanstack/react-virtual@3.14.20': '2026-10-15T13:54:14.594Z'
+  '@tanstack/react-virtual@3.14.21': '2026-10-16T11:19:18.479Z'
   '@testing-library/jest-dom@7.0.1': '2026-08-09T23:44:33.598Z'
   '@testing-library/react@16.3.3': '2026-08-27T17:41:18.735Z'
   '@tsparticles/engine@4.4.0': '2026-08-31T00:24:30.157Z'
@@ -12480,7 +12486,7 @@ time:
   express@5.3.0: '2026-10-09T12:56:54.505Z'
   highlight.js@11.12.0: '2026-08-12T04:06:58.019Z'
   http-proxy-middleware@4.2.0: '2026-07-04T21:49:09.221Z'
-  i18next@26.4.7: '2026-10-16T06:24:36.405Z'
+  i18next@26.5.2: '2026-10-17T21:24:19.266Z'
   immer@11.1.21: '2026-10-02T18:30:41.965Z'
   jest-axe@11.0.0: '2026-07-26T19:08:15.954Z'
   jest-environment-jsdom@30.5.2: '2026-09-18T13:56:40.727Z'
@@ -12500,7 +12506,7 @@ time:
   react-dom@19.3.1: '2026-10-14T16:49:10.081Z'
   react-hook-form@7.90.0: '2026-10-11T12:13:46.090Z'
   react-hot-toast@2.6.1: '2026-09-16T12:45:49.652Z'
-  react-i18next@17.0.19: '2026-10-16T06:26:13.966Z'
+  react-i18next@17.1.0: '2026-10-17T19:01:17.902Z'
   react-is@19.3.1: '2026-10-14T16:47:50.866Z'
   react-medium-image-zoom@5.4.9: '2026-08-12T01:13:19.594Z'
   react-popper@2.3.0: '2022-04-28T10:21:57.798Z'

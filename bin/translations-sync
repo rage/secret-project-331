@@ -19,7 +19,8 @@ LOCALES_DIR = os.path.abspath(
     )
 )
 
-API_VERSION = "2024-06-01"
+# Azure structured outputs allow at most 100 object properties per schema, intermediate objects included.
+MAX_SCHEMA_PROPERTIES = 100
 API_MAX_ATTEMPTS = 4
 BATCH_MAX_ATTEMPTS = 2
 
@@ -46,7 +47,7 @@ PLACEHOLDER_RE = re.compile(r"\{\{[^}]*\}\}|</?\d+>|\$t\([^)]*\)")
 
 SYSTEM_PROMPT = (
     "Translate the given i18next translation JSON from English to {language}. "
-    "Return only a valid JSON object with exactly the same keys and nesting. "
+    "Return a JSON object with the same keys and nesting. "
     "Keep {{{{...}}}} interpolations, <0>-style tags and $t(...) references unchanged. "
     "Keys ending in _zero, _one, _two, _few, _many or _other are plural forms: write the grammatically "
     "correct form of that category in {language}; the English value is only a reference "
@@ -64,8 +65,7 @@ Path = Tuple[str, ...]
 
 class AzureConfig(NamedTuple):
     host: str
-    base_path: str
-    model: str
+    deployment: str
     api_key: str
 
 
@@ -76,47 +76,38 @@ class Entry(NamedTuple):
 
 def get_azure_config() -> AzureConfig:
     api_host = os.getenv("AZURE_API_HOST")
-    api_model = os.getenv("AZURE_API_MODEL")
+    deployment = os.getenv("AZURE_API_MODEL")
     api_key = os.getenv("AZURE_API_KEY")
-    if not api_host or not api_model or not api_key:
+    if not api_host or not deployment or not api_key:
         raise ValueError(
             "AZURE_API_HOST, AZURE_API_MODEL and AZURE_API_KEY environment variables must be set"
         )
-    host, base_path = normalize_api_host(api_host)
-    return AzureConfig(host, base_path, api_model, api_key)
+    return AzureConfig(parse_api_host(api_host), deployment, api_key)
 
 
-def normalize_api_host(api_host: str) -> Tuple[str, str]:
-    """Return HTTPSConnection host and the base deployment path."""
-    if api_host.startswith("//"):
-        api_host = f"https:{api_host}"
-    elif "://" not in api_host:
-        api_host = f"https://{api_host}"
-
-    parsed = urlparse(api_host)
-    host = parsed.netloc
+def parse_api_host(api_host: str) -> str:
+    """Bare hostname from a host or URL; the v1 API path is fixed."""
+    host = urlparse(api_host if "://" in api_host else f"https://{api_host.lstrip('/')}").netloc
     if not host:
         raise ValueError(f"AZURE_API_HOST must include a hostname: {api_host!r}")
-
-    base_path = parsed.path.rstrip("/") or "/openai/deployments"
-    deployment_scoped_path_match = re.fullmatch(
-        r"(?P<deployment_base>.*/openai/deployments)/[^/]+", base_path
-    )
-    if deployment_scoped_path_match:
-        base_path = deployment_scoped_path_match.group("deployment_base")
-
-    return host, base_path
+    return host
 
 
-def fetch_completion(config: AzureConfig, system_prompt: str, user_message: str) -> str:
-    """Return the model's reply text, retrying on 429 and 5xx with backoff."""
+def fetch_completion(
+    config: AzureConfig, system_prompt: str, user_message: str, schema: Dict[str, Any]
+) -> str:
+    """Return the model's reply text, constrained to `schema`; retries 429 and 5xx with backoff."""
     body = json.dumps(
         {
+            "model": config.deployment,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
             ],
-            "response_format": {"type": "json_object"},
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {"name": "translations", "strict": True, "schema": schema},
+            },
         },
         ensure_ascii=False,
     ).encode("utf-8")
@@ -124,7 +115,7 @@ def fetch_completion(config: AzureConfig, system_prompt: str, user_message: str)
         "api-key": config.api_key,
         "Content-Type": "application/json; charset=utf-8",
     }
-    path = f"{config.base_path}/{config.model}/chat/completions?api-version={API_VERSION}"
+    path = "/openai/v1/chat/completions"
 
     for attempt in range(1, API_MAX_ATTEMPTS + 1):
         conn = http.client.HTTPSConnection(config.host)
@@ -138,7 +129,10 @@ def fetch_completion(config: AzureConfig, system_prompt: str, user_message: str)
             conn.close()
 
         if status == 200:
-            return json.loads(data)["choices"][0]["message"]["content"]
+            message = json.loads(data)["choices"][0]["message"]
+            if message.get("refusal"):
+                raise ValueError(f"model refused: {message['refusal']}")
+            return message["content"]
 
         is_transient = status == 429 or status >= 500
         if not is_transient or attempt == API_MAX_ATTEMPTS:
@@ -166,6 +160,43 @@ def unflatten(leaves: Dict[Path, Any]) -> Dict[str, Any]:
     for path, value in leaves.items():
         set_leaf(data, path, value)
     return data
+
+
+def build_schema(paths: List[Path]) -> Dict[str, Any]:
+    """Strict JSON schema accepting exactly these key paths with string leaves."""
+    tree = unflatten({path: None for path in paths})
+
+    def node(subtree: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        if subtree is None:
+            return {"type": "string"}
+        return {
+            "type": "object",
+            "properties": {key: node(child) for key, child in subtree.items()},
+            "required": list(subtree),
+            "additionalProperties": False,
+        }
+
+    return node(tree)
+
+
+def make_batches(paths: List[Path], max_keys: int) -> List[List[Path]]:
+    """Split into batches within `max_keys` and the schema property limit."""
+    batches: List[List[Path]] = []
+    current: List[Path] = []
+    properties: set = set()
+    for path in paths:
+        prefixes = {path[:i] for i in range(1, len(path) + 1)}
+        if current and (
+            len(current) >= max_keys
+            or len(properties | prefixes) > MAX_SCHEMA_PROPERTIES
+        ):
+            batches.append(current)
+            current, properties = [], set()
+        current.append(path)
+        properties |= prefixes
+    if current:
+        batches.append(current)
+    return batches
 
 
 def set_leaf(data: Dict[str, Any], path: Path, value: Any) -> None:
@@ -229,20 +260,10 @@ def placeholders(text: str) -> Counter:
 
 
 def find_problems(sources: Dict[Path, Entry], translated: Dict[Path, Any]) -> List[str]:
+    """Placeholder mismatches; keys and types are already guaranteed by the strict schema."""
     problems = []
-    missing = sources.keys() - translated.keys()
-    extra = translated.keys() - sources.keys()
-    if missing:
-        problems.append(f"missing keys: {sorted(missing)[:5]}")
-    if extra:
-        problems.append(f"unexpected keys: {sorted(extra)[:5]}")
     for path, entry in sources.items():
-        text = translated.get(path)
-        if text is None:
-            continue
-        if not isinstance(text, str):
-            problems.append(f"non-string value at {path}")
-            continue
+        text = translated[path]
         expected, actual = placeholders(entry.english), placeholders(text)
         # A plural form may legitimately drop {{count}}, but must not invent or rename placeholders.
         is_valid = (
@@ -256,18 +277,17 @@ def find_problems(sources: Dict[Path, Entry], translated: Dict[Path, Any]) -> Li
 def translate_batch(
     config: AzureConfig, sources: Dict[Path, Entry], language: str
 ) -> Optional[Dict[Path, str]]:
-    """Translate one batch, re-asking once if the reply is malformed; None on failure."""
+    """Translate one batch, re-asking once if placeholders were altered; None on failure."""
     system_prompt = SYSTEM_PROMPT.format(language=language)
     user_message = json.dumps(
         unflatten({path: entry.english for path, entry in sources.items()}),
         indent=2,
         ensure_ascii=False,
     )
+    schema = build_schema(list(sources))
     for attempt in range(1, BATCH_MAX_ATTEMPTS + 1):
         try:
-            reply = json.loads(fetch_completion(config, system_prompt, user_message))
-            if not isinstance(reply, dict):
-                raise ValueError("reply is not a JSON object")
+            reply = json.loads(fetch_completion(config, system_prompt, user_message, schema))
             translated = flatten(reply)
             problems = find_problems(sources, translated)
         except (RuntimeError, OSError, KeyError, ValueError) as e:
@@ -330,10 +350,11 @@ def sync_file(
 
     is_changed = False
     is_ok = True
-    items = list(todo.items())
-    for start in range(0, len(items), args.batch_size):
-        batch = dict(items[start : start + args.batch_size])
-        logging.info(f"{label}: translating keys {start + 1}-{start + len(batch)}/{len(items)}")
+    done = 0
+    for paths in make_batches(list(todo), args.batch_size):
+        batch = {path: todo[path] for path in paths}
+        logging.info(f"{label}: translating keys {done + 1}-{done + len(batch)}/{len(todo)}")
+        done += len(batch)
         assert config is not None
         translated = translate_batch(config, batch, language)
         if translated is None:

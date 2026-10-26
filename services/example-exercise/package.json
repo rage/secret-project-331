@@ -23,16 +23,16 @@
     "@fontsource-variable/inter": "5.3.0",
     "@fontsource/commit-mono": "^5.3.0",
     "@react-aria/overlays": "^3.32.1",
-    "@tanstack/react-router": "^1.170.44",
-    "@tanstack/react-start": "^1.169.2",
-    "i18next": "^26.4.7",
+    "@tanstack/react-router": "^1.170.45",
+    "@tanstack/react-start": "^1.169.3",
+    "i18next": "^26.5.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "react-i18next": "^17.0.19"
+    "react-i18next": "^17.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "@rsbuild/core": "^2.2.13",
+    "@rsbuild/core": "^2.2.14",
     "@rsbuild/plugin-react": "^2.1.1",
     "@rsbuild/plugin-svgr": "^2.0.5",
     "@testing-library/dom": "^10.4.2",

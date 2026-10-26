@@ -52,16 +52,17 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   courseId,
 }) => {
   const { t, i18n } = useTranslation()
+  const courseModuleId = courseModuleProgress.course_module_id
   const getEndQuestionnaire = useQuery({
-    queryKey: [`course-${courseId}-module-${courseModuleProgress.course_module_id}-questions`],
+    queryKey: [`course-${courseId}-module-${courseModuleId}-questions`],
     queryFn: (): Promise<CourseModuleEndingQuestion[]> =>
       getCourseModuleEndQuestionnaire({
         path: {
           course_id: assertNotNullOrUndefined(courseId),
-          course_module_id: assertNotNullOrUndefined(courseModuleProgress.course_module_id),
+          course_module_id: assertNotNullOrUndefined(courseModuleId),
         },
       }),
-    enabled: !!courseId && !!courseModuleProgress.course_module_id,
+    enabled: !!courseId && !!courseModuleId,
   })
   const requiresExam = courseModuleProgress.requires_exam
   const points: ProgressMeasure = withoutEmptyThreshold({
@@ -155,9 +156,17 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
               Congratulations! You meet all the requiremenents for passing the course. Give course
               feedback to gain your completion (1-2 minutes)
             </p>
-            <QueryResult query={getEndQuestionnaire} emptyFallback={<p>Help</p>}>
-              {(data) => <EndQuestionnaireDialog questions={data} />}
-            </QueryResult>
+            {courseId && (
+              <QueryResult query={getEndQuestionnaire} emptyFallback={<p>Help</p>}>
+                {(data) => (
+                  <EndQuestionnaireDialog
+                    questions={data}
+                    courseId={courseId}
+                    courseModuleId={courseModuleId}
+                  />
+                )}
+              </QueryResult>
+            )}
           </div>
         </Wrapper>
       )}

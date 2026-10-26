@@ -1,52 +1,86 @@
-// oxlint-disable i18next/no-literal-string
 "use client"
 
+import { css } from "@emotion/css"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { saveCourseModuleEndQuestionnaireAnswersMutation } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { CourseModuleEndingQuestion } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { RadioGroup, Radio, TextArea, Button, Checkbox } from "@/shared-module/components"
 
 interface Answer {
-  free_text: string
+  freeText: string
   select: string
-  multi_select: string
+  multiSelect: Record<string, boolean>
 }
 
 export interface EndQuestionnaireDialogProps {
   questions: CourseModuleEndingQuestion[]
+  courseId: string
+  courseModuleId: string
 }
 
 type AnswersData = Record<string, Answer>
 
-const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ questions }) => {
+const multiSelectAnswerMap = (multi: Record<string, boolean> | undefined) => {
+  let answers: string[] = []
+  if (!multi) {
+    return answers
+  }
+  for (let prop in multi) {
+    if (Object.prototype.hasOwnProperty.call(multi, prop) && multi[prop]) {
+      answers.push(prop)
+    }
+  }
+  return answers
+}
+
+const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
+  questions,
+  courseId,
+  courseModuleId,
+}) => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { control, handleSubmit } = useForm<AnswersData>({
     defaultValues: {},
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
   })
-  const courseId = questions[0]?.course_id
-  const courseModuleId = questions[0]?.course_module_id
 
   const answerEndQuestionnaireMutation = useToastMutationOptions(
     saveCourseModuleEndQuestionnaireAnswersMutation(),
     { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        setOpen(false)
+      },
+    },
   )
 
-  const onSaveEndQuestionnaireAnswersWrapper = handleSubmit((data) => {
-    if (!courseId || !courseModuleId) {
-      throw new Error("can't submit without path ids")
-    }
-    console.log(data)
-    answerEndQuestionnaireMutation.mutate({
-      body: [],
+  const onSaveEndQuestionnaireAnswersWrapper = handleSubmit(async (data) => {
+    const questionIds = questions.map((q) => q.id)
+
+    const answerData = questionIds.map((id) => {
+      let answer = data[id]
+      console.log(answer)
+      return {
+        question_id: id,
+        answer_text_value: answer?.freeText ?? null,
+        answer_select_value: answer?.select ?? null,
+        answer_multi_select_value: multiSelectAnswerMap(answer?.multiSelect),
+      }
+    })
+    await answerEndQuestionnaireMutation.mutateAsync({
+      body: answerData,
       path: {
-        course_id: courseId,
-        course_module_id: courseModuleId,
+        course_id: assertNotNullOrUndefined(courseId),
+        course_module_id: assertNotNullOrUndefined(courseModuleId),
       },
     })
   })
@@ -58,26 +92,37 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ questio
           setOpen(true)
         }}
       >
-        Answer questions
+        {t("answer-to-complete-course")}
       </Button>
       <StandardDialog
         open={open}
-        title={"Answer these questions"}
+        title={t("answer-to-complete-course")}
         showCloseButton={false}
         closeable={false}
       >
-        <p>Please answer these questions for no particular reason.</p>
-        <form onSubmit={onSaveEndQuestionnaireAnswersWrapper}>
-          {questions.map((q) => {
+        <form
+          className={css`
+            flex: 1;
+            ${respondToOrLarger.sm} {
+              flex: 0 45%;
+            }
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow: scroll;
+          `}
+          onSubmit={onSaveEndQuestionnaireAnswersWrapper}
+        >
+          {questions.map((q, i) => {
             return (
-              <>
-                <label>{q.question_text}</label>
+              <div key={i}>
                 {q.select_labels && (
                   <RadioGroup
                     control={control}
-                    name={`${q.id}-select`}
+                    name={`${q.id}.select`}
                     label={q.question_text}
                     isRequired
+                    rules={{ required: t("required") }}
                     // oxlint-disable-next-line i18next/no-literal-string
                     orientation="horizontal"
                   >
@@ -86,29 +131,34 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ questio
                     ))}
                   </RadioGroup>
                 )}
-                {q.multi_select_labels &&
-                  q.multi_select_labels.map((m) => (
-                    <Checkbox
-                      key={m}
-                      control={control}
-                      name={`${q.id}-multi-select.${m}`}
-                      label={m}
-                    />
-                  ))}
+                {q.multi_select_labels && (
+                  <>
+                    <p>{t("select-all-that-apply")}</p>
+                    {q.multi_select_labels.map((m) => (
+                      <Checkbox
+                        key={m}
+                        control={control}
+                        name={`${q.id}.multiSelect.${m}`}
+                        label={m}
+                      />
+                    ))}
+                  </>
+                )}
                 {q.question_free_text_instruction && (
                   <label>{q.question_free_text_instruction}</label>
                 )}
                 <TextArea
                   control={control}
-                  name={`${q.id}-free-text`}
+                  name={`${q.id}.freeText`}
                   label={q.question_text}
                   autoResize={true}
                   isRequired
+                  rules={{ required: t("required-field") }}
                 />
-              </>
+              </div>
             )
           })}
-          <button>Submit</button>
+          <Button type="submit">{t("submit")}</Button>
         </form>
       </StandardDialog>
     </>

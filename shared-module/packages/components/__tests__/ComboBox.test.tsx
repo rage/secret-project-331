@@ -89,6 +89,8 @@ describe("ComboBox", () => {
 
     fireEvent.change(input, { target: { value: "be" } })
     expect(screen.getByRole("option", { name: "Beta" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Alpha" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Gamma" })).not.toBeInTheDocument()
   })
 
   test("closes without a dangling aria-controls when the caller's filtered items become empty", () => {

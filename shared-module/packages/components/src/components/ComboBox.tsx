@@ -167,7 +167,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     field.value === null || field.value === undefined ? null : (field.value as ComboBoxKey)
 
   const state = useComboBoxState({
-    items: normalizedItems,
+    defaultItems: normalizedItems,
     children: (item) => (
       <Item key={item.key} textValue={item.textValue}>
         {item.rendered}

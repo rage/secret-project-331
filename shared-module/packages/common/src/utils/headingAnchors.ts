@@ -1,11 +1,10 @@
-const HEADING_BLOCK_NAME = "core/heading"
 const MAX_SLUG_LENGTH = 80
 const FALLBACK_SLUG = "heading"
 
-/** How much of a block's client id goes into a heading's anchor, before any collision. */
-const ID_PART_LENGTH = 8
+/** How much of a block's client id goes into a heading's anchor. */
+export const HEADING_ANCHOR_ID_PART_LENGTH = 8
 
-const ID_PART_PATTERN = new RegExp(`^[0-9a-f]{${ID_PART_LENGTH},}(?=-)`)
+const ID_PART_PATTERN = new RegExp(`^[0-9a-f]{${HEADING_ANCHOR_ID_PART_LENGTH}}(?=-)`)
 
 /** Letters that NFD leaves intact but that have an established ASCII spelling. */
 const NON_DECOMPOSABLE_LETTERS: Record<string, string> = {
@@ -126,47 +125,6 @@ export function slugifyHeadingText(text: string): string {
   return slug === "" ? FALLBACK_SLUG : slug
 }
 
-interface HeadingBlockAttributes {
-  content?: string
-  anchor?: string
-}
-
-/** The parts of a Gutenberg block this module needs. */
-export interface HeadingAnchorBlock {
-  name: string
-  clientId: string
-  attributes: unknown
-  innerBlocks: HeadingAnchorBlock[]
-}
-
-interface CollectedHeading {
-  clientId: string
-  content: string
-  explicitAnchor: string | undefined
-}
-
-/** Page content is stored JSON, so entries that are not block objects are skipped. */
-function collectHeadings(blocks: readonly unknown[], collected: CollectedHeading[]): void {
-  for (const entry of blocks) {
-    if (typeof entry !== "object" || entry === null) {
-      continue
-    }
-    const block = entry as HeadingAnchorBlock
-    if (block.name === HEADING_BLOCK_NAME) {
-      const attributes = block.attributes as HeadingBlockAttributes | undefined
-      const explicitAnchor = attributes?.anchor?.trim()
-      collected.push({
-        clientId: block.clientId,
-        content: attributes?.content ?? "",
-        explicitAnchor: explicitAnchor === "" ? undefined : explicitAnchor,
-      })
-    }
-    if (Array.isArray(block.innerBlocks)) {
-      collectHeadings(block.innerBlocks, collected)
-    }
-  }
-}
-
 /**
  * The leading client id fragment of a heading anchor, or undefined when there is none.
  *
@@ -176,67 +134,4 @@ function collectHeadings(blocks: readonly unknown[], collected: CollectedHeading
  */
 export function headingAnchorIdPart(anchor: string): string | undefined {
   return ID_PART_PATTERN.exec(anchor)?.[0]
-}
-
-function uniqueIdPart(clientId: string, taken: Set<string>): string {
-  const withoutDashes = clientId.replaceAll("-", "")
-  let length = ID_PART_LENGTH
-  while (length < withoutDashes.length && taken.has(withoutDashes.slice(0, length))) {
-    length += ID_PART_LENGTH
-  }
-  return withoutDashes.slice(0, length)
-}
-
-/**
- * Resolves the `id` every heading on a page should render, keyed by block client id.
- *
- * Anchors are `<client id fragment>-<readable slug>`. The readable half makes the link worth
- * sharing; the client id half keeps it resolving once the heading has been reworded or moved,
- * since it belongs to the block rather than to its text or position.
- *
- * An author-set HTML anchor replaces the whole thing. Duplicating a heading block copies that
- * attribute along with the rest, so only the first block claiming an anchor keeps it; later ones
- * fall back to their generated anchor rather than rendering a second element with the same id. An
- * author-set anchor that starts with a client id fragment (such as a pasted link) reserves that
- * fragment, so the id part fallback in links cannot match two headings. A generated anchor that
- * still equals an author-set one, possible when the client id is not a lowercase UUID, gets a
- * numeric suffix.
- *
- * @param blocks The page's block tree. Inner blocks are walked, so headings nested in columns or
- * expandable content are included.
- */
-export function buildHeadingAnchorIds(blocks: HeadingAnchorBlock[]): Map<string, string> {
-  const headings: CollectedHeading[] = []
-  collectHeadings(blocks, headings)
-
-  const anchorIds = new Map<string, string>()
-  const takenAnchors = new Set<string>()
-  const takenIdParts = new Set<string>()
-  for (const heading of headings) {
-    if (heading.explicitAnchor !== undefined && !takenAnchors.has(heading.explicitAnchor)) {
-      takenAnchors.add(heading.explicitAnchor)
-      anchorIds.set(heading.clientId, heading.explicitAnchor)
-      const idPart = headingAnchorIdPart(heading.explicitAnchor)
-      if (idPart !== undefined) {
-        takenIdParts.add(idPart)
-      }
-    }
-  }
-
-  for (const heading of headings) {
-    if (anchorIds.has(heading.clientId)) {
-      continue
-    }
-    const idPart = uniqueIdPart(heading.clientId, takenIdParts)
-    takenIdParts.add(idPart)
-    const slug = slugifyHeadingText(headingTextFromHtml(heading.content))
-    let anchor = `${idPart}-${slug}`
-    for (let suffix = 2; takenAnchors.has(anchor); suffix++) {
-      anchor = `${idPart}-${slug}-${suffix}`
-    }
-    takenAnchors.add(anchor)
-    anchorIds.set(heading.clientId, anchor)
-  }
-
-  return anchorIds
 }

@@ -1,32 +1,6 @@
-import type { HeadingAnchorBlock } from "../headingAnchors"
-import {
-  buildHeadingAnchorIds,
-  headingAnchorIdPart,
-  headingTextFromHtml,
-  slugifyHeadingText,
-} from "../headingAnchors"
-
-const heading = (
-  clientId: string,
-  content: string,
-  anchor?: string,
-  innerBlocks: HeadingAnchorBlock[] = [],
-): HeadingAnchorBlock => ({
-  name: "core/heading",
-  clientId,
-  attributes: { content, level: 2, ...(anchor === undefined ? {} : { anchor }) },
-  innerBlocks,
-})
-
-const columns = (clientId: string, innerBlocks: HeadingAnchorBlock[]): HeadingAnchorBlock => ({
-  name: "core/columns",
-  clientId,
-  attributes: {},
-  innerBlocks,
-})
+import { headingAnchorIdPart, headingTextFromHtml, slugifyHeadingText } from "../headingAnchors"
 
 const CLIENT_ID_A = "3f2b8c1a-0000-4000-8000-000000000000"
-const CLIENT_ID_B = "9a7d4e2b-0000-4000-8000-000000000000"
 
 describe("headingAnchors", () => {
   describe("headingTextFromHtml", () => {
@@ -132,124 +106,11 @@ describe("headingAnchors", () => {
       expect(headingAnchorIdPart(CLIENT_ID_A)).toBe("3f2b8c1a")
     })
 
-    it("reads a lengthened fragment, as used when two blocks would share one", () => {
-      expect(headingAnchorIdPart("3f2b8c1affff4695-second")).toBe("3f2b8c1affff4695")
-    })
-
     it("ignores an anchor that does not start with one", () => {
       expect(headingAnchorIdPart("when-connection-is-opened")).toBeUndefined()
       expect(headingAnchorIdPart("intro")).toBeUndefined()
       // Too short to be a client id fragment
       expect(headingAnchorIdPart("3f2b8c-slug")).toBeUndefined()
-    })
-  })
-
-  describe("buildHeadingAnchorIds", () => {
-    it("puts the client id fragment before the readable slug", () => {
-      const ids = buildHeadingAnchorIds([heading(CLIENT_ID_A, "Getting started")])
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-getting-started")
-    })
-
-    it("prefers an author-set anchor over the generated one", () => {
-      const ids = buildHeadingAnchorIds([heading(CLIENT_ID_A, "Getting started", "intro")])
-      expect(ids.get(CLIENT_ID_A)).toBe("intro")
-    })
-
-    it("ignores a blank author-set anchor", () => {
-      const ids = buildHeadingAnchorIds([heading(CLIENT_ID_A, "Getting started", "   ")])
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-getting-started")
-    })
-
-    it("needs no suffix for headings that share their text", () => {
-      const ids = buildHeadingAnchorIds([
-        heading(CLIENT_ID_A, "Summary"),
-        heading(CLIENT_ID_B, "Summary"),
-      ])
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-summary")
-      expect(ids.get(CLIENT_ID_B)).toBe("9a7d4e2b-summary")
-    })
-
-    it("lengthens the id fragment when two blocks would share one", () => {
-      const twin = "3f2b8c1a-ffff-4000-8000-000000000000"
-      const ids = buildHeadingAnchorIds([heading(CLIENT_ID_A, "First"), heading(twin, "Second")])
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-first")
-      expect(ids.get(twin)).toBe("3f2b8c1affff4000-second")
-    })
-
-    it("does not repeat an anchor that a duplicated block brought with it", () => {
-      const ids = buildHeadingAnchorIds([
-        heading(CLIENT_ID_A, "Summary", "summary"),
-        heading(CLIENT_ID_B, "Summary", "summary"),
-      ])
-      expect(ids.get(CLIENT_ID_A)).toBe("summary")
-      expect(ids.get(CLIENT_ID_B)).toBe("9a7d4e2b-summary")
-    })
-
-    it("lengthens the id fragment when an author-set anchor already starts with it", () => {
-      const ids = buildHeadingAnchorIds([
-        heading(CLIENT_ID_A, "Getting started"),
-        heading(CLIENT_ID_B, "Copied link", "3f2b8c1a-getting-started"),
-      ])
-      expect(ids.get(CLIENT_ID_B)).toBe("3f2b8c1a-getting-started")
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a00004000-getting-started")
-    })
-
-    it("suffixes a generated anchor that an author-set anchor already uses", () => {
-      const ids = buildHeadingAnchorIds([
-        heading("heading1", "Intro"),
-        heading(CLIENT_ID_B, "Copied link", "heading1-intro"),
-      ])
-      expect(ids.get(CLIENT_ID_B)).toBe("heading1-intro")
-      expect(ids.get("heading1")).toBe("heading1-intro-2")
-    })
-
-    it("walks inner blocks", () => {
-      const ids = buildHeadingAnchorIds([
-        heading(CLIENT_ID_A, "Top level"),
-        columns("cols", [heading(CLIENT_ID_B, "Nested heading")]),
-      ])
-      expect(ids.get(CLIENT_ID_B)).toBe("9a7d4e2b-nested-heading")
-    })
-
-    it("skips blocks that are not headings", () => {
-      const ids = buildHeadingAnchorIds([columns("cols", [])])
-      expect(ids.size).toBe(0)
-    })
-
-    it("skips malformed entries and inner blocks that are not arrays", () => {
-      const malformed = [
-        null,
-        "not a block",
-        { name: "core/group", clientId: "group", attributes: {} },
-        { name: "core/group", clientId: "group2", attributes: {}, innerBlocks: null },
-        columns("cols", [null as unknown as HeadingAnchorBlock, heading(CLIENT_ID_B, "Nested")]),
-        heading(CLIENT_ID_A, "Top level"),
-      ] as unknown as HeadingAnchorBlock[]
-      const ids = buildHeadingAnchorIds(malformed)
-      expect(ids.get(CLIENT_ID_A)).toBe("3f2b8c1a-top-level")
-      expect(ids.get(CLIENT_ID_B)).toBe("9a7d4e2b-nested")
-      expect(ids.size).toBe(2)
-    })
-
-    it("keeps the id fragment when the heading is reworded, so old links still resolve", () => {
-      const before = buildHeadingAnchorIds([heading(CLIENT_ID_A, "Old title")])
-      const after = buildHeadingAnchorIds([heading(CLIENT_ID_A, "New title")])
-      const idPart = headingAnchorIdPart(before.get(CLIENT_ID_A) ?? "")
-      expect(idPart).toBeDefined()
-      expect(headingAnchorIdPart(after.get(CLIENT_ID_A) ?? "")).toBe(idPart)
-    })
-
-    it("keeps anchors attached to their own heading when blocks are reordered", () => {
-      const inOrder = buildHeadingAnchorIds([
-        heading(CLIENT_ID_A, "Summary"),
-        heading(CLIENT_ID_B, "Summary"),
-      ])
-      const reordered = buildHeadingAnchorIds([
-        heading(CLIENT_ID_B, "Summary"),
-        heading(CLIENT_ID_A, "Summary"),
-      ])
-      expect(reordered.get(CLIENT_ID_A)).toBe(inOrder.get(CLIENT_ID_A))
-      expect(reordered.get(CLIENT_ID_B)).toBe(inOrder.get(CLIENT_ID_B))
     })
   })
 })

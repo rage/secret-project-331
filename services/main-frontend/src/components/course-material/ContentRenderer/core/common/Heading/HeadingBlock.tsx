@@ -3,12 +3,15 @@
 /* oxlint-disable jsx-a11y/heading-has-content */
 import { css, cx } from "@emotion/css"
 import type { DetailedHTMLProps, HTMLAttributes } from "react"
-import { useContext, useId } from "react"
+import { useId } from "react"
 
 import type { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
-import { HeadingAnchorsContext } from "@/contexts/course-material/HeadingAnchorsContext"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
-import { headingTextFromHtml } from "@/shared-module/common/utils/headingAnchors"
+import {
+  HEADING_ANCHOR_ID_PART_LENGTH,
+  headingTextFromHtml,
+  slugifyHeadingText,
+} from "@/shared-module/common/utils/headingAnchors"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMapper"
@@ -32,14 +35,16 @@ const contentStyles = css`
 const HeadingBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { content, level, fontSize, textAlign, fitText } = data.attributes
-  const anchorId = useContext(HeadingAnchorsContext).get(data.clientId)
+  const { content, level, fontSize, textAlign, fitText, anchor } = data.attributes
+  const headingText = headingTextFromHtml(content)
+  const idPart = data.clientId.replaceAll("-", "").slice(0, HEADING_ANCHOR_ID_PART_LENGTH)
+  const anchorId = anchor?.trim() || `${idPart}-${slugifyHeadingText(headingText)}`
   const contentId = useId()
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
     id: anchorId,
     // Keeps the anchor link and its status out of the heading's accessible name.
-    "aria-labelledby": anchorId ? contentId : undefined,
+    "aria-labelledby": contentId,
     children: (
       <>
         <span
@@ -47,9 +52,7 @@ const HeadingBlock: React.FC<
           className={contentStyles}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }}
         />
-        {anchorId && (
-          <HeadingAnchorLink anchorId={anchorId} headingText={headingTextFromHtml(content)} />
-        )}
+        <HeadingAnchorLink anchorId={anchorId} headingText={headingText} />
       </>
     ),
     className: cx(

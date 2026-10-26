@@ -1310,7 +1310,8 @@
           "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
-          "publicly_accessible"
+          "publicly_accessible",
+          "embeddable"
         ],
         "properties": {
           "chatbot_name": {
@@ -1334,6 +1335,9 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "embeddable": {
+            "type": "boolean"
           },
           "enabled_to_students": {
             "type": "boolean"

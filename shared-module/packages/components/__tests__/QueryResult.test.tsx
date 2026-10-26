@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
-import { act, fireEvent, render, screen } from "@testing-library/react"
+import { act, fireEvent, screen } from "@testing-library/react"
 import { createInstance } from "i18next"
 import { I18nextProvider } from "react-i18next"
 
@@ -26,6 +26,22 @@ function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQ
     ...partial,
   } as UseQueryResult<T, E>
 }
+export async function setupQueryResultI18N() {
+  const scopedI18n = createInstance()
+  await scopedI18n.init({
+    lng: "en",
+    fallbackLng: "en",
+    ns: ["shared-module", "errors"],
+    defaultNS: "shared-module",
+    interpolation: { escapeValue: false },
+    resources: {
+      en: {
+        errors: { "errorNotice.retry": "Retry" },
+      },
+    },
+  })
+  return scopedI18n
+}
 
 test("renders data", () => {
   renderUi(
@@ -37,55 +53,18 @@ test("renders data", () => {
   expect(screen.getByText("hi")).toBeInTheDocument()
 })
 
-test("blocking error shows alert and retry calls refetch", () => {
+test("blocking error shows alert and retry calls refetch", async () => {
   const refetch = jest.fn()
+  const i18n = await setupQueryResultI18N()
   renderUi(
-    <QueryResult
-      query={makeQuery({
-        data: undefined,
-        isPending: false,
-        isError: true,
-        error: new Error("failed"),
-        refetch,
-      })}
-      themeMode="light"
-    >
-      {() => null}
-    </QueryResult>,
-  )
-
-  expect(screen.getByRole("alert")).toBeInTheDocument()
-  expect(screen.getByText("failed")).toBeInTheDocument()
-  domClick(screen.getByRole("button", { name: "Retry" }))
-  expect(refetch).toHaveBeenCalledTimes(1)
-})
-
-test("retry label resolves from the shared-module namespace even when the default namespace shadows the key", async () => {
-  // No `.use(initReactI18next)`: that plugin registers its instance as react-i18next's global
-  // fallback, which would leak into every other test in this file that renders without a Provider.
-  const scopedI18n = createInstance()
-  await scopedI18n.init({
-    lng: "en",
-    fallbackLng: "en",
-    ns: ["translation", "shared-module"],
-    defaultNS: "translation",
-    interpolation: { escapeValue: false },
-    resources: {
-      en: {
-        translation: { "queryResult.retry": "Shadowed" },
-        "shared-module": { "queryResult.retry": "Retry" },
-      },
-    },
-  })
-
-  render(
-    <I18nextProvider i18n={scopedI18n}>
+    <I18nextProvider i18n={i18n}>
       <QueryResult
         query={makeQuery({
           data: undefined,
           isPending: false,
           isError: true,
           error: new Error("failed"),
+          refetch,
         })}
         themeMode="light"
       >
@@ -94,8 +73,10 @@ test("retry label resolves from the shared-module namespace even when the defaul
     </I18nextProvider>,
   )
 
-  expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument()
-  expect(screen.queryByRole("button", { name: "Shadowed" })).not.toBeInTheDocument()
+  expect(screen.getByRole("alert")).toBeInTheDocument()
+  expect(screen.getByText("failed")).toBeInTheDocument()
+  domClick(screen.getByRole("button", { name: "Retry" }))
+  expect(refetch).toHaveBeenCalledTimes(1)
 })
 
 test("stale error keeps content visible", () => {

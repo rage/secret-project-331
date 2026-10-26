@@ -1840,7 +1840,6 @@ export const zGetCourseMaterialDefaultModuleIdByCourseIdResponse = z.uuid()
 
 export const zGetCourseModuleEndQuestionnairePath = z.object({
   course_id: z.uuid(),
-  course_module_id: z.uuid(),
 })
 
 /**
@@ -1854,7 +1853,6 @@ export const zSaveCourseModuleEndQuestionnaireAnswersBody = z.array(
 
 export const zSaveCourseModuleEndQuestionnaireAnswersPath = z.object({
   course_id: z.uuid(),
-  course_module_id: z.uuid(),
 })
 
 export const zGetCourseMaterialExerciseTasksByModuleAndTypePath = z.object({

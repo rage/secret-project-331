@@ -150,18 +150,17 @@ async fn get_user_course_module_exercises_by_exercise_type(
 }
 
 /**
-GET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+GET `/api/v0/course-material/course-modules/course/:course_id/end_questions`
 
 Returns course module end questions.
 */
 #[utoipa::path(
     get,
-    path = "/course/{course_id}/{course_module_id}",
+    path = "/course/{course_id}/end_questions",
     operation_id = "getCourseModuleEndQuestionnaire",
     tag = "course-material-course-modules",
     params(
-        ("course_id" = Uuid, Path, description = "Course id"),
-        ("course_module_id" = Uuid, Path, description = "Course module id")
+        ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
         (status = 200, description = "Course module end questionnaire", body = Vec<CourseModuleEndingQuestion>)
@@ -171,35 +170,30 @@ Returns course module end questions.
 async fn get_course_module_end_questionnaire(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, Uuid)>,
+    path: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<CourseModuleEndingQuestion>>> {
-    let (course_id, course_module_id) = path.into_inner();
+    let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
 
     // get questions if user has not answered yet
-    let res = models::course_module_ending_questions::get_by_course_module_id(
-        &mut conn,
-        &course_module_id,
-    )
-    .await?;
+    let res =
+        models::course_module_ending_questions::get_by_course_id(&mut conn, &course_id).await?;
 
     token.authorized_ok(web::Json(res))
 }
 
 /**
-POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+POST `/api/v0/course-material/course-modules/course/:course_id/end_questions`
 
 Saves course module end question answers.
 */
 #[utoipa::path(
     post,
-    path = "/course/{course_id}/{course_module_id}",
-    operation_id = "saveCourseModuleEndQuestionnaireAnswers",
+path = "/course/{course_id}/end_questions",    operation_id = "saveCourseModuleEndQuestionnaireAnswers",
     tag = "course-material-course-modules",
     params(
-        ("course_id" = Uuid, Path, description = "Course id"),
-        ("course_module_id" = Uuid, Path, description = "Course module id")
+        ("course_id" = Uuid, Path, description = "Course id")
     ),
     request_body = Vec<NewCourseModuleEndingQuestionsAnswer>,
     responses(
@@ -210,10 +204,10 @@ Saves course module end question answers.
 async fn save_course_module_end_questionnaire_answers(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<(Uuid, Uuid)>,
+    path: web::Path<Uuid>,
     payload: web::Json<Vec<NewCourseModuleEndingQuestionsAnswer>>,
 ) -> ControllerResult<web::Json<()>> {
-    let (course_id, _course_module_id) = path.into_inner();
+    let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
 
@@ -249,11 +243,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_user_course_module_exercises_by_exercise_type),
     )
     .route(
-        "/course/{course_id}/{module_id}",
+        "/course/{course_id}/end_questions",
         web::get().to(get_course_module_end_questionnaire),
     )
     .route(
-        "/course/{course_id}/{module_id}",
+        "/course/{course_id}/end_questions",
         web::post().to(save_course_module_end_questionnaire_answers),
     );
 }

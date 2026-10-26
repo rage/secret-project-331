@@ -2096,13 +2096,9 @@ export type GetCourseModuleEndQuestionnaireData = {
      * Course id
      */
     course_id: string
-    /**
-     * Course module id
-     */
-    course_module_id: string
   }
   query?: never
-  url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}"
+  url: "/api/v0/course-material/course-modules/course/{course_id}/end_questions"
 }
 
 export type GetCourseModuleEndQuestionnaireResponses = {
@@ -2122,13 +2118,9 @@ export type SaveCourseModuleEndQuestionnaireAnswersData = {
      * Course id
      */
     course_id: string
-    /**
-     * Course module id
-     */
-    course_module_id: string
   }
   query?: never
-  url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}"
+  url: "/api/v0/course-material/course-modules/course/{course_id}/end_questions"
 }
 
 export type SaveCourseModuleEndQuestionnaireAnswersResponses = {

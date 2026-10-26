@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use utoipa::ToSchema;
 
 use crate::prelude::*;
-
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct CourseModuleEndingQuestionsAnswer {
     pub id: Uuid,

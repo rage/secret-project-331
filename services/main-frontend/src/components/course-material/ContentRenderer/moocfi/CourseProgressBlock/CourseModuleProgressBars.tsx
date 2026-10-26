@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
+import { useAtomValue } from "jotai"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -17,13 +17,9 @@ import {
   type ProgressMeasure,
   withoutEmptyThreshold,
 } from "@/components/course-progress/progressText"
-import { getCourseModuleEndQuestionnaire } from "@/generated/course-material-api/sdk.generated"
-import type {
-  UserCourseProgress,
-  CourseModuleEndingQuestion,
-} from "@/generated/course-material-api/types.generated"
-import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, QueryResult } from "@/shared-module/components"
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/EndQuestionStore"
 
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 
@@ -52,18 +48,6 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   courseId,
 }) => {
   const { t, i18n } = useTranslation()
-  const courseModuleId = courseModuleProgress.course_module_id
-  const getEndQuestionnaire = useQuery({
-    queryKey: [`course-${courseId}-module-${courseModuleId}-questions`],
-    queryFn: (): Promise<CourseModuleEndingQuestion[]> =>
-      getCourseModuleEndQuestionnaire({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-          course_module_id: assertNotNullOrUndefined(courseModuleId),
-        },
-      }),
-    enabled: !!courseId && !!courseModuleId,
-  })
   const requiresExam = courseModuleProgress.requires_exam
   const points: ProgressMeasure = withoutEmptyThreshold({
     given: courseModuleProgress.score_given,
@@ -84,16 +68,9 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
     requiresExam,
   )
 
-  const showEndQuestionnaire =
-    points.given !== null &&
-    points.required !== null &&
-    points.given >= points.required &&
-    exercises.given !== null &&
-    exercises.required !== null &&
-    exercises.given >= exercises.required &&
-    courseModuleProgress.requires_ending_questionnaire &&
-    !courseModuleProgress.ending_questionnaire_answered
+  const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
 
+  console.log(showEndQuestionnaire)
   return (
     <>
       <TotalWrapper>
@@ -156,17 +133,7 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
               Congratulations! You meet all the requiremenents for passing the course. Give course
               feedback to gain your completion (1-2 minutes)
             </p>
-            {courseId && (
-              <QueryResult query={getEndQuestionnaire} emptyFallback={<p>Help</p>}>
-                {(data) => (
-                  <EndQuestionnaireDialog
-                    questions={data}
-                    courseId={courseId}
-                    courseModuleId={courseModuleId}
-                  />
-                )}
-              </QueryResult>
-            )}
+            {courseId && <EndQuestionnaireDialog courseId={courseId} />}
           </div>
         </Wrapper>
       )}

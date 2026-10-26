@@ -23,19 +23,19 @@ pub struct CourseModuleEndingQuestion {
     pub multi_select_labels: Option<Vec<String>>,
 }
 
-pub async fn get_by_course_module_id(
+pub async fn get_by_course_id(
     conn: &mut PgConnection,
-    course_module_id: &Uuid,
+    course_id: &Uuid,
 ) -> ModelResult<Vec<CourseModuleEndingQuestion>> {
     let res: Vec<CourseModuleEndingQuestion> = sqlx::query_as!(
         CourseModuleEndingQuestion,
         r#"
 SELECT *
 FROM course_module_ending_questions
-WHERE course_module_id = $1 OR course_id IS NULL
+WHERE course_id = $1 OR course_id IS NULL
     AND deleted_at IS NULL
         "#,
-        course_module_id,
+        course_id,
     )
     .fetch_all(conn)
     .await?;

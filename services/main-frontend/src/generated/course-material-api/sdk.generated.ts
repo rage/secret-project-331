@@ -856,7 +856,7 @@ export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends 
 
 /**
  *
- * GET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+ * GET `/api/v0/course-material/course-modules/course/:course_id/end_questions`
  *
  * Returns course module end questions.
  */
@@ -872,13 +872,13 @@ export const getCourseModuleEndQuestionnaire = <ThrowOnError extends boolean = t
     responseValidator: async (data) =>
       await zGetCourseModuleEndQuestionnaireResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}",
+    url: "/api/v0/course-material/course-modules/course/{course_id}/end_questions",
     ...options,
   })
 
 /**
  *
- * POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`
+ * POST `/api/v0/course-material/course-modules/course/:course_id/end_questions`
  *
  * Saves course module end question answers.
  */
@@ -892,7 +892,7 @@ export const saveCourseModuleEndQuestionnaireAnswers = <ThrowOnError extends boo
     "data"
   >({
     responseStyle: "data",
-    url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}",
+    url: "/api/v0/course-material/course-modules/course/{course_id}/end_questions",
     ...options,
     headers: {
       "Content-Type": "application/json",

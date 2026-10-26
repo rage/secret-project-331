@@ -977,26 +977,16 @@
         }
       }
     },
-    "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}": {
+    "/api/v0/course-material/course-modules/course/{course_id}/end_questions": {
       "get": {
         "tags": ["course-material-course-modules"],
-        "summary": "\nGET `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`\n\nReturns course module end questions.",
+        "summary": "\nGET `/api/v0/course-material/course-modules/course/:course_id/end_questions`\n\nReturns course module end questions.",
         "operationId": "getCourseModuleEndQuestionnaire",
         "parameters": [
           {
             "name": "course_id",
             "in": "path",
             "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "course_module_id",
-            "in": "path",
-            "description": "Course module id",
             "required": true,
             "schema": {
               "type": "string",
@@ -1022,23 +1012,13 @@
       },
       "post": {
         "tags": ["course-material-course-modules"],
-        "summary": "\nPOST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id`\n\nSaves course module end question answers.",
+        "summary": "\nPOST `/api/v0/course-material/course-modules/course/:course_id/end_questions`\n\nSaves course module end question answers.",
         "operationId": "saveCourseModuleEndQuestionnaireAnswers",
         "parameters": [
           {
             "name": "course_id",
             "in": "path",
             "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "course_module_id",
-            "in": "path",
-            "description": "Course module id",
             "required": true,
             "schema": {
               "type": "string",

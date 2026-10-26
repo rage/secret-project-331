@@ -14,6 +14,7 @@ import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 
+import EndQuestionnaireDialog from "../course-material/modals/EndQuestionnaireDialog"
 import Brand from "./Brand"
 import LanguageMenu from "./LanguageMenu"
 import { MobileMenuButton } from "./MobileMenu/MobileMenuButton"
@@ -154,6 +155,22 @@ const Topbar: React.FC<TopbarProps> = ({
             aria-label={t("aria-label-top-bar")}
           >
             <Brand />
+
+            <div
+              className={css`
+                width: 100%;
+                margin: 0 auto;
+                text-align: center;
+                padding: 2em 0;
+                border: solid red 5px;
+
+                /** Make sure the visualization does not make the page wider on mobile */
+                max-width: 100%;
+                overflow: hidden;
+              `}
+            >
+              {courseId && <EndQuestionnaireDialog courseId={courseId} />}
+            </div>
 
             {/* Middle: primary navigation slot (visible on md+) */}
             <nav

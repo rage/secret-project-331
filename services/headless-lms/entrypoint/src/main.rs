@@ -48,6 +48,10 @@ fn main() -> Result<()> {
             execute: Box::new(|| tokio_run(programs::email_deliver::main())),
         },
         Program {
+            name: "teacher-newsletter",
+            execute: Box::new(|| tokio_run(programs::teacher_newsletter::main())),
+        },
+        Program {
             name: "ended-exams-processor",
             execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
         },

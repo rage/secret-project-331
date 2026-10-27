@@ -10851,11 +10851,6 @@ export const zSendResetPasswordEmailBody = zEmailData
  */
 export const zSendResetPasswordEmailResponse = z.boolean()
 
-/**
- * Teacher newsletter email successfully sent
- */
-export const zSendTeacherNewsletterEmailResponse = z.boolean()
-
 export const zCreateUserResearchConsentBody = zConsentData
 
 /**

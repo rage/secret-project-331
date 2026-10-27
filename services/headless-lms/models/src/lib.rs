@@ -142,6 +142,7 @@ pub mod suotar_circuit_breakers;
 pub mod suotar_endpoint_rate_limits;
 pub mod suspected_cheaters;
 pub mod teacher_grading_decisions;
+pub mod teacher_newsletter_management;
 pub mod url_redirections;
 pub mod user_ai_usage_notice_acknowledgements;
 pub mod user_chapter_locking_statuses;

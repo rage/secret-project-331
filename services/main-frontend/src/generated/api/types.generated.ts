@@ -15413,23 +15413,6 @@ export type SendResetPasswordEmailResponses = {
 export type SendResetPasswordEmailResponse =
   SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses]
 
-export type SendTeacherNewsletterEmailData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/send-teacher-newsletter-email"
-}
-
-export type SendTeacherNewsletterEmailResponses = {
-  /**
-   * Teacher newsletter email successfully sent
-   */
-  200: boolean
-}
-
-export type SendTeacherNewsletterEmailResponse =
-  SendTeacherNewsletterEmailResponses[keyof SendTeacherNewsletterEmailResponses]
-
 export type CreateUserResearchConsentData = {
   body: ConsentData
   path?: never

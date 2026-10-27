@@ -22,6 +22,9 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdminAddCreditRegistrationNoteData,
+  AdminAddCreditRegistrationNoteErrors,
+  AdminAddCreditRegistrationNoteResponses,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
@@ -80,6 +83,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ChooseMyCertificateData,
+  ChooseMyCertificateResponses,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenErrors,
   ClaimStudentNumberVerificationTokenResponses,
@@ -267,6 +272,8 @@ import type {
   GetCertificateByVerificationIdResponses,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponses,
+  GetChatbotEmbedConfData,
+  GetChatbotEmbedConfResponses,
   GetChatbotModelData,
   GetChatbotModelResponses,
   GetChatbotModelsData,
@@ -427,6 +434,8 @@ import type {
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponses,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponses,
   GetCreditRegistrationErrorsByCodeData,
@@ -684,6 +693,8 @@ import type {
   IntrospectOauthTokenResponses,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponses,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponses,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponses,
   ListCreditRegistrationPhasesData,
@@ -849,6 +860,8 @@ import type {
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipErrors,
   VerifyEmailOwnershipResponses,
+  WithdrawMyCertificateChoiceData,
+  WithdrawMyCertificateChoiceResponses,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponses,
 } from "./types.generated"
@@ -873,6 +886,7 @@ import {
   zApproveOauthConsentResponse,
   zApproveOauthDeviceVerificationResponse,
   zChangeUserPasswordResponse,
+  zChooseMyCertificateResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
@@ -939,6 +953,7 @@ import {
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
   zGetChatbotConfigurationResponse,
+  zGetChatbotEmbedConfResponse,
   zGetChatbotModelResponse,
   zGetChatbotModelsResponse,
   zGetCodeGiveawayByIdResponse,
@@ -1013,6 +1028,7 @@ import {
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
   zGetCreditRegistrationDetailsResponse,
+  zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
   zGetCreditRegistrationErrorsByCodeResponse,
   zGetCreditRegistrationForAdminResponse,
@@ -1132,6 +1148,7 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zGetUserSuspectedCheatersResponse,
   zJoinCourseWithJoinCodeResponse,
+  zListAccountLinkingEmailsResponse,
   zListCreditRegistrationAdminActionsResponse,
   zListCreditRegistrationPhasesResponse,
   zListCreditRegistrationsForAdminResponse,
@@ -1188,6 +1205,7 @@ import {
   zUploadFilesForExerciseAnswerResponse,
   zUploadFilesFromExerciseServiceResponse,
   zVerifyEmailOwnershipResponse,
+  zWithdrawMyCertificateChoiceResponse,
   zWithdrawMyEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
@@ -1541,6 +1559,19 @@ export const getCourseChapters = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseChaptersResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/chatbot-embed/{chatbot_configuration_id}`
+ */
+export const getChatbotEmbedConf = <ThrowOnError extends boolean = true>(
+  options: Options<GetChatbotEmbedConfData, ThrowOnError>,
+): RequestResult<GetChatbotEmbedConfResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetChatbotEmbedConfResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetChatbotEmbedConfResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbot-embed/{chatbot_id}",
     ...options,
   })
 
@@ -5000,6 +5031,25 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
 
 /**
  *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmails = <ThrowOnError extends boolean = true>(
+  options?: Options<ListAccountLinkingEmailsData, ThrowOnError>,
+): RequestResult<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<ListAccountLinkingEmailsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zListAccountLinkingEmailsResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails",
+      ...options,
+    },
+  )
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
  * one course code's enrolment list due at its next grid point.
  *
@@ -5208,6 +5258,29 @@ export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean 
       await zListCreditRegistrationAdminActionsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/audit",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasons = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationEarlierReasonsData, ThrowOnError>,
+): RequestResult<GetCreditRegistrationEarlierReasonsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationEarlierReasonsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationEarlierReasonsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons",
     ...options,
   })
 
@@ -5704,6 +5777,36 @@ export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends bool
 
 /**
  *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNote = <ThrowOnError extends boolean = true>(
+  options: Options<AdminAddCreditRegistrationNoteData, ThrowOnError>,
+): RequestResult<
+  AdminAddCreditRegistrationNoteResponses,
+  AdminAddCreditRegistrationNoteErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminAddCreditRegistrationNoteResponses,
+    AdminAddCreditRegistrationNoteErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
  * - Moves one row by hand.
  *
@@ -5976,7 +6079,8 @@ export const getMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
 /**
  *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
- * - Records which university relationship the caller has, which decides where they are told to enrol.
+ * - Records which university relationship the caller has, which decides where they are told to enrol,
+ * and their answers to the questions that follow it. Replaces every stored answer.
  */
 export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
   options: Options<SetMyEnrolmentRouteData, ThrowOnError>,
@@ -5990,6 +6094,43 @@ export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes back choosing the certificate.
+ */
+export const withdrawMyCertificateChoice = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyCertificateChoiceData, ThrowOnError>,
+): RequestResult<WithdrawMyCertificateChoiceResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    WithdrawMyCertificateChoiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zWithdrawMyCertificateChoiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes the certificate instead of registering credits.
+ *
+ * Advisory like the other answers: the pipeline still registers the completion.
+ */
+export const chooseMyCertificate = <ThrowOnError extends boolean = true>(
+  options: Options<ChooseMyCertificateData, ThrowOnError>,
+): RequestResult<ChooseMyCertificateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<ChooseMyCertificateResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zChooseMyCertificateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice",
+    ...options,
   })
 
 /**
@@ -6203,7 +6344,8 @@ export const previewStudentNumberVerificationToken = <ThrowOnError extends boole
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean = true>(
   options: Options<ClaimStudentNumberVerificationTokenData, ThrowOnError>,
@@ -6224,6 +6366,10 @@ export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

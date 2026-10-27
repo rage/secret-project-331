@@ -410,6 +410,7 @@ export const ADMIN_ACTION_KEYS = {
   dismiss_study_registry_conflict:
     "credit-registration-admin-action-dismiss-study-registry-conflict",
   dismiss_attention: "credit-registration-admin-action-dismiss-attention",
+  add_note: "credit-registration-admin-action-add-note",
 } as const satisfies Record<CreditRegistrationAdminAction, string>
 
 const ADMIN_ACTION_UNKNOWN_KEY = "credit-registration-admin-action-unknown"

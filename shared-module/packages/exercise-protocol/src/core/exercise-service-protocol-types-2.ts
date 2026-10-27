@@ -12,6 +12,8 @@ export interface GradingRequest<S = unknown, D = unknown> {
   submission_data: D
   /** The answer's files, in answer order. Empty for a JSON-typed submission. */
   submission_files: GradingRequestFile[]
+  /** The submitter's pseudonym for this service (same as the iframe's), also on a regrade by someone else. */
+  pseudonymous_user_id?: string | null
 }
 
 /** One file of a file-typed answer, as an exercise service is handed it for grading. */

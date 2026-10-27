@@ -42,6 +42,56 @@ export const registrationSupportMail = (
   }
 }
 
+/** The course a support mail is about, for when its registration does not exist yet. */
+export interface SupportMailCourse {
+  courseName: string
+  moduleName: string | null | undefined
+}
+
+/** `registrationSupportMail`, or the course alone before the pipeline has created the row. */
+const completionSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration | null,
+  { courseName, moduleName }: SupportMailCourse,
+): SupportMailContents =>
+  registration
+    ? registrationSupportMail(t, registration)
+    : {
+        subject: t("support-mail-subject-credit-registration", { course: courseName }),
+        bodyLines: [
+          t("support-mail-line-course", { course: courseName }),
+          ...(moduleName ? [t("support-mail-line-module", { module: moduleName })] : []),
+        ],
+      }
+
+/** A support mail from a student told to enrol in Sisu on a module that names no course code. */
+export const missingSisuCourseCodeSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration | null,
+  course: SupportMailCourse,
+): SupportMailContents => {
+  const mail = completionSupportMail(t, registration, course)
+  return { ...mail, bodyLines: [t("support-mail-line-no-sisu-course-code"), ...mail.bodyLines] }
+}
+
+/** A support mail from a student whose enrolment we still cannot see days after "I have enrolled". */
+export const unseenEnrolmentSupportMail = (
+  t: CreditRegistrationTFunction,
+  registration: MyCreditRegistration | null,
+  course: SupportMailCourse,
+  enrolmentConfirmedDate: string,
+): SupportMailContents => {
+  const mail = completionSupportMail(t, registration, course)
+  return {
+    ...mail,
+    subject: t("support-mail-subject-enrolment-not-seen", { course: course.courseName }),
+    bodyLines: [
+      t("support-mail-line-enrolment-not-seen", { date: enrolmentConfirmedDate }),
+      ...mail.bodyLines,
+    ],
+  }
+}
+
 /** What an account linking email can leave a student stuck on, and so what the mail has to ask for. */
 export type StudentNumberLinkProblem =
   | "need_a_new_link"
@@ -75,7 +125,7 @@ export const missingLinkingEmailSupportMail = (
   t: CreditRegistrationTFunction,
   courseName: string,
 ): SupportMailContents => ({
-  subject: t("credit-registration-faq-no-email-support-subject", { course: courseName }),
+  subject: t("support-mail-subject-no-linking-email", { course: courseName }),
   bodyLines: [
     t("support-mail-line-course", { course: courseName }),
     t("support-mail-line-student-number", { studentNumber: "" }),

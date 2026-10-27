@@ -1,10 +1,7 @@
 import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/types.generated"
 
 import {
-  asksWhereYouEnrolled,
-  isLinkingEmailOverdue,
-  isWaitingForEnrolment,
-  saysWhatIsHappening,
+  enrolmentCheckOpening,
   showsRegistrationFacts,
   studentNumberLinkBand,
 } from "../trackerView"
@@ -60,161 +57,6 @@ const mail = (
   emailed_to_masked: "...@example.com",
   link_state: "usable",
   ...overrides,
-})
-
-describe("whether the student is still asked where they enrol", () => {
-  test("asks while we are still looking for an enrolment", () => {
-    expect(asksWhereYouEnrolled({ registration: registration(), enrolmentRoute: route() })).toBe(
-      true,
-    )
-  })
-
-  test("stops asking the moment an enrolment is found, whatever the answer said", () => {
-    expect(
-      asksWhereYouEnrolled({
-        registration: registration({ enrolment_found: true }),
-        enrolmentRoute: route({ enrolment_confirmed_at: null }),
-      }),
-    ).toBe(false)
-  })
-
-  test("stops asking once the row is past needing an enrolment", () => {
-    for (const status of [
-      "registered",
-      "failed",
-      "not_registering",
-      "sending",
-      "waiting_for_sisu",
-    ] as const) {
-      expect(
-        asksWhereYouEnrolled({
-          registration: registration({ student_facing_status: status }),
-          enrolmentRoute: route(),
-        }),
-      ).toBe(false)
-    }
-  })
-
-  test("stops asking while the row is parked on a course-setup problem, not an enrolment one", () => {
-    expect(
-      asksWhereYouEnrolled({
-        registration: registration({ student_facing_status: "waiting_for_course_setup" }),
-        enrolmentRoute: route(),
-      }),
-    ).toBe(false)
-  })
-
-  test("keeps asking while the student is being asked for a student number instead", () => {
-    expect(
-      asksWhereYouEnrolled({
-        registration: registration({ student_facing_status: "needs_student_number" }),
-        enrolmentRoute: route(),
-      }),
-    ).toBe(true)
-  })
-
-  test("does not ask without the stored answer, which the question band is drawn from", () => {
-    expect(asksWhereYouEnrolled({ registration: registration(), enrolmentRoute: null })).toBe(false)
-  })
-
-  test("stops asking once a linking mail exists, which only a listed enrolment can produce", () => {
-    expect(
-      asksWhereYouEnrolled({
-        registration: registration({
-          student_facing_status: "needs_student_number",
-          linking_email: {
-            email_send_status: "sent",
-            sent_at: "2026-08-20T10:00:00Z",
-            emailed_to_masked: "...@example.com",
-            link_state: "usable",
-          },
-        }),
-        enrolmentRoute: route(),
-      }),
-    ).toBe(false)
-  })
-})
-
-describe("waiting for the enrolment to turn up", () => {
-  const confirmed = route({ enrolment_confirmed_at: "2026-08-21T09:00:00Z" })
-
-  test("reads the two stages that mean the same thing as one wait", () => {
-    for (const status of ["looking_for_enrolment", "needs_enrolment"] as const) {
-      const view = {
-        registration: registration({ student_facing_status: status }),
-        enrolmentRoute: confirmed,
-      }
-      expect(isWaitingForEnrolment(view)).toBe(true)
-      // The wait band says it; a second band repeating it would read as a separate problem.
-      expect(saysWhatIsHappening(view)).toBe(false)
-    }
-  })
-
-  test("waits only once the student has said they enrolled", () => {
-    expect(isWaitingForEnrolment({ registration: registration(), enrolmentRoute: route() })).toBe(
-      false,
-    )
-  })
-
-  test("stops waiting the moment the enrolment is found", () => {
-    expect(
-      isWaitingForEnrolment({
-        registration: registration({ enrolment_found: true }),
-        enrolmentRoute: confirmed,
-      }),
-    ).toBe(false)
-  })
-})
-
-describe("whether the state gets said in its own words", () => {
-  test("leaves the enrolment question as the last thing on the page", () => {
-    for (const status of ["looking_for_enrolment", "needs_enrolment"] as const) {
-      const view = {
-        registration: registration({ student_facing_status: status }),
-        enrolmentRoute: route(),
-      }
-      expect(asksWhereYouEnrolled(view)).toBe(true)
-      expect(saysWhatIsHappening(view)).toBe(false)
-    }
-  })
-
-  test("speaks up once the question is no longer asked", () => {
-    expect(
-      saysWhatIsHappening({
-        registration: registration({ student_facing_status: "sending" }),
-        enrolmentRoute: route(),
-      }),
-    ).toBe(true)
-  })
-
-  test("stays quiet for the student number, which the linking band says in full", () => {
-    expect(
-      saysWhatIsHappening({
-        registration: registration({ student_facing_status: "needs_student_number" }),
-        enrolmentRoute: route(),
-      }),
-    ).toBe(false)
-  })
-
-  test("speaks up for anything neither the question nor the wait covers", () => {
-    for (const status of ["failed", "waiting_for_sisu", "waiting_for_course_setup"] as const) {
-      expect(
-        saysWhatIsHappening({
-          registration: registration({ student_facing_status: status }),
-          enrolmentRoute: route(),
-        }),
-      ).toBe(true)
-    }
-  })
-
-  test("speaks up once the question is behind the student", () => {
-    expect(
-      saysWhatIsHappening({
-        registration: registration({ enrolment_found: true }),
-        enrolmentRoute: route(),
-      }),
-    ).toBe(true)
-  })
 })
 
 describe("whether the transcript facts belong on the page", () => {
@@ -308,11 +150,7 @@ describe("what the linking band says", () => {
           enrolment_confirmed_at: "2026-08-21T07:00:00Z",
         }),
       }),
-    ).toEqual({
-      kind: "awaiting-email",
-      isOpenUniversity: true,
-      waitingSince: "2026-08-21T07:00:00Z",
-    })
+    ).toEqual({ kind: "awaiting-email", isOpenUniversity: true })
   })
 
   test("stops telling them to enrol once a mail is queued", () => {
@@ -322,7 +160,7 @@ describe("what the linking band says", () => {
         null,
         linkingOn,
       ),
-    ).toEqual({ kind: "awaiting-email", isOpenUniversity: false, waitingSince: null })
+    ).toEqual({ kind: "awaiting-email", isOpenUniversity: false })
   })
 
   test("names the mailbox and the date once a mail has gone out", () => {
@@ -389,13 +227,74 @@ describe("what the linking band says", () => {
   })
 })
 
-describe("when a missing linking email is worth a mail to support", () => {
+describe("when the student is asked to check their enrolment", () => {
   const pressedAt = "2026-08-21T07:00:00Z"
-  const day = 24 * 60 * 60 * 1000
+  const hour = 60 * 60 * 1000
+  const confirmed = route({ enrolment_confirmed_at: pressedAt })
 
-  test("only two days after they said they enrolled", () => {
-    expect(isLinkingEmailOverdue(pressedAt, Date.parse(pressedAt) + day)).toBe(false)
-    expect(isLinkingEmailOverdue(pressedAt, Date.parse(pressedAt) + 2 * day)).toBe(true)
-    expect(isLinkingEmailOverdue(null, Date.parse(pressedAt) + 30 * day)).toBe(false)
+  test("without a linked number, only two hours after they said they enrolled", () => {
+    const input = { registration: registration(), enrolmentRoute: confirmed }
+    expect(enrolmentCheckOpening(input, false, Date.parse(pressedAt) + hour)).toBeNull()
+    expect(enrolmentCheckOpening(input, false, Date.parse(pressedAt) + 2 * hour)).toEqual({
+      kind: "still-not-seen",
+    })
+  })
+
+  test("with a linked number, as soon as the registry says why it cannot see the enrolment", () => {
+    const input = {
+      registration: registration({ error_code: "enrolment_not_accepted" }),
+      enrolmentRoute: confirmed,
+    }
+    expect(enrolmentCheckOpening(input, true, Date.parse(pressedAt))).toEqual({
+      kind: "registry-verdict",
+      errorCode: "enrolment_not_accepted",
+    })
+  })
+
+  test("with a linked number, also two hours after they said they enrolled", () => {
+    const input = {
+      registration: registration({ error_code: "sisu_timeout" }),
+      enrolmentRoute: confirmed,
+    }
+    expect(enrolmentCheckOpening(input, true, Date.parse(pressedAt) + hour)).toBeNull()
+    expect(enrolmentCheckOpening(input, true, Date.parse(pressedAt) + 2 * hour)).toEqual({
+      kind: "still-not-seen",
+    })
+  })
+
+  test("without a linked number, not on a registry verdict, which cannot be about them", () => {
+    const input = {
+      registration: registration({ error_code: "enrolment_not_found" }),
+      enrolmentRoute: confirmed,
+    }
+    expect(enrolmentCheckOpening(input, false, Date.parse(pressedAt))).toBeNull()
+  })
+
+  test("before the registration exists, on time alone", () => {
+    const input = { registration: null, enrolmentRoute: confirmed }
+    expect(enrolmentCheckOpening(input, false, Date.parse(pressedAt) + 2 * hour)).toEqual({
+      kind: "still-not-seen",
+    })
+  })
+
+  test("never before they say they enrolled, or once the enrolment is found", () => {
+    const pastThreshold = Date.parse(pressedAt) + 30 * 24 * hour
+    expect(
+      enrolmentCheckOpening(
+        {
+          registration: registration({ error_code: "enrolment_not_found" }),
+          enrolmentRoute: route(),
+        },
+        true,
+        pastThreshold,
+      ),
+    ).toBeNull()
+    expect(
+      enrolmentCheckOpening(
+        { registration: registration({ enrolment_found: true }), enrolmentRoute: confirmed },
+        false,
+        pastThreshold,
+      ),
+    ).toBeNull()
   })
 })

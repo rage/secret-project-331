@@ -443,6 +443,29 @@ WHERE user_id = $2
     Ok(())
 }
 
+/// Sets the name alone. The caller also pushes it to TMC, which otherwise keeps the old one.
+pub async fn update_user_name(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    first_name: &str,
+    last_name: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET first_name = $1,
+  last_name = $2
+WHERE user_id = $3
+"#,
+        first_name,
+        last_name,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update_user_email_communication_consent(
     conn: &mut PgConnection,
     user_id: Uuid,

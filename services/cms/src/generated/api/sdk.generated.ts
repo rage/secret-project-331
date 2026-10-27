@@ -82,8 +82,6 @@ import type {
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
-  UpsertCmsCourseResearchFormQuestionsData,
-  UpsertCmsCourseResearchFormQuestionsResponses,
   UpsertCmsCourseResearchFormResponses,
 } from "./types.generated"
 import {
@@ -120,7 +118,6 @@ import {
   zUploadCmsCourseMediaResponse,
   zUploadCmsExamMediaResponse,
   zUploadFilesFromExerciseServiceResponse,
-  zUpsertCmsCourseResearchFormQuestionsResponse,
   zUpsertCmsCourseResearchFormResponse,
 } from "./zod.generated"
 
@@ -457,7 +454,7 @@ export const getCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
+ * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.
  */
 export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
   options: Options<UpsertCmsCourseResearchFormData, ThrowOnError>,
@@ -471,30 +468,6 @@ export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>
     responseValidator: async (data) => await zUpsertCmsCourseResearchFormResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/courses/{course_id}/research-consent-form",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
- */
-export const upsertCmsCourseResearchFormQuestions = <ThrowOnError extends boolean = true>(
-  options: Options<UpsertCmsCourseResearchFormQuestionsData, ThrowOnError>,
-): RequestResult<UpsertCmsCourseResearchFormQuestionsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<
-    UpsertCmsCourseResearchFormQuestionsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zUpsertCmsCourseResearchFormQuestionsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/courses/{course_id}/research-consent-form-questions",
     ...options,
     headers: {
       "Content-Type": "application/json",

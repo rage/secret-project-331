@@ -153,6 +153,14 @@ mod tests {
             unimplemented!("not reached by the reaper")
         }
 
+        async fn get_direct_attachment_download_url(
+            &self,
+            _path: &Path,
+            _file_name: &str,
+        ) -> UtilResult<String> {
+            unimplemented!("not reached by the reaper")
+        }
+
         async fn delete(&self, path: &Path) -> UtilResult<()> {
             self.deleted
                 .lock()
@@ -414,6 +422,14 @@ mod tests {
         }
 
         async fn get_direct_download_url(&self, _path: &Path) -> UtilResult<String> {
+            unimplemented!("not reached by the reaper")
+        }
+
+        async fn get_direct_attachment_download_url(
+            &self,
+            _path: &Path,
+            _file_name: &str,
+        ) -> UtilResult<String> {
             unimplemented!("not reached by the reaper")
         }
 

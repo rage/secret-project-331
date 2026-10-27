@@ -2,6 +2,7 @@
 
 import React, { useState } from "react"
 
+import type { CreditRegistrationAdminAction } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { type MenuItemDescriptor, useDialog } from "@/shared-module/components"
 
@@ -9,6 +10,7 @@ import { ReasonConfirmDialog } from "./ReasonConfirmDialog"
 
 interface UsePauseResumeActionOptions {
   pause: (fields: { reason: string }) => Promise<unknown>
+  pauseAuditAction: CreditRegistrationAdminAction
   resume: () => Promise<unknown>
   /** Runs after either mutation succeeds, e.g. to invalidate the queries the caller reads. */
   invalidate: () => void
@@ -29,6 +31,7 @@ interface PauseResumeAction {
 /** The pause/resume wiring shared by the phase and course-module row menus: a resume confirm, a pause-reason dialog, and their mutations. */
 export function usePauseResumeAction({
   pause,
+  pauseAuditAction,
   resume,
   invalidate,
   resumeConfirmMessage,
@@ -84,6 +87,7 @@ export function usePauseResumeAction({
       title={pauseDialogTitle}
       description={pauseReasonDescription}
       confirmLabel={pauseActionLabel}
+      auditAction={pauseAuditAction}
       isPending={pauseMutation.isPending}
       onConfirm={(reason) => pauseMutation.mutate({ reason })}
     />

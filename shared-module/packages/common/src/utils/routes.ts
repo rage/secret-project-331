@@ -21,6 +21,11 @@ export function manageCoursePagesRoute(courseId: string) {
   return `/manage/courses/${courseId}/pages`
 }
 
+/** Shows the course's research consent form as students see it, live from an open CMS editor. */
+export function manageCourseResearchFormPreviewRoute(courseId: string) {
+  return `/manage/research-forms/${courseId}/preview`
+}
+
 export function manageCourseModulesRoute(courseId: string) {
   return `/manage/courses/${courseId}/modules`
 }
@@ -355,6 +360,11 @@ export function creditRegistrationCoursesRoute() {
 
 export function creditRegistrationLinkingRoute() {
   return "/manage/credit-registration/linking"
+}
+
+/** The Linking tab's searchable list of every linking email. */
+export function creditRegistrationLinkingEmailsRoute() {
+  return "/manage/credit-registration/linking/emails"
 }
 
 export function creditRegistrationSystemRoute() {

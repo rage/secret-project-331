@@ -153,6 +153,7 @@ export const zCourseModule = z.object({
   certification_enabled: z.boolean(),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
+  completions_can_be_registered_to_sisu: z.boolean(),
   copied_from: z.uuid().nullish(),
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -269,6 +270,8 @@ export const zExamInstructionsUpdate = z.object({
 export const zExerciseServiceIframeRenderingInfo = z.object({
   has_custom_view: z.boolean(),
   id: z.uuid(),
+  is_experimental: z.boolean(),
+  is_global_admin_only: z.boolean(),
   name: z.string(),
   public_iframe_url: z.string(),
   slug: z.string(),
@@ -294,13 +297,6 @@ export const zGutenbergBlock = z.object({
 export const zNewResearchForm = z.object({
   content: z.unknown(),
   course_id: z.uuid(),
-})
-
-export const zNewResearchFormQuestion = z.object({
-  course_id: z.uuid(),
-  question: z.string(),
-  question_id: z.uuid(),
-  research_consent_form_id: z.uuid(),
 })
 
 export const zPage = z.object({
@@ -543,16 +539,6 @@ export const zResearchForm = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zResearchFormQuestion = z.object({
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  question: z.string(),
-  research_consent_form_id: z.uuid(),
-  updated_at: z.iso.datetime(),
-})
-
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
  * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
@@ -588,6 +574,7 @@ export const zChatbotConfiguration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   default_chatbot: z.boolean(),
   deleted_at: z.iso.datetime().nullish(),
+  embeddable: z.boolean(),
   enabled_to_students: z.boolean(),
   enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
@@ -776,17 +763,6 @@ export const zUpsertCmsCourseResearchFormPath = z.object({
  * Research form
  */
 export const zUpsertCmsCourseResearchFormResponse = zResearchForm
-
-export const zUpsertCmsCourseResearchFormQuestionsBody = z.array(zNewResearchFormQuestion)
-
-export const zUpsertCmsCourseResearchFormQuestionsPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Research form questions
- */
-export const zUpsertCmsCourseResearchFormQuestionsResponse = z.array(zResearchFormQuestion)
 
 export const zUploadCmsCourseMediaBody = z.string()
 

@@ -17,6 +17,7 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
@@ -39,6 +40,7 @@ import {
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
+  chooseMyCertificate,
   claimStudentNumberVerificationToken,
   configureChatbot,
   confirmCourseSuspectedCheater,
@@ -128,6 +130,7 @@ import {
   getCertificateByConfigurationId,
   getCertificateByVerificationId,
   getChatbotConfiguration,
+  getChatbotEmbedConf,
   getChatbotModel,
   getChatbotModels,
   getCodeGiveawayById,
@@ -207,6 +210,7 @@ import {
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
   getCreditRegistrationDetails,
+  getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
@@ -332,6 +336,7 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listAccountLinkingEmails,
   listCreditRegistrationAdminActions,
   listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
@@ -410,6 +415,7 @@ import {
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
+  withdrawMyCertificateChoice,
   withdrawMyEnrolmentConfirmation,
 } from "../sdk.generated"
 import type {
@@ -420,6 +426,7 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
   AdminDismissCreditRegistrationAttentionData,
@@ -459,6 +466,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
+  ChooseMyCertificateData,
+  ChooseMyCertificateResponse,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenResponse,
   ConfigureChatbotData,
@@ -614,6 +623,8 @@ import type {
   GetCertificateByVerificationIdData,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponse,
+  GetChatbotEmbedConfData,
+  GetChatbotEmbedConfResponse,
   GetChatbotModelData,
   GetChatbotModelResponse,
   GetChatbotModelsData,
@@ -767,6 +778,8 @@ import type {
   GetCreditRegistrationAttentionItemsResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponse,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponse,
   GetCreditRegistrationErrorsByCodeData,
@@ -1011,6 +1024,8 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponse,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponse,
   ListCreditRegistrationPhasesData,
@@ -1144,6 +1159,8 @@ import type {
   UpsertCoursePartnersBlockData,
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipResponse,
+  WithdrawMyCertificateChoiceData,
+  WithdrawMyCertificateChoiceResponse,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponse,
 } from "../types.generated"
@@ -1599,6 +1616,29 @@ export const getCourseChaptersOptions = (options: Options<GetCourseChaptersData>
         throwOnError: true,
       }),
     queryKey: getCourseChaptersQueryKey(options),
+  })
+
+export const getChatbotEmbedConfQueryKey = (options: Options<GetChatbotEmbedConfData>) =>
+  createQueryKey("getChatbotEmbedConf", options)
+
+/**
+ * GET `/api/v0/main-frontend/chatbot-embed/{chatbot_configuration_id}`
+ */
+export const getChatbotEmbedConfOptions = (options: Options<GetChatbotEmbedConfData>) =>
+  queryOptions<
+    GetChatbotEmbedConfResponse,
+    DefaultError,
+    GetChatbotEmbedConfResponse,
+    ReturnType<typeof getChatbotEmbedConfQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getChatbotEmbedConf({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getChatbotEmbedConfQueryKey(options),
   })
 
 export const getChatbotModelsQueryKey = (options?: Options<GetChatbotModelsData>) =>
@@ -6317,6 +6357,88 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
+export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
+  createQueryKey("listAccountLinkingEmails", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsOptions = (options?: Options<ListAccountLinkingEmailsData>) =>
+  queryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    ListAccountLinkingEmailsResponse,
+    ReturnType<typeof listAccountLinkingEmailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listAccountLinkingEmails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listAccountLinkingEmailsQueryKey(options),
+  })
+
+export const listAccountLinkingEmailsInfiniteQueryKey = (
+  options?: Options<ListAccountLinkingEmailsData>,
+): QueryKey<Options<ListAccountLinkingEmailsData>> =>
+  createQueryKey("listAccountLinkingEmails", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsInfiniteOptions = (
+  options?: Options<ListAccountLinkingEmailsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    InfiniteData<ListAccountLinkingEmailsResponse>,
+    QueryKey<Options<ListAccountLinkingEmailsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listAccountLinkingEmails({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listAccountLinkingEmailsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
 /**
  *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
@@ -6582,6 +6704,36 @@ export const listCreditRegistrationAdminActionsInfiniteOptions = (
   )
   return opts as Omit<typeof opts, "initialData">
 }
+
+export const getCreditRegistrationEarlierReasonsQueryKey = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) => createQueryKey("getCreditRegistrationEarlierReasons", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasonsOptions = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationEarlierReasonsResponse,
+    DefaultError,
+    GetCreditRegistrationEarlierReasonsResponse,
+    ReturnType<typeof getCreditRegistrationEarlierReasonsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationEarlierReasons({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationEarlierReasonsQueryKey(options),
+  })
 
 export const getCreditRegistrationStatsByCourseQueryKey = (
   options?: Options<GetCreditRegistrationStatsByCourseData>,
@@ -7178,6 +7330,31 @@ export const getCreditRegistrationLinkingCandidatesOptions = (
 
 /**
  *
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
+ *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNoteMutation = (
+  options?: Partial<Options<AdminAddCreditRegistrationNoteData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminAddCreditRegistrationNoteData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminAddCreditRegistrationNoteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminAddCreditRegistrationNote({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
  * - Moves one row by hand.
  *
@@ -7619,7 +7796,8 @@ export const getMyEnrolmentRouteOptions = (options: Options<GetMyEnrolmentRouteD
 /**
  *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
- * - Records which university relationship the caller has, which decides where they are told to enrol.
+ * - Records which university relationship the caller has, which decides where they are told to enrol,
+ * and their answers to the questions that follow it. Replaces every stored answer.
  */
 export const setMyEnrolmentRouteMutation = (
   options?: Partial<Options<SetMyEnrolmentRouteData>>,
@@ -7635,6 +7813,62 @@ export const setMyEnrolmentRouteMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await setMyEnrolmentRoute({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes back choosing the certificate.
+ */
+export const withdrawMyCertificateChoiceMutation = (
+  options?: Partial<Options<WithdrawMyCertificateChoiceData>>,
+): UseMutationOptions<
+  WithdrawMyCertificateChoiceResponse,
+  DefaultError,
+  Options<WithdrawMyCertificateChoiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyCertificateChoiceResponse,
+    DefaultError,
+    Options<WithdrawMyCertificateChoiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyCertificateChoice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes the certificate instead of registering credits.
+ *
+ * Advisory like the other answers: the pipeline still registers the completion.
+ */
+export const chooseMyCertificateMutation = (
+  options?: Partial<Options<ChooseMyCertificateData>>,
+): UseMutationOptions<
+  ChooseMyCertificateResponse,
+  DefaultError,
+  Options<ChooseMyCertificateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ChooseMyCertificateResponse,
+    DefaultError,
+    Options<ChooseMyCertificateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await chooseMyCertificate({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -7910,7 +8144,8 @@ export const previewStudentNumberVerificationTokenOptions = (
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationTokenMutation = (
   options?: Partial<Options<ClaimStudentNumberVerificationTokenData>>,

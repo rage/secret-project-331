@@ -2217,6 +2217,63 @@ WHERE p.id = $1
     Ok(updated)
 }
 
+/// Names of the exercise services that only global admins can add which saving `exercise_tasks`
+/// on the page would add: a task counts as added unless it is the first submitted task with its
+/// id and the page already has a task with that id and type. `page_id` is `None` for a page that
+/// does not exist yet.
+pub async fn get_global_admin_only_exercise_service_names_added_by_tasks(
+    conn: &mut PgConnection,
+    page_id: Option<Uuid>,
+    exercise_tasks: &[CmsPageExerciseTask],
+) -> ModelResult<Vec<String>> {
+    let task_ids: Vec<Uuid> = exercise_tasks.iter().map(|task| task.id).collect();
+    let exercise_types: Vec<String> = exercise_tasks
+        .iter()
+        .map(|task| task.exercise_type.clone())
+        .collect();
+    let names = sqlx::query_scalar!(
+        r#"
+WITH saved_task AS (
+  SELECT id,
+    exercise_type,
+    row_number() OVER (
+      PARTITION BY id
+      ORDER BY submitted_order
+    ) AS occurrence
+  FROM UNNEST($2::uuid [], $3::text []) WITH ORDINALITY AS t(id, exercise_type, submitted_order)
+)
+SELECT DISTINCT es.name
+FROM saved_task
+  JOIN exercise_services es ON es.slug = saved_task.exercise_type
+WHERE es.is_global_admin_only
+  AND es.deleted_at IS NULL
+  -- update_page gives repeated task ids fresh ids, inserting them as new tasks
+  AND (
+    saved_task.occurrence > 1
+    OR NOT EXISTS (
+      SELECT 1
+      FROM exercise_tasks et
+        JOIN exercise_slides slides ON slides.id = et.exercise_slide_id
+        JOIN exercises e ON e.id = slides.exercise_id
+      WHERE et.id = saved_task.id
+        AND et.exercise_type = saved_task.exercise_type
+        AND et.deleted_at IS NULL
+        AND slides.deleted_at IS NULL
+        AND e.deleted_at IS NULL
+        AND e.page_id = $1
+    )
+  )
+ORDER BY es.name
+        "#,
+        page_id,
+        &task_ids,
+        &exercise_types,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(names)
+}
+
 /// Remaps ids from updates to exercises that may have their ids regenerated.
 async fn upsert_exercises(
     conn: &mut PgConnection,

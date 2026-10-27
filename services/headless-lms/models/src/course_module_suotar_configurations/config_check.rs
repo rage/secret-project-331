@@ -42,6 +42,7 @@ FROM course_modules cm
   AND c.deleted_at IS NULL
 WHERE cm.deleted_at IS NULL
   AND TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
   AND ($1::uuid IS NULL OR cm.course_id = $1)
 ORDER BY cm.course_id,
   cm.order_number
@@ -76,6 +77,7 @@ SELECT conf.course_module_id
 FROM course_module_suotar_configurations conf
   JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL
 WHERE TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
   AND conf.deleted_at IS NULL
   AND conf.config_checked_at IS NOT NULL
   AND conf.config_check_message IS NOT NULL

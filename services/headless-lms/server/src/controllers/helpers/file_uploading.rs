@@ -688,16 +688,19 @@ async fn upload_field_to_storage(
         .map(|ct| ct.to_string())
         .unwrap_or_default();
 
-    let name = {
-        let name_ref = field.name().ok_or_else(|| {
+    // The browser's file name, not the form field's name.
+    let name = field
+        .content_disposition()
+        .and_then(|content_disposition| content_disposition.get_filename())
+        .or_else(|| field.name())
+        .ok_or_else(|| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 "Tried to upload a file without a file name".to_string(),
                 None,
             )
-        })?;
-        name_ref.to_string()
-    };
+        })?
+        .to_string();
 
     let contents = Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string())));
 

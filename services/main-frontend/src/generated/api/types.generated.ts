@@ -90,6 +90,36 @@ export type AccountLinkingCourseCode = {
 }
 
 /**
+ * One linking email, in the full list or the dashboard's recent ones.
+ */
+export type AccountLinkingEmailRow = {
+  claimed_at: string
+  claimed_by_email?: string | null
+  claimed_by_user_id?: string | null
+  course_id: string
+  course_name: string
+  /**
+   * In full: support finds a student's mail by it.
+   */
+  emailed_to: string
+  id: string
+  last_error_message?: string | null
+  link_expires_at?: string | null
+  link_state: LinkingMailLinkState
+  link_used_at?: string | null
+  /**
+   * When the `link-emails` phase handed it to the email worker.
+   */
+  queued_at?: string | null
+  send_status?: null | EmailSendStatusReport
+  /**
+   * The name Sisu held for the student number when the mail went out.
+   */
+  sisu_full_name?: string | null
+  student_number: string
+}
+
+/**
  * Students waiting for a student number since the cutoff, by what they have done. Mutually
  * exclusive, uncapped, and equal to the overview's counts for the same step.
  */
@@ -171,26 +201,6 @@ export type AccountLinkingPresser = {
   pressed_at: string
   uh_course_code?: string | null
   user_id: string
-}
-
-/**
- * One linking email, newest first in the recent list.
- */
-export type AccountLinkingRecentEmail = {
-  claimed_at: string
-  course_id: string
-  course_name: string
-  /**
-   * In full: support tells the recipients apart by it.
-   */
-  emailed_to: string
-  id: string
-  last_error_message?: string | null
-  /**
-   * When the `link-emails` phase handed it to the email worker.
-   */
-  queued_at?: string | null
-  send_status?: null | EmailSendStatusReport
 }
 
 /**
@@ -280,7 +290,7 @@ export type AccountLinkingStats = {
   /**
    * Newest first, capped.
    */
-  recent_linking_emails: Array<AccountLinkingRecentEmail>
+  recent_linking_emails: Array<AccountLinkingEmailRow>
   /**
    * Newest first, capped; study registry links only as `links_total_by_method`.
    */
@@ -361,6 +371,13 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export type AddPlanMemberRequest = {
   email: string
+}
+
+/**
+ * The body of `POST /registrations/{credit_registration_id}/notes`.
+ */
+export type AdminAddCreditRegistrationNotePayload = {
+  note: string
 }
 
 /**
@@ -1364,6 +1381,7 @@ export type ChatbotConfiguration = {
   daily_tokens_per_user: number
   default_chatbot: boolean
   deleted_at?: string | null
+  embeddable: boolean
   enabled_to_students: boolean
   enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
@@ -1415,6 +1433,16 @@ export type ClaimStudentNumberVerificationTokenOutcome =
   | "expired"
   | "already_used"
   | "student_number_already_linked_to_another_account"
+
+/**
+ * The answer to the confirmation page's name question.
+ */
+export type ClaimStudentNumberVerificationTokenRequest = {
+  /**
+   * One of the preview's `name_change.first_name_options`; required when it has a `name_change`.
+   */
+  first_name?: string | null
+}
 
 export type ClaimStudentNumberVerificationTokenResult = {
   linked_course_name?: string | null
@@ -1544,6 +1572,14 @@ export type CompleteCourseMetadata = {
   course_organization: DatabaseOrganization
   course_prerequisites: Array<CoursePrerequisite>
   default_module: CourseModule
+}
+
+export type CompletedProgressStep = {
+  /**
+   * When the registration reached the step; `None` for a step it skipped.
+   */
+  reached_at?: string | null
+  step: StudentRegistrationProgressStep
 }
 
 export type CompletionGridRow = {
@@ -2123,6 +2159,10 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
+  /**
+   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
+   */
+  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string
@@ -2205,6 +2245,7 @@ export type CourseModuleCompletionWithRegistrationInfo = {
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export type CourseModuleCreditRegistrationConfig = {
+  completions_can_be_registered_to_sisu: boolean
   course_id: string
   course_module_id: string
   credit_registration_config_check_message?: string | null
@@ -2230,6 +2271,7 @@ export type CourseModuleCreditRegistrationConfig = {
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export type CourseModuleInfo = {
+  completions_can_be_registered_to_sisu: boolean
   /**
    * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
    */
@@ -2389,6 +2431,7 @@ export type CreditRegistrationAdminAction =
   | "request_enrolment_list_fetch"
   | "dismiss_study_registry_conflict"
   | "dismiss_attention"
+  | "add_note"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -2569,6 +2612,10 @@ export type CreditRegistrationAttentionItem = {
    */
   needs_admin_attention: boolean
   next_attempt_at: string
+  /**
+   * Newest first.
+   */
+  notes: Array<CreditRegistrationNote>
   phase: TimelinePhase
   phase_started_at: string
   /**
@@ -2611,14 +2658,13 @@ export type CreditRegistrationAttentionItems = {
    */
   phases: Array<CreditRegistrationAttentionPhaseRows>
   /**
-   * Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
-   * the count.
+   * Before `reacted` narrows the rows, so both stay usable as facets.
+   */
+  reaction_counts: CreditRegistrationAttentionReactionCounts
+  /**
+   * Over a timing threshold with no person-level cause, oldest first. Not in the count.
    */
   running_late: Array<CreditRegistrationAttentionItem>
-  /**
-   * Every running late row, however many `running_late` lists.
-   */
-  running_late_count: number
   /**
    * The Needs attention count, whatever this request filtered to: the tab badge, the same number
    * `/overview` reports.
@@ -2631,14 +2677,19 @@ export type CreditRegistrationAttentionItems = {
  */
 export type CreditRegistrationAttentionPhaseRows = {
   /**
-   * The first of them in the requested order, at most `limit`.
+   * Every row of the phase matching the filters, in the requested order.
    */
   items: Array<CreditRegistrationAttentionItem>
   phase: TimelinePhase
-  /**
-   * Every row of the phase matching `reason`, however many `items` lists.
-   */
-  total_count: number
+}
+
+/**
+ * How many listed rows someone has reacted to, over the problem groups, the phases and running
+ * late alike.
+ */
+export type CreditRegistrationAttentionReactionCounts = {
+  not_reacted_count: number
+  reacted_count: number
 }
 
 /**
@@ -2667,14 +2718,10 @@ export type CreditRegistrationAttentionReasonCount = {
  */
 export type CreditRegistrationBlockingProblemRows = {
   /**
-   * The oldest of them, at most `limit`.
+   * Every row the problem accounts for, oldest first.
    */
   items: Array<CreditRegistrationAttentionItem>
   problem: BlockingProblem
-  /**
-   * Every row the problem accounts for, however many `items` lists.
-   */
-  total_count: number
 }
 
 /**
@@ -2948,6 +2995,31 @@ export type CreditRegistrationHistoryStepPoint = {
   engagement?: null | Engagement
   phase: TimelinePhase
   step: TimelineStep
+}
+
+/**
+ * How a student without a Finnish personal identity code said they can identify themselves for
+ * enrolling.
+ */
+export type CreditRegistrationIdentification = "eidas" | "other_suomi_fi" | "none"
+
+/**
+ * Whether a student said they need a certificate or credits in the study registry.
+ */
+export type CreditRegistrationNeed = "certificate" | "credits"
+
+/**
+ * A note an admin left on a registration for whoever handles it next.
+ */
+export type CreditRegistrationNote = {
+  created_at: string
+  credit_registration_id: string
+  id: string
+  note: string
+  written_by_email?: string | null
+  written_by_first_name?: string | null
+  written_by_last_name?: string | null
+  written_by_user_id: string
 }
 
 /**
@@ -3731,6 +3803,14 @@ export type ExerciseService = {
    * This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
    */
   internal_url?: string | null
+  /**
+   * Shown to teachers as a tag only; changes no behaviour.
+   */
+  is_experimental: boolean
+  /**
+   * Only global admins can add new tasks of this type; teachers can still edit existing ones.
+   */
+  is_global_admin_only: boolean
   max_reprocessing_submissions_at_once: number
   name: string
   public_url: string
@@ -3738,8 +3818,19 @@ export type ExerciseService = {
   updated_at: string
 }
 
+/**
+ * The admin-editable fields of an exercise service, for creating or updating one.
+ */
 export type ExerciseServiceNewOrUpdate = {
   internal_url?: string | null
+  /**
+   * Shown to teachers as a tag only; changes no behaviour.
+   */
+  is_experimental: boolean
+  /**
+   * Only global admins can add new tasks of this type; teachers can still edit existing ones.
+   */
+  is_global_admin_only: boolean
   max_reprocessing_submissions_at_once: number
   name: string
   public_url: string
@@ -4112,6 +4203,11 @@ export type LinkingCandidateSimilarity = "email" | "email_username" | "last_name
 export type LinkingEmailLinkState = "usable" | "expired_can_resend" | "expired_no_resend" | "used"
 
 /**
+ * Which linking emails a [`get_page`] lists, by what became of their link and their send.
+ */
+export type LinkingEmailListStatus = "unused" | "used" | "expired" | "not_sent"
+
+/**
  * What we can honestly say about the linking mail: our send status, never a delivery.
  */
 export type LinkingEmailStatus = {
@@ -4120,6 +4216,11 @@ export type LinkingEmailStatus = {
   link_state: LinkingEmailLinkState
   sent_at?: string | null
 }
+
+/**
+ * Whether the link a linking mail carries can still be opened.
+ */
+export type LinkingMailLinkState = "usable" | "used" | "lapsed"
 
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>
@@ -4155,6 +4256,7 @@ export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
+  completions_can_be_registered_to_sisu: boolean
   ects_credits?: number | null
   id: string
   name?: string | null
@@ -4213,7 +4315,8 @@ export type MyCreditRegistration = {
    */
   enrolment_found: boolean
   /**
-   * The open university enrolment page, for a row the study registry has no enrolment for.
+   * The module's open university enrolment page, in every status: an open university student
+   * needs it before they have a student number to be looked up by.
    */
   enrolment_link?: string | null
   enrolment_realisation_name?: string | null
@@ -4232,6 +4335,7 @@ export type MyCreditRegistration = {
   linking_email?: null | LinkingEmailStatus
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus
+  progress?: null | StudentRegistrationProgress
   registered_at?: string | null
   /**
    * The registry declined this attempt because it already holds an equal or better grade. Still a
@@ -4282,8 +4386,13 @@ export type MyEnrolmentRoute = {
    * A row parked on `no_usable_enrolment` is still asking the student to enrol, so it stays true.
    */
   can_change: boolean
+  certificate_chosen_at?: string | null
   course_module_completion_id: string
   enrolment_confirmed_at?: string | null
+  has_finnish_personal_identity_code?: boolean | null
+  identification?: null | CreditRegistrationIdentification
+  need?: null | CreditRegistrationNeed
+  need_after_reconsider?: null | CreditRegistrationNeed
   route?: null | CreditRegistrationEnrolmentRoute
 }
 
@@ -4432,6 +4541,26 @@ export type MyVerifiedStudentNumber = {
 }
 
 /**
+ * The names the account may take on linking; the student picks the first name.
+ */
+export type NameReplacement = {
+  /**
+   * Each a Sisu first name, or the several the account already uses, corrected to Sisu's spelling.
+   */
+  first_name_options: Array<string>
+  last_name: string
+  /**
+   * Neither the account's first name nor its last name resembles Sisu's, so the account may belong
+   * to someone other than the person Sisu names.
+   */
+  resembles_nothing: boolean
+  /**
+   * One of `first_name_options`: what the account already uses, else Sisu's first first name.
+   */
+  suggested_first_name: string
+}
+
+/**
  * A completion that satisfies the materialise predicate and has no ledger row.
  */
 export type NeverEnteredCompletion = {
@@ -4474,6 +4603,7 @@ export type NewChatbotConf = {
   course_id?: string | null
   daily_tokens_per_user: number
   default_chatbot: boolean
+  embeddable?: boolean
   enabled_to_students: boolean
   enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number
@@ -4568,6 +4698,7 @@ export type NewModule = {
   chapters: Array<string>
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
+  completions_can_be_registered_to_sisu: boolean
   ects_credits?: number | null
   name: string
   order_number: number
@@ -4807,6 +4938,37 @@ export type PageVisitDatumSummaryByPages = {
   page_id: string
   updated_at: string
   visit_date: string
+}
+
+export type PageAccountLinkingEmailRow = {
+  data: Array<{
+    claimed_at: string
+    claimed_by_email?: string | null
+    claimed_by_user_id?: string | null
+    course_id: string
+    course_name: string
+    /**
+     * In full: support finds a student's mail by it.
+     */
+    emailed_to: string
+    id: string
+    last_error_message?: string | null
+    link_expires_at?: string | null
+    link_state: LinkingMailLinkState
+    link_used_at?: string | null
+    /**
+     * When the `link-emails` phase handed it to the email worker.
+     */
+    queued_at?: string | null
+    send_status?: null | EmailSendStatusReport
+    /**
+     * The name Sisu held for the student number when the mail went out.
+     */
+    sisu_full_name?: string | null
+    student_number: string
+  }>
+  total_count: number
+  total_pages: number
 }
 
 export type PageAdminCreditRegistrationRow = {
@@ -5513,7 +5675,14 @@ export type SetCreditJustificationPayload = {
   justification: string
 }
 
+/**
+ * Every answer at once, replacing the stored ones: an answer left out is cleared.
+ */
 export type SetEnrolmentRoutePayload = {
+  has_finnish_personal_identity_code?: boolean | null
+  identification?: null | CreditRegistrationIdentification
+  need?: null | CreditRegistrationNeed
+  need_after_reconsider?: null | CreditRegistrationNeed
   route: CreditRegistrationEnrolmentRoute
 }
 
@@ -5558,7 +5727,7 @@ export type StudentNumberVerificationMethod = "emailed_link" | "admin_manual" | 
 
 /**
  * What a mailed link would do, without doing it. Read-only on purpose: a mail scanner must not be
- * able to spend the token. Deliberately carries no Sisu-held names.
+ * able to spend the token.
  */
 export type StudentNumberVerificationTokenPreview = {
   already_used: boolean
@@ -5580,12 +5749,45 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
+  name_change?: null | NameReplacement
+  /**
+   * The name Sisu holds for the student number. Sisu does not verify the address the link was
+   * mailed to, so the name is what tells someone they are about to link someone else's number.
+   * `None` unless `claimable`.
+   */
+  sisu_full_name?: string | null
   student_number: string
   /**
    * Shown in the confirmation: being signed in to the wrong account is the common mistake.
    */
   target_account_email: string
+  /**
+   * The signed-in account's name, `None` when it has none.
+   */
+  target_account_name?: string | null
 }
+
+export type StudentRegistrationProgress = {
+  /**
+   * The steps before `current_step`, in order.
+   */
+  completed_steps: Array<CompletedProgressStep>
+  current_step?: null | StudentRegistrationProgressStep
+  /**
+   * A send is out and we do not know yet whether it reached Sisu. Only with `current_step`
+   * `sent_to_sisu`.
+   */
+  submission_uncertain: boolean
+}
+
+/**
+ * One row of the step list, in the order a registration passes them.
+ */
+export type StudentRegistrationProgressStep =
+  | "enrolment_found"
+  | "sent_to_sisu"
+  | "accepted_by_sisu"
+  | "partially_registered"
 
 export type StudentsByCountryTotalsResult = {
   count: number
@@ -6037,6 +6239,11 @@ export type UserCompletionInformation = {
   credit_justification?: string | null
   ects_credits?: number | null
   email: string
+  /**
+   * The module's open university enrolment page: the same link the credit registration carries,
+   * here so the page has it before the registration exists.
+   */
+  enrolment_link?: string | null
   /**
    * Whether this completion goes through the push path, which decides the flow the page shows.
    */
@@ -6527,6 +6734,28 @@ export type GetCourseChaptersResponses = {
 }
 
 export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCourseChaptersResponses]
+
+export type GetChatbotEmbedConfData = {
+  body?: never
+  path: {
+    /**
+     * Chatbot id
+     */
+    chatbot_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/chatbot-embed/{chatbot_id}"
+}
+
+export type GetChatbotEmbedConfResponses = {
+  /**
+   * Chatbot is embeddable
+   */
+  204: void
+}
+
+export type GetChatbotEmbedConfResponse =
+  GetChatbotEmbedConfResponses[keyof GetChatbotEmbedConfResponses]
 
 export type GetChatbotModelsData = {
   body?: never
@@ -10680,6 +10909,40 @@ export type GetAccountLinkingUnlinkedEnroleesResponses = {
 export type GetAccountLinkingUnlinkedEnroleesResponse =
   GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
 
+export type ListAccountLinkingEmailsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+     * Page number, from 1
+     */
+    page?: number
+    /**
+     * Rows per page
+     */
+    limit?: number
+    /**
+     * What became of the link or the send; ignored with `address`
+     */
+    status?: LinkingEmailListStatus
+    /**
+     * Part of the recipient address, ignoring case
+     */
+    address?: string
+  }
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails"
+}
+
+export type ListAccountLinkingEmailsResponses = {
+  /**
+   * A page of linking emails
+   */
+  200: PageAccountLinkingEmailRow
+}
+
+export type ListAccountLinkingEmailsResponse =
+  ListAccountLinkingEmailsResponses[keyof ListAccountLinkingEmailsResponses]
+
 export type AdminRequestEnrolmentListFetchData = {
   body: AdminRequestEnrolmentListFetchPayload
   path?: never
@@ -10811,10 +11074,6 @@ export type GetCreditRegistrationAttentionItemsData = {
   path?: never
   query?: {
     /**
-     * Rows listed per section; the counts cover every row
-     */
-    limit?: number
-    /**
      * Only rows carrying one of these reasons; repeat the parameter for several
      */
     reason?: Array<CreditRegistrationAttentionReason>
@@ -10822,6 +11081,10 @@ export type GetCreditRegistrationAttentionItemsData = {
      * time_in_phase, next_attempt or course
      */
     sort?: string
+    /**
+     * Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row
+     */
+    reacted?: boolean
   }
   url: "/api/v0/main-frontend/credit-registration-admin/attention"
 }
@@ -10901,6 +11164,28 @@ export type ListCreditRegistrationAdminActionsResponses = {
 
 export type ListCreditRegistrationAdminActionsResponse =
   ListCreditRegistrationAdminActionsResponses[keyof ListCreditRegistrationAdminActionsResponses]
+
+export type GetCreditRegistrationEarlierReasonsData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The action the reasons were given for
+     */
+    action: CreditRegistrationAdminAction
+  }
+  url: "/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons"
+}
+
+export type GetCreditRegistrationEarlierReasonsResponses = {
+  /**
+   * Earlier reasons, most recently used first
+   */
+  200: Array<string>
+}
+
+export type GetCreditRegistrationEarlierReasonsResponse =
+  GetCreditRegistrationEarlierReasonsResponses[keyof GetCreditRegistrationEarlierReasonsResponses]
 
 export type GetCreditRegistrationStatsByCourseData = {
   body?: never
@@ -11414,6 +11699,32 @@ export type GetCreditRegistrationLinkingCandidatesResponses = {
 export type GetCreditRegistrationLinkingCandidatesResponse =
   GetCreditRegistrationLinkingCandidatesResponses[keyof GetCreditRegistrationLinkingCandidatesResponses]
 
+export type AdminAddCreditRegistrationNoteData = {
+  body: AdminAddCreditRegistrationNotePayload
+  path: {
+    /**
+     * Credit registration id
+     */
+    credit_registration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes"
+}
+
+export type AdminAddCreditRegistrationNoteErrors = {
+  /**
+   * The note is empty
+   */
+  400: unknown
+}
+
+export type AdminAddCreditRegistrationNoteResponses = {
+  /**
+   * The note was added
+   */
+  200: unknown
+}
+
 export type AdminTransitionCreditRegistrationData = {
   body: AdminTransitionCreditRegistrationPayload
   path: {
@@ -11756,6 +12067,50 @@ export type SetMyEnrolmentRouteResponses = {
 export type SetMyEnrolmentRouteResponse =
   SetMyEnrolmentRouteResponses[keyof SetMyEnrolmentRouteResponses]
 
+export type WithdrawMyCertificateChoiceData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice"
+}
+
+export type WithdrawMyCertificateChoiceResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyCertificateChoiceResponse =
+  WithdrawMyCertificateChoiceResponses[keyof WithdrawMyCertificateChoiceResponses]
+
+export type ChooseMyCertificateData = {
+  body?: never
+  path: {
+    /**
+     * Course module id
+     */
+    course_module_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice"
+}
+
+export type ChooseMyCertificateResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ChooseMyCertificateResponse =
+  ChooseMyCertificateResponses[keyof ChooseMyCertificateResponses]
+
 export type WithdrawMyEnrolmentConfirmationData = {
   body?: never
   path: {
@@ -11962,7 +12317,7 @@ export type PreviewStudentNumberVerificationTokenResponse =
   PreviewStudentNumberVerificationTokenResponses[keyof PreviewStudentNumberVerificationTokenResponses]
 
 export type ClaimStudentNumberVerificationTokenData = {
-  body?: never
+  body: ClaimStudentNumberVerificationTokenRequest
   path: {
     /**
      * The mailed verification token
@@ -11974,6 +12329,10 @@ export type ClaimStudentNumberVerificationTokenData = {
 }
 
 export type ClaimStudentNumberVerificationTokenErrors = {
+  /**
+   * The first name is not one the preview offered
+   */
+  400: unknown
   /**
    * No such token
    */

@@ -132,7 +132,8 @@ jobs:
         # breaking `kubectl exec` with "server gave HTTP response to HTTPS client". Ask
         # minikube for its own newest validated version instead, so a flake.lock bump to
         # either tool can't silently drift them into an untested combination.
-        run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(minikube config defaults kubernetes-version | head -n 1 | tr -d '* ')"
+        # skaffold builds into the node's Docker daemon, which minikube >= 1.39 no longer runs by default.
+        run: minikube start --addons ingress --memory 60g --driver docker --container-runtime docker --kubernetes-version "$(minikube config defaults kubernetes-version | head -n 1 | tr -d '* ')"
         timeout-minutes: 10
 
       - name: Build

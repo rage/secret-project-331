@@ -35,15 +35,6 @@ pub struct ResearchFormQuestion {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
-pub struct NewResearchFormQuestion {
-    pub question_id: Uuid,
-    pub course_id: Uuid,
-    pub research_consent_form_id: Uuid,
-    pub question: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
 pub struct NewResearchFormQuestionAnswer {
     pub user_id: Uuid,
     pub research_form_question_id: Uuid,
@@ -123,19 +114,35 @@ AND deleted_at IS NULL
     Ok(form_res)
 }
 
-pub async fn upsert_research_form_questions(
+/// Saves a course's research consent form and makes its question rows match the question
+/// blocks in `content`: questions whose block was removed are soft-deleted.
+///
+/// Errors with `InvalidRequest` if the content has no questions, a question is empty, or a
+/// question id belongs to another course.
+pub async fn save_research_form(
     conn: &mut PgConnection,
-    questions: &[NewResearchFormQuestion],
-) -> ModelResult<Vec<ResearchFormQuestion>> {
+    course_id: Uuid,
+    content: serde_json::Value,
+) -> ModelResult<ResearchForm> {
+    let questions = questions_in_content(&content)?;
+    if questions.is_empty() {
+        return Err(model_err!(
+            InvalidRequest,
+            "A research form needs at least one question".to_string()
+        ));
+    }
+
     let mut tx = conn.begin().await?;
+    let form = upsert_research_form(
+        &mut tx,
+        PKeyPolicy::Generate,
+        &NewResearchForm { course_id, content },
+    )
+    .await?;
 
-    let mut inserted_questions = Vec::new();
-
-    for question in questions {
-        // Blocks a save from hijacking a question id that belongs to another course; the caller
-        // must still send a validated course_id/form_id pair for a normal save to succeed.
-        let form_res = sqlx::query_as!(
-            ResearchFormQuestion,
+    for (question_id, question) in &questions {
+        // The WHERE stops a save from taking over a question id that belongs to another course.
+        sqlx::query!(
             "
 INSERT INTO course_specific_consent_form_questions (
     id,
@@ -148,12 +155,12 @@ DO UPDATE SET question = $4,
 research_consent_form_id = $3,
 deleted_at = NULL
 WHERE course_specific_consent_form_questions.course_id = excluded.course_id
-RETURNING *
+RETURNING id
 ",
-            question.question_id,
-            question.course_id,
-            question.research_consent_form_id,
-            question.question
+            question_id,
+            course_id,
+            form.id,
+            question
         )
         .fetch_optional(&mut *tx)
         .await?
@@ -163,13 +170,54 @@ RETURNING *
                 "Question id belongs to a different course".to_string()
             )
         })?;
-
-        inserted_questions.push(form_res);
     }
 
-    tx.commit().await?;
+    let question_ids: Vec<Uuid> = questions.iter().map(|(id, _)| *id).collect();
+    sqlx::query!(
+        "
+UPDATE course_specific_consent_form_questions
+SET deleted_at = NOW()
+WHERE research_consent_form_id = $1
+  AND deleted_at IS NULL
+  AND id <> ALL($2::uuid [])
+",
+        form.id,
+        &question_ids
+    )
+    .execute(&mut *tx)
+    .await?;
 
-    Ok(inserted_questions)
+    tx.commit().await?;
+    Ok(form)
+}
+
+/// The `(id, question)` of each top-level question block; a block's clientId is its question id.
+fn questions_in_content(content: &serde_json::Value) -> ModelResult<Vec<(Uuid, String)>> {
+    let blocks = content.as_array().map(Vec::as_slice).unwrap_or_default();
+    blocks
+        .iter()
+        .filter(|block| block["name"] == "moocfi/research-consent-question")
+        .map(|block| {
+            let id = block["clientId"]
+                .as_str()
+                .and_then(|id| Uuid::parse_str(id).ok())
+                .ok_or_else(|| {
+                    model_err!(InvalidRequest, "Question has no valid id".to_string())
+                })?;
+            let question = block["attributes"]["content"]
+                .as_str()
+                .unwrap_or_default()
+                .trim()
+                .to_string();
+            if question.is_empty() {
+                return Err(model_err!(
+                    InvalidRequest,
+                    "Research form questions cannot be empty".to_string()
+                ));
+            }
+            Ok((id, question))
+        })
+        .collect()
 }
 
 pub async fn get_research_form_questions_with_course_id(

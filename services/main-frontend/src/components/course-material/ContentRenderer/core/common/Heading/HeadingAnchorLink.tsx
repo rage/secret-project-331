@@ -48,7 +48,7 @@ const linkStyles = css`
   color: ${baseTheme.colors.gray[500]};
   opacity: 0;
   transition:
-    opacity 0.15s,
+    opacity 0.3s,
     color 0.15s;
 
   &:hover {

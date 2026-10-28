@@ -2,13 +2,13 @@
 
 import { act, renderHook } from "@testing-library/react"
 
-import useScrollToSelector from "../useScrollToSelector"
+import useScrollToUrlHash from "../useScrollToUrlHash"
 
 const FIRST_ATTEMPT_MS = 100
 
-const renderWithHash = (hash: string) => {
+const renderWithHash = (hash: string, options?: { matchHeadingIdPrefix?: boolean }) => {
   window.history.replaceState(null, "", `/${hash}`)
-  renderHook(() => useScrollToSelector("/page"))
+  renderHook(() => useScrollToUrlHash("/page", options))
   act(() => {
     jest.advanceTimersByTime(FIRST_ATTEMPT_MS)
   })
@@ -21,7 +21,7 @@ const addElement = (id: string) => {
   return element
 }
 
-describe("useScrollToSelector", () => {
+describe("useScrollToUrlHash", () => {
   const scrolledTo: Element[] = []
 
   beforeAll(() => {
@@ -70,5 +70,20 @@ describe("useScrollToSelector", () => {
     renderWithHash("#heading-2")
 
     expect(scrolledTo).toEqual([heading])
+  })
+
+  it("scrolls to the heading with the same id part when the prefix match is enabled", () => {
+    const heading = addElement("3f2b8c1a-new-title")
+    renderWithHash("#3f2b8c1a-old-title", { matchHeadingIdPrefix: true })
+
+    expect(scrolledTo).toEqual([heading])
+  })
+
+  it("does not fall back to the id part when the prefix match is disabled", () => {
+    jest.spyOn(console, "warn").mockImplementation(() => {})
+    addElement("3f2b8c1a-new-title")
+    renderWithHash("#3f2b8c1a-old-title")
+
+    expect(scrolledTo).toEqual([])
   })
 })

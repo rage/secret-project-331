@@ -9,13 +9,18 @@ function findByIdPart(anchor: string): Element | null {
   return idPart === undefined ? null : document.querySelector(`[id^="${idPart}-"]`)
 }
 
-export function tryToScrollToSelector(elementId: string): Element | null {
+export function tryToScrollToSelector(
+  elementId: string,
+  matchHeadingIdPrefix = false,
+): Element | null {
   if (typeof window === "undefined") {
     return null
   }
   try {
     // oxlint-disable-next-line unicorn/prefer-query-selector -- ids from a url fragment need no escaping with getElementById
-    const element = document.getElementById(elementId) ?? findByIdPart(elementId)
+    const element =
+      document.querySelector(`#${elementId}`) ??
+      (matchHeadingIdPrefix ? findByIdPart(elementId) : null)
     if (!element) {
       console.warn("Could not find the element to scroll to.")
       return null

@@ -17,14 +17,14 @@ function decodeHash(hash: string): string {
  * Tries the hash as written before decoding it, like the browser does, so an id containing "%"
  * still matches.
  */
-function scrollToHash(hash: string): Element | null {
+function scrollToHash(hash: string, matchHeadingIdPrefix: boolean): Element | null {
   // oxlint-disable-next-line unicorn/prefer-query-selector -- ids from a url fragment need no escaping with getElementById
   const literalMatch = document.getElementById(hash)
   if (literalMatch) {
     literalMatch.scrollIntoView()
     return literalMatch
   }
-  return tryToScrollToSelector(decodeHash(hash))
+  return tryToScrollToSelector(decodeHash(hash), matchHeadingIdPrefix)
 }
 
 /**
@@ -35,8 +35,13 @@ function scrollToHash(hash: string): Element | null {
  * and if it changes, i.e. something is rendered above the selector, it will try to scroll to with help of timeouts..
  *
  * @param path The path of the page.
+ * @param options.matchHeadingIdPrefix When no id matches, fall back to the element whose id starts
+ * with the hash's heading anchor id part, so links survive a reworded heading.
  */
-export default function useScrollToSelector(path: string): void {
+export default function useScrollToUrlHash(
+  path: string,
+  { matchHeadingIdPrefix = false }: { matchHeadingIdPrefix?: boolean } = {},
+): void {
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
       const hash = window.location.hash.slice(1)
@@ -46,7 +51,7 @@ export default function useScrollToSelector(path: string): void {
         setTimeout(() => {
           if (!elementToScrollTo) {
             // We try to scroll to element
-            elementToScrollTo = scrollToHash(hash)
+            elementToScrollTo = scrollToHash(hash, matchHeadingIdPrefix)
             // If element exists, we get the offset relative to the document
             if (elementToScrollTo) {
               lastOffsetRelativeToDocument =
@@ -70,5 +75,5 @@ export default function useScrollToSelector(path: string): void {
       setScrollTimeout(1000)
       setScrollTimeout(2000)
     }
-  }, [path])
+  }, [path, matchHeadingIdPrefix])
 }

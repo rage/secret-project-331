@@ -33,11 +33,8 @@ function findHashTarget(hash: string, matchHeadingIdPrefix: boolean): Element | 
 }
 
 /**
- * This hook will see if window.location contains an anchor.
- * If it does, it will try to scroll to the selector with timeouts.
- *
- * It will calculate the relative top offset to the document for the selector found
- * and if it changes, i.e. something is rendered above the selector, it will try to scroll to with help of timeouts..
+ * Scrolls to the element the url hash points at once it has rendered, and scrolls to it again
+ * if content rendered above it pushes it down. Reruns when `path` changes.
  *
  * @param path The path of the page.
  * @param options.matchHeadingIdPrefix When no id matches, fall back to the element whose id starts

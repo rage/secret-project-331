@@ -2,8 +2,8 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useAtomValue } from "jotai"
-import React from "react"
+import { useAtomValue, useSetAtom } from "jotai"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import EndQuestionnaireDialog from "@/components/course-material/modals/EndQuestionnaireDialog"
@@ -70,8 +70,35 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   )
 
   const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
+  const setShowEndQuestionnaire = useSetAtom(needsToAnswerEndQuestionnaire)
 
-  // todo: show in the correct progress block and update text for course/module
+  useEffect(() => {
+    console.log(
+      "given:",
+      points.given,
+      "required:",
+      points.required,
+      "given:",
+      exercises.given,
+      "required:",
+      exercises.required,
+      courseModuleProgress.requires_ending_questionnaire,
+      courseModuleProgress.ending_questionnaire_answered,
+    )
+    let meetsRequirements =
+      points.given !== null &&
+      points.required !== null &&
+      points.given >= points.required &&
+      exercises.given !== null &&
+      exercises.required !== null &&
+      exercises.given >= exercises.required &&
+      courseModuleProgress.requires_ending_questionnaire &&
+      !courseModuleProgress.ending_questionnaire_answered
+
+    setShowEndQuestionnaire(meetsRequirements)
+  }, [courseModuleProgress, points, exercises, setShowEndQuestionnaire])
+
+  // todo: show the congratulations block and update text for course/module
   console.log(showEndQuestionnaire)
   return (
     <>

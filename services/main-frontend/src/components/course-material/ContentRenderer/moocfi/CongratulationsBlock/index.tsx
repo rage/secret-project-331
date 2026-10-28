@@ -10,11 +10,13 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
+import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
 
 import Congratulations from "./Congratulations"
 
 const CongratulationsBlock: React.FC = () => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
   const courseInstanceId = courseMaterialState.instance?.id
   const getModuleCompletions = useUserModuleCompletions(courseInstanceId)
   const loginStateContext = useContext(LoginStateContext)
@@ -24,6 +26,12 @@ const CongratulationsBlock: React.FC = () => {
   // The query is disabled without a course instance id, so it would otherwise show an
   // infinite loading skeleton.
   if (!courseInstanceId) {
+    return null
+  }
+
+  // Andwering the end questionnaire is a requirement for completing the course,
+  // so check it
+  if (showEndQuestionnaire) {
     return null
   }
 

@@ -1,0 +1,114 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    id,\n    created_at::timestamptz AS created_at,\n    updated_at::timestamptz AS updated_at,\n    deleted_at::timestamptz AS deleted_at,\n    course_id,\n    period_start::timestamptz AS period_start,\n    period_end::timestamptz AS period_end,\n    as_html,\n    as_text\nFROM teacher_newsletter_items\nWHERE course_id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "period_start",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "period_start"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "period_end",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "period_end"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "as_html",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "as_html"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "as_text",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "as_text"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "16f4f3c55a72abee489814ed6f9550d244af74ff4947950cc4309633125b0263"
+}

@@ -4,8 +4,10 @@ CREATE TABLE teacher_newsletter_items (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   course_id UUID NOT NULL REFERENCES courses(id),
-  as_html TEXT,
-  as_text TEXT
+  period_start TIMESTAMP WITH TIME ZONE NOT NULL,
+  period_end TIMESTAMP WITH TIME ZONE NOT NULL,
+  as_html TEXT NOT NULL,
+  as_text TEXT NOT NULL
 );
 
 CREATE TABLE teacher_newsletter_subscriptions (

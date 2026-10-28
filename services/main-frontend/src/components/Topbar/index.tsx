@@ -128,7 +128,7 @@ const Topbar: React.FC<TopbarProps> = ({
   const signUpPathWithReturnTo = signUpRoute(returnTo, i18n.language)
 
   const menuState = useOverlayTriggerState({})
-  const showEndQuestionnaire = true //useAtomValue(needsToAnswerEndQuestionnaire)
+  const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
 
   return (
     <>

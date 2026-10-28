@@ -71,6 +71,7 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
 
   const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
 
+  // todo: show in the correct progress block and update text for course/module
   console.log(showEndQuestionnaire)
   return (
     <>
@@ -122,26 +123,22 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
               width: 100%;
               margin: 0 auto;
               text-align: center;
-              padding: 2em 0;
+              padding: 2em 0.75em;
 
               /** Make sure the visualization does not make the page wider on mobile */
               max-width: 100%;
               overflow: hidden;
 
               display: flex;
-              flex-flow: row nowrap;
-              justify-content: flex-end;
-              align-items: baseline;
-              border: solid ${baseTheme.colors.crimson[200]} 1px;
+              flex-flow: column nowrap;
+              align-items: center;
+              gap: 1rem;
+              border: solid ${baseTheme.colors.crimson[200]} 3px;
               border-radius: 0.25rem;
-              padding: 0.25rem;
               background: ${baseTheme.colors.crimson[100]};
             `}
           >
-            <p>
-              Congratulations! You meet all the requiremenents for passing the course. Give course
-              feedback to gain your completion (1-2 minutes)
-            </p>
+            <div>{t("answer-to-complete-course-description")}</div>
             {courseId && <EndQuestionnaireDialog courseId={courseId} />}
           </div>
         </Wrapper>

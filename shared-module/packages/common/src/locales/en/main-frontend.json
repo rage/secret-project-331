@@ -73,6 +73,7 @@
   "answer-submitted-with-points-announcement": "Answer submitted. You received {{points}} out of {{maxPoints}} points.",
   "answer-the-exercise-before-submitting": "Please complete your answer first.",
   "answer-to-complete-course": "Answer these questions to complete the course",
+  "answer-to-complete-course-description": "Congratulations! You meet the requirements to pass the course. \n\nTo receive your completion, answer this short questionnaire (1-2 minutes).",
   "answered-at": "Answered: {{time}}",
   "answers-in-manual-review": "Answers in manual review",
   "answers-in-manual-review-explanation": "These answers are waiting for manual grading. Automatic module completion is on hold until course staff grade them.",

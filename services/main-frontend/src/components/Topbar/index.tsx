@@ -3,16 +3,19 @@
 import { css } from "@emotion/css"
 import { OverlayContainer } from "@react-aria/overlays"
 import { useOverlayTriggerState } from "@react-stately/overlays"
+import { useAtomValue } from "jotai"
 import type { ReactElement } from "react"
 import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
 
 import EndQuestionnaireDialog from "../course-material/modals/EndQuestionnaireDialog"
 import Brand from "./Brand"
@@ -125,6 +128,7 @@ const Topbar: React.FC<TopbarProps> = ({
   const signUpPathWithReturnTo = signUpRoute(returnTo, i18n.language)
 
   const menuState = useOverlayTriggerState({})
+  const showEndQuestionnaire = true //useAtomValue(needsToAnswerEndQuestionnaire)
 
   return (
     <>
@@ -156,21 +160,30 @@ const Topbar: React.FC<TopbarProps> = ({
           >
             <Brand />
 
-            <div
-              className={css`
-                width: 100%;
-                margin: 0 auto;
-                text-align: center;
-                padding: 2em 0;
-                border: solid red 5px;
-
-                /** Make sure the visualization does not make the page wider on mobile */
-                max-width: 100%;
-                overflow: hidden;
-              `}
-            >
-              {courseId && <EndQuestionnaireDialog courseId={courseId} />}
-            </div>
+            {showEndQuestionnaire && (
+              <div
+                className={css`
+                  display: flex;
+                  flex-flow: row nowrap;
+                  justify-content: flex-end;
+                  align-items: baseline;
+                  border: solid ${baseTheme.colors.crimson[200]} 1px;
+                  border-radius: 0.25rem;
+                  padding: 0.25rem;
+                  background: ${baseTheme.colors.crimson[100]};
+                `}
+              >
+                <span
+                  className={css`
+                    margin-right: 1rem;
+                    margin-left: 1rem;
+                  `}
+                >
+                  {t("answer-to-complete-course")}
+                </span>
+                {courseId && <EndQuestionnaireDialog courseId={courseId} />}
+              </div>
+            )}
 
             {/* Middle: primary navigation slot (visible on md+) */}
             <nav

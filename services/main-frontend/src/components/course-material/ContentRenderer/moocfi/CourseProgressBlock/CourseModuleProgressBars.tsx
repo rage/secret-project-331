@@ -18,8 +18,9 @@ import {
   withoutEmptyThreshold,
 } from "@/components/course-progress/progressText"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
+import { baseTheme } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/EndQuestionStore"
+import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
 
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 
@@ -122,11 +123,19 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
               margin: 0 auto;
               text-align: center;
               padding: 2em 0;
-              border: solid red 5px;
 
               /** Make sure the visualization does not make the page wider on mobile */
               max-width: 100%;
               overflow: hidden;
+
+              display: flex;
+              flex-flow: row nowrap;
+              justify-content: flex-end;
+              align-items: baseline;
+              border: solid ${baseTheme.colors.crimson[200]} 1px;
+              border-radius: 0.25rem;
+              padding: 0.25rem;
+              background: ${baseTheme.colors.crimson[100]};
             `}
           >
             <p>

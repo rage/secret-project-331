@@ -1111,6 +1111,7 @@
   "generate-certificate-button-label": "Generate certificate for completion",
   "generating-new-certificates-disabled": "Generating new certificates disabled",
   "generating-new-certificates-enabled": "Generating new certificates enabled",
+  "give-answers": "Give answers",
   "give-custom-points-confirmation": "Are you sure you want to give {{ custom-points }} points?",
   "give-feedback": "Give feedback",
   "give-written-feedback": "Give written feedback",

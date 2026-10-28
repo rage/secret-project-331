@@ -10,17 +10,12 @@ import { saveCourseModuleEndQuestionnaireAnswersMutation } from "@/generated/cou
 import { getCourseModuleEndQuestionnaire } from "@/generated/course-material-api/sdk.generated"
 import type { CourseModuleEndingQuestion } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import {
-  RadioGroup,
-  Radio,
-  TextArea,
-  Button,
-  Checkbox,
-  QueryResult,
-} from "@/shared-module/components"
+import { RadioGroup, Radio, TextArea, Button, Checkbox } from "@/shared-module/components"
 
 interface Answer {
   freeText: string
@@ -39,9 +34,9 @@ const multiSelectAnswerMap = (multi: Record<string, boolean> | undefined) => {
   if (!multi) {
     return answers
   }
-  for (let prop in multi) {
-    if (Object.prototype.hasOwnProperty.call(multi, prop) && multi[prop]) {
-      answers.push(prop)
+  for (let key in multi) {
+    if (Object.prototype.hasOwnProperty.call(multi, key) && multi[key]) {
+      answers.push(key)
     }
   }
   return answers
@@ -100,15 +95,17 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ courseI
   })
 
   return (
-    <QueryResult query={getEndQuestionnaire} emptyFallback={<p></p>}>
-      {(data) => (
+    <>
+      {getEndQuestionnaire.isLoading && <Spinner variant="small" />}
+      {getEndQuestionnaire.isError && <ErrorBanner error={getEndQuestionnaire.error} />}
+      {getEndQuestionnaire.isSuccess && (
         <>
           <Button
             onClick={() => {
               setOpen(true)
             }}
           >
-            {t("answer-to-complete-course")}
+            {t("give-answers")}
           </Button>
           <StandardDialog
             open={open}
@@ -129,7 +126,7 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ courseI
               `}
               onSubmit={onSaveEndQuestionnaireAnswersWrapper}
             >
-              {data.map((q, i) => {
+              {getEndQuestionnaire.data.map((q, i) => {
                 return (
                   <div key={i}>
                     {q.select_labels && (
@@ -179,7 +176,7 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ courseI
           </StandardDialog>
         </>
       )}
-    </QueryResult>
+    </>
   )
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 
-import { tryToScrollToSelector } from "@/utils/course-material/dom"
+import { headingAnchorIdPart } from "@/shared-module/common/utils/headingAnchors"
 
 /** Ids that are not plain ASCII reach us percent-encoded, but the element carries the decoded id. */
 function decodeHash(hash: string): string {
@@ -14,17 +14,22 @@ function decodeHash(hash: string): string {
 }
 
 /**
- * Tries the hash as written before decoding it, like the browser does, so an id containing "%"
- * still matches.
+ * Finds the element the url hash points at. The hash is tried as written before decoding it, like
+ * the browser does, so an id containing "%" still matches.
+ *
+ * With `matchHeadingIdPrefix`, an element whose id starts with the hash's heading anchor id part is
+ * accepted when no id matches, so a link still resolves after its heading was reworded. That id
+ * part is hex, so interpolating it into a selector is safe.
  */
-function scrollToHash(hash: string, matchHeadingIdPrefix: boolean): Element | null {
+function findHashTarget(hash: string, matchHeadingIdPrefix: boolean): Element | null {
+  const decodedHash = decodeHash(hash)
   // oxlint-disable-next-line unicorn/prefer-query-selector -- ids from a url fragment need no escaping with getElementById
-  const literalMatch = document.getElementById(hash)
-  if (literalMatch) {
-    literalMatch.scrollIntoView()
-    return literalMatch
+  const idMatch = document.getElementById(hash) ?? document.getElementById(decodedHash)
+  if (idMatch || !matchHeadingIdPrefix) {
+    return idMatch
   }
-  return tryToScrollToSelector(decodeHash(hash), matchHeadingIdPrefix)
+  const idPart = headingAnchorIdPart(decodedHash)
+  return idPart === undefined ? null : document.querySelector(`[id^="${idPart}-"]`)
 }
 
 /**
@@ -50,10 +55,10 @@ export default function useScrollToUrlHash(
       const setScrollTimeout = (timeout: number) => {
         setTimeout(() => {
           if (!elementToScrollTo) {
-            // We try to scroll to element
-            elementToScrollTo = scrollToHash(hash, matchHeadingIdPrefix)
-            // If element exists, we get the offset relative to the document
+            elementToScrollTo = findHashTarget(hash, matchHeadingIdPrefix)
+            // If element exists, we scroll to it and get the offset relative to the document
             if (elementToScrollTo) {
+              elementToScrollTo.scrollIntoView()
               lastOffsetRelativeToDocument =
                 elementToScrollTo.getBoundingClientRect().top + document.documentElement.scrollTop
             }

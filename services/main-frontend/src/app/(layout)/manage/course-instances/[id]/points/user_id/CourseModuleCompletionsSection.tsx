@@ -2,8 +2,14 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import {
+  creditRegistrationKey,
+  useTeacherCreditRegistrations,
+} from "@/components/credit-registration/teacherCreditRegistrations"
 import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
@@ -90,6 +96,8 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   const { t } = useTranslation()
   const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
+  const userIds = useMemo(() => [userId], [userId])
+  const { data: registrations } = useTeacherCreditRegistrations(courseId, userIds)
 
   const heading = (
     <h2
@@ -125,6 +133,9 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
           {courseModuleCompletions.map((courseModuleCompletion) => {
             const courseModule = courseStructureData.modules.find(
               (cm) => cm.id === courseModuleCompletion.course_module_id,
+            )
+            const registration = registrations.get(
+              creditRegistrationKey(userId, courseModuleCompletion.course_module_id),
             )
             return (
               <ModuleCard key={courseModuleCompletion.id}>
@@ -178,6 +189,12 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
                         : t("label-null")}
                     </Value>
                   </InfoItem>
+                  {registration && (
+                    <InfoItem>
+                      <Label>{t("credit-registration-column-registration")}</Label>
+                      <CreditRegistrationStatusCell registration={registration} />
+                    </InfoItem>
+                  )}
                   {courseModuleCompletion.completion_granter_user_id && (
                     <InfoItem>
                       <Label>{t("label-completion-granter-user-id")}</Label>

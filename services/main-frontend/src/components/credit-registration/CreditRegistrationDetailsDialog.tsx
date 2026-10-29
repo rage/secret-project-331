@@ -9,12 +9,15 @@ import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/r
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { formatUserName } from "@/hooks/useUserDetails"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
   CopyButton,
   DescriptionList,
   Dialog,
   Disclosure,
+  Link,
   QueryResult,
   RegistrationStatusHeadline,
   RelativeTime,
@@ -64,6 +67,13 @@ interface Props {
 // The one stage where a resend can help: nothing moves until a student number is linked.
 const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
 
+const ADMINISTRATE_CREDIT_REGISTRATIONS = [
+  {
+    action: { type: "administrate_credit_registrations" },
+    resource: { type: "global_permissions" },
+  },
+] as const
+
 const leadCss = css`
   display: grid;
   gap: var(--space-2);
@@ -92,6 +102,8 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  const canAdministrate =
+    useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS]).data?.[0] === true
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },
@@ -190,6 +202,11 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({
           <p className={proseCss}>{leadSentence}</p>
         </div>
         <DescriptionList items={items} layout={STACKED} />
+        {canAdministrate && (
+          <Link href={creditRegistrationItemRoute(registration.id)}>
+            {t("link-credit-registration-admin-page")}
+          </Link>
+        )}
         {isAccountLinkingEnabled &&
           registration.student_facing_status === WAITING_FOR_STUDENT_NUMBER && (
             <ResendLinkingEmailBlock registration={registration} />

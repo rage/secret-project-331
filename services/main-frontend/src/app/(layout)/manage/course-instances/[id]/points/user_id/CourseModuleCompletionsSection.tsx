@@ -128,7 +128,7 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
       renderData={([courseModuleCompletions, courseStructureData]) => (
         <Section>
           {heading}
-          {registrationsError && <ErrorNotice error={registrationsError} announce="polite" />}
+          {registrationsError && <ErrorNotice error={registrationsError} />}
           {courseModuleCompletions.map((courseModuleCompletion) => {
             const courseModule = courseStructureData.modules.find(
               (cm) => cm.id === courseModuleCompletion.course_module_id,

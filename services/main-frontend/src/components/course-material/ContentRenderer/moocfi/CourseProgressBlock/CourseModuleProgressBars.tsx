@@ -166,7 +166,12 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
             `}
           >
             <div>{t("answer-to-complete-course-description")}</div>
-            {courseId && <EndQuestionnaireDialog courseId={courseId} />}
+            {courseId && (
+              <EndQuestionnaireDialog
+                courseId={courseId}
+                courseModuleId={courseModuleProgress.course_module_id}
+              />
+            )}
           </div>
         </Wrapper>
       )}

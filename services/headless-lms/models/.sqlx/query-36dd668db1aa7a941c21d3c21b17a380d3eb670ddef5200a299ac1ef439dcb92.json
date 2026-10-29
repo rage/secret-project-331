@@ -60,17 +60,6 @@
       },
       {
         "ordinal": 5,
-        "name": "course_module_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "course_module_ending_questions",
-            "name": "course_module_id"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
         "name": "question_serial_number",
         "type_info": "Int4",
         "origin": {
@@ -81,7 +70,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "question_text",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +81,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "question_free_text_instruction",
         "type_info": "Varchar",
         "origin": {
@@ -103,7 +92,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 8,
         "name": "select_labels",
         "type_info": "TextArray",
         "origin": {
@@ -114,7 +103,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "multi_select_labels",
         "type_info": "TextArray",
         "origin": {
@@ -134,7 +123,6 @@
       false,
       false,
       false,
-      true,
       true,
       true,
       false,

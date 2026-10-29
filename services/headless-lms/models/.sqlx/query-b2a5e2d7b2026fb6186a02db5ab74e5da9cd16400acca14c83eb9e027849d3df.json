@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_module_ending_questions_answers (\n    question_id,\n    user_id,\n    answer_text_value,\n    answer_select_value,\n    answer_multi_select_value\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO course_module_ending_questions_answers (\n    question_id,\n    user_id,\n    course_module_id,\n    answer_text_value,\n    answer_select_value,\n    answer_multi_select_value\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -71,6 +71,17 @@
       },
       {
         "ordinal": 6,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
         "name": "answer_text_value",
         "type_info": "Text",
         "origin": {
@@ -81,7 +92,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "answer_select_value",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +103,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "answer_multi_select_value",
         "type_info": "TextArray",
         "origin": {
@@ -107,6 +118,7 @@
       "Left": [
         "Uuid",
         "Uuid",
+        "Uuid",
         "Text",
         "Varchar",
         "TextArray"
@@ -119,10 +131,11 @@
       true,
       false,
       false,
+      false,
       true,
       true,
       true
     ]
   },
-  "hash": "23ebf31d874cef1152c034f5f5f6db6b77c8884ab94dc32943c9c70ac84012f5"
+  "hash": "b2a5e2d7b2026fb6186a02db5ab74e5da9cd16400acca14c83eb9e027849d3df"
 }

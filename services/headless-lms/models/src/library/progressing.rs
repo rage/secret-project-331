@@ -11,6 +11,7 @@ use crate::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
+    course_module_ending_questions_answers,
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, exams,
     library::credit_registration::StudentFacingCreditRegistrationStatus,
@@ -235,14 +236,22 @@ async fn user_is_eligible_for_automatic_completion(
                     );
                     return Ok(false);
                 }
-                if requirements.requires_exam {
-                    info!("To complete this module automatically, the user must pass an exam.");
-                    user_has_passed_exam_for_the_course_based_on_points(
+                if requirements.requires_exam
+                    && !user_has_passed_exam_for_the_course_based_on_points(
                         conn,
                         user_id,
                         course_module.course_id,
                     )
-                    .await
+                    .await?
+                {
+                    info!("To complete this module automatically, the user must pass an exam.");
+                    return Ok(false);
+                }
+                if course_module.ending_questions_required {
+                    info!(
+                        "The user needs to answered the course module's end questions, which are required for completion."
+                    );
+                    return course_module_ending_questions_answers::user_has_answered_all_questions_for_module_id(conn, &course_module.id, &course_module.course_id, &user_id).await;
                 } else {
                     Ok(true)
                 }
@@ -562,6 +571,7 @@ pub async fn add_manual_completions(
     course_instance: &CourseInstance,
     manual_completion_request: &TeacherManualCompletionRequest,
 ) -> ModelResult<()> {
+    // check that user has answered end questionnaire
     let course_module =
         course_modules::get_by_id(conn, manual_completion_request.course_module_id).await?;
     if course_module.course_id != course_instance.course_id {
@@ -697,6 +707,7 @@ pub async fn get_manual_completion_result_preview(
     course_instance: &CourseInstance,
     manual_completion_request: &TeacherManualCompletionRequest,
 ) -> ModelResult<ManualCompletionPreview> {
+    // maybe check end questions status?
     let course_module =
         course_modules::get_by_id(conn, manual_completion_request.course_module_id).await?;
     if course_module.course_id != course_instance.course_id {

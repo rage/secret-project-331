@@ -599,7 +599,6 @@ export type CourseModuleCompletion = {
 
 export type CourseModuleEndingQuestion = {
   course_id?: string | null
-  course_module_id?: string | null
   created_at: string
   deleted_at?: string | null
   id: string
@@ -2118,9 +2117,13 @@ export type SaveCourseModuleEndQuestionnaireAnswersData = {
      * Course id
      */
     course_id: string
+    /**
+     * Course module id
+     */
+    course_module_id: string
   }
   query?: never
-  url: "/api/v0/course-material/course-modules/course/{course_id}/end_questions"
+  url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}/end_questions"
 }
 
 export type SaveCourseModuleEndQuestionnaireAnswersResponses = {

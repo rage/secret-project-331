@@ -15,7 +15,6 @@ pub struct CourseModuleEndingQuestion {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Option<Uuid>,
-    pub course_module_id: Option<Uuid>,
     pub question_serial_number: i32,
     pub question_text: String,
     pub question_free_text_instruction: Option<String>,

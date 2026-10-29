@@ -68,6 +68,7 @@ pub async fn insert(
     new_course_module_completion: &NewCourseModuleCompletion,
     completion_granter: CourseModuleCompletionGranter,
 ) -> ModelResult<CourseModuleCompletion> {
+    // todo don't insert if end questions missing
     let res = sqlx::query_as!(
         CourseModuleCompletion,
         "

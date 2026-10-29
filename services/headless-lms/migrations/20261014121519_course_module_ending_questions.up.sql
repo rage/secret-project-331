@@ -6,14 +6,13 @@ CREATE TABLE course_module_ending_questions (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   course_id UUID REFERENCES courses(id),
-  course_module_id UUID REFERENCES course_modules(id),
   question_serial_number INTEGER NOT NULL,
   question_text VARCHAR(255) NOT NULL,
   question_free_text_instruction VARCHAR(255),
   --question_type end_question_type NOT NULL,
   select_labels TEXT ARRAY,
   multi_select_labels TEXT ARRAY,
-  UNIQUE NULLS NOT DISTINCT (course_module_id, question_serial_number)
+  UNIQUE NULLS NOT DISTINCT (course_id, question_serial_number)
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -33,7 +32,6 @@ COMMENT ON COLUMN course_module_ending_questions.created_at IS 'Timestamp when t
 COMMENT ON COLUMN course_module_ending_questions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN course_module_ending_questions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN course_module_ending_questions.course_id IS 'The course this question is for. If null, then this question should be asked on every course.';
-COMMENT ON COLUMN course_module_ending_questions.course_module_id IS 'The course moudule this question is for. If null, then this question should be asked after every course module. Should be null if course_id is null.';
 COMMENT ON COLUMN course_module_ending_questions.question_serial_number IS 'Indicates the ordering of the questions in the questionnaire.';
 COMMENT ON COLUMN course_module_ending_questions.question_text IS 'The question itself.';
 COMMENT ON COLUMN course_module_ending_questions.question_free_text_instruction IS 'If the question includes a text input for additional details, this item labels that and adds instructions for that.';
@@ -49,6 +47,7 @@ CREATE TABLE course_module_ending_questions_answers (
   deleted_at TIMESTAMP WITH TIME ZONE,
   question_id UUID NOT NULL REFERENCES course_module_ending_questions(id),
   user_id UUID NOT NULL REFERENCES users(id),
+  course_module_id UUID NOT NULL REFERENCES course_modules(id),
   answer_text_value TEXT,
   answer_select_value VARCHAR(255),
   answer_multi_select_value TEXT ARRAY
@@ -63,6 +62,7 @@ COMMENT ON COLUMN course_module_ending_questions_answers.updated_at IS 'Timestam
 COMMENT ON COLUMN course_module_ending_questions_answers.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN course_module_ending_questions_answers.question_id IS 'The question this answer is for.';
 COMMENT ON COLUMN course_module_ending_questions_answers.user_id IS 'Identifies the user who gave this answer.';
+COMMENT ON COLUMN course_module_ending_questions_answers.course_module_id IS 'The course moudule this answer is for.';
 COMMENT ON COLUMN course_module_ending_questions_answers.answer_text_value IS 'A free text answer value, associated with course_module_ending_questions.question_free_text_instruction or question_text.';
 COMMENT ON COLUMN course_module_ending_questions_answers.answer_select_value IS 'A selected option associated with course_module_ending_questions.select_labels.';
 COMMENT ON COLUMN course_module_ending_questions_answers.answer_multi_select_value IS 'A list of selected options associated with course_module_ending_questions.multi_select_labels.';

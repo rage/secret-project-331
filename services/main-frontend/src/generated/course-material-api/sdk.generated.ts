@@ -878,7 +878,7 @@ export const getCourseModuleEndQuestionnaire = <ThrowOnError extends boolean = t
 
 /**
  *
- * POST `/api/v0/course-material/course-modules/course/:course_id/end_questions`
+ * POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id/end_questions`
  *
  * Saves course module end question answers.
  */
@@ -892,7 +892,7 @@ export const saveCourseModuleEndQuestionnaireAnswers = <ThrowOnError extends boo
     "data"
   >({
     responseStyle: "data",
-    url: "/api/v0/course-material/course-modules/course/{course_id}/end_questions",
+    url: "/api/v0/course-material/course-modules/course/{course_id}/{course_module_id}/end_questions",
     ...options,
     headers: {
       "Content-Type": "application/json",

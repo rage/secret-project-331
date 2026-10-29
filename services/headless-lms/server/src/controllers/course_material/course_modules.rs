@@ -184,16 +184,17 @@ async fn get_course_module_end_questionnaire(
 }
 
 /**
-POST `/api/v0/course-material/course-modules/course/:course_id/end_questions`
+POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id/end_questions`
 
 Saves course module end question answers.
 */
 #[utoipa::path(
     post,
-path = "/course/{course_id}/end_questions",    operation_id = "saveCourseModuleEndQuestionnaireAnswers",
+path = "/course/{course_id}/{course_module_id}/end_questions",    operation_id = "saveCourseModuleEndQuestionnaireAnswers",
     tag = "course-material-course-modules",
     params(
-        ("course_id" = Uuid, Path, description = "Course id")
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("course_module_id" = Uuid, Path, description = "Course module id")
     ),
     request_body = Vec<NewCourseModuleEndingQuestionsAnswer>,
     responses(
@@ -204,17 +205,24 @@ path = "/course/{course_id}/end_questions",    operation_id = "saveCourseModuleE
 async fn save_course_module_end_questionnaire_answers(
     pool: web::Data<PgPool>,
     user: AuthUser,
-    path: web::Path<Uuid>,
+    path: web::Path<(Uuid, Uuid)>,
     payload: web::Json<Vec<NewCourseModuleEndingQuestionsAnswer>>,
 ) -> ControllerResult<web::Json<()>> {
-    let course_id = path.into_inner();
+    let (course_id, course_module_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
 
     let mut tx = conn.begin().await?;
 
     for item in payload.iter() {
-        models::course_module_ending_questions_answers::insert(&mut tx, &user.id, item).await?;
+        models::course_module_ending_questions_answers::insert(
+            &mut tx,
+            &user.id,
+            &course_id,
+            &course_module_id,
+            item,
+        )
+        .await?;
     }
 
     tx.commit().await?;
@@ -247,7 +255,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::get().to(get_course_module_end_questionnaire),
     )
     .route(
-        "/course/{course_id}/end_questions",
+        "/course/{course_id}/{course_module_id}/end_questions",
         web::post().to(save_course_module_end_questionnaire_answers),
     );
 }

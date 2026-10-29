@@ -409,7 +409,6 @@ export const zCourseModuleCompletion = z.object({
 
 export const zCourseModuleEndingQuestion = z.object({
   course_id: z.uuid().nullish(),
-  course_module_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
@@ -1853,6 +1852,7 @@ export const zSaveCourseModuleEndQuestionnaireAnswersBody = z.array(
 
 export const zSaveCourseModuleEndQuestionnaireAnswersPath = z.object({
   course_id: z.uuid(),
+  course_module_id: z.uuid(),
 })
 
 export const zGetCourseMaterialExerciseTasksByModuleAndTypePath = z.object({

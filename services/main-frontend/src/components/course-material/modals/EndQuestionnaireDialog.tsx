@@ -25,6 +25,7 @@ interface Answer {
 
 export interface EndQuestionnaireDialogProps {
   courseId: string
+  courseModuleId: string
 }
 
 type AnswersData = Record<string, Answer>
@@ -42,7 +43,10 @@ const multiSelectAnswerMap = (multi: Record<string, boolean> | undefined) => {
   return answers
 }
 
-const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ courseId }) => {
+const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
+  courseId,
+  courseModuleId,
+}) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const { control, handleSubmit } = useForm<AnswersData>({
@@ -90,6 +94,7 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({ courseI
       body: answerData,
       path: {
         course_id: assertNotNullOrUndefined(courseId),
+        course_module_id: assertNotNullOrUndefined(courseModuleId),
       },
     })
   })

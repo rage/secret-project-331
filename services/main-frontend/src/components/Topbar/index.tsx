@@ -181,7 +181,11 @@ const Topbar: React.FC<TopbarProps> = ({
                 >
                   {t("answer-to-complete-course")}
                 </span>
-                {courseId && <EndQuestionnaireDialog courseId={courseId} />}
+
+                {
+                  // todo!! fix
+                  courseId && <EndQuestionnaireDialog courseId={courseId} courseModuleId="" />
+                }
               </div>
             )}
 

@@ -21,6 +21,7 @@ import FeedbackMessagesEditor, {
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
+import UnaddedDraftNotice from "../common/UnaddedDraftNotice"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -157,19 +158,12 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(title, feedbackMessages, isCorrect) => {
+            onChange={(changes) => {
               updateState((draft) => {
-                if (!draft) {
-                  return
+                const draftOption = draft?.options.find((opt) => opt.id === option.id)
+                if (draftOption) {
+                  Object.assign(draftOption, changes)
                 }
-                draft.options = draft.options.map((opt) => {
-                  if (opt.id === option.id) {
-                    opt.title = title
-                    opt.correct = isCorrect
-                    opt.feedbackMessages = feedbackMessages
-                  }
-                  return opt
-                })
               })
             }}
             key={option.id}
@@ -228,6 +222,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         >
           {t("add-option")}
         </Button>
+        <UnaddedDraftNotice visible={optionTitle.trim() !== ""} />
       </OptionCreationContainer>
 
       {/* Advanced options */}
@@ -323,7 +318,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   }
                 })
               }}
-              defaultValue={selected.multipleChoiceMultipleOptionsGradingPolicy}
+              value={selected.multipleChoiceMultipleOptionsGradingPolicy}
               label={t("multiple-choice-grading")}
               options={MULTIPLE_CHOICE_OPTIONS}
             />

@@ -6,7 +6,6 @@ import { v4 } from "uuid"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
@@ -17,7 +16,9 @@ import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
 } from "../common/FeedbackMessagesEditor"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import NumericField from "../common/NumericField"
 import ParsedTextField from "../common/ParsedTextField"
+import UnaddedDraftNotice from "../common/UnaddedDraftNotice"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -110,23 +111,18 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         }}
         label={t("title")}
       />
-      <TextField
+      <NumericField
         value={selected.n}
         label={t("quiz-choose-n-description")}
-        onChangeByValue={(value) => {
+        min={0}
+        onCommit={(next) => {
           updateState((draft) => {
             if (!draft) {
               return
             }
-            try {
-              // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-              draft.n = parseInt(value, 10)
-            } catch (_e) {
-              /* NOP */
-            }
+            draft.n = next
           })
         }}
-        type={"number"}
       />
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>
@@ -141,19 +137,12 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(title, feedbackMessages, correctValue) => {
+            onChange={(changes) => {
               updateState((draft) => {
-                if (!draft) {
-                  return
+                const draftOption = draft?.options.find((opt) => opt.id === option.id)
+                if (draftOption) {
+                  Object.assign(draftOption, changes)
                 }
-                draft.options = draft.options.map((opt) => {
-                  if (opt.id === option.id) {
-                    opt.title = title
-                    opt.correct = correctValue
-                    opt.feedbackMessages = feedbackMessages
-                  }
-                  return opt
-                })
               })
             }}
             key={option.id}
@@ -212,6 +201,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         >
           {t("add-option")}
         </Button>
+        <UnaddedDraftNotice visible={optionTitle.trim() !== ""} />
       </OptionCreationContainer>
 
       {/* Advanced options */}

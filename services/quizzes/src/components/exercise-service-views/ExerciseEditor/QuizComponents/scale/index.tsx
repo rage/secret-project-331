@@ -11,6 +11,7 @@ import EditorCard from "../common/EditorCard"
 import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
 } from "../common/FeedbackMessagesEditor"
+import NumericField from "../common/NumericField"
 
 interface ScaleEditorProps {
   quizItemId: string
@@ -55,35 +56,29 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
       />
       <TextFieldContainer>
         <TextFieldWrapper>
-          <TextField
-            type={"number"}
+          <NumericField
             value={selected.minValue ?? 0}
             label={t("minimum")}
-            name={t("minimum")}
-            onChangeByValue={(minimum) => {
+            onCommit={(next) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
-                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-                draft.minValue = parseInt(minimum, 10)
+                draft.minValue = next
               })
             }}
           />
         </TextFieldWrapper>
         <TextFieldWrapper>
-          <TextField
-            type={"number"}
+          <NumericField
             value={selected.maxValue ?? 0}
             label={t("maximum")}
-            name={t("maximum")}
-            onChangeByValue={(maximum) => {
+            onCommit={(next) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
-                // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-                draft.maxValue = parseInt(maximum, 10)
+                draft.maxValue = next
               })
             }}
           />

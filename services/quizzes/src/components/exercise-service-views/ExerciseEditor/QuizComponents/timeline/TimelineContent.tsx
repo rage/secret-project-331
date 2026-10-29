@@ -13,6 +13,7 @@ import type { OldNormalizedQuizItemTimelineItem } from "../../../../../../types/
 import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
+import UnaddedDraftNotice from "../common/UnaddedDraftNotice"
 
 interface TimelineContentProps {
   quizItemId: string
@@ -160,6 +161,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
     handleSubmit,
     formState: { isValid, isSubmitting },
     reset,
+    watch,
   } = useForm<Fields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -168,6 +170,8 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
       event: "",
     },
   })
+
+  const [draftYear, draftEvent] = watch(["year", "event"])
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
@@ -197,13 +201,11 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
                     if (!draft || !draft.timelineItems) {
                       return
                     }
-                    // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-                    const parsedYear = parseInt(value, 10)
                     draft.timelineItems = draft.timelineItems.map((item) => {
                       if (item.id === timelineItem.id) {
                         return {
                           ...item,
-                          year: isNaN(parsedYear) ? "0" : value,
+                          year: value,
                         } as OldNormalizedQuizItemTimelineItem
                       }
                       return item
@@ -306,6 +308,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
           <PlusCircle />
         </StyledBtn>
       </StyledForm>
+      <UnaddedDraftNotice visible={draftYear.trim() !== "" || draftEvent.trim() !== ""} />
     </Wrapper>
   )
 }

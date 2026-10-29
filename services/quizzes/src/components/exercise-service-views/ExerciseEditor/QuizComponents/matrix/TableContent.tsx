@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 
 import { MatrixInputGrid, useMatrixGrid } from "@/components/Shared/MatrixGrid"
 import { emptyMatrixGrid } from "@/util/matrix"
@@ -18,14 +18,11 @@ const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ qu
       return findQuizItem<PrivateSpecQuizItemMatrix>(quiz, quizItemId, "matrix")
     },
   )
-  const [matrixVariable, setMatrixVariable] = useState<string[][]>(
-    () => selected?.optionCells ?? emptyMatrixGrid(),
-  )
+  const matrixVariable = selected?.optionCells ?? emptyMatrixGrid()
   // The key-gap warning in MatrixGradingSettings explains these; the grid only marks them
   const { shape, gaps, editingHandlers } = useMatrixGrid(matrixVariable)
 
   const handleMatrixChange = (newMatrix: string[][]) => {
-    setMatrixVariable(newMatrix)
     updateState((draft) => {
       if (!draft) {
         return

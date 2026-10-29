@@ -11,10 +11,7 @@ import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
-import type {
-  QuizItemOption,
-  QuizOptionFeedbackMessage,
-} from "../../../../../../types/quizTypes/privateSpec"
+import type { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
 import FeedbackMessagesEditor, {
   useOptionFeedbackVisibilityOptions,
 } from "./FeedbackMessagesEditor"
@@ -101,29 +98,21 @@ const MultipleChoiceMessageDialogContainer = styled.div`
   margin-bottom: 4px;
 `
 
+export type OptionChanges = Partial<Pick<QuizItemOption, "title" | "correct" | "feedbackMessages">>
+
 interface MultipleChoiceOptionProps {
   option: QuizItemOption
-  onUpdateValues: (
-    title: string | null,
-    feedbackMessages: QuizOptionFeedbackMessage[],
-    correct: boolean,
-  ) => void
+  onChange: (changes: OptionChanges) => void
   onDelete: () => void
 }
 
 const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
   option,
-  onUpdateValues,
+  onChange,
   onDelete,
 }) => {
   const [visible, setVisible] = useState(true)
   const [editMode, setEditMode] = useState(false)
-
-  const [title, setTitle] = useState(option.title)
-  const [feedbackMessages, setFeedbackMessages] = useState<QuizOptionFeedbackMessage[]>(
-    option.feedbackMessages,
-  )
-  const [correct, setCorrect] = useState(option.correct)
 
   const { t } = useTranslation()
   const optionFeedbackVisibilityOptions = useOptionFeedbackVisibilityOptions()
@@ -136,29 +125,20 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
     setEditMode(!editMode)
   }, [editMode])
 
-  const startEditMode = useCallback(() => {
-    setFeedbackMessages(option.feedbackMessages)
-    setTitle(option.title)
-    setCorrect(option.correct)
-    toggleEditMode()
-  }, [option.correct, option.feedbackMessages, option.title, toggleEditMode])
-
-  const saveChanges = useCallback(() => {
-    onUpdateValues(title, feedbackMessages, correct)
-    toggleEditMode()
-  }, [correct, feedbackMessages, onUpdateValues, title, toggleEditMode])
-
   return (
     <>
       <OptionCard>
         {editMode ? (
           <CenteredContainer>
-            <TextField onChangeByValue={(value) => setTitle(value)} value={title ?? undefined} />
+            <TextField
+              onChangeByValue={(value) => onChange({ title: value })}
+              value={option.title ?? undefined}
+            />
             <CheckboxContainer>
               <CheckBox
                 label={t("label-correct")}
-                onChangeByValue={(checked) => setCorrect(checked)}
-                checked={correct}
+                onChangeByValue={(checked) => onChange({ correct: checked })}
+                checked={option.correct}
               />
             </CheckboxContainer>
           </CenteredContainer>
@@ -174,7 +154,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
               `}
               variant="icon"
               size="small"
-              onClick={saveChanges}
+              onClick={toggleEditMode}
             >
               <CheckCircle
                 size={16}
@@ -197,7 +177,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
               `}
               variant="icon"
               size="small"
-              onClick={startEditMode}
+              onClick={toggleEditMode}
             >
               <Pencil
                 className={css`
@@ -292,9 +272,9 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             <MessageDialogContainer>
               <MessageDialogTextFieldContainer>
                 <FeedbackMessagesEditor
-                  value={feedbackMessages}
+                  value={option.feedbackMessages}
                   visibilityOptions={optionFeedbackVisibilityOptions}
-                  onChange={setFeedbackMessages}
+                  onChange={(feedbackMessages) => onChange({ feedbackMessages })}
                 />
               </MessageDialogTextFieldContainer>
             </MessageDialogContainer>

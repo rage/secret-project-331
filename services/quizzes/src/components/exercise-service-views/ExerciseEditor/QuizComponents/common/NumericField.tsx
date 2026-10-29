@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { stringToNumberOrNull } from "@/shared-module/components/lib/utils/rhfAdapters"
@@ -14,6 +14,14 @@ interface NumericFieldProps {
 /** Keeps partial input like "1." or "-" as text; only parseable values are committed, and blur resets to the committed value. */
 const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min }) => {
   const [text, setText] = useState(String(value))
+  const isFocused = useRef(false)
+
+  useEffect(() => {
+    if (!isFocused.current) {
+      setText(String(value))
+    }
+  }, [value])
+
   return (
     <TextField
       value={text}
@@ -26,7 +34,13 @@ const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min
           onCommit(min === undefined ? parsed : Math.max(min, parsed))
         }
       }}
-      onBlur={() => setText(String(value))}
+      onFocus={() => {
+        isFocused.current = true
+      }}
+      onBlur={() => {
+        isFocused.current = false
+        setText(String(value))
+      }}
     />
   )
 }

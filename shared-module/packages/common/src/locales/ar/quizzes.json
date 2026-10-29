@@ -130,6 +130,7 @@
   "multiple-choice-grading-some-correct-none-incorrect": "بعضها صحيح، لا شيء غير صحيح",
   "multiple-choice-grading-some-correct-none-incorrect-description": "إعطاء النقاط الكاملة إذا تم اختيار بعض الخيارات الصحيحة ولم يتم اختيار أي من الخيارات غير الصحيحة",
   "multiple-choice-header": "اختيار متعدد:",
+  "not-added-yet": "لم تتم الإضافة بعد. اختر «إضافة خيار» لتضمينه.",
   "not-answered": "لم يتم الإجابة",
   "number-of-tries-allowed": "عدد المحاولات المسموح بها",
   "numeric-tolerance": "التفاوت (± الفرق المسموح)",

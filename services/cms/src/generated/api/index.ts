@@ -41,7 +41,6 @@ export {
   uploadFilesFromExerciseService,
   upsertCmsCoursePartnersBlock,
   upsertCmsCourseResearchForm,
-  upsertCmsCourseResearchFormQuestions,
 } from "./sdk.generated"
 export type {
   AgentChangeset,
@@ -155,7 +154,6 @@ export type {
   GetExercisesWithSubmissionsResponses,
   GutenbergBlock,
   NewResearchForm,
-  NewResearchFormQuestion,
   Page,
   PageInfo,
   PageNavigationInformation,
@@ -182,7 +180,6 @@ export type {
   RequestParagraphSuggestionsResponse,
   RequestParagraphSuggestionsResponses,
   ResearchForm,
-  ResearchFormQuestion,
   RichTextFormat,
   SendCmsEmailTemplateTestData,
   SendCmsEmailTemplateTestResponse,
@@ -215,9 +212,6 @@ export type {
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
-  UpsertCmsCourseResearchFormQuestionsData,
-  UpsertCmsCourseResearchFormQuestionsResponse,
-  UpsertCmsCourseResearchFormQuestionsResponses,
   UpsertCmsCourseResearchFormResponse,
   UpsertCmsCourseResearchFormResponses,
   ValidateBlocksRequest,

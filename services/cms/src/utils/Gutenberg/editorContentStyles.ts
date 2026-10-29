@@ -19,6 +19,8 @@ const LINK_VISITED_COLOR = "#8050f2"
 const INLINE_CODE_BACKGROUND = "#e5e5e5"
 const QUOTE_BACKGROUND = "#f6f8fa"
 const QUOTE_BORDER_COLOR = "#bdc7d1"
+const FILE_BUTTON_BORDER_COLOR = baseTheme.colors.clear[400]
+const FILE_PREVIEW_BORDER_COLOR = baseTheme.colors.gray[100]
 
 /* The scope class is repeated below because Gutenberg's scope prefix has zero specificity, which
    would lose to the hand-written .editor-styles-wrapper rules in styles/Gutenberg/editor-styles.scss.
@@ -141,6 +143,41 @@ body code:not(pre code) {
 .wp-block-quote cite {
   font-size: 0.8125rem;
   font-style: normal;
+}
+
+/* Matches main-frontend's FileBlock: an outlined tertiary button and a framed embed. */
+.wp-block-file {
+  font-size: 1rem;
+}
+
+.wp-block-file .wp-block-file__button-richtext-wrapper {
+  margin-left: 1rem;
+}
+
+.wp-block-file .wp-block-file__button {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  margin: 0;
+  padding: 0 1rem;
+  border: 1px solid ${FILE_BUTTON_BORDER_COLOR};
+  border-radius: 6px;
+  background: transparent;
+  color: ${LINK_COLOR};
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1rem;
+}
+
+.wp-block-file .components-resizable-box__container {
+  margin-bottom: 0.5rem;
+  border: 1px solid ${FILE_PREVIEW_BORDER_COLOR};
+  border-radius: 8px;
+}
+
+/* The CSP blocks Gutenberg's <object> embed; withFileIframePreview frames the PDF instead. */
+.wp-block-file object.wp-block-file__preview {
+  display: none;
 }
 `
 

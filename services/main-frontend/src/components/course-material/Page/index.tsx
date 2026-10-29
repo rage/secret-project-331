@@ -33,6 +33,7 @@ import {
 } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 import type { Block } from "@/types/courseMaterialBlock"
+import { researchFormQuestionIds } from "@/utils/course-material/researchConsentForm"
 
 import Chatbot from "../chatbot/Chatbot"
 import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
@@ -188,10 +189,21 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     userDetailsQuery.data?.last_name,
   ])
 
+  const researchFormQuestionIdsToAnswer = researchFormQuestionIds(
+    researchConsentFormQuery.data?.content,
+  )
+  const hasUnansweredResearchQuestions =
+    researchConsentFormAnswerQuery.data !== undefined &&
+    researchFormQuestionIdsToAnswer.some(
+      (questionId) =>
+        !researchConsentFormAnswerQuery.data.some(
+          (answer) => answer.research_form_question_id === questionId,
+        ),
+    )
+
   useEffect(() => {
     if (
-      researchConsentFormQuery.data !== null &&
-      researchConsentFormAnswerQuery.data?.length === 0 &&
+      hasUnansweredResearchQuestions &&
       !showResearchConsentFormBecauseOfMissingAnswers &&
       !hasAnsweredForm &&
       !waitingForCourseSettingsToBeFilled
@@ -199,10 +211,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
       setShowResearchConsentFormBecauseOfMissingAnswers(true)
     }
   }, [
-    researchConsentFormAnswerQuery.data?.length,
+    hasUnansweredResearchQuestions,
     hasAnsweredForm,
     showResearchConsentFormBecauseOfMissingAnswers,
-    researchConsentFormQuery.data,
     waitingForCourseSettingsToBeFilled,
   ])
 
@@ -281,7 +292,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
             {...omitUndefined({ usersInitialAnswers: researchConsentFormAnswerQuery.data })}
             // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
-            researchForm={researchConsentFormQuery.data!}
+            content={researchConsentFormQuery.data!.content}
             onClose={() => {
               setShowResearchConsentFormBecauseOfUrl(false)
               setShowResearchConsentFormBecauseOfMissingAnswers(false)

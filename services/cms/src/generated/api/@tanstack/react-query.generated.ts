@@ -44,7 +44,6 @@ import {
   uploadFilesFromExerciseService,
   upsertCmsCoursePartnersBlock,
   upsertCmsCourseResearchForm,
-  upsertCmsCourseResearchFormQuestions,
 } from "../sdk.generated"
 import type {
   DeleteCmsCoursePartnersBlockData,
@@ -117,8 +116,6 @@ import type {
   UploadFilesFromExerciseServiceResponse,
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCourseResearchFormData,
-  UpsertCmsCourseResearchFormQuestionsData,
-  UpsertCmsCourseResearchFormQuestionsResponse,
   UpsertCmsCourseResearchFormResponse,
 } from "../types.generated"
 
@@ -594,7 +591,7 @@ export const getCmsCourseResearchFormOptions = (options: Options<GetCmsCourseRes
 
 /**
  *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
+ * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.
  */
 export const upsertCmsCourseResearchFormMutation = (
   options?: Partial<Options<UpsertCmsCourseResearchFormData>>,
@@ -610,32 +607,6 @@ export const upsertCmsCourseResearchFormMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await upsertCmsCourseResearchForm({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
- */
-export const upsertCmsCourseResearchFormQuestionsMutation = (
-  options?: Partial<Options<UpsertCmsCourseResearchFormQuestionsData>>,
-): UseMutationOptions<
-  UpsertCmsCourseResearchFormQuestionsResponse,
-  DefaultError,
-  Options<UpsertCmsCourseResearchFormQuestionsData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpsertCmsCourseResearchFormQuestionsResponse,
-    DefaultError,
-    Options<UpsertCmsCourseResearchFormQuestionsData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await upsertCmsCourseResearchFormQuestions({
         ...options,
         ...fnOptions,
         throwOnError: true,

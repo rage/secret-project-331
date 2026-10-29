@@ -183,6 +183,9 @@ async fn access_to_chatbot(
         (Some(_), Some(course_id)) => {
             access_to_course_material(conn, user_id, course_id, roles).await
         }
+        (Some(_), None) => {
+            authorize(conn, Action::Edit, user_id, Resource::GlobalPermissions).await
+        }
         _ => Err(authorization_err!(
             Unauthorized,
             "You are not authorized to access the chatbot.".to_string()

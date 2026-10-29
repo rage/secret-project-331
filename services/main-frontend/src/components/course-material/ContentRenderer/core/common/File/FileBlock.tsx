@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { FileAttributes } from "@/../types/GutenbergBlockAttributes"
@@ -13,25 +14,67 @@ import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCour
 import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
+/**
+ * The file route serves `download=1` as an attachment saved as `name` plus the stored file's
+ * extension. The `download` attribute alone is not enough: browsers ignore it once the route
+ * redirects to storage on another origin.
+ */
+function attachmentHref(href: string, name: string): string {
+  const url = new URL(href, window.location.href)
+  if (url.origin !== window.location.origin) {
+    return href
+  }
+  // oxlint-disable-next-line i18next/no-literal-string
+  url.searchParams.set("download", "1")
+  // oxlint-disable-next-line i18next/no-literal-string
+  url.searchParams.set("name", name)
+  return url.toString()
+}
+
 const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttributes>>> = ({
   data,
 }) => {
   const { t } = useTranslation()
   const {
     showDownloadButton,
-    // previewHeight,
-    // align,
-    // className,
-    // displayPreview,
+    previewHeight,
+    displayPreview,
     downloadButtonText,
     fileName,
     href,
     // textLinkHref,
-    textLinkTarget,
+    textLinkTarget: storedTextLinkTarget,
   } = data.attributes
   const fileNameText = richTextToPlainText(fileName ?? "")
+  // Gutenberg stores `false`, not an absent attribute, once "Open in new tab" is switched off.
+  const textLinkTarget = (storedTextLinkTarget as string | false | undefined) || undefined
+  // Gutenberg offers the embed only for PDFs; anything else in an unsandboxed frame could run.
+  const isPdf = /\.pdf$/i.test(href?.split(/[?#]/)[0] ?? "")
+  // window is unavailable during server rendering.
+  const [downloadHref, setDownloadHref] = useState(href)
+  useEffect(() => {
+    setDownloadHref(href && attachmentHref(href, fileNameText))
+  }, [href, fileNameText])
+
   return (
     <div>
+      {displayPreview &&
+        isPdf && (
+          // Not an <object>: the CSP blocks plugins. Not sandboxed: Chromium refuses PDFs in sandboxes.
+          // oxlint-disable-next-line react/iframe-missing-sandbox
+          <iframe
+            src={href}
+            title={t("file-preview", { fileName: fileNameText })}
+            className={css`
+              display: block;
+              width: 100%;
+              height: ${previewHeight ?? 600}px;
+              margin-bottom: var(--space-3);
+              border: 1px solid var(--color-gray-100);
+              border-radius: var(--surface-radius);
+            `}
+          />
+        )}
       <span>
         <a
           href={href}
@@ -39,7 +82,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           rel={relForLinkTarget(undefined, textLinkTarget)}
         >
           <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(fileName) }} />
-          {textLinkTarget && textLinkTarget.includes("_blank") && (
+          {textLinkTarget?.includes("_blank") && (
             <div>
               <OpensInNewTabNotice linkTarget={textLinkTarget} />
               <ExternalLinkSVG />
@@ -54,7 +97,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           `}
         >
           <Link
-            href={href ?? ""}
+            href={downloadHref ?? ""}
             isDisabled={!href}
             download={fileNameText}
             styledAsButton

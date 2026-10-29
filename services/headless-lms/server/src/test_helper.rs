@@ -199,6 +199,14 @@ impl headless_lms_utils::file_store::FileStore for TempFileStore {
         Ok(format!("file://{}", full_path.display()))
     }
 
+    async fn get_direct_attachment_download_url(
+        &self,
+        path: &std::path::Path,
+        _file_name: &str,
+    ) -> headless_lms_utils::prelude::UtilResult<String> {
+        self.get_direct_download_url(path).await
+    }
+
     async fn delete(&self, path: &std::path::Path) -> headless_lms_utils::prelude::UtilResult<()> {
         Ok(tokio::fs::remove_file(self.0.path().join(path)).await?)
     }

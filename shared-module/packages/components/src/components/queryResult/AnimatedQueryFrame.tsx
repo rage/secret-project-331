@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useLoadingAffordance } from "../../lib/utils/loading"
-import { Button } from "../Button"
+import { ErrorNotice } from "../ErrorNotice"
 import {
   QUERY_INITIAL_LOADING_TEST_ID,
   QUERY_LOADING_SPINNER_TEST_ID,
@@ -14,15 +14,11 @@ import {
 } from "../loadingTestIds"
 import { spinnerGlyphCss } from "../primitives/spinnerStyles"
 import type { RetryFn } from "./queryResultState"
-import { getErrorMessage } from "./queryResultState"
 import {
   animatedContentCss,
   animatedContentNonInteractiveCss,
   animatedContentRefreshingCss,
   bannerCss,
-  blockingErrorCss,
-  errorStackCss,
-  errorTextCss,
   initialLoadingCenterCss,
   initialLoadingSurfaceCss,
   initialLoadingSurfaceDarkCss,
@@ -34,7 +30,6 @@ import {
   skeletonBlockDimsCss,
   skeletonBlockLightCss,
   skeletonBlocksCss,
-  staleStatusCss,
   type ThemeMode,
   topProgressCss,
   topProgressTrackDarkCss,
@@ -123,37 +118,6 @@ export interface AnimatedQueryFrameProps<E> {
   renderStaleError?: (args: FallbackArgs<E>) => React.ReactNode
 }
 
-/** Default blocking-error UI with retry. */
-export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
-  const { t } = useTranslation("shared-module")
-  return (
-    <div className={blockingErrorCss} role="alert">
-      <div className={errorStackCss}>
-        <p className={errorTextCss}>{getErrorMessage(error)}</p>
-        <Button type="button" variant="secondary" size="small" onPress={retry}>
-          {t("queryResult.retry")}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-/** Inline stale-error notice with retry (content still renders below). */
-export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
-  const { t } = useTranslation("shared-module")
-  return (
-    <div className={errorStackCss}>
-      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling */}
-      <div className={staleStatusCss} role="status">
-        {getErrorMessage(error)}
-      </div>
-      <Button type="button" variant="tertiary" size="small" onPress={retry}>
-        {t("queryResult.retry")}
-      </Button>
-    </div>
-  )
-}
-
 /** The React nodes that render nothing, which a render prop returns when it has nothing to show. */
 function rendersNothing(node: React.ReactNode): boolean {
   return node === null || node === undefined || node === false
@@ -196,7 +160,11 @@ export function AnimatedQueryFrame<E>({
 
   if (blockingError && error !== undefined) {
     const args = { error, retry }
-    return renderBlockingError ? renderBlockingError(args) : <DefaultBlockingError {...args} />
+    return renderBlockingError ? (
+      renderBlockingError(args)
+    ) : (
+      <ErrorNotice error={error} retry={retry} />
+    )
   }
 
   // Once the delayed spinner has appeared, hold the whole section for its minVisibleMs even
@@ -286,7 +254,11 @@ export function AnimatedQueryFrame<E>({
             initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            {renderStaleError ? renderStaleError(staleArgs) : <DefaultStaleError {...staleArgs} />}
+            {renderStaleError ? (
+              renderStaleError(staleArgs)
+            ) : (
+              <ErrorNotice error={error} retry={retry} />
+            )}
           </motion.div>
         ) : null}
         <div

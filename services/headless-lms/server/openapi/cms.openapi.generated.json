@@ -569,7 +569,7 @@
       },
       "put": {
         "tags": ["cms_courses"],
-        "summary": "\nPUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.",
+        "summary": "\nPUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.",
         "operationId": "upsertCmsCourseResearchForm",
         "parameters": [
           {
@@ -600,53 +600,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ResearchForm"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/cms/courses/{course_id}/research-consent-form-questions": {
-      "put": {
-        "tags": ["cms_courses"],
-        "summary": "\nPUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.",
-        "operationId": "upsertCmsCourseResearchFormQuestions",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/NewResearchFormQuestion"
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Research form questions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ResearchFormQuestion"
-                  }
                 }
               }
             }
@@ -1594,7 +1547,8 @@
           "enabled_tool_categories",
           "default_chatbot",
           "suggest_next_messages",
-          "publicly_accessible"
+          "publicly_accessible",
+          "embeddable"
         ],
         "properties": {
           "chatbot_name": {
@@ -1618,6 +1572,9 @@
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "embeddable": {
+            "type": "boolean"
           },
           "enabled_to_students": {
             "type": "boolean"
@@ -2693,27 +2650,6 @@
           }
         }
       },
-      "NewResearchFormQuestion": {
-        "type": "object",
-        "required": ["question_id", "course_id", "research_consent_form_id", "question"],
-        "properties": {
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "question": {
-            "type": "string"
-          },
-          "question_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "research_consent_form_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "Page": {
         "type": "object",
         "required": [
@@ -3125,46 +3061,6 @@
             "format": "date-time"
           },
           "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "ResearchFormQuestion": {
-        "type": "object",
-        "required": [
-          "id",
-          "course_id",
-          "research_consent_form_id",
-          "question",
-          "created_at",
-          "updated_at"
-        ],
-        "properties": {
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deleted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "question": {
-            "type": "string"
-          },
-          "research_consent_form_id": {
             "type": "string",
             "format": "uuid"
           },

@@ -7401,6 +7401,7 @@ export const zChatbotConfiguration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   default_chatbot: z.boolean(),
   deleted_at: z.iso.datetime().nullish(),
+  embeddable: z.boolean(),
   enabled_to_students: z.boolean(),
   enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
@@ -7440,6 +7441,7 @@ export const zNewChatbotConf = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   default_chatbot: z.boolean(),
+  embeddable: z.boolean().optional(),
   enabled_to_students: z.boolean(),
   enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
@@ -8007,6 +8009,15 @@ export const zGetCourseChaptersPath = z.object({
  * Course chapters
  */
 export const zGetCourseChaptersResponse = z.array(zDatabaseChapter)
+
+export const zGetChatbotEmbedConfPath = z.object({
+  chatbot_id: z.uuid(),
+})
+
+/**
+ * Chatbot is embeddable
+ */
+export const zGetChatbotEmbedConfResponse = z.void()
 
 export const zGetChatbotModelsQuery = z.object({
   course_id: z.uuid().optional(),

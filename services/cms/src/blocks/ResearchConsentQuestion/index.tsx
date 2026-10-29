@@ -1,7 +1,7 @@
 "use client"
 
 /* oxlint-disable i18next/no-literal-string */
-import { formatLTR } from "@wordpress/icons"
+import { check } from "@wordpress/icons"
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
@@ -15,7 +15,7 @@ export interface ResearchConsentQuestionAttributes {
 const ResearchConsentQuestionConfiguration: BlockConfiguration<ResearchConsentQuestionAttributes> =
   {
     apiVersion: 3,
-    title: "Research Form Question",
+    title: "Research form question",
     description: "Used to add a new question to the research consent form",
     category: "text",
     attributes: {
@@ -24,7 +24,7 @@ const ResearchConsentQuestionConfiguration: BlockConfiguration<ResearchConsentQu
         isRichText: true,
       },
     },
-    icon: formatLTR,
+    icon: check,
     edit: ResearchConsentCheckBoxEditor,
     save: ResearchConsentCheckBoxSave,
   }

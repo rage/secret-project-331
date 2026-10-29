@@ -94,4 +94,5 @@ export const allowedResearchFormCoreBlocks: string[] = [
   "core/heading",
   "core/list",
   "core/list-item",
+  "core/file",
 ]

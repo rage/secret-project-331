@@ -11,6 +11,7 @@ import { primaryFont } from "@/shared-module/exercise-react/styles"
 import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
+import applyOptionChanges from "../common/applyOptionChanges"
 import EditorCard from "../common/EditorCard"
 import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
@@ -112,6 +113,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         label={t("title")}
       />
       <NumericField
+        integer
         value={selected.n}
         label={t("quiz-choose-n-description")}
         min={0}
@@ -138,12 +140,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               })
             }}
             onChange={(changes) => {
-              updateState((draft) => {
-                const draftOption = draft?.options.find((opt) => opt.id === option.id)
-                if (draftOption) {
-                  Object.assign(draftOption, changes)
-                }
-              })
+              updateState((draft) => applyOptionChanges(draft, option.id, changes))
             }}
             key={option.id}
             option={option}

@@ -9,10 +9,12 @@ interface NumericFieldProps {
   onCommit: (value: number) => void
   /** Values below this are clamped up before reaching the spec, e.g. a tolerance that must stay >= 0. */
   min?: number
+  /** Only whole numbers are committed. */
+  integer?: boolean
 }
 
 /** Keeps partial input like "1." or "-" as text; only parseable values are committed, and blur resets to the committed value. */
-const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min }) => {
+const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min, integer }) => {
   const [text, setText] = useState(String(value))
   const isFocused = useRef(false)
 
@@ -30,7 +32,7 @@ const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min
       onChangeByValue={(next) => {
         setText(next)
         const parsed = stringToNumberOrNull(next)
-        if (parsed !== null) {
+        if (parsed !== null && (!integer || Number.isInteger(parsed))) {
           onCommit(min === undefined ? parsed : Math.max(min, parsed))
         }
       }}

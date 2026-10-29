@@ -132,7 +132,7 @@
   "multiple-choice-grading-some-correct-none-incorrect": "Osa oikein, ei yhtään väärin",
   "multiple-choice-grading-some-correct-none-incorrect-description": "Täydet pisteet jos osa tai kaikki valinnoista on oikein ja yhtään väärää ei ole valittu",
   "multiple-choice-header": "Monivalinnat:",
-  "not-added-yet": "Ei lisätty vielä. Valitse ”Lisää vaihtoehto”, niin se tulee mukaan.",
+  "not-added-yet": "Ei lisätty vielä. Paina lisäyspainiketta, niin se tulee mukaan.",
   "not-answered": "Ei vastattu",
   "number-of-tries-allowed": "Sallittujen yritysten määrä",
   "numeric-tolerance": "Toleranssi (± sallittu ero)",

@@ -57,6 +57,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
       <TextFieldContainer>
         <TextFieldWrapper>
           <NumericField
+            integer
             value={selected.minValue ?? 0}
             label={t("minimum")}
             onCommit={(next) => {
@@ -71,6 +72,7 @@ const ScaleEditor: React.FC<ScaleEditorProps> = ({ quizItemId }) => {
         </TextFieldWrapper>
         <TextFieldWrapper>
           <NumericField
+            integer
             value={selected.maxValue ?? 0}
             label={t("maximum")}
             onCommit={(next) => {

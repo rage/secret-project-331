@@ -68,6 +68,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
       <TextFieldContainer>
         <TextFieldWrapper>
           <NumericField
+            integer
             value={selected.minWords ?? 0}
             label={t("min-words")}
             min={0}
@@ -83,6 +84,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
         </TextFieldWrapper>
         <TextFieldWrapper>
           <NumericField
+            integer
             value={selected.maxWords ?? 0}
             label={t("max-words")}
             min={0}

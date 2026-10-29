@@ -130,7 +130,7 @@
   "multiple-choice-grading-some-correct-none-incorrect": "Några korrekta, inga felaktiga",
   "multiple-choice-grading-some-correct-none-incorrect-description": "Ge full poäng om några av de korrekta alternativen valdes och inga av de felaktiga valdes",
   "multiple-choice-header": "Flervalsfråga:",
-  "not-added-yet": "Inte tillagd än. Välj ”Lägg till alternativ” för att ta med den.",
+  "not-added-yet": "Inte tillagd än. Tryck på tilläggsknappen för att ta med den.",
   "not-answered": "Ej besvarad",
   "number-of-tries-allowed": "Antal tillåtna försök",
   "numeric-tolerance": "Tolerans (± tillåten skillnad)",

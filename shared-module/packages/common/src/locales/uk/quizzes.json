@@ -130,7 +130,7 @@
   "multiple-choice-grading-some-correct-none-incorrect": "Деякі правильні, жодного неправильного",
   "multiple-choice-grading-some-correct-none-incorrect-description": "Поставте повні бали, якщо деякі з правильних варіантів були обрані, а жоден з неправильних варіантів не був обраний",
   "multiple-choice-header": "Множинний вибір:",
-  "not-added-yet": "Ще не додано. Натисніть «Додати варіант», щоб його включити.",
+  "not-added-yet": "Ще не додано. Натисніть кнопку додавання, щоб це включити.",
   "not-answered": "Без відповіді",
   "number-of-tries-allowed": "Дозволена кількість спроб",
   "numeric-tolerance": "Допуск (± допустима різниця)",

@@ -130,7 +130,7 @@
   "multiple-choice-grading-some-correct-none-incorrect": "Noen riktige, ingen feil",
   "multiple-choice-grading-some-correct-none-incorrect-description": "Gi full uttelling dersom ett eller flere riktige alternativer er valgt, og ingen feil alternativer er valgt.",
   "multiple-choice-header": "Flervalg:",
-  "not-added-yet": "Ikke lagt til ennå. Velg «Legg til alternativ» for å ta den med.",
+  "not-added-yet": "Ikke lagt til ennå. Trykk på legg til-knappen for å ta den med.",
   "not-answered": "Ikke besvart",
   "number-of-tries-allowed": "Antall forsøk tillatt",
   "numeric-tolerance": "Toleranse (± tillatt avvik)",

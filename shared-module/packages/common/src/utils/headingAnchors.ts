@@ -44,7 +44,12 @@ export function headingTextFromHtml(html: string | undefined): string {
   if (!html) {
     return ""
   }
-  const withoutTags = html.replaceAll(/<[^>]*>/g, " ")
+  // Only line breaks separate words; inline formatting can start or end mid-word. A MathML
+  // annotation holds the formula's LaTeX source, which is not displayed.
+  const withoutTags = html
+    .replaceAll(/<annotation\b[^>]*>[\s\S]*?<\/annotation>/gi, "")
+    .replaceAll(/<br\b[^>]*>/gi, " ")
+    .replaceAll(/<[^>]*>/g, "")
   return decodeEntities(withoutTags).replaceAll(/\s+/g, " ").trim()
 }
 

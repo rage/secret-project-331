@@ -29,6 +29,23 @@ describe("headingAnchors", () => {
     it("returns an empty string for missing content", () => {
       expect(headingTextFromHtml(undefined)).toBe("")
     })
+
+    it("reads a heading formatted with the Gutenberg toolbar", () => {
+      const html =
+        'Using <code>&lt;dialog></code> &amp; <code>fetch()</code> with H<sub>2</sub>O in Café: <strong>bold</strong>, <em>italic</em>, <a href="https://example.com">link</a>, <mark style="background-color:#000000;color:#ff0000" class="has-inline-color">red</mark>, <kbd>Ctrl+C</kbd>, x<sup>2</sup>, <s>struck</s> <bdo lang="fi" dir="ltr">määrittely</bdo> <math data-latex="a^2 + b^2 = c^2"><semantics><mrow><msup><mi>a</mi><mn>2</mn></msup><mo>+</mo><msup><mi>b</mi><mn>2</mn></msup><mo>=</mo><msup><mi>c</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">a^2 + b^2 = c^2</annotation></semantics></math> end'
+      expect(headingTextFromHtml(html)).toBe(
+        "Using <dialog> & fetch() with H2O in Café: bold, italic, link, red, Ctrl+C, x2, struck määrittely a2+b2=c2 end",
+      )
+      expect(slugifyHeadingText(headingTextFromHtml(html))).toBe(
+        "using-dialog-fetch-with-h2o-in-cafe-bold-italic-link-red-ctrl-c-x2-struck",
+      )
+    })
+
+    it("does not split a word that is only partly formatted", () => {
+      expect(slugifyHeadingText(headingTextFromHtml("H<sub>2</sub>O and x<sup>2</sup>"))).toBe(
+        "h2o-and-x2",
+      )
+    })
   })
 
   describe("slugifyHeadingText", () => {

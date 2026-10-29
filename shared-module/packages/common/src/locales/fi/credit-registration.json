@@ -1434,6 +1434,7 @@
   "label-status": "Tila",
   "label-time": "Aika",
   "label-verified-student-number": "Vahvistettu opiskelijanumero",
+  "link-credit-registration-admin-page": "Avaa kirjauksen tilasivu",
   "link-edit-course-modules": "Muokkaa kurssin moduuleja",
   "link-export-credit-registration-statuses": "Vie kirjausten tilat CSV-tiedostona",
   "link-student-number-already-linked-to-this-account": "Opiskelijanumero {{studentNumber}} oli jo liitetty tähän tiliin.",

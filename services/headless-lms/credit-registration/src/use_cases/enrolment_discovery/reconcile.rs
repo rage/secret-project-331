@@ -8,7 +8,8 @@ use headless_lms_models::credit_registration_roster_schedules::{
     AccountLinkingCodeCounters, record_linking_counters,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch, mail_address,
+    DiscoveredPerson, LinkingMailClaim, account_emails_with_registerable_completion_since,
+    claim_linking_mails_batch, mail_address,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -44,15 +45,20 @@ pub(super) async fn reconcile_roster(
     }
     let mut mailed_count = 0;
     if let Some(since) = account_linking_since {
-        let considered = enrolled_since(&distinct, since);
         let course_ids: BTreeSet<Uuid> = listing
             .modules
             .iter()
             .map(|module| module.course_id)
             .collect();
+        let mut considered = enrolled_since(&distinct, since);
+        let late_completers =
+            early_enrolees_with_late_completion(conn, &distinct, &linked, &course_ids, since)
+                .await?;
+        considered.extend(&late_completers);
         let counters = claim_linking_mails(conn, &considered, &linked, &course_ids).await?;
         mailed_count = counters.mailed_count;
-        let unlinked_before = unlinked_enrolled_before(&distinct, &linked, since).len();
+        let unlinked_before =
+            unlinked_enrolled_before(&distinct, &linked, since).len() - late_completers.len();
         record_linking_counters(
             conn,
             listing.code.course_code.as_str(),
@@ -93,8 +99,45 @@ fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
     kept
 }
 
-/// The people the linking mails consider: those enrolled at or after `since`. Without a link we
-/// cannot tell who the rest are, so they are neither mailed nor counted.
+/// Unlinked people enrolled before `since` whose Sisu primary or secondary address is the account
+/// email of someone with a registerable completion since `since`: their completion is why they are
+/// worth mailing now.
+async fn early_enrolees_with_late_completion<'a>(
+    conn: &mut PgConnection,
+    people: &[&'a RosterPerson],
+    linked: &LinkedAccounts<'_>,
+    course_ids: &BTreeSet<Uuid>,
+    since: DateTime<Utc>,
+) -> CreditRegistrationResult<Vec<&'a RosterPerson>> {
+    let early = unlinked_enrolled_before(people, linked, since);
+    let addresses: Vec<String> = early
+        .iter()
+        .flat_map(|person| sisu_addresses(person))
+        .collect();
+    if addresses.is_empty() {
+        return Ok(Vec::new());
+    }
+    let course_ids: Vec<Uuid> = course_ids.iter().copied().collect();
+    let matched =
+        account_emails_with_registerable_completion_since(conn, &course_ids, since, &addresses)
+            .await?;
+    Ok(early
+        .into_iter()
+        .filter(|person| sisu_addresses(person).any(|address| matched.contains(&address)))
+        .collect())
+}
+
+/// The person's non-empty Sisu addresses, trimmed and lowercased.
+fn sisu_addresses(person: &RosterPerson) -> impl Iterator<Item = String> + '_ {
+    [&person.primary_email, &person.secondary_email]
+        .into_iter()
+        .flatten()
+        .map(|address| address.expose_secret().trim().to_lowercase())
+        .filter(|address| !address.is_empty())
+}
+
+/// The people the linking mails consider by enrolment time: those enrolled at or after `since`.
+/// The rest are mailed only through [`early_enrolees_with_late_completion`].
 fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<&'a RosterPerson> {
     people
         .iter()

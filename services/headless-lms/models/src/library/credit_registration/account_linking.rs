@@ -5,7 +5,7 @@
 //! The token is minted bound to no account: the recipient's Sisu address is routinely not the
 //! address on their account here, so the click while logged in is what creates the binding.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use chrono::TimeDelta;
 use secrecy::ExposeSecret;
@@ -100,6 +100,40 @@ pub fn mail_address(person: &RosterPerson) -> Option<DbSecret> {
         .map(|address| address.expose_secret().trim())
         .find(|address| !address.is_empty())
         .map(DbSecret::new)
+}
+
+/// The lowercased `addresses` that are the account email of someone with a registerable completion
+/// on one of `course_ids` created at or after `since`: passed, not held for review, on a module
+/// that registers credits.
+pub async fn account_emails_with_registerable_completion_since(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+    since: DateTime<Utc>,
+    addresses: &[String],
+) -> ModelResult<HashSet<String>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT DISTINCT lower(user_details.email) AS "email!"
+FROM course_module_completions c
+  JOIN course_modules cm ON cm.id = c.course_module_id
+  JOIN user_details ON user_details.user_id = c.user_id
+WHERE c.course_id = ANY($1::uuid [])
+  AND c.created_at >= $2
+  AND c.deleted_at IS NULL
+  AND c.passed
+  AND c.needs_to_be_reviewed IS NOT TRUE
+  AND cm.deleted_at IS NULL
+  AND cm.completions_can_be_registered_to_sisu
+  AND btrim(coalesce(cm.uh_course_code, '')) <> ''
+  AND lower(user_details.email) = ANY($3::text [])
+        "#,
+        course_ids,
+        since,
+        addresses,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows.into_iter().map(|row| row.email).collect())
 }
 
 /// What claiming a linking mail did for one person. Ordered from weakest to strongest, so the

@@ -308,7 +308,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
           <PlusCircle />
         </StyledBtn>
       </StyledForm>
-      <UnaddedDraftNotice visible={draftYear.trim() !== "" || draftEvent.trim() !== ""} />
+      <UnaddedDraftNotice draft={draftYear + draftEvent} />
     </Wrapper>
   )
 }

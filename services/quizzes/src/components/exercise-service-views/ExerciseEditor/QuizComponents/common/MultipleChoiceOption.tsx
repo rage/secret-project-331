@@ -12,6 +12,7 @@ import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
+import type { OptionChanges } from "./applyOptionChanges"
 import FeedbackMessagesEditor, {
   useOptionFeedbackVisibilityOptions,
 } from "./FeedbackMessagesEditor"
@@ -98,8 +99,6 @@ const MultipleChoiceMessageDialogContainer = styled.div`
   margin-bottom: 4px;
 `
 
-export type OptionChanges = Partial<Pick<QuizItemOption, "title" | "correct" | "feedbackMessages">>
-
 interface MultipleChoiceOptionProps {
   option: QuizItemOption
   onChange: (changes: OptionChanges) => void
@@ -121,9 +120,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
     setVisible(!visible)
   }, [visible])
 
-  const toggleEditMode = useCallback(() => {
-    setEditMode(!editMode)
-  }, [editMode])
+  const toggleEditMode = () => setEditMode((isEditing) => !isEditing)
 
   return (
     <>

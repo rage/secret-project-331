@@ -1,5 +1,6 @@
 import type { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
-import type { OptionChanges } from "./MultipleChoiceOption"
+
+export type OptionChanges = Partial<Pick<QuizItemOption, "title" | "correct" | "feedbackMessages">>
 
 /** Applies `changes` to the option with `optionId` inside an immer draft of an item's options. */
 const applyOptionChanges = (

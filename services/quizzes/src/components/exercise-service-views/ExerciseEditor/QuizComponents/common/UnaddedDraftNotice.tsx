@@ -3,13 +3,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 interface UnaddedDraftNoticeProps {
-  visible: boolean
+  draft: string
 }
 
 /** Warns that text typed into an add-form is not part of the quiz until its add button is pressed. */
-const UnaddedDraftNotice: React.FC<UnaddedDraftNoticeProps> = ({ visible }) => {
+const UnaddedDraftNotice: React.FC<UnaddedDraftNoticeProps> = ({ draft }) => {
   const { t } = useTranslation()
-  if (!visible) {
+  if (draft.trim() === "") {
     return null
   }
   return (

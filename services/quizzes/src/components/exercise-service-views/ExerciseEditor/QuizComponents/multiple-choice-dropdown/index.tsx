@@ -218,7 +218,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         >
           {t("add-option")}
         </Button>
-        <UnaddedDraftNotice visible={optionTitle.trim() !== ""} />
+        <UnaddedDraftNotice draft={optionTitle} />
       </OptionCreationContainer>
 
       {/* Advanced options */}

@@ -3,6 +3,9 @@ import React, { useEffect, useRef, useState } from "react"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { stringToNumberOrNull } from "@/shared-module/components/lib/utils/rhfAdapters"
 
+// Rejects forms Number() would also accept, like "0x10" or "1e3".
+const WHOLE_NUMBER = /^\s*-?\d+\s*$/
+
 interface NumericFieldProps {
   value: number
   label: string
@@ -32,7 +35,7 @@ const NumericField: React.FC<NumericFieldProps> = ({ value, label, onCommit, min
       onChangeByValue={(next) => {
         setText(next)
         const parsed = stringToNumberOrNull(next)
-        if (parsed !== null && (!integer || Number.isInteger(parsed))) {
+        if (parsed !== null && (!integer || WHOLE_NUMBER.test(next))) {
           onCommit(min === undefined ? parsed : Math.max(min, parsed))
         }
       }}

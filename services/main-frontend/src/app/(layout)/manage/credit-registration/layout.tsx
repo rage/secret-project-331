@@ -16,6 +16,7 @@ import {
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
 import { flushTabListCss, pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { ADMINISTRATE_CREDIT_REGISTRATIONS } from "@/components/credit-registration/teacherCreditRegistrations"
 import { cleanTimestampsOnCopy } from "@/components/credit-registration/ZonedTimestamp"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
@@ -57,13 +58,6 @@ const wideCss = css`
   /* Inherited: server text, names and ids can hold runs longer than any card here. */
   overflow-wrap: break-word;
 `
-
-const ADMINISTRATE_CREDIT_REGISTRATIONS = [
-  {
-    action: { type: "administrate_credit_registrations" },
-    resource: { type: "global_permissions" },
-  },
-] as const
 
 /** Split out so the breadcrumb and the tab count queries never run for a reader the gate turns away. */
 const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ children }) => {

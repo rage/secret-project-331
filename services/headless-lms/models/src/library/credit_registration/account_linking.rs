@@ -5,7 +5,7 @@
 //! The token is minted bound to no account: the recipient's Sisu address is routinely not the
 //! address on their account here, so the click while logged in is what creates the binding.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap};
 
 use chrono::TimeDelta;
 use secrecy::ExposeSecret;
@@ -94,26 +94,33 @@ impl DiscoveredPerson {
 /// harder to exploit. Open University students without a University account often have only a
 /// secondary address, and Sisu clears old primaries.
 pub fn mail_address(person: &RosterPerson) -> Option<DbSecret> {
+    listed_addresses(person).next().map(DbSecret::new)
+}
+
+/// The person's non-empty Sisu addresses, trimmed, primary first.
+pub fn listed_addresses(person: &RosterPerson) -> impl Iterator<Item = &str> {
     [&person.primary_email, &person.secondary_email]
         .into_iter()
         .flatten()
         .map(|address| address.expose_secret().trim())
-        .find(|address| !address.is_empty())
-        .map(DbSecret::new)
+        .filter(|address| !address.is_empty())
 }
 
-/// The lowercased `addresses` that are the account email of someone with a registerable completion
-/// on one of `course_ids` created at or after `since`: passed, not held for review, on a module
-/// that registers credits.
-pub async fn account_emails_with_registerable_completion_since(
+/// For each of the lowercased `addresses` that is the account email of someone with a registerable
+/// completion on one of `course_ids` created at or after `since`, the courses it has one on.
+///
+/// Registerable is what the push path would register: passed, ECTS-eligible, prerequisites met, not
+/// held for review, on a module that registers credits, and not left to the pull path.
+pub async fn courses_of_registerable_completions_by_account_email_since(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
     since: DateTime<Utc>,
     addresses: &[String],
-) -> ModelResult<HashSet<String>> {
+) -> ModelResult<HashMap<String, BTreeSet<Uuid>>> {
     let rows = sqlx::query!(
         r#"
-SELECT DISTINCT lower(user_details.email) AS "email!"
+SELECT DISTINCT lower(user_details.email) AS "email!",
+  c.course_id
 FROM course_module_completions c
   JOIN course_modules cm ON cm.id = c.course_module_id
   JOIN user_details ON user_details.user_id = c.user_id
@@ -121,7 +128,10 @@ WHERE c.course_id = ANY($1::uuid [])
   AND c.created_at >= $2
   AND c.deleted_at IS NULL
   AND c.passed
+  AND c.eligible_for_ects IS TRUE
+  AND c.prerequisite_modules_completed
   AND c.needs_to_be_reviewed IS NOT TRUE
+  AND c.register_credits_via_suotar
   AND cm.deleted_at IS NULL
   AND cm.completions_can_be_registered_to_sisu
   AND btrim(coalesce(cm.uh_course_code, '')) <> ''
@@ -133,7 +143,14 @@ WHERE c.course_id = ANY($1::uuid [])
     )
     .fetch_all(conn)
     .await?;
-    Ok(rows.into_iter().map(|row| row.email).collect())
+    let mut courses_by_email: HashMap<String, BTreeSet<Uuid>> = HashMap::new();
+    for row in rows {
+        courses_by_email
+            .entry(row.email)
+            .or_default()
+            .insert(row.course_id);
+    }
+    Ok(courses_by_email)
 }
 
 /// What claiming a linking mail did for one person. Ordered from weakest to strongest, so the

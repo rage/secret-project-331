@@ -66,6 +66,14 @@ const fetchInBatches = async (
   return rows
 }
 
+/** The global permission that opens the credit registration admin pages. */
+export const ADMINISTRATE_CREDIT_REGISTRATIONS = [
+  {
+    action: { type: "administrate_credit_registrations" },
+    resource: { type: "global_permissions" },
+  },
+] as const
+
 /**
  * Whether this user may read the course's registrations at all.
  *

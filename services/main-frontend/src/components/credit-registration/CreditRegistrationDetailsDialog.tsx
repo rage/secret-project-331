@@ -49,6 +49,7 @@ import {
   subsectionCss,
 } from "./styles"
 import {
+  ADMINISTRATE_CREDIT_REGISTRATIONS,
   linkingEmailSentence,
   notificationEmailLabel,
   notificationEmailSentence,
@@ -66,13 +67,6 @@ interface Props {
 
 // The one stage where a resend can help: nothing moves until a student number is linked.
 const WAITING_FOR_STUDENT_NUMBER = "needs_student_number" as const
-
-const ADMINISTRATE_CREDIT_REGISTRATIONS = [
-  {
-    action: { type: "administrate_credit_registrations" },
-    resource: { type: "global_permissions" },
-  },
-] as const
 
 const leadCss = css`
   display: grid;

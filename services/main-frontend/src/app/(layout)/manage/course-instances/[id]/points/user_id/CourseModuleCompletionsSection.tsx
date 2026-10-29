@@ -134,9 +134,13 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
             const courseModule = courseStructureData.modules.find(
               (cm) => cm.id === courseModuleCompletion.course_module_id,
             )
-            const registration = registrations.get(
+            const moduleRegistration = registrations.get(
               creditRegistrationKey(userId, courseModuleCompletion.course_module_id),
             )
+            const registration =
+              moduleRegistration?.course_module_completion_id === courseModuleCompletion.id
+                ? moduleRegistration
+                : undefined
             return (
               <ModuleCard key={courseModuleCompletion.id}>
                 <ModuleHeader>

@@ -8,8 +8,8 @@ use headless_lms_models::credit_registration_roster_schedules::{
     AccountLinkingCodeCounters, record_linking_counters,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, LinkingMailClaim, account_emails_with_registerable_completion_since,
-    claim_linking_mails_batch, mail_address,
+    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch,
+    courses_of_registerable_completions_by_account_email_since, listed_addresses, mail_address,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -51,14 +51,22 @@ pub(super) async fn reconcile_roster(
             .map(|module| module.course_id)
             .collect();
         let mut considered = enrolled_since(&distinct, since);
-        let late_completers =
-            early_enrolees_with_late_completion(conn, &distinct, &linked, &course_ids, since)
-                .await?;
-        considered.extend(&late_completers);
-        let counters = claim_linking_mails(conn, &considered, &linked, &course_ids).await?;
+        let unlinked_early = unlinked_enrolled_before(&distinct, &linked, since);
+        let late_completer_courses =
+            late_completer_courses(conn, &unlinked_early, &course_ids, since).await?;
+        considered.extend(unlinked_early.iter().filter(|person| {
+            late_completer_courses.contains_key(person.person_id.expose_secret())
+        }));
+        let counters = claim_linking_mails(
+            conn,
+            &considered,
+            &linked,
+            &course_ids,
+            &late_completer_courses,
+        )
+        .await?;
         mailed_count = counters.mailed_count;
-        let unlinked_before =
-            unlinked_enrolled_before(&distinct, &linked, since).len() - late_completers.len();
+        let unlinked_before = unlinked_early.len() - late_completer_courses.len();
         record_linking_counters(
             conn,
             listing.code.course_code.as_str(),
@@ -99,45 +107,45 @@ fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
     kept
 }
 
-/// Unlinked people enrolled before `since` whose Sisu primary or secondary address is the account
-/// email of someone with a registerable completion since `since`: their completion is why they are
-/// worth mailing now.
-async fn early_enrolees_with_late_completion<'a>(
+/// For each of `early` (unlinked, enrolled before `since`) whose Sisu primary or secondary address is
+/// the account email of someone with a registerable completion since `since`, keyed by Sisu person
+/// id, the courses that completion is on: their completion is why they are worth mailing now.
+async fn late_completer_courses(
     conn: &mut PgConnection,
-    people: &[&'a RosterPerson],
-    linked: &LinkedAccounts<'_>,
+    early: &[&RosterPerson],
     course_ids: &BTreeSet<Uuid>,
     since: DateTime<Utc>,
-) -> CreditRegistrationResult<Vec<&'a RosterPerson>> {
-    let early = unlinked_enrolled_before(people, linked, since);
+) -> CreditRegistrationResult<HashMap<String, BTreeSet<Uuid>>> {
     let addresses: Vec<String> = early
         .iter()
-        .flat_map(|person| sisu_addresses(person))
+        .flat_map(|person| listed_addresses(person).map(str::to_lowercase))
         .collect();
     if addresses.is_empty() {
-        return Ok(Vec::new());
+        return Ok(HashMap::new());
     }
     let course_ids: Vec<Uuid> = course_ids.iter().copied().collect();
-    let matched =
-        account_emails_with_registerable_completion_since(conn, &course_ids, since, &addresses)
-            .await?;
+    let courses_by_email = courses_of_registerable_completions_by_account_email_since(
+        conn,
+        &course_ids,
+        since,
+        &addresses,
+    )
+    .await?;
     Ok(early
-        .into_iter()
-        .filter(|person| sisu_addresses(person).any(|address| matched.contains(&address)))
+        .iter()
+        .filter_map(|person| {
+            let courses: BTreeSet<Uuid> = listed_addresses(person)
+                .filter_map(|address| courses_by_email.get(&address.to_lowercase()))
+                .flatten()
+                .copied()
+                .collect();
+            (!courses.is_empty()).then(|| (person.person_id.expose_secret().to_owned(), courses))
+        })
         .collect())
 }
 
-/// The person's non-empty Sisu addresses, trimmed and lowercased.
-fn sisu_addresses(person: &RosterPerson) -> impl Iterator<Item = String> + '_ {
-    [&person.primary_email, &person.secondary_email]
-        .into_iter()
-        .flatten()
-        .map(|address| address.expose_secret().trim().to_lowercase())
-        .filter(|address| !address.is_empty())
-}
-
 /// The people the linking mails consider by enrolment time: those enrolled at or after `since`.
-/// The rest are mailed only through [`early_enrolees_with_late_completion`].
+/// The rest are mailed only through [`late_completer_courses`].
 fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<&'a RosterPerson> {
     people
         .iter()
@@ -291,26 +299,36 @@ fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<
         .collect()
 }
 
-/// Claims a linking mail on each of `course_ids` for everyone in `people` we hold no link for, and
-/// counts each person once by the strongest claim any course got for them.
+/// Claims a linking mail for everyone in `people` we hold no link for, on each of `course_ids` or,
+/// for those in `courses_of_late_completers`, only on the courses their completion is on. Counts
+/// each person once by the strongest claim any course got for them.
 async fn claim_linking_mails(
     conn: &mut PgConnection,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
     course_ids: &BTreeSet<Uuid>,
+    courses_of_late_completers: &HashMap<String, BTreeSet<Uuid>>,
 ) -> CreditRegistrationResult<AccountLinkingCodeCounters> {
     let (mut counters, candidates) = linking_candidates(people, linked);
     let mut strongest = vec![LinkingMailClaim::NoAddress; candidates.len()];
-    if !candidates.is_empty() {
-        for &course_id in course_ids {
-            let discovered: Vec<DiscoveredPerson> = candidates
-                .iter()
-                .map(|person| DiscoveredPerson::listed(person, course_id))
-                .collect();
-            let claims = claim_linking_mails_batch(conn, &discovered).await?;
-            for (person_strongest, claim) in strongest.iter_mut().zip(claims) {
-                *person_strongest = (*person_strongest).max(claim);
-            }
+    for &course_id in course_ids {
+        let on_course: Vec<usize> = (0..candidates.len())
+            .filter(|&index| {
+                courses_of_late_completers
+                    .get(candidates[index].person_id.expose_secret())
+                    .is_none_or(|courses| courses.contains(&course_id))
+            })
+            .collect();
+        if on_course.is_empty() {
+            continue;
+        }
+        let discovered: Vec<DiscoveredPerson> = on_course
+            .iter()
+            .map(|&index| DiscoveredPerson::listed(candidates[index], course_id))
+            .collect();
+        let claims = claim_linking_mails_batch(conn, &discovered).await?;
+        for (&index, claim) in on_course.iter().zip(claims) {
+            strongest[index] = strongest[index].max(claim);
         }
     }
     for claim in strongest {

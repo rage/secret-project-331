@@ -18,6 +18,7 @@ impl HasId for EntityRef<'_> {
 }
 
 struct Renderer<'a> {
+    doc: &'a CourseStructure,
     mode: ReadMode,
     options: &'a ReadOptions<'a>,
 }
@@ -40,6 +41,9 @@ impl Renderer<'_> {
         let id = entity.id();
         object.insert("path".into(), json!(format!("/{id}")));
         object.insert("kind".into(), json!(entity.kind().noun()));
+        if matches!(entity, EntityRef::Page(_)) && self.doc.is_chapter_front_page(id) {
+            object.insert("is_chapter_front_page".into(), json!(true));
+        }
         if let Some(pending) = self.options.pending.and_then(|p| p.get(&id)) {
             object.insert("pending".into(), json!(pending));
         }
@@ -84,7 +88,7 @@ pub fn read_structure(
 ) -> Result<ReadResult, EditError> {
     check_selector(selector)?;
     let mode = selector.mode.unwrap_or_default();
-    let renderer = Renderer { mode, options };
+    let renderer = Renderer { doc, mode, options };
     let render = |entity: &EntityRef| renderer.entity(*entity);
     let whole_course = || -> Result<ReadResult, EditError> {
         reject_window(selector, "the whole course")?;
@@ -162,6 +166,7 @@ pub fn read_structure(
         (Some(field), false) => {
             reject_window(selector, "a field")?;
             let full = Renderer {
+                doc,
                 mode: ReadMode::Raw,
                 options,
             }
@@ -286,7 +291,7 @@ mod tests {
         };
         let result = read_structure(&sample(), &chapter, &read_options(24_000)).unwrap();
         assert_eq!(result.items[0]["pages"].as_array().unwrap().len(), 10);
-        for rendered_only in ["kind", "path", "pending"] {
+        for rendered_only in RENDERED_KEYS {
             let selector = Selector {
                 path: Some(format!("{}/{rendered_only}", p("ch3"))),
                 ..Default::default()

@@ -12,6 +12,7 @@ import {
   revokeOauthGrantMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { OAuthGrant } from "@/generated/api/types.generated"
+import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -172,13 +173,15 @@ const OAuthGrantsSection: React.FC = () => {
                       {grant.scopes.join(", ")}
                     </div>
                     <div data-testid={`app-usage-${grant.id}`} className={metaCss}>
-                      {t("oauth-grant-granted-at", { time: dateToString(grant.granted_at) })}
-                      {MIDDLE_DOT}
-                      {grant.last_used_at
-                        ? t("oauth-grant-last-used-at", {
-                            time: dateToString(grant.last_used_at),
-                          })
-                        : t("oauth-grant-never-used")}
+                      <MaskOverThisInSystemTests>
+                        {t("oauth-grant-granted-at", { time: dateToString(grant.granted_at) })}
+                        {MIDDLE_DOT}
+                        {grant.last_used_at
+                          ? t("oauth-grant-last-used-at", {
+                              time: dateToString(grant.last_used_at),
+                            })
+                          : t("oauth-grant-never-used")}
+                      </MaskOverThisInSystemTests>
                     </div>
                   </div>
                   <Button

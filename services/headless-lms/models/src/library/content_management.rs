@@ -1,5 +1,7 @@
 use futures::future::BoxFuture;
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use headless_lms_utils::document_schema_processor::{
+    COURSE_OBJECTIVE_PLACEHOLDERS, GutenbergBlock,
+};
 use url::Url;
 
 use crate::{
@@ -21,6 +23,40 @@ use crate::{
 pub struct CreateNewCourseFixedIds {
     pub course_id: Uuid,
     pub default_course_instance_id: Uuid,
+}
+
+const FRONT_PAGE_TITLE_PLACEHOLDER: &str = "Welcome to...";
+const FRONT_PAGE_SUBTITLE_PLACEHOLDER: &str = "Subheading";
+const FRONT_PAGE_ABOUT_PLACEHOLDER: &str = "This course teaches you xxx.";
+
+/// Text in the default page content that the teacher is meant to replace; a page still holding
+/// one as a whole text attribute hasn't been written yet.
+pub const TEMPLATE_PLACEHOLDER_TEXTS: [&str; 9] = [
+    FRONT_PAGE_TITLE_PLACEHOLDER,
+    FRONT_PAGE_SUBTITLE_PLACEHOLDER,
+    FRONT_PAGE_ABOUT_PLACEHOLDER,
+    COURSE_OBJECTIVE_PLACEHOLDERS[0].0,
+    COURSE_OBJECTIVE_PLACEHOLDERS[0].1,
+    COURSE_OBJECTIVE_PLACEHOLDERS[1].0,
+    COURSE_OBJECTIVE_PLACEHOLDERS[1].1,
+    COURSE_OBJECTIVE_PLACEHOLDERS[2].0,
+    COURSE_OBJECTIVE_PLACEHOLDERS[2].1,
+];
+
+/// The content a new course's front page starts with.
+pub fn default_course_front_page_content() -> Vec<GutenbergBlock> {
+    vec![
+        GutenbergBlock::landing_page_hero_section(
+            FRONT_PAGE_TITLE_PLACEHOLDER,
+            FRONT_PAGE_SUBTITLE_PLACEHOLDER,
+        ),
+        GutenbergBlock::landing_page_copy_text("About this course", FRONT_PAGE_ABOUT_PLACEHOLDER),
+        GutenbergBlock::course_objective_section(),
+        GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
+    ]
 }
 
 /// Creates a new course with a front page and default instances.
@@ -48,20 +84,9 @@ pub async fn create_new_course(
     .await?;
     let course = courses::get_course(&mut tx, course_id).await?;
 
-    // Create front page for course
-    let course_front_page_blocks = vec![
-        GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
-        GutenbergBlock::landing_page_copy_text("About this course", "This course teaches you xxx."),
-        GutenbergBlock::course_objective_section(),
-        GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-    ];
-
     let course_front_page = NewPage {
         chapter_id: None,
-        content: course_front_page_blocks,
+        content: default_course_front_page_content(),
         course_id: Some(course.id),
         exam_id: None,
         front_page_of_chapter_id: None,

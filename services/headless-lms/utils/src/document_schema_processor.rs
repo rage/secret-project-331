@@ -25,6 +25,28 @@ const DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
     "moocfi/chapter-progress",
 ];
 
+/// The heading and description of each objective in [`GutenbergBlock::course_objective_section`],
+/// placeholder text for the teacher to replace.
+pub const COURSE_OBJECTIVE_PLACEHOLDERS: [(&str, &str); 3] = [
+    (
+        "Objective #1",
+        "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...",
+    ),
+    (
+        "Objective #2",
+        "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...",
+    ),
+    (
+        "Objective #3",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien.",
+    ),
+];
+
+/// The `style` attribute Gutenberg stores for centred text in blocks with the text-align support.
+fn centred_text_style() -> Value {
+    serde_json::json!({"typography": {"textAlign": "center"}})
+}
+
 pub use crate::attributes;
 use crate::prelude::*;
 
@@ -112,15 +134,47 @@ impl GutenbergBlock {
             vec![GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes! {
-                    "align": "center",
                     "content": sub_title,
                     "dropCap": false,
-                    "placeholder": "Insert short description of course..."
+                    "placeholder": "Insert short description of course...",
+                    "style": centred_text_style()
                 },
             )],
         )
     }
+
+    /// The course objectives section with [`COURSE_OBJECTIVE_PLACEHOLDERS`] for the teacher to
+    /// replace.
     pub fn course_objective_section() -> Self {
+        let columns = COURSE_OBJECTIVE_PLACEHOLDERS
+            .iter()
+            .enumerate()
+            .map(|(index, (heading, description))| {
+                GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                    "core/column",
+                    attributes! {},
+                    vec![
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/heading",
+                            attributes! {
+                                "level": 3,
+                                "content": heading,
+                                "anchor": format!("objective-{}", index + 1),
+                                "style": centred_text_style(),
+                            },
+                        ),
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/paragraph",
+                            attributes! {
+                                "dropCap": false,
+                                "content": description,
+                                "style": centred_text_style(),
+                            },
+                        ),
+                    ],
+                )
+            })
+            .collect();
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/course-objective-section",
             attributes! {
@@ -131,77 +185,7 @@ impl GutenbergBlock {
                 attributes! {
                     "isStackedOnMobile": true
                 },
-                vec![
-                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        "core/column",
-                        attributes! {},
-                        vec![
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/heading",
-                                attributes! {
-                                    "textAlign": "center",
-                                    "level": 3,
-                                    "content": "Objective #1",
-                                    "anchor": "objective-1",
-                                },
-                            ),
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/paragraph",
-                                attributes! {
-                                    "align": "center",
-                                    "dropCap": false,
-                                    "content": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-                                },
-                            ),
-                        ],
-                    ),
-                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        "core/column",
-                        attributes! {},
-                        vec![
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/heading",
-                                attributes! {
-                                    "textAlign": "center",
-                                    "level": 3,
-                                    "content": "Objective #2",
-                                    "anchor": "objective-2",
-                                },
-                            ),
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/paragraph",
-                                attributes! {
-                                    "align": "center",
-                                    "dropCap": false,
-                                    "content": "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-                                },
-                            ),
-                        ],
-                    ),
-                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        "core/column",
-                        attributes! {},
-                        vec![
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/heading",
-                                attributes! {
-                                    "textAlign": "center",
-                                    "level": 3,
-                                    "content": "Objective #3",
-                                    "anchor": "objective-3",
-                                },
-                            ),
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/paragraph",
-                                attributes! {
-                                    "align": "center",
-                                    "dropCap": false,
-                                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
-                                },
-                            ),
-                        ],
-                    ),
-                ],
+                columns,
             )],
         )
     }
@@ -226,7 +210,6 @@ impl GutenbergBlock {
                                 "level": 2,
                                 "placeholder": heading,
                                 "anchor": heading,
-                                "textAlign": "left"
                             },
                         ),
                         GutenbergBlock::block_with_name_and_attributes(

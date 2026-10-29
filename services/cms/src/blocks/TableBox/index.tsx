@@ -25,7 +25,7 @@ const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
     },
   },
   allowedBlocks: ["core/table"],
-  innerBlocksArea: { template: [["core/table", { title: "TableBox" }]], templateLock: "all" },
+  innerBlocksArea: { template: [["core/table", {}]], templateLock: "all" },
   edit: TableEditor,
   save: TableSave,
 }

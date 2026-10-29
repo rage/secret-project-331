@@ -156,7 +156,7 @@ export const RejectionNotice: React.FC<RejectionNoticeProps> = ({
               <p>
                 {entity
                   ? t("agent-not-published-save-failed-entity", {
-                      entity: `${entityName(entity)} (${entityTypeLabel(entity.entity_type)})`,
+                      entity: `${entityName(entity)} (${entityTypeLabel(entity)})`,
                     })
                   : t("agent-not-published-save-failed")}
               </p>

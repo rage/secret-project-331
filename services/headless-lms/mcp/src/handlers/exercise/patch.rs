@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use headless_lms_models::{
     error::TryToOptional,
+    exercise_slide_submissions,
     library::agent_changesets::course_state::{CourseState, CourseView},
     peer_or_self_review_configs, peer_or_self_review_submissions,
 };
@@ -246,6 +247,17 @@ impl ToolHandler<McpState> for PatchExercise {
             }
             Some(ReviewConfigChoice::EditCourseDefault) | None => (None, None),
         };
+        let has_task_ops = groups
+            .iter()
+            .any(|group| matches!(group.part, ExercisePart::Task(_)));
+        let is_answered = has_task_ops
+            && !exercise_slide_submissions::get_exercise_ids_with_submissions_by_course_id(
+                &mut *connection(state).await?,
+                view.course.id,
+                &[exercise_id],
+            )
+            .await?
+            .is_empty();
         let edits_course_default =
             after.course_default_review_config != view.staged.course_default_review_config;
         let deadline_after = deadline.map(|_| ExerciseDeadline::of(&after, exercise_id));
@@ -278,6 +290,9 @@ impl ToolHandler<McpState> for PatchExercise {
         let mut result = report.into_result(&summary);
         if let Some(count) = existing_review_count.filter(|count| *count > 0) {
             result = result.with_hint(hints::review_config_switched_with_reviews(count));
+        }
+        if is_answered {
+            result = result.with_hint(hints::answered_task_instructions_edited());
         }
         Ok(result.into())
     }

@@ -189,7 +189,7 @@ pub fn get_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "get_exercise",
-        "Reads an exercise: name, tasks, own and effective deadline, whether it uses the course default review config or its own, read-only settings, and an outline of each task's instructions and of the review instructions it shows. Selectors as in get_page_content, with paths starting at /tasks/<task id> or /review_instructions. /tasks/<task id>/specs reads the task's private, public and model solution specs (answer keys included); /specs/<kind>/<JSON pointer> reads part of one when the whole is too large.",
+        "Reads an exercise: name, tasks, own and effective deadline, whether it uses the course default review config or its own, read-only settings, has_submissions (only when students have answered), and an outline of each task's instructions and of the review instructions it shows. Selectors as in get_page_content, with paths starting at /tasks/<task id> or /review_instructions. /tasks/<task id>/specs (each task's specs_path) reads the task's private, public and model solution specs (answer keys included); /specs/<kind>/<JSON pointer> reads part of one when the whole is too large.",
         read("Read exercise"),
         McpScope::MaterialRead,
     )
@@ -292,7 +292,7 @@ pub fn patch_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
         "patch_exercise",
         concat!(
             "Edits an exercise's name, own deadline and instructions; its other settings are read-only. deadline overrides the chapter's; null clears it so the chapter's applies. Prefer chapter deadlines (patch_course_structure) and ask the teacher before adding an own one; making the deadline that applies earlier, or adding one, to an open exercise is risky. ops are patch_page_content ops with paths starting at /tasks/<task id> (that task's instructions) or /review_instructions; to_page isn't available. ",
-            "Review instructions of an exercise using the course default review config are shared: set review_config edit_course_default to edit them for every exercise using it (preferred), or fork to give only this exercise its own copy of the default, for an exercise with special needs. use_course_default drops the exercise's own review settings. The result warns when students have already given reviews.",
+            "Review instructions of an exercise using the course default review config are shared: set review_config edit_course_default to edit them for every exercise using it (preferred), or fork to give only this exercise its own copy of the default, for an exercise with special needs. use_course_default drops the exercise's own review settings. The result warns when students have already given reviews, or answered an exercise whose task instructions the call edits.",
             staging_note!()
         ),
         write("Edit exercise", true),

@@ -12,6 +12,18 @@ const VERTICAL_ALIGNMENT: AttributeSchema = {
   enum: ["top", "center", "bottom", "stretch", "space-between"],
 }
 const HORIZONTAL_ALIGNMENT: AttributeSchema = { type: "string", enum: ["left", "center", "right"] }
+/** `style` holding only the text alignment the editor stores for blocks with that support. */
+export const TEXT_ALIGN_STYLE: AttributeSchema = {
+  type: "object",
+  properties: {
+    typography: {
+      type: "object",
+      properties: { textAlign: HORIZONTAL_ALIGNMENT },
+      additionalProperties: false,
+    },
+  },
+  additionalProperties: false,
+}
 const IMAGE_DIMENSION: AttributeSchema = {
   type: "string",
   pattern: "^(?:auto|\\d+(?:\\.\\d+)?(?:px)?)?$",

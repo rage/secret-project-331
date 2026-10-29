@@ -18,8 +18,8 @@ use crate::{
             preview::PreviewPage,
         },
         entity_snapshots::{
-            self, ContentEntity, ContentEntityType, EntityKey, EntityRef, EntitySnapshot,
-            PageSnapshot,
+            self, ChapterSnapshot, ContentEntity, ContentEntityType, EntityKey, EntityRef,
+            EntitySnapshot, PageSnapshot,
         },
     },
     prelude::*,
@@ -94,6 +94,9 @@ pub struct ChangesetReview {
     /// Staged entities whose live state changed after they were staged, which blocks publishing.
     pub conflicts: Vec<PublishConflict>,
     pub is_expiring_soon: bool,
+    /// The pages that are their chapter's front page, as staged while the changeset is open and
+    /// as live after.
+    pub chapter_front_page_ids: Vec<Uuid>,
 }
 
 /// The review of a changeset, with every reference in a field change labelled.
@@ -109,6 +112,7 @@ pub async fn get_review(
     } else {
         Vec::new()
     };
+    let chapter_front_page_ids = chapter_front_page_ids(conn, &changeset, &rows).await?;
     let mut labels: HashMap<EntityKey, String> = rows
         .iter()
         .map(|row| (row.key(), row.label.clone()))
@@ -155,7 +159,35 @@ pub async fn get_review(
         entities,
         calls,
         conflicts,
+        chapter_front_page_ids,
     })
+}
+
+async fn chapter_front_page_ids(
+    conn: &mut PgConnection,
+    changeset: &AgentChangeset,
+    rows: &[AgentChangesetEntity],
+) -> ModelResult<Vec<Uuid>> {
+    let mut front_pages: HashMap<Uuid, Option<Uuid>> =
+        crate::chapters::get_course_chapters(conn, changeset.course_id)
+            .await?
+            .into_iter()
+            .map(|chapter| (chapter.id, chapter.front_page_id))
+            .collect();
+    if changeset.is_open() {
+        for row in rows
+            .iter()
+            .filter(|row| row.entity_type == ContentEntityType::Chapter)
+        {
+            let front_page = row
+                .after_snapshot
+                .as_ref()
+                .and_then(ChapterSnapshot::narrow)
+                .and_then(|chapter| chapter.front_page_id);
+            front_pages.insert(row.entity_id, front_page);
+        }
+    }
+    Ok(front_pages.into_values().flatten().collect())
 }
 
 /// The entities the field changes point at.

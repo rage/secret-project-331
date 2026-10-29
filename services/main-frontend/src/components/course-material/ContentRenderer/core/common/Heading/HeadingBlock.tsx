@@ -12,6 +12,7 @@ import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMap
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
+import { textAlignOf } from "../../../util/textAlign"
 
 interface ExtraAttributes {
   textAlign?: string
@@ -20,7 +21,8 @@ interface ExtraAttributes {
 const HeadingBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { content, level, fontSize, textAlign, fitText } = data.attributes
+  const { content, level, fontSize, fitText, style } = data.attributes
+  const textAlign = textAlignOf(style, data.attributes.textAlign)
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
     dangerouslySetInnerHTML: {

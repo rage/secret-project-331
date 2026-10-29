@@ -17,7 +17,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   allowedBlocks: ["core/list"],
-  innerBlocksArea: { template: [["core/list", { align: "left" }]], templateLock: "all" },
+  innerBlocksArea: { template: [["core/list", {}]], templateLock: "all" },
   edit: LearningObjectiveSectionEditor,
   save: LearningObjectiveSectionSave,
   transforms: {

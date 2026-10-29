@@ -3,7 +3,7 @@
  */
 
 import { ALL_COURSE_FEATURES } from "@/blocks/pageTypes"
-import { BLOCK_REFINEMENTS } from "@/blockValidator/attributeRefinements"
+import { BLOCK_REFINEMENTS, TEXT_ALIGN_STYLE } from "@/blockValidator/attributeRefinements"
 import type { BlockSchemasDocument } from "@/blockValidator/blockSchemas"
 import { pageTypeOf, withClientIds } from "@/blockValidator/exampleBlocks"
 import { callBlockValidator } from "@/blockValidator/validatorWorker"
@@ -89,7 +89,8 @@ describe("block schemas", () => {
   })
 
   it("leaves out attributes agents may not write", () => {
-    expect(schemas.blocks["core/paragraph"]?.attributes).not.toHaveProperty("style")
+    expect(schemas.blocks["core/paragraph"]?.attributes.style).toEqual(TEXT_ALIGN_STYLE)
+    expect(schemas.blocks["core/image"]?.attributes).not.toHaveProperty("style")
     expect(schemas.blocks["core/paragraph"]?.attributes).not.toHaveProperty("metadata")
     expect(schemas.blocks["core/image"]?.attributes).not.toHaveProperty("blob")
   })

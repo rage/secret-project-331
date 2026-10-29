@@ -75,7 +75,7 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<LandingPageHeroSec
         {
           content: "Insert sales speech...",
           placeholder: "Insert sales speech...",
-          align: "center",
+          style: { typography: { textAlign: "center" } },
         },
       ],
     ],

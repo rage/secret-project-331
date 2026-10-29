@@ -37,11 +37,10 @@ const LandingPageCopyTextConfiguration: BlockConfiguration = {
                 {
                   placeholder: "About this course",
                   level: 3,
-                  textAlign: "left",
                   anchor: "about-this-course",
                 },
               ],
-              ["core/paragraph", { placeholder: "Insert text...", align: "left" }],
+              ["core/paragraph", { placeholder: "Insert text..." }],
             ],
           ],
         ],

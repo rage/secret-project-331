@@ -89,6 +89,7 @@
   "agent-discard-failed": "The changes were not discarded.",
   "agent-discarded-message": "The changes were discarded.",
   "agent-entity-chapter": "Chapter",
+  "agent-entity-chapter-front-page": "Chapter front page",
   "agent-entity-conflict-explanation": "Someone changed this after the agent. This change cannot be published as it is.",
   "agent-entity-course-default-review-config": "Default peer review instructions",
   "agent-entity-course-settings": "Course settings",

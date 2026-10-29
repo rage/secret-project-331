@@ -13,6 +13,7 @@ use headless_lms_models::{
     course_modules::CourseModule,
     courses::{self, Course, NewCourse},
     file_uploads, glossary,
+    library::content_management,
     pages::{self, NewCoursePage, NewPage},
     roles::{self, RoleDomain, UserRole},
 };
@@ -323,23 +324,9 @@ impl CourseBuilder {
         let default_instance =
             default_instance.expect("At least one course instance must be provided");
 
-        // Create mandatory front page for the course
-        let default_front_page_content = vec![
-            GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
-            GutenbergBlock::landing_page_copy_text(
-                "About this course",
-                "This course teaches you xxx.",
-            ),
-            GutenbergBlock::course_objective_section(),
-            GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-        ];
-
         let front_page_blocks = self
             .front_page_content
-            .unwrap_or(default_front_page_content);
+            .unwrap_or_else(content_management::default_course_front_page_content);
 
         let course_front_page = NewPage {
             chapter_id: None,

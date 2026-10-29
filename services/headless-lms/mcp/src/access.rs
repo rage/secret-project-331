@@ -2,16 +2,20 @@
 //! roles here, with the course-edit rule the web UI uses.
 
 use headless_lms_authorization::{Action, fetch_user_roles, is_permitted_on_course};
-use headless_lms_models::{courses, courses::Course, error::TryToOptional, page_language_groups};
+use headless_lms_models::{
+    courses, courses::Course, error::TryToOptional, page_language_groups, roles::Role,
+};
 use sqlx::{PgConnection, Postgres, pool::PoolConnection};
 use uuid::Uuid;
 
 use crate::engine::PageDocument;
+use crate::engine::read::ReadState;
 use crate::snapshots::{self, PageFacts};
 use crate::state::McpState;
 use crate::tools::{RequestContext, ToolError};
-use headless_lms_models::library::agent_changesets::course_state::{
-    CourseParts, CourseState, CourseView, load_student_activity, load_view,
+use headless_lms_models::library::agent_changesets::{
+    course_state::{CourseParts, CourseState, CourseView, load_view},
+    risk::load_student_activity,
 };
 
 /// The course, if it exists and the user may edit it.
@@ -33,16 +37,31 @@ pub async fn authorize_course(
     Ok(course)
 }
 
+/// The courses among `courses` a user with `roles` may edit, by the rule of
+/// [`authorize_course`].
+pub fn editable_courses(roles: &[Role], courses: Vec<Course>) -> Vec<Course> {
+    courses
+        .into_iter()
+        .filter(|c| is_permitted_on_course(roles, Action::Edit, c.id, c.organization_id))
+        .collect()
+}
+
+/// The state a read asks for.
+pub fn state_of(view: &CourseView, read_state: ReadState) -> &CourseState {
+    match read_state {
+        ReadState::Staged => &view.staged,
+        ReadState::Published => &view.live,
+    }
+}
+
 /// A pooled connection; a busy pool is a retryable error.
 pub async fn connection(state: &McpState) -> Result<PoolConnection<Postgres>, ToolError> {
-    state
-        .pool
-        .acquire()
-        .await
-        .map_err(|e| ToolError::Retryable {
-            message: format!("the database is busy ({e}); the same call can be retried"),
-            retry_after_seconds: 1,
-        })
+    state.pool.acquire().await.map_err(|e| {
+        ToolError::retryable(
+            format!("the database is busy ({e}); the same call can be retried"),
+            1,
+        )
+    })
 }
 
 /// Authorizes the course argument and loads the course as the user sees it. The connection goes

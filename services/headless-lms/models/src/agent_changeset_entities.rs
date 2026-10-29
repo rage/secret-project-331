@@ -94,10 +94,12 @@ pub struct AgentChangesetEntity {
 }
 
 impl AgentChangesetEntity {
+    /// The row's entity as a key.
     pub fn key(&self) -> EntityKey {
-        (self.entity_type, self.entity_id)
+        EntityKey::new(self.entity_type, self.entity_id)
     }
 
+    /// The row's entity with its label.
     pub fn entity_ref(&self) -> EntityRef {
         EntityRef {
             entity_type: self.entity_type,
@@ -178,8 +180,8 @@ pub async fn insert(
     let mut afters = Vec::with_capacity(entities.len());
     let mut labels = Vec::with_capacity(entities.len());
     for entity in entities {
-        entity_types.push(entity.key.0);
-        entity_ids.push(entity.key.1);
+        entity_types.push(entity.key.entity_type);
+        entity_ids.push(entity.key.entity_id);
         bases.push(entity.base_json.as_deref());
         afters.push(entity.after_json.as_deref());
         labels.push(entity.label.as_str());
@@ -240,8 +242,8 @@ pub async fn restage(
     let mut afters = Vec::with_capacity(entities.len());
     let mut labels = Vec::with_capacity(entities.len());
     for entity in entities {
-        entity_types.push(entity.key.0);
-        entity_ids.push(entity.key.1);
+        entity_types.push(entity.key.entity_type);
+        entity_ids.push(entity.key.entity_id);
         afters.push(entity.after_json.as_deref());
         labels.push(entity.label.as_str());
     }
@@ -286,7 +288,14 @@ pub async fn set_risk_reasons(
     let mut entity_types = Vec::with_capacity(reasons.len());
     let mut entity_ids = Vec::with_capacity(reasons.len());
     let mut values = Vec::with_capacity(reasons.len());
-    for ((entity_type, entity_id), entity_reasons) in reasons {
+    for (
+        EntityKey {
+            entity_type,
+            entity_id,
+        },
+        entity_reasons,
+    ) in reasons
+    {
         entity_types.push(*entity_type);
         entity_ids.push(*entity_id);
         values.push(serde_json::to_value(entity_reasons)?);
@@ -319,8 +328,7 @@ pub async fn delete(
     if keys.is_empty() {
         return Ok(());
     }
-    let (entity_types, entity_ids): (Vec<ContentEntityType>, Vec<Uuid>) =
-        keys.iter().copied().unzip();
+    let (entity_types, entity_ids) = EntityKey::unzip(keys);
     sqlx::query!(
         r#"
 DELETE FROM agent_changeset_entities e USING UNNEST($2::content_entity_type [], $3::uuid []) AS k(entity_type, entity_id)
@@ -337,6 +345,7 @@ WHERE e.changeset_id = $1
     Ok(())
 }
 
+/// All staged rows of the changeset, oldest first.
 pub async fn get_by_changeset_id(
     conn: &mut PgConnection,
     changeset_id: Uuid,
@@ -349,7 +358,7 @@ SELECT entity_type,
   base_snapshot IS NOT NULL AS "has_base!",
   after_snapshot::text AS "after_snapshot?",
   label,
-  risk_reasons AS "risk_reasons: Json<Vec<RiskReason>>",
+  risk_reasons,
   revision
 FROM agent_changeset_entities
 WHERE changeset_id = $1
@@ -369,8 +378,7 @@ pub async fn get_by_keys(
     changeset_id: Uuid,
     keys: &[EntityKey],
 ) -> ModelResult<Vec<AgentChangesetEntity>> {
-    let (entity_types, entity_ids): (Vec<ContentEntityType>, Vec<Uuid>) =
-        keys.iter().copied().unzip();
+    let (entity_types, entity_ids) = EntityKey::unzip(keys);
     let rows = sqlx::query_as!(
         AgentChangesetEntityRow,
         r#"
@@ -379,7 +387,7 @@ SELECT e.entity_type,
   e.base_snapshot IS NOT NULL AS "has_base!",
   e.after_snapshot::text AS "after_snapshot?",
   e.label,
-  e.risk_reasons AS "risk_reasons: Json<Vec<RiskReason>>",
+  e.risk_reasons,
   e.revision
 FROM agent_changeset_entities e
   JOIN UNNEST($2::content_entity_type [], $3::uuid []) AS k(entity_type, entity_id)
@@ -396,6 +404,7 @@ WHERE e.changeset_id = $1
     rows.into_iter().map(TryInto::try_into).collect()
 }
 
+/// The changeset's row for the entity; `None` if it doesn't stage it. See [`get_by_keys`].
 pub async fn get_one(
     conn: &mut PgConnection,
     changeset_id: Uuid,
@@ -409,7 +418,10 @@ pub async fn get_one(
 pub async fn get_operation(
     conn: &mut PgConnection,
     changeset_id: Uuid,
-    (entity_type, entity_id): EntityKey,
+    EntityKey {
+        entity_type,
+        entity_id,
+    }: EntityKey,
 ) -> ModelResult<Option<AgentChangesetEntityOperation>> {
     let row = sqlx::query!(
         r#"
@@ -439,8 +451,7 @@ pub async fn get_bases(
     if keys.is_empty() {
         return Ok(HashMap::new());
     }
-    let (entity_types, entity_ids): (Vec<ContentEntityType>, Vec<Uuid>) =
-        keys.iter().copied().unzip();
+    let (entity_types, entity_ids) = EntityKey::unzip(keys);
     let rows = sqlx::query!(
         r#"
 SELECT e.entity_type,
@@ -462,7 +473,7 @@ WHERE e.changeset_id = $1
     rows.into_iter()
         .map(|row| {
             let snapshot = EntitySnapshot::from_json(row.entity_type, &row.base_snapshot)?;
-            Ok(((row.entity_type, row.entity_id), snapshot))
+            Ok((EntityKey::new(row.entity_type, row.entity_id), snapshot))
         })
         .collect()
 }
@@ -501,7 +512,7 @@ SELECT changeset_id,
   base_snapshot IS NOT NULL AS "has_base!",
   after_snapshot IS NOT NULL AS "has_after!",
   label,
-  risk_reasons AS "risk_reasons: Json<Vec<RiskReason>>"
+  risk_reasons
 FROM agent_changeset_entities
 WHERE changeset_id = ANY($1)
 ORDER BY created_at,

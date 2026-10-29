@@ -54,13 +54,11 @@ spec:
           env:
             - name: NEXT_PUBLIC_BASE_PATH
               value: "/cms"
-            # Optional so that the CMS starts without it; the validator routes then answer 401.
             - name: AGENT_VALIDATOR_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: agent-validator
+                  name: headless-lms-secrets
                   key: AGENT_VALIDATOR_SECRET
-                  optional: true
           # The block validator worker keeps Gutenberg loaded, about 450 MB on top of Next, and
           # a 2 MB request takes its heap to about 550 MB.
           resources:

@@ -9,8 +9,9 @@ use regex::Regex;
 use serde::Serialize;
 
 /// Whitespace that isn't a single space; collapsing only these leaves most text borrowed.
-static WHITESPACE_TO_COLLAPSE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\s{2,}|[^\S ]").expect("valid regex"));
+static WHITESPACE_TO_COLLAPSE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\s{2,}|[^\S ]").expect("a constant pattern the unit tests compile")
+});
 
 /// The visible text of a rich-text string: tags removed, common entities decoded, whitespace
 /// collapsed to single spaces.

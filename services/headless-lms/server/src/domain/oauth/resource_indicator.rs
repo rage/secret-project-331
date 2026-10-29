@@ -7,10 +7,12 @@ use serde::{Deserialize, Deserializer, Serialize};
 pub struct ResourceIndicator(String);
 
 impl ResourceIndicator {
+    /// The indicator for `resource`, without trailing slashes.
     pub fn new(resource: &str) -> Self {
         Self(resource.trim_end_matches('/').to_string())
     }
 
+    /// The indicator as a URL string.
     pub fn as_str(&self) -> &str {
         &self.0
     }

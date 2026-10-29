@@ -71,7 +71,6 @@
 import type { APIRequestContext } from "@playwright/test"
 
 import { omitUndefined } from "../shared-module/common/utils/nullability"
-import { storageStatePath } from "./login"
 import { listMockSuotarCalls, type MockSuotarEndpoint } from "./mockSuotar"
 import { pollUntil } from "./waitingUtils"
 
@@ -202,7 +201,7 @@ export type CreditRegistrationStudentEmail = (typeof CREDIT_REGISTRATION_STUDENT
  * an address the setup never logs in fails to compile rather than at run time on a missing file.
  */
 export const seededStudentStorageState = (email: CreditRegistrationStudentEmail): string =>
-  storageStatePath(email)
+  `src/states/${email}.json`
 
 /**
  * The subset of `getMyCreditRegistrations` these specs assert on.

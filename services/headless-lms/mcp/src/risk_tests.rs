@@ -8,8 +8,8 @@ use headless_lms_models::{
     course_modules::{AutomaticCompletionRequirements, CompletionPolicy},
     library::{
         agent_changesets::{
-            course_state::{CourseState, ExerciseDeadline, StudentActivity},
-            risk::classify,
+            course_state::{CourseState, ExerciseDeadline},
+            risk::{StudentActivity, classify},
         },
         entity_snapshots::{ChapterSnapshot, ContentEntityType, EntityKey},
     },
@@ -27,7 +27,7 @@ fn reasons_of(
     name: &str,
 ) -> Vec<RiskReason> {
     reasons
-        .get(&(entity_type, id(name)))
+        .get(&EntityKey::new(entity_type, id(name)))
         .cloned()
         .unwrap_or_default()
 }

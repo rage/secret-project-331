@@ -35,7 +35,7 @@ CREATE UNIQUE INDEX uq_agent_changesets_one_open_per_user_and_course ON agent_ch
 WHERE status = 'open';
 CREATE INDEX idx_agent_changesets_user_course ON agent_changesets (user_id, course_id, created_at DESC);
 
-COMMENT ON TABLE agent_changesets IS 'Unpublished course content changes one user''s AI agent has staged in one course. Every agent write lands in the user''s open changeset for the course; nothing reaches students until the changeset is published, by the agent with the material:publish scope or by the user on the review page.';
+COMMENT ON TABLE agent_changesets IS 'Unpublished course content changes one user''s AI agent has staged in one course. Every agent write lands in the user''s open changeset for the course; nothing reaches students until the changeset is published, by the agent with the material:publish scope or by the user on the review page. No deleted_at: a changeset ends in a final status instead, and its rows stay as the record of what was staged.';
 COMMENT ON COLUMN agent_changesets.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN agent_changesets.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN agent_changesets.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -92,7 +92,7 @@ UPDATE ON agent_changeset_entities FOR EACH ROW EXECUTE PROCEDURE trigger_set_ti
 
 CREATE INDEX idx_agent_changeset_entities_entity ON agent_changeset_entities (entity_type, entity_id);
 
-COMMENT ON TABLE agent_changeset_entities IS 'One page or entity an agent changeset changes, with its full staged state. Reads of the staged state overlay these rows on the live content; publishing writes after_snapshot back, pages through the same page save the CMS uses. Rows are removed when a later call stages the entity back to its base state or the user discards the entity.';
+COMMENT ON TABLE agent_changeset_entities IS 'One page or entity an agent changeset changes, with its full staged state. Reads of the staged state overlay these rows on the live content; publishing writes after_snapshot back, pages through the same page save the CMS uses. Rows are removed when a later call stages the entity back to its base state or the user discards the entity. No deleted_at: a row is the current staged state, so it is deleted outright, and agent_changeset_call_entities keeps the history.';
 COMMENT ON COLUMN agent_changeset_entities.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN agent_changeset_entities.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN agent_changeset_entities.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -124,7 +124,7 @@ UPDATE ON agent_changeset_calls FOR EACH ROW EXECUTE PROCEDURE trigger_set_times
 
 CREATE INDEX idx_agent_changeset_calls_changeset ON agent_changeset_calls (changeset_id, created_at);
 
-COMMENT ON TABLE agent_changeset_calls IS 'Audit log of agent write calls: one row per call that staged changes. A call is also the unit an agent reverts.';
+COMMENT ON TABLE agent_changeset_calls IS 'Audit log of agent write calls: one row per call that staged changes. A call is also the unit an agent reverts. No deleted_at: an audit log is never edited or removed.';
 COMMENT ON COLUMN agent_changeset_calls.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN agent_changeset_calls.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN agent_changeset_calls.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -159,7 +159,7 @@ UPDATE ON agent_changeset_call_entities FOR EACH ROW EXECUTE PROCEDURE trigger_s
 
 CREATE INDEX idx_agent_changeset_call_entities_entity ON agent_changeset_call_entities (entity_id);
 
-COMMENT ON TABLE agent_changeset_call_entities IS 'Each entity an agent write call touched, with its full snapshot just before the call and a digest of its snapshot just after it. Reverting the call restores the before snapshots.';
+COMMENT ON TABLE agent_changeset_call_entities IS 'Each entity an agent write call touched, with its full snapshot just before the call and a digest of its snapshot just after it. Reverting the call restores the before snapshots. No deleted_at: part of the call''s audit log.';
 COMMENT ON COLUMN agent_changeset_call_entities.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN agent_changeset_call_entities.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN agent_changeset_call_entities.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -198,7 +198,7 @@ UPDATE ON entity_history FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE INDEX idx_entity_history_entity ON entity_history (entity_id, created_at DESC);
 
-COMMENT ON TABLE entity_history IS 'A full snapshot of a chapter, course module, course''s settings or course default review config after every save, from the web UI and from agents alike, like page_history for pages. The entity can be restored to any of these.';
+COMMENT ON TABLE entity_history IS 'A full snapshot of a chapter, course module, course''s settings or course default review config after every save, from the web UI and from agents alike, like page_history for pages. The entity can be restored to any of these. No deleted_at: history is append-only.';
 COMMENT ON COLUMN entity_history.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN entity_history.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN entity_history.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

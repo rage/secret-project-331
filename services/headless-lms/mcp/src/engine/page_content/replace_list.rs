@@ -9,9 +9,10 @@ use uuid::Uuid;
 use super::address::ListRef;
 use super::{Editor, check_creatable, exercise_read_only};
 use crate::engine::blocks;
+use crate::engine::blocks::RENDERED_BLOCK_KEYS;
 use crate::engine::error::{EditError, EditErrorCode, Warning, WarningCode};
-use crate::engine::labels::{label_field, parse_uuid};
-use crate::engine::read::RENDERED_BLOCK_KEYS;
+use crate::engine::labels::label_field;
+use crate::engine::path::parse_uuid;
 use crate::engine::reject_unknown_keys;
 
 /// The stored fields of a block.
@@ -61,8 +62,8 @@ impl Editor<'_> {
         let locations = check_list_entries(doc, &parent_path, &entries)?;
         let existing: HashMap<Uuid, GutenbergBlock> = locations
             .iter()
-            .map(|(id, path)| (*id, blocks::get(doc, path).clone()))
-            .collect();
+            .map(|(id, path)| Ok((*id, blocks::get(doc, path)?.clone())))
+            .collect::<Result<_, EditError>>()?;
         let new_list = self.build_entries(entries, &existing)?;
 
         let from_elsewhere: Vec<Uuid> = locations
@@ -72,13 +73,15 @@ impl Editor<'_> {
             .collect();
         let doc = &mut self.pages[list.page].blocks;
         for id in from_elsewhere {
-            if let Some(path) = blocks::find_path(doc, id) {
-                blocks::list_mut(doc, &path[..path.len() - 1]).remove(path[path.len() - 1]);
+            if let Some(path) = blocks::find_path(doc, id)
+                && let Some((index, parent_path)) = path.split_last()
+            {
+                blocks::list_mut(doc, parent_path)?.remove(*index);
             }
         }
         // Taking blocks from before the list shifts its index path.
         let parent_path = self.list_parent_path(list)?;
-        *blocks::list_mut(&mut self.pages[list.page].blocks, &parent_path) = new_list;
+        *blocks::list_mut(&mut self.pages[list.page].blocks, &parent_path)? = new_list;
         Ok(())
     }
 
@@ -100,14 +103,17 @@ impl Editor<'_> {
         existing: &HashMap<Uuid, GutenbergBlock>,
     ) -> Result<GutenbergBlock, EditError> {
         match entry {
-            ListEntry::Stub(id) => Ok(existing[&id].clone()),
+            ListEntry::Stub(id) => existing
+                .get(&id)
+                .cloned()
+                .ok_or_else(blocks::stale_location),
             ListEntry::Existing {
                 id,
                 name,
                 attributes,
                 inner,
             } => {
-                let block = &existing[&id];
+                let block = existing.get(&id).ok_or_else(blocks::stale_location)?;
                 let name = name.unwrap_or_else(|| block.name.clone());
                 check_creatable(&name)?;
                 let attributes = attributes.unwrap_or_else(|| block.attributes.clone());
@@ -198,7 +204,7 @@ fn check_list_entries(
     }
 
     for depth in 1..=parent_path.len() {
-        let ancestor = blocks::get(doc, &parent_path[..depth]).client_id;
+        let ancestor = blocks::get(doc, &parent_path[..depth])?.client_id;
         if locations.contains_key(&ancestor) {
             return Err(EditError::new(
                 EditErrorCode::MoveIntoItself,
@@ -229,7 +235,7 @@ fn check_list_entries(
         }
     }
 
-    let mut required: Vec<Uuid> = blocks::list(doc, parent_path)
+    let mut required: Vec<Uuid> = blocks::list(doc, parent_path)?
         .iter()
         .map(|b| b.client_id)
         .collect();
@@ -260,7 +266,7 @@ fn check_list_entries(
 
     for (id, path) in &locations {
         let is_given_in_full = !stubs.contains(id);
-        if blocks::is_in_exercise(doc, path, is_given_in_full) {
+        if blocks::is_in_exercise(doc, path, is_given_in_full)? {
             return Err(exercise_read_only("replace it"));
         }
     }
@@ -294,7 +300,8 @@ fn collect_required_children(
         match entry {
             ListEntry::Stub(_) => {}
             ListEntry::Existing { id, inner, .. } => {
-                let existing = blocks::get(doc, &locations[id]);
+                let path = locations.get(id).ok_or_else(blocks::stale_location)?;
+                let existing = blocks::get(doc, path)?;
                 match inner {
                     Some(inner) => {
                         required.extend(existing.inner_blocks.iter().map(|b| b.client_id));

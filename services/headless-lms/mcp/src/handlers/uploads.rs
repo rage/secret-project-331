@@ -7,7 +7,10 @@ use async_trait::async_trait;
 use base64::Engine;
 use futures::stream;
 use headless_lms_base::error::backend_error::BackendError;
-use headless_lms_models::{ModelErrorType, file_uploads};
+use headless_lms_models::{
+    ModelErrorType,
+    file_uploads::{self, NewUpload},
+};
 use headless_lms_utils::file_store::{
     GenericPayload,
     media_uploads::{self, MediaKind, MediaOwner},
@@ -19,6 +22,7 @@ use crate::state::McpState;
 use crate::tools::args::UploadFileArgs;
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome, ToolResult};
 
+/// Handler of the `upload_file` tool.
 pub struct UploadFile;
 
 /// Decodes on a blocking thread: the content can be tens of megabytes.
@@ -90,19 +94,21 @@ impl ToolHandler<McpState> for UploadFile {
         file_uploads::store_and_insert(
             &state.pool,
             state.file_store.as_ref(),
-            &path,
-            &file_name,
-            mime_type.essence_str(),
+            NewUpload {
+                path: &path,
+                name: &file_name,
+                mime: mime_type.essence_str(),
+                uploader: Some(user_id),
+                size_bytes: Some(size_bytes as i64),
+            },
             payload,
-            Some(user_id),
-            Some(size_bytes as i64),
         )
         .await
         .map_err(|e| match e.error_type() {
-            ModelErrorType::Util => ToolError::Retryable {
-                message: format!("storing the file failed ({e}); the same call can be retried"),
-                retry_after_seconds: 2,
-            },
+            ModelErrorType::Util => ToolError::retryable(
+                format!("storing the file failed ({e}); the same call can be retried"),
+                2,
+            ),
             _ => e.into(),
         })?;
         let url = state.file_store.get_download_url(&path, &state.app_conf);

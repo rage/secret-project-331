@@ -8,6 +8,7 @@ use rmcp::model::{
 use serde_json::Value;
 use tokio::sync::mpsc::UnboundedSender;
 
+/// Sends progress notifications for one call.
 #[derive(Debug, Clone, Default)]
 pub struct ProgressReporter {
     token: Option<ProgressToken>,

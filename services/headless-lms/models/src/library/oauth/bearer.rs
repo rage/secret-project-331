@@ -28,6 +28,7 @@ pub struct BearerToken {
 pub struct BearerGrant {
     /// `oauth_user_client_scopes.id`.
     pub id: Uuid,
+    /// `oauth_user_client_scopes.last_used_at`.
     pub last_used_at: Option<DateTime<Utc>>,
 }
 
@@ -40,6 +41,7 @@ pub struct TokenSubject {
     pub grant_id: Uuid,
 }
 
+/// Why a Bearer token wasn't accepted.
 #[derive(Debug)]
 pub enum BearerTokenError {
     /// Answer 401. The message is safe to show to the client.
@@ -72,7 +74,7 @@ pub async fn resolve_bearer_token(
     let digest = token_digest_sha256(token, token_hmac_key);
     let row = sqlx::query!(
         r#"
-SELECT t.token_type AS "token_type: TokenType",
+SELECT t.token_type,
   t.scopes,
   t.audience,
   t.expires_at,
@@ -161,4 +163,19 @@ WHERE t.digest = $1
             last_used_at: row.grant_last_used_at,
         },
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::bearer_token;
+
+    #[test]
+    fn the_bearer_scheme_is_case_insensitive() {
+        assert_eq!(bearer_token("Bearer abc"), Some("abc"));
+        assert_eq!(bearer_token("bearer abc"), Some("abc"));
+        assert_eq!(bearer_token("BEARER  abc"), Some("abc"));
+        assert_eq!(bearer_token("Basic abc"), None);
+        assert_eq!(bearer_token("Bearer"), None);
+        assert_eq!(bearer_token("Bearer "), None);
+    }
 }

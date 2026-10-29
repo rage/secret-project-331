@@ -12,7 +12,7 @@ use headless_lms_utils::file_store::{
     media_uploads::{self, MediaKind},
 };
 use headless_lms_utils::strings::generate_random_string;
-use models::organizations::DatabaseOrganization;
+use models::{file_uploads::NewUpload, organizations::DatabaseOrganization};
 use std::{collections::HashSet, path::Path};
 use std::{
     path::PathBuf,
@@ -610,12 +610,14 @@ async fn upload_field_to_storage(
     models::file_uploads::store_and_insert(
         conn,
         file_store,
-        path,
-        &name,
-        &mime_type,
+        NewUpload {
+            path,
+            name: &name,
+            mime: &mime_type,
+            uploader: uploader.map(|u| u.id),
+            size_bytes: None,
+        },
         contents,
-        uploader.map(|u| u.id),
-        None,
     )
     .await?;
     Ok(())
@@ -636,12 +638,14 @@ pub async fn upload_certificate_svg(
     let id = models::file_uploads::store_and_insert(
         conn,
         file_store,
-        &path,
-        file_name,
-        "image/svg+xml",
+        NewUpload {
+            path: &path,
+            name: file_name,
+            mime: "image/svg+xml",
+            uploader: Some(uploader.id),
+            size_bytes: None,
+        },
         file,
-        Some(uploader.id),
-        None,
     )
     .await?;
     Ok((id, path))
@@ -745,7 +749,9 @@ fn generate_image_path(field: &Field, owner: MediaOwner) -> Result<PathBuf, Cont
     Ok(path)
 }
 
-/// Generates a path for an audio file with the appropriate extension.
+/// Refuses a media upload unless it is multipart form data whose declared `Content-Length` is within
+/// the limit of its `X-File-Type`, and the user teaches some course. The headers are the client's
+/// claims; the stored size is not checked here.
 async fn validate_media_headers(
     headers: &HeaderMap,
     user: &AuthUser,

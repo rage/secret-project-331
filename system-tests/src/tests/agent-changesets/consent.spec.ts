@@ -1,15 +1,10 @@
 import { expect, test } from "@playwright/test"
 
-import {
-  AGENT_CLIENT_ID,
-  AGENT_CLIENT_NAME,
-  AGENT_PUBLISHER_EMAIL,
-  agentStorageState,
-} from "@/utils/agentChangesets"
+import { AGENT_CLIENT_ID, AGENT_CLIENT_NAME, AGENT_CONSENT_EMAIL } from "@/utils/agentChangesets"
 import { ConsentPage } from "@/utils/oauth/consentPage"
 import { AUTHORIZE, BASE, MCP_RESOURCE } from "@/utils/oauth/constants"
 
-test.use({ storageState: agentStorageState(AGENT_PUBLISHER_EMAIL) })
+test.use({ storageState: `src/states/${AGENT_CONSENT_EMAIL}.json` })
 
 const REDIRECT_URI = "http://127.0.0.1:43123/callback"
 

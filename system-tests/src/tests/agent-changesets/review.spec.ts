@@ -3,21 +3,18 @@ import { expect, test } from "@playwright/test"
 import {
   AGENT_CLIENT_NAME,
   AGENT_CONFLICTED_EMAIL,
-  AGENT_DISCARDER_EMAIL,
   AGENT_PUBLISHER_EMAIL,
   AGENT_REVIEW_SETTINGS_EMAIL,
   agentChangesetsCourseUrl,
   agentEntityChange,
-  agentStorageState,
   openSeededAgentChangeset,
 } from "@/utils/agentChangesets"
 import { coursePageActionsMenu } from "@/utils/manageCoursePages"
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
-// Publishing and discarding use up the seeded changeset, so a retry would fail at a later step
+// Publishing uses up the seeded changeset, so a retry would fail at a later step
 // and hide the real failure.
 test.describe("publishing", () => {
-  test.use({ storageState: agentStorageState(AGENT_PUBLISHER_EMAIL) })
+  test.use({ storageState: `src/states/${AGENT_PUBLISHER_EMAIL}.json` })
   test.describe.configure({ retries: 0 })
 
   test("teacher reviews and publishes changes that affect students", async ({ page }) => {
@@ -137,30 +134,8 @@ test.describe("publishing", () => {
   })
 })
 
-test.describe("discarding", () => {
-  test.use({ storageState: agentStorageState(AGENT_DISCARDER_EMAIL) })
-  test.describe.configure({ retries: 0 })
-
-  test("teacher discards the agent's changes", async ({ page }) => {
-    await openSeededAgentChangeset(page)
-    await expect(page.getByRole("heading", { name: "Page: Loops" })).toBeVisible()
-
-    await waitForSuccessNotification(
-      page,
-      async () => {
-        await page.getByTestId("agent-discard-button").click()
-        await page.getByTestId("agent-discard-confirm-button").click()
-      },
-      "The changes were discarded.",
-    )
-
-    await expect(page.getByText("Discarded", { exact: true })).toBeVisible()
-    await expect(page.getByTestId("agent-discard-button")).toHaveCount(0)
-  })
-})
-
 test.describe("conflicts", () => {
-  test.use({ storageState: agentStorageState(AGENT_CONFLICTED_EMAIL) })
+  test.use({ storageState: `src/states/${AGENT_CONFLICTED_EMAIL}.json` })
 
   test("changes made after the agent block publishing", async ({ page }) => {
     await openSeededAgentChangeset(page)
@@ -207,7 +182,7 @@ test.describe("conflicts", () => {
 })
 
 test.describe("review settings", () => {
-  test.use({ storageState: agentStorageState(AGENT_REVIEW_SETTINGS_EMAIL) })
+  test.use({ storageState: `src/states/${AGENT_REVIEW_SETTINGS_EMAIL}.json` })
   test.describe.configure({ retries: 0 })
 
   test("teacher reviews and publishes review instruction changes", async ({ page }) => {

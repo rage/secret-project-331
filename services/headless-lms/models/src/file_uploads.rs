@@ -22,20 +22,35 @@ pub async fn insert(
     Ok(id)
 }
 
-/// Stores an upload at `path`, then records it like [`insert`] on a connection taken from `db`
+/// An upload for [`store_and_insert`] to store and record.
+#[derive(Debug, Clone, Copy)]
+pub struct NewUpload<'a> {
+    /// Where in the file store the contents go.
+    pub path: &'a Path,
+    /// The file name the uploader gave.
+    pub name: &'a str,
+    pub mime: &'a str,
+    pub uploader: Option<Uuid>,
+    /// See [`insert`].
+    pub size_bytes: Option<i64>,
+}
+
+/// Stores an upload at its path, then records it like [`insert`] on a connection taken from `db`
 /// only then, so none is held during the upload. Deletes the stored file again if the row can't be
 /// written.
-#[allow(clippy::too_many_arguments)]
 pub async fn store_and_insert<'c>(
     db: impl Acquire<'c, Database = Postgres>,
     file_store: &dyn FileStore,
-    path: &Path,
-    name: &str,
-    mime: &str,
+    upload: NewUpload<'_>,
     contents: GenericPayload,
-    uploader: Option<Uuid>,
-    size_bytes: Option<i64>,
 ) -> ModelResult<Uuid> {
+    let NewUpload {
+        path,
+        name,
+        mime,
+        uploader,
+        size_bytes,
+    } = upload;
     let path_string = path.to_str().context("the upload path isn't valid UTF-8")?;
     file_store.upload_stream(path, contents, mime).await?;
     let inserted = async {

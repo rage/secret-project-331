@@ -13,11 +13,11 @@ use uuid::Uuid;
 
 use super::blocks;
 use super::error::{EditError, EditErrorCode};
-use super::labels::parse_uuid;
 use super::op::Op;
+use super::path::{parse_uuid, split_path};
 use super::{
     CreatedIdLog, CreatedIds, Document, DocumentKey, DocumentRef, new_item_objects,
-    non_empty_string, reject_unknown_keys, split_path,
+    non_empty_string, reject_unknown_keys,
 };
 use crate::ids::IdGenerator;
 use crate::text::{plain_text, whole_word_matches};
@@ -51,7 +51,8 @@ pub struct Reference {
 /// shape `@type{key, field = {…}, …}` with balanced braces and exactly one entry.
 fn bibtex_entry_key(bibtex: &str) -> Result<String, String> {
     static HEAD: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^\s*@([A-Za-z]+)\s*([{(])\s*([^,\s{}()]+)\s*,").expect("valid regex")
+        Regex::new(r"^\s*@([A-Za-z]+)\s*([{(])\s*([^,\s{}()]+)\s*,")
+            .expect("a constant pattern the unit tests compile")
     });
     let head = HEAD
         .captures(bibtex)
@@ -314,39 +315,39 @@ fn apply_op(
             EditErrorCode::InvalidPath,
             "add new items to /glossary or /references; the lists are unordered",
         )),
-        (_, ["glossary" | "references", ..]) => Err(EditError::new(
-            EditErrorCode::NumericIndex,
-            "items are addressed by id: /<id>, /<id>/term",
-        )),
+        (_, ["glossary" | "references", ..]) => Err(EditError::numeric_index(
+            op.path(),
+            "glossary terms and references",
+        )
+        .with_fix("use /<id> or /<id>/term")),
         (_, [raw_id, field @ ..]) => {
             let id = parse_uuid(raw_id, op.path())?;
             if let Some(position) = doc.glossary.iter().position(|t| t.id == id) {
                 let edit = entry_edit(op, field, &TERM_FIELDS, "a glossary term")?;
-                edit_entry(
-                    &mut doc.glossary,
-                    position,
-                    edit,
-                    |term, field, value| match field {
+                return edit_entry(&mut doc.glossary, position, edit, |term, field, value| {
+                    match field {
                         "term" => term.term = value,
                         "definition" => term.definition = value,
-                        _ => unreachable!("entry_edit sets only TERM_FIELDS"),
-                    },
-                );
-                return Ok(());
+                        _ => return Err(unknown_entry_field(&TERM_FIELDS)),
+                    }
+                    Ok(())
+                });
             }
             if let Some(position) = doc.references.iter().position(|r| r.id == id) {
                 let edit = entry_edit(op, field, &REFERENCE_FIELDS, "a reference")?;
-                edit_entry(
+                return edit_entry(
                     &mut doc.references,
                     position,
                     edit,
-                    |reference, field, value| match field {
-                        "citation_key" => reference.citation_key = value,
-                        "bibtex" => reference.bibtex = value,
-                        _ => unreachable!("entry_edit sets only REFERENCE_FIELDS"),
+                    |reference, field, value| {
+                        match field {
+                            "citation_key" => reference.citation_key = value,
+                            "bibtex" => reference.bibtex = value,
+                            _ => return Err(unknown_entry_field(&REFERENCE_FIELDS)),
+                        }
+                        Ok(())
                     },
                 );
-                return Ok(());
             }
             Err(EditError::new(
                 EditErrorCode::NotFound,
@@ -379,10 +380,7 @@ fn entry_edit(
                 *field,
                 non_empty_string(Some(value), field)?,
             )])),
-            None => Err(EditError::new(
-                EditErrorCode::UnknownField,
-                format!("fields: {}", fields.join(", ")),
-            )),
+            None => Err(unknown_entry_field(fields)),
         },
         (Op::Replace { value, .. }, []) => {
             let object = value.as_object().ok_or_else(|| {
@@ -417,18 +415,29 @@ fn edit_entry<T>(
     entries: &mut Vec<T>,
     position: usize,
     edit: EntryEdit,
-    set: impl Fn(&mut T, &str, String),
-) {
+    set: impl Fn(&mut T, &str, String) -> Result<(), EditError>,
+) -> Result<(), EditError> {
     match edit {
         EntryEdit::Remove => {
             entries.remove(position);
         }
         EntryEdit::Set(fields) => {
-            for (field, value) in fields {
-                set(&mut entries[position], field, value);
+            if let Some(entry) = entries.get_mut(position) {
+                for (field, value) in fields {
+                    set(entry, field, value)?;
+                }
             }
         }
     }
+    Ok(())
+}
+
+/// A field an entry with `fields` doesn't have.
+fn unknown_entry_field(fields: &[&str]) -> EditError {
+    EditError::new(
+        EditErrorCode::UnknownField,
+        format!("fields: {}", fields.join(", ")),
+    )
 }
 
 /// Checks the terms and references of `doc` that differ from `before`: entries the call left alone
@@ -486,13 +495,16 @@ fn validate(before: &GlossaryAndReferences, doc: &GlossaryAndReferences) -> Resu
     Ok(())
 }
 
-static CITE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\\cite((?:\[[^\]]*\]){0,2})\{(.*?)\}").expect("valid regex"));
+static CITE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\\cite((?:\[[^\]]*\]){0,2})\{(.*?)\}")
+        .expect("a constant pattern the unit tests compile")
+});
 
 /// The renderer hands `[latex]…[/latex]` to KaTeX before it looks for citations, so a `\cite` in
 /// there is no citation.
-static LATEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\[latex\].*?\[/latex\]").expect("valid regex"));
+static LATEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\[latex\].*?\[/latex\]").expect("a constant pattern the unit tests compile")
+});
 
 /// The keys of the citations the renderer shows. Rich text stores keys HTML-escaped.
 fn citation_keys(text: &str) -> Vec<String> {

@@ -260,15 +260,15 @@ pub async fn get_all_with_registration_information_by_course_instance_id(
         CourseModuleCompletionWithRegistrationInfo,
         r#"
 SELECT completions.completion_registration_attempt_date,
-  completions.course_module_id,
-  completions.created_at,
+  completions.course_module_id AS "course_module_id!",
+  completions.created_at AS "created_at!",
   completions.grade,
-  completions.passed,
-  completions.prerequisite_modules_completed,
+  completions.passed AS "passed!",
+  completions.prerequisite_modules_completed AS "prerequisite_modules_completed!",
   (registered.id IS NOT NULL) AS "registered!",
-  completions.needs_to_be_reviewed,
-  completions.user_id,
-  completions.completion_date
+  completions.needs_to_be_reviewed AS "needs_to_be_reviewed!",
+  completions.user_id AS "user_id!",
+  completions.completion_date AS "completion_date!"
 FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id

@@ -7,7 +7,6 @@ resources:
   - ../base-data
   - ../mailpit
   - headless-lms/env.yml
-  - ../local-agent-validator
   - access-ingress-internally.yml
   - tmc-service-account.yml
 patches:

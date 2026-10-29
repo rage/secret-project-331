@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::library::{
     agent_changesets::{StagedEntity, course_state::CourseState},
-    entity_snapshots::ContentEntityType,
+    entity_snapshots::{ContentEntityType, EntityKey},
 };
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde::Serialize;
@@ -207,9 +207,9 @@ pub fn structure_changes(before: &CourseState, after: &CourseState) -> HashMap<U
         .iter()
         .filter(|entity| entity.after().is_some())
         .map(StagedEntity::key)
-        .filter(|(entity_type, _)| {
+        .filter(|key| {
             matches!(
-                entity_type,
+                key.entity_type,
                 ContentEntityType::Module | ContentEntityType::Chapter
             )
         })
@@ -218,16 +218,16 @@ pub fn structure_changes(before: &CourseState, after: &CourseState) -> HashMap<U
                 .pages
                 .iter()
                 .filter(|page_id| after.page(**page_id).is_some())
-                .map(|page_id| (ContentEntityType::Page, *page_id)),
+                .map(|page_id| EntityKey::new(ContentEntityType::Page, *page_id)),
         );
     written
         .map(|key| {
             let kind = if !before.has_entity(key) {
                 ChangeKind::Added
             } else {
-                let is_content_changed = key.0 == ContentEntityType::Page
-                    && before.page(key.1).map(|page| &page.content)
-                        != after.page(key.1).map(|page| &page.content);
+                let is_content_changed = key.entity_type == ContentEntityType::Page
+                    && before.page(key.entity_id).map(|page| &page.content)
+                        != after.page(key.entity_id).map(|page| &page.content);
                 let fields = after.field_changes_since(before, key);
                 let is_placed_only = !is_content_changed
                     && !fields.is_empty()
@@ -238,8 +238,45 @@ pub fn structure_changes(before: &CourseState, after: &CourseState) -> HashMap<U
                     ChangeKind::Changed
                 }
             };
-            (key.1, kind)
+            (key.entity_id, kind)
         })
+        .collect()
+}
+
+/// The top-level trees of `page` that hold a block added, changed or moved there since `before`,
+/// or that lost a child: a container's template can require the child. `before` is the page as it
+/// was, if it existed.
+pub fn changed_roots(before: Option<PageRef>, page: PageRef) -> Vec<GutenbergBlock> {
+    let mut parent_before: HashMap<Uuid, Uuid> = HashMap::new();
+    if let Some(before) = before {
+        crate::engine::blocks::walk(before.blocks, &mut |block, _| {
+            for child in &block.inner_blocks {
+                parent_before.insert(child.client_id, block.client_id);
+            }
+        });
+    }
+    let mut touched: HashSet<Uuid> = HashSet::new();
+    let before_pages: Vec<PageRef> = before.into_iter().collect();
+    for change in diff_blocks(&before_pages, &[page]) {
+        if change.kind != ChangeKind::Removed {
+            touched.insert(change.block_id);
+        }
+        let left_its_parent = change.kind == ChangeKind::Removed || change.is_moved;
+        if left_its_parent && let Some(parent) = parent_before.get(&change.block_id) {
+            touched.insert(*parent);
+        }
+    }
+    fn holds_touched(block: &GutenbergBlock, touched: &HashSet<Uuid>) -> bool {
+        touched.contains(&block.client_id)
+            || block
+                .inner_blocks
+                .iter()
+                .any(|child| holds_touched(child, touched))
+    }
+    page.blocks
+        .iter()
+        .filter(|root| holds_touched(root, &touched))
+        .cloned()
         .collect()
 }
 
@@ -324,5 +361,47 @@ mod tests {
     fn unchanged_is_empty() {
         let result = diff(&before(), &before());
         assert!(result.is_empty());
+    }
+
+    #[test]
+    fn changed_roots_are_top_level_ancestors() {
+        let before = page(
+            "pg1",
+            PageType::CoursePage,
+            vec![para("p1", "a"), infobox("box", vec![para("c1", "b")])],
+        );
+        let mut after = before.clone();
+        after.blocks[1].inner_blocks[0]
+            .attributes
+            .insert("content".into(), json!("B"));
+        let roots = changed_roots(Some(before.as_page_ref()), after.as_page_ref());
+        assert_eq!(roots.len(), 1);
+        assert_eq!(roots[0].client_id, id("box"));
+    }
+
+    #[test]
+    fn a_container_that_lost_a_child_is_a_changed_root() {
+        let before = page(
+            "pg1",
+            PageType::CoursePage,
+            vec![
+                para("p1", "a"),
+                infobox("box", vec![para("c1", "b"), para("c2", "c")]),
+            ],
+        );
+        let mut after = before.clone();
+        after.blocks[1].inner_blocks.remove(0);
+        let roots = changed_roots(Some(before.as_page_ref()), after.as_page_ref());
+        assert_eq!(roots.len(), 1);
+        assert_eq!(roots[0].client_id, id("box"));
+
+        let mut moved_out = before.clone();
+        let child = moved_out.blocks[1].inner_blocks.remove(1);
+        moved_out.blocks.insert(0, child);
+        let ids: Vec<Uuid> = changed_roots(Some(before.as_page_ref()), moved_out.as_page_ref())
+            .iter()
+            .map(|root| root.client_id)
+            .collect();
+        assert!(ids.contains(&id("box")), "{ids:?}");
     }
 }

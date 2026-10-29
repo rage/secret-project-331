@@ -16,15 +16,38 @@ use headless_lms_utils::document_schema_processor::walk;
 use crate::{
     agent_changeset_entities::{self, AgentChangesetEntity, RiskReason},
     agent_changesets::AgentChangeset,
+    course_module_completions, exercise_slide_submissions,
     library::{
-        agent_changesets::course_state::{
-            CourseParts, CourseState, CourseView, StudentActivity, load_live_course,
-            load_student_activity,
-        },
+        agent_changesets::course_state::{CourseParts, CourseState, CourseView, load_live_course},
         entity_snapshots::{ContentEntityType, EntityKey},
     },
     prelude::*,
 };
+
+/// Published facts about student activity that make a change risky.
+#[derive(Debug, Clone, Default)]
+pub struct StudentActivity {
+    pub exercises_with_submissions: HashSet<Uuid>,
+    pub pages_with_submissions: HashSet<Uuid>,
+    pub modules_with_completions: HashSet<Uuid>,
+}
+
+/// Which exercises have submissions and which modules have completions.
+pub async fn load_student_activity(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<StudentActivity> {
+    let exercises =
+        exercise_slide_submissions::get_exercises_with_submissions_by_course_id(conn, course_id)
+            .await?;
+    let modules =
+        course_module_completions::get_completed_module_ids_by_course_id(conn, course_id).await?;
+    Ok(StudentActivity {
+        exercises_with_submissions: exercises.iter().map(|e| e.exercise_id).collect(),
+        pages_with_submissions: exercises.iter().map(|e| e.page_id).collect(),
+        modules_with_completions: modules.into_iter().collect(),
+    })
+}
 
 /// What the caller has already loaded of the course a changeset's risk and publish blockers are
 /// judged on.
@@ -104,215 +127,289 @@ pub fn classify(
     activity: &StudentActivity,
     now: DateTime<Utc>,
 ) -> HashMap<EntityKey, Vec<RiskReason>> {
-    let mut reasons: HashMap<EntityKey, Vec<RiskReason>> = HashMap::new();
     if !live.is_live() {
-        return reasons;
+        return HashMap::new();
     }
-    let mut reason = |key: EntityKey, reason: RiskReason| {
-        reasons.entry(key).or_default().push(reason);
+    let mut classifier = Classifier {
+        live,
+        staged,
+        activity,
+        now,
+        reasons: HashMap::new(),
     };
-    let chapter_is_open = |chapter_id: Uuid| {
+    let pages_losing_submissions = classifier.classify_pages();
+    classifier.classify_chapters(&pages_losing_submissions);
+    classifier.classify_exercise_deadlines();
+    classifier.classify_modules();
+    classifier.classify_settings();
+    classifier.reasons
+}
+
+/// The state of one [`classify`] call. The rule families run in a fixed order, since an entity's
+/// reasons are compared with the stored ones as a list.
+struct Classifier<'a> {
+    live: &'a CourseState,
+    staged: &'a CourseState,
+    activity: &'a StudentActivity,
+    now: DateTime<Utc>,
+    reasons: HashMap<EntityKey, Vec<RiskReason>>,
+}
+
+impl Classifier<'_> {
+    fn add(&mut self, entity_type: ContentEntityType, entity_id: Uuid, reason: RiskReason) {
+        self.reasons
+            .entry(EntityKey::new(entity_type, entity_id))
+            .or_default()
+            .push(reason);
+    }
+
+    fn chapter_is_open(&self, chapter_id: Uuid) -> bool {
         crate::chapters::is_open_at(
-            live.chapters
+            self.live
+                .chapters
                 .iter()
                 .find(|c| c.id == chapter_id)
                 .and_then(|c| c.opens_at),
-            now,
+            self.now,
         )
-    };
-    // Students can see the page now.
-    let page_is_live = |page_id: Uuid| {
-        live.page(page_id)
-            .is_none_or(|page| !page.hidden && page.chapter_id.is_none_or(&chapter_is_open))
-    };
-
-    let removed_pages: HashSet<Uuid> = live
-        .pages
-        .iter()
-        .filter(|page| staged.page(page.id).is_none())
-        .map(|page| page.id)
-        .collect();
-    // An exercise moved elsewhere keeps its blocks' client ids, so only blocks gone from every
-    // changed page count as removed.
-    let mut changed_pages: HashSet<Uuid> = removed_pages.clone();
-    let mut staged_blocks: HashSet<Uuid> = HashSet::new();
-    for page in staged.pages_changed_since(live) {
-        changed_pages.insert(page.id);
-        walk(&page.content, &mut |block, _| {
-            staged_blocks.insert(block.client_id);
-        });
     }
-    let mut removed_with_submissions: Vec<(Uuid, Uuid)> = Vec::new();
-    for page_id in &changed_pages {
-        if let Some(page) = live.page(*page_id) {
+
+    /// Students can see the page now.
+    fn page_is_live(&self, page_id: Uuid) -> bool {
+        self.live.page(page_id).is_none_or(|page| {
+            !page.hidden
+                && page
+                    .chapter_id
+                    .is_none_or(|chapter_id| self.chapter_is_open(chapter_id))
+        })
+    }
+
+    /// Removed pages and exercises with submissions. Returns the pages that lose submissions.
+    fn classify_pages(&mut self) -> HashSet<Uuid> {
+        let removed_pages: HashSet<Uuid> = self
+            .live
+            .pages
+            .iter()
+            .filter(|page| self.staged.page(page.id).is_none())
+            .map(|page| page.id)
+            .collect();
+        // An exercise moved elsewhere keeps its blocks' client ids, so only blocks gone from every
+        // changed page count as removed.
+        let mut changed_pages: HashSet<Uuid> = removed_pages.clone();
+        let mut staged_blocks: HashSet<Uuid> = HashSet::new();
+        for page in self.staged.pages_changed_since(self.live) {
+            changed_pages.insert(page.id);
             walk(&page.content, &mut |block, _| {
-                if !staged_blocks.contains(&block.client_id)
-                    && let Some(exercise_id) = block.exercise_id()
-                    && activity.exercises_with_submissions.contains(&exercise_id)
-                {
-                    removed_with_submissions.push((exercise_id, page.id));
-                }
+                staged_blocks.insert(block.client_id);
             });
         }
-    }
-    let pages_losing_submissions: HashSet<Uuid> = removed_with_submissions
-        .iter()
-        .map(|(_, page)| *page)
-        .collect();
-    for (exercise_id, page) in removed_with_submissions {
-        if removed_pages.contains(&page) || !page_is_live(page) {
-            continue;
+        let mut removed_with_submissions: Vec<(Uuid, Uuid)> = Vec::new();
+        for page_id in &changed_pages {
+            if let Some(page) = self.live.page(*page_id) {
+                walk(&page.content, &mut |block, _| {
+                    if !staged_blocks.contains(&block.client_id)
+                        && let Some(exercise_id) = block.exercise_id()
+                        && self
+                            .activity
+                            .exercises_with_submissions
+                            .contains(&exercise_id)
+                    {
+                        removed_with_submissions.push((exercise_id, page.id));
+                    }
+                });
+            }
         }
-        reason(
-            (ContentEntityType::Page, page),
-            RiskReason::ExerciseWithSubmissionsRemoved { exercise_id },
-        );
-    }
+        let pages_losing_submissions: HashSet<Uuid> = removed_with_submissions
+            .iter()
+            .map(|(_, page)| *page)
+            .collect();
+        for (exercise_id, page) in removed_with_submissions {
+            if removed_pages.contains(&page) || !self.page_is_live(page) {
+                continue;
+            }
+            self.add(
+                ContentEntityType::Page,
+                page,
+                RiskReason::ExerciseWithSubmissionsRemoved { exercise_id },
+            );
+        }
 
-    for page in &live.pages {
-        let page = page.id;
-        if !removed_pages.contains(&page) || !page_is_live(page) {
-            continue;
-        }
-        reason(
-            (ContentEntityType::Page, page),
-            if pages_losing_submissions.contains(&page) {
-                RiskReason::PageWithSubmissionsRemoved
-            } else {
-                RiskReason::VisiblePageRemoved
-            },
-        );
-    }
-
-    for live_chapter in &live.chapters {
-        let chapter = live_chapter.id;
-        if !chapter_is_open(chapter) {
-            continue;
-        }
-        let Some(staged_chapter) = staged.chapters.iter().find(|c| c.id == chapter) else {
-            let has_submissions = live.pages.iter().any(|page| {
-                page.chapter_id == Some(chapter) && pages_losing_submissions.contains(&page.id)
-            });
-            reason(
-                (ContentEntityType::Chapter, chapter),
-                if has_submissions {
-                    RiskReason::ChapterWithSubmissionsRemoved
+        for page in &self.live.pages {
+            let page = page.id;
+            if !removed_pages.contains(&page) || !self.page_is_live(page) {
+                continue;
+            }
+            self.add(
+                ContentEntityType::Page,
+                page,
+                if pages_losing_submissions.contains(&page) {
+                    RiskReason::PageWithSubmissionsRemoved
                 } else {
-                    RiskReason::OpenChapterRemoved
+                    RiskReason::VisiblePageRemoved
                 },
             );
-            continue;
-        };
-        match (live_chapter.deadline, staged_chapter.deadline) {
-            (Some(before), Some(after)) if after < before => reason(
-                (ContentEntityType::Chapter, chapter),
-                RiskReason::DeadlineMovedEarlier { before, after },
-            ),
-            (None, Some(deadline)) => reason(
-                (ContentEntityType::Chapter, chapter),
-                RiskReason::DeadlineAddedToOpenChapter { deadline },
-            ),
-            _ => {}
         }
-        // The chapter is open now, so only an opening time still ahead closes it.
-        if staged_chapter.opens_at != live_chapter.opens_at
-            && let Some(opens_at) = staged_chapter.opens_at.filter(|after| *after > now)
-        {
-            reason(
-                (ContentEntityType::Chapter, chapter),
-                RiskReason::OpeningMovedLater { opens_at },
-            );
+        pages_losing_submissions
+    }
+
+    /// Removed open chapters, and deadlines and openings of open chapters.
+    fn classify_chapters(&mut self, pages_losing_submissions: &HashSet<Uuid>) {
+        for live_chapter in &self.live.chapters {
+            let chapter = live_chapter.id;
+            if !self.chapter_is_open(chapter) {
+                continue;
+            }
+            let Some(staged_chapter) = self.staged.chapters.iter().find(|c| c.id == chapter) else {
+                let has_submissions = self.live.pages.iter().any(|page| {
+                    page.chapter_id == Some(chapter) && pages_losing_submissions.contains(&page.id)
+                });
+                self.add(
+                    ContentEntityType::Chapter,
+                    chapter,
+                    if has_submissions {
+                        RiskReason::ChapterWithSubmissionsRemoved
+                    } else {
+                        RiskReason::OpenChapterRemoved
+                    },
+                );
+                continue;
+            };
+            match (live_chapter.deadline, staged_chapter.deadline) {
+                (Some(before), Some(after)) if after < before => self.add(
+                    ContentEntityType::Chapter,
+                    chapter,
+                    RiskReason::DeadlineMovedEarlier { before, after },
+                ),
+                (None, Some(deadline)) => self.add(
+                    ContentEntityType::Chapter,
+                    chapter,
+                    RiskReason::DeadlineAddedToOpenChapter { deadline },
+                ),
+                _ => {}
+            }
+            // The chapter is open now, so only an opening time still ahead closes it.
+            if staged_chapter.opens_at != live_chapter.opens_at
+                && let Some(opens_at) = staged_chapter.opens_at.filter(|after| *after > self.now)
+            {
+                self.add(
+                    ContentEntityType::Chapter,
+                    chapter,
+                    RiskReason::OpeningMovedLater { opens_at },
+                );
+            }
         }
     }
 
-    let staged_exercises: BTreeMap<Uuid, Uuid> = staged.exercise_page_ids().into_iter().collect();
-    let live_exercise_pages = live.exercise_page_ids();
-    for (exercise_id, page) in staged_exercises {
-        let (Some(live_deadline), Some(staged_deadline)) = (
-            live.exercise_deadlines.get(&exercise_id),
-            staged.exercise_deadlines.get(&exercise_id),
-        ) else {
-            continue;
-        };
-        let Some(live_page) = live_exercise_pages
-            .get(&exercise_id)
-            .copied()
-            .or_else(|| live.exercise(exercise_id).map(|exercise| exercise.page_id))
-            .and_then(|id| live.page(id))
-        else {
-            continue;
-        };
-        let is_open = match live_deadline.chapter_id.or(live_page.chapter_id) {
-            Some(chapter) => !live_page.hidden && chapter_is_open(chapter),
-            None => page_is_live(live_page.id),
-        };
-        if live_deadline.own == staged_deadline.own || !is_open {
-            continue;
-        }
-        match (
-            live.effective_exercise_deadline(exercise_id),
-            staged.effective_exercise_deadline(exercise_id),
-        ) {
-            (Some(before), Some(after)) if after < before => reason(
-                (ContentEntityType::Page, page),
-                RiskReason::ExerciseDeadlineMovedEarlier {
-                    exercise_id,
-                    before,
-                    after,
-                },
-            ),
-            (None, Some(deadline)) => reason(
-                (ContentEntityType::Page, page),
-                RiskReason::ExerciseDeadlineAdded {
-                    exercise_id,
-                    deadline,
-                },
-            ),
-            _ => {}
+    /// Own deadlines of exercises students can answer now.
+    fn classify_exercise_deadlines(&mut self) {
+        let staged_exercises: BTreeMap<Uuid, Uuid> =
+            self.staged.exercise_page_ids().into_iter().collect();
+        let live_exercise_pages = self.live.exercise_page_ids();
+        for (exercise_id, page) in staged_exercises {
+            let (Some(live_deadline), Some(staged_deadline)) = (
+                self.live.exercise_deadlines.get(&exercise_id),
+                self.staged.exercise_deadlines.get(&exercise_id),
+            ) else {
+                continue;
+            };
+            let Some(live_page) = live_exercise_pages
+                .get(&exercise_id)
+                .copied()
+                .or_else(|| {
+                    self.live
+                        .exercise(exercise_id)
+                        .map(|exercise| exercise.page_id)
+                })
+                .and_then(|id| self.live.page(id))
+            else {
+                continue;
+            };
+            let is_open = match live_deadline.chapter_id.or(live_page.chapter_id) {
+                Some(chapter) => !live_page.hidden && self.chapter_is_open(chapter),
+                None => self.page_is_live(live_page.id),
+            };
+            if live_deadline.own == staged_deadline.own || !is_open {
+                continue;
+            }
+            match (
+                self.live.effective_exercise_deadline(exercise_id),
+                self.staged.effective_exercise_deadline(exercise_id),
+            ) {
+                (Some(before), Some(after)) if after < before => self.add(
+                    ContentEntityType::Page,
+                    page,
+                    RiskReason::ExerciseDeadlineMovedEarlier {
+                        exercise_id,
+                        before,
+                        after,
+                    },
+                ),
+                (None, Some(deadline)) => self.add(
+                    ContentEntityType::Page,
+                    page,
+                    RiskReason::ExerciseDeadlineAdded {
+                        exercise_id,
+                        deadline,
+                    },
+                ),
+                _ => {}
+            }
         }
     }
 
-    for live_module in &live.modules {
-        let module = live_module.id;
-        let is_policy_changed =
-            staged
+    /// Completion policies of modules with completions.
+    fn classify_modules(&mut self) {
+        for live_module in &self.live.modules {
+            let module = live_module.id;
+            let is_policy_changed = self
+                .staged
                 .modules
                 .iter()
                 .find(|m| m.id == module)
                 .is_some_and(|staged_module| {
                     staged_module.completion_policy != live_module.completion_policy
                 });
-        if is_policy_changed && activity.modules_with_completions.contains(&module) {
-            reason(
-                (ContentEntityType::Module, module),
-                RiskReason::CompletionPolicyChangedAfterCompletions,
-            );
+            if is_policy_changed && self.activity.modules_with_completions.contains(&module) {
+                self.add(
+                    ContentEntityType::Module,
+                    module,
+                    RiskReason::CompletionPolicyChangedAfterCompletions,
+                );
+            }
         }
     }
 
-    let settings_key = (ContentEntityType::CourseSettings, live.course_id());
-    if staged
-        .settings
-        .base_module_completion_requires_n_submodule_completions
-        != live
+    /// The course's completion requirement and chapter locking.
+    fn classify_settings(&mut self) {
+        let course_id = self.live.course_id();
+        if self
+            .staged
             .settings
             .base_module_completion_requires_n_submodule_completions
-        && !activity.modules_with_completions.is_empty()
-    {
-        reason(
-            settings_key,
-            RiskReason::CompletionRequirementChangedAfterCompletions,
-        );
+            != self
+                .live
+                .settings
+                .base_module_completion_requires_n_submodule_completions
+            && !self.activity.modules_with_completions.is_empty()
+        {
+            self.add(
+                ContentEntityType::CourseSettings,
+                course_id,
+                RiskReason::CompletionRequirementChangedAfterCompletions,
+            );
+        }
+        if self.staged.settings.chapter_locking_enabled
+            != self.live.settings.chapter_locking_enabled
+        {
+            self.add(
+                ContentEntityType::CourseSettings,
+                course_id,
+                RiskReason::ChapterLockingToggled {
+                    is_enabled: self.staged.settings.chapter_locking_enabled,
+                },
+            );
+        }
     }
-    if staged.settings.chapter_locking_enabled != live.settings.chapter_locking_enabled {
-        reason(
-            settings_key,
-            RiskReason::ChapterLockingToggled {
-                is_enabled: staged.settings.chapter_locking_enabled,
-            },
-        );
-    }
-    reasons
 }
 
 /// A changeset's risk reasons classified again.

@@ -1,3 +1,5 @@
+//! Publishing a changeset to the live course.
+
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 
@@ -12,21 +14,22 @@ use crate::{
     agent_changesets::{self, AgentChangeset, AgentChangesetStatus},
     courses::{Course, TextEmbeddings},
     entity_history::{self, HistoryAuthor},
+    error::missing_model_error,
     exercise_service_info::ExerciseServiceInfoApi,
     feedback,
     library::{
         agent_changesets::{
+            conflicts::{PublishConflict, conflicts_of},
             course_state::{
                 CourseParts, PublishBlocker, copy_course_default_review_config, load_live_course,
             },
+            locking::{ChangedSinceReview, LockRejection, lock_open_changeset},
             risk::{ChangesetState, reclassify},
-            staging::{ChangedSinceReview, LockRejection, lock_open_changeset},
         },
         entity_snapshots::{
-            self, ChapterSnapshot, ContentEntity, ContentEntityType,
-            CourseDefaultReviewConfigSnapshot, CourseSettingsSnapshot, EntityKey, EntityRef,
-            EntitySnapshot, GlossaryTermSnapshot, ModuleSnapshot, PageSnapshot, ReferenceSnapshot,
-            with_snapshot_type,
+            ChapterSnapshot, ContentEntity, ContentEntityType, CourseDefaultReviewConfigSnapshot,
+            CourseSettingsSnapshot, EntityKey, EntityRef, EntitySnapshot, GlossaryTermSnapshot,
+            ModuleSnapshot, PageSnapshot, ReferenceSnapshot, with_snapshot_type,
         },
     },
     page_language_groups,
@@ -34,19 +37,8 @@ use crate::{
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfiguration,
     prelude::*,
     proposed_page_edits,
+    url_redirections::CreatedRedirect,
 };
-
-/// A staged entity whose live state changed after it was staged.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-pub struct PublishConflict {
-    #[serde(flatten)]
-    pub entity: EntityRef,
-    /// When the live entity was last changed, if its history knows.
-    pub last_changed_at: Option<DateTime<Utc>>,
-    pub last_changed_by_user_id: Option<Uuid>,
-    /// The agent client of the last change; `None` for the web UI or when unknown.
-    pub last_changed_via_client: Option<String>,
-}
 
 /// Why a publish was refused. Nothing was written.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
@@ -84,8 +76,6 @@ impl From<LockRejection> for PublishRejection {
         }
     }
 }
-
-pub use crate::url_redirections::CreatedRedirect;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "outcome", rename_all = "snake_case")]
@@ -135,46 +125,9 @@ async fn lock_live_rows(
             .map(|entity| entity.entity_id)
             .collect();
         ids.sort();
-        with_snapshot_type!(entity_type, T => T::lock_live(conn, &ids).await?);
+        with_snapshot_type!(entity_type, T => T::lock_rows(conn, &ids).await?);
     }
     Ok(())
-}
-
-/// The staged entities whose live state no longer matches `bases`, the states they were staged
-/// on.
-pub(super) async fn conflicts_of(
-    conn: &mut PgConnection,
-    entities: &[AgentChangesetEntity],
-    bases: &HashMap<EntityKey, EntitySnapshot>,
-) -> ModelResult<Vec<PublishConflict>> {
-    let keys: Vec<_> = entities.iter().map(AgentChangesetEntity::key).collect();
-    let mut live = entity_snapshots::load_live_many(conn, &keys).await?;
-    let mut conflicts = Vec::new();
-    for key in keys {
-        let live = live.remove(&key).flatten();
-        conflicts.extend(conflict_with_live(conn, key, bases.get(&key), live.as_ref()).await?);
-    }
-    Ok(conflicts)
-}
-
-/// The conflict of a staged entity whose live state, `live`, no longer matches `base`, the state
-/// it was staged on; `None` if it still matches.
-async fn conflict_with_live(
-    conn: &mut PgConnection,
-    key: EntityKey,
-    base: Option<&EntitySnapshot>,
-    live: Option<&EntitySnapshot>,
-) -> ModelResult<Option<PublishConflict>> {
-    if base == live {
-        return Ok(None);
-    }
-    let version = entity_history::latest_version(conn, key.1, None).await?;
-    Ok(Some(PublishConflict {
-        entity: EntityRef::of(key, live, base),
-        last_changed_at: version.as_ref().map(|v| v.created_at),
-        last_changed_by_user_id: version.as_ref().map(|v| v.author_user_id),
-        last_changed_via_client: version.and_then(|v| v.agent_client_name),
-    }))
 }
 
 /// Why publishing stops before writing anything.
@@ -206,43 +159,48 @@ pub async fn publish(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<PublishOutcome> {
-    let embeddings = embed_staged_audiences(conn, changeset_id, app_conf).await?;
+    let embeddings = embed_staged_settings(conn, changeset_id, app_conf).await?;
     let mut tx = conn.begin().await?;
     let changeset =
         match lock_open_changeset(&mut tx, changeset_id, options.reviewed_revision).await? {
             Ok(changeset) => changeset,
             Err(rejection) => {
+                tx.rollback().await?;
                 return Ok(PublishOutcome::Rejected {
                     rejection: rejection.into(),
                 });
             }
         };
     let course = crate::courses::get_course(&mut tx, changeset.course_id).await?;
-    let (entities, bases) = match check_publishable(&mut tx, &changeset, &course, options).await? {
+    let publishable = match check_publishable(&mut tx, &changeset, &course, options).await? {
         Ok(publishable) => publishable,
         Err(refusal) => {
             if refusal.keeps_reclassification {
                 tx.commit().await?;
+            } else {
+                tx.rollback().await?;
             }
             return Ok(PublishOutcome::Rejected {
                 rejection: refusal.rejection,
             });
         }
     };
-    let written = write_staged(
-        &mut tx,
-        &changeset,
-        &course,
-        StagedWrites::of(&entities, &bases)?,
+    let context = PublishContext {
+        changeset: &changeset,
+        course: &course,
         app_conf,
-        &embeddings,
-        &spec_fetcher,
-        &fetch_service_info,
-    )
-    .await;
+        embeddings: &embeddings,
+        spec_fetcher: &spec_fetcher,
+        fetch_service_info: &fetch_service_info,
+    };
+    let writes = StagedWrites::of(&publishable.entities, &publishable.bases)?;
+    let written = write_staged(&mut tx, &context, writes).await;
     let redirects = match written {
         Ok(redirects) => redirects,
-        Err(stop) => return stop.into_outcome(),
+        Err(stop) => {
+            tx.rollback().await?;
+            return stop.into_outcome();
+        }
     };
     let changeset = agent_changesets::mark_published(&mut tx, changeset_id).await?;
     // The uniqueness constraints `write_staged` defers are checked only now.
@@ -255,47 +213,45 @@ pub async fn publish(
     })
 }
 
-/// Embeds the audiences the changeset's staged course settings add or change; see
-/// [`TextEmbeddings`].
-async fn embed_staged_audiences(
+/// Embeds the texts the changeset's staged course settings add or change; see [`TextEmbeddings`].
+async fn embed_staged_settings(
     conn: &mut PgConnection,
     changeset_id: Uuid,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<TextEmbeddings> {
-    let entities = agent_changeset_entities::get_by_changeset_id(conn, changeset_id).await?;
-    let keys: Vec<EntityKey> = entities
-        .iter()
-        .filter(|entity| entity.entity_type == ContentEntityType::CourseSettings)
-        .map(AgentChangesetEntity::key)
+    let keys: Vec<EntityKey> = agent_changesets::get_by_id(conn, changeset_id)
+        .await
+        .optional()?
+        .map(|changeset| EntityKey::new(ContentEntityType::CourseSettings, changeset.course_id))
+        .into_iter()
         .collect();
+    let entities = agent_changeset_entities::get_by_keys(conn, changeset_id, &keys).await?;
     let bases = agent_changeset_entities::get_bases(conn, changeset_id, &keys).await?;
     let texts = written::<CourseSettingsSnapshot>(&entities, &bases)
         .into_iter()
-        .flat_map(|(settings, base)| {
-            let base_audiences = base.map_or(&[][..], |base| &base.audiences);
-            crate::courses::changed_audiences(&settings.audiences, base_audiences).1
+        .flat_map(|(settings, base)| match base {
+            Some(base) => crate::courses::changed_settings_texts(settings, base),
+            None => crate::courses::settings_texts(settings),
         })
         .collect();
     TextEmbeddings::create(app_conf, texts).await
 }
 
+/// A changeset that may be published: its staged rows and the bases they were staged on.
+struct Publishable {
+    entities: Vec<AgentChangesetEntity>,
+    bases: HashMap<EntityKey, EntitySnapshot>,
+}
+
 /// Locks what the changeset writes and checks that it may be published: no conflicts, no risk the
-/// publisher hasn't reviewed, no exercise services the publisher may not add. Returns the staged
-/// rows with their risk reasons classified again, and their bases.
+/// publisher hasn't reviewed, no exercise services the publisher may not add. The risk reasons it
+/// classifies again are stored, not put in the returned rows.
 async fn check_publishable(
     conn: &mut PgConnection,
     changeset: &AgentChangeset,
     course: &Course,
     options: PublishOptions,
-) -> ModelResult<
-    Result<
-        (
-            Vec<AgentChangesetEntity>,
-            HashMap<EntityKey, EntitySnapshot>,
-        ),
-        Refusal,
-    >,
-> {
+) -> ModelResult<Result<Publishable, Refusal>> {
     let entities = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
     // Writing pages fetches exercise specs from their services under these locks: which tasks
     // need a new spec depends on the tasks the locked pages have.
@@ -374,7 +330,7 @@ async fn check_publishable(
             }));
         }
     }
-    Ok(Ok((entities, bases)))
+    Ok(Ok(Publishable { entities, bases }))
 }
 
 /// The staged entities of a changeset by what publishing does with them.
@@ -421,12 +377,10 @@ impl<'a> StagedWrites<'a> {
         let course_settings = written::<CourseSettingsSnapshot>(entities, bases)
             .into_iter()
             .map(|(settings, live)| {
-                let live = live.ok_or_else(|| {
-                    model_err!(
-                        Generic,
-                        "Course settings were staged without their live state".to_string()
-                    )
-                })?;
+                let live = live.ok_or_else(missing_model_error(
+                    ModelErrorType::Generic,
+                    "Course settings were staged without their live state",
+                ))?;
                 Ok((settings, live))
             })
             .collect::<ModelResult<_>>()?;
@@ -514,9 +468,10 @@ struct Authors {
 
 impl Authors {
     fn of(&self, key: EntityKey) -> ModelResult<HistoryAuthor> {
-        let call_id = self.call_ids.get(&key).ok_or_else(|| {
-            model_err!(Generic, format!("No call of the changeset staged {key:?}"))
-        })?;
+        let call_id = self.call_ids.get(&key).ok_or_else(missing_model_error(
+            ModelErrorType::Generic,
+            format!("No call of the changeset staged {key:?}"),
+        ))?;
         Ok(HistoryAuthor::agent(self.user_id, *call_id))
     }
 
@@ -526,7 +481,7 @@ impl Authors {
         conn: &mut PgConnection,
         snapshot: &T,
     ) -> ModelResult<()> {
-        let author = self.of((T::ENTITY_TYPE, snapshot.id()))?;
+        let author = self.of(EntityKey::new(T::ENTITY_TYPE, snapshot.id()))?;
         entity_history::record_saved(conn, &[snapshot.clone().into()], author).await
     }
 }
@@ -580,19 +535,36 @@ fn entity_ref<T: ContentEntity>(snapshot: &T) -> Option<EntityRef> {
     })
 }
 
+/// What writing a changeset's staged entities uses besides the entities.
+struct PublishContext<'a, S, F> {
+    changeset: &'a AgentChangeset,
+    course: &'a Course,
+    app_conf: &'a ApplicationConfiguration,
+    /// Made before the publish transaction; see [`TextEmbeddings`].
+    embeddings: &'a TextEmbeddings,
+    spec_fetcher: &'a S,
+    fetch_service_info: &'a F,
+}
+
 /// Writes the staged entities in an order where nothing points at what doesn't exist yet, records
 /// their history and returns the redirects created from changed page paths.
-#[allow(clippy::too_many_arguments)]
-async fn write_staged(
+async fn write_staged<S, F>(
     conn: &mut PgConnection,
-    changeset: &AgentChangeset,
-    course: &Course,
+    context: &PublishContext<'_, S, F>,
     writes: StagedWrites<'_>,
-    app_conf: &ApplicationConfiguration,
-    embeddings: &TextEmbeddings,
-    spec_fetcher: &impl SpecFetcher,
-    fetch_service_info: &impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-) -> Result<Vec<CreatedRedirect>, WriteStop> {
+) -> Result<Vec<CreatedRedirect>, WriteStop>
+where
+    S: SpecFetcher,
+    F: Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+{
+    let PublishContext {
+        changeset,
+        course,
+        app_conf,
+        embeddings,
+        spec_fetcher,
+        fetch_service_info,
+    } = *context;
     let authors = Authors {
         user_id: changeset.user_id,
         call_ids: agent_changeset_calls::get_latest_by_entity(conn, changeset.id).await?,
@@ -602,7 +574,7 @@ async fn write_staged(
     crate::courses::defer_structure_constraints(conn).await?;
 
     for module in &writes.modules {
-        let author = authors.of((ContentEntityType::Module, module.id))?;
+        let author = authors.of(EntityKey::new(ContentEntityType::Module, module.id))?;
         saved(
             || entity_ref(*module),
             crate::course_modules::upsert_from_snapshot(conn, module, author.user_id).await,
@@ -635,7 +607,7 @@ async fn write_staged(
             course,
             page,
             live.is_none(),
-            authors.of((ContentEntityType::Page, page.id))?,
+            authors.of(EntityKey::new(ContentEntityType::Page, page.id))?,
             spec_fetcher,
             fetch_service_info,
         )

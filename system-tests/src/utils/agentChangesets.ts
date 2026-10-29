@@ -1,33 +1,22 @@
 import type { Locator, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
-import { storageStatePath } from "./login"
-
 /** The live course `seed_agent_changesets.rs` seeds with AI agent changesets. */
 const AGENT_CHANGESETS_COURSE_ID = "5b0e2a5c-4a26-4c55-9a0c-6f0f8c4f6a31"
 
 export const AGENT_CLIENT_ID = "https://agent.example.com/oauth/client-metadata.json"
 export const AGENT_CLIENT_NAME = "Example Agent"
 
-/** Each test mutates only its own user's changeset or grant, so the specs can run in parallel. */
-export const AGENT_PUBLISHER_EMAIL = "agent-publisher@example.com"
-export const AGENT_DISCARDER_EMAIL = "agent-discarder@example.com"
-export const AGENT_CONFLICTED_EMAIL = "agent-conflicted@example.com"
-export const AGENT_GRANT_HOLDER_EMAIL = "agent-grant-holder@example.com"
-export const AGENT_REVIEW_SETTINGS_EMAIL = "agent-review-settings@example.com"
-
-/** Seeded by `seed_agent_changesets.rs`; `global.setup.spec.ts` stores their sessions. */
-export const AGENT_CHANGESET_USER_EMAILS = [
-  AGENT_PUBLISHER_EMAIL,
-  AGENT_DISCARDER_EMAIL,
-  AGENT_CONFLICTED_EMAIL,
-  AGENT_GRANT_HOLDER_EMAIL,
-  AGENT_REVIEW_SETTINGS_EMAIL,
-] as const
-
-/** Stored session for an agent changeset user; typed so an address the setup skips won't compile. */
-export const agentStorageState = (email: (typeof AGENT_CHANGESET_USER_EMAILS)[number]): string =>
-  storageStatePath(email)
+/**
+ * Existing seed users that `seed_agent_changesets.rs` gives agent changesets or grants. Each test
+ * mutates only its own user's changeset or grant, so the specs can run in parallel.
+ */
+export const AGENT_PUBLISHER_EMAIL = "admin@example.com"
+export const AGENT_CONFLICTED_EMAIL = "teacher@example.com"
+export const AGENT_REVIEW_SETTINGS_EMAIL = "language.teacher@example.com"
+export const AGENT_GRANT_HOLDER_EMAIL = "creator@example.com"
+/** Has no seeded grant, so approving the consent screen touches no other test's grant. */
+export const AGENT_CONSENT_EMAIL = "teaching-and-learning-services@example.com"
 
 export const agentChangesetsCourseUrl = (path = "") =>
   `http://project-331.local/manage/courses/${AGENT_CHANGESETS_COURSE_ID}${path}`

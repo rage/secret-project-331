@@ -20,6 +20,7 @@ use crate::guide::GuideTopic;
 pub struct IdArgument(Uuid);
 
 impl IdArgument {
+    /// The id, without the leading `/` it may have been sent with.
     pub fn id(self) -> Uuid {
         self.0
     }

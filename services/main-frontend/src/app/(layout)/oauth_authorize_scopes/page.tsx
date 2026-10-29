@@ -7,11 +7,15 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getOauthConsentInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
+import {
+  approveOauthConsentMutation,
+  denyOauthConsentMutation,
+  getOauthConsentInfoOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type { ConsentInfo, ConsentQuery } from "@/generated/api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { fontWeights } from "@/shared-module/common/styles"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { fontWeights, monospaceFont } from "@/shared-module/common/styles"
 import {
   Button,
   Checkbox,
@@ -33,7 +37,7 @@ const DetailValue: React.FC<{ "data-testid": string; children: string }> = ({
 }) => (
   <span
     className={css`
-      font-family: monospace;
+      font-family: ${monospaceFont};
     `}
     data-testid={testId}
   >
@@ -81,28 +85,38 @@ const ConsentForm: React.FC<ConsentFormProps> = ({ consentInfo, request }) => {
   ]
   const details = optionalDetails.filter((item): item is DescriptionListItem => Boolean(item))
 
+  const redirectOnSuccess = {
+    onSuccess: (res: { redirect_uri?: string | null }) => {
+      if (res.redirect_uri) {
+        window.location.assign(res.redirect_uri)
+      }
+    },
+  }
+  const approveMutation = useToastMutationOptions(
+    approveOauthConsentMutation(),
+    { notify: true, method: "POST" },
+    redirectOnSuccess,
+  )
+  const denyMutation = useToastMutationOptions(
+    denyOauthConsentMutation(),
+    { notify: true, method: "POST" },
+    redirectOnSuccess,
+  )
+
   const onApprove = handleSubmit(async (values) => {
     const approvedScopes = consentInfo.scopes
       .filter((scope, index) => scope.is_required || values.approved[index])
       .map((scope) => scope.scope)
-    const res = await approveOauthConsent({
-      body: { ...request, scope: approvedScopes.join(" ") },
-    })
-    if (res.redirect_uri) {
-      window.location.assign(res.redirect_uri)
-    }
+    await approveMutation.mutateAsync({ body: { ...request, scope: approvedScopes.join(" ") } })
   })
   const onDeny = async () => {
-    const res = await denyOauthConsent({
+    await denyMutation.mutateAsync({
       body: {
         client_id: request.client_id,
         redirect_uri: request.redirect_uri,
         state: request.state,
       },
     })
-    if (res.redirect_uri) {
-      window.location.assign(res.redirect_uri)
-    }
   }
 
   return (

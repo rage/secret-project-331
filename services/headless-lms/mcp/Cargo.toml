@@ -13,7 +13,11 @@ headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 
 # MCP protocol types only; dispatch is ours. Upgrades are deliberate because rmcp moves fast.
-rmcp = { version = "=3.7.0", default-features = false, features = ["request-state", "schemars", "elicitation"] }
+rmcp = { version = "=3.7.0", default-features = false, features = [
+  "request-state",
+  "schemars",
+  "elicitation",
+] }
 # JSON Schema generation for tool input schemas.
 schemars = { version = "1.2.2", features = ["chrono04", "uuid1"] }
 # OpenAPI schemas of the CMS validator protocol, which the CMS's generated types are built from.

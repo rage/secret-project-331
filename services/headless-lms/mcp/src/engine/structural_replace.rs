@@ -114,12 +114,13 @@ pub fn structural_replace(
                         .any(|a| a.len() < path.len() && path.starts_with(a))
                 });
             }
-            Action::Unwrap => page_matches
-                .retain(|(_, path)| !blocks::get(page.blocks, path).inner_blocks.is_empty()),
+            Action::Unwrap => page_matches.retain(|(_, path)| {
+                blocks::get(page.blocks, path).is_ok_and(|block| !block.inner_blocks.is_empty())
+            }),
             _ => {}
         }
         for (block_id, path) in &page_matches {
-            let block = blocks::get(page.blocks, path);
+            let block = blocks::get(page.blocks, path)?;
             matches.push(page.key.block_match(
                 block,
                 format!("/{block_id}"),

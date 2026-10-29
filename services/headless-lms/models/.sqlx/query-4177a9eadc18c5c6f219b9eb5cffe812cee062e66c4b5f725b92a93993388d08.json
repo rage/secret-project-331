@@ -1,0 +1,225 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT t.token_type,\n  t.scopes,\n  t.audience,\n  t.expires_at,\n  t.user_id,\n  c.id AS client_id,\n  c.client_name,\n  c.bearer_allowed,\n  c.metadata_document_fetched_at IS NOT NULL AS \"is_metadata_document_client!\",\n  u.id AS \"active_user_id?\",\n  u.created_at AS \"user_created_at?\",\n  u.updated_at AS \"user_updated_at?\",\n  u.upstream_id AS \"user_upstream_id?\",\n  u.email_domain AS \"user_email_domain?\",\n  g.id AS \"grant_id?\",\n  g.scopes AS \"grant_scopes?\",\n  g.last_used_at AS \"grant_last_used_at?\"\nFROM oauth_access_tokens t\n  JOIN oauth_clients c ON c.id = t.client_id\n  AND c.deleted_at IS NULL\n  LEFT JOIN users u ON u.id = t.user_id\n  AND u.deleted_at IS NULL\n  LEFT JOIN oauth_user_client_scopes g ON g.user_id = t.user_id\n  AND g.client_id = t.client_id\nWHERE t.digest = $1\n  AND t.expires_at > now()\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_type",
+        "type_info": {
+          "Custom": {
+            "name": "token_type",
+            "kind": {
+              "Enum": [
+                "Bearer",
+                "DPoP"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "token_type"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "scopes",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "scopes"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "audience",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "audience"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "client_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "client_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "client_name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "bearer_allowed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "bearer_allowed"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "is_metadata_document_client!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "active_user_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "user_created_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "user_updated_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "user_upstream_id?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "upstream_id"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "user_email_domain?",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "users",
+            "name": "email_domain"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "grant_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_user_client_scopes",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "grant_scopes?",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_user_client_scopes",
+            "name": "scopes"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "grant_last_used_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_user_client_scopes",
+            "name": "last_used_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      null,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "4177a9eadc18c5c6f219b9eb5cffe812cee062e66c4b5f725b92a93993388d08"
+}

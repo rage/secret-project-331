@@ -30,6 +30,7 @@ pub enum McpScope {
 }
 
 impl McpScope {
+    /// Every scope.
     pub const ALL: [McpScope; 4] = [
         McpScope::MaterialRead,
         McpScope::MaterialStage,
@@ -37,6 +38,7 @@ impl McpScope {
         McpScope::SettingsWrite,
     ];
 
+    /// The scope as it appears in OAuth requests and tokens.
     pub fn as_str(self) -> &'static str {
         match self {
             McpScope::MaterialRead => "material:read",
@@ -46,10 +48,12 @@ impl McpScope {
         }
     }
 
+    /// [`Self::ALL`] as OAuth scope strings.
     pub fn all_strs() -> [&'static str; 4] {
         Self::ALL.map(Self::as_str)
     }
 
+    /// The scope `scope` names; `None` for anything else.
     pub fn parse(scope: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|s| s.as_str() == scope)
     }
@@ -89,6 +93,7 @@ pub struct McpPrincipal {
 }
 
 impl McpPrincipal {
+    /// Whether the token carries `scope`.
     pub fn has_scope(&self, scope: McpScope) -> bool {
         self.scopes.contains(&scope)
     }

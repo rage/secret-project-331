@@ -16,14 +16,16 @@ use serde_json::{Value, json};
 
 use crate::access::{authorize_course, connection, open_course};
 use crate::snapshots;
-use crate::staging::{self, WriteRequest, WriteSource};
+use crate::staging::{self, WriteMode, WriteRequest, WriteSource};
 use crate::state::McpState;
 use crate::tools::args::{GetHistoryArgs, IdArgument, RevertChangeArgs};
 use crate::tools::{
-    ErrorCode, McpScope, RequestContext, ToolError, ToolHandler, ToolOutcome, ToolResult,
+    McpScope, RequestContext, ToolError, ToolErrorCode, ToolHandler, ToolOutcome, ToolResult,
 };
 
+/// Handler of the `get_history` tool.
 pub struct GetHistory;
+/// Handler of the `revert_change` tool.
 pub struct RevertChange;
 
 const DEFAULT_HISTORY_LIMIT: u32 = 20;
@@ -134,7 +136,7 @@ impl ToolHandler<McpState> for RevertChange {
             } => (tool_name, entities, current),
             RevertPlan::Conflicts(conflicts) => {
                 return Err(ToolError::refused(
-                    ErrorCode::RevertConflict,
+                    ToolErrorCode::RevertConflict,
                     "Nothing was staged: these entities changed again after the call, so reverting it would undo later changes too.",
                     json!({"conflicts": conflicts}),
                 ));
@@ -161,7 +163,7 @@ impl ToolHandler<McpState> for RevertChange {
                 ..WriteRequest::new(
                     json!({"call": call_id}),
                     format!("revert of {tool_name} call {call_id}"),
-                    args.dry_run,
+                    WriteMode::from_dry_run(args.dry_run),
                 )
             },
         )

@@ -3,8 +3,8 @@
 use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::chapters;
-use headless_lms_models::library::agent_changesets::CreatedRedirect;
 use headless_lms_models::pages::normalize_url_path_for_storage;
+use headless_lms_models::url_redirections::CreatedRedirect;
 use headless_lms_utils::strings::slugify;
 use serde::Serialize;
 use uuid::Uuid;

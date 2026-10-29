@@ -21,7 +21,7 @@ const columnCss = css`
   border: 1px solid ${baseTheme.colors.gray[100]};
   border-radius: 8px;
   padding: 1rem;
-  background: white;
+  background: ${baseTheme.colors.clear[100]};
   overflow: hidden;
 `
 

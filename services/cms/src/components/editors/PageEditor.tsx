@@ -79,7 +79,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
   const pageType = pageTypeOfPage(data.chapter_id ?? null, data.exam_id ?? null, data.url_path)
-  // Course front pages used to edit with the top-level page blocks, so existing ones may hold those.
+  // Existing course front pages may hold top-level page blocks.
   // Turning a course feature off mustn't turn its blocks already on a page into placeholders.
   const knownBlocks = useMemo(
     () =>

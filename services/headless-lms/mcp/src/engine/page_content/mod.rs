@@ -16,8 +16,9 @@ use self::pointer::{PointerWrite, pointer_remove, pointer_write};
 use self::replace_list::{ListEntry, parse_list_entries, parse_list_entry, parse_new_block};
 use super::blocks::{self, ExerciseCopy, is_exercise, is_exercise_part};
 use super::error::{EditError, EditErrorCode, Warning, WarningCode};
-use super::labels::{ItemRef, Labels, parse_item_ref};
-use super::op::{Op, Position, Transfer};
+use super::labels::Labels;
+use super::op::{Op, PatchTarget, Position, Transfer};
+use super::path::{ItemRef, parse_item_ref};
 use super::{CreatedIdLog, CreatedIds, PageDocument, value_items};
 use crate::ids::IdGenerator;
 use crate::text;
@@ -210,15 +211,15 @@ impl<'c> Editor<'c> {
                 label,
             } => self.split(path, at_text, label.as_deref()),
             Op::Merge { path, from } => self.merge(path, from),
-            Op::Reorder { .. } => unreachable!("parse_ops rejects {} for this tool", op.kind()),
+            Op::Reorder { .. } => Err(PatchTarget::PageContent.rejected_op(op.kind())),
         }
     }
 
-    fn block(&self, loc: &Loc) -> &GutenbergBlock {
+    fn block(&self, loc: &Loc) -> Result<&GutenbergBlock, EditError> {
         blocks::get(&self.pages[loc.page].blocks, &loc.path)
     }
 
-    fn block_mut(&mut self, loc: &Loc) -> &mut GutenbergBlock {
+    fn block_mut(&mut self, loc: &Loc) -> Result<&mut GutenbergBlock, EditError> {
         blocks::get_mut(&mut self.pages[loc.page].blocks, &loc.path)
     }
 
@@ -235,10 +236,13 @@ impl<'c> Editor<'c> {
 
     fn siblings(&self, page: usize, parent_path: &[usize]) -> Vec<String> {
         blocks::list(&self.pages[page].blocks, parent_path)
-            .iter()
-            .take(50)
-            .map(|b| format!("/{}", b.client_id))
-            .collect()
+            .map(|list| {
+                list.iter()
+                    .take(50)
+                    .map(|b| format!("/{}", b.client_id))
+                    .collect()
+            })
+            .unwrap_or_default()
     }
 
     /// Fails when `loc` is an exercise block's inside, or (with `include_self`) the exercise block.
@@ -248,7 +252,7 @@ impl<'c> Editor<'c> {
         include_self: bool,
         action: &str,
     ) -> Result<(), EditError> {
-        if blocks::is_in_exercise(&self.pages[loc.page].blocks, &loc.path, include_self) {
+        if blocks::is_in_exercise(&self.pages[loc.page].blocks, &loc.path, include_self)? {
             return Err(exercise_read_only(action));
         }
         Ok(())
@@ -256,16 +260,19 @@ impl<'c> Editor<'c> {
 
     fn insert(&mut self, anchor: Anchor, new_blocks: Vec<GutenbergBlock>) -> Result<(), EditError> {
         let (page, parent_path, index) = self.resolve_anchor(anchor)?;
-        let list = blocks::list_mut(&mut self.pages[page].blocks, &parent_path);
+        let list = blocks::list_mut(&mut self.pages[page].blocks, &parent_path)?;
         for (offset, block) in new_blocks.into_iter().enumerate() {
             list.insert(index + offset, block);
         }
         Ok(())
     }
 
-    fn detach(&mut self, range: &Range) -> Vec<GutenbergBlock> {
-        let list = blocks::list_mut(&mut self.pages[range.page].blocks, &range.parent_path);
-        list.drain(range.start..=range.end).collect()
+    fn detach(&mut self, range: &Range) -> Result<Vec<GutenbergBlock>, EditError> {
+        let list = blocks::list_mut(&mut self.pages[range.page].blocks, &range.parent_path)?;
+        if range.end >= list.len() {
+            return Err(blocks::stale_location());
+        }
+        Ok(list.drain(range.start..=range.end).collect())
     }
 
     fn mark_removed(&mut self, removed: &[GutenbergBlock]) {
@@ -332,7 +339,7 @@ impl<'c> Editor<'c> {
                 let through = self.through(through)?;
                 let range = self.range(id, through)?;
                 self.check_not_in_exercise(&range.first(), false, "remove blocks inside it")?;
-                let removed = self.detach(&range);
+                let removed = self.detach(&range)?;
                 self.mark_removed(&removed);
                 Ok(())
             }
@@ -351,7 +358,7 @@ impl<'c> Editor<'c> {
                 }
                 let loc = self.require(id)?;
                 self.check_not_in_exercise(&loc, true, "change its attributes")?;
-                let block = self.block_mut(&loc);
+                let block = self.block_mut(&loc)?;
                 pointer_remove(&mut block.attributes, &pointer)
             }
             Address::Name(_) => Err(EditError::new(
@@ -362,7 +369,10 @@ impl<'c> Editor<'c> {
                 let (list, description): (&[GutenbergBlock], String) = match address {
                     Address::Children(id) => {
                         let loc = self.require(id)?;
-                        (&self.block(&loc).inner_blocks, format!("/{id}/innerBlocks"))
+                        (
+                            &self.block(&loc)?.inner_blocks,
+                            format!("/{id}/innerBlocks"),
+                        )
                     }
                     _ => (&self.pages[0].blocks, "the page".to_string()),
                 };
@@ -413,7 +423,7 @@ impl<'c> Editor<'c> {
                     ));
                 };
                 check_creatable(name)?;
-                self.block_mut(&loc).name = name.clone();
+                self.block_mut(&loc)?.name = name.clone();
                 Ok(())
             }
             Address::Attribute(id, pointer) => {
@@ -431,7 +441,7 @@ impl<'c> Editor<'c> {
     ) -> Result<(), EditError> {
         let loc = self.require(id)?;
         self.check_not_in_exercise(&loc, true, "change its attributes")?;
-        let block = self.block_mut(&loc);
+        let block = self.block_mut(&loc)?;
         if pointer.is_empty() {
             let Value::Object(attributes) = value else {
                 return Err(EditError::new(
@@ -481,14 +491,17 @@ impl<'c> Editor<'c> {
         let parent = if loc.path.len() == 1 {
             None
         } else {
-            Some(blocks::get(&self.pages[loc.page].blocks, loc.parent_path()).client_id)
+            Some(blocks::get(&self.pages[loc.page].blocks, loc.parent_path())?.client_id)
         };
         let mut entries: Vec<ListEntry> =
-            blocks::list(&self.pages[loc.page].blocks, loc.parent_path())
+            blocks::list(&self.pages[loc.page].blocks, loc.parent_path())?
                 .iter()
                 .map(|b| ListEntry::Stub(b.client_id))
                 .collect();
-        entries[loc.index()] = replacement;
+        let entry = entries
+            .get_mut(loc.index())
+            .ok_or_else(blocks::stale_location)?;
+        *entry = replacement;
         self.replace_list(
             ListRef {
                 page: loc.page,
@@ -545,7 +558,7 @@ impl<'c> Editor<'c> {
         anchor: Anchor,
     ) -> Result<(), EditError> {
         let (_, target_parent_path, _) = self.resolve_anchor(anchor)?;
-        if !target_parent_path.is_empty() && self.range_blocks(range).iter().any(is_exercise) {
+        if !target_parent_path.is_empty() && self.range_blocks(range)?.iter().any(is_exercise) {
             return Err(exercise_must_stay_top_level());
         }
         Ok(())
@@ -553,7 +566,7 @@ impl<'c> Editor<'c> {
 
     fn move_range(&mut self, transfer: &Transfer) -> Result<(), EditError> {
         let (range, target_page, anchor) = self.resolve_transfer(transfer, "move")?;
-        let moved_ids: HashSet<Uuid> = all_client_ids(self.range_blocks(&range))
+        let moved_ids: HashSet<Uuid> = all_client_ids(self.range_blocks(&range)?)
             .into_iter()
             .collect();
         if let Some(anchor_id) = anchor.target_id(|list| list.parent)
@@ -568,7 +581,7 @@ impl<'c> Editor<'c> {
             .with_fix("choose a target outside the moved block or range"));
         }
         self.check_exercises_stay_top_level(&range, anchor)?;
-        let detached = self.detach(&range);
+        let detached = self.detach(&range)?;
         if target_page != range.page {
             let (from_page, to_page) = (self.page_id(range.page), self.page_id(target_page));
             for id in all_client_ids(&detached) {
@@ -586,7 +599,7 @@ impl<'c> Editor<'c> {
         let (range, target_page, anchor) = self.resolve_transfer(transfer, "copy")?;
         self.check_exercises_stay_top_level(&range, anchor)?;
         let (copies, exercise_copies) = blocks::copy_blocks(
-            self.range_blocks(&range),
+            self.range_blocks(&range)?,
             self.ids.generator(),
             self.page_id(target_page),
         );
@@ -603,8 +616,8 @@ impl<'c> Editor<'c> {
             ));
         }
         self.exercise_copies.extend(exercise_copies);
-        if let Some(label) = label {
-            self.labels.define(label, copies[0].client_id)?;
+        if let (Some(label), Some(first)) = (label, copies.first()) {
+            self.labels.define(label, first.client_id)?;
         }
         self.insert(anchor, copies)
     }
@@ -624,7 +637,7 @@ impl<'c> Editor<'c> {
         let through = self.through(through)?;
         let range = self.range(first, through)?;
         self.check_not_in_exercise(&range.first(), false, "wrap blocks inside it")?;
-        if self.range_blocks(&range).iter().any(is_exercise) {
+        if self.range_blocks(&range)?.iter().any(is_exercise) {
             return Err(exercise_must_stay_top_level());
         }
         let object = value.as_object().ok_or_else(|| {
@@ -656,8 +669,8 @@ impl<'c> Editor<'c> {
         if let Some(label) = label {
             self.labels.define(label, container.client_id)?;
         }
-        container.inner_blocks = self.detach(&range);
-        blocks::list_mut(&mut self.pages[range.page].blocks, &range.parent_path)
+        container.inner_blocks = self.detach(&range)?;
+        blocks::list_mut(&mut self.pages[range.page].blocks, &range.parent_path)?
             .insert(range.start, container);
         Ok(())
     }
@@ -666,14 +679,14 @@ impl<'c> Editor<'c> {
         let id = self.block_at(path, 0, "unwrap takes a block path")?;
         let loc = self.require(id)?;
         self.check_not_in_exercise(&loc, true, "unwrap it")?;
-        if self.block(&loc).inner_blocks.is_empty() {
+        if self.block(&loc)?.inner_blocks.is_empty() {
             return Err(EditError::new(
                 EditErrorCode::InvalidValue,
                 format!("/{id} has no inner blocks to unwrap"),
             )
             .with_fix(format!("{{\"op\":\"remove\",\"path\":\"/{id}\"}}")));
         }
-        let list = blocks::list_mut(&mut self.pages[loc.page].blocks, loc.parent_path());
+        let list = blocks::list_mut(&mut self.pages[loc.page].blocks, loc.parent_path())?;
         let container = list.remove(loc.index());
         self.removed.insert(container.client_id, self.ids.op());
         for (offset, child) in container.inner_blocks.into_iter().enumerate() {
@@ -692,7 +705,7 @@ impl<'c> Editor<'c> {
         }
         let loc = self.require(id)?;
         self.check_not_in_exercise(&loc, true, "split it")?;
-        let block = self.block(&loc);
+        let block = self.block(&loc)?;
         let content = text_content(block)?.to_string();
         if !block.inner_blocks.is_empty() {
             return Err(EditError::new(
@@ -773,10 +786,10 @@ impl<'c> Editor<'c> {
         if let Some(label) = label {
             self.labels.define(label, new_id)?;
         }
-        self.block_mut(&loc)
+        self.block_mut(&loc)?
             .attributes
             .insert("content".to_string(), Value::String(first_part));
-        let list = blocks::list_mut(&mut self.pages[loc.page].blocks, loc.parent_path());
+        let list = blocks::list_mut(&mut self.pages[loc.page].blocks, loc.parent_path())?;
         list.insert(loc.index() + 1, second);
         Ok(())
     }
@@ -798,8 +811,8 @@ impl<'c> Editor<'c> {
             )
             .with_details(json!({"siblings_of_path": self.siblings(target_loc.page, target_loc.parent_path())})));
         }
-        let target_block = self.block(&target_loc);
-        let source_block = self.block(&source_loc);
+        let target_block = self.block(&target_loc)?;
+        let source_block = self.block(&source_loc)?;
         if target_block.name != source_block.name {
             return Err(EditError::new(
                 EditErrorCode::NotATextBlock,
@@ -826,13 +839,13 @@ impl<'c> Editor<'c> {
             " "
         };
         let merged = format!("{first}{separator}{second}");
-        self.block_mut(&target_loc)
+        self.block_mut(&target_loc)?
             .attributes
             .insert("content".to_string(), Value::String(merged));
         let list = blocks::list_mut(
             &mut self.pages[source_loc.page].blocks,
             source_loc.parent_path(),
-        );
+        )?;
         let removed = list.remove(source_loc.index());
         self.removed.insert(removed.client_id, self.ids.op());
         Ok(())

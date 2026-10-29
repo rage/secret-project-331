@@ -22,7 +22,7 @@ const ExerciseWarningList: React.FC<ExerciseWarningListProps> = ({ warnings }) =
         border: 1px solid ${baseTheme.colors.gray[300]};
         border-radius: 8px;
         padding: 0.75rem 1rem;
-        background: white;
+        background: ${baseTheme.colors.clear[100]};
       `}
     >
       <h4

@@ -6,9 +6,13 @@ use serde_json::{Map, Value};
 const BASE64_PREFIX: &str = "=?base64?";
 const BASE64_SUFFIX: &str = "?=";
 
+/// Header naming the protocol revision of the request.
 pub(crate) const PROTOCOL_VERSION_HEADER: &str = "mcp-protocol-version";
+/// Header repeating the JSON-RPC method of the body.
 pub(crate) const METHOD_HEADER: &str = "mcp-method";
+/// Header repeating the tool or resource name of the body.
 pub(crate) const NAME_HEADER: &str = "mcp-name";
+/// Prefix of the headers that repeat the arguments a tool promotes to headers.
 pub(crate) const PARAM_HEADER_PREFIX: &str = "mcp-param-";
 
 /// Request headers with lowercase names.

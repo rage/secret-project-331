@@ -1,13 +1,9 @@
 import { expect, test } from "@playwright/test"
 
-import {
-  AGENT_CONFLICTED_EMAIL,
-  agentChangesetsCourseUrl,
-  agentStorageState,
-} from "@/utils/agentChangesets"
+import { AGENT_CONFLICTED_EMAIL, agentChangesetsCourseUrl } from "@/utils/agentChangesets"
 import { openCoursePageInEditor } from "@/utils/manageCoursePages"
 
-test.use({ storageState: agentStorageState(AGENT_CONFLICTED_EMAIL) })
+test.use({ storageState: `src/states/${AGENT_CONFLICTED_EMAIL}.json` })
 
 test("page editor tells about the teacher's unpublished agent changes", async ({ page }) => {
   await test.step("No notice on a page the agent did not change", async () => {

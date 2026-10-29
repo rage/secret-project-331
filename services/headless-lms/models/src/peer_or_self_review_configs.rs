@@ -2,7 +2,7 @@ use futures::future::BoxFuture;
 use url::Url;
 use utoipa::ToSchema;
 
-use crate::error::ensure_version;
+use crate::error::{ensure_version, missing_model_error};
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercises::{self, Exercise},
@@ -396,6 +396,7 @@ pub async fn get_course_material_peer_or_self_review_data(
     }
 }
 
+/// The review configs of the undeleted exercises on the pages.
 pub async fn get_peer_reviews_by_page_ids(
     conn: &mut PgConnection,
     page_ids: &[Uuid],
@@ -739,7 +740,7 @@ RETURNING id,
 
 async fn get_updated_at(conn: &mut PgConnection, config_id: Uuid) -> ModelResult<DateTime<Utc>> {
     let updated_at = sqlx::query_scalar!(
-        "SELECT updated_at FROM peer_or_self_review_configs WHERE id = $1",
+        "SELECT updated_at FROM peer_or_self_review_configs WHERE id = $1 AND deleted_at IS NULL",
         config_id
     )
     .fetch_one(conn)
@@ -757,6 +758,7 @@ pub async fn get_course_default_cms_peer_review_configuration(
         .await
         .optional()?
     else {
+        tx.rollback().await?;
         return Ok(None);
     };
     let peer_or_self_review_questions =
@@ -780,12 +782,10 @@ pub async fn get_course_default_versioned_cms_peer_review(
     let mut tx = conn.begin().await?;
     let configuration = get_course_default_cms_peer_review_configuration(&mut tx, course_id)
         .await?
-        .ok_or_else(|| {
-            model_err!(
-                RecordNotFound,
-                "The course has no default peer review config".to_string()
-            )
-        })?;
+        .ok_or_else(missing_model_error(
+            ModelErrorType::RecordNotFound,
+            "The course has no default peer review config",
+        ))?;
     let updated_at = get_updated_at(&mut tx, configuration.peer_or_self_review_config.id).await?;
     tx.commit().await?;
     Ok(VersionedCmsPeerOrSelfReviewConfiguration {

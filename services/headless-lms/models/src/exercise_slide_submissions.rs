@@ -501,6 +501,34 @@ WHERE e.course_id = $1
     Ok(res)
 }
 
+/// [`get_exercises_with_submissions_by_course_id`] limited to `exercise_ids`, without pages.
+pub async fn get_exercise_ids_with_submissions_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT e.id
+FROM exercises e
+WHERE e.course_id = $1
+  AND e.id = ANY($2)
+  AND e.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM exercise_slide_submissions ess
+    WHERE ess.exercise_id = e.id
+      AND ess.deleted_at IS NULL
+  )
+        "#,
+        course_id,
+        exercise_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Of the given exercises, the ones with at least one existing submission from any user.
 ///
 /// Used to warn a teacher before saving a page edit that would drop one of these exercises: the

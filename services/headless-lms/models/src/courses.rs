@@ -9,6 +9,7 @@ use crate::{
         CoursePrerequisite, EditCoursePrerequisite, upsert_course_prerequisites,
     },
     entity_history::{self, HistoryAuthor},
+    error::missing_model_error,
     library::entity_snapshots::{
         self, ContentEntityType, CourseAudienceSnapshot, CourseSettingsSnapshot,
     },
@@ -300,10 +301,23 @@ pub async fn insert(
     course_language_group_id: Uuid,
     new_course: &NewCourse,
 ) -> ModelResult<Uuid> {
-    let mut tx = conn.begin().await?;
-
-    let name = non_empty_trimmed(&new_course.name).unwrap_or(&new_course.name);
+    let title = non_empty_trimmed(&new_course.name);
+    let name = title.unwrap_or(&new_course.name);
     let description = non_empty_trimmed(&new_course.description);
+    let embeddings = if app_config.disable_embedding_vector_creation_when_seeding {
+        None
+    } else {
+        let texts = title.into_iter().chain(description).map(str::to_string);
+        let embeddings = TextEmbeddings::create(app_config, texts.collect()).await?;
+        Some((
+            embeddings.get_or_create_one(app_config, title).await?,
+            embeddings
+                .get_or_create_one(app_config, description)
+                .await?,
+        ))
+    };
+
+    let mut tx = conn.begin().await?;
 
     let res = sqlx::query!(
         "
@@ -352,15 +366,8 @@ RETURNING id
     )
     .fetch_one(&mut *tx)
     .await?;
-    if !app_config.disable_embedding_vector_creation_when_seeding {
-        update_course_embeddings(
-            &mut tx,
-            app_config,
-            res.id,
-            non_empty_trimmed(&new_course.name),
-            description,
-        )
-        .await?
+    if let Some((title_embedding, description_embedding)) = embeddings {
+        update_course_embeddings(&mut tx, res.id, title_embedding, description_embedding).await?
     }
     tx.commit().await?;
     Ok(res.id)
@@ -584,23 +591,23 @@ pub async fn update_course_auditing_data(
     } = data_update;
     let author = HistoryAuthor::user(author_user_id);
     let audiences = audience_snapshots(audiences);
-    let embeddings =
-        embed_changed_metadata(conn, app_config, course_id, &audiences, &prerequisites).await?;
-    let mut tx = conn.begin().await?;
-    let live = load_settings(&mut tx, course_id).await?;
-    let settings = CourseSettingsSnapshot {
-        description,
+    let edit = |live: &CourseSettingsSnapshot| CourseSettingsSnapshot {
+        description: description.clone(),
         is_draft,
         is_test_mode,
         is_unlisted,
         is_joinable_by_code_only,
         closed_at,
-        closed_additional_message,
+        closed_additional_message: closed_additional_message.clone(),
         closed_course_successor_id,
-        audiences,
+        audiences: audiences.clone(),
         ..live.clone()
     };
-    write_settings(&mut tx, app_config, &settings, &live, false, &embeddings).await?;
+    let embeddings =
+        embed_changed_metadata(conn, app_config, course_id, &edit, &prerequisites).await?;
+    let mut tx = conn.begin().await?;
+    let live = load_settings(&mut tx, course_id).await?;
+    write_settings(&mut tx, app_config, &edit(&live), &live, false, &embeddings).await?;
     write_prerequisites(&mut tx, app_config, course_id, prerequisites, &embeddings).await?;
     entity_history::record_current(
         &mut tx,
@@ -1167,6 +1174,28 @@ pub async fn update_course(
         ai_policy,
         course_material_ai_instructions,
     } = course_update;
+    let edit = move |live: &CourseSettingsSnapshot| CourseSettingsSnapshot {
+        name: name.clone(),
+        description: description.clone(),
+        is_draft,
+        is_test_mode,
+        can_add_chatbot,
+        is_unlisted,
+        is_joinable_by_code_only,
+        ask_marketing_consent,
+        flagged_answers_threshold: Some(flagged_answers_threshold),
+        flagged_answers_skip_manual_review_and_allow_retry,
+        closed_at,
+        closed_additional_message: closed_additional_message.clone(),
+        closed_course_successor_id,
+        chapter_locking_enabled,
+        ai_policy,
+        course_material_ai_instructions,
+        ..live.clone()
+    };
+    let live = load_settings(conn, course_id).await?;
+    let embeddings =
+        TextEmbeddings::create(app_config, changed_settings_texts(&edit(&live), &live)).await?;
     entity_history::save_recording(
         conn,
         ContentEntityType::CourseSettings,
@@ -1174,32 +1203,13 @@ pub async fn update_course(
         HistoryAuthor::user(author_user_id),
         async move |tx| {
             let live = load_settings(&mut *tx, course_id).await?;
-            let settings = CourseSettingsSnapshot {
-                name,
-                description,
-                is_draft,
-                is_test_mode,
-                can_add_chatbot,
-                is_unlisted,
-                is_joinable_by_code_only,
-                ask_marketing_consent,
-                flagged_answers_threshold: Some(flagged_answers_threshold),
-                flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at,
-                closed_additional_message,
-                closed_course_successor_id,
-                chapter_locking_enabled,
-                ai_policy,
-                course_material_ai_instructions,
-                ..live.clone()
-            };
             write_settings(
                 tx,
                 app_config,
-                &settings,
+                &edit(&live),
                 &live,
                 can_change_chatbot,
-                &TextEmbeddings::default(),
+                &embeddings,
             )
             .await
         },
@@ -1216,10 +1226,10 @@ async fn load_settings(
 }
 
 /// Writes the course settings of the snapshot without recording history: the course row in one
-/// write, and the audiences that differ from `live`, the current settings, taking their
-/// embeddings from `embeddings` where it has them. Errors with `PreconditionFailed` if the
-/// snapshot is of another course, or if it changes `can_add_chatbot` and `can_change_chatbot` is
-/// false.
+/// write, and the audiences that differ from `live`, the current settings. Embeddings of the
+/// changed name, description and audiences come from `embeddings` where it has them. Errors with
+/// `PreconditionFailed` if the snapshot is of another course, or if it changes `can_add_chatbot`
+/// and `can_change_chatbot` is false.
 pub async fn write_settings(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
@@ -1289,12 +1299,12 @@ RETURNING *
     .fetch_one(&mut *tx)
     .await?;
 
-    let title = (settings.name != live.name).then_some(settings.name.as_str());
-    let description = settings
-        .description
-        .as_deref()
-        .filter(|description| settings.description != live.description && !description.is_empty());
-    update_course_embeddings(&mut tx, app_config, course_id, title, description).await?;
+    let (title, description) = changed_embedded_texts(settings, live);
+    let title_embedding = embeddings.get_or_create_one(app_config, title).await?;
+    let description_embedding = embeddings
+        .get_or_create_one(app_config, description)
+        .await?;
+    update_course_embeddings(&mut tx, course_id, title_embedding, description_embedding).await?;
 
     if !live.chapter_locking_enabled && settings.chapter_locking_enabled {
         let user_ids: Vec<Uuid> =
@@ -1616,14 +1626,13 @@ pub async fn set_metadata(
         course_prerequisites,
     } = course_metadata;
     let course_audiences = audience_snapshots(course_audiences);
-    let embeddings = embed_changed_metadata(
-        conn,
-        app_config,
-        course_id,
-        &course_audiences,
-        &course_prerequisites,
-    )
-    .await?;
+    let edit = move |live: &CourseSettingsSnapshot| CourseSettingsSnapshot {
+        description: course_description.clone(),
+        audiences: course_audiences.clone(),
+        ..live.clone()
+    };
+    let embeddings =
+        embed_changed_metadata(conn, app_config, course_id, &edit, &course_prerequisites).await?;
     let course = entity_history::save_recording(
         conn,
         ContentEntityType::CourseSettings,
@@ -1631,13 +1640,15 @@ pub async fn set_metadata(
         HistoryAuthor::user(author_user_id),
         async move |tx| {
             let live = load_settings(&mut *tx, course_id).await?;
-            let settings = CourseSettingsSnapshot {
-                description: course_description,
-                audiences: course_audiences,
-                ..live.clone()
-            };
-            let course =
-                write_settings(&mut *tx, app_config, &settings, &live, false, &embeddings).await?;
+            let course = write_settings(
+                &mut *tx,
+                app_config,
+                &edit(&live),
+                &live,
+                false,
+                &embeddings,
+            )
+            .await?;
             write_prerequisites(tx, app_config, course_id, course_prerequisites, &embeddings)
                 .await?;
             Ok(course)
@@ -1693,7 +1704,7 @@ async fn write_prerequisites(
 }
 
 /// The audiences of `audiences` that `live` lacks or has with another text.
-pub(crate) fn changed_audiences(
+fn changed_audiences(
     audiences: &[CourseAudienceSnapshot],
     live: &[CourseAudienceSnapshot],
 ) -> (Vec<Uuid>, Vec<String>) {
@@ -1733,24 +1744,62 @@ fn changed_texts<New, Old>(
         .unzip()
 }
 
-/// Embeds the audiences and prerequisites that saving these would add or change.
+/// Embeds the settings texts that `edit` of the live settings and saving `prerequisites` would add
+/// or change.
 async fn embed_changed_metadata(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
-    audiences: &[CourseAudienceSnapshot],
+    edit: &impl Fn(&CourseSettingsSnapshot) -> CourseSettingsSnapshot,
     prerequisites: &[EditCoursePrerequisite],
 ) -> ModelResult<TextEmbeddings> {
     let live = load_settings(conn, course_id).await?;
     let old_prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
-    let (_, mut texts) = changed_audiences(audiences, &live.audiences);
+    let mut texts = changed_settings_texts(&edit(&live), &live);
     texts.extend(changed_prerequisites(prerequisites, &old_prerequisites).1);
     TextEmbeddings::create(app_config, texts).await
 }
 
-/// Embeddings of audience and prerequisite texts, made before a save's transaction so that the
-/// save doesn't wait for the embedding API while holding row locks. Texts it lacks, such as ones
-/// changed in between, are embedded during the save.
+/// The texts whose embeddings [`write_settings`] updates when writing `settings` over `live`.
+pub(crate) fn changed_settings_texts(
+    settings: &CourseSettingsSnapshot,
+    live: &CourseSettingsSnapshot,
+) -> Vec<String> {
+    let (title, description) = changed_embedded_texts(settings, live);
+    let mut texts: Vec<String> = title
+        .into_iter()
+        .chain(description)
+        .map(str::to_string)
+        .collect();
+    texts.extend(changed_audiences(&settings.audiences, &live.audiences).1);
+    texts
+}
+
+/// Every text of `settings` that has an embedding, for settings with no earlier version.
+pub(crate) fn settings_texts(settings: &CourseSettingsSnapshot) -> Vec<String> {
+    std::iter::once(settings.name.as_str())
+        .chain(settings.description.as_deref().filter(|d| !d.is_empty()))
+        .chain(settings.audiences.iter().map(|a| a.audience.as_str()))
+        .map(str::to_string)
+        .collect()
+}
+
+/// The name and description of `settings` whose course embeddings need updating.
+fn changed_embedded_texts<'a>(
+    settings: &'a CourseSettingsSnapshot,
+    live: &CourseSettingsSnapshot,
+) -> (Option<&'a str>, Option<&'a str>) {
+    let title = (settings.name != live.name).then_some(settings.name.as_str());
+    let description = settings
+        .description
+        .as_deref()
+        .filter(|description| settings.description != live.description && !description.is_empty());
+    (title, description)
+}
+
+/// Embeddings of course name, description, audience and prerequisite texts, made before a save's
+/// transaction so that the save doesn't wait for the embedding API while holding row locks. Texts
+/// it lacks, such as ones changed in between, are embedded during the save.
 #[derive(Debug, Default)]
 pub struct TextEmbeddings(HashMap<String, Vec<f32>>);
 
@@ -1782,11 +1831,29 @@ impl TextEmbeddings {
                     .get(text)
                     .or_else(|| created.get(text))
                     .cloned()
-                    .ok_or_else(|| {
-                        model_err!(Generic, "The embedding API returned too few embeddings.")
-                    })
+                    .ok_or_else(missing_model_error(
+                        ModelErrorType::Generic,
+                        "The embedding API returned too few embeddings.",
+                    ))
             })
             .collect()
+    }
+
+    /// The embedding of `text`, if any, embedding it if `self` lacks it.
+    async fn get_or_create_one(
+        &self,
+        app_config: &ApplicationConfiguration,
+        text: Option<&str>,
+    ) -> ModelResult<Option<Vector>> {
+        let Some(text) = text else {
+            return Ok(None);
+        };
+        let embedding = self
+            .get_or_create(app_config, &[text.to_string()])
+            .await?
+            .pop()
+            .map(Vector::from);
+        Ok(embedding)
     }
 }
 
@@ -1830,46 +1897,14 @@ pub async fn get_metadata(
     Ok(metadata)
 }
 
+/// Saves the course's title and description embeddings, keeping the stored one where an argument
+/// is `None`.
 pub async fn update_course_embeddings(
     conn: &mut PgConnection,
-    app_config: &ApplicationConfiguration,
     course_id: Uuid,
-    title: Option<&str>,
-    description: Option<&str>,
+    title_embedding: Option<Vector>,
+    description_embedding: Option<Vector>,
 ) -> ModelResult<()> {
-    let title_embedding = if let Some(title) = title {
-        Some(
-            create_embeddings(app_config, vec![title.to_owned()])
-                .await?
-                .into_iter()
-                .next()
-                .ok_or_else(|| {
-                    model_err!(Generic, "The embedding API returned no title embedding.")
-                })
-                .map(Vector::from)?,
-        )
-    } else {
-        None
-    };
-
-    let description_embedding = if let Some(description) = description {
-        Some(
-            create_embeddings(app_config, vec![description.to_owned()])
-                .await?
-                .into_iter()
-                .next()
-                .ok_or_else(|| {
-                    model_err!(
-                        Generic,
-                        "The embedding API returned no description embedding."
-                    )
-                })
-                .map(Vector::from)?,
-        )
-    } else {
-        None
-    };
-
     sqlx::query!(
         r#"
 INSERT INTO course_embeddings (

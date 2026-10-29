@@ -153,7 +153,6 @@
   "agent-preview-review-instructions-course-default": "This exercise uses the course default review instructions. They are not shown here.",
   "agent-preview-student-specific-block": "This block ({{name}}) shows information about the student. It is not shown in the preview.",
   "agent-preview-student-specific-container": "Only some students see the content below ({{name}}).",
-  "agent-preview-title": "Preview",
   "agent-publish-changes": "Publish changes",
   "agent-publish-dialog-description_one": "{{count}} change goes live in the course right away.",
   "agent-publish-dialog-description_other": "{{count}} changes go live in the course right away.",

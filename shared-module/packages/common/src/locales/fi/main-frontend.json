@@ -152,7 +152,6 @@
   "agent-preview-review-instructions-course-default": "Tehtävä käyttää kurssin oletusarviointiohjeita. Niitä ei näytetä tässä.",
   "agent-preview-student-specific-block": "Tämä lohko ({{name}}) näyttää tietoja opiskelijasta. Sitä ei näytetä esikatselussa.",
   "agent-preview-student-specific-container": "Vain osa opiskelijoista näkee alla olevan sisällön ({{name}}).",
-  "agent-preview-title": "Esikatselu",
   "agent-publish-changes": "Julkaise muutokset",
   "agent-publish-dialog-description_one": "{{count}} muutos tulee kurssille näkyviin heti.",
   "agent-publish-dialog-description_other": "{{count}} muutosta tulee kurssille näkyviin heti.",

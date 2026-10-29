@@ -17,7 +17,7 @@ use headless_lms_models::{
             course_state::{ExerciseRecord, ExerciseReviewConfig},
             stage_call,
         },
-        entity_snapshots::{self, ContentEntityType, EntitySnapshot},
+        entity_snapshots::{self, ContentEntityType, EntityKey, EntitySnapshot},
         oauth::{mcp::McpScope, scopes::metadata_document_client_scopes},
     },
     oauth_client::{MetadataDocumentClient, OAuthClient},
@@ -25,7 +25,6 @@ use headless_lms_models::{
     pages::{self, PageDetailsUpdate},
     peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfig, PeerReviewProcessingStrategy},
     peer_or_self_review_submissions,
-    roles::UserRole,
 };
 use serde_json::json;
 use sqlx::PgConnection;
@@ -42,32 +41,28 @@ use crate::programs::seed::{
         page::PageBuilder,
     },
     seed_courses::CommonCourseData,
-    seed_helpers::{heading, insert_user_with_password, paragraph},
+    seed_helpers::{heading, paragraph},
+    seed_users::SeedUsersResult,
 };
 
 /// The client id of the seeded agent: the URL of its client ID metadata document.
 const AGENT_CLIENT_ID: &str = "https://agent.example.com/oauth/client-metadata.json";
 const AGENT_CLIENT_NAME: &str = "Example Agent";
 
-/// Users whose changesets the system tests act on. Each test mutates its own user's changeset, so
-/// they can run in parallel; the local part of the address is the password.
-const PUBLISHER_EMAIL: &str = "agent-publisher@example.com";
-const DISCARDER_EMAIL: &str = "agent-discarder@example.com";
-const CONFLICTED_EMAIL: &str = "agent-conflicted@example.com";
-const GRANT_HOLDER_EMAIL: &str = "agent-grant-holder@example.com";
-const REVIEW_SETTINGS_EMAIL: &str = "agent-review-settings@example.com";
-
+/// Seeds the agent changesets course with changesets waiting for review.
 pub async fn seed_agent_changesets_course(
     app_config: ApplicationConfiguration,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
     common_course_data: CommonCourseData,
+    seed_users_result: SeedUsersResult,
 ) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
         organization_id: org,
         teacher_user_id,
+        student_user_id: student,
         ..
     } = common_course_data;
     let mut conn = db_pool.acquire().await?;
@@ -79,54 +74,12 @@ pub async fn seed_agent_changesets_course(
 
     info!("Inserting agent changesets course {}", course_name);
 
-    let publisher = insert_user_with_password(
-        &mut conn,
-        cx.v5(b"user:publisher"),
-        PUBLISHER_EMAIL,
-        "Agent",
-        "Publisher",
-    )
-    .await?;
-    let discarder = insert_user_with_password(
-        &mut conn,
-        cx.v5(b"user:discarder"),
-        DISCARDER_EMAIL,
-        "Agent",
-        "Discarder",
-    )
-    .await?;
-    let conflicted = insert_user_with_password(
-        &mut conn,
-        cx.v5(b"user:conflicted"),
-        CONFLICTED_EMAIL,
-        "Agent",
-        "Conflicted",
-    )
-    .await?;
-    let grant_holder = insert_user_with_password(
-        &mut conn,
-        cx.v5(b"user:grant-holder"),
-        GRANT_HOLDER_EMAIL,
-        "Agent",
-        "Grant Holder",
-    )
-    .await?;
-    let review_settings = insert_user_with_password(
-        &mut conn,
-        cx.v5(b"user:review-settings"),
-        REVIEW_SETTINGS_EMAIL,
-        "Agent",
-        "Review Settings",
-    )
-    .await?;
-    let student = insert_user_with_password(
-        &mut conn,
-        cx.v5(b"user:student"),
-        "agent-student@example.com",
-        "Agent",
-        "Student",
-    )
-    .await?;
+    // One open changeset per user and course, so each system test that changes its changeset or
+    // grant gets its own user; `utils/agentChangesets.ts` in the system tests names them.
+    let publisher = seed_users_result.admin_user_id;
+    let conflicted = teacher_user_id;
+    let review_settings = seed_users_result.language_teacher_user_id;
+    let grant_holder = seed_users_result.course_or_exam_creator_user_id;
 
     let course = CourseBuilder::new(course_name, course_slug)
         .desc("Sample course with changes an AI agent has staged for review.")
@@ -141,10 +94,6 @@ pub async fn seed_agent_changesets_course(
             closing_time: None,
             instance_id: Some(cx.v5(b"instance:default")),
         })
-        .role(publisher, UserRole::Teacher)
-        .role(discarder, UserRole::Teacher)
-        .role(conflicted, UserRole::Teacher)
-        .role(review_settings, UserRole::Teacher)
         .module(
             ModuleBuilder::new().order(0).chapter(
                 ChapterBuilder::new(1, "Getting started")
@@ -162,12 +111,6 @@ pub async fn seed_agent_changesets_course(
                         PageBuilder::new("/chapter-1/old-notes", "Old notes").block(paragraph(
                             "These notes are no longer needed.",
                             cx.v5(b"old-notes:paragraph"),
-                        )),
-                    )
-                    .page(
-                        PageBuilder::new("/chapter-1/loops", "Loops").block(paragraph(
-                            "A loop repeats a block of code.",
-                            cx.v5(b"loops:paragraph"),
                         )),
                     )
                     .page(
@@ -277,13 +220,7 @@ pub async fn seed_agent_changesets_course(
         McpScope::MaterialPublish,
     ]
     .map(|scope| scope.as_str().to_string());
-    for user_id in [
-        publisher,
-        discarder,
-        conflicted,
-        grant_holder,
-        review_settings,
-    ] {
+    for user_id in [publisher, conflicted, grant_holder, review_settings] {
         OAuthUserClientScopes::insert(&mut conn, user_id, agent_client.id, &agent_scopes).await?;
     }
 
@@ -304,7 +241,7 @@ pub async fn seed_agent_changesets_course(
         },
     )
     .await?;
-    let old_notes = (ContentEntityType::Page, page_ids.old_notes);
+    let old_notes = EntityKey::new(ContentEntityType::Page, page_ids.old_notes);
     let read = StagedStateRead::current(&mut conn, publisher, course.id, &[old_notes]).await?;
     stage_call(
         &mut conn,
@@ -318,22 +255,6 @@ pub async fn seed_agent_changesets_course(
             revert_of_call_id: None,
             read: &read,
             risk: &RiskBaseline::Current,
-        },
-    )
-    .await?;
-
-    let discarder_actor = agent_actor(&mut conn, discarder, agent_client.id).await?;
-    stage_page_edit(
-        &mut conn,
-        &discarder_actor,
-        course.id,
-        page_ids.loops,
-        "Mention while loops",
-        |snapshot| {
-            Arc::make_mut(&mut snapshot.content).push(paragraph(
-                "A while loop repeats as long as its condition is true.",
-                cx.v5(b"loops:staged-while"),
-            ));
         },
     )
     .await?;
@@ -510,7 +431,6 @@ pub async fn seed_agent_changesets_course(
 struct PageIds {
     variables: Uuid,
     old_notes: Uuid,
-    loops: Uuid,
     functions: Uuid,
     classes: Uuid,
     strings: Uuid,
@@ -530,7 +450,6 @@ impl PageIds {
         Ok(Self {
             variables: find("/chapter-1/variables")?,
             old_notes: find("/chapter-1/old-notes")?,
-            loops: find("/chapter-1/loops")?,
             functions: find("/chapter-1/functions")?,
             classes: find("/chapter-1/classes")?,
             strings: find("/chapter-1/strings")?,
@@ -610,7 +529,7 @@ async fn stage_course_default_review_instructions(
     config_id: Uuid,
     review_instructions: serde_json::Value,
 ) -> Result<()> {
-    let key = (ContentEntityType::CourseDefaultReviewConfig, config_id);
+    let key = EntityKey::new(ContentEntityType::CourseDefaultReviewConfig, config_id);
     let Some(Some(EntitySnapshot::CourseDefaultReviewConfig(mut snapshot))) =
         entity_snapshots::load_live_many(conn, &[key])
             .await?
@@ -657,7 +576,7 @@ async fn stage_page_edit_with_tool(
         conn,
         actor.user_id,
         course_id,
-        &[(ContentEntityType::Page, page_id)],
+        &[EntityKey::new(ContentEntityType::Page, page_id)],
     )
     .await?;
     stage_call(

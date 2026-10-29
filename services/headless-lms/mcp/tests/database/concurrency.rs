@@ -8,7 +8,7 @@ use headless_lms_models::{
             PublishOptions, PublishOutcome, PublishRejection, RiskBaseline, StageCall,
             StageCallOutcome, StagedEntity, StagedStateRead, publish, stage_call,
         },
-        entity_snapshots::{self, ContentEntityType, EntitySnapshot},
+        entity_snapshots::{self, ContentEntityType, EntityKey, EntitySnapshot},
     },
 };
 use serde_json::{Value, json};
@@ -53,7 +53,7 @@ async fn a_changeset_closed_mid_call_takes_nothing() {
     let row = agent_changeset_entities::get_one(
         &mut conn,
         changeset,
-        (ContentEntityType::Page, fixture.page_id),
+        EntityKey::new(ContentEntityType::Page, fixture.page_id),
     )
     .await
     .unwrap()
@@ -78,7 +78,10 @@ async fn a_changeset_closed_mid_call_takes_nothing() {
                 tool_name: "patch_page_content",
                 ops: &json!([]),
                 summary: None,
-                entities: vec![StagedEntity::new((ContentEntityType::Page, page_id), after)],
+                entities: vec![StagedEntity::new(
+                    EntityKey::new(ContentEntityType::Page, page_id),
+                    after,
+                )],
                 revert_of_call_id: None,
                 read: &read,
                 risk: &RiskBaseline::Current,
@@ -125,7 +128,7 @@ async fn a_write_built_on_an_outdated_staged_state_is_refused() {
     let first = agent_changeset_entities::get_one(
         &mut conn,
         changeset,
-        (ContentEntityType::Page, fixture.page_id),
+        EntityKey::new(ContentEntityType::Page, fixture.page_id),
     )
     .await
     .unwrap()
@@ -141,7 +144,7 @@ async fn a_write_built_on_an_outdated_staged_state_is_refused() {
         ops: &Value::Null,
         summary: None,
         entities: vec![StagedEntity::new(
-            (ContentEntityType::Page, fixture.page_id),
+            EntityKey::new(ContentEntityType::Page, fixture.page_id),
             first.after_snapshot.clone(),
         )],
         revert_of_call_id: None,
@@ -153,7 +156,10 @@ async fn a_write_built_on_an_outdated_staged_state_is_refused() {
         .unwrap();
     match outcome {
         StageCallOutcome::StaleRead { entities } => {
-            assert_eq!(entities, vec![(ContentEntityType::Page, fixture.page_id)])
+            assert_eq!(
+                entities,
+                vec![EntityKey::new(ContentEntityType::Page, fixture.page_id)]
+            )
         }
         other => panic!("expected a stale read, got {other:?}"),
     }
@@ -165,7 +171,7 @@ async fn a_write_built_on_an_outdated_staged_state_is_refused() {
     let current = agent_changeset_entities::get_one(
         &mut conn,
         changeset,
-        (ContentEntityType::Page, fixture.page_id),
+        EntityKey::new(ContentEntityType::Page, fixture.page_id),
     )
     .await
     .unwrap()
@@ -195,7 +201,7 @@ async fn a_live_edit_while_a_call_runs_is_a_stale_read() {
     std::sync::Arc::make_mut(&mut after.content)[0]
         .attributes
         .insert("content".into(), json!("Agent text."));
-    let key = (ContentEntityType::Page, fixture.page_id);
+    let key = EntityKey::new(ContentEntityType::Page, fixture.page_id);
     let read = StagedStateRead {
         changeset_id: None,
         entity_revisions: HashMap::new(),

@@ -7,7 +7,9 @@ use uuid::Uuid;
 
 use super::error::{EditError, EditErrorCode};
 use super::op::Op;
+use super::path::{ItemRef, parse_item_ref, parse_uuid};
 
+/// The `$label`s of one call and the ids they name.
 #[derive(Debug, Default)]
 pub(crate) struct Labels {
     assigned: BTreeMap<String, Uuid>,
@@ -33,6 +35,7 @@ impl Labels {
         }
     }
 
+    /// Binds `label` to the new item `id`. Errors if the label is malformed or already bound.
     pub(crate) fn define(&mut self, label: &str, id: Uuid) -> Result<(), EditError> {
         check_label_syntax(label)?;
         if self.assigned.contains_key(label) {
@@ -98,6 +101,7 @@ impl Labels {
             .transpose()
     }
 
+    /// The labels bound by the call.
     pub(crate) fn into_map(self) -> BTreeMap<String, Uuid> {
         self.assigned
     }
@@ -139,51 +143,6 @@ fn collect_value_labels(value: &Value, op: usize, out: &mut HashMap<String, usiz
         }
         _ => {}
     }
-}
-
-/// How an id-or-label reference outside a path (`from`, `to_page`, reorder values) was written.
-pub(crate) enum ItemRef<'a> {
-    Label(&'a str),
-    Id(Uuid),
-}
-
-/// Parses `pg7`, `/pg7`, `$x` or `/$x`.
-pub(crate) fn parse_item_ref(raw: &str) -> Result<ItemRef<'_>, EditError> {
-    let trimmed = raw.strip_prefix('/').unwrap_or(raw);
-    if trimmed.contains('/') {
-        return Err(EditError::new(
-            EditErrorCode::InvalidPath,
-            format!("\"{raw}\" should name one item, like \"/<id>\""),
-        ));
-    }
-    if trimmed.starts_with('$') {
-        return Ok(ItemRef::Label(trimmed));
-    }
-    parse_uuid(trimmed, raw).map(ItemRef::Id)
-}
-
-pub(crate) fn parse_uuid(segment: &str, whole: &str) -> Result<Uuid, EditError> {
-    if segment.parse::<u64>().is_ok() {
-        return Err(EditError::new(
-            EditErrorCode::NumericIndex,
-            format!("\"{whole}\" uses a numeric index; items are addressed by id"),
-        )
-        .with_fix("read the outline to get ids, then use /<id>"));
-    }
-    if segment == "-" {
-        return Err(EditError::new(
-            EditErrorCode::NumericIndex,
-            format!("\"{whole}\" uses \"-\"; to append, use position \"end\" on the children list"),
-        )
-        .with_fix("{\"path\":\"/box1/innerBlocks\",\"position\":\"end\"} or {\"path\":\"\",\"position\":\"end\"}"));
-    }
-    Uuid::parse_str(segment).map_err(|_| {
-        EditError::new(
-            EditErrorCode::InvalidPath,
-            format!("\"{segment}\" in \"{whole}\" isn't an id or a $label"),
-        )
-        .with_fix("paths start with the full id of a block or entity: /<uuid>, /<uuid>/innerBlocks, /<uuid>/attributes/content")
-    })
 }
 
 /// The `label` field of a new item, if it has one. `example` shows a label in the error.

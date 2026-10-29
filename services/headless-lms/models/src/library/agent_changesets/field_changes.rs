@@ -8,7 +8,9 @@ use crate::{
     course_modules::CompletionPolicy,
     courses::CourseAiPolicy,
     library::{
-        agent_changesets::course_state::{CourseState, ExerciseRecord, PageRecord},
+        agent_changesets::course_state::{
+            CourseState, ExerciseRecord, PageRecord, ReviewConfigKind,
+        },
         entity_snapshots::{
             ChapterSnapshot, ContentEntity, ContentEntityType, CourseDefaultReviewConfigSnapshot,
             CourseSettingsSnapshot, EntityKey, EntityRef, EntitySnapshot, GlossaryTermSnapshot,
@@ -104,14 +106,6 @@ pub enum FieldValue {
     /// Blocks, as stored.
     Blocks(serde_json::Value),
     ReviewConfig(ReviewConfigKind),
-}
-
-/// Which review settings an exercise uses.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum ReviewConfigKind {
-    CourseDefault,
-    Own,
 }
 
 /// The exercise of a page a field change is in.
@@ -572,10 +566,10 @@ impl CourseState {
     /// What this state changes of one entity of `before`, field by field, with references
     /// labelled as this state calls them, or `before` does.
     pub fn field_changes_since(&self, before: &CourseState, key: EntityKey) -> Vec<FieldChange> {
-        let mut changes = match key.0 {
+        let mut changes = match key.entity_type {
             ContentEntityType::Page => {
-                let mut changes = diff(before.page(key.1), self.page(key.1));
-                if let Some(page) = self.page(key.1) {
+                let mut changes = diff(before.page(key.entity_id), self.page(key.entity_id));
+                if let Some(page) = self.page(key.entity_id) {
                     let exercises = page
                         .content
                         .iter()

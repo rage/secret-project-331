@@ -14,7 +14,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { ErrorNotice, QueryResults } from "@/shared-module/components"
+import { ErrorNotice, QueryResults, Spinner } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -94,8 +94,11 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
   const userIds = useMemo(() => [userId], [userId])
-  const { byCompletionId: registrationsByCompletionId, error: registrationsError } =
-    useTeacherCreditRegistrations(courseId, userIds)
+  const {
+    byCompletionId: registrationsByCompletionId,
+    error: registrationsError,
+    isFetching: isFetchingRegistrations,
+  } = useTeacherCreditRegistrations(courseId, userIds)
 
   const heading = (
     <h2
@@ -128,6 +131,7 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
       renderData={([courseModuleCompletions, courseStructureData]) => (
         <Section>
           {heading}
+          {isFetchingRegistrations && <Spinner size="sm" />}
           {registrationsError && <ErrorNotice error={registrationsError} />}
           {courseModuleCompletions.map((courseModuleCompletion) => {
             const courseModule = courseStructureData.modules.find(

@@ -128,9 +128,12 @@ export const useTeacherCreditRegistrations = (
   userIds: string[],
 ): {
   data: CreditRegistrationIndex
+  /** Live rows by completion id: unlike `data`, keeps a pending grade improvement beside the registered row it follows. */
+  byCompletionId: Map<string, CourseCreditRegistration>
   isAuthorized: boolean
   isPending: boolean
   isFetching: boolean
+  error: Error | null
 } => {
   const isAuthorized = useCanViewCreditRegistrations(courseId)
 
@@ -143,17 +146,33 @@ export const useTeacherCreditRegistrations = (
         queryOptions({
           queryKey: [QUERY_KEY_PREFIX, id, ids],
           queryFn: () => fetchInBatches(id, ids),
-          select: indexLiveRegistrations,
           placeholderData: keepPreviousData,
         }),
     }),
   )
 
+  const rows = query.data
+  const data = useMemo(
+    () => (rows ? indexLiveRegistrations(rows) : EMPTY_CREDIT_REGISTRATIONS),
+    [rows],
+  )
+  const byCompletionId = useMemo(
+    () =>
+      new Map(
+        (rows ?? [])
+          .filter((row) => !row.superseded)
+          .map((row) => [row.course_module_completion_id, row]),
+      ),
+    [rows],
+  )
+
   return {
-    data: query.data ?? EMPTY_CREDIT_REGISTRATIONS,
+    data,
+    byCompletionId,
     isAuthorized,
     isPending: query.isPending,
     isFetching: query.isFetching,
+    error: query.error,
   }
 }
 

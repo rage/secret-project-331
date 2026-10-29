@@ -6,10 +6,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
-import {
-  creditRegistrationKey,
-  useTeacherCreditRegistrations,
-} from "@/components/credit-registration/teacherCreditRegistrations"
+import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
@@ -17,7 +14,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { QueryResults } from "@/shared-module/components"
+import { ErrorNotice, QueryResults } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -97,7 +94,8 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
   const userIds = useMemo(() => [userId], [userId])
-  const { data: registrations } = useTeacherCreditRegistrations(courseId, userIds)
+  const { byCompletionId: registrationsByCompletionId, error: registrationsError } =
+    useTeacherCreditRegistrations(courseId, userIds)
 
   const heading = (
     <h2
@@ -130,17 +128,12 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
       renderData={([courseModuleCompletions, courseStructureData]) => (
         <Section>
           {heading}
+          {registrationsError && <ErrorNotice error={registrationsError} announce="polite" />}
           {courseModuleCompletions.map((courseModuleCompletion) => {
             const courseModule = courseStructureData.modules.find(
               (cm) => cm.id === courseModuleCompletion.course_module_id,
             )
-            const moduleRegistration = registrations.get(
-              creditRegistrationKey(userId, courseModuleCompletion.course_module_id),
-            )
-            const registration =
-              moduleRegistration?.course_module_completion_id === courseModuleCompletion.id
-                ? moduleRegistration
-                : undefined
+            const registration = registrationsByCompletionId.get(courseModuleCompletion.id)
             return (
               <ModuleCard key={courseModuleCompletion.id}>
                 <ModuleHeader>

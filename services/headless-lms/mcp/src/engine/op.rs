@@ -284,6 +284,20 @@ impl PatchTarget {
         }
     }
 
+    /// The error for an op outside [`PatchTarget::allowed_ops`].
+    pub(crate) fn rejected_op(self, op: OpKind) -> EditError {
+        let fix = if self == PatchTarget::PageContent && op == OpKind::Reorder {
+            REORDER_ON_PAGE_FIX.to_string()
+        } else {
+            self.allowed_ops_fix()
+        };
+        EditError::new(
+            EditErrorCode::InvalidOp,
+            format!("{} doesn't take op \"{op}\"", self.tool_name()),
+        )
+        .with_fix(fix)
+    }
+
     fn allowed_ops_fix(self) -> String {
         format!(
             "{} takes: {}",
@@ -344,16 +358,7 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<Op, EditError> {
         );
     };
     if !target.allowed_ops().contains(&op) {
-        let fix = if target == PatchTarget::PageContent && op == OpKind::Reorder {
-            REORDER_ON_PAGE_FIX.to_string()
-        } else {
-            target.allowed_ops_fix()
-        };
-        return Err(EditError::new(
-            EditErrorCode::InvalidOp,
-            format!("{} doesn't take op \"{op_name}\"", target.tool_name()),
-        )
-        .with_fix(fix));
+        return Err(target.rejected_op(op));
     }
 
     check_unknown_fields(object)?;
@@ -398,22 +403,27 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<Op, EditError> {
         Some(other) => return Err(invalid_position(&other.to_string())),
     };
 
-    const CHECKED: &str = "the field rules above require it";
     let string = |field| optional_string(object, field);
-    let value = || object.get("value").cloned().expect(CHECKED);
+    let required_string = |field| string(field)?.ok_or_else(|| missing_field(op, field));
+    let value = || {
+        object
+            .get("value")
+            .cloned()
+            .ok_or_else(|| missing_field(op, "value"))
+    };
     let transfer = || -> Result<Transfer, EditError> {
         Ok(Transfer {
-            from: string("from")?.expect(CHECKED),
+            from: required_string("from")?,
             through: string("through")?,
             path: path.clone(),
-            position: position.expect(CHECKED),
+            position: position.ok_or_else(|| missing_field(op, "position"))?,
             to_page: string("to_page")?,
         })
     };
     Ok(match op {
         OpKind::Add => Op::Add {
             path,
-            value: value(),
+            value: value()?,
             position,
         },
         OpKind::Remove => Op::Remove {
@@ -422,7 +432,7 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<Op, EditError> {
         },
         OpKind::Replace => Op::Replace {
             path,
-            value: value(),
+            value: value()?,
         },
         OpKind::Move => Op::Move(transfer()?),
         OpKind::Copy => Op::Copy {
@@ -433,21 +443,21 @@ fn parse_op(raw: &Value, target: PatchTarget) -> Result<Op, EditError> {
             through: string("through")?,
             label: string("label")?,
             path,
-            value: value(),
+            value: value()?,
         },
         OpKind::Unwrap => Op::Unwrap { path },
         OpKind::Split => Op::Split {
             label: string("label")?,
-            at_text: string("at_text")?.expect(CHECKED),
+            at_text: required_string("at_text")?,
             path,
         },
         OpKind::Merge => Op::Merge {
-            from: string("from")?.expect(CHECKED),
+            from: required_string("from")?,
             path,
         },
         OpKind::Reorder => Op::Reorder {
             path,
-            value: value(),
+            value: value()?,
         },
     })
 }
@@ -553,6 +563,7 @@ fn optional_string(object: &Map<String, Value>, field: &str) -> Result<Option<St
     }
 }
 
+/// `items` double-quoted and comma-separated, for error messages.
 pub(crate) fn quote_list<S: AsRef<str>>(items: &[S]) -> String {
     items
         .iter()

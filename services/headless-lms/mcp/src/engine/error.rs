@@ -1,3 +1,5 @@
+//! Errors and warnings of the edit engines.
+
 use serde::Serialize;
 use serde_json::{Value, json};
 use uuid::Uuid;
@@ -83,11 +85,13 @@ impl EditError {
         }
     }
 
+    /// Adds the corrected form of the rejected call.
     pub fn with_fix(mut self, fix: impl Into<String>) -> Self {
         self.fix = Some(fix.into());
         self
     }
 
+    /// Adds machine-readable context for the error.
     pub fn with_details(mut self, details: Value) -> Self {
         self.details = Some(details);
         self
@@ -97,6 +101,15 @@ impl EditError {
     pub fn at_op(mut self, index: usize) -> Self {
         self.op.get_or_insert(index);
         self
+    }
+
+    /// `path` addresses an item by position; `items` names what goes by id instead, e.g.
+    /// "blocks".
+    pub(crate) fn numeric_index(path: &str, items: &str) -> Self {
+        Self::new(
+            EditErrorCode::NumericIndex,
+            format!("\"{path}\" uses a numeric index; {items} are addressed by id"),
+        )
     }
 
     /// A bulk edit found `found` matches where the call expected `expected`; `matches` describes

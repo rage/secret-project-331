@@ -46,7 +46,7 @@ fn sample() -> PageDocument {
 
 fn content(result: &PageContentResult, block: Uuid) -> String {
     let path = blocks::find_path(&result.page.blocks, block).expect("block exists");
-    blocks::get(&result.page.blocks, &path).attributes["content"]
+    blocks::get(&result.page.blocks, &path).unwrap().attributes["content"]
         .as_str()
         .unwrap_or_default()
         .to_string()

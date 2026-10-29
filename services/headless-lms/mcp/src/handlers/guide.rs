@@ -7,6 +7,7 @@ use crate::state::McpState;
 use crate::tools::args::GuideArgs;
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome, ToolResult};
 
+/// Handler of the `guide` tool.
 pub struct Guide;
 
 #[async_trait(?Send)]

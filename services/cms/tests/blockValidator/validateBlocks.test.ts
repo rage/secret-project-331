@@ -184,7 +184,7 @@ describe("rich text is strict, including markup that was already there", () => {
     '<mark style="background-color:rgba(0, 0, 0, 0);color:#123456" class="has-inline-color">x</mark>',
     '<bdo lang="fi" dir="ltr">moi</bdo>',
     "<code>x</code><s>y</s><sub>1</sub><sup>2</sup><kbd>K</kbd>",
-    '<a href="/relative">x</a> <a href="mailto:a@b.fi" rel="nofollow">m</a>',
+    '<a href="/relative">x</a> <a href="mailto:a@example.com" rel="nofollow">m</a>',
     '<a href="https://x.fi" class="button-link is-large">x</a>',
   ])("accepts %s", async (content) => {
     expect((await validate([paragraph(content)])).errors).toEqual([])

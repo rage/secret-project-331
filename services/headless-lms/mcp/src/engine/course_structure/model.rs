@@ -4,7 +4,11 @@ use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::engine::{is_course_root, split_path};
+use crate::engine::path::{is_course_root, split_path};
+
+/// Keys a read adds to an entity besides its fields. Writes ignore them, so an entity read back
+/// can be written again.
+pub(crate) const RENDERED_KEYS: [&str; 3] = ["path", "kind", "pending"];
 
 /// The course tree as agents read and edit it. Children arrays are in display order.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -67,6 +71,7 @@ impl CourseStructure {
         self.modules.iter().flat_map(|m| m.chapters.iter())
     }
 
+    /// [`Self::chapters`] for editing.
     pub(crate) fn chapters_mut(&mut self) -> impl Iterator<Item = &mut StructureChapter> {
         self.modules.iter_mut().flat_map(|m| m.chapters.iter_mut())
     }
@@ -94,6 +99,7 @@ impl CourseStructure {
         self.pages().map(|(_, p)| p).find(|p| p.id == page_id)
     }
 
+    /// [`Self::page`] for editing.
     pub(crate) fn page_mut(&mut self, page_id: Uuid) -> Option<&mut StructurePage> {
         self.pages_mut().find(|p| p.id == page_id)
     }
@@ -116,6 +122,7 @@ impl CourseStructure {
         self.modules.iter().find(|m| m.id == id)
     }
 
+    /// [`Self::module`] for editing.
     pub(crate) fn module_mut(&mut self, id: Uuid) -> Option<&mut StructureModule> {
         self.modules.iter_mut().find(|m| m.id == id)
     }
@@ -125,6 +132,7 @@ impl CourseStructure {
         self.chapters().find(|c| c.id == id)
     }
 
+    /// [`Self::chapter`] for editing.
     pub(crate) fn chapter_mut(&mut self, id: Uuid) -> Option<&mut StructureChapter> {
         self.chapters_mut().find(|c| c.id == id)
     }
@@ -181,6 +189,7 @@ impl Loc {
     }
 }
 
+/// What a course tree entity is.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Kind {
     Module,
@@ -189,6 +198,7 @@ pub(crate) enum Kind {
 }
 
 impl Kind {
+    /// The singular name of the kind, as used in error messages.
     pub(crate) fn noun(self) -> &'static str {
         match self {
             Kind::Module => "module",
@@ -243,6 +253,7 @@ impl ListRef {
         }
     }
 
+    /// The JSON-pointer path of the list, as ops address it.
     pub(crate) fn path(self) -> String {
         match self {
             ListRef::CoursePages => "/course/pages".to_string(),
@@ -308,4 +319,44 @@ pub(crate) fn parse_structure_path(path: &str) -> Option<StructurePath> {
         child,
         is_deeper: segments.next().is_some(),
     })
+}
+
+pub(super) enum Entity {
+    Module(StructureModule),
+    Chapter(StructureChapter),
+    Page(StructurePage),
+}
+
+impl Entity {
+    pub(super) fn id(&self) -> Uuid {
+        match self {
+            Entity::Module(m) => m.id,
+            Entity::Chapter(c) => c.id,
+            Entity::Page(p) => p.id,
+        }
+    }
+
+    pub(super) fn kind(&self) -> Kind {
+        match self {
+            Entity::Module(_) => Kind::Module,
+            Entity::Chapter(_) => Kind::Chapter,
+            Entity::Page(_) => Kind::Page,
+        }
+    }
+}
+
+pub(super) fn entity_ids(entity: &Entity) -> Vec<Uuid> {
+    match entity {
+        Entity::Module(m) => std::iter::once(m.id)
+            .chain(
+                m.chapters
+                    .iter()
+                    .flat_map(|c| std::iter::once(c.id).chain(c.pages.iter().map(|p| p.id))),
+            )
+            .collect(),
+        Entity::Chapter(c) => std::iter::once(c.id)
+            .chain(c.pages.iter().map(|p| p.id))
+            .collect(),
+        Entity::Page(p) => vec![p.id],
+    }
 }

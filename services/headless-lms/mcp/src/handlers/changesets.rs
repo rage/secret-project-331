@@ -1,9 +1,7 @@
 //! Changeset tools: listing, publishing, discarding and previewing staged changes.
 
 use async_trait::async_trait;
-use headless_lms_authorization::{
-    Action, fetch_user_roles, is_permitted_on_course, is_user_global_admin,
-};
+use headless_lms_authorization::{fetch_user_roles, is_user_global_admin};
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     ModelErrorType,
@@ -16,7 +14,7 @@ use headless_lms_models::{
         PublishOutcome, PublishRejection, RiskBaseline, discard, discard_entities, get_summaries,
         mint_preview_token, preview_path, publish,
     },
-    library::entity_snapshots::ContentEntityType,
+    library::entity_snapshots::{ContentEntityType, EntityKey},
     organizations,
     pages::{self, Page},
 };
@@ -25,7 +23,7 @@ use serde_json::{Value, json};
 use sqlx::PgConnection;
 use uuid::Uuid;
 
-use crate::access::{authorize_course, connection, deleted_in_staged_changes};
+use crate::access::{authorize_course, connection, deleted_in_staged_changes, editable_courses};
 use crate::explanations::{ExplainedEntity, explain_blockers};
 use crate::hints;
 use crate::state::McpState;
@@ -33,13 +31,18 @@ use crate::tools::args::{
     ChangesetArgs, DiscardChangesetArgs, GetPreviewLinkArgs, IdArgument, ListChangesetsArgs,
 };
 use crate::tools::{
-    ConfirmationRequest, ErrorCode, RequestContext, ToolError, ToolHandler, ToolOutcome, ToolResult,
+    ConfirmationRequest, RequestContext, ToolError, ToolErrorCode, ToolHandler, ToolOutcome,
+    ToolResult,
 };
 use headless_lms_models::library::agent_changesets::course_state::{CourseParts, load_view};
 
+/// Handler of the `list_changesets` tool.
 pub struct ListChangesets;
+/// Handler of the `publish_changeset` tool.
 pub struct PublishChangeset;
+/// Handler of the `discard_changeset` tool.
 pub struct DiscardChangeset;
+/// Handler of the `get_preview_link` tool.
 pub struct GetPreviewLink;
 
 /// Published, discarded and expired changesets listed besides the open ones.
@@ -88,17 +91,9 @@ impl ToolHandler<McpState> for ListChangesets {
                 let roles = fetch_user_roles(&mut conn, Some(user_id)).await?;
                 let course_ids =
                     agent_changesets::get_course_ids_by_user(&mut conn, user_id).await?;
-                courses::get_by_ids(&mut conn, &course_ids)
-                    .await?
+                let courses = courses::get_by_ids(&mut conn, &course_ids).await?;
+                editable_courses(&roles, courses)
                     .into_iter()
-                    .filter(|course| {
-                        is_permitted_on_course(
-                            &roles,
-                            Action::Edit,
-                            course.id,
-                            course.organization_id,
-                        )
-                    })
                     .map(|course| course.id)
                     .collect()
             }
@@ -249,7 +244,7 @@ impl ToolHandler<McpState> for PublishChangeset {
                 }))
             }
             PublishRejection::Conflicts { conflicts } => Err(ToolError::refused(
-                ErrorCode::PublishConflict,
+                ToolErrorCode::PublishConflict,
                 "Nothing was published: these staged pages or entities changed live after they were staged. Drop them with discard_changeset and entities set to their ids, read their published state again, redo your edits to them on top of it, then publish.",
                 json!({"conflicts": conflicts}),
             )),
@@ -259,13 +254,13 @@ impl ToolHandler<McpState> for PublishChangeset {
             )),
             PublishRejection::GlobalAdminOnlyExerciseServices { service_names } => {
                 Err(ToolError::refused(
-                    ErrorCode::AdminOnlyExerciseServices,
+                    ToolErrorCode::AdminOnlyExerciseServices,
                     "Nothing was published: the staged pages add exercises of services only administrators may add.",
                     json!({"services": service_names}),
                 ))
             }
             PublishRejection::Blockers { blockers } => Err(ToolError::refused(
-                ErrorCode::PublishFailed,
+                ToolErrorCode::PublishFailed,
                 "Nothing was published: with the staged changes the course would break rules publishing relies on. Fix the staged entities named here with the patch tools, or drop them with discard_changeset, then publish again.",
                 json!({"blockers": explain_blockers(blockers)}),
             )),
@@ -273,7 +268,7 @@ impl ToolHandler<McpState> for PublishChangeset {
                 Ok(not_open_result(changeset.id, status).into())
             }
             PublishRejection::SaveFailed { entity, message } => Err(ToolError::refused(
-                ErrorCode::PublishFailed,
+                ToolErrorCode::PublishFailed,
                 format!(
                     "Nothing was published: saving the staged changes failed: {message}. Fix the staged entities with the patch tools, or drop them with discard_changeset, then publish again."
                 ),
@@ -330,7 +325,7 @@ fn discard_rejected(
         DiscardRejection::NotOpen { status } => Ok(not_open_result(changeset_id, status).into()),
         DiscardRejection::ChangedSinceReview(ChangedSinceReview { revision }) => {
             Err(ToolError::refused(
-                ErrorCode::ChangesetChanged,
+                ToolErrorCode::ChangesetChanged,
                 format!(
                     "Nothing was dropped: the changeset is at revision {revision}, not the one you gave, so it holds changes you haven't seen. list_changesets shows what it holds now."
                 ),
@@ -338,7 +333,7 @@ fn discard_rejected(
             ))
         }
         DiscardRejection::Blockers { blockers } => Err(ToolError::refused(
-            ErrorCode::DiscardConflict,
+            ToolErrorCode::DiscardConflict,
             "Nothing was dropped: without these entities the rest of the changeset couldn't be published. Include the entities those changes depend on, or discard the whole changeset.",
             json!({"blockers": explain_blockers(blockers)}),
         )),
@@ -364,11 +359,7 @@ async fn discard_some(
     let mut keys = Vec::with_capacity(ids.len());
     let mut unknown = Vec::new();
     for id in ids {
-        match view
-            .staged_entities
-            .keys()
-            .find(|(_, entity_id)| *entity_id == id)
-        {
+        match view.staged_entities.keys().find(|key| key.entity_id == id) {
             Some(key) => keys.push(*key),
             None => unknown.push(id),
         }
@@ -457,7 +448,7 @@ impl ToolHandler<McpState> for GetPreviewLink {
             }))
             .into());
         };
-        let key = (ContentEntityType::Page, page_id);
+        let key = EntityKey::new(ContentEntityType::Page, page_id);
         match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
             Some(AgentChangesetEntityOperation::Delete) => {
                 return Err(deleted_in_staged_changes(page_id));

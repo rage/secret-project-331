@@ -4907,7 +4907,7 @@ pub async fn reorder_chapters(
     let changed_chapters: Vec<_> = chapters
         .iter()
         .map(|chapter| {
-            (
+            crate::library::entity_snapshots::EntityKey::new(
                 crate::library::entity_snapshots::ContentEntityType::Chapter,
                 chapter.id,
             )

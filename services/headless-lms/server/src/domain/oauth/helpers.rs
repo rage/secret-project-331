@@ -14,27 +14,26 @@ pub fn oauth_error(
     state: Option<&str>,
 ) -> ControllerError {
     let description = description.into();
-    ControllerError::new(
-        ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
+    controller_err!(
+        OAuthError(Box::new(OAuthErrorData {
             redirect_uri: redirect.map(str::to_string),
             state: state.map(str::to_string),
             ..OAuthErrorData::new(code, description.clone())
         })),
-        description,
-        None::<anyhow::Error>,
+        description
     )
 }
 
 /// A `server_error` answered as JSON, keeping the internal cause for the logs.
 #[track_caller]
 pub fn oauth_server_error(description: &'static str, source: anyhow::Error) -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::OAuthError(Box::new(OAuthErrorData::new(
+    controller_err!(
+        OAuthError(Box::new(OAuthErrorData::new(
             OAuthErrorCode::ServerError,
             description,
         ))),
         description,
-        Some(source),
+        source
     )
 }
 
@@ -47,6 +46,7 @@ pub fn oauth_invalid_request(
     oauth_error(OAuthErrorCode::InvalidRequest, description, redirect, state)
 }
 
+/// `invalid_client`: the client could not be authenticated.
 #[track_caller]
 pub fn oauth_invalid_client(description: impl Into<String>) -> ControllerError {
     oauth_error(OAuthErrorCode::InvalidClient, description, None, None)
@@ -58,16 +58,19 @@ pub fn oauth_invalid_token(description: impl Into<String>) -> ControllerError {
     oauth_error(OAuthErrorCode::InvalidToken, description, None, None)
 }
 
+/// `invalid_scope`: the requested scope is invalid, unknown or exceeds what is allowed.
 #[track_caller]
 pub fn oauth_invalid_scope(description: impl Into<String>) -> ControllerError {
     oauth_error(OAuthErrorCode::InvalidScope, description, None, None)
 }
 
+/// `unauthorized_client`: the client may not use this grant type.
 #[track_caller]
 pub fn oauth_unauthorized_client(description: impl Into<String>) -> ControllerError {
     oauth_error(OAuthErrorCode::UnauthorizedClient, description, None, None)
 }
 
+/// `invalid_grant`: the authorization code, refresh token or device code is invalid, expired or revoked.
 #[track_caller]
 pub fn oauth_invalid_grant(description: impl Into<String>) -> ControllerError {
     oauth_error(OAuthErrorCode::InvalidGrant, description, None, None)

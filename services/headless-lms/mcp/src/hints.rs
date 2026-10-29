@@ -11,9 +11,11 @@ use crate::validator::BlockSchemas;
 pub const CURRENT_SKILL_VERSION: Version = Version(0, 0, 0);
 /// The oldest skill version this server still works with.
 pub const MINIMUM_SKILL_VERSION: Version = Version(0, 0, 0);
+/// Where teachers learn to set up the skill.
 pub const SKILL_SETUP_URL: &str =
     "https://github.com/rage/course-material-agent-skills/blob/main/SETUP.md";
 
+/// What a [`Hint`] tells the agent.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HintKind {
@@ -24,6 +26,7 @@ pub enum HintKind {
     VisualCheck,
 }
 
+/// A fact for the agent, placed in the structured result.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Hint {
     pub kind: HintKind,
@@ -111,6 +114,7 @@ pub fn needs_teacher_review(review_url: &str, reason_count: usize) -> Hint {
     )
 }
 
+/// The changeset is published.
 pub fn published(changeset_id: uuid::Uuid) -> Hint {
     Hint::new(
         HintKind::State,
@@ -132,6 +136,7 @@ pub fn not_visually_checked(page_count: usize, client: ClientKind) -> Hint {
     )
 }
 
+/// Moved pages get redirects when the changeset is published.
 pub fn redirects_created(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -141,6 +146,7 @@ pub fn redirects_created(count: usize) -> Hint {
     )
 }
 
+/// Links to moved pages keep working through redirects.
 pub fn links_to_old_paths(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -150,6 +156,7 @@ pub fn links_to_old_paths(count: usize) -> Hint {
     )
 }
 
+/// Links to paths that other pages now have open those pages instead.
 pub fn links_to_reused_paths(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -159,6 +166,7 @@ pub fn links_to_reused_paths(count: usize) -> Hint {
     )
 }
 
+/// Copied exercises are new ones without submissions.
 pub fn exercises_copied(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -166,6 +174,7 @@ pub fn exercises_copied(count: usize) -> Hint {
     )
 }
 
+/// Moved blocks keep their ids, so feedback and proposed edits follow them.
 pub fn blocks_moved_between_pages(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -175,6 +184,7 @@ pub fn blocks_moved_between_pages(count: usize) -> Hint {
     )
 }
 
+/// Switching an exercise's review config orphans the reviews students have given.
 pub fn review_config_switched_with_reviews(review_count: i64) -> Hint {
     Hint::new(
         HintKind::Consequence,
@@ -184,6 +194,7 @@ pub fn review_config_switched_with_reviews(review_count: i64) -> Hint {
     )
 }
 
+/// Removed exercises have student submissions.
 pub fn submissions_affected(count: usize) -> Hint {
     Hint::new(
         HintKind::Consequence,

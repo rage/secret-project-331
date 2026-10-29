@@ -3,7 +3,7 @@
 use chrono::Duration;
 use utoipa::ToSchema;
 
-use crate::prelude::*;
+use crate::{error::missing_model_error, prelude::*};
 
 /// How long an open changeset lives after its last write.
 const LIFETIME_AFTER_LAST_WRITE_DAYS: i64 = 14;
@@ -39,6 +39,7 @@ pub struct AgentChangeset {
 }
 
 impl AgentChangeset {
+    /// Whether the changeset can still take changes.
     pub fn is_open(&self) -> bool {
         self.status == AgentChangesetStatus::Open
     }
@@ -85,9 +86,13 @@ WHERE status = 'open' DO NOTHING
     .await?;
     get_open(conn, user_id, course_id)
         .await?
-        .ok_or_else(|| model_err!(Generic, "Open agent changeset vanished".to_string()))
+        .ok_or_else(missing_model_error(
+            ModelErrorType::Generic,
+            "Open agent changeset vanished",
+        ))
 }
 
+/// The user's open changeset for the course, if any. See [`get_or_create_open`].
 pub async fn get_open(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -135,6 +140,7 @@ WHERE cs.user_id = $1
     Ok(res)
 }
 
+/// The changeset, whatever its status.
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<AgentChangeset> {
     let res = sqlx::query_as!(
         AgentChangeset,
@@ -267,7 +273,7 @@ SELECT id AS "id!",
   updated_at AS "updated_at!",
   user_id AS "user_id!",
   course_id AS "course_id!",
-  status AS "status!: AgentChangesetStatus",
+  status AS "status!",
   expires_at AS "expires_at!",
   published_at,
   revision AS "revision!"
@@ -382,6 +388,7 @@ RETURNING *
     Ok(res)
 }
 
+/// Marks an open changeset published. Errors if it is no longer open.
 pub async fn mark_published(conn: &mut PgConnection, id: Uuid) -> ModelResult<AgentChangeset> {
     let res = sqlx::query_as!(
         AgentChangeset,

@@ -34,6 +34,7 @@ const SERVER_TITLE: &str = "courses.mooc.fi course material";
 const TOOLS_LIST_TTL_MS: u64 = 60_000;
 const DISCOVER_TTL_MS: u64 = 300_000;
 
+/// Deployment settings of an [`McpServer`].
 pub(crate) struct ServerConfig {
     pub server_version: String,
     /// The RFC 9728 metadata URL advertised in `WWW-Authenticate`.
@@ -95,6 +96,49 @@ impl RpcError {
         }
     }
 
+    fn parse_error(message: impl Into<String>) -> Self {
+        Self::new(400, ErrorCode::PARSE_ERROR, message)
+    }
+
+    fn invalid_request(message: impl Into<String>) -> Self {
+        Self::new(400, ErrorCode::INVALID_REQUEST, message)
+    }
+
+    /// Params the protocol layer rejects before any tool is chosen.
+    fn invalid_params(message: impl Into<String>) -> Self {
+        Self::new(400, ErrorCode::INVALID_PARAMS, message)
+    }
+
+    fn header_mismatch(message: impl Into<String>) -> Self {
+        Self::new(400, ErrorCode::HEADER_MISMATCH, message)
+    }
+
+    fn unsupported_protocol_version(message: impl Into<String>) -> Self {
+        Self::new(400, ErrorCode::UNSUPPORTED_PROTOCOL_VERSION, message)
+    }
+
+    fn method_not_found(message: impl Into<String>) -> Self {
+        Self::new(404, ErrorCode::METHOD_NOT_FOUND, message)
+    }
+
+    fn unauthorized(message: impl Into<String>) -> Self {
+        Self::new(403, error_codes::UNAUTHORIZED, message)
+    }
+
+    /// A `tools/call` that passed the protocol checks but can't run; answered with HTTP 200,
+    /// unlike [`RpcError::invalid_params`].
+    fn tool_call(code: ErrorCode, message: impl Into<String>) -> Self {
+        Self::new(200, code, message)
+    }
+
+    /// A `tools/call` that failed on the server's side; the details go to the log only.
+    fn internal() -> Self {
+        Self::tool_call(
+            ErrorCode::INTERNAL_ERROR,
+            "Internal error; the call changed nothing",
+        )
+    }
+
     fn with_data(mut self, data: Value) -> Self {
         self.data = Some(data);
         self
@@ -117,6 +161,7 @@ pub struct McpServer<S> {
 }
 
 impl<S: Send + Sync + 'static> McpServer<S> {
+    /// A server answering with the tools of `registry`.
     pub(crate) fn new(registry: ToolRegistry<S>, config: ServerConfig) -> Self {
         Self { registry, config }
     }
@@ -138,23 +183,18 @@ impl<S: Send + Sync + 'static> McpServer<S> {
         let mut object = match request.body {
             Ok(Value::Object(object)) => object,
             Ok(_) => {
-                return RpcError::new(
-                    400,
-                    ErrorCode::INVALID_REQUEST,
+                return RpcError::invalid_request(
                     "Invalid Request: send one JSON-RPC object per request; batches aren't supported",
                 )
                 .into_response(None);
             }
             Err(e) => {
-                return RpcError::new(400, ErrorCode::PARSE_ERROR, format!("Parse error: {e}"))
-                    .into_response(None);
+                return RpcError::parse_error(format!("Parse error: {e}")).into_response(None);
             }
         };
         let is_response = object.contains_key("result") || object.contains_key("error");
         let invalid = || {
-            RpcError::new(
-                400,
-                ErrorCode::INVALID_REQUEST,
+            RpcError::invalid_request(
                 "Invalid Request: a request needs a string method and a string or number id",
             )
             .into_response(None)
@@ -228,15 +268,14 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             self.check_version(&client, headers)?;
             let header_params = tool.map_or(&[][..], |tool| &tool.definition.header_params);
             headers::validate(headers, method, &params, header_params)
-                .map_err(|reason| RpcError::new(400, ErrorCode::HEADER_MISMATCH, reason))?;
+                .map_err(RpcError::header_mismatch)?;
         }
         match method {
             "server/discover" => Ok(self.discover()),
             "tools/list" => Ok(self.list_tools(principal)),
             "tools/call" => {
                 let Some(tool) = tool else {
-                    return Err(RpcError::new(
-                        200,
+                    return Err(RpcError::tool_call(
                         ErrorCode::INVALID_PARAMS,
                         format!("Unknown tool: {tool_name}"),
                     ));
@@ -245,23 +284,16 @@ impl<S: Send + Sync + 'static> McpServer<S> {
                 self.call_tool(state, principal, client, tool, params, progress)
                     .await
             }
-            other => Err(RpcError::new(
-                404,
-                ErrorCode::METHOD_NOT_FOUND,
-                format!("Method not found: {other}"),
-            )),
+            other => Err(RpcError::method_not_found(format!(
+                "Method not found: {other}"
+            ))),
         }
     }
 
     fn unsupported_version(&self, requested: Value) -> RpcError {
-        RpcError::new(
-            400,
-            ErrorCode::UNSUPPORTED_PROTOCOL_VERSION,
-            format!(
-                "This server supports MCP protocol revision {PROTOCOL_VERSION} only. Update the agent, or enable its {PROTOCOL_VERSION} support (Codex needs an opt-in); see {}",
-                SETUP_DOCS_URL
-            ),
-        )
+        RpcError::unsupported_protocol_version(format!(
+            "This server supports MCP protocol revision {PROTOCOL_VERSION} only. Update the agent, or enable its {PROTOCOL_VERSION} support (Codex needs an opt-in); see {SETUP_DOCS_URL}"
+        ))
         .with_data(json!({"requested": requested, "supported": [PROTOCOL_VERSION], "setup": SETUP_DOCS_URL}))
     }
 
@@ -271,9 +303,7 @@ impl<S: Send + Sync + 'static> McpServer<S> {
         headers: &RequestHeaders,
     ) -> Result<(), RpcError> {
         let Some(version) = &client.protocol_version else {
-            return Err(RpcError::new(
-                400,
-                ErrorCode::INVALID_PARAMS,
+            return Err(RpcError::invalid_params(
                 "Invalid params: request _meta must include io.modelcontextprotocol/protocolVersion and io.modelcontextprotocol/clientCapabilities",
             ));
         };
@@ -282,20 +312,14 @@ impl<S: Send + Sync + 'static> McpServer<S> {
         }
         match headers.single(PROTOCOL_VERSION_HEADER) {
             Ok(Some(header)) if header == version.as_str() => Ok(()),
-            Ok(Some(header)) => Err(RpcError::new(
-                400,
-                ErrorCode::HEADER_MISMATCH,
-                format!(
-                    "MCP-Protocol-Version header {header} doesn't match the request _meta version {}",
-                    version.as_str()
-                ),
-            )),
-            Ok(None) => Err(RpcError::new(
-                400,
-                ErrorCode::HEADER_MISMATCH,
+            Ok(Some(header)) => Err(RpcError::header_mismatch(format!(
+                "MCP-Protocol-Version header {header} doesn't match the request _meta version {}",
+                version.as_str()
+            ))),
+            Ok(None) => Err(RpcError::header_mismatch(
                 "missing MCP-Protocol-Version header",
             )),
-            Err(reason) => Err(RpcError::new(400, ErrorCode::HEADER_MISMATCH, reason)),
+            Err(reason) => Err(RpcError::header_mismatch(reason)),
         }
     }
 
@@ -348,8 +372,7 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             None | Some(Value::Null) => Map::new(),
             Some(Value::Object(arguments)) => arguments,
             Some(_) => {
-                return Err(RpcError::new(
-                    200,
+                return Err(RpcError::tool_call(
                     ErrorCode::INVALID_PARAMS,
                     "arguments must be an object",
                 ));
@@ -363,16 +386,19 @@ impl<S: Send + Sync + 'static> McpServer<S> {
                 return Ok(self.tool_result(ToolError::from(outdated).into_result()));
             }
         };
-        let binding = || confirmation_binding(principal, name, &arguments);
+        let binding = confirmation_binding(principal, name, &arguments)?;
         let retry = match params.remove("requestState") {
             Some(Value::String(sealed)) => Some(self.open_request_state(
                 &sealed,
-                binding().as_bytes(),
+                binding.as_bytes(),
                 params.remove("inputResponses"),
             )?),
             _ => None,
         };
-        let sealing_binding = tool.handler.asks_for_confirmation().then(binding);
+        let sealing_binding = tool
+            .handler
+            .asks_for_confirmation()
+            .then_some(binding.as_str());
         let ctx = RequestContext {
             principal: principal.clone(),
             client,
@@ -385,18 +411,14 @@ impl<S: Send + Sync + 'static> McpServer<S> {
                 Ok(self.tool_result(result.with_hints(skill_hint)))
             }
             Ok(ToolOutcome::NeedsConfirmation(request)) => {
-                Ok(self.confirmation(&ctx, request, sealing_binding.as_deref(), skill_hint))
+                Ok(self.confirmation(&ctx, request, sealing_binding, skill_hint))
             }
             Err(ToolError::InsufficientScope { required }) => {
                 Err(self.insufficient_scope(principal, required))
             }
             Err(ToolError::Internal(message)) => {
                 tracing::error!(tool = %ctx.tool_name, %message, "MCP tool failed");
-                Err(RpcError::new(
-                    200,
-                    ErrorCode::INTERNAL_ERROR,
-                    "Internal error; the call changed nothing",
-                ))
+                Err(RpcError::internal())
             }
             Err(error) => Ok(self.tool_result(error.into_result().with_hints(skill_hint))),
         }
@@ -406,11 +428,9 @@ impl<S: Send + Sync + 'static> McpServer<S> {
     /// a client stepping up requests exactly the challenged scopes and would lose the others.
     fn insufficient_scope(&self, principal: &McpPrincipal, required: McpScope) -> RpcError {
         let scope = required.as_str();
-        let mut error = RpcError::new(
-            403,
-            error_codes::UNAUTHORIZED,
-            format!("This needs the {scope} scope, which the agent's sign-in doesn't include"),
-        )
+        let mut error = RpcError::unauthorized(format!(
+            "This needs the {scope} scope, which the agent's sign-in doesn't include"
+        ))
         .with_data(json!({"required_scope": scope}));
         let challenged: Vec<&str> = McpScope::ALL
             .into_iter()
@@ -486,8 +506,7 @@ impl<S: Send + Sync + 'static> McpServer<S> {
         responses: Option<Value>,
     ) -> Result<RetryState, RpcError> {
         let invalid = || {
-            RpcError::new(
-                200,
+            RpcError::tool_call(
                 error_codes::INVALID_REQUEST_STATE,
                 "requestState is invalid or expired; repeat the call without it",
             )
@@ -510,18 +529,25 @@ fn confirmation_binding(
     principal: &McpPrincipal,
     tool: &str,
     arguments: &Map<String, Value>,
-) -> String {
+) -> Result<String, RpcError> {
     // Canonical because serde_json's `Map` keeps keys sorted (the `preserve_order` feature is off).
-    let arguments = serde_json::to_vec(arguments).expect("a JSON object serializes");
-    stable_digest(&[
+    let arguments = serde_json::to_vec(arguments).map_err(|error| {
+        tracing::error!(%tool, %error, "MCP tool arguments didn't serialize");
+        RpcError::internal()
+    })?;
+    Ok(stable_digest(&[
         principal.actor.user_id.as_bytes(),
         tool.as_bytes(),
         &arguments,
-    ])
+    ]))
 }
 
+/// A protocol value as JSON; one that doesn't serialize is logged and becomes `null`.
 fn to_json(value: &impl Serialize) -> Value {
-    serde_json::to_value(value).expect("the protocol types serialize to JSON")
+    serde_json::to_value(value).unwrap_or_else(|error| {
+        tracing::error!(%error, "an MCP protocol value didn't serialize");
+        Value::Null
+    })
 }
 
 #[cfg(test)]

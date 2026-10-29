@@ -16,6 +16,7 @@ pub enum MediaOwner {
     Exam(Uuid),
 }
 
+/// What an upload is, by its MIME top-level type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MediaKind {
     Image,

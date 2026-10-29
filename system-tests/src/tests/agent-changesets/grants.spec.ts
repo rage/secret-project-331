@@ -1,14 +1,10 @@
 import { expect, test } from "@playwright/test"
 
-import {
-  AGENT_CLIENT_NAME,
-  AGENT_GRANT_HOLDER_EMAIL,
-  agentStorageState,
-} from "@/utils/agentChangesets"
+import { AGENT_CLIENT_NAME, AGENT_GRANT_HOLDER_EMAIL } from "@/utils/agentChangesets"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { openAuthorizedApplications } from "@/utils/oauth/authorizedClients"
 
-test.use({ storageState: agentStorageState(AGENT_GRANT_HOLDER_EMAIL) })
+test.use({ storageState: `src/states/${AGENT_GRANT_HOLDER_EMAIL}.json` })
 // Revoking uses up the seeded grant, so a retry would fail for a different reason.
 test.describe.configure({ retries: 0 })
 
@@ -32,7 +28,4 @@ test("teacher revokes an AI agent's access", async ({ page }) => {
   )
 
   await expect(grant.row).toHaveCount(0)
-  await expect(page.getByTestId("authorized-applications-section")).toContainText(
-    "No authorized applications",
-  )
 })

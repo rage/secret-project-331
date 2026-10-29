@@ -2,9 +2,7 @@
 
 mod bulk;
 mod changesets;
-mod exercise_list;
-mod exercise_specs;
-mod exercises;
+mod exercise;
 mod guide;
 mod history;
 mod patches;
@@ -24,14 +22,14 @@ pub fn registry() -> ToolRegistry<McpState> {
         catalog::get_page_content(reads::GetPageContent),
         catalog::get_course_settings(reads::GetCourseSettings),
         catalog::get_course_glossary_and_references(reads::GetGlossaryAndReferences),
-        catalog::get_exercise(exercises::GetExercise),
-        catalog::list_exercises(exercise_list::ListExercises),
+        catalog::get_exercise(exercise::GetExercise),
+        catalog::list_exercises(exercise::ListExercises),
         catalog::read_public_course(public_course::ReadPublicCourse),
         catalog::patch_page_content(patches::PatchPageContent),
         catalog::patch_course_structure(patches::PatchCourseStructure),
         catalog::patch_course_settings(patches::PatchCourseSettings),
         catalog::patch_course_glossary_and_references(patches::PatchGlossaryAndReferences),
-        catalog::patch_exercise(exercises::PatchExercise),
+        catalog::patch_exercise(exercise::PatchExercise),
         catalog::find_replace(bulk::FindReplace),
         catalog::structural_replace(bulk::StructuralReplace),
         catalog::upload_file(uploads::UploadFile),

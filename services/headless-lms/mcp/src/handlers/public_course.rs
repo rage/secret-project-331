@@ -23,6 +23,7 @@ use sqlx::PgConnection;
 use uuid::Uuid;
 
 use crate::access::connection;
+use crate::engine::blocks::EXERCISE_BLOCK;
 use crate::state::McpState;
 use crate::text::serialized_len;
 use crate::tools::args::ReadPublicCourseArgs;
@@ -130,7 +131,7 @@ impl Reading<'_> {
 }
 
 /// The course `course_slug` names, if the course site lets the caller open it.
-async fn open_course<'a>(
+async fn open_public_course<'a>(
     state: &'a McpState,
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -264,7 +265,7 @@ async fn outline(
 
 /// Ids of the exercise blocks in `block` and its inner blocks, in page order.
 fn exercise_block_ids(block: &Value, ids: &mut Vec<Uuid>) {
-    if block["name"] == json!("moocfi/exercise")
+    if block["name"] == EXERCISE_BLOCK
         && let Some(id) = block["attributes"]["id"]
             .as_str()
             .and_then(|id| id.parse().ok())
@@ -456,7 +457,7 @@ impl ToolHandler<McpState> for ReadPublicCourse {
         let user_id = ctx.principal.actor.user_id;
         let mut conn = connection(state).await?;
         let roles = fetch_user_roles(&mut conn, Some(user_id)).await?;
-        let reading = open_course(
+        let reading = open_public_course(
             state,
             &mut conn,
             user_id,

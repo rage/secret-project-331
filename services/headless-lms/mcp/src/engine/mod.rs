@@ -10,8 +10,8 @@ pub mod glossary_references;
 pub(crate) mod labels;
 pub mod op;
 pub mod page_content;
+pub(crate) mod path;
 pub mod read;
-pub mod read_structure;
 pub mod structural_replace;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -19,8 +19,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use uuid::Uuid;
 
-use crate::exercises::{InstructionsList, InstructionsLocation};
 use crate::ids::IdGenerator;
+use crate::instruction_lists::{InstructionsList, InstructionsLocation};
 
 pub use error::{EditError, EditErrorCode, Warning, WarningCode};
 pub use op::{PatchTarget, parse_ops};
@@ -231,6 +231,7 @@ pub struct Document {
 }
 
 impl Document {
+    /// The document as a borrowed [`DocumentRef`].
     pub fn as_document_ref(&self) -> DocumentRef<'_> {
         DocumentRef {
             key: self.key,
@@ -324,6 +325,7 @@ pub(crate) struct CreatedIdLog<'a> {
 }
 
 impl<'a> CreatedIdLog<'a> {
+    /// A log that mints ids with `generator`.
     pub(crate) fn new(generator: &'a dyn IdGenerator) -> Self {
         Self {
             generator,
@@ -365,6 +367,7 @@ impl<'a> CreatedIdLog<'a> {
         self.generator
     }
 
+    /// The ids the call created, listed by op.
     pub(crate) fn into_created(self) -> Vec<CreatedIds> {
         self.created
     }
@@ -438,24 +441,4 @@ pub(crate) fn reject_unknown_keys(
         format!("{noun} has no field {}", op::quote_list(&unknown)),
     )
     .with_fix(format!("fields: {}", allowed.join(", "))))
-}
-
-/// A path segment with its JSON Pointer escapes (`~1` for `/`, `~0` for `~`) undone.
-pub(crate) fn unescape_segment(segment: &str) -> String {
-    segment.replace("~1", "/").replace("~0", "~")
-}
-
-/// The unescaped segments of a path; `None` when it doesn't start with `/`.
-pub(crate) fn split_path(path: &str) -> Option<Vec<String>> {
-    Some(
-        path.strip_prefix('/')?
-            .split('/')
-            .map(unescape_segment)
-            .collect(),
-    )
-}
-
-/// Whether a path's first segment names the course: `course` or the course's id.
-pub(crate) fn is_course_root(segment: &str, course_id: Uuid) -> bool {
-    segment == "course" || Uuid::parse_str(segment).is_ok_and(|id| id == course_id)
 }

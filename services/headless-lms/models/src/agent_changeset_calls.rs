@@ -55,6 +55,7 @@ pub struct CallActor {
     pub client_name: String,
 }
 
+/// A call to record with [`insert`].
 #[derive(Debug, Clone)]
 pub struct NewAgentChangesetCall<'a> {
     pub changeset_id: Uuid,
@@ -100,8 +101,8 @@ RETURNING id
     let mut befores = Vec::with_capacity(call.entity_changes.len());
     let mut after_digests = Vec::with_capacity(call.entity_changes.len());
     for change in call.entity_changes {
-        entity_types.push(change.key.0);
-        entity_ids.push(change.key.1);
+        entity_types.push(change.key.entity_type);
+        entity_ids.push(change.key.entity_id);
         labels.push(change.label.as_str());
         befores.push(change.before_json.as_deref());
         after_digests.push(change.after_digest.as_deref());
@@ -142,6 +143,7 @@ FROM UNNEST(
     Ok(id)
 }
 
+/// The call with the entities it touched.
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<AgentChangesetCall> {
     let call = sqlx::query!(
         r#"
@@ -215,7 +217,7 @@ ORDER BY ce.entity_type,
     .await?;
     Ok(rows
         .into_iter()
-        .map(|row| ((row.entity_type, row.entity_id), row.call_id))
+        .map(|row| (EntityKey::new(row.entity_type, row.entity_id), row.call_id))
         .collect())
 }
 
@@ -292,7 +294,7 @@ pub async fn get_history(
 SELECT c.id,
   c.created_at,
   c.changeset_id,
-  agent_changeset_current_status(cs.status, cs.expires_at) AS "changeset_status!: AgentChangesetStatus",
+  agent_changeset_current_status(cs.status, cs.expires_at) AS "changeset_status!",
   c.client_name,
   c.tool_name,
   c.summary,

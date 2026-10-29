@@ -4,13 +4,13 @@
 mod access;
 mod diff;
 mod engine;
-mod exercises;
 mod explanations;
 mod guide;
 mod handlers;
 mod hints;
 pub mod http;
 mod ids;
+mod instruction_lists;
 mod instructions;
 pub mod protocol;
 mod snapshots;

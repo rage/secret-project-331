@@ -472,6 +472,7 @@ WHERE chapter_id = ANY($1)
     Ok(exercises)
 }
 
+/// The undeleted exercises on the pages.
 pub async fn get_exercises_by_page_ids(
     conn: &mut PgConnection,
     page_ids: &[Uuid],

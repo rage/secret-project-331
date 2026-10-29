@@ -126,6 +126,7 @@ fn header_params(input_schema: &Map<String, Value>) -> Vec<(String, String)> {
         .unwrap_or_default()
 }
 
+/// The `list_courses` tool, run by `handler`.
 pub fn list_courses<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -137,6 +138,7 @@ pub fn list_courses<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     .always_loaded()
 }
 
+/// The `get_course_structure` tool, run by `handler`.
 pub fn get_course_structure<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -148,6 +150,7 @@ pub fn get_course_structure<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S
     .always_loaded()
 }
 
+/// The `get_page_content` tool, run by `handler`.
 pub fn get_page_content<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -159,6 +162,7 @@ pub fn get_page_content<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     .always_loaded()
 }
 
+/// The `get_course_settings` tool, run by `handler`.
 pub fn get_course_settings<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -169,6 +173,7 @@ pub fn get_course_settings<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S>
     )
 }
 
+/// The `get_course_glossary_and_references` tool, run by `handler`.
 pub fn get_course_glossary_and_references<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -179,6 +184,7 @@ pub fn get_course_glossary_and_references<S>(handler: impl ToolHandler<S> + 'sta
     )
 }
 
+/// The `get_exercise` tool, run by `handler`.
 pub fn get_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -189,6 +195,7 @@ pub fn get_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `list_exercises` tool, run by `handler`.
 pub fn list_exercises<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -199,6 +206,7 @@ pub fn list_exercises<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `read_public_course` tool, run by `handler`.
 pub fn read_public_course<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -210,6 +218,7 @@ pub fn read_public_course<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     )
 }
 
+/// The `patch_page_content` tool, run by `handler`.
 pub fn patch_page_content<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -228,6 +237,7 @@ pub fn patch_page_content<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     .always_loaded()
 }
 
+/// The `patch_course_structure` tool, run by `handler`.
 pub fn patch_course_structure<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -243,6 +253,7 @@ pub fn patch_course_structure<S>(handler: impl ToolHandler<S> + 'static) -> Tool
     .taking_ops(PatchTarget::CourseStructure)
 }
 
+/// The `patch_course_settings` tool, run by `handler`.
 pub fn patch_course_settings<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -258,6 +269,7 @@ pub fn patch_course_settings<S>(handler: impl ToolHandler<S> + 'static) -> Tool<
     .taking_ops(PatchTarget::CourseSettings)
 }
 
+/// The `patch_course_glossary_and_references` tool, run by `handler`.
 pub fn patch_course_glossary_and_references<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -273,6 +285,7 @@ pub fn patch_course_glossary_and_references<S>(handler: impl ToolHandler<S> + 's
     .taking_ops(PatchTarget::GlossaryAndReferences)
 }
 
+/// The `patch_exercise` tool, run by `handler`.
 pub fn patch_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -288,6 +301,7 @@ pub fn patch_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     .taking_ops(PatchTarget::PageContent)
 }
 
+/// The `find_replace` tool, run by `handler`.
 pub fn find_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -298,6 +312,7 @@ pub fn find_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `structural_replace` tool, run by `handler`.
 pub fn structural_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -308,6 +323,7 @@ pub fn structural_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     )
 }
 
+/// The `upload_file` tool, run by `handler`.
 pub fn upload_file<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -318,6 +334,7 @@ pub fn upload_file<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `list_changesets` tool, run by `handler`.
 pub fn list_changesets<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -328,6 +345,7 @@ pub fn list_changesets<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `publish_changeset` tool, run by `handler`.
 pub fn publish_changeset<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -338,6 +356,7 @@ pub fn publish_changeset<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `discard_changeset` tool, run by `handler`.
 pub fn discard_changeset<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -348,6 +367,7 @@ pub fn discard_changeset<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `get_preview_link` tool, run by `handler`.
 pub fn get_preview_link<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -358,6 +378,7 @@ pub fn get_preview_link<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `get_history` tool, run by `handler`.
 pub fn get_history<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -368,6 +389,7 @@ pub fn get_history<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `revert_change` tool, run by `handler`.
 pub fn revert_change<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -378,6 +400,7 @@ pub fn revert_change<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+/// The `guide` tool, run by `handler`.
 pub fn guide<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,

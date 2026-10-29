@@ -77,6 +77,7 @@ pub struct OAuthClient {
 }
 
 impl OAuthClient {
+    /// Whether the client was registered through a Client ID Metadata Document.
     pub fn is_metadata_document_client(&self) -> bool {
         self.metadata_document_fetched_at.is_some()
     }

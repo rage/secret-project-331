@@ -1,14 +1,17 @@
+//! Planning the revert of an agent write call.
+
 use std::collections::HashMap;
 
 use crate::{
     agent_changeset_calls, agent_changesets,
     library::{
-        agent_changesets::{course_state::CourseView, staging::StagedEntity},
+        agent_changesets::course_state::{CourseView, StagedEntity},
         entity_snapshots::{ContentEntityType, EntityKey, EntityRef, EntitySnapshot},
     },
     prelude::*,
 };
 
+/// How a call can be reverted.
 #[derive(Debug, Clone)]
 pub enum RevertPlan {
     /// Stage these with [`super::stage_call`] (with `revert_of_call_id` set) to revert the call.
@@ -50,9 +53,11 @@ pub async fn plan_revert(
     let mut current_pages = view.current_page_snapshots(conn, &page_ids).await?;
     let mut current_states: HashMap<EntityKey, Option<EntitySnapshot>> = HashMap::new();
     for change in &call.entity_changes {
-        let key = (change.entity_type, change.entity_id);
-        let current = match key.0 {
-            ContentEntityType::Page => current_pages.remove(&key.1).map(EntitySnapshot::Page),
+        let key = EntityKey::new(change.entity_type, change.entity_id);
+        let current = match key.entity_type {
+            ContentEntityType::Page => current_pages
+                .remove(&key.entity_id)
+                .map(EntitySnapshot::Page),
             _ => view.staged.entity_snapshot(key),
         };
         current_states.entry(key).or_insert(current);
@@ -61,7 +66,7 @@ pub async fn plan_revert(
     let mut conflicts = Vec::new();
     let mut entities = Vec::with_capacity(call.entity_changes.len());
     for change in call.entity_changes {
-        let key = (change.entity_type, change.entity_id);
+        let key = EntityKey::new(change.entity_type, change.entity_id);
         let current = current_states.get(&key).and_then(Option::as_ref);
         let current_digest = current.map(EntitySnapshot::digest).transpose()?;
         if current_digest != change.after_digest {

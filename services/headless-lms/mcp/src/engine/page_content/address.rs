@@ -5,9 +5,10 @@ use serde_json::json;
 use uuid::Uuid;
 
 use super::Editor;
-use crate::engine::blocks::{self, BlockPart, BlockPath, parse_block_path};
+use crate::engine::blocks;
 use crate::engine::error::{EditError, EditErrorCode};
 use crate::engine::op::Position;
+use crate::engine::path::{BlockPart, BlockPath, parse_block_path};
 
 pub(super) type Anchor = crate::engine::Anchor<ListRef>;
 
@@ -138,7 +139,7 @@ impl Editor<'_> {
             BlockPart::Children => Ok(Address::Children(id)),
             BlockPart::ChildIndex(index) => Err(numeric_index_error(
                 path,
-                &self.block(&loc).inner_blocks,
+                &self.block(&loc)?.inner_blocks,
                 &index,
             )),
             BlockPart::Attributes(pointer) => Ok(Address::Attribute(id, pointer.to_string())),
@@ -222,7 +223,7 @@ impl Editor<'_> {
             },
             |list| {
                 let parent_path = self.list_parent_path(list)?;
-                let len = blocks::list(&self.pages[list.page].blocks, &parent_path).len();
+                let len = blocks::list(&self.pages[list.page].blocks, &parent_path)?.len();
                 Ok(((list.page, parent_path), len))
             },
         )?;
@@ -249,22 +250,22 @@ impl Editor<'_> {
         };
         let end = self.require(last_id)?;
         if start.page != end.page || start.parent_path() != end.parent_path() {
-            let parent_of = |loc: &Loc| -> String {
-                if loc.path.len() == 1 {
+            let parent_of = |loc: &Loc| -> Result<String, EditError> {
+                Ok(if loc.path.len() == 1 {
                     "the page's top level (\"\")".to_string()
                 } else {
                     format!(
                         "/{}/innerBlocks",
-                        blocks::get(&self.pages[loc.page].blocks, loc.parent_path()).client_id
+                        blocks::get(&self.pages[loc.page].blocks, loc.parent_path())?.client_id
                     )
-                }
+                })
             };
             return Err(EditError::new(
                 EditErrorCode::InvalidRange,
                 format!(
                     "a range must be siblings under one parent; /{first} is in {} and /{last_id} is in {}",
-                    parent_of(&start),
-                    parent_of(&end)
+                    parent_of(&start)?,
+                    parent_of(&end)?
                 ),
             )
             .with_details(json!({
@@ -287,8 +288,10 @@ impl Editor<'_> {
         })
     }
 
-    pub(super) fn range_blocks(&self, range: &Range) -> &[GutenbergBlock] {
-        &blocks::list(&self.pages[range.page].blocks, &range.parent_path)[range.start..=range.end]
+    pub(super) fn range_blocks(&self, range: &Range) -> Result<&[GutenbergBlock], EditError> {
+        blocks::list(&self.pages[range.page].blocks, &range.parent_path)?
+            .get(range.start..=range.end)
+            .ok_or_else(blocks::stale_location)
     }
 }
 
@@ -304,9 +307,8 @@ fn numeric_index_error(path: &str, list: &[GutenbergBlock], index: &str) -> Edit
     } else {
         ""
     };
-    EditError::new(
-        EditErrorCode::NumericIndex,
-        format!("\"{path}\" uses a numeric index; blocks are addressed by id{current}{append_hint}"),
-    )
-    .with_fix("use /<id> for a block, or the children list with a position, e.g. {\"path\":\"/box1/innerBlocks\",\"position\":\"end\"}")
+    let mut error = EditError::numeric_index(path, "blocks");
+    error.message.push_str(&current);
+    error.message.push_str(append_hint);
+    error.with_fix("use /<id> for a block, or the children list with a position, e.g. {\"path\":\"/box1/innerBlocks\",\"position\":\"end\"}")
 }

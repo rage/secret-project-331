@@ -138,8 +138,8 @@ ORDER BY ucs.last_used_at DESC NULLS LAST,
         Ok(res)
     }
 
-    /// Records that a token of the grant was used. `last_used_at` is the grant's current value:
-    /// within a minute of it nothing is written, so a busy grant costs no write per request.
+    /// Records that a token of the grant was used, at most once a minute per grant. `last_used_at`
+    /// is the grant's value read with the token; while it is recent, no query is sent.
     pub async fn mark_grant_used(
         conn: &mut PgConnection,
         grant_id: Uuid,
@@ -150,7 +150,15 @@ ORDER BY ucs.last_used_at DESC NULLS LAST,
             return Ok(());
         }
         sqlx::query!(
-            "UPDATE oauth_user_client_scopes SET last_used_at = now() WHERE id = $1",
+            r#"
+UPDATE oauth_user_client_scopes
+SET last_used_at = now()
+WHERE id = $1
+  AND (
+    last_used_at IS NULL
+    OR last_used_at < now() - INTERVAL '1 minute'
+  )
+            "#,
             grant_id
         )
         .execute(conn)

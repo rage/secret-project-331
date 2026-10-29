@@ -6,6 +6,7 @@ use crate::{
     prelude::*,
 };
 
+/// Why a history row was written.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Type)]
 #[sqlx(type_name = "entity_history_change_reason", rename_all = "snake_case")]
 pub enum EntityHistoryChangeReason {
@@ -24,6 +25,7 @@ pub struct HistoryAuthor {
 }
 
 impl HistoryAuthor {
+    /// An author who made the change in the web UI.
     pub fn user(user_id: Uuid) -> Self {
         Self {
             user_id,
@@ -31,6 +33,7 @@ impl HistoryAuthor {
         }
     }
 
+    /// An author whose change was staged by agent call `call_id`.
     pub fn agent(user_id: Uuid, call_id: Uuid) -> Self {
         Self {
             user_id,
@@ -39,13 +42,16 @@ impl HistoryAuthor {
     }
 }
 
+/// One history row; see [`insert`].
 #[derive(Debug, Clone, PartialEq)]
 pub struct EntityHistoryEntry {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub entity_type: ContentEntityType,
     /// The chapter or module id; the course id for course settings.
     pub entity_id: Uuid,
+    pub course_id: Uuid,
     /// The entity's fields after the change, in its snapshot shape.
     pub snapshot: serde_json::Value,
     pub change_reason: EntityHistoryChangeReason,
@@ -194,7 +200,7 @@ pub async fn record_current(
     entity_id: Uuid,
     author: HistoryAuthor,
 ) -> ModelResult<()> {
-    record_current_many(conn, &[(entity_type, entity_id)], author).await
+    record_current_many(conn, &[EntityKey::new(entity_type, entity_id)], author).await
 }
 
 /// Records the entity's current state as deleted. Call it before deleting the entity; does
@@ -206,7 +212,7 @@ pub async fn record_deleted(
     author: HistoryAuthor,
 ) -> ModelResult<()> {
     if let Some(snapshot) =
-        entity_snapshots::load_live(&mut *conn, (entity_type, entity_id)).await?
+        entity_snapshots::load_live(&mut *conn, EntityKey::new(entity_type, entity_id)).await?
     {
         insert(
             conn,
@@ -220,19 +226,12 @@ pub async fn record_deleted(
     Ok(())
 }
 
+/// The history row.
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<EntityHistoryEntry> {
     let res = sqlx::query_as!(
         EntityHistoryEntry,
         r#"
-SELECT id,
-  created_at,
-  entity_type AS "entity_type: ContentEntityType",
-  entity_id,
-  snapshot,
-  change_reason AS "change_reason: EntityHistoryChangeReason",
-  restored_from_id,
-  author_user_id,
-  agent_call_id
+SELECT *
 FROM entity_history
 WHERE id = $1
         "#,

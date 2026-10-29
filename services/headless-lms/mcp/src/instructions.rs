@@ -1,6 +1,7 @@
 //! The server `instructions` every client receives once: purpose, a tool map, the invariants and
 //! where to find more. Kept under 4,096 characters; the first 512 carry the essentials.
 
+/// The `instructions` field of the server's `initialize` result.
 pub const SERVER_INSTRUCTIONS: &str = "\
 This server reads and edits course material on courses.mooc.fi: course pages made of Gutenberg \
 blocks, chapters, modules, course settings, glossary and references. Teachers' agents use it to \

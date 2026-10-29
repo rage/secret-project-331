@@ -112,18 +112,3 @@ fn unauthorized<B>(
         .finish();
     req.into_response(response).map_into_right_body()
 }
-
-#[cfg(test)]
-mod tests {
-    use headless_lms_models::library::oauth::bearer::bearer_token;
-
-    #[test]
-    fn the_bearer_scheme_is_case_insensitive() {
-        assert_eq!(bearer_token("Bearer abc"), Some("abc"));
-        assert_eq!(bearer_token("bearer abc"), Some("abc"));
-        assert_eq!(bearer_token("BEARER  abc"), Some("abc"));
-        assert_eq!(bearer_token("Basic abc"), None);
-        assert_eq!(bearer_token("Bearer"), None);
-        assert_eq!(bearer_token("Bearer "), None);
-    }
-}

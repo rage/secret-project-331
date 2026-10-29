@@ -3,7 +3,7 @@
 use serde_json::{Map, Value};
 
 use crate::engine::error::{EditError, EditErrorCode};
-use crate::engine::unescape_segment;
+use crate::engine::path::unescape_segment;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PointerWrite {
@@ -18,9 +18,12 @@ fn with_parent<T>(
     pointer: &str,
     edit: impl FnOnce(&mut Value, &str) -> Result<T, EditError>,
 ) -> Result<T, EditError> {
-    let (parent, last) = pointer
-        .rsplit_once('/')
-        .expect("attribute pointers start with /");
+    let (parent, last) = pointer.rsplit_once('/').ok_or_else(|| {
+        EditError::new(
+            EditErrorCode::InvalidPath,
+            format!("attribute path {pointer:?} doesn't start with /"),
+        )
+    })?;
     let mut holder = Value::Object(std::mem::take(attributes));
     let result = match holder.pointer_mut(parent) {
         Some(value) => edit(value, &unescape_segment(last)),

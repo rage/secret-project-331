@@ -16,28 +16,31 @@ use crate::engine::blocks::{copy_blocks, walk};
 use crate::engine::course_structure::{self, ChapterRenumber, LinkToOldPath};
 use crate::engine::glossary_references::Usage;
 use crate::engine::page_content::BlockPageMove;
-use crate::engine::read::{ReadOptions, ReadResult, Selector, read_page};
-use crate::engine::read_structure::read_structure;
+use crate::engine::read::{ReadOptions, ReadResult, Selector, read_page, read_structure};
 use crate::engine::{
     CreatedIds, Document, DocumentKey, DocumentRef, EditError, EditErrorCode, PatchTarget, Warning,
     course_settings, glossary_references, page_content, parse_ops,
 };
-use crate::exercises;
 use crate::hints;
 use crate::ids::RandomIds;
+use crate::instruction_lists::{self, ExerciseTextParts};
 use crate::snapshots;
-use crate::staging::{self, WriteRequest, WriteSource};
+use crate::staging::{self, WriteMode, WriteRequest, WriteSource};
 use crate::state::McpState;
 use crate::tools::args::{PatchCourseArgs, PatchCourseStructureArgs, PatchPageContentArgs};
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome};
-use headless_lms_models::library::agent_changesets::CreatedRedirect;
 use headless_lms_models::library::agent_changesets::course_state::{CourseState, CourseView};
 use headless_lms_models::library::content_management::ChapterFrontPage;
 use headless_lms_models::page_language_groups::{self, PairingRefusal};
+use headless_lms_models::url_redirections::CreatedRedirect;
 
+/// Handler of the `patch_page_content` tool.
 pub struct PatchPageContent;
+/// Handler of the `patch_course_structure` tool.
 pub struct PatchCourseStructure;
+/// Handler of the `patch_course_settings` tool.
 pub struct PatchCourseSettings;
+/// Handler of the `patch_course_glossary_and_references` tool.
 pub struct PatchGlossaryAndReferences;
 
 fn pairing_refused(page_id: Uuid, message: String) -> ToolError {
@@ -248,7 +251,7 @@ impl ToolHandler<McpState> for PatchPageContent {
                 ..WriteRequest::new(
                     Value::Array(args.ops),
                     format!("{} op(s) on page {page_id}", ops.len()),
-                    args.dry_run,
+                    WriteMode::from_dry_run(args.dry_run),
                 )
             },
         )
@@ -360,7 +363,7 @@ impl ToolHandler<McpState> for PatchCourseStructure {
                 ..WriteRequest::new(
                     Value::Array(args.ops),
                     format!("{} structure op(s)", ops.len()),
-                    args.dry_run,
+                    WriteMode::from_dry_run(args.dry_run),
                 )
             },
         )
@@ -433,7 +436,7 @@ impl ToolHandler<McpState> for PatchCourseSettings {
             WriteRequest::new(
                 Value::Array(args.ops),
                 format!("{} settings op(s)", ops.len()),
-                args.dry_run,
+                WriteMode::from_dry_run(args.dry_run),
             ),
         )
         .await?;
@@ -463,7 +466,15 @@ impl ToolHandler<McpState> for PatchGlossaryAndReferences {
         let texts = if edit.affects_pages() {
             view.load_exercises(&mut *connection(state).await?).await?;
             let page_ids: Vec<Uuid> = view.staged.pages.iter().map(|page| page.id).collect();
-            exercises::text_documents(&view.staged, &page_ids, true, true, false)
+            instruction_lists::text_documents(
+                &view.staged,
+                &page_ids,
+                ExerciseTextParts {
+                    instructions: true,
+                    course_default: true,
+                    names: false,
+                },
+            )
         } else {
             Vec::new()
         };
@@ -480,7 +491,7 @@ impl ToolHandler<McpState> for PatchGlossaryAndReferences {
             .partition::<Vec<_>, _>(|key| matches!(key, DocumentKey::Page(_)));
         let mut after = view.staged.clone();
         snapshots::apply_glossary(&mut after, &result.document);
-        exercises::apply_documents(&mut after, result.rewritten_pages)?;
+        instruction_lists::apply_documents(&mut after, result.rewritten_pages)?;
         let report = staging::commit(
             state,
             ctx,
@@ -489,7 +500,7 @@ impl ToolHandler<McpState> for PatchGlossaryAndReferences {
             WriteRequest::new(
                 Value::Array(args.ops),
                 format!("{} glossary or reference op(s)", ops.len()),
-                args.dry_run,
+                WriteMode::from_dry_run(args.dry_run),
             ),
         )
         .await?;

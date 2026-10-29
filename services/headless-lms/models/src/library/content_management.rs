@@ -162,6 +162,7 @@ pub struct ChapterFrontPage {
 }
 
 impl ChapterFrontPage {
+    /// The front page of chapter `chapter_number`, titled `chapter_name`, with the standard blocks.
     pub fn new(chapter_name: &str, chapter_number: i32) -> Self {
         Self {
             title: chapter_name.to_string(),

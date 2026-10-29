@@ -1,14 +1,14 @@
-use std::collections::{HashMap, HashSet};
+//! Staging agent write calls into the open changeset.
 
-use utoipa::ToSchema;
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     agent_changeset_calls::{self, CallActor, NewAgentChangesetCall, NewEntityChange},
     agent_changeset_entities::{self, AgentChangesetEntity, NewStagedEntity, RestagedEntity},
-    agent_changesets::{self, AgentChangeset, AgentChangesetStatus},
+    agent_changesets::{self, AgentChangeset},
     library::{
         agent_changesets::{
-            course_state::PublishBlocker,
+            course_state::{PublishBlocker, StagedEntity},
             risk::{RiskBaseline, reclassify},
         },
         entity_snapshots::{
@@ -17,46 +17,6 @@ use crate::{
     },
     prelude::*,
 };
-
-/// The state one entity has after an agent write call.
-#[derive(Debug, Clone, PartialEq)]
-pub enum StagedEntity {
-    /// The entity's full snapshot after the call. Ids of new entities are assigned by the caller.
-    Write(EntitySnapshot),
-    Delete(EntityKey),
-}
-
-impl StagedEntity {
-    pub fn key(&self) -> EntityKey {
-        match self {
-            Self::Write(snapshot) => snapshot.key(),
-            Self::Delete(key) => *key,
-        }
-    }
-
-    /// The snapshot after the call; `None` for a delete.
-    pub fn after(&self) -> Option<&EntitySnapshot> {
-        match self {
-            Self::Write(snapshot) => Some(snapshot),
-            Self::Delete(_) => None,
-        }
-    }
-
-    pub fn into_after(self) -> Option<EntitySnapshot> {
-        match self {
-            Self::Write(snapshot) => Some(snapshot),
-            Self::Delete(_) => None,
-        }
-    }
-
-    /// Writes `after`, or deletes the entity when it is `None`.
-    pub fn new(key: EntityKey, after: Option<EntitySnapshot>) -> Self {
-        match after {
-            Some(snapshot) => Self::Write(snapshot),
-            None => Self::Delete(key),
-        }
-    }
-}
 
 /// The staged state a write call built its changes on.
 #[derive(Debug, Clone, Default)]
@@ -99,6 +59,7 @@ impl StagedStateRead {
     }
 }
 
+/// A write call to stage with [`stage_call`].
 #[derive(Clone)]
 pub struct StageCall<'a> {
     pub actor: &'a CallActor,
@@ -115,6 +76,7 @@ pub struct StageCall<'a> {
     pub risk: &'a RiskBaseline<'a>,
 }
 
+/// Whether [`stage_call`] staged the call.
 #[derive(Debug, Clone)]
 pub enum StageCallOutcome {
     Staged(Box<StageCallResult>),
@@ -131,6 +93,7 @@ pub enum StageCallOutcome {
     WouldAddBlockers(Vec<PublishBlocker>),
 }
 
+/// What a staged call left in the changeset.
 #[derive(Debug, Clone)]
 pub struct StageCallResult {
     pub changeset: AgentChangeset,
@@ -160,6 +123,8 @@ pub async fn stage_call(
     let outcome = stage(&mut tx, call).await?;
     if matches!(outcome, StageCallOutcome::Staged(_)) {
         tx.commit().await?;
+    } else {
+        tx.rollback().await?;
     }
     Ok(outcome)
 }
@@ -252,7 +217,7 @@ async fn stage(conn: &mut PgConnection, call: StageCall<'_>) -> ModelResult<Stag
                 }
                 check_snapshot(snapshot, call.course_id, &foreign_parents)?;
             }
-            None if key.0 == ContentEntityType::CourseSettings => {
+            None if key.entity_type == ContentEntityType::CourseSettings => {
                 return Err(model_err!(
                     PreconditionFailed,
                     "Course settings cannot be deleted".to_string()
@@ -260,54 +225,29 @@ async fn stage(conn: &mut PgConnection, call: StageCall<'_>) -> ModelResult<Stag
             }
             None => {}
         }
-        let after_json = after.as_ref().map(serde_json::to_string).transpose()?;
-        let after_digest = after_json.as_deref().map(json_digest);
-
-        let has_row = match existing_rows.remove(&key) {
-            Some(row) => {
-                let before = row.after_snapshot;
-                let base = bases.remove(&key);
-                if before != after {
-                    entity_changes.push(NewEntityChange {
-                        key,
-                        label: EntityRef::of(key, after.as_ref(), before.as_ref()).label,
-                        before_json: before.as_ref().map(serde_json::to_string).transpose()?,
-                        after_digest,
-                    });
-                }
-                if base == after {
-                    dropped_rows.push(key);
-                    false
-                } else {
-                    restaged_rows.push(RestagedEntity {
-                        key,
-                        after_json,
-                        label: EntityRef::of(key, after.as_ref(), base.as_ref()).label,
-                    });
-                    true
-                }
+        let prior = match existing_rows.remove(&key) {
+            Some(row) => PriorState::Staged {
+                before: row.after_snapshot,
+                base: bases.remove(&key),
+            },
+            None => PriorState::Live(live_bases.remove(&key).flatten()),
+        };
+        let has_row = match plan_entity(key, after.as_ref(), prior)? {
+            EntityPlan::Unchanged => false,
+            EntityPlan::New { row, change } => {
+                entity_changes.push(change);
+                new_rows.push(row);
+                true
             }
-            None => {
-                let before = live_bases.remove(&key).flatten();
-                if before == after {
-                    false
-                } else {
-                    let label = EntityRef::of(key, after.as_ref(), before.as_ref()).label;
-                    let before_json = before.as_ref().map(serde_json::to_string).transpose()?;
-                    entity_changes.push(NewEntityChange {
-                        key,
-                        label: label.clone(),
-                        before_json: before_json.clone(),
-                        after_digest,
-                    });
-                    new_rows.push(NewStagedEntity {
-                        key,
-                        base_json: before_json,
-                        after_json,
-                        label,
-                    });
-                    true
-                }
+            EntityPlan::Restaged { row, change } => {
+                entity_changes.extend(change);
+                restaged_rows.push(row);
+                true
+            }
+            EntityPlan::Dropped { change } => {
+                entity_changes.extend(change);
+                dropped_rows.push(key);
+                false
             }
         };
         if has_row {
@@ -358,132 +298,90 @@ async fn stage(conn: &mut PgConnection, call: StageCall<'_>) -> ModelResult<Stag
     })))
 }
 
-/// The staged changes changed after the revision the user based a publish or discard on. Nothing
-/// was written.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
-pub struct ChangedSinceReview {
-    /// The changeset's revision now.
-    pub revision: i32,
+/// What the changeset held of an entity before a call staged it.
+enum PriorState {
+    /// The changeset stages it: `before` is its staged snapshot, `base` the live state it was first
+    /// staged on.
+    Staged {
+        before: Option<EntitySnapshot>,
+        base: Option<EntitySnapshot>,
+    },
+    /// The changeset doesn't have it; this is its live state.
+    Live(Option<EntitySnapshot>),
 }
 
-/// Why a publish or discard couldn't act on the changeset.
-pub(super) enum LockRejection {
-    NotOpen(AgentChangesetStatus),
-    ChangedSinceReview(ChangedSinceReview),
+/// What staging one entity writes: its changeset row and its audit log entry. An entity's entry
+/// is `None` when the call leaves its staged state as it was.
+enum EntityPlan {
+    /// The entity stays out of the changeset: the call leaves it at its live state.
+    Unchanged,
+    New {
+        row: NewStagedEntity,
+        change: NewEntityChange,
+    },
+    Restaged {
+        row: RestagedEntity,
+        change: Option<NewEntityChange>,
+    },
+    /// The call puts the entity back at its base, so its row is removed.
+    Dropped { change: Option<NewEntityChange> },
 }
 
-/// Locks the changeset until the transaction ends and checks that it is open and, with
-/// `reviewed_revision`, still at that revision.
-pub(super) async fn lock_open_changeset(
-    conn: &mut PgConnection,
-    changeset_id: Uuid,
-    reviewed_revision: Option<i32>,
-) -> ModelResult<Result<AgentChangeset, LockRejection>> {
-    let changeset = agent_changesets::get_by_id_for_update(conn, changeset_id).await?;
-    if !changeset.is_open() {
-        return Ok(Err(LockRejection::NotOpen(changeset.status)));
-    }
-    if reviewed_revision.is_some_and(|reviewed| reviewed != changeset.revision) {
-        return Ok(Err(LockRejection::ChangedSinceReview(ChangedSinceReview {
-            revision: changeset.revision,
-        })));
-    }
-    Ok(Ok(changeset))
-}
-
-/// Why a discard was refused. Nothing was dropped.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-#[serde(tag = "reason", rename_all = "snake_case")]
-pub enum DiscardRejection {
-    /// The changeset was published, discarded or expired before.
-    NotOpen { status: AgentChangesetStatus },
-    /// The staged changes changed after the revision the discard was based on.
-    ChangedSinceReview(ChangedSinceReview),
-    /// Without the entities to drop, the rest of the changeset would break these rules of
-    /// publishing.
-    Blockers { blockers: Vec<PublishBlocker> },
-}
-
-impl From<LockRejection> for DiscardRejection {
-    fn from(rejection: LockRejection) -> Self {
-        match rejection {
-            LockRejection::NotOpen(status) => Self::NotOpen { status },
-            LockRejection::ChangedSinceReview(changed) => Self::ChangedSinceReview(changed),
+/// Plans staging `after` (`None` deletes) over the entity's `prior` state.
+fn plan_entity(
+    key: EntityKey,
+    after: Option<&EntitySnapshot>,
+    prior: PriorState,
+) -> ModelResult<EntityPlan> {
+    let after_json = after.map(serde_json::to_string).transpose()?;
+    let after_digest = after_json.as_deref().map(json_digest);
+    match prior {
+        PriorState::Staged { before, base } => {
+            let change = if before.as_ref() != after {
+                Some(NewEntityChange {
+                    key,
+                    label: EntityRef::of(key, after, before.as_ref()).label,
+                    before_json: before.as_ref().map(serde_json::to_string).transpose()?,
+                    after_digest,
+                })
+            } else {
+                None
+            };
+            if base.as_ref() == after {
+                Ok(EntityPlan::Dropped { change })
+            } else {
+                Ok(EntityPlan::Restaged {
+                    row: RestagedEntity {
+                        key,
+                        after_json,
+                        label: EntityRef::of(key, after, base.as_ref()).label,
+                    },
+                    change,
+                })
+            }
+        }
+        PriorState::Live(before) => {
+            if before.as_ref() == after {
+                return Ok(EntityPlan::Unchanged);
+            }
+            let label = EntityRef::of(key, after, before.as_ref()).label;
+            let before_json = before.as_ref().map(serde_json::to_string).transpose()?;
+            Ok(EntityPlan::New {
+                change: NewEntityChange {
+                    key,
+                    label: label.clone(),
+                    before_json: before_json.clone(),
+                    after_digest,
+                },
+                row: NewStagedEntity {
+                    key,
+                    base_json: before_json,
+                    after_json,
+                    label,
+                },
+            })
         }
     }
-}
-
-/// What discarding a whole changeset did.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-#[serde(tag = "outcome", rename_all = "snake_case")]
-pub enum DiscardOutcome {
-    Discarded { changeset: AgentChangeset },
-    Rejected { rejection: DiscardRejection },
-}
-
-/// Drops every staged change of an open changeset. With `reviewed_revision`, refuses if the
-/// changeset is at another revision, so that changes staged after the user looked are not dropped
-/// unseen.
-pub async fn discard(
-    conn: &mut PgConnection,
-    changeset_id: Uuid,
-    reviewed_revision: Option<i32>,
-) -> ModelResult<DiscardOutcome> {
-    let mut tx = conn.begin().await?;
-    if let Err(rejection) = lock_open_changeset(&mut tx, changeset_id, reviewed_revision).await? {
-        return Ok(DiscardOutcome::Rejected {
-            rejection: rejection.into(),
-        });
-    }
-    let changeset = agent_changesets::discard(&mut tx, changeset_id).await?;
-    tx.commit().await?;
-    Ok(DiscardOutcome::Discarded { changeset })
-}
-
-/// Drops the entities from an open changeset, so the user sees them live again, classifies the
-/// risk of the rest again and returns the entities it dropped. Entities the changeset doesn't
-/// have are skipped. Refuses like [`discard`], and if the rest would break rules of publishing
-/// the whole changeset didn't.
-pub async fn discard_entities(
-    conn: &mut PgConnection,
-    changeset_id: Uuid,
-    entities: &[EntityKey],
-    reviewed_revision: Option<i32>,
-    risk: &RiskBaseline<'_>,
-) -> ModelResult<Result<Vec<EntityRef>, DiscardRejection>> {
-    let mut tx = conn.begin().await?;
-    let changeset = match lock_open_changeset(&mut tx, changeset_id, reviewed_revision).await? {
-        Ok(changeset) => changeset,
-        Err(rejection) => return Ok(Err(rejection.into())),
-    };
-    let mut state = risk.changeset_state(&mut tx, &changeset).await?;
-    let dropped: Vec<EntityKey> = entities
-        .iter()
-        .filter(|key| state.stored_reasons.contains_key(key))
-        .copied()
-        .collect();
-    if dropped.is_empty() {
-        return Ok(Ok(Vec::new()));
-    }
-    let staged_before = state.staged.clone();
-    for key in &dropped {
-        state.stored_reasons.remove(key);
-        state.staged.to_mut().copy_entity_from(&state.live, *key);
-    }
-    let blockers = state.staged.blockers_added_since(&staged_before);
-    if !blockers.is_empty() {
-        return Ok(Err(DiscardRejection::Blockers { blockers }));
-    }
-    let dropped_entities = agent_changeset_entities::get_by_keys(&mut tx, changeset_id, &dropped)
-        .await?
-        .iter()
-        .map(AgentChangesetEntity::entity_ref)
-        .collect();
-    agent_changeset_entities::delete(&mut tx, changeset_id, &dropped).await?;
-    agent_changesets::increment_revision(&mut tx, changeset_id).await?;
-    reclassify(&mut tx, changeset_id, &state).await?;
-    tx.commit().await?;
-    Ok(Ok(dropped_entities))
 }
 
 /// The chapters and modules the written snapshots are placed in that belong to another course.
@@ -499,9 +397,15 @@ async fn foreign_parents(
         .filter_map(|entity| entity.after()?.parent())
     {
         match parent {
-            (ContentEntityType::Chapter, id) => chapter_ids.push(id),
-            (_, id) => module_ids.push(id),
+            EntityKey {
+                entity_type: ContentEntityType::Chapter,
+                entity_id: id,
+            } => chapter_ids.push(id),
+            EntityKey { entity_id: id, .. } => module_ids.push(id),
         }
+    }
+    if chapter_ids.is_empty() && module_ids.is_empty() {
+        return Ok(HashSet::new());
     }
     let mut foreign: HashSet<Uuid> = crate::chapters::get_course_ids(conn, &chapter_ids)
         .await?
@@ -532,7 +436,7 @@ fn check_snapshot(
     }
     if snapshot
         .parent()
-        .is_some_and(|(_, parent_id)| foreign_parents.contains(&parent_id))
+        .is_some_and(|parent| foreign_parents.contains(&parent.entity_id))
     {
         return Err(model_err!(
             PreconditionFailed,

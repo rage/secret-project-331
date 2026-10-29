@@ -58,6 +58,9 @@
 'verbosity_level' = "crate::chatbot_configurations::VerbosityLevel"
 'tool_kind' = "crate::chatbot_conversation_message_tool_calls::ToolKind"
 
+[macros.table-overrides.'agent_changeset_entities']
+'risk_reasons' = "sqlx::types::Json<Vec<crate::agent_changeset_entities::RiskReason>>"
+
 [macros.table-overrides.'email_verification_tokens']
 'email_verification_token' = "crate::secret::DbSecret"
 'code' = "crate::secret::DbSecret"

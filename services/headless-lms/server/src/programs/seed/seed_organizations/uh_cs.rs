@@ -259,6 +259,7 @@ pub async fn seed_organization_uh_cs(
             "Agent changesets",
             "agent-changesets",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_glossary::seed_glossary_course(
             app_config.clone(),

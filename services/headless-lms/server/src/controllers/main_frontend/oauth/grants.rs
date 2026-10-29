@@ -59,6 +59,7 @@ pub async fn revoke_grant(
     let token = skip_authorize();
     let revoked_digests =
         OAuthUserClientScopes::revoke_grant_by_id(&mut conn, auth_user.id, *grant_id).await?;
+    // Without this the deleted tokens keep authenticating from cache for the rest of their TTL.
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
     invalidate_cached_users(&cache, &revoked_digests, token_hmac_key).await;
     token.authorized_ok(HttpResponse::NoContent().finish())

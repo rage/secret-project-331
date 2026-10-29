@@ -6,8 +6,14 @@ use serde::Serialize;
 use serde_json::json;
 use uuid::Uuid;
 
-use super::unescape_segment;
+use super::error::{EditError, EditErrorCode};
+use super::path::{split_segment, unescape_segment};
 use crate::ids::IdGenerator;
+
+/// Keys a page read adds to a block besides its stored fields. Writes ignore them, so a block
+/// read back can be written again.
+pub(crate) const RENDERED_BLOCK_KEYS: [&str; 5] =
+    ["path", "pending", "children", "preview", "exercise_id"];
 
 /// Attributes that hold a block's text, most telling first: bulk edits search them unless told
 /// otherwise, and a block's preview is the first one with text.
@@ -61,45 +67,66 @@ pub fn find_path(blocks: &[GutenbergBlock], id: Uuid) -> Option<Vec<usize>> {
     None
 }
 
-/// Panics on an index path that doesn't exist; paths come from `find_path` on the same tree.
-pub fn get<'a>(blocks: &'a [GutenbergBlock], path: &[usize]) -> &'a GutenbergBlock {
-    let (first, rest) = path.split_first().expect("non-empty block path");
-    let mut block = &blocks[*first];
+/// The block at an index path. Paths come from [`find_path`] on the same tree, so the error, for
+/// an empty path or one the tree doesn't have, means the location went stale.
+pub fn get<'a>(
+    blocks: &'a [GutenbergBlock],
+    path: &[usize],
+) -> Result<&'a GutenbergBlock, EditError> {
+    let (first, rest) = path.split_first().ok_or_else(stale_location)?;
+    let mut block = blocks.get(*first).ok_or_else(stale_location)?;
     for index in rest {
-        block = &block.inner_blocks[*index];
+        block = block.inner_blocks.get(*index).ok_or_else(stale_location)?;
     }
-    block
+    Ok(block)
 }
 
 /// [`get`], to change the block.
-pub fn get_mut<'a>(blocks: &'a mut [GutenbergBlock], path: &[usize]) -> &'a mut GutenbergBlock {
-    let (first, rest) = path.split_first().expect("non-empty block path");
-    let mut block = &mut blocks[*first];
+pub fn get_mut<'a>(
+    blocks: &'a mut [GutenbergBlock],
+    path: &[usize],
+) -> Result<&'a mut GutenbergBlock, EditError> {
+    let (first, rest) = path.split_first().ok_or_else(stale_location)?;
+    let mut block = blocks.get_mut(*first).ok_or_else(stale_location)?;
     for index in rest {
-        block = &mut block.inner_blocks[*index];
+        block = block
+            .inner_blocks
+            .get_mut(*index)
+            .ok_or_else(stale_location)?;
     }
-    block
+    Ok(block)
 }
 
 /// The children list whose parent is at `parent_path`; the top level for an empty path.
 pub fn list_mut<'a>(
     blocks: &'a mut Vec<GutenbergBlock>,
     parent_path: &[usize],
-) -> &'a mut Vec<GutenbergBlock> {
+) -> Result<&'a mut Vec<GutenbergBlock>, EditError> {
     if parent_path.is_empty() {
-        blocks
+        Ok(blocks)
     } else {
-        &mut get_mut(blocks, parent_path).inner_blocks
+        Ok(&mut get_mut(blocks, parent_path)?.inner_blocks)
     }
 }
 
 /// [`list_mut`], to read.
-pub fn list<'a>(blocks: &'a [GutenbergBlock], parent_path: &[usize]) -> &'a [GutenbergBlock] {
+pub fn list<'a>(
+    blocks: &'a [GutenbergBlock],
+    parent_path: &[usize],
+) -> Result<&'a [GutenbergBlock], EditError> {
     if parent_path.is_empty() {
-        blocks
+        Ok(blocks)
     } else {
-        &get(blocks, parent_path).inner_blocks
+        Ok(&get(blocks, parent_path)?.inner_blocks)
     }
+}
+
+/// The error for a located block or range the tree no longer has.
+pub(crate) fn stale_location() -> EditError {
+    EditError::new(
+        EditErrorCode::NotFound,
+        "a block the call located isn't where it was; read the page again and repeat the call",
+    )
 }
 
 fn count_blocks(blocks: &[GutenbergBlock]) -> usize {
@@ -116,14 +143,23 @@ pub fn content_counts(blocks: &[GutenbergBlock]) -> (u32, u32) {
 }
 
 /// Whether the block at `path` is inside an exercise's editor tree; with `include_self`, also
-/// whether it is part of one itself.
-pub fn is_in_exercise(blocks: &[GutenbergBlock], path: &[usize], include_self: bool) -> bool {
+/// whether it is part of one itself. Errors with [`stale_location`] if the tree lacks `path`.
+pub fn is_in_exercise(
+    blocks: &[GutenbergBlock],
+    path: &[usize],
+    include_self: bool,
+) -> Result<bool, EditError> {
     let end = if include_self {
         path.len()
     } else {
-        path.len() - 1
+        path.len().saturating_sub(1)
     };
-    (1..=end).any(|depth| is_exercise_part(&get(blocks, &path[..depth]).name))
+    for depth in 1..=end {
+        if is_exercise_part(&get(blocks, &path[..depth])?.name) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 /// Like [`walk`], but never enters an exercise, whose blocks page edits don't touch.
@@ -166,66 +202,9 @@ pub fn walk_mut_outside_exercises(
 /// The parent ids of the block at `path`, outermost first.
 pub fn ancestor_ids(blocks: &[GutenbergBlock], path: &[usize]) -> Vec<Uuid> {
     (1..path.len())
-        .map(|depth| get(blocks, &path[..depth]).client_id)
+        .filter_map(|depth| get(blocks, &path[..depth]).ok())
+        .map(|block| block.client_id)
         .collect()
-}
-
-/// A block path split into its parts, before its id or label is resolved.
-pub(crate) enum BlockPath<'p> {
-    /// `""`, `/` or `/blocks`: the page's top level.
-    TopLevel,
-    /// `/<root>…`, where `root` is an id or a `$label`.
-    Block { root: String, part: BlockPart<'p> },
-}
-
-/// What follows the root of a [`BlockPath`].
-pub(crate) enum BlockPart<'p> {
-    /// Nothing: the block itself.
-    Whole,
-    /// `/innerBlocks`.
-    Children,
-    /// `/innerBlocks/<segment>…`, which names a child by position.
-    ChildIndex(String),
-    /// `/name`.
-    Name,
-    /// `/attributes` and the JSON Pointer after it, `""` for all of them.
-    Attributes(&'p str),
-    /// Any other field, or `name` with segments after it.
-    Other { field: String, is_deeper: bool },
-}
-
-/// Splits a block path into its parts; `None` when it doesn't start with `/`.
-pub(crate) fn parse_block_path(path: &str) -> Option<BlockPath<'_>> {
-    if matches!(path, "" | "/" | "/blocks") {
-        return Some(BlockPath::TopLevel);
-    }
-    let rest = path.strip_prefix('/')?;
-    let (root, after_root) = split_segment(rest);
-    let part = match after_root.strip_prefix('/').map(split_segment) {
-        None => BlockPart::Whole,
-        Some(("attributes", pointer)) => BlockPart::Attributes(pointer),
-        Some(("innerBlocks", "")) => BlockPart::Children,
-        Some(("innerBlocks", index)) => {
-            BlockPart::ChildIndex(unescape_segment(split_segment(&index[1..]).0))
-        }
-        Some(("name", "")) => BlockPart::Name,
-        Some((field, after)) => BlockPart::Other {
-            field: unescape_segment(field),
-            is_deeper: !after.is_empty(),
-        },
-    };
-    Some(BlockPath::Block {
-        root: unescape_segment(root),
-        part,
-    })
-}
-
-/// The first segment of `path` (no leading `/`) and the rest, which starts with `/` or is empty.
-fn split_segment(path: &str) -> (&str, &str) {
-    match path.find('/') {
-        Some(slash) => path.split_at(slash),
-        None => (path, ""),
-    }
 }
 
 /// The value at JSON Pointer `pointer` (non-empty, escaped) inside `attributes`.

@@ -3,7 +3,7 @@
 //! Agent writes fail closed: if the validator is slow or down, the write is rejected with a
 //! retryable error and nothing unvalidated is staged.
 
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -17,9 +17,7 @@ use url::Url;
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::diff::{ChangeKind, diff_blocks};
 pub use crate::engine::PageType;
-use crate::engine::{PageDocument, PageRef};
 
 const VALIDATOR_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -316,7 +314,7 @@ impl BlockValidator for CmsValidatorClient {
         }
         let url = self.route("validate-blocks")?;
         let mut outcomes = Vec::with_capacity(request.pages.len());
-        for chunk in request_chunks(&request.pages, max_request_bytes) {
+        for chunk in request_chunks(&request.pages, max_request_bytes)? {
             let body = ValidateBlocksRequest {
                 pages: &chunk,
                 course_features: request.course_features,
@@ -370,12 +368,15 @@ impl BlockValidator for UnconfiguredValidator {
 fn request_chunks(
     pages: &[PageValidationRequest<'_>],
     max_request_bytes: usize,
-) -> Vec<Vec<Box<RawValue>>> {
+) -> Result<Vec<Vec<Box<RawValue>>>, ValidatorError> {
     let mut chunks = Vec::new();
     let mut chunk: Vec<Box<RawValue>> = Vec::new();
     let mut bytes = 0;
     for page in pages {
-        let page = serde_json::value::to_raw_value(page).expect("blocks serialize to JSON");
+        let page =
+            serde_json::value::to_raw_value(page).map_err(|e| ValidatorError::FailedOnInput {
+                message: format!("the blocks don't serialize: {e}"),
+            })?;
         let page_bytes = page.get().len();
         if !chunk.is_empty() && bytes + page_bytes > max_request_bytes {
             chunks.push(std::mem::take(&mut chunk));
@@ -387,47 +388,7 @@ fn request_chunks(
     if !chunk.is_empty() {
         chunks.push(chunk);
     }
-    chunks
-}
-
-/// The top-level trees of `page` that hold a block added, changed or moved there since `before`,
-/// or that lost a child: a container's template can require the child. `before` is the page as it
-/// was, if it existed.
-pub(crate) fn changed_roots(
-    before: Option<&PageDocument>,
-    page: &PageDocument,
-) -> Vec<GutenbergBlock> {
-    let mut parent_before: HashMap<Uuid, Uuid> = HashMap::new();
-    if let Some(before) = before {
-        crate::engine::blocks::walk(&before.blocks, &mut |block, _| {
-            for child in &block.inner_blocks {
-                parent_before.insert(child.client_id, block.client_id);
-            }
-        });
-    }
-    let mut touched: HashSet<Uuid> = HashSet::new();
-    let before_pages: Vec<PageRef> = before.map(PageDocument::as_page_ref).into_iter().collect();
-    for change in diff_blocks(&before_pages, &[page.as_page_ref()]) {
-        if change.kind != ChangeKind::Removed {
-            touched.insert(change.block_id);
-        }
-        let left_its_parent = change.kind == ChangeKind::Removed || change.is_moved;
-        if left_its_parent && let Some(parent) = parent_before.get(&change.block_id) {
-            touched.insert(*parent);
-        }
-    }
-    fn holds_touched(block: &GutenbergBlock, touched: &HashSet<Uuid>) -> bool {
-        touched.contains(&block.client_id)
-            || block
-                .inner_blocks
-                .iter()
-                .any(|child| holds_touched(child, touched))
-    }
-    page.blocks
-        .iter()
-        .filter(|root| holds_touched(root, &touched))
-        .cloned()
-        .collect()
+    Ok(chunks)
 }
 
 #[cfg(test)]
@@ -436,7 +397,7 @@ mod tests {
     use serde_json::json;
 
     use super::*;
-    use crate::test_fixtures::{id, infobox, page, para};
+    use crate::test_fixtures::para;
 
     fn is_retryable(error: &ValidatorError) -> bool {
         matches!(error, ValidatorError::Unavailable { .. })
@@ -472,6 +433,7 @@ mod tests {
             })
             .collect();
         let sizes: Vec<usize> = request_chunks(&pages, MAX_REQUEST_BYTES)
+            .unwrap()
             .iter()
             .map(|c| c.len())
             .collect();
@@ -588,48 +550,6 @@ mod tests {
         assert!(is_retryable(
             &unreachable.block_schemas().await.unwrap_err()
         ));
-    }
-
-    #[test]
-    fn changed_roots_are_top_level_ancestors() {
-        let before = page(
-            "pg1",
-            PageType::CoursePage,
-            vec![para("p1", "a"), infobox("box", vec![para("c1", "b")])],
-        );
-        let mut after = before.clone();
-        after.blocks[1].inner_blocks[0]
-            .attributes
-            .insert("content".into(), json!("B"));
-        let roots = changed_roots(Some(&before), &after);
-        assert_eq!(roots.len(), 1);
-        assert_eq!(roots[0].client_id, id("box"));
-    }
-
-    #[test]
-    fn a_container_that_lost_a_child_is_a_changed_root() {
-        let before = page(
-            "pg1",
-            PageType::CoursePage,
-            vec![
-                para("p1", "a"),
-                infobox("box", vec![para("c1", "b"), para("c2", "c")]),
-            ],
-        );
-        let mut after = before.clone();
-        after.blocks[1].inner_blocks.remove(0);
-        let roots = changed_roots(Some(&before), &after);
-        assert_eq!(roots.len(), 1);
-        assert_eq!(roots[0].client_id, id("box"));
-
-        let mut moved_out = before.clone();
-        let child = moved_out.blocks[1].inner_blocks.remove(1);
-        moved_out.blocks.insert(0, child);
-        let ids: Vec<Uuid> = changed_roots(Some(&before), &moved_out)
-            .iter()
-            .map(|root| root.client_id)
-            .collect();
-        assert!(ids.contains(&id("box")), "{ids:?}");
     }
 
     #[tokio::test]

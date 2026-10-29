@@ -3,12 +3,11 @@ import { expect, test } from "@playwright/test"
 import {
   AGENT_CONFLICTED_EMAIL,
   agentEntityChange,
-  agentStorageState,
   openSeededAgentChangeset,
 } from "@/utils/agentChangesets"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
-test.use({ storageState: agentStorageState(AGENT_CONFLICTED_EMAIL) })
+test.use({ storageState: `src/states/${AGENT_CONFLICTED_EMAIL}.json` })
 
 test("preview renders a staged page without logging in", async ({
   page,

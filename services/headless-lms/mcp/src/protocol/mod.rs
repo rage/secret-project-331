@@ -9,6 +9,7 @@ pub(crate) mod progress;
 use headless_lms_utils::http::escape_auth_param;
 use rmcp::model::{ErrorCode, ProtocolVersion};
 
+/// The only protocol revision the server speaks.
 pub(crate) const PROTOCOL_VERSION: ProtocolVersion = ProtocolVersion::V_2026_07_28;
 
 /// Where teachers learn to set up their agent, including Codex's 2026-07-28 opt-in.

@@ -7,8 +7,8 @@ use crate::{
     chapters,
     entity_history::{self, HistoryAuthor},
     error::missing_model_error,
-    library::entity_snapshots::ContentEntityType,
     library::entity_snapshots::ModuleSnapshot,
+    library::entity_snapshots::{ContentEntityType, EntityKey},
     prelude::*,
 };
 
@@ -1238,11 +1238,11 @@ pub async fn update_modules(
 
     let changed: Vec<_> = written_module_ids
         .into_iter()
-        .map(|id| (ContentEntityType::Module, id))
+        .map(|id| EntityKey::new(ContentEntityType::Module, id))
         .chain(
             chapter_ids
                 .into_iter()
-                .map(|id| (ContentEntityType::Chapter, id)),
+                .map(|id| EntityKey::new(ContentEntityType::Chapter, id)),
         )
         .collect();
     entity_history::record_current_many(&mut tx, &changed, author).await?;

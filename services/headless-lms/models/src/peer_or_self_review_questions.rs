@@ -168,6 +168,7 @@ pub async fn get_all_by_peer_or_self_review_config_id_as_map(
     Ok(res)
 }
 
+/// The review questions of the undeleted exercises on the pages.
 pub async fn get_by_page_ids(
     conn: &mut PgConnection,
     page_ids: &[Uuid],

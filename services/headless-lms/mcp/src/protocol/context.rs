@@ -17,33 +17,10 @@ pub enum ClientKind {
     Other,
 }
 
-/// The calling client and what it declared in the request's `_meta`.
-#[derive(Debug, Clone)]
-pub struct ClientContext {
-    pub protocol_version: Option<ProtocolVersion>,
-    pub client_info: Option<Implementation>,
-    pub capabilities: ClientCapabilities,
-    pub progress_token: Option<ProgressToken>,
-}
-
-impl ClientContext {
-    pub fn from_meta(meta: Map<String, Value>) -> Self {
-        let progress_token = meta
-            .get(META_PROGRESS_TOKEN)
-            .and_then(|token| serde_json::from_value(token.clone()).ok());
-        let request_meta = RequestMetaObject(MetaObject(meta));
-        Self {
-            protocol_version: request_meta.protocol_version(),
-            client_info: request_meta.client_info(),
-            capabilities: request_meta.client_capabilities().unwrap_or_default(),
-            progress_token,
-        }
-    }
-
-    pub fn client_kind(&self) -> ClientKind {
-        let name = self
-            .client_info
-            .as_ref()
+impl ClientKind {
+    /// The kind `client_info` names; `Other` without one.
+    fn of(client_info: Option<&Implementation>) -> Self {
+        let name = client_info
             .map(|c| c.name.to_lowercase())
             .unwrap_or_default();
         if name.contains("claude") {
@@ -54,7 +31,38 @@ impl ClientContext {
             ClientKind::Other
         }
     }
+}
 
+/// The calling client and what it declared in the request's `_meta`.
+#[derive(Debug, Clone)]
+pub struct ClientContext {
+    pub protocol_version: Option<ProtocolVersion>,
+    pub capabilities: ClientCapabilities,
+    pub progress_token: Option<ProgressToken>,
+    kind: ClientKind,
+}
+
+impl ClientContext {
+    /// The context a request's `_meta` declares; missing fields fall back to defaults.
+    pub fn from_meta(meta: Map<String, Value>) -> Self {
+        let progress_token = meta
+            .get(META_PROGRESS_TOKEN)
+            .and_then(|token| serde_json::from_value(token.clone()).ok());
+        let request_meta = RequestMetaObject(MetaObject(meta));
+        Self {
+            protocol_version: request_meta.protocol_version(),
+            kind: ClientKind::of(request_meta.client_info().as_ref()),
+            capabilities: request_meta.client_capabilities().unwrap_or_default(),
+            progress_token,
+        }
+    }
+
+    /// The kind of client, guessed from its `client_info` name.
+    pub fn client_kind(&self) -> ClientKind {
+        self.kind
+    }
+
+    /// Whether the client declared support for URL elicitation.
     pub fn supports_url_elicitation(&self) -> bool {
         self.capabilities
             .elicitation

@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import {
   coursePageActionsMenu,
   createCoursePage,
@@ -46,9 +47,7 @@ test("saving a page someone else changed asks whether to overwrite or discard", 
   await test.step("Discarding reloads the latest version", async () => {
     await title(otherPage).fill(`${pageName} discarded`)
     await save(otherPage).click()
-    const dialog = otherPage.getByRole("alertdialog", { name: "Someone else changed this" })
-    await expect(dialog).toBeVisible()
-    await dialog.getByRole("button", { name: "Discard my changes" }).click()
+    await respondToConfirmDialog(otherPage, false, undefined, "Someone else changed this")
     await expect(title(otherPage)).toHaveValue(`${pageName} first`)
   })
 
@@ -59,10 +58,8 @@ test("saving a page someone else changed asks whether to overwrite or discard", 
     })
     await title(otherPage).fill(`${pageName} overwritten`)
     await save(otherPage).click()
-    const dialog = otherPage.getByRole("alertdialog", { name: "Someone else changed this" })
-    await expect(dialog).toBeVisible()
     await waitForSuccessNotification(otherPage, async () => {
-      await dialog.getByRole("button", { name: "Replace their changes" }).click()
+      await respondToConfirmDialog(otherPage, true, undefined, "Someone else changed this")
     })
     await expect(title(otherPage)).toHaveValue(`${pageName} overwritten`)
   })
@@ -100,9 +97,7 @@ test("saving a page renamed in the course's page list asks whether to overwrite 
   await test.step("Saving in the editor does not undo the rename", async () => {
     await title(page).fill(`${pageName} edited`)
     await save(page).click()
-    const dialog = page.getByRole("alertdialog", { name: "Someone else changed this" })
-    await expect(dialog).toBeVisible()
-    await dialog.getByRole("button", { name: "Discard my changes" }).click()
+    await respondToConfirmDialog(page, false, undefined, "Someone else changed this")
     await expect(title(page)).toHaveValue(`${pageName} renamed`)
   })
 })

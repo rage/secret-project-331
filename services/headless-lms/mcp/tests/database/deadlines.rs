@@ -3,7 +3,7 @@ use headless_lms_models::{
     agent_changesets, exercises,
     library::{
         agent_changesets::{PublishOutcome, PublishRejection, ReviewEntity, get_review},
-        entity_snapshots::{ContentEntityType, EntitySnapshot},
+        entity_snapshots::{ContentEntityType, EntityKey, EntitySnapshot},
     },
 };
 use serde_json::{Value, json};
@@ -29,11 +29,15 @@ impl Fixture {
 
     async fn stored_risk_reasons(&self, changeset: Uuid, page_id: Uuid) -> Vec<RiskReason> {
         let mut conn = self.pool.acquire().await.unwrap();
-        agent_changeset_entities::get_one(&mut conn, changeset, (ContentEntityType::Page, page_id))
-            .await
-            .unwrap()
-            .unwrap()
-            .risk_reasons
+        agent_changeset_entities::get_one(
+            &mut conn,
+            changeset,
+            EntityKey::new(ContentEntityType::Page, page_id),
+        )
+        .await
+        .unwrap()
+        .unwrap()
+        .risk_reasons
     }
 }
 
@@ -271,7 +275,7 @@ async fn a_moved_exercise_keeps_its_staged_deadline() {
         let row = agent_changeset_entities::get_one(
             &mut conn,
             changeset,
-            (ContentEntityType::Page, other_page),
+            EntityKey::new(ContentEntityType::Page, other_page),
         )
         .await
         .unwrap()

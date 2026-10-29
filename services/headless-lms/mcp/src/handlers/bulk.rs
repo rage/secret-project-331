@@ -9,10 +9,10 @@ use crate::access::{connection, open_course};
 use crate::engine::find_replace::{FindReplaceRequest, InflectedVariant, TextMatch, find_replace};
 use crate::engine::structural_replace::structural_replace;
 use crate::engine::{BlockMatch, Document, DocumentRef, PageRef};
-use crate::exercises;
 use crate::ids::RandomIds;
+use crate::instruction_lists::{self, ExerciseTextParts};
 use crate::snapshots;
-use crate::staging::{self, WriteRequest};
+use crate::staging::{self, WriteMode, WriteRequest};
 use crate::state::McpState;
 use crate::tools::args::{ContentScope, FindReplaceArgs, IdArgument, StructuralReplaceArgs};
 use crate::tools::{
@@ -20,7 +20,9 @@ use crate::tools::{
 };
 use headless_lms_models::library::agent_changesets::course_state::{CourseState, CourseView};
 
+/// Handler of the `find_replace` tool.
 pub struct FindReplace;
+/// Handler of the `structural_replace` tool.
 pub struct StructuralReplace;
 
 #[derive(Serialize)]
@@ -86,12 +88,14 @@ async fn texts_in_scope(
     view.load_exercises_on_pages(&mut *connection(state).await?, &page_ids)
         .await?;
     let is_whole_course = scope.is_none_or(|s| s.page.is_none() && s.chapter.is_none());
-    let texts = exercises::text_documents(
+    let texts = instruction_lists::text_documents(
         &view.staged,
         &page_ids,
-        with_instructions,
-        is_whole_course,
-        with_names,
+        ExerciseTextParts {
+            instructions: with_instructions,
+            course_default: is_whole_course,
+            names: with_names,
+        },
     );
     Ok((page_ids, texts))
 }
@@ -124,7 +128,7 @@ async fn stage_changed(
         return Ok(ToolResult::success(summary).into());
     }
     let mut after = view.staged.clone();
-    exercises::apply_documents(&mut after, changed)?;
+    instruction_lists::apply_documents(&mut after, changed)?;
     let report = staging::commit(state, ctx, view, after, request).await?;
     Ok(report.into_result(summary).into())
 }
@@ -176,7 +180,7 @@ impl ToolHandler<McpState> for FindReplace {
                 summary.total,
                 result.changed_pages.len()
             ),
-            args.dry_run,
+            WriteMode::from_dry_run(args.dry_run),
         );
         stage_changed(state, ctx, &view, result.changed_pages, request, &summary).await
     }
@@ -233,7 +237,7 @@ impl ToolHandler<McpState> for StructuralReplace {
                 summary.total,
                 result.changed_pages.len()
             ),
-            dry_run,
+            WriteMode::from_dry_run(dry_run),
         );
         stage_changed(state, ctx, &view, result.changed_pages, request, &summary).await
     }

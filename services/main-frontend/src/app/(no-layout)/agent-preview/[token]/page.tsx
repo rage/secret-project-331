@@ -23,7 +23,7 @@ function AgentPreviewPage() {
     ...getAgentPagePreviewOptions({ path: { token: params.token } }),
     retry: false,
   })
-  usePageTitle(previewQuery.data?.page.title ?? t("agent-preview-title"))
+  usePageTitle(previewQuery.data?.page.title ?? null)
 
   const languageCode = previewQuery.data?.language_code
   useEffect(() => {
@@ -39,7 +39,7 @@ function AgentPreviewPage() {
         data-testid="agent-preview-banner"
         className={css`
           background: ${baseTheme.colors.gray[700]};
-          color: white;
+          color: ${baseTheme.colors.clear[100]};
           padding: 0.5rem 1rem;
           font-size: 0.875rem;
           text-align: center;

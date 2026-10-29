@@ -4,7 +4,7 @@ use std::cell::OnceCell;
 use std::collections::{HashMap, HashSet};
 
 use async_trait::async_trait;
-use headless_lms_authorization::{Action, fetch_user_roles, is_permitted_on_course};
+use headless_lms_authorization::fetch_user_roles;
 use headless_lms_models::{
     courses,
     library::entity_snapshots::{ContentEntityType, EntityKey},
@@ -14,23 +14,30 @@ use serde::Serialize;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::access::{connection, load_page_facts, open_course, open_course_parts, page_in_course};
+use crate::access::{
+    connection, editable_courses, load_page_facts, open_course, open_course_parts, page_in_course,
+    state_of,
+};
 use crate::diff::{self, ChangeKind};
 use crate::engine::PageType;
-use crate::engine::read::{ReadOptions, ReadResult, ReadState, Selector, read_page};
-use crate::engine::read_structure::read_structure;
+use crate::engine::read::{
+    ReadOptions, ReadResult, ReadState, Selector, read_page, read_structure,
+};
 use crate::snapshots;
 use crate::state::McpState;
 use crate::tools::args::{CourseArgs, GetCourseStructureArgs, GetPageContentArgs, ListCoursesArgs};
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome, ToolResult};
-use headless_lms_models::library::agent_changesets::course_state::{
-    CourseParts, CourseState, CourseView,
-};
+use headless_lms_models::library::agent_changesets::course_state::{CourseParts, CourseView};
 
+/// Handler of the `list_courses` tool.
 pub struct ListCourses;
+/// Handler of the `get_course_structure` tool.
 pub struct GetCourseStructure;
+/// Handler of the `get_page_content` tool.
 pub struct GetPageContent;
+/// Handler of the `get_course_settings` tool.
 pub struct GetCourseSettings;
+/// Handler of the `get_course_glossary_and_references` tool.
 pub struct GetGlossaryAndReferences;
 
 const STRUCTURE_ENTITIES: [ContentEntityType; 3] = [
@@ -55,14 +62,7 @@ fn staged_keys<'a>(
     view.staged_entities
         .keys()
         .copied()
-        .filter(|(entity_type, _)| entity_types.contains(entity_type))
-}
-
-fn state_of(view: &CourseView, read_state: ReadState) -> &CourseState {
-    match read_state {
-        ReadState::Staged => &view.staged,
-        ReadState::Published => &view.live,
-    }
+        .filter(|key| entity_types.contains(&key.entity_type))
 }
 
 /// Blocks of the page with staged changes, for marking them in staged reads.
@@ -135,11 +135,10 @@ impl ToolHandler<McpState> for ListCourses {
         let mut conn = connection(state).await?;
         let user_id = ctx.principal.actor.user_id;
         let roles = fetch_user_roles(&mut conn, Some(user_id)).await?;
-        let courses: Vec<_> = courses::get_by_course_or_organization_role(&mut conn, user_id)
-            .await?
-            .into_iter()
-            .filter(|c| is_permitted_on_course(&roles, Action::Edit, c.id, c.organization_id))
-            .collect();
+        let courses = editable_courses(
+            &roles,
+            courses::get_by_course_or_organization_role(&mut conn, user_id).await?,
+        );
         let organization_ids: HashSet<Uuid> = courses.iter().map(|c| c.organization_id).collect();
         let organization_ids: Vec<Uuid> = organization_ids.into_iter().collect();
         let organization_names: HashMap<Uuid, String> =
@@ -255,7 +254,10 @@ impl ToolHandler<McpState> for GetPageContent {
                 .page(page_id)
                 .ok_or_else(|| missing_page(page_id, read_state))
         };
-        let first_state = selectors[0].state.unwrap_or_default();
+        let first_state = selectors
+            .first()
+            .and_then(|selector| selector.state)
+            .unwrap_or_default();
         let page = page_in(first_state)?;
         let page_info = PageInfo {
             id: page.id,
@@ -264,7 +266,7 @@ impl ToolHandler<McpState> for GetPageContent {
             hidden: page.hidden,
             page_type: snapshots::page_type(page),
             has_staged_changes: view
-                .staged_row((ContentEntityType::Page, page_id))
+                .staged_row(EntityKey::new(ContentEntityType::Page, page_id))
                 .is_some(),
         };
         let (live, staged) = (OnceCell::new(), OnceCell::new());
@@ -343,7 +345,7 @@ impl ToolHandler<McpState> for GetGlossaryAndReferences {
     ) -> Result<ToolOutcome, ToolError> {
         let view = open_course_parts(state, ctx, args.course.id(), CourseParts::Glossary).await?;
         let staged_ids: Vec<Uuid> = staged_keys(&view, &GLOSSARY_ENTITIES)
-            .map(|(_, id)| id)
+            .map(|key| key.entity_id)
             .collect();
         let mut result =
             serde_json::to_value(snapshots::glossary_document(&view.staged)).unwrap_or_default();

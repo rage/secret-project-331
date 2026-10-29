@@ -6,11 +6,9 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use super::error::{EditError, EditErrorCode};
-use super::labels::parse_uuid;
 use super::op::Op;
-use super::{
-    CreatedIdLog, CreatedIds, is_course_root, new_item_objects, non_empty_string, split_path,
-};
+use super::path::{is_course_root, parse_uuid, split_path};
+use super::{CreatedIdLog, CreatedIds, new_item_objects, non_empty_string};
 use crate::ids::IdGenerator;
 
 /// The settings document `get_course_settings` shows and `patch_course_settings` edits.
@@ -259,14 +257,7 @@ fn course_op(
         ));
     }
     if !EDITABLE_COURSE_FIELDS.contains(&field) || rest.len() > 1 {
-        return Err(EditError::new(
-            EditErrorCode::UnknownField,
-            format!("the course has no editable setting \"{}\"", rest.join("/")),
-        )
-        .with_fix(format!(
-            "editable: {}, audiences",
-            EDITABLE_COURSE_FIELDS.join(", ")
-        )));
+        return Err(unknown_course_field(&rest.join("/")));
     }
     let value = match op {
         Op::Replace { value, .. } => value,
@@ -311,9 +302,21 @@ fn course_op(
                 )
             })?
         }
-        _ => unreachable!("checked against EDITABLE_COURSE_FIELDS"),
+        _ => return Err(unknown_course_field(field)),
     }
     Ok(())
+}
+
+/// `path` names no course setting agents can edit.
+fn unknown_course_field(path: &str) -> EditError {
+    EditError::new(
+        EditErrorCode::UnknownField,
+        format!("the course has no editable setting \"{path}\""),
+    )
+    .with_fix(format!(
+        "editable: {}, audiences",
+        EDITABLE_COURSE_FIELDS.join(", ")
+    ))
 }
 
 fn module_op(module: &mut ModuleSettings, op: &Op, rest: &[String]) -> Result<(), EditError> {

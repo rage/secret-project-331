@@ -12,12 +12,10 @@ use crate::{
     agent_changesets::AgentChangeset,
     library::{
         agent_changesets::{
-            course_state::ExerciseRecord,
-            field_changes::{
-                EntityField, FieldChange, FieldValue, ReviewConfigKind, field_changes,
-            },
+            conflicts::{PublishConflict, conflicts_of},
+            course_state::{ExerciseRecord, ReviewConfigKind},
+            field_changes::{EntityField, FieldChange, FieldValue, field_changes},
             preview::PreviewPage,
-            publishing::{PublishConflict, conflicts_of},
         },
         entity_snapshots::{
             self, ContentEntity, ContentEntityType, EntityKey, EntityRef, EntitySnapshot,

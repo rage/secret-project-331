@@ -12,6 +12,7 @@ import { baseTheme } from "@/shared-module/exercise-react/styles"
 import type { OldNormalizedQuizItemTimelineItem } from "../../../../../../types/oldQuizTypes"
 import type { PrivateSpecQuizItemTimeline } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
+import { TIMELINE_YEAR } from "../../../../../util/validatePrivateSpec"
 import findQuizItem from "../../utils/general"
 import UnaddedDraftNotice from "../common/UnaddedDraftNotice"
 
@@ -289,7 +290,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
           className={cx(yearTextFieldStyles)}
           label={t("label-year")}
           placeholder={YEAR_PLACEHOLDER}
-          {...register("year", { required: true, pattern: /^\s*\d+/ })}
+          {...register("year", { required: true, pattern: TIMELINE_YEAR })}
           name={FIELD_NAME_YEAR}
         />
         <TextField

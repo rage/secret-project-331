@@ -17,6 +17,7 @@ const quizWithTimelineYear = (year: string): PrivateSpecQuiz =>
 describe("validatePrivateSpec timeline years", () => {
   it("accepts numeric years", () => {
     expect(validatePrivateSpec(quizWithTimelineYear("1969"))).toBe(true)
+    expect(validatePrivateSpec(quizWithTimelineYear("-44"))).toBe(true)
   })
 
   it("rejects empty and non-numeric years", () => {

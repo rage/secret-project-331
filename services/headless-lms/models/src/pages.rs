@@ -824,6 +824,43 @@ WHERE course_id = $1
     Ok(res)
 }
 
+/// A page as a course outline lists it.
+pub struct PageOutlineEntry {
+    pub id: Uuid,
+    pub chapter_id: Option<Uuid>,
+    pub title: String,
+    pub url_path: String,
+}
+
+/// Like [get_all_by_course_id_and_visibility], projected down to what an outline lists, in
+/// `order_number` order, without every page's `content` JSONB.
+pub async fn get_outline_by_course_id_and_visibility(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_visibility: PageVisibility,
+) -> ModelResult<Vec<PageOutlineEntry>> {
+    let inverse_visibility_filter = page_visibility.get_inverse_visibility_filter();
+    let res = sqlx::query_as!(
+        PageOutlineEntry,
+        "
+SELECT id,
+  chapter_id,
+  title,
+  url_path
+FROM pages
+WHERE course_id = $1
+  AND hidden IS DISTINCT FROM $2
+  AND deleted_at IS NULL
+ORDER BY order_number
+    ",
+        course_id,
+        inverse_visibility_filter,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Gets all pages that belong to the given course but not in any chapter.
 pub async fn get_course_top_level_pages_by_course_id_and_visibility(
     conn: &mut PgConnection,

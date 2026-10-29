@@ -214,7 +214,25 @@ impl ToolError {
     /// The user's roles don't allow editing the course.
     pub fn no_edit_rights() -> Self {
         ToolError::Forbidden {
-            message: "Your teacher account doesn't have edit rights on this course.".to_string(),
+            message: "Your teacher account doesn't have edit rights on this course. To only read a course on courses.mooc.fi as reference, ask the teacher for its URL and use read_public_course.".to_string(),
+        }
+    }
+
+    /// A refusal with `message` when `error` is one; an internal error when the check couldn't be
+    /// made.
+    pub fn forbidden_or_internal(
+        error: headless_lms_authorization::error::AuthorizationError,
+        message: impl Into<String>,
+    ) -> Self {
+        use headless_lms_authorization::error::AuthorizationErrorType;
+        use headless_lms_base::error::backend_error::BackendError;
+        match error.error_type() {
+            AuthorizationErrorType::Forbidden | AuthorizationErrorType::Unauthorized => {
+                ToolError::Forbidden {
+                    message: message.into(),
+                }
+            }
+            _ => ToolError::Internal(format!("{error:?}")),
         }
     }
 
@@ -316,14 +334,7 @@ impl From<headless_lms_models::ModelError> for ToolError {
 
 impl From<headless_lms_authorization::error::AuthorizationError> for ToolError {
     fn from(error: headless_lms_authorization::error::AuthorizationError) -> Self {
-        use headless_lms_authorization::error::AuthorizationErrorType;
-        use headless_lms_base::error::backend_error::BackendError;
-        match error.error_type() {
-            AuthorizationErrorType::Forbidden | AuthorizationErrorType::Unauthorized => {
-                ToolError::no_edit_rights()
-            }
-            _ => ToolError::Internal(format!("{error:?}")),
-        }
+        ToolError::forbidden_or_internal(error, "Your account isn't allowed to do this.")
     }
 }
 

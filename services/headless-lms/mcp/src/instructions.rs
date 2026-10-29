@@ -11,7 +11,8 @@ example. Every write is staged; students see nothing until a changeset is publis
 Tools:
 - Find and read: `list_courses`, `get_course_structure`, `get_page_content` (selectors: path, \
 through, around, offset/limit, mode outline|raw, state staged|published), `get_course_settings`, \
-`get_course_glossary_and_references`, `get_exercise`, `list_exercises`.
+`get_course_glossary_and_references`, `get_exercise`, `list_exercises`; `read_public_course` \
+reads another course on courses.mooc.fi as reference only, never as one you edit.
 - Edit: `patch_page_content` (one page's blocks), `patch_course_structure` (modules, chapters, \
 pages, titles, paths, chapter dates; the only way to create pages), `patch_course_settings`, \
 `patch_course_glossary_and_references`, `patch_exercise` (an exercise's name, own deadline and instructions), \

@@ -8,6 +8,7 @@ mod exercises;
 mod guide;
 mod history;
 mod patches;
+mod public_course;
 mod reads;
 mod uploads;
 
@@ -25,6 +26,7 @@ pub fn registry() -> ToolRegistry<McpState> {
         catalog::get_course_glossary_and_references(reads::GetGlossaryAndReferences),
         catalog::get_exercise(exercises::GetExercise),
         catalog::list_exercises(exercise_list::ListExercises),
+        catalog::read_public_course(public_course::ReadPublicCourse),
         catalog::patch_page_content(patches::PatchPageContent),
         catalog::patch_course_structure(patches::PatchCourseStructure),
         catalog::patch_course_settings(patches::PatchCourseSettings),

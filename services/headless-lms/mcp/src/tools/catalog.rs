@@ -199,6 +199,17 @@ pub fn list_exercises<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     )
 }
 
+pub fn read_public_course<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
+    define(
+        handler,
+        "read_public_course",
+        "Reads another course on courses.mooc.fi as reference material, published state only, as far as the course site lets you open it (drafts, join-code courses and the pages of unopened chapters are refused unless your roles or a used join code open them; hidden pages aren't read). Takes its course or page URL, or course_slug. Without path: the course's name, organization, language, URL and outline (chapters with status and page titles with paths). With path: that page's Gutenberg blocks and its exercises' names, points, deadlines, and the instructions and public specs of the tasks the course site shows you (an exercise with several slides and none chosen for you shows a random one, so calls can differ); offset continues a long page or outline. Results are reference_only: not a course you work on.",
+        // Not idempotent: the shown slide is random until one is chosen for the caller.
+        read("Read a public course").idempotent(false),
+        McpScope::MaterialRead,
+    )
+}
+
 pub fn patch_page_content<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
@@ -431,7 +442,7 @@ mod tests {
         let names: Vec<_> = tools.iter().map(|t| t.name).collect();
         assert_eq!(names.first(), Some(&"list_courses"));
         assert_eq!(names.last(), Some(&"guide"));
-        assert_eq!(names.len(), 22);
+        assert_eq!(names.len(), 23);
         let mut unique = names.clone();
         unique.sort_unstable();
         unique.dedup();
@@ -482,16 +493,23 @@ mod tests {
 
     #[test]
     fn reads_are_read_only_and_idempotent() {
+        // Shows a random exercise slide until one is chosen for the caller.
+        const NONDETERMINISTIC_READS: [&str; 1] = ["read_public_course"];
         for tool in definitions() {
             let annotations = &serde_json::to_value(&tool.listing).unwrap()["annotations"];
-            if tool.name.starts_with("get_")
+            let is_read_only = annotations["readOnlyHint"] == json!(true);
+            let is_named_as_read = tool.name.starts_with("get_")
                 || tool.name.starts_with("list_")
-                || tool.name == "guide"
-            {
-                assert_eq!(annotations["readOnlyHint"], json!(true), "{}", tool.name);
-                assert_eq!(annotations["idempotentHint"], json!(true), "{}", tool.name);
-            } else {
-                assert_eq!(annotations["readOnlyHint"], json!(false), "{}", tool.name);
+                || tool.name.starts_with("read_")
+                || tool.name == "guide";
+            assert_eq!(is_read_only, is_named_as_read, "{}", tool.name);
+            if is_read_only {
+                assert_eq!(
+                    annotations["idempotentHint"],
+                    json!(!NONDETERMINISTIC_READS.contains(&tool.name)),
+                    "{}",
+                    tool.name
+                );
             }
         }
     }

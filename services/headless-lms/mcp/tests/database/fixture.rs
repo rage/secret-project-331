@@ -350,6 +350,17 @@ impl Fixture {
 
     /// Adds a live page with one paragraph after the fixture's page in its chapter.
     pub(crate) async fn add_page(&self, title: &str, url_path: &str) -> Uuid {
+        self.add_page_in(Some(self.chapter_id), title, url_path)
+            .await
+    }
+
+    /// Adds a published page in `chapter_id`, or at the top level with `None`.
+    pub(crate) async fn add_page_in(
+        &self,
+        chapter_id: Option<Uuid>,
+        title: &str,
+        url_path: &str,
+    ) -> Uuid {
         let mut conn = self.pool.acquire().await.unwrap();
         pages::insert_page(
             &mut conn,
@@ -362,7 +373,7 @@ impl Fixture {
                 title: title.to_string(),
                 course_id: Some(self.course_id),
                 exam_id: None,
-                chapter_id: Some(self.chapter_id),
+                chapter_id,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
                 hidden: false,
@@ -610,18 +621,23 @@ impl Fixture {
 
     /// Makes the course a draft or live through the web UI's save path.
     pub(crate) async fn set_draft(&self, is_draft: bool) {
+        self.update_course(|update| update.is_draft = is_draft)
+            .await;
+    }
+
+    /// Saves the course with `change` applied to its current settings.
+    pub(crate) async fn update_course(&self, change: impl FnOnce(&mut courses::CourseUpdate)) {
         let mut conn = self.pool.acquire().await.unwrap();
         let course = courses::get_course(&mut conn, self.course_id)
             .await
             .unwrap();
+        let mut update = courses::CourseUpdate::from(&course);
+        change(&mut update);
         courses::update_course(
             &mut conn,
             &self.app_conf,
             self.course_id,
-            courses::CourseUpdate {
-                is_draft,
-                ..courses::CourseUpdate::from(&course)
-            },
+            update,
             self.user_id,
             false,
         )

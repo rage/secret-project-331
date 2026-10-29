@@ -13,6 +13,7 @@ mod exercises;
 mod fixture;
 mod oauth_route;
 mod pairing;
+mod public_course;
 mod reverts;
 mod review;
 mod settings;

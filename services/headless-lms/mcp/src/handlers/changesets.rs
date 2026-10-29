@@ -4,7 +4,9 @@ use async_trait::async_trait;
 use headless_lms_authorization::{
     Action, fetch_user_roles, is_permitted_on_course, is_user_global_admin,
 };
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
+    ModelErrorType,
     agent_changeset_entities::{self, AgentChangesetEntityOperation},
     agent_changesets::{self, AgentChangeset, AgentChangesetStatus},
     courses::{self, Course},
@@ -139,7 +141,10 @@ async fn own_changeset(
     let changeset =
         agent_changesets::get_by_id_for_user(conn, changeset_id, ctx.principal.actor.user_id)
             .await
-            .map_err(|_| not_found())?;
+            .map_err(|error| match error.error_type() {
+                ModelErrorType::NotFound | ModelErrorType::RecordNotFound => not_found(),
+                _ => error.into(),
+            })?;
     if changeset.course_id != course_id {
         return Err(not_found());
     }

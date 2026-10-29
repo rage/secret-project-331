@@ -314,6 +314,19 @@ pub struct RevertChangeArgs {
 
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
+pub struct ReadPublicCourseArgs {
+    /// A courses.mooc.fi course or page URL, /org/<organization>/courses/<course>/<page path>. Or give course_slug.
+    pub url: Option<String>,
+    /// The course's slug, instead of url.
+    pub course_slug: Option<String>,
+    /// Page path in the course, e.g. /chapter-1/loops; / is the front page. Overrides the URL's page. None reads the outline.
+    pub path: Option<String>,
+    /// Where to continue a long page or outline; next_offset of the previous result.
+    pub offset: Option<u32>,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
 pub struct GuideArgs {
     /// e.g. ["core/paragraph", "moocfi/infobox"].
     pub block_types: Option<Vec<String>>,

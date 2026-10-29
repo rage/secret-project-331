@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -25,7 +25,11 @@ import { Button, ConfirmDialog, ErrorNotice, Infobox, TONE } from "@/shared-modu
 
 import AgentCallList from "./AgentCallList"
 import { ChangesetStatusBadge } from "./ChangesetStatusBadge"
-import EntityChange, { ConflictList, EntityLabelList } from "./EntityChange"
+import EntityChange, {
+  ChapterFrontPageIdsContext,
+  ConflictList,
+  EntityLabelList,
+} from "./EntityChange"
 import PublishOutcomeNotice, { RejectionNotice } from "./PublishOutcomeNotice"
 
 const sectionHeadingCss = css`
@@ -51,6 +55,10 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
   const isOpen = changeset.status === "open"
   const riskyEntityCount = entities.filter((e) => e.risk_reasons.length > 0).length
   const clientNames = [...new Set(calls.map((call) => call.client_name))]
+  const chapterFrontPageIds = useMemo(
+    () => new Set(review.chapter_front_page_ids),
+    [review.chapter_front_page_ids],
+  )
 
   const invalidateChangesets = async () => {
     await queryClient.invalidateQueries({
@@ -99,216 +107,218 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
   )
 
   return (
-    <div
-      data-testid="agent-changeset-review"
-      className={css`
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      `}
-    >
+    <ChapterFrontPageIdsContext.Provider value={chapterFrontPageIds}>
       <div
+        data-testid="agent-changeset-review"
         className={css`
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 1.5rem;
         `}
       >
         <div
           className={css`
             display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.75rem;
+            flex-direction: column;
+            gap: 0.5rem;
           `}
         >
-          <h2 className={sectionHeadingCss}>{t("agent-changeset-review-title")}</h2>
-          <ChangesetStatusBadge status={changeset.status} />
-        </div>
-        <p
-          className={css`
-            margin: 0;
-            color: ${baseTheme.colors.gray[600]};
-          `}
-        >
-          {t("agent-changeset-summary", {
-            count: entities.length,
-            clients: clientNames.join(", "),
-            time: dateToString(changeset.updated_at),
-          })}
-        </p>
-      </div>
-
-      {publishOutcome && <PublishOutcomeNotice outcome={publishOutcome} />}
-
-      {discardRejection && (
-        <RejectionNotice
-          heading={t("agent-not-discarded-heading")}
-          rejection={discardRejection}
-          data-testid="agent-discard-outcome"
-        />
-      )}
-
-      {isOpen && review.is_expiring_soon && (
-        <Infobox
-          tone={TONE.WARNING}
-          heading={t("agent-expiry-heading", { time: dateToString(changeset.expires_at) })}
-          data-testid="agent-expiry-warning"
-        >
-          <p>{t("agent-expiry-description")}</p>
-          <EntityLabelList entities={entities} />
-        </Infobox>
-      )}
-
-      {isOpen && conflicts.length > 0 && (
-        <Infobox
-          tone={TONE.DANGER}
-          heading={t("agent-conflicts-heading")}
-          data-testid="agent-conflicts"
-        >
-          <p>{t("agent-conflicts-description")}</p>
-          <ConflictList conflicts={conflicts} />
-        </Infobox>
-      )}
-
-      {isOpen && riskyEntityCount > 0 && (
-        <Infobox
-          tone={TONE.WARNING}
-          heading={t("agent-risky-heading", { count: riskyEntityCount })}
-        >
-          <p>{t("agent-risky-description")}</p>
-        </Infobox>
-      )}
-
-      {isOpen && (
-        <div
-          className={css`
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-          `}
-        >
-          <Button
-            variant="primary"
-            size="medium"
-            data-testid="agent-publish-button"
-            disabled={conflicts.length > 0 || entities.length === 0}
-            onPress={() => setIsPublishDialogOpen(true)}
+          <div
+            className={css`
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 0.75rem;
+            `}
           >
-            {t("agent-publish-changes")}
-          </Button>
-          <Button
-            variant="tertiary"
-            size="medium"
-            data-testid="agent-discard-button"
-            onPress={() => setIsDiscardDialogOpen(true)}
+            <h2 className={sectionHeadingCss}>{t("agent-changeset-review-title")}</h2>
+            <ChangesetStatusBadge status={changeset.status} />
+          </div>
+          <p
+            className={css`
+              margin: 0;
+              color: ${baseTheme.colors.gray[600]};
+            `}
           >
-            {t("agent-discard-changes")}
-          </Button>
+            {t("agent-changeset-summary", {
+              count: entities.length,
+              clients: clientNames.join(", "),
+              time: dateToString(changeset.updated_at),
+            })}
+          </p>
         </div>
-      )}
 
-      <section
-        aria-labelledby="agent-changes-heading"
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        `}
-      >
-        <h2 id="agent-changes-heading" className={sectionHeadingCss}>
-          {t("agent-changes-heading")}
-        </h2>
-        {entities.length === 0 ? (
-          <p>{t("agent-no-changes")}</p>
-        ) : (
-          entities.map((reviewEntity) => (
-            <EntityChange
-              key={`${reviewEntity.entity_type}-${reviewEntity.entity_id}`}
-              reviewEntity={reviewEntity}
-              changesetId={changeset.id}
-              isChangesetOpen={isOpen}
-              conflicts={conflicts}
-            />
-          ))
+        {publishOutcome && <PublishOutcomeNotice outcome={publishOutcome} />}
+
+        {discardRejection && (
+          <RejectionNotice
+            heading={t("agent-not-discarded-heading")}
+            rejection={discardRejection}
+            data-testid="agent-discard-outcome"
+          />
         )}
-      </section>
 
-      {calls.length > 0 && <AgentCallList calls={calls} />}
+        {isOpen && review.is_expiring_soon && (
+          <Infobox
+            tone={TONE.WARNING}
+            heading={t("agent-expiry-heading", { time: dateToString(changeset.expires_at) })}
+            data-testid="agent-expiry-warning"
+          >
+            <p>{t("agent-expiry-description")}</p>
+            <EntityLabelList entities={entities} />
+          </Infobox>
+        )}
 
-      <ConfirmDialog
-        open={isPublishDialogOpen}
-        onClose={() => {
-          setIsPublishDialogOpen(false)
-          publishMutation.reset()
-        }}
-        title={t("agent-publish-dialog-title")}
-        description={
-          <>
-            <p>{t("agent-publish-dialog-description", { count: entities.length })}</p>
-            {riskyEntityCount > 0 && (
-              <p>{t("agent-publish-dialog-risky", { count: riskyEntityCount })}</p>
-            )}
-            {publishMutation.isError && (
-              <ErrorNotice
-                error={publishMutation.error}
-                context={t("agent-publish-failed")}
-                headingLevel={3}
-                data-testid="agent-publish-error"
+        {isOpen && conflicts.length > 0 && (
+          <Infobox
+            tone={TONE.DANGER}
+            heading={t("agent-conflicts-heading")}
+            data-testid="agent-conflicts"
+          >
+            <p>{t("agent-conflicts-description")}</p>
+            <ConflictList conflicts={conflicts} />
+          </Infobox>
+        )}
+
+        {isOpen && riskyEntityCount > 0 && (
+          <Infobox
+            tone={TONE.WARNING}
+            heading={t("agent-risky-heading", { count: riskyEntityCount })}
+          >
+            <p>{t("agent-risky-description")}</p>
+          </Infobox>
+        )}
+
+        {isOpen && (
+          <div
+            className={css`
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.75rem;
+            `}
+          >
+            <Button
+              variant="primary"
+              size="medium"
+              data-testid="agent-publish-button"
+              disabled={conflicts.length > 0 || entities.length === 0}
+              onPress={() => setIsPublishDialogOpen(true)}
+            >
+              {t("agent-publish-changes")}
+            </Button>
+            <Button
+              variant="tertiary"
+              size="medium"
+              data-testid="agent-discard-button"
+              onPress={() => setIsDiscardDialogOpen(true)}
+            >
+              {t("agent-discard-changes")}
+            </Button>
+          </div>
+        )}
+
+        <section
+          aria-labelledby="agent-changes-heading"
+          className={css`
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+          `}
+        >
+          <h2 id="agent-changes-heading" className={sectionHeadingCss}>
+            {t("agent-changes-heading")}
+          </h2>
+          {entities.length === 0 ? (
+            <p>{t("agent-no-changes")}</p>
+          ) : (
+            entities.map((reviewEntity) => (
+              <EntityChange
+                key={`${reviewEntity.entity_type}-${reviewEntity.entity_id}`}
+                reviewEntity={reviewEntity}
+                changesetId={changeset.id}
+                isChangesetOpen={isOpen}
+                conflicts={conflicts}
               />
-            )}
-          </>
-        }
-        confirmLabel={t("agent-publish-changes")}
-        // oxlint-disable-next-line i18next/no-literal-string
-        confirmTestId="agent-publish-confirm-button"
-        onConfirm={async () => {
-          try {
-            await publishMutation.mutateAsync({
-              path: { changeset_id: changeset.id },
-              body: { reviewed_revision: changeset.revision },
-            })
-          } catch {
-            // Shown in the dialog from publishMutation.error.
+            ))
+          )}
+        </section>
+
+        {calls.length > 0 && <AgentCallList calls={calls} />}
+
+        <ConfirmDialog
+          open={isPublishDialogOpen}
+          onClose={() => {
+            setIsPublishDialogOpen(false)
+            publishMutation.reset()
+          }}
+          title={t("agent-publish-dialog-title")}
+          description={
+            <>
+              <p>{t("agent-publish-dialog-description", { count: entities.length })}</p>
+              {riskyEntityCount > 0 && (
+                <p>{t("agent-publish-dialog-risky", { count: riskyEntityCount })}</p>
+              )}
+              {publishMutation.isError && (
+                <ErrorNotice
+                  error={publishMutation.error}
+                  context={t("agent-publish-failed")}
+                  headingLevel={3}
+                  data-testid="agent-publish-error"
+                />
+              )}
+            </>
           }
-        }}
-      />
-      <ConfirmDialog
-        open={isDiscardDialogOpen}
-        onClose={() => {
-          setIsDiscardDialogOpen(false)
-          discardMutation.reset()
-        }}
-        title={t("agent-discard-dialog-title")}
-        description={
-          <>
-            <p>{t("agent-discard-dialog-description", { count: entities.length })}</p>
-            {discardMutation.isError && (
-              <ErrorNotice
-                error={discardMutation.error}
-                context={t("agent-discard-failed")}
-                headingLevel={3}
-                data-testid="agent-discard-error"
-              />
-            )}
-          </>
-        }
-        confirmLabel={t("agent-discard-changes")}
-        // oxlint-disable-next-line i18next/no-literal-string
-        confirmTestId="agent-discard-confirm-button"
-        isDestructive
-        onConfirm={async () => {
-          try {
-            await discardMutation.mutateAsync({
-              path: { changeset_id: changeset.id },
-              body: { reviewed_revision: changeset.revision },
-            })
-          } catch {
-            // Shown in the dialog from discardMutation.error.
+          confirmLabel={t("agent-publish-changes")}
+          // oxlint-disable-next-line i18next/no-literal-string
+          confirmTestId="agent-publish-confirm-button"
+          onConfirm={async () => {
+            try {
+              await publishMutation.mutateAsync({
+                path: { changeset_id: changeset.id },
+                body: { reviewed_revision: changeset.revision },
+              })
+            } catch {
+              // Shown in the dialog from publishMutation.error.
+            }
+          }}
+        />
+        <ConfirmDialog
+          open={isDiscardDialogOpen}
+          onClose={() => {
+            setIsDiscardDialogOpen(false)
+            discardMutation.reset()
+          }}
+          title={t("agent-discard-dialog-title")}
+          description={
+            <>
+              <p>{t("agent-discard-dialog-description", { count: entities.length })}</p>
+              {discardMutation.isError && (
+                <ErrorNotice
+                  error={discardMutation.error}
+                  context={t("agent-discard-failed")}
+                  headingLevel={3}
+                  data-testid="agent-discard-error"
+                />
+              )}
+            </>
           }
-        }}
-      />
-    </div>
+          confirmLabel={t("agent-discard-changes")}
+          // oxlint-disable-next-line i18next/no-literal-string
+          confirmTestId="agent-discard-confirm-button"
+          isDestructive
+          onConfirm={async () => {
+            try {
+              await discardMutation.mutateAsync({
+                path: { changeset_id: changeset.id },
+                body: { reviewed_revision: changeset.revision },
+              })
+            } catch {
+              // Shown in the dialog from discardMutation.error.
+            }
+          }}
+        />
+      </div>
+    </ChapterFrontPageIdsContext.Provider>
   )
 }
 

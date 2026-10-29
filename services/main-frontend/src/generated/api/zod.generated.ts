@@ -5677,6 +5677,7 @@ export const zReviewEntity = z.union([
 export const zChangesetReview = z.object({
   calls: z.array(zAgentChangesetCallSummary),
   changeset: zAgentChangeset,
+  chapter_front_page_ids: z.array(z.uuid()),
   conflicts: z.array(zPublishConflict),
   entities: z.array(zReviewEntity),
   is_expiring_soon: z.boolean(),

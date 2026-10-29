@@ -64,7 +64,7 @@ fn check_skill_version(
         return Ok(Some(Hint::new(
             HintKind::SkillVersion,
             format!(
-                "No skill_version was sent, so the course-material skill seems not to be installed. It documents the workflow and the content formats; setup: {SKILL_SETUP_URL}"
+                "No skill_version was sent. The course-material skill holds the workflow, the safety rules and the content formats; setup: {SKILL_SETUP_URL}"
             ),
         )));
     };
@@ -194,6 +194,14 @@ pub fn review_config_switched_with_reviews(review_count: i64) -> Hint {
     )
 }
 
+/// Task instructions edited on an exercise students have already answered.
+pub fn answered_task_instructions_edited() -> Hint {
+    Hint::new(
+        HintKind::Consequence,
+        "Students have already answered this exercise. Before staging the change, tell the teacher what it means for those earlier answers. Answer options and answer keys are in the task spec, which only the teacher can change, in the exercise editor; a changed question can leave them wrong.",
+    )
+}
+
 /// Removed exercises have student submissions.
 pub fn submissions_affected(count: usize) -> Hint {
     Hint::new(
@@ -257,7 +265,7 @@ mod tests {
         let missing = check_skill_version(None, Version(1, 6, 0), Version(1, 2, 0))
             .unwrap()
             .unwrap();
-        assert!(missing.text.contains("not to be installed"));
+        assert!(missing.text.contains("No skill_version was sent"));
         let outdated = check_skill_version(Some("1.4.2"), Version(1, 6, 0), Version(1, 2, 0))
             .unwrap()
             .unwrap();

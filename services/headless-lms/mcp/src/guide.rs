@@ -56,7 +56,7 @@ patch_page_content takes ops {op, path, from, through, value, position, to_page,
 - dry_run: true stages nothing and returns the diff; read_back reads the result in the same call.";
 
 const COURSE_STRUCTURE: &str = "\
-get_course_structure returns {course: {pages, modules: [{chapters: [{pages}]}]}}. The first page of a chapter is its front page; the course front page (/) is always first in /course/pages; the default module is always first and has no name.
+get_course_structure returns {course: {pages, modules: [{chapters: [{pages}]}]}}. The first page of a chapter is its front page (is_chapter_front_page: true); the course front page (/) is always first in /course/pages; the default module is always first and has no name.
 patch_course_structure ops: replace fields (module name; chapter name, color, opens_at, deadline; page title, url_path, hidden), remove (field to null, or an entity or page range), add (module, chapter or page; a chapter gets a front page; a page may carry blocks), move, copy (page or chapter; new ids, -copy suffix), reorder (value: exactly the current ids in the new order).
 - Chapter numbers and /chapter-N paths are recomputed after every call. A chapter page's url_path is its last segment, e.g. \"loops\" for /chapter-2/loops; the front page's path is always /chapter-N.
 - url_path is unique in the course after the call; paths can be swapped in one call. Changed paths get redirects automatically; removed pages get none.

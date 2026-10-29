@@ -192,7 +192,7 @@ async fn discover_describes_the_server() {
     assert_eq!(result["cacheScope"], json!("private"));
     assert_eq!(
         result["_meta"]["io.modelcontextprotocol/serverInfo"]["name"],
-        json!("courses-mooc-fi")
+        json!("courses-moocfi")
     );
 }
 

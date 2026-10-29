@@ -464,6 +464,13 @@ impl CourseState {
         }
     }
 
+    /// Whether the page is its chapter's front page in this state.
+    pub fn is_chapter_front_page(&self, page_id: Uuid) -> bool {
+        self.chapters
+            .iter()
+            .any(|chapter| chapter.front_page_id == Some(page_id))
+    }
+
     /// Students see this course: it is neither a draft nor in test mode.
     pub fn is_live(&self) -> bool {
         !self.settings.is_draft && !self.settings.is_test_mode

@@ -43,8 +43,8 @@ pub enum WriteSource {
     /// Found by comparing the staged state with the state after the call.
     Derived {
         exercise_copies: Vec<ExerciseCopy>,
-        /// The client ids of blocks the server wrote rather than the agent; see
-        /// [`validate_changed_blocks`].
+        /// The client ids of blocks the server wrote rather than the agent, besides the exercise
+        /// copies; see [`validate_changed_blocks`].
         generated_blocks: HashSet<Uuid>,
     },
     /// A revert of the call `call_id`. Skips validation: it restores content that was valid when
@@ -114,14 +114,22 @@ pub async fn commit(
     } = request;
     let validated = match &source {
         WriteSource::Derived {
-            generated_blocks, ..
+            exercise_copies,
+            generated_blocks,
         } => {
+            // A copied exercise block carries the attributes the editor stored, which agents
+            // may not write.
+            let server_written: HashSet<Uuid> = generated_blocks
+                .iter()
+                .copied()
+                .chain(exercise_copies.iter().map(|copy| copy.new_block_id))
+                .collect();
             validate_changed_blocks(
                 state.validator.as_ref(),
                 &view.live,
                 &view.staged,
                 &mut after,
-                generated_blocks,
+                &server_written,
                 &ctx.progress,
             )
             .await?
@@ -188,10 +196,14 @@ pub async fn commit(
             ));
         }
     };
-    let entities = staged
-        .entities
-        .iter()
-        .map(|row| ExplainedEntity::from(ChangesetEntitySummary::from(row)));
+    let entities = staged.entities.iter().map(|row| {
+        let mut entity = ExplainedEntity::from(ChangesetEntitySummary::from(row));
+        let key = entity.entity.key();
+        entity.is_chapter_front_page = key.entity_type == ContentEntityType::Page
+            && (after.is_chapter_front_page(key.entity_id)
+                || view.staged.is_chapter_front_page(key.entity_id));
+        entity
+    });
     if mode == WriteMode::DryRun {
         let would_stage = entities
             .map(|entity| DryRunEntity {

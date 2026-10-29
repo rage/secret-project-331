@@ -2,13 +2,12 @@
 
 import { css } from "@emotion/css"
 import { useRouter } from "next/navigation"
-import React from "react"
+import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { createAgentChangesetPreviewLinkMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   AgentChangesetEntityOperation,
-  ContentEntityType,
   EntityRef,
   PageChange,
   PreviewPage,
@@ -33,17 +32,23 @@ export function useEntityTitle() {
   const entityName = useEntityName()
   return (entity: EntityRef): string =>
     entity.entity_type === "course_default_review_config"
-      ? entityTypeLabel(entity.entity_type)
-      : `${entityTypeLabel(entity.entity_type)}: ${entityName(entity)}`
+      ? entityTypeLabel(entity)
+      : `${entityTypeLabel(entity)}: ${entityName(entity)}`
 }
 
-/** Names an entity type for teachers, e.g. "Page". */
+/** The ids of the pages that are their chapter's front page, from the changeset review. */
+export const ChapterFrontPageIdsContext = React.createContext<ReadonlySet<string>>(new Set())
+
+/** Names an entity's type for teachers, e.g. "Page" or "Chapter front page". */
 export function useEntityTypeLabel() {
   const { t } = useTranslation()
-  return (entityType: ContentEntityType): string => {
-    switch (entityType) {
+  const chapterFrontPageIds = useContext(ChapterFrontPageIdsContext)
+  return (entity: EntityRef): string => {
+    switch (entity.entity_type) {
       case "page":
-        return t("agent-entity-page")
+        return chapterFrontPageIds.has(entity.entity_id)
+          ? t("agent-entity-chapter-front-page")
+          : t("agent-entity-page")
       case "chapter":
         return t("agent-entity-chapter")
       case "module":

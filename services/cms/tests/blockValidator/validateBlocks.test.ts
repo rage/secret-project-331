@@ -348,6 +348,15 @@ describe("attributes", () => {
       "invalid_attribute",
     ])
   })
+
+  it("accepts the editor's stored exercise attributes on unchanged blocks", async () => {
+    const stored = block("moocfi/exercise", { id: "e1", name: "Stored", dropCap: false })
+    const result = await validate([stored], "course-page", {
+      unchanged_client_ids: [stored.clientId],
+    })
+    expect(result.errors).toEqual([])
+    expect(result.warnings).toEqual([])
+  })
 })
 
 describe("allow-lists per page type", () => {

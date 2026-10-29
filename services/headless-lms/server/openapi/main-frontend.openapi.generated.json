@@ -18251,7 +18251,14 @@
       "ChangesetReview": {
         "type": "object",
         "description": "Everything the review page shows for a changeset.",
-        "required": ["changeset", "entities", "calls", "conflicts", "is_expiring_soon"],
+        "required": [
+          "changeset",
+          "entities",
+          "calls",
+          "conflicts",
+          "is_expiring_soon",
+          "chapter_front_page_ids"
+        ],
         "properties": {
           "calls": {
             "type": "array",
@@ -18262,6 +18269,14 @@
           },
           "changeset": {
             "$ref": "#/components/schemas/AgentChangeset"
+          },
+          "chapter_front_page_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The pages that are their chapter's front page, as staged while the changeset is open and\nas live after."
           },
           "conflicts": {
             "type": "array",

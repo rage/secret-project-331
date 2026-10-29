@@ -99,6 +99,9 @@ impl From<RiskReason> for ExplainedRiskReason {
 pub struct ExplainedEntity {
     #[serde(flatten)]
     pub entity: EntityRef,
+    /// Whether the page is its chapter's front page; write results set it, `list_changesets` doesn't.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub is_chapter_front_page: bool,
     pub operation: AgentChangesetEntityOperation,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub risk_reasons: Vec<ExplainedRiskReason>,
@@ -108,6 +111,7 @@ impl From<ChangesetEntitySummary> for ExplainedEntity {
     fn from(summary: ChangesetEntitySummary) -> Self {
         Self {
             entity: summary.entity,
+            is_chapter_front_page: false,
             operation: summary.operation,
             risk_reasons: summary.risk_reasons.into_iter().map(Into::into).collect(),
         }

@@ -4,6 +4,7 @@ use std::collections::{HashMap, hash_map::Entry};
 
 use async_trait::async_trait;
 use headless_lms_models::{
+    exercise_slide_submissions,
     library::{
         agent_changesets::course_state::{CourseView, ExerciseReviewConfig},
         entity_snapshots,
@@ -191,28 +192,41 @@ impl ToolHandler<McpState> for GetExercise {
             .map_or(0, Vec::len);
         let review_path = instruction_lists::review_list(&view.staged, exercise)
             .map(|_| format!("/{REVIEW_INSTRUCTIONS}"));
-        Ok(ToolResult::success(json!({
-            "exercise": {
-                "id": exercise.id,
-                "name": exercise.name,
-                "page": page_id,
-                "deadline": ExerciseDeadline::of(&view.staged, exercise_id),
-                "tasks": exercise.tasks.iter().map(|task| json!({
-                    "id": task.id,
-                    "exercise_type": task.exercise_type,
-                    "path": format!("/tasks/{}", task.id),
-                })).collect::<Vec<_>>(),
-                "reviews": {
-                    "needs_peer_review": exercise.needs_peer_review,
-                    "needs_self_review": exercise.needs_self_review,
-                    "config": exercise.review_config.kind().map_or(json!("unset"), |kind| json!(kind)),
-                    "course_default_settings": (exercise.review_config == ExerciseReviewConfig::CourseDefault)
-                        .then_some("get_course_settings shows them as default_peer_review"),
-                    "path": review_path,
-                },
-                "read_only": full_exercise.map(|e| read_only_settings(e, own_config, question_count)),
-                "has_staged_changes": view.staged_row(headless_lms_models::library::entity_snapshots::EntityKey::new(headless_lms_models::library::entity_snapshots::ContentEntityType::Page, page_id)).is_some(),
+        let has_submissions =
+            !exercise_slide_submissions::get_exercise_ids_with_submissions_by_course_id(
+                &mut *connection(state).await?,
+                view.course.id,
+                &[exercise_id],
+            )
+            .await?
+            .is_empty();
+        let mut summary = json!({
+            "id": exercise.id,
+            "name": exercise.name,
+            "page": page_id,
+            "deadline": ExerciseDeadline::of(&view.staged, exercise_id),
+            "tasks": exercise.tasks.iter().map(|task| json!({
+                "id": task.id,
+                "exercise_type": task.exercise_type,
+                "path": format!("/tasks/{}", task.id),
+                "specs_path": format!("/tasks/{}/specs", task.id),
+            })).collect::<Vec<_>>(),
+            "reviews": {
+                "needs_peer_review": exercise.needs_peer_review,
+                "needs_self_review": exercise.needs_self_review,
+                "config": exercise.review_config.kind().map_or(json!("unset"), |kind| json!(kind)),
+                "course_default_settings": (exercise.review_config == ExerciseReviewConfig::CourseDefault)
+                    .then_some("get_course_settings shows them as default_peer_review"),
+                "path": review_path,
             },
+            "read_only": full_exercise.map(|e| read_only_settings(e, own_config, question_count)),
+            "has_staged_changes": view.staged_row(headless_lms_models::library::entity_snapshots::EntityKey::new(headless_lms_models::library::entity_snapshots::ContentEntityType::Page, page_id)).is_some(),
+        });
+        if has_submissions {
+            summary["has_submissions"] = json!(true);
+        }
+        Ok(ToolResult::success(json!({
+            "exercise": summary,
             "reads": reads,
         }))
         .into())

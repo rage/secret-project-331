@@ -28,7 +28,7 @@ use crate::tools::{
 
 const SERVER_INFO_META_KEY: &str = "io.modelcontextprotocol/serverInfo";
 const CONFIRMATION_TTL: Duration = Duration::from_secs(15 * 60);
-const SERVER_NAME: &str = "courses-mooc-fi";
+const SERVER_NAME: &str = "courses-moocfi";
 const SERVER_TITLE: &str = "courses.mooc.fi course material";
 /// Short, so scope and role changes show up promptly.
 const TOOLS_LIST_TTL_MS: u64 = 60_000;

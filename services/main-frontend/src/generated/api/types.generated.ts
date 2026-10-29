@@ -1412,6 +1412,11 @@ export type ChangesetReview = {
   calls: Array<AgentChangesetCallSummary>
   changeset: AgentChangeset
   /**
+   * The pages that are their chapter's front page, as staged while the changeset is open and
+   * as live after.
+   */
+  chapter_front_page_ids: Array<string>
+  /**
    * Staged entities whose live state changed after they were staged, which blocks publishing.
    */
   conflicts: Array<PublishConflict>

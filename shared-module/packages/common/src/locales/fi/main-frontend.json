@@ -88,6 +88,7 @@
   "agent-discard-failed": "Muutoksia ei hylätty.",
   "agent-discarded-message": "Muutokset hylättiin.",
   "agent-entity-chapter": "Luku",
+  "agent-entity-chapter-front-page": "Luvun etusivu",
   "agent-entity-conflict-explanation": "Joku muutti tätä agentin jälkeen. Tätä muutosta ei voi julkaista sellaisenaan.",
   "agent-entity-course-default-review-config": "Oletusvertaisarvioinnin ohjeet",
   "agent-entity-course-settings": "Kurssin asetukset",

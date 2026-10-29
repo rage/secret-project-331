@@ -8,7 +8,7 @@ use crate::engine::path::{is_course_root, split_path};
 
 /// Keys a read adds to an entity besides its fields. Writes ignore them, so an entity read back
 /// can be written again.
-pub(crate) const RENDERED_KEYS: [&str; 3] = ["path", "kind", "pending"];
+pub(crate) const RENDERED_KEYS: [&str; 4] = ["path", "kind", "pending", "is_chapter_front_page"];
 
 /// The course tree as agents read and edit it. Children arrays are in display order.
 #[derive(Debug, Clone, PartialEq, Serialize)]

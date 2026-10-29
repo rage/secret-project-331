@@ -245,13 +245,19 @@ const fitsTemplateEntry = (
   )
 }
 
+// The exercise editor stores these beside the id; they come back in stored and copied blocks.
+const EDITOR_STORED_EXERCISE_KEYS = new Set(["name", "dropCap"])
+
 const validateExerciseBlock = (
   ownProblems: BlockValidationError[],
   clientId: string,
+  isUnchanged: boolean,
   attributes: Record<string, unknown>,
   innerBlocks: unknown[],
 ) => {
-  const extraKeys = Object.keys(attributes).filter((key) => key !== "id")
+  const extraKeys = Object.keys(attributes).filter(
+    (key) => key !== "id" && !(isUnchanged && EDITOR_STORED_EXERCISE_KEYS.has(key)),
+  )
   if (typeof attributes.id !== "string" || extraKeys.length > 0 || innerBlocks.length > 0) {
     ownProblems.push({
       clientId,
@@ -259,7 +265,7 @@ const validateExerciseBlock = (
       code: "invalid_attribute",
       message:
         "An exercise block on a page holds only its exercise id; exercises are edited elsewhere.",
-      fix: 'Keep the exercise block exactly as read: {"attributes": {"id": "<exercise id>"}, "innerBlocks": []}.',
+      fix: 'Keep the exercise block with only its id: {"attributes": {"id": "<exercise id>"}, "innerBlocks": []}.',
     })
   }
 }
@@ -448,7 +454,7 @@ const validateBlock = (
   }
 
   if (name === EXERCISE_BLOCK) {
-    validateExerciseBlock(ownProblems, clientId, attributes, innerBlocks)
+    validateExerciseBlock(ownProblems, clientId, isUnchanged, attributes, innerBlocks)
     return { clientId, name, isValid: true, attributes, innerBlocks }
   }
 

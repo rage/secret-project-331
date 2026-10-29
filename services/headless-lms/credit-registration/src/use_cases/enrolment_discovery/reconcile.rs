@@ -8,8 +8,8 @@ use headless_lms_models::credit_registration_roster_schedules::{
     AccountLinkingCodeCounters, record_linking_counters,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch,
-    courses_of_registerable_completions_by_account_email_since, listed_addresses, mail_address,
+    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch, listed_addresses, mail_address,
+    registerable_completion_courses_by_account_email,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -116,26 +116,32 @@ async fn late_completer_courses(
     course_ids: &BTreeSet<Uuid>,
     since: DateTime<Utc>,
 ) -> CreditRegistrationResult<HashMap<String, BTreeSet<Uuid>>> {
-    let addresses: Vec<String> = early
+    let addresses_by_person: Vec<(&RosterPerson, Vec<String>)> = early
         .iter()
-        .flat_map(|person| listed_addresses(person).map(str::to_lowercase))
+        .map(|&person| {
+            let addresses = listed_addresses(person).map(str::to_lowercase).collect();
+            (person, addresses)
+        })
         .collect();
+    let mut addresses: Vec<String> = addresses_by_person
+        .iter()
+        .flat_map(|(_, addresses)| addresses.iter().cloned())
+        .collect();
+    addresses.sort_unstable();
+    addresses.dedup();
     if addresses.is_empty() {
         return Ok(HashMap::new());
     }
     let course_ids: Vec<Uuid> = course_ids.iter().copied().collect();
-    let courses_by_email = courses_of_registerable_completions_by_account_email_since(
-        conn,
-        &course_ids,
-        since,
-        &addresses,
-    )
-    .await?;
-    Ok(early
-        .iter()
-        .filter_map(|person| {
-            let courses: BTreeSet<Uuid> = listed_addresses(person)
-                .filter_map(|address| courses_by_email.get(&address.to_lowercase()))
+    let courses_by_email =
+        registerable_completion_courses_by_account_email(conn, &course_ids, since, &addresses)
+            .await?;
+    Ok(addresses_by_person
+        .into_iter()
+        .filter_map(|(person, addresses)| {
+            let courses: BTreeSet<Uuid> = addresses
+                .iter()
+                .filter_map(|address| courses_by_email.get(address))
                 .flatten()
                 .copied()
                 .collect();

@@ -9,7 +9,6 @@ import { getCreditRegistrationDetailsOptions } from "@/generated/api/@tanstack/r
 import type { CourseCreditRegistration } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { formatUserName } from "@/hooks/useUserDetails"
-import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
@@ -49,11 +48,11 @@ import {
   subsectionCss,
 } from "./styles"
 import {
-  ADMINISTRATE_CREDIT_REGISTRATIONS,
   linkingEmailSentence,
   notificationEmailLabel,
   notificationEmailSentence,
   studentNumberVerificationLabel,
+  useCanAdministrateCreditRegistrations,
 } from "./teacherCreditRegistrations"
 import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
 
@@ -96,8 +95,7 @@ const CreditRegistrationDetailsDialog: React.FC<Props> = ({
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
-  const canAdministrate =
-    useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS]).data?.[0] === true
+  const canAdministrate = useCanAdministrateCreditRegistrations()
   const detailsQuery = useQuery({
     ...getCreditRegistrationDetailsOptions({
       path: { credit_registration_id: registration.id },

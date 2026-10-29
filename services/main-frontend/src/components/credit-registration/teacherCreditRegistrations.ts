@@ -74,6 +74,10 @@ export const ADMINISTRATE_CREDIT_REGISTRATIONS = [
   },
 ] as const
 
+/** Whether this user may open the credit registration admin pages. */
+export const useCanAdministrateCreditRegistrations = (): boolean =>
+  useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS]).data?.[0] === true
+
 /**
  * Whether this user may read the course's registrations at all.
  *

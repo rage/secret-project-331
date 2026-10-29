@@ -106,12 +106,10 @@ pub fn listed_addresses(person: &RosterPerson) -> impl Iterator<Item = &str> {
         .filter(|address| !address.is_empty())
 }
 
-/// For each of the lowercased `addresses` that is the account email of someone with a registerable
-/// completion on one of `course_ids` created at or after `since`, the courses it has one on.
-///
-/// Registerable is what the push path would register: passed, ECTS-eligible, prerequisites met, not
-/// held for review, on a module that registers credits, and not left to the pull path.
-pub async fn courses_of_registerable_completions_by_account_email_since(
+/// For each of the lowercased `addresses` that is the account email of someone with a completion
+/// the push path will register (`credit_registration_eligible_completions`, prerequisites met and
+/// not held for review) on one of `course_ids` created at or after `since`, the courses it is on.
+pub async fn registerable_completion_courses_by_account_email(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
     since: DateTime<Utc>,
@@ -120,21 +118,12 @@ pub async fn courses_of_registerable_completions_by_account_email_since(
     let rows = sqlx::query!(
         r#"
 SELECT DISTINCT lower(user_details.email) AS "email!",
-  c.course_id
-FROM course_module_completions c
-  JOIN course_modules cm ON cm.id = c.course_module_id
-  JOIN user_details ON user_details.user_id = c.user_id
-WHERE c.course_id = ANY($1::uuid [])
-  AND c.created_at >= $2
-  AND c.deleted_at IS NULL
-  AND c.passed
-  AND c.eligible_for_ects IS TRUE
-  AND c.prerequisite_modules_completed
-  AND c.needs_to_be_reviewed IS NOT TRUE
-  AND c.register_credits_via_suotar
-  AND cm.deleted_at IS NULL
-  AND cm.completions_can_be_registered_to_sisu
-  AND btrim(coalesce(cm.uh_course_code, '')) <> ''
+  ec.course_id AS "course_id!"
+FROM credit_registration_eligible_completions ec
+  JOIN user_details ON user_details.user_id = ec.user_id
+WHERE ec.course_id = ANY($1::uuid [])
+  AND ec.created_at >= $2
+  AND ec.fully_eligible
   AND lower(user_details.email) = ANY($3::text [])
         "#,
         course_ids,

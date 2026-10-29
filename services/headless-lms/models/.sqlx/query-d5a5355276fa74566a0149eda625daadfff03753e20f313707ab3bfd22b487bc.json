@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT lower(user_details.email) AS \"email!\",\n  ec.course_id AS \"course_id!\"\nFROM credit_registration_eligible_completions ec\n  JOIN user_details ON user_details.user_id = ec.user_id\nWHERE ec.course_id = ANY($1::uuid [])\n  AND ec.created_at >= $2\n  AND ec.fully_eligible\n  AND lower(user_details.email) = ANY($3::text [])\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_eligible_completions",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      null,
+      true
+    ]
+  },
+  "hash": "d5a5355276fa74566a0149eda625daadfff03753e20f313707ab3bfd22b487bc"
+}

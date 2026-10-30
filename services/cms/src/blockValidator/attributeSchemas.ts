@@ -3,7 +3,7 @@
 import { type AttributeSchema, JSON_TYPES, type JsonType } from "@/utils/Gutenberg/agentSchema"
 import type { BlockType, CmsBlockAttribute } from "@/utils/Gutenberg/types"
 
-import { BLOCK_REFINEMENTS, SHARED_REFINEMENTS } from "./attributeRefinements"
+import { BLOCK_REFINEMENTS, SHARED_REFINEMENTS, TEXT_ALIGN_STYLE } from "./attributeRefinements"
 import { NON_INTERACTIVE_FORMATS, TOOLBAR_FORMATS } from "./richText"
 
 /** Why agents may not write an attribute, phrased as the fix. */
@@ -13,6 +13,11 @@ const FORBIDDEN_ATTRIBUTES: Record<string, string> = {
   metadata: "Remove `metadata`; block bindings, names and overrides aren't accepted.",
   allowedBlocks:
     "Remove `allowedBlocks`; what a block may contain comes from its registration (see allowed_children).",
+}
+
+const supportsTextAlign = (blockType: BlockType): boolean => {
+  const supports = blockType.supports as { typography?: { textAlign?: unknown } } | undefined
+  return Boolean(supports?.typography?.textAlign)
 }
 
 const FORBIDDEN_ROLE_FIX = "Remove it; it only holds a temporary upload in the editor."
@@ -118,6 +123,10 @@ export const blockAttributeSchemas = (blockType: BlockType): BlockAttributeSchem
   for (const [attributeName, attribute] of Object.entries<CmsBlockAttribute>(
     blockType.attributes,
   )) {
+    if (attributeName === "style" && supportsTextAlign(blockType)) {
+      writable[attributeName] = TEXT_ALIGN_STYLE
+      continue
+    }
     const forbiddenFix =
       FORBIDDEN_ATTRIBUTES[attributeName] ??
       (attribute.role === "local" ? FORBIDDEN_ROLE_FIX : undefined)

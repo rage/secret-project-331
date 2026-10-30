@@ -40,11 +40,14 @@ const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSec
                 {
                   placeholder: "Objective #1",
                   level: 3,
-                  textAlign: "center",
+                  style: { typography: { textAlign: "center" } },
                   anchor: "objective-1",
                 },
               ],
-              ["core/paragraph", { placeholder: "Insert text...", align: "center" }],
+              [
+                "core/paragraph",
+                { placeholder: "Insert text...", style: { typography: { textAlign: "center" } } },
+              ],
             ],
           ],
           [
@@ -56,11 +59,14 @@ const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSec
                 {
                   placeholder: "Objective #2",
                   level: 3,
-                  textAlign: "center",
+                  style: { typography: { textAlign: "center" } },
                   anchor: "objective-2",
                 },
               ],
-              ["core/paragraph", { placeholder: "Insert text...", align: "center" }],
+              [
+                "core/paragraph",
+                { placeholder: "Insert text...", style: { typography: { textAlign: "center" } } },
+              ],
             ],
           ],
           [
@@ -72,11 +78,14 @@ const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSec
                 {
                   placeholder: "Objective #3",
                   level: 3,
-                  textAlign: "center",
+                  style: { typography: { textAlign: "center" } },
                   anchor: "objective-2",
                 },
               ],
-              ["core/paragraph", { placeholder: "Insert text...", align: "center" }],
+              [
+                "core/paragraph",
+                { placeholder: "Insert text...", style: { typography: { textAlign: "center" } } },
+              ],
             ],
           ],
         ],

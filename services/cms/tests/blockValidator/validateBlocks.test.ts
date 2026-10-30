@@ -232,13 +232,21 @@ describe("attributes", () => {
     expect(result.errors[0]?.code).toBe("invalid_attribute")
   })
 
-  it("forbids style and metadata objects", async () => {
+  it("accepts only text alignment in style, and forbids metadata objects", async () => {
+    const centred = block("core/heading", {
+      content: "x",
+      level: 2,
+      style: { typography: { textAlign: "center" } },
+    })
+    expect((await validate([centred])).errors).toEqual([])
     const result = await validate([
       block("core/paragraph", { content: "x", style: { color: { text: "red" } }, metadata: {} }),
+      block("core/image", { url: "https://x.fi/a.png", style: { border: { radius: "4px" } } }),
     ])
     expect(result.errors.map((error) => [error.code, error.path])).toEqual([
-      ["forbidden_attribute", ["attributes", "style"]],
+      ["invalid_attribute", ["attributes", "style", "color"]],
       ["forbidden_attribute", ["attributes", "metadata"]],
+      ["forbidden_attribute", ["attributes", "style"]],
     ])
   })
 
@@ -557,8 +565,8 @@ describe("blocks the teacher wrote", () => {
   it("are type-checked but exempt from the rules about what agents write", async () => {
     const html = block("core/html", { content: '<iframe src="https://x.fi"></iframe>' })
     const styled = block("core/paragraph", {
-      content: "Centred&nbsp;text",
-      style: { typography: { textAlign: "center" } },
+      content: "Red&nbsp;text",
+      style: { color: { text: "#ff0000" } },
     })
     const lock = block("moocfi/lock-chapter", {}, [paragraph("Model solution")])
     const changed = paragraph("The agent's edit")
@@ -574,13 +582,13 @@ describe("blocks the teacher wrote", () => {
     expect(result.errors).toEqual([])
     const inner = result.blocks[0]?.innerBlocks[0]?.innerBlocks
     expect(inner?.[0]?.attributes.content).toBe(html.attributes.content)
-    expect(inner?.[1]?.attributes.style).toEqual({ typography: { textAlign: "center" } })
-    expect(inner?.[1]?.attributes.content).toBe("Centred\u00A0text")
+    expect(inner?.[1]?.attributes.style).toEqual({ color: { text: "#ff0000" } })
+    expect(inner?.[1]?.attributes.content).toBe("Red\u00A0text")
 
     const asAgentWrites = await validate([expandable, lock])
     expect(asAgentWrites.errors.map((error) => [error.clientId, error.code])).toEqual([
       [html.clientId, "not_allowed_here"],
-      [styled.clientId, "forbidden_attribute"],
+      [styled.clientId, "invalid_attribute"],
       [styled.clientId, "disallowed_markup"],
       [lock.clientId, "not_allowed_here"],
     ])

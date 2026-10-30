@@ -282,11 +282,12 @@ const validateAttributes = (
   const normalised: Record<string, unknown> = {}
   const problemCountBefore = problems.length
   for (const [key, value] of Object.entries(attributes)) {
+    // Agents may write only text alignment in `style`; the teacher's other styles stay as they are.
+    if (isUnchanged && (Object.hasOwn(forbidden, key) || key === "style")) {
+      normalised[key] = value
+      continue
+    }
     if (Object.hasOwn(forbidden, key)) {
-      if (isUnchanged) {
-        normalised[key] = value
-        continue
-      }
       context.errors.push({
         clientId,
         path: ["attributes", key],

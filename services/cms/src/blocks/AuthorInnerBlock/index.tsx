@@ -22,11 +22,7 @@ const AuthorInnerBlockConfiguration: BlockConfiguration = {
         { isStackedOnMobile: true },
         [
           ["core/column", {}, [["core/image", {}]]],
-          [
-            "core/column",
-            {},
-            [["core/paragraph", { placeholder: "Insert author's bio text...", align: "left" }]],
-          ],
+          ["core/column", {}, [["core/paragraph", { placeholder: "Insert author's bio text..." }]]],
         ],
       ],
     ],

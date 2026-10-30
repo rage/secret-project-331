@@ -80,6 +80,9 @@ const isClosedEndedItemValid = (item: PrivateSpecQuizItemClosedEndedQuestion): b
 const isMatrixItemValid = (item: PrivateSpecQuizItemMatrix): boolean =>
   isFilledRectangle(item.optionCells) && Number.isFinite(item.tolerance) && item.tolerance >= 0
 
+// Same shape the timeline add form accepts; the student view sorts events by Number(year).
+export const TIMELINE_YEAR = /^\s*[+-]?\d+/
+
 export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolean => {
   if (!privateSpec) {
     return false
@@ -101,6 +104,11 @@ export const validatePrivateSpec = (privateSpec: PrivateSpecQuiz | null): boolea
     }
     if (item.type === "closed-ended-question") {
       return isClosedEndedItemValid(item)
+    }
+    if (item.type === "timeline") {
+      return (item.timelineItems ?? []).every((timelineItem) =>
+        TIMELINE_YEAR.test(timelineItem.year),
+      )
     }
     if (item.type === "matrix") {
       return isMatrixItemValid(item)

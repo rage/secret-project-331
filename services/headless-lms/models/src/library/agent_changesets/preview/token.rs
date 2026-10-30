@@ -6,8 +6,10 @@ use crate::{
     prelude::*,
 };
 
-/// How long a preview link works. It may end up in agent transcripts, so it is short.
-const PREVIEW_TOKEN_LIFETIME_MINUTES: i64 = 15;
+/// How long a preview link works. It may end up in agent transcripts, so it is bounded, but long
+/// enough to review a changeset's pages in one session. Publishing or discarding the changeset
+/// ends the link earlier.
+const PREVIEW_TOKEN_LIFETIME_MINUTES: i64 = 120;
 
 const PREVIEW_TOKEN_KIND: &str = "agent-changeset-page-preview";
 

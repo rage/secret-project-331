@@ -76,7 +76,7 @@ A write fails with staged_state_changed when a parallel call changed what it rea
 After publishing, get_history lists changes and revert_change undoes one write call.";
 
 const PREVIEWS_AND_CHECKS: &str = "\
-get_preview_link returns read-only URLs of pages' staged state (pages: several at once), valid about 15 minutes, no login needed. Open it with your own browser tooling (playwright-cli) in a desktop or mobile viewport and check: render and console errors, LaTeX errors (.katex-error), broken links and images, and accessibility (axe). The preview shows each exercise's name, task instructions and review instructions, but not the exercise itself to answer, and has no chapter navigation. Checks are expected before a changeset is published.";
+get_preview_link returns read-only URLs of pages' staged state (pages: several at once), valid about 2 hours, no login needed. Open it with your own browser tooling (playwright-cli) in a desktop or mobile viewport and check: render and console errors, LaTeX errors (.katex-error), broken links and images, and accessibility (axe). The preview shows each exercise's name, task instructions and review instructions, but not the exercise itself to answer, and has no chapter navigation. Checks are expected before a changeset is published.";
 
 const CITATIONS_AND_GLOSSARY: &str = "\
 Citations are written in rich text as \\cite{key}, \\cite[postnote]{key} or \\cite[prenote][postnote]{key}, where key is a reference's citation_key. References hold one BibTeX entry each (fields citation_key, bibtex); the entry's key must equal citation_key and be unique in the course.

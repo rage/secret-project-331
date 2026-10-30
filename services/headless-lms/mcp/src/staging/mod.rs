@@ -37,7 +37,7 @@ use report::{
     DryRunEntity, DryRunSummary, NothingStaged, StagedSummary, StagingSummary, page_hints,
     write_hints,
 };
-use validation::{ValidatedBlocks, validate_changed_blocks};
+use validation::{ValidatedBlocks, changeset_block_names, validate_changed_blocks};
 
 /// Where a write call's entity writes come from.
 pub enum WriteSource {
@@ -240,17 +240,27 @@ pub async fn commit(
         .await?
         .len()
     };
+    // Each block type's format tips come once per changeset.
+    let tipped_block_names = changeset_block_names(&view.live, &view.staged);
+    let new_block_names: Vec<&str> = validated
+        .block_names
+        .iter()
+        .map(String::as_str)
+        .filter(|name| !tipped_block_names.contains(*name))
+        .collect();
     let mut hints = write_hints(
         state,
         &staged,
+        view.course.is_draft,
         removed_exercises_with_submissions,
-        &validated.block_names,
+        &new_block_names,
     )
     .await;
     hints.extend(page_hints(
         ctx.client.client_kind(),
         &block_changes,
         &view.live,
+        &view.staged,
         &after,
         &written_pages,
     ));

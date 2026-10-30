@@ -38,7 +38,8 @@ before/after a sibling, or start/end of a children list.
 `publish_changeset` publishes it unless it holds risky changes, which only the teacher can \
 publish on the review page.
 - Changed page paths get redirects automatically; there is nothing to configure.
-- Exercise blocks can be moved, copied and removed with page edits; `patch_exercise` edits an \
+- Agents can't create exercises; the teacher creates them in the course editor. Exercise \
+blocks can be moved, copied and removed with page edits; `patch_exercise` edits an \
 exercise's name, own deadline, task instructions and review instructions, and its other settings \
 are read-only. Prefer chapter deadlines to an exercise's own. \
 Prefer editing the shared course default review instructions; fork them only for an exercise with \

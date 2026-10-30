@@ -67,7 +67,7 @@ pub fn skill_version(reported: Option<&str>) -> Result<Option<Hint>, SkillRefusa
 /// The refusal of a call that sent no `skill_version`, written for the agent to relay to the
 /// teacher.
 pub fn skill_missing() -> SkillRefusal {
-    // The install steps mirror the setup prompt in the skill repository's SETUP.md.
+    // The install paths mirror the skill repository's SETUP.md.
     SkillRefusal::Missing(format!(
         "Nothing was done: no skill_version was sent, and this server can't be used safely without the course-material skill. \
 Ask the teacher whether it is fine to install the skill, and wait for their answer before continuing. \
@@ -75,8 +75,8 @@ Tell them what it is: the course-material skill (https://github.com/rage/course-
 the safety rules (what needs the teacher's approval, checking pages before publishing) and the formats of course content. \
 If the teacher agrees, install it: clone that repository into the user-level skills folder as course-material \
 (Claude Code: ~/.claude/skills/course-material, or skills/course-material in $CLAUDE_CONFIG_DIR if it is set; Codex: ~/.agents/skills/course-material), \
-then read AGENT-SETUP.md in it and follow it. The teacher's setup guide: {SKILL_SETUP_URL}. \
-Afterwards send skill_version from the skill's VERSION file on every call. \
+read SKILL.md in it, then continue with the teacher's task, sending skill_version from the skill's VERSION file on every call. \
+The rest of the setup ({SKILL_SETUP_URL}) isn't needed for the task and can wait until it is done. \
 If the teacher says no, send skill_version \"{SKILL_DECLINED}\" on every call from then on; the tools then work without the skill."
     ))
 }
@@ -124,14 +124,19 @@ fn check_skill_version(
     Ok(None)
 }
 
-/// Changes are staged and wait for publishing.
-pub fn staged(changeset_id: uuid::Uuid) -> Hint {
-    Hint::new(
-        HintKind::State,
+/// Changes are staged and wait for publishing. `is_draft`: the course is a draft, which
+/// students don't see even after publishing.
+pub fn staged(changeset_id: uuid::Uuid, is_draft: bool) -> Hint {
+    let text = if is_draft {
+        format!(
+            "The changes are staged in changeset {changeset_id}. The course is a draft, so students see neither them nor the published course until the teacher takes the course out of draft."
+        )
+    } else {
         format!(
             "The changes are staged in changeset {changeset_id}; students don't see them until it is published."
-        ),
-    )
+        )
+    };
+    Hint::new(HintKind::State, text)
 }
 
 /// Risky changes wait for the teacher on the review page.
@@ -144,16 +149,20 @@ pub fn needs_teacher_review(review_url: &str, reason_count: usize) -> Hint {
     )
 }
 
-/// The changeset is published.
-pub fn published(changeset_id: uuid::Uuid) -> Hint {
-    Hint::new(
-        HintKind::State,
-        format!("Changeset {changeset_id} is published; students see the changes now."),
-    )
+/// The changeset is published. `is_draft` as in [`staged`].
+pub fn published(changeset_id: uuid::Uuid, is_draft: bool) -> Hint {
+    let text = if is_draft {
+        format!(
+            "Changeset {changeset_id} is published to the draft course; students see the course once the teacher takes it out of draft."
+        )
+    } else {
+        format!("Changeset {changeset_id} is published; students see the changes now.")
+    };
+    Hint::new(HintKind::State, text)
 }
 
-/// Pages of the changeset whose rendering changed haven't been checked in a browser.
-pub fn not_visually_checked(page_count: usize, client: ClientKind) -> Hint {
+/// Pages of the open changeset render differently from the published course.
+pub fn rendering_changes(page_count: usize, client: ClientKind) -> Hint {
     let tooling = match client {
         ClientKind::ClaudeCode | ClientKind::Codex => "playwright-cli and its skill",
         ClientKind::Other => "a browser tool such as playwright-cli",
@@ -161,7 +170,17 @@ pub fn not_visually_checked(page_count: usize, client: ClientKind) -> Hint {
     Hint::new(
         HintKind::VisualCheck,
         format!(
-            "{page_count} page(s) in the changeset have rendering changes that haven't been visually checked; checks are expected before a changeset is published. get_preview_link gives a preview URL to open with {tooling}."
+            "{page_count} page(s) in the changeset have rendering changes; preview them before publishing. get_preview_link gives preview URLs to open with {tooling}."
+        ),
+    )
+}
+
+/// Pages a just published changeset changed the rendering of.
+pub fn published_rendering_changes(page_count: usize) -> Hint {
+    Hint::new(
+        HintKind::VisualCheck,
+        format!(
+            "{page_count} published page(s) have rendering changes; any not previewed before publishing can be checked on the course site."
         ),
     )
 }
@@ -360,7 +379,7 @@ mod tests {
     #[test]
     fn hints_state_facts_not_commands() {
         let hints = [
-            not_visually_checked(2, ClientKind::Codex),
+            rendering_changes(2, ClientKind::Codex),
             redirects_created(3),
             needs_teacher_review("https://x/review", 1),
             skill_version(None).unwrap().unwrap(),

@@ -149,8 +149,12 @@ async fn own_changeset(
     Ok((course, changeset))
 }
 
-/// The result for a changeset that is no longer open.
-fn not_open_result(changeset_id: Uuid, status: AgentChangesetStatus) -> ToolResult {
+/// The result for a changeset of `course` that is no longer open.
+fn not_open_result(
+    course: &Course,
+    changeset_id: Uuid,
+    status: AgentChangesetStatus,
+) -> ToolResult {
     let mut result = ToolResult::success(json!({
         "changeset": changeset_id,
         "status": status,
@@ -163,7 +167,7 @@ fn not_open_result(changeset_id: Uuid, status: AgentChangesetStatus) -> ToolResu
         },
     }));
     if status == AgentChangesetStatus::Published {
-        result = result.with_hint(hints::published(changeset_id));
+        result = result.with_hint(hints::published(changeset_id, course.is_draft));
     }
     result
 }
@@ -243,7 +247,7 @@ impl ToolHandler<McpState> for PublishChangeset {
         let (course, changeset) =
             own_changeset(&mut conn, ctx, args.course.id(), args.changeset.id()).await?;
         if !changeset.is_open() {
-            return Ok(not_open_result(changeset.id, changeset.status).into());
+            return Ok(not_open_result(&course, changeset.id, changeset.status).into());
         }
         let view = load_view(
             &mut conn,
@@ -253,6 +257,8 @@ impl ToolHandler<McpState> for PublishChangeset {
         )
         .await?;
         check_pages_ready(&view)?;
+        let rendering_change_count =
+            page_readiness::pages_with_content_changes(&view.staged, &view.live).count();
         let review_url = state.review_url(changeset.course_id, changeset.id);
         let can_add_global_admin_only_exercise_services =
             is_user_global_admin(&mut conn, ctx.principal.actor.user_id).await?;
@@ -274,21 +280,25 @@ impl ToolHandler<McpState> for PublishChangeset {
                 changeset,
                 redirects,
             } => {
-                return Ok(ToolResult::success(json!({
+                let mut result = ToolResult::success(json!({
                     "changeset": changeset.id,
                     "published": true,
                     "published_at": changeset.published_at,
                     "redirects": redirects,
                 }))
-                .with_hint(hints::published(changeset.id))
-                .into());
+                .with_hint(hints::published(changeset.id, view.course.is_draft));
+                if rendering_change_count > 0 {
+                    result = result
+                        .with_hint(hints::published_rendering_changes(rendering_change_count));
+                }
+                return Ok(result.into());
             }
             PublishOutcome::Rejected { rejection } => rejection,
         };
         match rejection {
             PublishRejection::NeedsConfirmation { risky_entities } => {
                 let reason_count: usize = risky_entities.iter().map(|e| e.risk_reasons.len()).sum();
-                let fallback = ToolResult::success(json!({
+                let mut fallback = ToolResult::success(json!({
                     "changeset": changeset.id,
                     "published": false,
                     "reason": "needs_teacher_review",
@@ -296,6 +306,12 @@ impl ToolHandler<McpState> for PublishChangeset {
                     "review_url": review_url,
                 }))
                 .with_hint(hints::needs_teacher_review(&review_url, reason_count));
+                if rendering_change_count > 0 {
+                    fallback = fallback.with_hint(hints::rendering_changes(
+                        rendering_change_count,
+                        ctx.client.client_kind(),
+                    ));
+                }
                 if let Some(retry) = &ctx.retry {
                     // The teacher answered on the review page without publishing everything; asking
                     // again would loop.
@@ -336,7 +352,7 @@ impl ToolHandler<McpState> for PublishChangeset {
                 json!({"blockers": explain_blockers(blockers)}),
             )),
             PublishRejection::NotOpen { status } => {
-                Ok(not_open_result(changeset.id, status).into())
+                Ok(not_open_result(&view.course, changeset.id, status).into())
             }
             PublishRejection::SaveFailed { entity, message } => Err(ToolError::refused(
                 ToolErrorCode::PublishFailed,
@@ -363,7 +379,7 @@ impl ToolHandler<McpState> for DiscardChangeset {
         let (course, changeset) =
             own_changeset(&mut conn, ctx, args.course.id(), args.changeset.id()).await?;
         if !changeset.is_open() {
-            return Ok(not_open_result(changeset.id, changeset.status).into());
+            return Ok(not_open_result(&course, changeset.id, changeset.status).into());
         }
         let Some(entity_ids) = &args.entities else {
             return match discard(&mut conn, changeset.id, args.revision).await? {
@@ -373,7 +389,9 @@ impl ToolHandler<McpState> for DiscardChangeset {
                     "message": "Every staged change in the changeset was dropped; the published course is unchanged.",
                 }))
                 .into()),
-                DiscardOutcome::Rejected { rejection } => discard_rejected(changeset.id, rejection),
+                DiscardOutcome::Rejected { rejection } => {
+                    discard_rejected(&course, changeset.id, rejection)
+                }
             };
         };
         discard_some(
@@ -389,11 +407,14 @@ impl ToolHandler<McpState> for DiscardChangeset {
 }
 
 fn discard_rejected(
+    course: &Course,
     changeset_id: Uuid,
     rejection: DiscardRejection,
 ) -> Result<ToolOutcome, ToolError> {
     match rejection {
-        DiscardRejection::NotOpen { status } => Ok(not_open_result(changeset_id, status).into()),
+        DiscardRejection::NotOpen { status } => {
+            Ok(not_open_result(course, changeset_id, status).into())
+        }
         DiscardRejection::ChangedSinceReview(ChangedSinceReview { revision }) => {
             Err(ToolError::refused(
                 ToolErrorCode::ChangesetChanged,
@@ -452,7 +473,7 @@ async fn discard_some(
     .await?
     {
         Ok(discarded) => discarded,
-        Err(rejection) => return discard_rejected(changeset.id, rejection),
+        Err(rejection) => return discard_rejected(&view.course, changeset.id, rejection),
     };
     Ok(ToolResult::success(json!({
         "changeset": changeset.id,
@@ -460,7 +481,7 @@ async fn discard_some(
         "discarded": discarded,
         "message": "These entities were dropped from the changeset and show their published state again; the rest stays staged.",
     }))
-    .with_hint(hints::staged(changeset.id))
+    .with_hint(hints::staged(changeset.id, view.course.is_draft))
     .into())
 }
 

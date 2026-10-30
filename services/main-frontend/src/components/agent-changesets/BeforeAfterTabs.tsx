@@ -11,8 +11,15 @@ import { tabPillCss, TabStrip } from "@/components/Tabs/tabStrip"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const ORIENTATION = "horizontal"
+const CHANGES = "changes"
 const BEFORE = "before"
 const AFTER = "after"
+
+/**
+ * CSS custom property with the height of whatever the review page keeps stuck to the top of the
+ * viewport, so the tab strip sticks below it. Set by the page; 0 when unset.
+ */
+export const STICKY_TOP_PROPERTY = "--agent-review-sticky-top"
 
 const panelCss = css`
   min-width: 0;
@@ -24,6 +31,9 @@ const panelCss = css`
 `
 
 const stripCss = css`
+  position: sticky;
+  top: var(${STICKY_TOP_PROPERTY}, 0px);
+  z-index: 5;
   margin-bottom: 0.75rem;
 `
 
@@ -53,6 +63,8 @@ const BeforeAfterTab: React.FC<{
 }
 
 interface BeforeAfterTabsProps {
+  /** What changed, both sides marked in one view; shown first when given. */
+  changes?: React.ReactNode
   /** Left out when there was nothing before, as for a created entity. */
   before?: React.ReactNode
   /** Left out when there is nothing after, as for a deleted entity. */
@@ -61,23 +73,27 @@ interface BeforeAfterTabsProps {
 }
 
 /**
- * Content before and after a change as full-width tabs, After first. Only the selected tab's
- * content is rendered, since each side can be a whole course page.
+ * Content of a change as full-width tabs: Changes, Before and After, opening on Changes, or on
+ * After without it. Only the selected tab's content is rendered, since each can be a whole page.
+ * The strip sticks to the top while its content scrolls past.
  */
 const BeforeAfterTabs: React.FC<BeforeAfterTabsProps> = ({
+  changes,
   before,
   after,
   "data-testid-prefix": testIdPrefix,
 }) => {
   const { t } = useTranslation()
+  const hasChanges = changes !== undefined && changes !== null
   const hasBefore = before !== undefined && before !== null
   const hasAfter = after !== undefined && after !== null
   const tabs = [
+    ...(hasChanges ? [{ key: CHANGES, label: t("agent-changes-tab"), content: changes }] : []),
     ...(hasBefore ? [{ key: BEFORE, label: t("agent-before"), content: before }] : []),
     ...(hasAfter ? [{ key: AFTER, label: t("agent-after"), content: after }] : []),
   ]
   const state = useTabListState({
-    defaultSelectedKey: hasAfter ? AFTER : BEFORE,
+    defaultSelectedKey: hasChanges ? CHANGES : hasAfter ? AFTER : BEFORE,
     items: tabs,
     children: (tab) => (
       <Item key={tab.key} textValue={tab.label}>

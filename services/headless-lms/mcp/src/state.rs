@@ -64,10 +64,9 @@ impl McpState {
     }
 
     /// The page where the teacher reviews, publishes or discards a changeset.
-    pub fn review_url(&self, course_id: Uuid, changeset_id: Uuid) -> String {
-        self.app_conf.public_url(&format!(
-            "/manage/courses/{course_id}/agent-changesets/{changeset_id}"
-        ))
+    pub fn review_url(&self, changeset_id: Uuid) -> String {
+        self.app_conf
+            .public_url(&format!("/manage/agent-changesets/{changeset_id}"))
     }
 
     /// The CMS block schemas, cached briefly.

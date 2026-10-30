@@ -67,7 +67,7 @@ fn summary_json(state: &McpState, summary: ChangesetSummary) -> Value {
         "published_at": changeset.published_at,
         "is_expiring_soon": summary.is_expiring_soon,
         "has_risky_changes": summary.has_risky_changes,
-        "review_url": state.review_url(changeset.course_id, changeset.id),
+        "review_url": state.review_url(changeset.id),
         "entities": explained(summary.entities),
     })
 }
@@ -259,7 +259,7 @@ impl ToolHandler<McpState> for PublishChangeset {
         check_pages_ready(&view)?;
         let rendering_change_count =
             page_readiness::pages_with_content_changes(&view.staged, &view.live).count();
-        let review_url = state.review_url(changeset.course_id, changeset.id);
+        let review_url = state.review_url(changeset.id);
         let can_add_global_admin_only_exercise_services =
             is_user_global_admin(&mut conn, ctx.principal.actor.user_id).await?;
         let spec_fetcher = (state.exercise_services.spec_fetcher)();

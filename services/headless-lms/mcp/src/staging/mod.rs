@@ -290,7 +290,6 @@ pub async fn commit(
         changeset_revision: staged.changeset.revision,
         call: staged.call_id,
         staged: entities.collect(),
-        review_url: state.review_url(staged.changeset.course_id, staged.changeset.id),
         changeset_expires_at: staged.changeset.expires_at,
         unchanged_block_warnings,
     };

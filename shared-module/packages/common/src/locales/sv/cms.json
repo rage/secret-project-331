@@ -302,6 +302,7 @@
   "warning-heading-level-jump": "Undvik att hoppa från H{{fromLevel}} till H{{toLevel}}.",
   "warning-image-alt-placeholder": "Varning: Den här bilden saknar beskrivande alt-text.",
   "warning-image-alt-placeholder-guidance": "Om bilden är dekorativ, markera kryssrutan \"Mark as decorative\" i blockinställningarna. Annars kan du använda stegen här för att bestämma alt-texten:",
+  "warning-image-google-docs": "Varning: Bilden är länkad från Google Docs, och länken slutar fungera. Ladda ner bilden från dokumentet och ladda upp den till det här blocket.",
   "warning-mobile-background-missing": "Varning: Ingen bakgrundsbild för mobil eller större är inställd, men andra skärmstorlekar har bakgrundsbilder konfigurerade. Mobilens bakgrundsbild fungerar som standardfall för alla skärmstorlekar. Om du vill använda endast en bild som skulle visas på alla skärmstorlekar, ladda upp den till mobilbakgrunden eller större bildfält.",
   "warning-paragraph-bold-line-looks-like-heading": "Varning: Detta stycke är en enda fet rad. Om du menade en rubrik för avsnittet, överväg att använda ett Rubrik-block i stället.",
   "warning-points-are-all-or-nothing-disabled": "Varning: Det rekommenderas att aktivera “poäng är allt eller inget”. Kamratgranskningar som ges av studenter varierar mycket i kvalitet, vilket kan leda till att vissa studenter får orättvisa poäng från övningen. Att aktivera detta alternativ minskar slumpmässigheten i de mottagna poängen och gör kamratgranskningsprocessen rättvisare för studenterna.",

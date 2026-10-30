@@ -18,6 +18,22 @@ export const shouldWarnAboutImageAltPlaceholder = (
 }
 
 /**
+ * Whether the image is served from a Google Docs document. Such links are signed and expire, so an
+ * image pasted from a Doc breaks later.
+ */
+export const isGoogleDocsImageUrl = (url: unknown): boolean => {
+  if (typeof url !== "string") {
+    return false
+  }
+  try {
+    const { hostname, pathname } = new URL(url)
+    return hostname.endsWith(".googleusercontent.com") && pathname.startsWith("/docs")
+  } catch {
+    return false
+  }
+}
+
+/**
  * Image blocks, nested ones included and in document order, that are not decorative and whose alt
  * is missing, blank or still the upload placeholder. Stricter than
  * `shouldWarnAboutImageAltPlaceholder`, which ignores an absent alt.

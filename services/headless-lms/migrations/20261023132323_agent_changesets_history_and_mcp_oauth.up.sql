@@ -312,7 +312,7 @@ CREATE TABLE agent_changeset_preview_links (
   token_hash BYTEA NOT NULL UNIQUE,
   course_id UUID NOT NULL REFERENCES courses(id),
   changeset_id UUID REFERENCES agent_changesets(id),
-  page_id UUID REFERENCES pages(id),
+  page_id UUID,
   user_id UUID NOT NULL REFERENCES users(id),
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -330,6 +330,6 @@ COMMENT ON COLUMN agent_changeset_preview_links.updated_at IS 'Timestamp when th
 COMMENT ON COLUMN agent_changeset_preview_links.token_hash IS 'SHA-256 of the random token in the link.';
 COMMENT ON COLUMN agent_changeset_preview_links.course_id IS 'The course the link previews.';
 COMMENT ON COLUMN agent_changeset_preview_links.changeset_id IS 'The changeset whose staged state the link shows. NULL for a link to the published state.';
-COMMENT ON COLUMN agent_changeset_preview_links.page_id IS 'The one page the link shows. NULL for a link to all of the changeset''s changed pages, or to all pages of the course when there is no changeset.';
+COMMENT ON COLUMN agent_changeset_preview_links.page_id IS 'The one page the link shows; not a foreign key because the page may exist only in the changeset. NULL for a link to all of the changeset''s changed pages, or to all pages of the course when there is no changeset.';
 COMMENT ON COLUMN agent_changeset_preview_links.user_id IS 'The user who minted the link. The link works only while this user can edit the course and, with a changeset, still owns it.';
 COMMENT ON COLUMN agent_changeset_preview_links.expires_at IS 'When the link stops working.';

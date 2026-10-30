@@ -335,7 +335,7 @@
     "/api/v0/main-frontend/agent-preview/{token}": {
       "get": {
         "tags": ["agent_preview"],
-        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No\nlogin: the short-lived signed token stands in for it, while its user may still edit the course.",
+        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or\nfor a token of the whole changeset the page `page` with the list of changed pages. No login: the\nshort-lived signed token stands in for it, while its user may still edit the course.",
         "operationId": "getAgentPagePreview",
         "parameters": [
           {
@@ -345,6 +345,16 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The changed page to show; for a token of the whole changeset only. Defaults to the first.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -28016,8 +28026,30 @@
       "PagePreview": {
         "type": "object",
         "description": "What the preview of a staged page renders.",
-        "required": ["course_name", "language_code", "page", "is_chapter_front_page", "references"],
+        "required": [
+          "course_name",
+          "language_code",
+          "page",
+          "is_chapter_front_page",
+          "references",
+          "changed_pages",
+          "chapter_pages"
+        ],
         "properties": {
+          "changed_pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewPageLink"
+            },
+            "description": "The pages the changeset adds or changes; empty unless the link covers the whole changeset."
+          },
+          "chapter_pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewPageLink"
+            },
+            "description": "The visible pages of the page's chapter after its front page, as staged; filled only for a\nchapter front page when the link covers the whole changeset."
+          },
           "course_name": {
             "type": "string"
           },
@@ -29649,6 +29681,27 @@
           "hidden": {
             "type": "boolean"
           },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PreviewPageLink": {
+        "type": "object",
+        "description": "A page a preview can switch to.",
+        "required": ["id", "title", "url_path", "order_number"],
+        "properties": {
           "id": {
             "type": "string",
             "format": "uuid"

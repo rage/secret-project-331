@@ -11,8 +11,8 @@ use headless_lms_models::{
     error::TryToOptional,
     library::agent_changesets::{
         ChangedSinceReview, ChangesetSummary, DiscardOutcome, DiscardRejection, PublishOptions,
-        PublishOutcome, PublishRejection, RiskBaseline, discard, discard_entities, get_summaries,
-        mint_preview_token, preview_path, publish,
+        PublishOutcome, PublishRejection, RiskBaseline, changed_page_links, discard,
+        discard_entities, get_summaries, mint_preview_token, preview_path, publish,
     },
     library::entity_snapshots::{ContentEntityType, EntityKey},
     organizations,
@@ -521,9 +521,12 @@ impl ToolHandler<McpState> for GetPreviewLink {
             (None, Some(pages)) if !pages.is_empty() => {
                 pages.iter().map(|page| page.id()).collect()
             }
+            (None, None) => Vec::new(),
             _ => {
                 return Err(ToolError::InvalidArguments {
-                    message: "give either page or a non-empty pages list".into(),
+                    message:
+                        "give page, a non-empty pages list, or neither for the whole changeset"
+                            .into(),
                 });
             }
         };
@@ -539,6 +542,13 @@ impl ToolHandler<McpState> for GetPreviewLink {
         let mut links = Vec::with_capacity(page_ids.len());
         let Some(changeset) = agent_changesets::get_open(&mut conn, user_id, course.id).await?
         else {
+            if page_ids.is_empty() {
+                return Ok(ToolResult::success(json!({
+                    "is_staged": false,
+                    "message": "You have nothing staged in this course, so there is no changeset to preview. Give page or pages for links to the published pages.",
+                }))
+                .into());
+            }
             let organization =
                 organizations::get_organization(&mut conn, course.organization_id).await?;
             for page_id in page_ids {
@@ -562,6 +572,26 @@ impl ToolHandler<McpState> for GetPreviewLink {
             return Ok(ToolResult::success(result).into());
         };
         let mut expires_at = None;
+        if page_ids.is_empty() {
+            let changed_pages = changed_page_links(&mut conn, &changeset).await?;
+            if changed_pages.is_empty() {
+                return Ok(ToolResult::success(json!({
+                    "is_staged": true,
+                    "changeset": changeset.id,
+                    "message": "The changeset adds or changes no pages, so there is nothing to preview.",
+                }))
+                .into());
+            }
+            let preview = mint_preview_token(&state.jwt_key, changeset.id, None, user_id)?;
+            return Ok(ToolResult::success(json!({
+                "is_staged": true,
+                "changeset": changeset.id,
+                "expires_at": preview.expires_at,
+                "url": state.app_conf.public_url(&preview_path(&preview.token)),
+                "pages": changed_pages.len(),
+            }))
+            .into());
+        }
         for page_id in page_ids {
             let key = EntityKey::new(ContentEntityType::Page, page_id);
             match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
@@ -575,7 +605,7 @@ impl ToolHandler<McpState> for GetPreviewLink {
                         .ok_or_else(|| not_found(page_id))?;
                 }
             }
-            let preview = mint_preview_token(&state.jwt_key, changeset.id, page_id, user_id)?;
+            let preview = mint_preview_token(&state.jwt_key, changeset.id, Some(page_id), user_id)?;
             expires_at = Some(preview.expires_at);
             links.push(PreviewLink {
                 page: page_id,

@@ -6,6 +6,7 @@ use utoipa::ToSchema;
 
 use crate::{
     agent_changeset_entities,
+    agent_changeset_entities::AgentChangesetEntity,
     agent_changesets::AgentChangeset,
     error::{TryToOptional, missing_model_error},
     library::{
@@ -29,6 +30,20 @@ pub struct PagePreview {
     pub is_chapter_front_page: bool,
     /// The course's references with the changeset's staged changes applied.
     pub references: Vec<PreviewReference>,
+    /// The pages the changeset adds or changes; empty unless the link covers the whole changeset.
+    pub changed_pages: Vec<PreviewPageLink>,
+    /// The visible pages of the page's chapter after its front page, as staged; filled only for a
+    /// chapter front page when the link covers the whole changeset.
+    pub chapter_pages: Vec<PreviewPageLink>,
+}
+
+/// A page a preview can switch to.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+pub struct PreviewPageLink {
+    pub id: Uuid,
+    pub title: String,
+    pub url_path: String,
+    pub order_number: i32,
 }
 
 /// A bibliography entry the page's citations refer to.
@@ -219,7 +234,73 @@ pub async fn resolve_preview(
         page,
         is_chapter_front_page,
         references,
+        changed_pages: Vec::new(),
+        chapter_pages: Vec::new(),
     })
+}
+
+/// The pages `changeset` adds or changes, in path order.
+pub async fn changed_page_links(
+    conn: &mut PgConnection,
+    changeset: &AgentChangeset,
+) -> ModelResult<Vec<PreviewPageLink>> {
+    let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
+    Ok(changed_page_links_of(&rows))
+}
+
+fn changed_page_links_of(rows: &[AgentChangesetEntity]) -> Vec<PreviewPageLink> {
+    let mut links: Vec<PreviewPageLink> = rows
+        .iter()
+        .filter_map(|row| match &row.after_snapshot {
+            Some(EntitySnapshot::Page(page)) => Some(PreviewPageLink {
+                id: page.id,
+                title: page.title.clone(),
+                url_path: page.url_path.clone(),
+                order_number: page.order_number,
+            }),
+            _ => None,
+        })
+        .collect();
+    links.sort_by(|a, b| a.url_path.cmp(&b.url_path));
+    links
+}
+
+/// What the preview link of the whole `changeset` renders: `page_id`, or the first changed page
+/// without one, with the changed pages to switch between. The caller checks the same things as
+/// for [`resolve_preview`]. Errors with `NotFound` also if the changeset changes no pages and
+/// `page_id` is `None`.
+pub async fn resolve_changeset_preview(
+    conn: &mut PgConnection,
+    changeset: &AgentChangeset,
+    page_id: Option<Uuid>,
+) -> ModelResult<PagePreview> {
+    let changed_pages = changed_page_links(conn, changeset).await?;
+    let page_id = page_id
+        .or_else(|| changed_pages.first().map(|link| link.id))
+        .ok_or_else(missing_model_error(
+            ModelErrorType::NotFound,
+            "The changeset adds or changes no pages",
+        ))?;
+    let mut preview = resolve_preview(conn, changeset, page_id).await?;
+    if let (true, Some(chapter_id)) = (preview.is_chapter_front_page, preview.page.chapter_id) {
+        let course = crate::courses::get_course(conn, changeset.course_id).await?;
+        let live = load_live_course(conn, &course, CourseParts::All).await?;
+        let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
+        let staged = live.overlay(&rows, CourseParts::All);
+        preview.chapter_pages = staged
+            .pages_in_order(Some(chapter_id))
+            .into_iter()
+            .filter(|page| page.id != page_id && !page.hidden)
+            .map(|page| PreviewPageLink {
+                id: page.id,
+                title: page.title.clone(),
+                url_path: page.url_path.clone(),
+                order_number: page.order_number,
+            })
+            .collect();
+    }
+    preview.changed_pages = changed_pages;
+    Ok(preview)
 }
 
 /// The front page of chapter `chapter_id` as `changeset` stages it.

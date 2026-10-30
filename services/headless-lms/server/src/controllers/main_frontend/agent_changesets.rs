@@ -276,7 +276,7 @@ async fn create_preview_link(
     let (changeset_id, page_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let (changeset, token) = authorize_own_changeset(&mut conn, user.id, changeset_id).await?;
-    let preview = changesets::mint_preview_token(&jwt_key, changeset.id, page_id, user.id)?;
+    let preview = changesets::mint_preview_token(&jwt_key, changeset.id, Some(page_id), user.id)?;
     token.authorized_ok(web::Json(AgentPreviewLink {
         preview_path: changesets::preview_path(&preview.token),
     }))

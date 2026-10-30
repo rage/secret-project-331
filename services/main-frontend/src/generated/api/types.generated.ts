@@ -5290,6 +5290,15 @@ export type PageInfo = {
  * What the preview of a staged page renders.
  */
 export type PagePreview = {
+  /**
+   * The pages the changeset adds or changes; empty unless the link covers the whole changeset.
+   */
+  changed_pages: Array<PreviewPageLink>
+  /**
+   * The visible pages of the page's chapter after its front page, as staged; filled only for a
+   * chapter front page when the link covers the whole changeset.
+   */
+  chapter_pages: Array<PreviewPageLink>
   course_name: string
   /**
    * Whether the page is its chapter's front page, as staged.
@@ -5832,6 +5841,16 @@ export type PreviewPage = {
   course_id: string
   exercises: Array<PreviewExercise>
   hidden: boolean
+  id: string
+  order_number: number
+  title: string
+  url_path: string
+}
+
+/**
+ * A page a preview can switch to.
+ */
+export type PreviewPageLink = {
   id: string
   order_number: number
   title: string
@@ -7297,7 +7316,12 @@ export type GetAgentPagePreviewData = {
      */
     token: string
   }
-  query?: never
+  query?: {
+    /**
+     * The changed page to show; for a token of the whole changeset only. Defaults to the first.
+     */
+    page?: string
+  }
   url: "/api/v0/main-frontend/agent-preview/{token}"
 }
 

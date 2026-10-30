@@ -1459,8 +1459,9 @@ export const getAgentPagePreviewQueryKey = (options: Options<GetAgentPagePreview
 
 /**
  *
- * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No
- * login: the short-lived signed token stands in for it, while its user may still edit the course.
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or
+ * for a token of the whole changeset the page `page` with the list of changed pages. No login: the
+ * short-lived signed token stands in for it, while its user may still edit the course.
  */
 export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewData>) =>
   queryOptions<
@@ -1478,6 +1479,89 @@ export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewD
       }),
     queryKey: getAgentPagePreviewQueryKey(options),
   })
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const getAgentPagePreviewInfiniteQueryKey = (
+  options: Options<GetAgentPagePreviewData>,
+): QueryKey<Options<GetAgentPagePreviewData>> =>
+  createQueryKey("getAgentPagePreview", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or
+ * for a token of the whole changeset the page `page` with the list of changed pages. No login: the
+ * short-lived signed token stands in for it, while its user may still edit the course.
+ */
+export const getAgentPagePreviewInfiniteOptions = (options: Options<GetAgentPagePreviewData>) => {
+  const opts = infiniteQueryOptions<
+    GetAgentPagePreviewResponse,
+    DefaultError,
+    InfiniteData<GetAgentPagePreviewResponse>,
+    QueryKey<Options<GetAgentPagePreviewData>>,
+    | string
+    | Pick<QueryKey<Options<GetAgentPagePreviewData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetAgentPagePreviewData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getAgentPagePreview({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getAgentPagePreviewInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 /**
  *
@@ -2340,40 +2424,6 @@ export const getCourseCreditRegistrationsOptions = (
       }),
     queryKey: getCourseCreditRegistrationsQueryKey(options),
   })
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
-}
 
 export const getCourseCreditRegistrationsInfiniteQueryKey = (
   options: Options<GetCourseCreditRegistrationsData>,

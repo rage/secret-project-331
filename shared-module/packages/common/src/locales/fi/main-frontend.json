@@ -163,6 +163,7 @@
   "agent-preview-block-name-pages-in-chapter": "Luvun sivut",
   "agent-preview-block-name-research-consent-question": "Tutkimussuostumuskysymys",
   "agent-preview-block-name-top-level-pages": "Ylätason sivut",
+  "agent-preview-changed-pages": "Esikatselun sivut",
   "agent-preview-exercise-placeholder": "Opiskelijat vastaavat tähän tehtävään kurssin sivulla. Esikatselussa siihen ei voi vastata.",
   "agent-preview-published-course-block": "Lohko ”{{name}}” muodostetaan julkaistun kurssin tiedoista. Sitä ei näytetä esikatselussa.",
   "agent-preview-review-instructions-course-default": "Tehtävä käyttää kurssin oletusarviointiohjeita. Niitä ei näytetä tässä.",

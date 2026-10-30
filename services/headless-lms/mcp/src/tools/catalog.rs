@@ -382,7 +382,7 @@ pub fn get_preview_link<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "get_preview_link",
-        "Returns read-only preview URLs of pages' staged state, valid about 2 hours without login, for visual checks in a browser: page gives one url, pages gives previews, a {page, url} per page.",
+        "Returns read-only preview URLs of staged state, valid about 2 hours without login, for visual checks in a browser. With neither page nor pages, one url previews every page the changeset adds or changes, with links to switch between them (prefer it to several links); page gives one url for that page, pages gives previews, a {page, url} per page.",
         read("Get preview link"),
         McpScope::MaterialRead,
     )

@@ -1424,8 +1424,9 @@ export const publishAgentChangeset = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No
- * login: the short-lived signed token stands in for it, while its user may still edit the course.
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or
+ * for a token of the whole changeset the page `page` with the list of changed pages. No login: the
+ * short-lived signed token stands in for it, while its user may still edit the course.
  */
 export const getAgentPagePreview = <ThrowOnError extends boolean = true>(
   options: Options<GetAgentPagePreviewData, ThrowOnError>,

@@ -164,6 +164,7 @@
   "agent-preview-block-name-pages-in-chapter": "Pages in chapter",
   "agent-preview-block-name-research-consent-question": "Research consent question",
   "agent-preview-block-name-top-level-pages": "Top-level pages",
+  "agent-preview-changed-pages": "Pages in this changeset",
   "agent-preview-exercise-placeholder": "Students answer this exercise on the course page. You cannot answer it in the preview.",
   "agent-preview-published-course-block": "The block “{{name}}” is built from the published course. It is not shown in the preview.",
   "agent-preview-review-instructions-course-default": "This exercise uses the course default review instructions. They are not shown here.",

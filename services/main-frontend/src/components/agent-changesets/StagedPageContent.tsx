@@ -20,9 +20,11 @@ import {
 import type {
   PreviewExercise,
   PreviewPage,
+  PreviewPageLink,
   PreviewReference,
 } from "@/generated/api/types.generated"
 import type { Page } from "@/generated/course-material-api/types.generated"
+import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
@@ -41,11 +43,7 @@ const STUDENT_SPECIFIC_BLOCKS = [
 ]
 
 /** Blocks built from the published course, which has none of the staged changes yet. */
-const PUBLISHED_COURSE_BLOCKS = [
-  "moocfi/pages-in-chapter",
-  "moocfi/course-chapter-grid",
-  "moocfi/top-level-pages",
-]
+const PUBLISHED_COURSE_BLOCKS = ["moocfi/course-chapter-grid", "moocfi/top-level-pages"]
 
 /** Blocks that show their inner blocks only to some students; the preview shows them to all. */
 const STUDENT_SPECIFIC_CONTAINERS = [
@@ -141,6 +139,48 @@ const StudentSpecificContainer: React.FC<BlockRendererProps<unknown>> = (props) 
 
 const StagedPageContext = createContext<PreviewPage | null>(null)
 
+/** The pages the chapter front page lists, as staged; `null` when the preview has none to offer. */
+const StagedChapterPagesContext = createContext<PreviewPageLink[] | null>(null)
+
+/** The pages-in-chapter list built from the staged structure, linking within the preview. */
+const StagedPagesInChapter: React.FC<BlockRendererProps<unknown>> = (props) => {
+  const { t } = useTranslation()
+  const chapterPages = useContext(StagedChapterPagesContext)
+  if (chapterPages === null) {
+    return <PublishedCourseBlockPlaceholder {...props} />
+  }
+  return (
+    <div
+      data-testid="agent-preview-pages-in-chapter"
+      className={css`
+        margin: 2.5em 0;
+      `}
+    >
+      <h2
+        className={css`
+          font-size: 1.5rem;
+          font-weight: 500;
+          text-align: center;
+          margin-bottom: 1.6rem;
+        `}
+      >
+        {t("table-of-contents")}
+      </h2>
+      {chapterPages.map((page) => (
+        <PagesInChapterBox
+          variant="text"
+          chapterIndex={page.order_number}
+          chapterTitle={page.title}
+          selected={false}
+          key={page.id}
+          id={page.id}
+          url={`?page=${page.id}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 /** Where students read the review instructions: above the answer they review. */
 const StagedReviewInstructions: React.FC<{ exercise: PreviewExercise }> = ({ exercise }) => {
   const { t } = useTranslation()
@@ -211,6 +251,7 @@ const BLOCK_RENDERER_OVERRIDES: Record<string, React.ComponentType<BlockRenderer
     STUDENT_SPECIFIC_CONTAINERS.map((name) => [name, StudentSpecificContainer]),
   ),
   "moocfi/exercise": ExercisePlaceholder,
+  "moocfi/pages-in-chapter": StagedPagesInChapter,
 }
 
 /** The preview page in the page shape the course material blocks read. */
@@ -346,6 +387,8 @@ interface StagedBlocksProps {
   isChapterFrontPage?: boolean
   /** The course's references, to resolve the page's citations; needs an ancestor with id "content". */
   references?: PreviewReference[]
+  /** The pages of the chapter after its front page, for its pages-in-chapter block. */
+  chapterPages?: PreviewPageLink[]
 }
 
 /** Stored blocks rendered read-only like a page's content, for content that has no page of its own. */
@@ -356,6 +399,7 @@ export const StagedBlocks: React.FC<StagedBlocksProps> = ({
   page,
   isChapterFrontPage,
   references,
+  chapterPages,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   useEmbeddedContent(containerRef, embeddedUnderHeadingLevel)
@@ -378,18 +422,20 @@ export const StagedBlocks: React.FC<StagedBlocksProps> = ({
   return (
     <JotaiProvider store={store}>
       <StagedPageContext.Provider value={page ?? null}>
-        <BlockRendererOverridesContext.Provider value={BLOCK_RENDERER_OVERRIDES}>
-          <div ref={containerRef} className={inlineColorStyles}>
-            <ContentRenderer
-              data={blocks as Block<unknown>[]}
-              isExam={false}
-              dontAllowBlockToBeWiderThanContainerWidth={isConstrainedToContainer}
-            />
-          </div>
-          {citations.length > 0 && (
-            <References data={citations.map((c) => ({ id: c.citationKey, text: c.citation }))} />
-          )}
-        </BlockRendererOverridesContext.Provider>
+        <StagedChapterPagesContext.Provider value={chapterPages ?? null}>
+          <BlockRendererOverridesContext.Provider value={BLOCK_RENDERER_OVERRIDES}>
+            <div ref={containerRef} className={inlineColorStyles}>
+              <ContentRenderer
+                data={blocks as Block<unknown>[]}
+                isExam={false}
+                dontAllowBlockToBeWiderThanContainerWidth={isConstrainedToContainer}
+              />
+            </div>
+            {citations.length > 0 && (
+              <References data={citations.map((c) => ({ id: c.citationKey, text: c.citation }))} />
+            )}
+          </BlockRendererOverridesContext.Provider>
+        </StagedChapterPagesContext.Provider>
       </StagedPageContext.Provider>
     </JotaiProvider>
   )
@@ -408,6 +454,8 @@ interface StagedPageContentProps {
   isChapterFrontPage?: boolean
   /** See [`StagedBlocksProps.references`]. */
   references?: PreviewReference[]
+  /** See [`StagedBlocksProps.chapterPages`]. */
+  chapterPages?: PreviewPageLink[]
 }
 
 /**

@@ -4809,6 +4809,19 @@ export const zPreviewPage = z.object({
 })
 
 /**
+ * A page a preview can switch to.
+ */
+export const zPreviewPageLink = z.object({
+  id: z.uuid(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
  * A bibliography entry the page's citations refer to.
  */
 export const zPreviewReference = z.object({
@@ -4820,6 +4833,8 @@ export const zPreviewReference = z.object({
  * What the preview of a staged page renders.
  */
 export const zPagePreview = z.object({
+  changed_pages: z.array(zPreviewPageLink),
+  chapter_pages: z.array(zPreviewPageLink),
   course_name: z.string(),
   is_chapter_front_page: z.boolean(),
   language_code: z.string(),
@@ -7904,6 +7919,10 @@ export const zPublishAgentChangesetResponse = zPublishOutcome
 
 export const zGetAgentPagePreviewPath = z.object({
   token: z.string(),
+})
+
+export const zGetAgentPagePreviewQuery = z.object({
+  page: z.uuid().optional(),
 })
 
 /**

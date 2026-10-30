@@ -13,13 +13,16 @@ const PREVIEW_TOKEN_LIFETIME_MINUTES: i64 = 120;
 
 const PREVIEW_TOKEN_KIND: &str = "agent-changeset-page-preview";
 
-/// Lets anyone holding it read one page of one changeset, as staged, without logging in.
+/// Lets anyone holding it read one page of one changeset, or all of its changed pages, as staged,
+/// without logging in.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PreviewClaim {
     /// Keeps other HS256 claims signed with the same key from passing as a preview claim.
     kind: String,
     pub changeset_id: Uuid,
-    pub page_id: Uuid,
+    /// `None` for a token of the whole changeset.
+    #[serde(default)]
+    pub page_id: Option<Uuid>,
     pub user_id: Uuid,
     exp: i64,
     iat: i64,
@@ -32,12 +35,12 @@ pub struct PreviewToken {
     pub expires_at: DateTime<Utc>,
 }
 
-/// Mints a short-lived preview token for the page as staged in the changeset. `key` is the
-/// server's JWT key.
+/// Mints a short-lived preview token for the page `page_id` as staged in the changeset, or for
+/// the changeset's changed pages with `None`. `key` is the server's JWT key.
 pub fn mint_preview_token(
     key: &JwtKey,
     changeset_id: Uuid,
-    page_id: Uuid,
+    page_id: Option<Uuid>,
     user_id: Uuid,
 ) -> ModelResult<PreviewToken> {
     let now = Utc::now();
@@ -57,7 +60,7 @@ pub fn mint_preview_token(
     Ok(PreviewToken { token, expires_at })
 }
 
-/// Path of the main frontend page that previews a page as staged, for a token from
+/// Path of the main frontend page that previews the staged changeset, for a token from
 /// [`mint_preview_token`].
 pub fn preview_path(token: &str) -> String {
     format!("/agent-preview/{token}")

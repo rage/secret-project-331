@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useParams } from "next/navigation"
+import Link from "next/link"
+import { useParams, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -15,12 +16,21 @@ import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
-/** A page as an AI agent staged it, for the agent's own visual checks. No login: the token is the key. */
+const CURRENT_PAGE = "page"
+
+/**
+ * A page as an AI agent staged it, or all pages of its changeset, for the agent's own visual
+ * checks. No login: the token is the key.
+ */
 function AgentPreviewPage() {
   const params = useParams<{ token: string }>()
+  const selectedPageId = useSearchParams().get("page")
   const { t, i18n } = useTranslation()
   const previewQuery = useQuery({
-    ...getAgentPagePreviewOptions({ path: { token: params.token } }),
+    ...getAgentPagePreviewOptions({
+      path: { token: params.token },
+      ...(selectedPageId ? { query: { page: selectedPageId } } : {}),
+    }),
     retry: false,
   })
   usePageTitle(previewQuery.data?.page.title ?? null)
@@ -66,13 +76,51 @@ function AgentPreviewPage() {
         <Centered variant="narrow">
           <QueryResult query={previewQuery}>
             {(preview) => (
-              <div id="content" data-testid="agent-preview-content">
-                <StagedPageContent
-                  page={preview.page}
-                  isChapterFrontPage={preview.is_chapter_front_page}
-                  references={preview.references}
-                />
-              </div>
+              <>
+                {preview.changed_pages.length > 0 && (
+                  <nav
+                    aria-label={t("agent-preview-changed-pages")}
+                    data-testid="agent-preview-changed-pages"
+                    className={css`
+                      margin-bottom: 2rem;
+                    `}
+                  >
+                    <h2
+                      className={css`
+                        font-size: 1.125rem;
+                        font-weight: ${fontWeights.semibold};
+                      `}
+                    >
+                      {t("agent-preview-changed-pages")}
+                    </h2>
+                    <ul>
+                      {preview.changed_pages.map((changedPage) => (
+                        <li key={changedPage.id}>
+                          <Link
+                            href={`?page=${changedPage.id}`}
+                            aria-current={
+                              changedPage.id === preview.page.id ? CURRENT_PAGE : undefined
+                            }
+                          >
+                            {changedPage.title}
+                          </Link>{" "}
+                          <code>{changedPage.url_path}</code>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                )}
+                <div id="content" data-testid="agent-preview-content">
+                  <StagedPageContent
+                    page={preview.page}
+                    isChapterFrontPage={preview.is_chapter_front_page}
+                    references={preview.references}
+                    {...(preview.changed_pages.length > 0
+                      ? { chapterPages: preview.chapter_pages }
+                      : {})}
+                  />
+                </div>
+              </>
             )}
           </QueryResult>
         </Centered>

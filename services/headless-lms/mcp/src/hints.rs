@@ -170,7 +170,7 @@ pub fn rendering_changes(page_count: usize, client: ClientKind) -> Hint {
     Hint::new(
         HintKind::VisualCheck,
         format!(
-            "{page_count} page(s) in the changeset have rendering changes; preview them before publishing. get_preview_link gives preview URLs to open with {tooling}."
+            "{page_count} page(s) in the changeset have rendering changes; preview them before publishing. get_preview_link gives one preview URL for the whole changeset to open with {tooling}."
         ),
     )
 }

@@ -8,30 +8,9 @@ import { code as codeIcon } from "@wordpress/icons"
 
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-const CODE_BLOCK_NAME = "core/code"
+import { CODE_LANGUAGES } from "./codeLanguages"
 
-// Curated set of languages. Values are highlight.js language ids/aliases. An empty value means
-// auto-detect, which is the default highlight.js behaviour.
-const CODE_LANGUAGES: { label: string; value: string }[] = [
-  { label: "Plain text", value: "plaintext" },
-  { label: "Bash / Shell", value: "bash" },
-  { label: "C", value: "c" },
-  { label: "C++", value: "cpp" },
-  { label: "C#", value: "csharp" },
-  { label: "CSS", value: "css" },
-  { label: "Go", value: "go" },
-  { label: "HTML / XML", value: "xml" },
-  { label: "Java", value: "java" },
-  { label: "JavaScript", value: "javascript" },
-  { label: "JSON", value: "json" },
-  { label: "PHP", value: "php" },
-  { label: "Python", value: "python" },
-  { label: "Ruby", value: "ruby" },
-  { label: "Rust", value: "rust" },
-  { label: "SQL", value: "sql" },
-  { label: "TypeScript", value: "typescript" },
-  { label: "YAML", value: "yaml" },
-]
+const CODE_BLOCK_NAME = "core/code"
 
 // Adds a language selector for core/code, both as a block-toolbar dropdown and as a settings-sidebar
 // panel. An empty value clears the attribute, leaving highlight.js to auto-detect on render.

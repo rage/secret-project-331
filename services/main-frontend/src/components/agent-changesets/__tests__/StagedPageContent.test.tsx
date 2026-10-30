@@ -67,6 +67,11 @@ jest.mock("@/components/course-material/ContentRenderer/util/InnerBlocks", () =>
   ),
 }))
 
+jest.mock("citation-js", () => ({
+  __esModule: true,
+  default: (reference: string) => ({ format: () => `Formatted ${reference}` }),
+}))
+
 const block = (name: string, clientId: string, innerBlocks: unknown[] = []) => ({
   name,
   clientId,
@@ -88,6 +93,24 @@ const page = (content: unknown[]): PreviewPage => ({
 })
 
 describe("StagedPageContent", () => {
+  it("lists the references the page cites", () => {
+    const cited = {
+      ...block("core/paragraph", "cited"),
+      attributes: { content: "See \\cite{key1}" },
+    }
+    render(
+      <StagedPageContent
+        page={page([cited])}
+        references={[
+          { citation_key: "key1", reference: "ref one" },
+          { citation_key: "key2", reference: "ref two" },
+        ]}
+      />,
+    )
+    expect(screen.getByText("Formatted ref one")).toBeInTheDocument()
+    expect(screen.queryByText("Formatted ref two")).not.toBeInTheDocument()
+  })
+
   it("shows content only some students see, with a note, and names student-specific blocks", () => {
     render(
       <StagedPageContent

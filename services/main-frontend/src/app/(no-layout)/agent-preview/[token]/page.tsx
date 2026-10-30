@@ -70,6 +70,7 @@ function AgentPreviewPage() {
                 <StagedPageContent
                   page={preview.page}
                   isChapterFrontPage={preview.is_chapter_front_page}
+                  references={preview.references}
                 />
               </div>
             )}

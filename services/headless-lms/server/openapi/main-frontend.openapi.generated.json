@@ -28016,7 +28016,7 @@
       "PagePreview": {
         "type": "object",
         "description": "What the preview of a staged page renders.",
-        "required": ["course_name", "language_code", "page", "is_chapter_front_page"],
+        "required": ["course_name", "language_code", "page", "is_chapter_front_page", "references"],
         "properties": {
           "course_name": {
             "type": "string"
@@ -28031,6 +28031,13 @@
           "page": {
             "$ref": "#/components/schemas/PreviewPage",
             "description": "The page as staged, or as live if the changeset does not change it."
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewReference"
+            },
+            "description": "The course's references with the changeset's staged changes applied."
           }
         }
       },
@@ -29654,6 +29661,19 @@
             "type": "string"
           },
           "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PreviewReference": {
+        "type": "object",
+        "description": "A bibliography entry the page's citations refer to.",
+        "required": ["citation_key", "reference"],
+        "properties": {
+          "citation_key": {
+            "type": "string"
+          },
+          "reference": {
             "type": "string"
           }
         }

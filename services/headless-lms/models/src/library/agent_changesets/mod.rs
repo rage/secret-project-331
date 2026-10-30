@@ -25,8 +25,8 @@ pub use locking::{
     ChangedSinceReview, DiscardOutcome, DiscardRejection, discard, discard_entities,
 };
 pub use preview::{
-    PagePreview, PreviewClaim, PreviewExercise, PreviewPage, PreviewToken, mint_preview_token,
-    preview_path, resolve_preview, validate_preview_token,
+    PagePreview, PreviewClaim, PreviewExercise, PreviewPage, PreviewReference, PreviewToken,
+    mint_preview_token, preview_path, resolve_preview, validate_preview_token,
 };
 pub use publishing::{PublishOptions, PublishOutcome, PublishRejection, publish};
 pub use reverting::{RevertPlan, plan_revert};

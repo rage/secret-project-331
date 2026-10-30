@@ -4809,6 +4809,14 @@ export const zPreviewPage = z.object({
 })
 
 /**
+ * A bibliography entry the page's citations refer to.
+ */
+export const zPreviewReference = z.object({
+  citation_key: z.string(),
+  reference: z.string(),
+})
+
+/**
  * What the preview of a staged page renders.
  */
 export const zPagePreview = z.object({
@@ -4816,6 +4824,7 @@ export const zPagePreview = z.object({
   is_chapter_front_page: z.boolean(),
   language_code: z.string(),
   page: zPreviewPage,
+  references: z.array(zPreviewReference),
 })
 
 export const zProposalStatus = z.enum(["Pending", "Accepted", "Rejected"])

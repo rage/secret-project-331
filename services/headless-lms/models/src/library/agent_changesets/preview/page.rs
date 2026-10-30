@@ -9,7 +9,7 @@ use crate::{
     agent_changesets::AgentChangeset,
     error::{TryToOptional, missing_model_error},
     library::{
-        agent_changesets::course_state::ExerciseReviewConfig,
+        agent_changesets::course_state::{CourseParts, ExerciseReviewConfig, load_live_course},
         entity_snapshots::{
             self, ChapterSnapshot, ContentEntity, ContentEntityType, EntityKey, EntitySnapshot,
             PageSnapshot,
@@ -27,6 +27,15 @@ pub struct PagePreview {
     pub page: PreviewPage,
     /// Whether the page is its chapter's front page, as staged.
     pub is_chapter_front_page: bool,
+    /// The course's references with the changeset's staged changes applied.
+    pub references: Vec<PreviewReference>,
+}
+
+/// A bibliography entry the page's citations refer to.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+pub struct PreviewReference {
+    pub citation_key: String,
+    pub reference: String,
 }
 
 /// A page as students see it before answering anything. The preview needs no login, so exercise
@@ -193,11 +202,23 @@ pub async fn resolve_preview(
         None => false,
     };
     let course = crate::courses::get_course(conn, changeset.course_id).await?;
+    let live = load_live_course(conn, &course, CourseParts::Glossary).await?;
+    let staged_rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
+    let references = live
+        .overlay(&staged_rows, CourseParts::Glossary)
+        .references
+        .into_iter()
+        .map(|reference| PreviewReference {
+            citation_key: reference.citation_key,
+            reference: reference.reference,
+        })
+        .collect();
     Ok(PagePreview {
         course_name: course.name,
         language_code: course.language_code,
         page,
         is_chapter_front_page,
+        references,
     })
 }
 

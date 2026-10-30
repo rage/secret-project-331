@@ -5300,6 +5300,10 @@ export type PagePreview = {
    * The page as staged, or as live if the changeset does not change it.
    */
   page: PreviewPage
+  /**
+   * The course's references with the changeset's staged changes applied.
+   */
+  references: Array<PreviewReference>
 }
 
 export type PageProposal = {
@@ -5832,6 +5836,14 @@ export type PreviewPage = {
   order_number: number
   title: string
   url_path: string
+}
+
+/**
+ * A bibliography entry the page's citations refer to.
+ */
+export type PreviewReference = {
+  citation_key: string
+  reference: string
 }
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"

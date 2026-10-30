@@ -10,12 +10,18 @@ import ContentRenderer, {
   type BlockRendererProps,
 } from "@/components/course-material/ContentRenderer"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
+import References from "@/components/course-material/references"
+import { formatPageCitations } from "@/components/course-material/references/formatPageCitations"
 import {
   ExerciseCardHeader,
   ExerciseCardTitle,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
-import type { PreviewExercise, PreviewPage } from "@/generated/api/types.generated"
+import type {
+  PreviewExercise,
+  PreviewPage,
+  PreviewReference,
+} from "@/generated/api/types.generated"
 import type { Page } from "@/generated/course-material-api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { viewParamsAtom } from "@/state/course-material/params"
@@ -338,6 +344,8 @@ interface StagedBlocksProps {
   page?: PreviewPage
   /** Whether `page` is its chapter's front page; blocks cannot ask the server about a staged page. */
   isChapterFrontPage?: boolean
+  /** The course's references, to resolve the page's citations; needs an ancestor with id "content". */
+  references?: PreviewReference[]
 }
 
 /** Stored blocks rendered read-only like a page's content, for content that has no page of its own. */
@@ -347,9 +355,14 @@ export const StagedBlocks: React.FC<StagedBlocksProps> = ({
   embeddedUnderHeadingLevel,
   page,
   isChapterFrontPage,
+  references,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   useEmbeddedContent(containerRef, embeddedUnderHeadingLevel)
+  const citations = useMemo(
+    () => (references ? formatPageCitations(blocks as Block<unknown>[], references) : []),
+    [blocks, references],
+  )
   const store = useMemo(() => {
     const pageStore = createStore()
     if (page) {
@@ -373,6 +386,9 @@ export const StagedBlocks: React.FC<StagedBlocksProps> = ({
               dontAllowBlockToBeWiderThanContainerWidth={isConstrainedToContainer}
             />
           </div>
+          {citations.length > 0 && (
+            <References data={citations.map((c) => ({ id: c.citationKey, text: c.citation }))} />
+          )}
         </BlockRendererOverridesContext.Provider>
       </StagedPageContext.Provider>
     </JotaiProvider>
@@ -390,6 +406,8 @@ interface StagedPageContentProps {
   embeddedUnderHeadingLevel?: number
   /** See [`StagedBlocksProps.isChapterFrontPage`]. */
   isChapterFrontPage?: boolean
+  /** See [`StagedBlocksProps.references`]. */
+  references?: PreviewReference[]
 }
 
 /**

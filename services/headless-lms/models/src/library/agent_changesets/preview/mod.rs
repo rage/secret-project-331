@@ -3,7 +3,7 @@
 mod page;
 mod token;
 
-pub use page::{PagePreview, PreviewExercise, PreviewPage, resolve_preview};
+pub use page::{PagePreview, PreviewExercise, PreviewPage, PreviewReference, resolve_preview};
 pub use token::{
     PreviewClaim, PreviewToken, mint_preview_token, preview_path, validate_preview_token,
 };

@@ -58,8 +58,8 @@ pub enum SkillRefusal {
 }
 
 /// Checks the `skill_version` a call sent against [`CURRENT_SKILL_VERSION`] and
-/// [`MINIMUM_SKILL_VERSION`]. No hint means the skill is current. A missing version only gives a
-/// hint here; tools that need the skill refuse it with [`skill_missing`].
+/// [`MINIMUM_SKILL_VERSION`]. No hint means the skill is current or newer. A missing version only
+/// gives a hint here; tools that need the skill refuse it with [`skill_missing`].
 pub fn skill_version(reported: Option<&str>) -> Result<Option<Hint>, SkillRefusal> {
     check_skill_version(reported, CURRENT_SKILL_VERSION, MINIMUM_SKILL_VERSION)
 }
@@ -344,6 +344,11 @@ mod tests {
         );
         assert!(
             check_skill_version(Some("1.6.0"), Version(1, 6, 0), Version(1, 2, 0))
+                .unwrap()
+                .is_none()
+        );
+        assert!(
+            check_skill_version(Some("1.7.0"), Version(1, 6, 0), Version(1, 2, 0))
                 .unwrap()
                 .is_none()
         );

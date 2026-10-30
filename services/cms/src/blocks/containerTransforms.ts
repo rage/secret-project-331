@@ -62,16 +62,18 @@ function contentAsBlocks(
         ]
       })
     }
-    case ASIDE_WITH_IMAGE:
+    case ASIDE_WITH_IMAGE: {
+      const { title, content, headingLevel } = attributes
       return [
-        ...(htmlToText(attributes.title) === ""
-          ? []
-          : [heading(resolveAsideHeadingLevel(attributes.headingLevel), String(attributes.title))]),
+        ...(htmlToText(title)
+          ? [heading(resolveAsideHeadingLevel(headingLevel), String(title))]
+          : []),
         ...cloneAll(innerBlocks),
-        ...(htmlToText(attributes.content) === ""
-          ? []
-          : [createBlock("core/paragraph", { content: String(attributes.content) })]),
+        ...(htmlToText(content)
+          ? [createBlock("core/paragraph", { content: String(content) })]
+          : []),
       ]
+    }
     default:
       return cloneAll(innerBlocks)
   }
@@ -93,6 +95,7 @@ function blocksAsSections(blocks: BlockInstance[]): BlockInstance[] {
       sections.at(-1)?.blocks.push(cloneBlock(block))
     }
   }
+  // An empty box still needs one section to edit.
   if (sections.length === 0) {
     sections.push({ name: "", blocks: [] })
   }

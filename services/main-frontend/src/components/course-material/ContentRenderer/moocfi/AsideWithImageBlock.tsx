@@ -18,6 +18,9 @@ interface AsideWithImageBlockAttributes {
   headingLevel?: number
 }
 
+// A decorative icon, too small to be worth zooming.
+const NON_INTERACTIVE_IMAGES = { disableInteractivity: true }
+
 const HEADING_TAGS = { 2: "h2", 3: "h3", 4: "h4", 5: "h5", 6: "h6" } as const
 
 const headingStyles = css`
@@ -72,8 +75,7 @@ const AsideWithImageBlock: React.FC<
           }
         `}
       >
-        {/* A decorative icon, too small to be worth zooming. */}
-        <ImageInteractivityContext.Provider value={{ disableInteractivity: true }}>
+        <ImageInteractivityContext.Provider value={NON_INTERACTIVE_IMAGES}>
           <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
         </ImageInteractivityContext.Provider>
       </div>

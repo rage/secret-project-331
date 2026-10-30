@@ -9,7 +9,7 @@ use crate::protocol::context::ClientKind;
 use crate::validator::BlockSchemas;
 
 /// The skill version this server is built for.
-pub const CURRENT_SKILL_VERSION: Version = Version(0, 2, 1);
+pub const CURRENT_SKILL_VERSION: Version = Version(0, 2, 0);
 /// The oldest skill version this server still works with.
 pub const MINIMUM_SKILL_VERSION: Version = Version(0, 0, 0);
 /// Where teachers learn to set up the skill.

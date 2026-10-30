@@ -84,7 +84,7 @@ Glossary terms (fields term, definition) are highlighted automatically wherever 
 Renaming a citation_key rewrites its citations in page content and exercise instructions. Removing a reference, or renaming or removing a term, changes no content; the result lists the pages and exercise instructions that use it.";
 
 const RICH_TEXT: &str = "\
-Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math uses the editor's math format (see rich_text_formats). Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
+Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math is [latex]x^2[/latex], rendered with KaTeX like moocfi/latex blocks; inside it only &amp; is decoded. The editor's <math> format renders as browser MathML and looks different: use it only where the page already does. Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
 
 const EXERCISES: &str = "\
 An exercise block on a page holds only the exercise id (exercise_id in reads). get_exercise reads the exercise: name, tasks, review settings and its instructions; patch_exercise edits the name, the own deadline, each task's instructions (/tasks/<task id>) and the review instructions (/review_instructions) with page-content ops. Everything else (points, tries, task specs, review thresholds and questions) is read-only; the teacher edits it in the editor.
@@ -276,7 +276,7 @@ mod tests {
         assert_eq!(guide["blocks"][0]["page_types"], json!(["course-page"]));
         let topics = topics_guide(&[GuideTopic::RichText]);
         assert_eq!(topics[0]["topic"], json!("rich-text"));
-        assert!(topics[0]["text"].as_str().unwrap().contains("math format"));
+        assert!(topics[0]["text"].as_str().unwrap().contains("[latex]"));
     }
 
     #[test]

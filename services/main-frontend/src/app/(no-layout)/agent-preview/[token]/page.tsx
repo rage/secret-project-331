@@ -41,6 +41,9 @@ function AgentPreviewPage() {
       i18n.changeLanguage(languageCode)
     }
   }, [i18n, languageCode])
+  const pagesHeading = previewQuery.data?.is_published_state
+    ? t("agent-preview-course-pages")
+    : t("agent-preview-changed-pages")
 
   return (
     <>
@@ -86,7 +89,7 @@ function AgentPreviewPage() {
               <>
                 {preview.changed_pages.length > 0 && (
                   <nav
-                    aria-label={t("agent-preview-changed-pages")}
+                    aria-label={pagesHeading}
                     data-testid="agent-preview-changed-pages"
                     className={css`
                       margin-bottom: 2rem;
@@ -98,7 +101,7 @@ function AgentPreviewPage() {
                         font-weight: ${fontWeights.semibold};
                       `}
                     >
-                      {t("agent-preview-changed-pages")}
+                      {pagesHeading}
                     </h2>
                     <ul>
                       {preview.changed_pages.map((changedPage) => (

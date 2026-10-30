@@ -26,6 +26,7 @@ use uuid::Uuid;
 use crate::access::{authorize_course, connection, deleted_in_staged_changes, editable_courses};
 use crate::explanations::{ExplainedEntity, explain_blockers};
 use crate::hints;
+use crate::page_readiness;
 use crate::state::McpState;
 use crate::tools::args::{
     ChangesetArgs, DiscardChangesetArgs, GetPreviewLinkArgs, IdArgument, ListChangesetsArgs,
@@ -34,7 +35,9 @@ use crate::tools::{
     ConfirmationRequest, RequestContext, ToolError, ToolErrorCode, ToolHandler, ToolOutcome,
     ToolResult,
 };
-use headless_lms_models::library::agent_changesets::course_state::{CourseParts, load_view};
+use headless_lms_models::library::agent_changesets::course_state::{
+    CourseParts, CourseView, load_view,
+};
 
 /// Handler of the `list_changesets` tool.
 pub struct ListChangesets;
@@ -146,8 +149,12 @@ async fn own_changeset(
     Ok((course, changeset))
 }
 
-/// The result for a changeset that is no longer open.
-fn not_open_result(changeset_id: Uuid, status: AgentChangesetStatus) -> ToolResult {
+/// The result for a changeset of `course` that is no longer open.
+fn not_open_result(
+    course: &Course,
+    changeset_id: Uuid,
+    status: AgentChangesetStatus,
+) -> ToolResult {
     let mut result = ToolResult::success(json!({
         "changeset": changeset_id,
         "status": status,
@@ -160,9 +167,69 @@ fn not_open_result(changeset_id: Uuid, status: AgentChangesetStatus) -> ToolResu
         },
     }));
     if status == AgentChangesetStatus::Published {
-        result = result.with_hint(hints::published(changeset_id));
+        result = result.with_hint(hints::published(changeset_id, course.is_draft));
     }
     result
+}
+
+/// Refuses publishing while a page whose blocks the changeset changes has no page title block or
+/// still holds template placeholder text.
+fn check_pages_ready(view: &CourseView) -> Result<(), ToolError> {
+    let mut untitled = Vec::new();
+    let mut with_placeholders = Vec::new();
+    for page in page_readiness::pages_with_content_changes(&view.staged, &view.live) {
+        if !page_readiness::has_page_title(&page.content) {
+            untitled.push(page);
+        }
+        let placeholders = page_readiness::placeholder_texts(&page.content);
+        if !placeholders.is_empty() {
+            with_placeholders.push((page, placeholders));
+        }
+    }
+    if untitled.is_empty() && with_placeholders.is_empty() {
+        return Ok(());
+    }
+    let mut problems = Vec::new();
+    if !untitled.is_empty() {
+        let pages: Vec<String> = untitled
+            .iter()
+            .map(|page| format!("\"{}\" ({})", page.title, page.id))
+            .collect();
+        problems.push(format!(
+            "these pages have no page title: {}. Add a moocfi/hero-section with the page title as the first block (moocfi/landing-page-hero-section on the course front page); it is the only h1 course pages allow",
+            pages.join(", ")
+        ));
+    }
+    if !with_placeholders.is_empty() {
+        let pages: Vec<String> = with_placeholders
+            .iter()
+            .map(|(page, placeholders)| {
+                let blocks: Vec<String> = placeholders
+                    .iter()
+                    .map(|p| format!("{} {} \"{}\"", p.block_name, p.block, p.text))
+                    .collect();
+                format!("\"{}\" ({}): {}", page.title, page.id, blocks.join(", "))
+            })
+            .collect();
+        problems.push(format!(
+            "these pages still hold placeholder text from the default page template: {}. Replace it with the course's own text or remove those blocks",
+            pages.join("; ")
+        ));
+    }
+    Err(ToolError::refused(
+        ToolErrorCode::PagesNotReady,
+        format!(
+            "Nothing was published: {}. Fix the pages with patch_page_content, then publish again.",
+            problems.join("; and ")
+        ),
+        json!({
+            "pages_without_title": untitled.iter().map(|page| page.id).collect::<Vec<_>>(),
+            "pages_with_placeholders": with_placeholders
+                .iter()
+                .map(|(page, placeholders)| json!({"page": page.id, "placeholders": placeholders}))
+                .collect::<Vec<_>>(),
+        }),
+    ))
 }
 
 #[async_trait(?Send)]
@@ -177,11 +244,21 @@ impl ToolHandler<McpState> for PublishChangeset {
         args: ChangesetArgs,
     ) -> Result<ToolOutcome, ToolError> {
         let mut conn = connection(state).await?;
-        let (_, changeset) =
+        let (course, changeset) =
             own_changeset(&mut conn, ctx, args.course.id(), args.changeset.id()).await?;
         if !changeset.is_open() {
-            return Ok(not_open_result(changeset.id, changeset.status).into());
+            return Ok(not_open_result(&course, changeset.id, changeset.status).into());
         }
+        let view = load_view(
+            &mut conn,
+            ctx.principal.actor.user_id,
+            course,
+            CourseParts::All,
+        )
+        .await?;
+        check_pages_ready(&view)?;
+        let rendering_change_count =
+            page_readiness::pages_with_content_changes(&view.staged, &view.live).count();
         let review_url = state.review_url(changeset.course_id, changeset.id);
         let can_add_global_admin_only_exercise_services =
             is_user_global_admin(&mut conn, ctx.principal.actor.user_id).await?;
@@ -203,21 +280,25 @@ impl ToolHandler<McpState> for PublishChangeset {
                 changeset,
                 redirects,
             } => {
-                return Ok(ToolResult::success(json!({
+                let mut result = ToolResult::success(json!({
                     "changeset": changeset.id,
                     "published": true,
                     "published_at": changeset.published_at,
                     "redirects": redirects,
                 }))
-                .with_hint(hints::published(changeset.id))
-                .into());
+                .with_hint(hints::published(changeset.id, view.course.is_draft));
+                if rendering_change_count > 0 {
+                    result = result
+                        .with_hint(hints::published_rendering_changes(rendering_change_count));
+                }
+                return Ok(result.into());
             }
             PublishOutcome::Rejected { rejection } => rejection,
         };
         match rejection {
             PublishRejection::NeedsConfirmation { risky_entities } => {
                 let reason_count: usize = risky_entities.iter().map(|e| e.risk_reasons.len()).sum();
-                let fallback = ToolResult::success(json!({
+                let mut fallback = ToolResult::success(json!({
                     "changeset": changeset.id,
                     "published": false,
                     "reason": "needs_teacher_review",
@@ -225,6 +306,12 @@ impl ToolHandler<McpState> for PublishChangeset {
                     "review_url": review_url,
                 }))
                 .with_hint(hints::needs_teacher_review(&review_url, reason_count));
+                if rendering_change_count > 0 {
+                    fallback = fallback.with_hint(hints::rendering_changes(
+                        rendering_change_count,
+                        ctx.client.client_kind(),
+                    ));
+                }
                 if let Some(retry) = &ctx.retry {
                     // The teacher answered on the review page without publishing everything; asking
                     // again would loop.
@@ -265,7 +352,7 @@ impl ToolHandler<McpState> for PublishChangeset {
                 json!({"blockers": explain_blockers(blockers)}),
             )),
             PublishRejection::NotOpen { status } => {
-                Ok(not_open_result(changeset.id, status).into())
+                Ok(not_open_result(&view.course, changeset.id, status).into())
             }
             PublishRejection::SaveFailed { entity, message } => Err(ToolError::refused(
                 ToolErrorCode::PublishFailed,
@@ -292,7 +379,7 @@ impl ToolHandler<McpState> for DiscardChangeset {
         let (course, changeset) =
             own_changeset(&mut conn, ctx, args.course.id(), args.changeset.id()).await?;
         if !changeset.is_open() {
-            return Ok(not_open_result(changeset.id, changeset.status).into());
+            return Ok(not_open_result(&course, changeset.id, changeset.status).into());
         }
         let Some(entity_ids) = &args.entities else {
             return match discard(&mut conn, changeset.id, args.revision).await? {
@@ -302,7 +389,9 @@ impl ToolHandler<McpState> for DiscardChangeset {
                     "message": "Every staged change in the changeset was dropped; the published course is unchanged.",
                 }))
                 .into()),
-                DiscardOutcome::Rejected { rejection } => discard_rejected(changeset.id, rejection),
+                DiscardOutcome::Rejected { rejection } => {
+                    discard_rejected(&course, changeset.id, rejection)
+                }
             };
         };
         discard_some(
@@ -318,11 +407,14 @@ impl ToolHandler<McpState> for DiscardChangeset {
 }
 
 fn discard_rejected(
+    course: &Course,
     changeset_id: Uuid,
     rejection: DiscardRejection,
 ) -> Result<ToolOutcome, ToolError> {
     match rejection {
-        DiscardRejection::NotOpen { status } => Ok(not_open_result(changeset_id, status).into()),
+        DiscardRejection::NotOpen { status } => {
+            Ok(not_open_result(course, changeset_id, status).into())
+        }
         DiscardRejection::ChangedSinceReview(ChangedSinceReview { revision }) => {
             Err(ToolError::refused(
                 ToolErrorCode::ChangesetChanged,
@@ -381,7 +473,7 @@ async fn discard_some(
     .await?
     {
         Ok(discarded) => discarded,
-        Err(rejection) => return discard_rejected(changeset.id, rejection),
+        Err(rejection) => return discard_rejected(&view.course, changeset.id, rejection),
     };
     Ok(ToolResult::success(json!({
         "changeset": changeset.id,
@@ -389,7 +481,7 @@ async fn discard_some(
         "discarded": discarded,
         "message": "These entities were dropped from the changeset and show their published state again; the rest stays staged.",
     }))
-    .with_hint(hints::staged(changeset.id))
+    .with_hint(hints::staged(changeset.id, view.course.is_draft))
     .into())
 }
 
@@ -407,6 +499,13 @@ async fn live_page(
         }))
 }
 
+/// The preview link of one page.
+#[derive(serde::Serialize)]
+struct PreviewLink {
+    page: Uuid,
+    url: String,
+}
+
 #[async_trait(?Send)]
 impl ToolHandler<McpState> for GetPreviewLink {
     type Args = GetPreviewLinkArgs;
@@ -417,56 +516,90 @@ impl ToolHandler<McpState> for GetPreviewLink {
         ctx: &RequestContext,
         args: GetPreviewLinkArgs,
     ) -> Result<ToolOutcome, ToolError> {
+        let page_ids: Vec<Uuid> = match (&args.page, &args.pages) {
+            (Some(page), None) => vec![page.id()],
+            (None, Some(pages)) if !pages.is_empty() => {
+                pages.iter().map(|page| page.id()).collect()
+            }
+            _ => {
+                return Err(ToolError::InvalidArguments {
+                    message: "give either page or a non-empty pages list".into(),
+                });
+            }
+        };
         let course_id = args.course.id();
-        let page_id = args.page.id();
         let user_id = ctx.principal.actor.user_id;
         let mut conn = connection(state).await?;
         let course = authorize_course(&mut conn, user_id, course_id).await?;
-        let not_found = || ToolError::NotFound {
+        let not_found = |page_id: Uuid| ToolError::NotFound {
             message: format!(
                 "course {course_id} has no page {page_id}; get_course_structure lists its pages"
             ),
         };
+        let mut links = Vec::with_capacity(page_ids.len());
         let Some(changeset) = agent_changesets::get_open(&mut conn, user_id, course.id).await?
         else {
-            let page = live_page(&mut conn, &course, page_id)
-                .await?
-                .ok_or_else(not_found)?;
             let organization =
                 organizations::get_organization(&mut conn, course.organization_id).await?;
-            let url = course_page_url(
-                &state.app_conf.base_url,
-                &organization.slug,
-                &course.slug,
-                &page.url_path,
-            )
-            .ok_or_else(|| ToolError::Internal("the configured base URL is invalid".into()))?;
-            return Ok(ToolResult::success(json!({
-                "url": url,
-                "is_staged": false,
-                "message": "You have nothing staged in this course, so this is the published page.",
-            }))
-            .into());
-        };
-        let key = EntityKey::new(ContentEntityType::Page, page_id);
-        match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
-            Some(AgentChangesetEntityOperation::Delete) => {
-                return Err(deleted_in_staged_changes(page_id));
-            }
-            Some(_) => {}
-            None => {
-                live_page(&mut conn, &course, page_id)
+            for page_id in page_ids {
+                let page = live_page(&mut conn, &course, page_id)
                     .await?
-                    .ok_or_else(not_found)?;
+                    .ok_or_else(|| not_found(page_id))?;
+                let url = course_page_url(
+                    &state.app_conf.base_url,
+                    &organization.slug,
+                    &course.slug,
+                    &page.url_path,
+                )
+                .ok_or_else(|| ToolError::Internal("the configured base URL is invalid".into()))?;
+                links.push(PreviewLink { page: page_id, url });
             }
+            let mut result = json!({
+                "is_staged": false,
+                "message": "You have nothing staged in this course, so these are the published pages.",
+            });
+            insert_links(&mut result, args.page.is_some(), links);
+            return Ok(ToolResult::success(result).into());
+        };
+        let mut expires_at = None;
+        for page_id in page_ids {
+            let key = EntityKey::new(ContentEntityType::Page, page_id);
+            match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
+                Some(AgentChangesetEntityOperation::Delete) => {
+                    return Err(deleted_in_staged_changes(page_id));
+                }
+                Some(_) => {}
+                None => {
+                    live_page(&mut conn, &course, page_id)
+                        .await?
+                        .ok_or_else(|| not_found(page_id))?;
+                }
+            }
+            let preview = mint_preview_token(&state.jwt_key, changeset.id, page_id, user_id)?;
+            expires_at = Some(preview.expires_at);
+            links.push(PreviewLink {
+                page: page_id,
+                url: state.app_conf.public_url(&preview_path(&preview.token)),
+            });
         }
-        let preview = mint_preview_token(&state.jwt_key, changeset.id, page_id, user_id)?;
-        Ok(ToolResult::success(json!({
-            "url": state.app_conf.public_url(&preview_path(&preview.token)),
+        let mut result = json!({
             "is_staged": true,
             "changeset": changeset.id,
-            "expires_at": preview.expires_at,
-        }))
-        .into())
+            "expires_at": expires_at,
+        });
+        insert_links(&mut result, args.page.is_some(), links);
+        Ok(ToolResult::success(result).into())
+    }
+}
+
+/// Puts `links` into `result`: the one link as `url` when a single `page` was asked for, else
+/// `previews`.
+fn insert_links(result: &mut Value, is_single_page: bool, links: Vec<PreviewLink>) {
+    let (field, value) = match (is_single_page, links.as_slice()) {
+        (true, [link]) => ("url", json!(link.url)),
+        _ => ("previews", json!(links)),
+    };
+    if let Value::Object(fields) = result {
+        fields.insert(field.into(), value);
     }
 }

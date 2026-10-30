@@ -10,7 +10,7 @@ export type ViewParams =
   | { type: "material"; courseSlug: string; path: string }
   | { type: "exam"; examId: string; isTestMode: boolean }
   | { type: "management"; organization: Organization; course: CourseMaterialCourse }
-  | { type: "preview"; page: Page }
+  | { type: "preview"; page: Page; isChapterFrontPage?: boolean | undefined }
   | null
 
 /** Parameters defining the current view type (material, exam, or management). */

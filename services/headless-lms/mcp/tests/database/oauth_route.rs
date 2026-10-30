@@ -2,7 +2,7 @@ use actix_web::{App, http::StatusCode, middleware::from_fn, test, web};
 use chrono::{Duration, Utc};
 use headless_lms_mcp::{
     http,
-    test_support::{request_body, request_headers, request_meta},
+    test_support::{CURRENT_SKILL_VERSION, request_body, request_headers, request_meta},
 };
 use headless_lms_models::{
     library::oauth::token_digest_sha256,
@@ -104,7 +104,7 @@ async fn the_route_takes_oauth_tokens_and_enforces_their_scopes() {
         &app,
         rpc_request(
             "tools/call",
-            json!({"name": "patch_page_content", "arguments": {"course": fixture.course_id.to_string(), "page": fixture.page_id, "ops": []}}),
+            json!({"name": "patch_page_content", "arguments": {"course": fixture.course_id.to_string(), "page": fixture.page_id, "ops": [], "skill_version": CURRENT_SKILL_VERSION.to_string()}}),
             Some(&read_only_token),
         )
         .to_request(),
@@ -123,7 +123,7 @@ async fn the_route_takes_oauth_tokens_and_enforces_their_scopes() {
         &app,
         rpc_request(
             "tools/call",
-            json!({"name": "get_course_structure", "arguments": {"course": fixture.course_id.to_string()}}),
+            json!({"name": "get_course_structure", "arguments": {"course": fixture.course_id.to_string(), "skill_version": CURRENT_SKILL_VERSION.to_string()}}),
             Some(&read_only_token),
         )
         .to_request(),
@@ -136,7 +136,7 @@ async fn the_route_takes_oauth_tokens_and_enforces_their_scopes() {
         &app,
         rpc_request(
             "tools/call",
-            json!({"name": "list_courses", "arguments": {}}),
+            json!({"name": "list_courses", "arguments": {"skill_version": CURRENT_SKILL_VERSION.to_string()}}),
             Some(&read_only_token),
         )
         .to_request(),

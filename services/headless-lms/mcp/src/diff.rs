@@ -45,18 +45,6 @@ pub struct BlockChange {
     pub is_moved: bool,
 }
 
-/// Pages whose content changed (blocks added, removed, changed or moved in or out).
-pub fn pages_with_block_changes(blocks: &[BlockChange]) -> Vec<Uuid> {
-    let mut pages: Vec<Uuid> = blocks
-        .iter()
-        .flat_map(|b| [b.page_before, b.page_after])
-        .flatten()
-        .collect();
-    pages.sort();
-    pages.dedup();
-    pages
-}
-
 struct Placed<'a> {
     page: Uuid,
     parent: Option<Uuid>,
@@ -345,7 +333,6 @@ mod tests {
             result[1].changed_fields,
             vec!["attributes/content".to_string()]
         );
-        assert_eq!(pages_with_block_changes(&result).len(), 2);
     }
 
     #[test]

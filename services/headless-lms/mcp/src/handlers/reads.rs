@@ -23,6 +23,8 @@ use crate::engine::PageType;
 use crate::engine::read::{
     ReadOptions, ReadResult, ReadState, Selector, read_page, read_structure,
 };
+use crate::hints;
+use crate::page_readiness;
 use crate::snapshots;
 use crate::state::McpState;
 use crate::tools::args::{CourseArgs, GetCourseStructureArgs, GetPageContentArgs, ListCoursesArgs};
@@ -282,7 +284,14 @@ impl ToolHandler<McpState> for GetPageContent {
             let options = read_options(ctx, selectors.len(), read_state, &pending);
             reads.push(read_page(document, selector, &options)?);
         }
-        Ok(ToolResult::success(json!({"page": page_info, "reads": reads})).into())
+        let mut result = ToolResult::success(json!({"page": page_info, "reads": reads}));
+        if let Some(staged_page) = view.staged.page(page_id) {
+            let placeholders = page_readiness::placeholder_texts(&staged_page.content);
+            if !placeholders.is_empty() {
+                result = result.with_hint(hints::template_placeholders(page_id, &placeholders));
+            }
+        }
+        Ok(result.into())
     }
 }
 

@@ -29,9 +29,11 @@ test.describe("publishing", () => {
     const riskyChange = agentEntityChange(page, "Page: Old notes")
 
     await test.step("The routine edit renders before and after", async () => {
+      await routineChange.getByRole("tab", { name: "Before" }).click()
       await expect(routineChange.getByTestId("agent-page-before")).toContainText(
         "A variable stores a value under a name.",
       )
+      await routineChange.getByRole("tab", { name: "After" }).click()
       await expect(routineChange.getByTestId("agent-page-after")).toContainText(
         "For example, age = 30 stores the number 30 under the name age.",
       )
@@ -167,9 +169,11 @@ test.describe("conflicts", () => {
       await expect(instructions.getByRole("heading", { name: /Task instructions/ })).toContainText(
         "Classes quiz: keywords",
       )
+      await instructions.getByRole("tab", { name: "Before" }).click()
       await expect(instructions.getByTestId("agent-blocks-before")).toContainText(
         "Which keyword defines a class in Python?",
       )
+      await instructions.getByRole("tab", { name: "After" }).click()
       await expect(instructions.getByTestId("agent-blocks-after")).toContainText(
         "Which Python keyword starts the definition of a class?",
       )
@@ -195,9 +199,11 @@ test.describe("review settings", () => {
         "This change affects 2 exercises that use the course default review instructions.",
       )
       const instructions = courseDefaultChange.getByTestId("agent-blocks-change")
+      await instructions.getByRole("tab", { name: "Before" }).click()
       await expect(instructions.getByTestId("agent-blocks-before")).toContainText(
         "Read the whole answer before you rate it.",
       )
+      await instructions.getByRole("tab", { name: "After" }).click()
       await expect(instructions.getByTestId("agent-blocks-after")).toContainText(
         "say what was done well.",
       )

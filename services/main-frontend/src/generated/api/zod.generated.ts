@@ -4813,6 +4813,7 @@ export const zPreviewPage = z.object({
  */
 export const zPagePreview = z.object({
   course_name: z.string(),
+  is_chapter_front_page: z.boolean(),
   language_code: z.string(),
   page: zPreviewPage,
 })

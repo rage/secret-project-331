@@ -5,7 +5,7 @@ use serde_json::{Map, Value, json};
 
 use super::{McpScope, ToolResult};
 use crate::engine::{EditError, EditErrorCode};
-use crate::hints::OutdatedSkill;
+use crate::hints::SkillRefusal;
 use crate::validator::ValidatorError;
 
 /// The `code` of an error result, other than an edit rejection's [`EditErrorCode`].
@@ -13,6 +13,8 @@ use crate::validator::ValidatorError;
 #[serde(rename_all = "snake_case")]
 pub enum ToolErrorCode {
     OutdatedSkill,
+    /// No `skill_version` was sent; the agent asks the teacher about installing the skill.
+    SkillMissing,
     InvalidArguments,
     NotFound,
     /// The user's roles don't allow editing the course.
@@ -33,6 +35,8 @@ pub enum ToolErrorCode {
     DiscardConflict,
     /// Reverting would undo or clash with later changes.
     RevertConflict,
+    /// Staged pages lack a page title block or still hold template placeholder text.
+    PagesNotReady,
 }
 
 /// Why a tool call failed. Mapped to a tool result or a JSON-RPC error by the protocol layer.
@@ -42,7 +46,7 @@ pub enum ToolError {
     #[error(transparent)]
     Edit(#[from] EditError),
     #[error(transparent)]
-    OutdatedSkill(#[from] OutdatedSkill),
+    Skill(#[from] SkillRefusal),
     #[error("{message}")]
     InvalidArguments { message: String },
     #[error("{message}")]
@@ -132,7 +136,12 @@ impl ToolError {
     pub fn into_json(self) -> Value {
         let (code, message) = match self {
             ToolError::Edit(edit) => return serde_json::to_value(edit).unwrap_or_default(),
-            ToolError::OutdatedSkill(outdated) => (ToolErrorCode::OutdatedSkill, outdated.message),
+            ToolError::Skill(SkillRefusal::Outdated(message)) => {
+                (ToolErrorCode::OutdatedSkill, message)
+            }
+            ToolError::Skill(SkillRefusal::Missing(message)) => {
+                (ToolErrorCode::SkillMissing, message)
+            }
             ToolError::InvalidArguments { message } => (ToolErrorCode::InvalidArguments, message),
             ToolError::NotFound { message } => (ToolErrorCode::NotFound, message),
             ToolError::Forbidden { message } => (ToolErrorCode::Forbidden, message),

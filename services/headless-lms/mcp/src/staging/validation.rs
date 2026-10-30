@@ -15,6 +15,7 @@ use crate::diff::changed_roots;
 use crate::engine::{EditError, EditErrorCode};
 use crate::engine::{PageDocument, PageType};
 use crate::instruction_lists::{self, InstructionsList, InstructionsLocation};
+use crate::page_readiness::pages_with_content_changes;
 use crate::protocol::progress::ProgressReporter;
 use crate::snapshots;
 use crate::tools::ToolError;
@@ -280,6 +281,33 @@ fn collect_validation_targets(
         });
     }
     Ok(pages)
+}
+
+/// The block types in the trees `staged` changed from `live`, which earlier calls of the
+/// changeset validated.
+pub fn changeset_block_names(live: &CourseState, staged: &CourseState) -> HashSet<String> {
+    let mut roots = Vec::new();
+    for page in pages_with_content_changes(staged, live) {
+        roots.extend(changed_roots(
+            live.page(page.id).map(snapshots::page_ref),
+            snapshots::page_ref(page),
+        ));
+    }
+    for list in instruction_lists::changed_lists(live, staged) {
+        let Some(Ok(staged_document)) = list.document(staged) else {
+            continue;
+        };
+        let live_document = list.document(live).and_then(Result::ok);
+        roots.extend(changed_roots(
+            live_document.as_ref().map(PageDocument::as_page_ref),
+            staged_document.as_page_ref(),
+        ));
+    }
+    let mut names = HashSet::new();
+    crate::engine::blocks::walk(&roots, &mut |block, _| {
+        names.insert(block.name.clone());
+    });
+    names
 }
 
 /// The error rejecting the call for the validator's `errors`; `None` when there are none.

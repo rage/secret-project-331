@@ -379,8 +379,11 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             }
         };
         let skill_version = arguments.remove("skill_version");
-        let skill_hint = match hints::skill_version(skill_version.as_ref().and_then(Value::as_str))
-        {
+        let skill_version = skill_version.as_ref().and_then(Value::as_str);
+        if skill_version.is_none() && tool.definition.requires_skill {
+            return Ok(self.tool_result(ToolError::from(hints::skill_missing()).into_result()));
+        }
+        let skill_hint = match hints::skill_version(skill_version) {
             Ok(hint) => hint,
             Err(outdated) => {
                 return Ok(self.tool_result(ToolError::from(outdated).into_result()));

@@ -5291,6 +5291,10 @@ export type PageInfo = {
  */
 export type PagePreview = {
   course_name: string
+  /**
+   * Whether the page is its chapter's front page, as staged.
+   */
+  is_chapter_front_page: boolean
   language_code: string
   /**
    * The page as staged, or as live if the changeset does not change it.

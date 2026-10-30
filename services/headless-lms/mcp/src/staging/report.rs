@@ -9,9 +9,10 @@ use serde_json::Value;
 use uuid::Uuid;
 
 use super::validation::BlockFinding;
-use crate::diff::{self, BlockChange};
+use crate::diff::BlockChange;
 use crate::explanations::ExplainedEntity;
 use crate::hints::{self, Hint};
+use crate::page_readiness;
 use crate::protocol::context::ClientKind;
 use crate::state::McpState;
 use crate::tools::ToolResult;
@@ -91,16 +92,15 @@ pub(super) struct StagedSummary {
 }
 
 /// What the agent should know after staging: where to review, what a human must check and what
-/// the validated blocks look like.
+/// the block types `new_block_names` look like.
 pub(super) async fn write_hints(
     state: &McpState,
-    client: ClientKind,
     staged: &StageCallResult,
-    block_changes: &[BlockChange],
+    is_draft: bool,
     removed_exercises_with_submissions: usize,
-    validated_block_names: &[String],
+    new_block_names: &[&str],
 ) -> Vec<Hint> {
-    let mut hints = vec![hints::staged(staged.changeset.id)];
+    let mut hints = vec![hints::staged(staged.changeset.id, is_draft)];
     if staged.risk_reason_count > 0 {
         let review_url = state.review_url(staged.changeset.course_id, staged.changeset.id);
         hints.push(hints::needs_teacher_review(
@@ -108,25 +108,49 @@ pub(super) async fn write_hints(
             staged.risk_reason_count,
         ));
     }
-    let pages_with_block_changes = diff::pages_with_block_changes(block_changes);
-    if !pages_with_block_changes.is_empty() {
-        hints.push(hints::not_visually_checked(
-            pages_with_block_changes.len(),
-            client,
-        ));
-    }
     if removed_exercises_with_submissions > 0 {
         hints.push(hints::submissions_affected(
             removed_exercises_with_submissions,
         ));
     }
-    if !validated_block_names.is_empty()
+    if !new_block_names.is_empty()
         && let Ok(schemas) = state.block_schemas().await
     {
         hints.extend(hints::format_tips(
-            validated_block_names.iter().map(String::as_str),
+            new_block_names.iter().copied(),
             &schemas,
         ));
+    }
+    hints
+}
+
+/// What the agent should know about the pages after a call changed `block_changes`: the first
+/// rendering changes in the changeset, and placeholder text left in `written_pages`.
+pub(super) fn page_hints(
+    client: ClientKind,
+    block_changes: &[BlockChange],
+    live: &CourseState,
+    before: &CourseState,
+    after: &CourseState,
+    written_pages: &[Uuid],
+) -> Vec<Hint> {
+    let mut hints = Vec::new();
+    // publish_changeset repeats the hint with the final count.
+    if !block_changes.is_empty()
+        && page_readiness::pages_with_content_changes(before, live)
+            .next()
+            .is_none()
+    {
+        let changed = page_readiness::pages_with_content_changes(after, live).count();
+        if changed > 0 {
+            hints.push(hints::rendering_changes(changed, client));
+        }
+    }
+    for page in written_pages.iter().filter_map(|id| after.page(*id)) {
+        let placeholders = page_readiness::placeholder_texts(&page.content);
+        if !placeholders.is_empty() {
+            hints.push(hints::template_placeholders(page.id, &placeholders));
+        }
     }
     hints
 }

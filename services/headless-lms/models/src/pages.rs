@@ -12,7 +12,7 @@ use sqlx::{AssertSqlSafe, Postgres, QueryBuilder, Row};
 use url::Url;
 use utoipa::ToSchema;
 
-use crate::error::ensure_version;
+use crate::error::{TryToOptional, ensure_version};
 use crate::{
     CourseOrExamId, SpecFetcher,
     chapters::{
@@ -4924,20 +4924,18 @@ pub async fn reorder_chapters(
     Ok(())
 }
 
+/// Whether the page is its chapter's front page; false for a page outside chapters or one that
+/// doesn't exist.
 pub async fn is_chapter_front_page(
     conn: &mut PgConnection,
     page_id: Uuid,
 ) -> ModelResult<IsChapterFrontPage> {
-    let chapter = get_chapter_by_page_id(conn, page_id).await?;
-
-    Ok(chapter.front_page_id.map_or(
-        IsChapterFrontPage {
-            is_chapter_front_page: false,
-        },
-        |id| IsChapterFrontPage {
-            is_chapter_front_page: id == page_id,
-        },
-    ))
+    let chapter = get_chapter_by_page_id(conn, page_id).await.optional()?;
+    Ok(IsChapterFrontPage {
+        is_chapter_front_page: chapter
+            .and_then(|chapter| chapter.front_page_id)
+            .is_some_and(|id| id == page_id),
+    })
 }
 
 pub async fn update_page_details(

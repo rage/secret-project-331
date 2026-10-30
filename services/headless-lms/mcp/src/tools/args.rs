@@ -289,7 +289,10 @@ pub struct DiscardChangesetArgs {
 pub struct GetPreviewLinkArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
     pub course: IdArgument,
-    pub page: IdArgument,
+    /// One page; its link comes back as `url`. Give this or `pages`.
+    pub page: Option<IdArgument>,
+    /// Several pages; their links come back in `previews`, one per page. Give this or `page`.
+    pub pages: Option<Vec<IdArgument>>,
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]

@@ -24,6 +24,7 @@ use crate::engine::{
 use crate::hints;
 use crate::ids::RandomIds;
 use crate::instruction_lists::{self, ExerciseTextParts};
+use crate::page_readiness::PAGE_TITLE_BLOCKS;
 use crate::snapshots;
 use crate::staging::{self, WriteMode, WriteRequest, WriteSource};
 use crate::state::McpState;
@@ -33,6 +34,7 @@ use headless_lms_models::library::agent_changesets::course_state::{CourseState, 
 use headless_lms_models::library::content_management::ChapterFrontPage;
 use headless_lms_models::page_language_groups::{self, PairingRefusal};
 use headless_lms_models::url_redirections::CreatedRedirect;
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 /// Handler of the `patch_page_content` tool.
 pub struct PatchPageContent;
@@ -178,9 +180,27 @@ struct PageContentSummary<'a> {
     read_back: Option<ReadBack>,
 }
 
+/// Ids an op created, with the blocks the server added to its new pages.
+#[derive(Serialize)]
+struct CreatedStructure<'a> {
+    #[serde(flatten)]
+    ids: &'a CreatedIds,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    template_blocks: Vec<TemplateBlock>,
+}
+
+/// A top-level block the server added to a new page: its hero section, or a chapter front page's
+/// standard blocks.
+#[derive(Serialize)]
+struct TemplateBlock {
+    page: Uuid,
+    block: Uuid,
+    block_name: String,
+}
+
 #[derive(Serialize)]
 struct StructureSummary<'a> {
-    created: &'a [CreatedIds],
+    created: Vec<CreatedStructure<'a>>,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     labels: &'a BTreeMap<String, Uuid>,
     #[serde(skip_serializing_if = "<[_]>::is_empty")]
@@ -307,15 +327,35 @@ impl ToolHandler<McpState> for PatchCourseStructure {
 
         let mut contents = std::mem::take(&mut result.new_pages);
         let mut generated_blocks = HashSet::new();
+        let mut template_blocks = Vec::new();
         for (page_id, blocks) in contents.iter_mut() {
-            if blocks.is_empty()
-                && result.structure.is_chapter_front_page(*page_id)
-                && let Some(chapter) = result.structure.chapter_of_page(*page_id)
+            if result.structure.is_chapter_front_page(*page_id) {
+                if blocks.is_empty()
+                    && let Some(chapter) = result.structure.chapter_of_page(*page_id)
+                {
+                    *blocks = ChapterFrontPage::new(&chapter.name, chapter.chapter_number).content;
+                    walk(blocks, &mut |block, _| {
+                        generated_blocks.insert(block.client_id);
+                    });
+                    template_blocks.extend(blocks.iter().map(|block| TemplateBlock {
+                        page: *page_id,
+                        block: block.client_id,
+                        block_name: block.name.clone(),
+                    }));
+                }
+            } else if !blocks
+                .iter()
+                .any(|block| PAGE_TITLE_BLOCKS.contains(&block.name.as_str()))
+                && let Some(page) = result.structure.page(*page_id)
             {
-                *blocks = ChapterFrontPage::new(&chapter.name, chapter.chapter_number).content;
-                walk(blocks, &mut |block, _| {
-                    generated_blocks.insert(block.client_id);
+                let hero = GutenbergBlock::hero_section(page.title.trim(), "");
+                generated_blocks.insert(hero.client_id);
+                template_blocks.push(TemplateBlock {
+                    page: *page_id,
+                    block: hero.client_id,
+                    block_name: hero.name.clone(),
                 });
+                blocks.insert(0, hero);
             }
         }
         let mut copies = Vec::new();
@@ -381,8 +421,23 @@ impl ToolHandler<McpState> for PatchCourseStructure {
                 }),
             )
         });
+        let created = result
+            .created
+            .iter()
+            .map(|ids| {
+                let (mut own, rest): (Vec<_>, Vec<_>) = std::mem::take(&mut template_blocks)
+                    .into_iter()
+                    .partition(|block| ids.ids.contains(&block.page));
+                template_blocks = rest;
+                own.sort_by_key(|block| ids.ids.iter().position(|id| *id == block.page));
+                CreatedStructure {
+                    ids,
+                    template_blocks: own,
+                }
+            })
+            .collect();
         let summary = StructureSummary {
-            created: &result.created,
+            created,
             labels: &result.labels,
             warnings: &result.warnings,
             changed_paths: &result.changed_paths,

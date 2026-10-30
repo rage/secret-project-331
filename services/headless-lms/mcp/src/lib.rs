@@ -12,6 +12,7 @@ pub mod http;
 mod ids;
 mod instruction_lists;
 mod instructions;
+mod page_readiness;
 pub mod protocol;
 mod snapshots;
 mod staging;

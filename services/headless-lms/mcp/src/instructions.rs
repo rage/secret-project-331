@@ -5,11 +5,13 @@
 pub const SERVER_INSTRUCTIONS: &str = "\
 This server reads and edits course material on courses.mooc.fi: course pages made of Gutenberg \
 blocks, chapters, modules, course settings, glossary and references. Teachers' agents use it to \
-write, fix and restructure their courses. When the course-material skill is installed, load it \
-before the first course call: it holds the workflow and the safety rules. Send `skill_version` \
-from it on every call. Before creating or changing a block type you haven't \
-used in this session, call `guide` with that block type to get its schema, nesting rules and an \
-example. Every write is staged; students see nothing until a changeset is published.
+write, fix and restructure their courses. Load the course-material skill first (workflow, safety \
+rules) and send `skill_version` from it on every call. Before creating or changing a block type \
+you haven't used in this session, call `guide` with that block type to get its schema, nesting \
+rules and an example. Every write is staged; students see nothing until a changeset is published.
+Without `skill_version` every tool but `guide` is refused. If the skill isn't installed, ask the \
+teacher whether to install it (the refusal says how) and wait; send `skill_version` \"declined\" \
+only after the teacher says no.
 
 Tools:
 - Find and read: `list_courses`, `get_course_structure`, `get_page_content` (selectors: path, \

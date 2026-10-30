@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use super::*;
 use crate::engine::{EditError, EditErrorCode};
-use crate::hints::CURRENT_SKILL_VERSION;
+use crate::hints::{CURRENT_SKILL_VERSION, SKILL_DECLINED};
 use crate::protocol::PROTOCOL_VERSION;
 use crate::test_support;
 use crate::tools::args::{ChangesetArgs, GetPageContentArgs, PatchPageContentArgs};
@@ -90,6 +90,7 @@ fn server() -> McpServer<()> {
         catalog::get_page_content(Echo),
         catalog::patch_page_content(Failing),
         catalog::publish_changeset(Confirming),
+        catalog::guide(Echo),
     ]);
     McpServer::new(
         registry,
@@ -125,7 +126,13 @@ fn meta(client: &str) -> Value {
     test_support::request_meta(client, json!({"elicitation": {"url": {}}}))
 }
 
-fn call_body(tool: &str, arguments: Value, client: &str) -> Value {
+/// A call that sends the current skill version unless `arguments` has its own.
+fn call_body(tool: &str, mut arguments: Value, client: &str) -> Value {
+    if let Value::Object(arguments) = &mut arguments {
+        arguments
+            .entry("skill_version")
+            .or_insert_with(|| json!(CURRENT_SKILL_VERSION.to_string()));
+    }
     test_support::call_body(tool, arguments, meta(client))
 }
 
@@ -208,7 +215,7 @@ async fn tools_list_follows_scopes() {
         .iter()
         .map(|t| t["name"].as_str().unwrap())
         .collect();
-    assert_eq!(names, ["get_page_content"]);
+    assert_eq!(names, ["get_page_content", "guide"]);
     assert_eq!(result["cacheScope"], json!("private"));
     assert!(result["ttlMs"].as_u64().unwrap() > 0);
 
@@ -224,7 +231,8 @@ async fn tools_list_follows_scopes() {
         [
             json!("get_page_content"),
             json!("patch_page_content"),
-            json!("publish_changeset")
+            json!("publish_changeset"),
+            json!("guide")
         ]
     );
 }
@@ -263,7 +271,7 @@ async fn tool_call_returns_structured_content_with_hints_inside() {
         &all_scopes(),
         &call_body(
             "get_page_content",
-            json!({"course": COURSE, "page": PAGE}),
+            json!({"course": COURSE, "page": PAGE, "skill_version": SKILL_DECLINED}),
             "claude-code",
         ),
     )
@@ -285,7 +293,7 @@ async fn tool_call_returns_structured_content_with_hints_inside() {
         &all_scopes(),
         &call_body(
             "get_page_content",
-            json!({"course": COURSE, "page": PAGE, "skill_version": CURRENT_SKILL_VERSION.to_string()}),
+            json!({"course": COURSE, "page": PAGE}),
             "x",
         ),
     )
@@ -294,6 +302,42 @@ async fn tool_call_returns_structured_content_with_hints_inside() {
         current.body.unwrap()["result"]["structuredContent"]
             .get("hints")
             .is_none()
+    );
+}
+
+#[tokio::test]
+async fn calls_without_skill_version_are_refused_except_guide() {
+    for tool in ["get_page_content", "patch_page_content"] {
+        let response = send(
+            &server(),
+            &all_scopes(),
+            &test_support::call_body(
+                tool,
+                json!({"course": COURSE, "page": PAGE, "ops": []}),
+                meta("x"),
+            ),
+        )
+        .await;
+        let result = response.body.unwrap()["result"].clone();
+        assert_eq!(result["isError"], json!(true), "{tool}");
+        let error = &result["structuredContent"]["error"];
+        assert_eq!(error["code"], json!("skill_missing"), "{tool}");
+        assert!(
+            error["message"].as_str().unwrap().contains(SKILL_DECLINED),
+            "{error}"
+        );
+    }
+    let guide = send(
+        &server(),
+        &all_scopes(),
+        &test_support::call_body("guide", json!({"course": COURSE, "page": PAGE}), meta("x")),
+    )
+    .await;
+    let result = guide.body.unwrap()["result"].clone();
+    assert_eq!(result["isError"], json!(false));
+    assert_eq!(
+        result["structuredContent"]["hints"][0]["kind"],
+        json!("skill_version")
     );
 }
 

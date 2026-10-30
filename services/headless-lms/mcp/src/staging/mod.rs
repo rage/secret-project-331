@@ -34,7 +34,8 @@ mod validation;
 use page_writes::page_writes;
 pub use report::WriteReport;
 use report::{
-    DryRunEntity, DryRunSummary, NothingStaged, StagedSummary, StagingSummary, write_hints,
+    DryRunEntity, DryRunSummary, NothingStaged, StagedSummary, StagingSummary, page_hints,
+    write_hints,
 };
 use validation::{ValidatedBlocks, validate_changed_blocks};
 
@@ -239,15 +240,20 @@ pub async fn commit(
         .await?
         .len()
     };
-    let hints = write_hints(
+    let mut hints = write_hints(
         state,
-        ctx.client.client_kind(),
         &staged,
-        &block_changes,
         removed_exercises_with_submissions,
         &validated.block_names,
     )
     .await;
+    hints.extend(page_hints(
+        ctx.client.client_kind(),
+        &block_changes,
+        &view.live,
+        &after,
+        &written_pages,
+    ));
     let summary = StagedSummary {
         changeset: staged.changeset.id,
         changeset_revision: staged.changeset.revision,

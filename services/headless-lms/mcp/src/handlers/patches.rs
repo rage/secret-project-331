@@ -24,6 +24,7 @@ use crate::engine::{
 use crate::hints;
 use crate::ids::RandomIds;
 use crate::instruction_lists::{self, ExerciseTextParts};
+use crate::page_readiness::PAGE_TITLE_BLOCKS;
 use crate::snapshots;
 use crate::staging::{self, WriteMode, WriteRequest, WriteSource};
 use crate::state::McpState;
@@ -33,6 +34,7 @@ use headless_lms_models::library::agent_changesets::course_state::{CourseState, 
 use headless_lms_models::library::content_management::ChapterFrontPage;
 use headless_lms_models::page_language_groups::{self, PairingRefusal};
 use headless_lms_models::url_redirections::CreatedRedirect;
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 /// Handler of the `patch_page_content` tool.
 pub struct PatchPageContent;
@@ -308,14 +310,23 @@ impl ToolHandler<McpState> for PatchCourseStructure {
         let mut contents = std::mem::take(&mut result.new_pages);
         let mut generated_blocks = HashSet::new();
         for (page_id, blocks) in contents.iter_mut() {
-            if blocks.is_empty()
-                && result.structure.is_chapter_front_page(*page_id)
-                && let Some(chapter) = result.structure.chapter_of_page(*page_id)
+            if result.structure.is_chapter_front_page(*page_id) {
+                if blocks.is_empty()
+                    && let Some(chapter) = result.structure.chapter_of_page(*page_id)
+                {
+                    *blocks = ChapterFrontPage::new(&chapter.name, chapter.chapter_number).content;
+                    walk(blocks, &mut |block, _| {
+                        generated_blocks.insert(block.client_id);
+                    });
+                }
+            } else if !blocks
+                .iter()
+                .any(|block| PAGE_TITLE_BLOCKS.contains(&block.name.as_str()))
+                && let Some(page) = result.structure.page(*page_id)
             {
-                *blocks = ChapterFrontPage::new(&chapter.name, chapter.chapter_number).content;
-                walk(blocks, &mut |block, _| {
-                    generated_blocks.insert(block.client_id);
-                });
+                let hero = GutenbergBlock::hero_section(page.title.trim(), "");
+                generated_blocks.insert(hero.client_id);
+                blocks.insert(0, hero);
             }
         }
         let mut copies = Vec::new();

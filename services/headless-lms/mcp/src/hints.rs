@@ -4,6 +4,7 @@
 use headless_lms_utils::version::Version;
 use serde::Serialize;
 
+use crate::page_readiness::PlaceholderText;
 use crate::protocol::context::ClientKind;
 use crate::validator::BlockSchemas;
 
@@ -42,32 +43,63 @@ impl Hint {
     }
 }
 
-/// A skill too old to work with this server; the call is rejected.
+/// The `skill_version` an agent sends once the teacher has said no to installing the skill.
+pub const SKILL_DECLINED: &str = "declined";
+
+/// Why a call is refused over the skill it reports.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
-#[error("{message}")]
-pub struct OutdatedSkill {
-    pub message: String,
+pub enum SkillRefusal {
+    /// The skill is older than [`MINIMUM_SKILL_VERSION`].
+    #[error("{0}")]
+    Outdated(String),
+    /// A call without `skill_version`; see [`skill_missing`].
+    #[error("{0}")]
+    Missing(String),
 }
 
 /// Checks the `skill_version` a call sent against [`CURRENT_SKILL_VERSION`] and
-/// [`MINIMUM_SKILL_VERSION`]. No hint means the skill is current.
-pub fn skill_version(reported: Option<&str>) -> Result<Option<Hint>, OutdatedSkill> {
+/// [`MINIMUM_SKILL_VERSION`]. No hint means the skill is current. A missing version only gives a
+/// hint here; tools that need the skill refuse it with [`skill_missing`].
+pub fn skill_version(reported: Option<&str>) -> Result<Option<Hint>, SkillRefusal> {
     check_skill_version(reported, CURRENT_SKILL_VERSION, MINIMUM_SKILL_VERSION)
+}
+
+/// The refusal of a call that sent no `skill_version`, written for the agent to relay to the
+/// teacher.
+pub fn skill_missing() -> SkillRefusal {
+    // The install steps mirror the setup prompt in the skill repository's SETUP.md.
+    SkillRefusal::Missing(format!(
+        "Nothing was done: no skill_version was sent, and this server can't be used safely without the course-material skill. \
+Ask the teacher whether it is fine to install the skill, and wait for their answer before continuing. \
+Tell them what it is: the course-material skill (https://github.com/rage/course-material-agent-skills) gives the agent the editing workflow, \
+the safety rules (what needs the teacher's approval, checking pages before publishing) and the formats of course content. \
+If the teacher agrees, install it: clone that repository into the user-level skills folder as course-material \
+(Claude Code: ~/.claude/skills/course-material, or skills/course-material in $CLAUDE_CONFIG_DIR if it is set; Codex: ~/.agents/skills/course-material), \
+then read AGENT-SETUP.md in it and follow it. The teacher's setup guide: {SKILL_SETUP_URL}. \
+Afterwards send skill_version from the skill's VERSION file on every call. \
+If the teacher says no, send skill_version \"{SKILL_DECLINED}\" on every call from then on; the tools then work without the skill."
+    ))
 }
 
 fn check_skill_version(
     reported: Option<&str>,
     current: Version,
     minimum: Version,
-) -> Result<Option<Hint>, OutdatedSkill> {
+) -> Result<Option<Hint>, SkillRefusal> {
     let Some(reported) = reported else {
         return Ok(Some(Hint::new(
             HintKind::SkillVersion,
             format!(
-                "No skill_version was sent. The course-material skill holds the workflow, the safety rules and the content formats; setup: {SKILL_SETUP_URL}"
+                "No skill_version was sent, so course tools are refused until the course-material skill is installed or the teacher declines it. The skill holds the workflow, the safety rules and the content formats; setup: {SKILL_SETUP_URL}"
             ),
         )));
     };
+    if reported == SKILL_DECLINED {
+        return Ok(Some(Hint::new(
+            HintKind::SkillVersion,
+            "The teacher declined the course-material skill, so its workflow, safety rules and content formats aren't in use; guide has the block formats.",
+        )));
+    }
     let Some(reported_version) = Version::parse(reported) else {
         return Ok(Some(Hint::new(
             HintKind::SkillVersion,
@@ -77,11 +109,9 @@ fn check_skill_version(
         )));
     };
     if reported_version < minimum {
-        return Err(OutdatedSkill {
-            message: format!(
-                "Skill version {reported} is older than {minimum}, the oldest this server works with (current {current}). Update the skill as its update section describes, re-read SKILL.md, then repeat the call."
-            ),
-        });
+        return Err(SkillRefusal::Outdated(format!(
+            "Skill version {reported} is older than {minimum}, the oldest this server works with (current {current}). Update the skill as its update section describes, re-read SKILL.md, then repeat the call."
+        )));
     }
     if reported_version < current {
         return Ok(Some(Hint::new(
@@ -122,7 +152,7 @@ pub fn published(changeset_id: uuid::Uuid) -> Hint {
     )
 }
 
-/// Pages whose rendering changed haven't been checked in a browser.
+/// Pages of the changeset whose rendering changed haven't been checked in a browser.
 pub fn not_visually_checked(page_count: usize, client: ClientKind) -> Hint {
     let tooling = match client {
         ClientKind::ClaudeCode | ClientKind::Codex => "playwright-cli and its skill",
@@ -131,7 +161,27 @@ pub fn not_visually_checked(page_count: usize, client: ClientKind) -> Hint {
     Hint::new(
         HintKind::VisualCheck,
         format!(
-            "{page_count} staged page(s) with rendering changes haven't been visually checked; checks are expected before a changeset is published. get_preview_link gives a preview URL to open with {tooling}."
+            "{page_count} page(s) in the changeset have rendering changes that haven't been visually checked; checks are expected before a changeset is published. get_preview_link gives a preview URL to open with {tooling}."
+        ),
+    )
+}
+
+/// The page still holds placeholder text from a default page template.
+pub fn template_placeholders(page_id: uuid::Uuid, placeholders: &[PlaceholderText]) -> Hint {
+    let blocks: Vec<String> = placeholders
+        .iter()
+        .map(|p| {
+            format!(
+                "{} {} {} \"{}\"",
+                p.block_name, p.block, p.attribute, p.text
+            )
+        })
+        .collect();
+    Hint::new(
+        HintKind::State,
+        format!(
+            "Page {page_id} still holds placeholder text from the default page template ({}); publish_changeset refuses it until the text is replaced or those blocks are removed.",
+            blocks.join("; ")
         ),
     )
 }
@@ -285,7 +335,12 @@ mod tests {
         );
         let too_old =
             check_skill_version(Some("1.1.9"), Version(1, 6, 0), Version(1, 2, 0)).unwrap_err();
-        assert!(too_old.message.contains("update section"));
+        assert!(too_old.to_string().contains("update section"));
+        let declined =
+            check_skill_version(Some(SKILL_DECLINED), Version(1, 6, 0), Version(1, 2, 0))
+                .unwrap()
+                .unwrap();
+        assert!(declined.text.contains("declined"));
         for not_a_version in ["banana", "1.3.0-rc1", "1.x", "1.2.3.4"] {
             let hint = check_skill_version(Some(not_a_version), Version(1, 6, 0), Version(1, 2, 0))
                 .unwrap()
@@ -309,6 +364,7 @@ mod tests {
             redirects_created(3),
             needs_teacher_review("https://x/review", 1),
             skill_version(None).unwrap().unwrap(),
+            skill_version(Some(SKILL_DECLINED)).unwrap().unwrap(),
         ];
         for hint in hints {
             let lower = hint.text.to_lowercase();

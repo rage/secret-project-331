@@ -26,6 +26,7 @@ use uuid::Uuid;
 use crate::access::{authorize_course, connection, deleted_in_staged_changes, editable_courses};
 use crate::explanations::{ExplainedEntity, explain_blockers};
 use crate::hints;
+use crate::page_readiness;
 use crate::state::McpState;
 use crate::tools::args::{
     ChangesetArgs, DiscardChangesetArgs, GetPreviewLinkArgs, IdArgument, ListChangesetsArgs,
@@ -34,7 +35,9 @@ use crate::tools::{
     ConfirmationRequest, RequestContext, ToolError, ToolErrorCode, ToolHandler, ToolOutcome,
     ToolResult,
 };
-use headless_lms_models::library::agent_changesets::course_state::{CourseParts, load_view};
+use headless_lms_models::library::agent_changesets::course_state::{
+    CourseParts, CourseView, load_view,
+};
 
 /// Handler of the `list_changesets` tool.
 pub struct ListChangesets;
@@ -165,6 +168,66 @@ fn not_open_result(changeset_id: Uuid, status: AgentChangesetStatus) -> ToolResu
     result
 }
 
+/// Refuses publishing while a page whose blocks the changeset changes has no page title block or
+/// still holds template placeholder text.
+fn check_pages_ready(view: &CourseView) -> Result<(), ToolError> {
+    let mut untitled = Vec::new();
+    let mut with_placeholders = Vec::new();
+    for page in page_readiness::pages_with_content_changes(&view.staged, &view.live) {
+        if !page_readiness::has_page_title(&page.content) {
+            untitled.push(page);
+        }
+        let placeholders = page_readiness::placeholder_texts(&page.content);
+        if !placeholders.is_empty() {
+            with_placeholders.push((page, placeholders));
+        }
+    }
+    if untitled.is_empty() && with_placeholders.is_empty() {
+        return Ok(());
+    }
+    let mut problems = Vec::new();
+    if !untitled.is_empty() {
+        let pages: Vec<String> = untitled
+            .iter()
+            .map(|page| format!("\"{}\" ({})", page.title, page.id))
+            .collect();
+        problems.push(format!(
+            "these pages have no page title: {}. Add a moocfi/hero-section with the page title as the first block (moocfi/landing-page-hero-section on the course front page); it is the only h1 course pages allow",
+            pages.join(", ")
+        ));
+    }
+    if !with_placeholders.is_empty() {
+        let pages: Vec<String> = with_placeholders
+            .iter()
+            .map(|(page, placeholders)| {
+                let blocks: Vec<String> = placeholders
+                    .iter()
+                    .map(|p| format!("{} {} \"{}\"", p.block_name, p.block, p.text))
+                    .collect();
+                format!("\"{}\" ({}): {}", page.title, page.id, blocks.join(", "))
+            })
+            .collect();
+        problems.push(format!(
+            "these pages still hold placeholder text from the default page template: {}. Replace it with the course's own text or remove those blocks",
+            pages.join("; ")
+        ));
+    }
+    Err(ToolError::refused(
+        ToolErrorCode::PagesNotReady,
+        format!(
+            "Nothing was published: {}. Fix the pages with patch_page_content, then publish again.",
+            problems.join("; and ")
+        ),
+        json!({
+            "pages_without_title": untitled.iter().map(|page| page.id).collect::<Vec<_>>(),
+            "pages_with_placeholders": with_placeholders
+                .iter()
+                .map(|(page, placeholders)| json!({"page": page.id, "placeholders": placeholders}))
+                .collect::<Vec<_>>(),
+        }),
+    ))
+}
+
 #[async_trait(?Send)]
 impl ToolHandler<McpState> for PublishChangeset {
     type Args = ChangesetArgs;
@@ -177,11 +240,19 @@ impl ToolHandler<McpState> for PublishChangeset {
         args: ChangesetArgs,
     ) -> Result<ToolOutcome, ToolError> {
         let mut conn = connection(state).await?;
-        let (_, changeset) =
+        let (course, changeset) =
             own_changeset(&mut conn, ctx, args.course.id(), args.changeset.id()).await?;
         if !changeset.is_open() {
             return Ok(not_open_result(changeset.id, changeset.status).into());
         }
+        let view = load_view(
+            &mut conn,
+            ctx.principal.actor.user_id,
+            course,
+            CourseParts::All,
+        )
+        .await?;
+        check_pages_ready(&view)?;
         let review_url = state.review_url(changeset.course_id, changeset.id);
         let can_add_global_admin_only_exercise_services =
             is_user_global_admin(&mut conn, ctx.principal.actor.user_id).await?;

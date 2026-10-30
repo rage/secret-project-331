@@ -9,6 +9,7 @@ use serde_json::{Map, Value, json};
 use super::schema::input_schema;
 use super::{McpScope, Tool, ToolHandler};
 use crate::engine::op::PatchTarget;
+use crate::hints::SKILL_DECLINED;
 
 /// What dispatch needs of a tool besides its handler.
 #[derive(Debug, Clone)]
@@ -16,6 +17,8 @@ pub struct ToolDefinition {
     pub name: &'static str,
     /// The token needs this scope to see and call the tool.
     pub scope: McpScope,
+    /// Whether calls without `skill_version` are refused; see [`crate::hints::skill_missing`].
+    pub requires_skill: bool,
     /// The arguments the tool promotes to `Mcp-Param-*` headers, with the header suffix.
     pub header_params: Vec<(String, String)>,
     /// The tool as `tools/list` lists it.
@@ -23,6 +26,12 @@ pub struct ToolDefinition {
 }
 
 impl<S> Tool<S> {
+    /// Lets agents without the skill call the tool.
+    fn usable_without_skill(mut self) -> Self {
+        self.definition.requires_skill = false;
+        self
+    }
+
     /// Asks Claude Code to load the tool up front instead of on demand.
     fn always_loaded(mut self) -> Self {
         self.definition
@@ -84,7 +93,7 @@ fn define<S, H: ToolHandler<S> + 'static>(
     {
         properties.insert(
             "skill_version".into(),
-            json!({"type": "string", "description": "Version from the course-material skill's VERSION file."}),
+            json!({"type": "string", "description": format!("Version from the course-material skill's VERSION file, or \"{SKILL_DECLINED}\" once the teacher has said no to installing the skill. Without either, calls are refused.")}),
         );
     }
     let header_params = header_params(&input_schema);
@@ -101,6 +110,7 @@ fn define<S, H: ToolHandler<S> + 'static>(
         definition: ToolDefinition {
             name,
             scope,
+            requires_skill: true,
             header_params,
             listing: listing.with_annotations(annotations),
         },
@@ -410,6 +420,7 @@ pub fn guide<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
         McpScope::MaterialRead,
     )
     .always_loaded()
+    .usable_without_skill()
 }
 
 #[cfg(test)]

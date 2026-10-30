@@ -27,7 +27,8 @@ pub use locking::{
 pub use preview::{
     PagePreview, PreviewClaim, PreviewExercise, PreviewPage, PreviewPageLink, PreviewReference,
     PreviewToken, changed_page_links, mint_preview_token, preview_path, resolve_changeset_preview,
-    resolve_preview, validate_preview_token,
+    resolve_preview, resolve_published_course_preview, resolve_published_preview,
+    validate_preview_token,
 };
 pub use publishing::{PublishOptions, PublishOutcome, PublishRejection, publish};
 pub use reverting::{RevertPlan, plan_revert};

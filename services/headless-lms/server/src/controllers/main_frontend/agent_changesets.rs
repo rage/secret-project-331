@@ -253,7 +253,7 @@ POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_i
 short-lived preview link for a page of the user's changeset, so the review page can open the staged
 page as students would see it.
 */
-#[instrument(skip(pool, jwt_key))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/{changeset_id}/preview-link/{page_id}",
@@ -271,12 +271,18 @@ async fn create_preview_link(
     pool: web::Data<PgPool>,
     path: web::Path<(Uuid, Uuid)>,
     user: AuthUser,
-    jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<AgentPreviewLink>> {
     let (changeset_id, page_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
     let (changeset, token) = authorize_own_changeset(&mut conn, user.id, changeset_id).await?;
-    let preview = changesets::mint_preview_token(&jwt_key, changeset.id, Some(page_id), user.id)?;
+    let preview = changesets::mint_preview_token(
+        &mut conn,
+        changeset.course_id,
+        Some(changeset.id),
+        Some(page_id),
+        user.id,
+    )
+    .await?;
     token.authorized_ok(web::Json(AgentPreviewLink {
         preview_path: changesets::preview_path(&preview.token),
     }))

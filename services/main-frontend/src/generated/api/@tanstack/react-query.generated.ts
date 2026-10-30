@@ -1459,9 +1459,9 @@ export const getAgentPagePreviewQueryKey = (options: Options<GetAgentPagePreview
 
 /**
  *
- * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or
- * for a token of the whole changeset the page `page` with the list of changed pages. No login: the
- * short-lived signed token stands in for it, while its user may still edit the course.
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
+ * published, or for a token of several pages the page `page` with the list of pages. No login: the
+ * short-lived random token stands in for it, while its user may still edit the course.
  */
 export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewData>) =>
   queryOptions<
@@ -1521,9 +1521,9 @@ export const getAgentPagePreviewInfiniteQueryKey = (
 
 /**
  *
- * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or
- * for a token of the whole changeset the page `page` with the list of changed pages. No login: the
- * short-lived signed token stands in for it, while its user may still edit the course.
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
+ * published, or for a token of several pages the page `page` with the list of pages. No login: the
+ * short-lived random token stands in for it, while its user may still edit the course.
  */
 export const getAgentPagePreviewInfiniteOptions = (options: Options<GetAgentPagePreviewData>) => {
   const opts = infiniteQueryOptions<

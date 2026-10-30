@@ -1,31 +1,28 @@
+use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::Duration;
-use headless_lms_base::jwt::{JwtKey, sign_hs256_claim, validate_hs256_claim};
+use rand::Rng;
+use sha2::{Digest, Sha256};
 
-use crate::{
-    error::{as_model_error, missing_model_error},
-    prelude::*,
-};
+use crate::{error::missing_model_error, prelude::*};
 
 /// How long a preview link works. It may end up in agent transcripts, so it is bounded, but long
 /// enough to review a changeset's pages in one session. Publishing or discarding the changeset
 /// ends the link earlier.
 const PREVIEW_TOKEN_LIFETIME_MINUTES: i64 = 120;
 
-const PREVIEW_TOKEN_KIND: &str = "agent-changeset-page-preview";
+const PREVIEW_TOKEN_BYTES: usize = 16;
 
-/// Lets anyone holding it read one page of one changeset, or all of its changed pages, as staged,
-/// without logging in.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// What a valid preview token lets its holder read without logging in: one page of a course, or
+/// all of its pages, as `changeset_id` stages them or as published.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PreviewClaim {
-    /// Keeps other HS256 claims signed with the same key from passing as a preview claim.
-    kind: String,
-    pub changeset_id: Uuid,
-    /// `None` for a token of the whole changeset.
-    #[serde(default)]
+    pub course_id: Uuid,
+    /// `None` for the published state of the course.
+    pub changeset_id: Option<Uuid>,
+    /// `None` for a token of all the changeset's changed pages, or all the course's pages when
+    /// published.
     pub page_id: Option<Uuid>,
     pub user_id: Uuid,
-    exp: i64,
-    iat: i64,
 }
 
 /// A preview link's token and when it stops working.
@@ -35,28 +32,42 @@ pub struct PreviewToken {
     pub expires_at: DateTime<Utc>,
 }
 
-/// Mints a short-lived preview token for the page `page_id` as staged in the changeset, or for
-/// the changeset's changed pages with `None`. `key` is the server's JWT key.
-pub fn mint_preview_token(
-    key: &JwtKey,
-    changeset_id: Uuid,
+fn hash_token(token: &str) -> Vec<u8> {
+    Sha256::digest(token.as_bytes()).to_vec()
+}
+
+/// Mints a short-lived preview token for the page `page_id` of the course, or for all its pages
+/// with `None`, as `changeset_id` stages them or published without one. Also deletes expired
+/// tokens.
+pub async fn mint_preview_token(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    changeset_id: Option<Uuid>,
     page_id: Option<Uuid>,
     user_id: Uuid,
 ) -> ModelResult<PreviewToken> {
-    let now = Utc::now();
-    let expires_at = now + Duration::minutes(PREVIEW_TOKEN_LIFETIME_MINUTES);
-    let claim = PreviewClaim {
-        kind: PREVIEW_TOKEN_KIND.to_string(),
+    let mut bytes = [0u8; PREVIEW_TOKEN_BYTES];
+    rand::rng().fill_bytes(&mut bytes);
+    let token = URL_SAFE_NO_PAD.encode(bytes);
+    let expires_at = Utc::now() + Duration::minutes(PREVIEW_TOKEN_LIFETIME_MINUTES);
+
+    sqlx::query!("DELETE FROM agent_changeset_preview_links WHERE expires_at < now()")
+        .execute(&mut *conn)
+        .await?;
+    sqlx::query!(
+        "
+INSERT INTO agent_changeset_preview_links (token_hash, course_id, changeset_id, page_id, user_id, expires_at)
+VALUES ($1, $2, $3, $4, $5, $6)
+",
+        hash_token(&token),
+        course_id,
         changeset_id,
         page_id,
         user_id,
-        exp: expires_at.timestamp(),
-        iat: now.timestamp(),
-    };
-    let token = sign_hs256_claim(&claim, key).map_err(as_model_error(
-        ModelErrorType::Generic,
-        "Signing a preview token failed",
-    ))?;
+        expires_at,
+    )
+    .execute(conn)
+    .await?;
     Ok(PreviewToken { token, expires_at })
 }
 
@@ -66,14 +77,25 @@ pub fn preview_path(token: &str) -> String {
     format!("/agent-preview/{token}")
 }
 
-/// Checks the token's signature and expiry. Errors with `PreconditionFailed` for an invalid,
-/// expired or foreign token.
-pub fn validate_preview_token(token: &str, key: &JwtKey) -> ModelResult<PreviewClaim> {
-    validate_hs256_claim(token, key)
-        .ok()
-        .filter(|claim: &PreviewClaim| claim.kind == PREVIEW_TOKEN_KIND)
-        .ok_or_else(missing_model_error(
-            ModelErrorType::PreconditionFailed,
-            "The preview link is invalid or has expired",
-        ))
+/// Looks up an unexpired token. Errors with `PreconditionFailed` for an unknown or expired one.
+pub async fn validate_preview_token(
+    conn: &mut PgConnection,
+    token: &str,
+) -> ModelResult<PreviewClaim> {
+    sqlx::query_as!(
+        PreviewClaim,
+        "
+SELECT course_id, changeset_id, page_id, user_id
+FROM agent_changeset_preview_links
+WHERE token_hash = $1
+  AND expires_at > now()
+",
+        hash_token(token),
+    )
+    .fetch_optional(conn)
+    .await?
+    .ok_or_else(missing_model_error(
+        ModelErrorType::PreconditionFailed,
+        "The preview link is invalid or has expired",
+    ))
 }

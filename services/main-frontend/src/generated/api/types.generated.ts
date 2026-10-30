@@ -5287,16 +5287,17 @@ export type PageInfo = {
 }
 
 /**
- * What the preview of a staged page renders.
+ * What the preview of a staged page, or of a published one, renders.
  */
 export type PagePreview = {
   /**
-   * The pages the changeset adds or changes; empty unless the link covers the whole changeset.
+   * The pages the link switches between: the changeset's added or changed pages, or all pages
+   * of the course for a published preview. Empty unless the link covers more than one page.
    */
   changed_pages: Array<PreviewPageLink>
   /**
-   * The visible pages of the page's chapter after its front page, as staged; filled only for a
-   * chapter front page when the link covers the whole changeset.
+   * The visible pages of the page's chapter after its front page; filled only for a chapter
+   * front page when the link covers more than one page.
    */
   chapter_pages: Array<PreviewPageLink>
   course_name: string
@@ -5310,7 +5311,7 @@ export type PagePreview = {
    */
   page: PreviewPage
   /**
-   * The course's references with the changeset's staged changes applied.
+   * The course's references, with the changeset's staged changes applied if there is one.
    */
   references: Array<PreviewReference>
 }
@@ -7318,7 +7319,7 @@ export type GetAgentPagePreviewData = {
   }
   query?: {
     /**
-     * The changed page to show; for a token of the whole changeset only. Defaults to the first.
+     * The page to show; for a token of several pages only. Defaults to the first.
      */
     page?: string
   }

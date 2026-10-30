@@ -4830,7 +4830,7 @@ export const zPreviewReference = z.object({
 })
 
 /**
- * What the preview of a staged page renders.
+ * What the preview of a staged page, or of a published one, renders.
  */
 export const zPagePreview = z.object({
   changed_pages: z.array(zPreviewPageLink),

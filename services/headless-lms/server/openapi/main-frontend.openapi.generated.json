@@ -335,7 +335,7 @@
     "/api/v0/main-frontend/agent-preview/{token}": {
       "get": {
         "tags": ["agent_preview"],
-        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at, or\nfor a token of the whole changeset the page `page` with the list of changed pages. No login: the\nshort-lived signed token stands in for it, while its user may still edit the course.",
+        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or\npublished, or for a token of several pages the page `page` with the list of pages. No login: the\nshort-lived random token stands in for it, while its user may still edit the course.",
         "operationId": "getAgentPagePreview",
         "parameters": [
           {
@@ -350,7 +350,7 @@
           {
             "name": "page",
             "in": "query",
-            "description": "The changed page to show; for a token of the whole changeset only. Defaults to the first.",
+            "description": "The page to show; for a token of several pages only. Defaults to the first.",
             "required": false,
             "schema": {
               "type": "string",
@@ -28025,7 +28025,7 @@
       },
       "PagePreview": {
         "type": "object",
-        "description": "What the preview of a staged page renders.",
+        "description": "What the preview of a staged page, or of a published one, renders.",
         "required": [
           "course_name",
           "language_code",
@@ -28041,14 +28041,14 @@
             "items": {
               "$ref": "#/components/schemas/PreviewPageLink"
             },
-            "description": "The pages the changeset adds or changes; empty unless the link covers the whole changeset."
+            "description": "The pages the link switches between: the changeset's added or changed pages, or all pages\nof the course for a published preview. Empty unless the link covers more than one page."
           },
           "chapter_pages": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PreviewPageLink"
             },
-            "description": "The visible pages of the page's chapter after its front page, as staged; filled only for a\nchapter front page when the link covers the whole changeset."
+            "description": "The visible pages of the page's chapter after its front page; filled only for a chapter\nfront page when the link covers more than one page."
           },
           "course_name": {
             "type": "string"
@@ -28069,7 +28069,7 @@
             "items": {
               "$ref": "#/components/schemas/PreviewReference"
             },
-            "description": "The course's references with the changeset's staged changes applied."
+            "description": "The course's references, with the changeset's staged changes applied if there is one."
           }
         }
       },

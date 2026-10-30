@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use utoipa::ToSchema;
 
 use crate::{
-    agent_changeset_entities,
+    agent_changeset_entities::{self, AgentChangesetEntity},
     agent_changesets::AgentChangeset,
     error::{TryToOptional, missing_model_error},
     library::{
@@ -18,7 +18,7 @@ use crate::{
     prelude::*,
 };
 
-/// What the preview of a staged page renders.
+/// What the preview of a staged page, or of a published one, renders.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct PagePreview {
     pub course_name: String,
@@ -27,12 +27,13 @@ pub struct PagePreview {
     pub page: PreviewPage,
     /// Whether the page is its chapter's front page, as staged.
     pub is_chapter_front_page: bool,
-    /// The course's references with the changeset's staged changes applied.
+    /// The course's references, with the changeset's staged changes applied if there is one.
     pub references: Vec<PreviewReference>,
-    /// The pages the changeset adds or changes; empty unless the link covers the whole changeset.
+    /// The pages the link switches between: the changeset's added or changed pages, or all pages
+    /// of the course for a published preview. Empty unless the link covers more than one page.
     pub changed_pages: Vec<PreviewPageLink>,
-    /// The visible pages of the page's chapter after its front page, as staged; filled only for a
-    /// chapter front page when the link covers the whole changeset.
+    /// The visible pages of the page's chapter after its front page; filled only for a chapter
+    /// front page when the link covers more than one page.
     pub chapter_pages: Vec<PreviewPageLink>,
 }
 
@@ -141,6 +142,11 @@ impl From<PageSnapshot> for PreviewPage {
     }
 }
 
+fn find_row(rows: &[AgentChangesetEntity], key: EntityKey) -> Option<&AgentChangesetEntity> {
+    rows.iter()
+        .find(|row| row.entity_type == key.entity_type && row.entity_id == key.entity_id)
+}
+
 /// What a preview link of `page_id` in `changeset` renders. The caller checks that the changeset
 /// is the link's user's and that they may still edit its course. Errors with `NotFound` if the
 /// changeset is no longer open or if the page does not exist in it or live.
@@ -149,21 +155,46 @@ pub async fn resolve_preview(
     changeset: &AgentChangeset,
     page_id: Uuid,
 ) -> ModelResult<PagePreview> {
+    ensure_open(changeset)?;
+    let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
+    render_page(conn, changeset.course_id, &rows, page_id).await
+}
+
+/// What a preview link of the published `page_id` of `course_id` renders. The caller checks that
+/// the link's user may still edit the course. Errors with `NotFound` if the page is not in the
+/// course.
+pub async fn resolve_published_preview(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_id: Uuid,
+) -> ModelResult<PagePreview> {
+    render_page(conn, course_id, &[], page_id).await
+}
+
+fn ensure_open(changeset: &AgentChangeset) -> ModelResult<()> {
     if !changeset.is_open() {
         return Err(model_err!(
             NotFound,
             "The changeset of this preview is no longer open".to_string()
         ));
     }
-    let staged = agent_changeset_entities::get_one(
-        conn,
-        changeset.id,
+    Ok(())
+}
+
+/// The page `page_id` as `staged_rows` leave it over the live course.
+async fn render_page(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    staged_rows: &[AgentChangesetEntity],
+    page_id: Uuid,
+) -> ModelResult<PagePreview> {
+    let staged = find_row(
+        staged_rows,
         EntityKey::new(ContentEntityType::Page, page_id),
-    )
-    .await?;
+    );
     let page = match staged {
-        Some(entity) => match entity.after_snapshot {
-            Some(EntitySnapshot::Page(page)) => page,
+        Some(entity) => match &entity.after_snapshot {
+            Some(EntitySnapshot::Page(page)) => page.clone(),
             _ => {
                 return Err(model_err!(
                     NotFound,
@@ -178,7 +209,7 @@ pub async fn resolve_preview(
                 "Page not found",
             ))?,
     };
-    if page.course_id != changeset.course_id {
+    if page.course_id != course_id {
         return Err(model_err!(NotFound, "Page not found".to_string()));
     }
     let mut page = PreviewPage::from(page);
@@ -187,19 +218,17 @@ pub async fn resolve_preview(
         .iter()
         .any(|exercise| exercise.uses_course_default_review_config)
         && let Some(live_default) =
-            entity_snapshots::load_course_default_review_config(conn, changeset.course_id).await?
+            entity_snapshots::load_course_default_review_config(conn, course_id).await?
     {
-        let staged_default = agent_changeset_entities::get_one(
-            conn,
-            changeset.id,
+        let staged_default = find_row(
+            staged_rows,
             EntityKey::new(
                 ContentEntityType::CourseDefaultReviewConfig,
                 live_default.id,
             ),
         )
-        .await?
-        .and_then(|row| match row.after_snapshot {
-            Some(EntitySnapshot::CourseDefaultReviewConfig(config)) => Some(config),
+        .and_then(|row| match &row.after_snapshot {
+            Some(EntitySnapshot::CourseDefaultReviewConfig(config)) => Some(config.clone()),
             _ => None,
         })
         .unwrap_or(live_default);
@@ -211,15 +240,14 @@ pub async fn resolve_preview(
     }
     let is_chapter_front_page = match page.chapter_id {
         Some(chapter_id) => {
-            staged_front_page_id(conn, changeset, chapter_id).await? == Some(page.id)
+            staged_front_page_id(conn, staged_rows, chapter_id).await? == Some(page.id)
         }
         None => false,
     };
-    let course = crate::courses::get_course(conn, changeset.course_id).await?;
+    let course = crate::courses::get_course(conn, course_id).await?;
     let live = load_live_course(conn, &course, CourseParts::Glossary).await?;
-    let staged_rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
     let references = live
-        .overlay(&staged_rows, CourseParts::Glossary)
+        .overlay(staged_rows, CourseParts::Glossary)
         .references
         .into_iter()
         .map(|reference| PreviewReference {
@@ -244,20 +272,29 @@ pub async fn changed_page_links(
     changeset: &AgentChangeset,
 ) -> ModelResult<Vec<PreviewPageLink>> {
     let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
-    let changed: HashMap<Uuid, &PageSnapshot> = rows
+    page_links(conn, changeset.course_id, &rows, true).await
+}
+
+/// The pages of `course_id` as `staged_rows` leave them, in course order: only those the rows add
+/// or change with `only_changed`, else all of them.
+async fn page_links(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    staged_rows: &[AgentChangesetEntity],
+    only_changed: bool,
+) -> ModelResult<Vec<PreviewPageLink>> {
+    let changed: HashSet<Uuid> = staged_rows
         .iter()
-        .filter_map(|row| match &row.after_snapshot {
-            Some(EntitySnapshot::Page(page)) => Some((page.id, page)),
-            _ => None,
-        })
+        .filter(|row| matches!(row.after_snapshot, Some(EntitySnapshot::Page(_))))
+        .map(|row| row.entity_id)
         .collect();
-    if changed.is_empty() {
+    if only_changed && changed.is_empty() {
         return Ok(Vec::new());
     }
-    let course = crate::courses::get_course(conn, changeset.course_id).await?;
+    let course = crate::courses::get_course(conn, course_id).await?;
     let staged = load_live_course(conn, &course, CourseParts::All)
         .await?
-        .overlay(&rows, CourseParts::All);
+        .overlay(staged_rows, CourseParts::All);
     let chapters = staged
         .modules_in_order()
         .into_iter()
@@ -266,7 +303,7 @@ pub async fn changed_page_links(
     Ok(std::iter::once(None)
         .chain(chapters)
         .flat_map(|chapter_id| staged.pages_in_order(chapter_id))
-        .filter_map(|page| changed.get(&page.id))
+        .filter(|page| !only_changed || changed.contains(&page.id))
         .map(|page| PreviewPageLink {
             id: page.id,
             title: page.title.clone(),
@@ -285,19 +322,42 @@ pub async fn resolve_changeset_preview(
     changeset: &AgentChangeset,
     page_id: Option<Uuid>,
 ) -> ModelResult<PagePreview> {
-    let changed_pages = changed_page_links(conn, changeset).await?;
+    ensure_open(changeset)?;
+    let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
+    render_with_page_links(conn, changeset.course_id, &rows, true, page_id).await
+}
+
+/// What the preview link of the whole published course renders: `page_id`, or the first page
+/// without one, with all pages to switch between. The caller checks the same things as for
+/// [`resolve_published_preview`].
+pub async fn resolve_published_course_preview(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_id: Option<Uuid>,
+) -> ModelResult<PagePreview> {
+    render_with_page_links(conn, course_id, &[], false, page_id).await
+}
+
+async fn render_with_page_links(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    staged_rows: &[AgentChangesetEntity],
+    only_changed: bool,
+    page_id: Option<Uuid>,
+) -> ModelResult<PagePreview> {
+    let page_links = page_links(conn, course_id, staged_rows, only_changed).await?;
     let page_id = page_id
-        .or_else(|| changed_pages.first().map(|link| link.id))
+        .or_else(|| page_links.first().map(|link| link.id))
         .ok_or_else(missing_model_error(
             ModelErrorType::NotFound,
-            "The changeset adds or changes no pages",
+            "The preview has no pages",
         ))?;
-    let mut preview = resolve_preview(conn, changeset, page_id).await?;
+    let mut preview = render_page(conn, course_id, staged_rows, page_id).await?;
     if let (true, Some(chapter_id)) = (preview.is_chapter_front_page, preview.page.chapter_id) {
-        let course = crate::courses::get_course(conn, changeset.course_id).await?;
-        let live = load_live_course(conn, &course, CourseParts::All).await?;
-        let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
-        let staged = live.overlay(&rows, CourseParts::All);
+        let course = crate::courses::get_course(conn, course_id).await?;
+        let staged = load_live_course(conn, &course, CourseParts::All)
+            .await?
+            .overlay(staged_rows, CourseParts::All);
         preview.chapter_pages = staged
             .pages_in_order(Some(chapter_id))
             .into_iter()
@@ -310,23 +370,20 @@ pub async fn resolve_changeset_preview(
             })
             .collect();
     }
-    preview.changed_pages = changed_pages;
+    preview.changed_pages = page_links;
     Ok(preview)
 }
 
-/// The front page of chapter `chapter_id` as `changeset` stages it.
+/// The front page of chapter `chapter_id` as `staged_rows` leave it.
 async fn staged_front_page_id(
     conn: &mut PgConnection,
-    changeset: &AgentChangeset,
+    staged_rows: &[AgentChangesetEntity],
     chapter_id: Uuid,
 ) -> ModelResult<Option<Uuid>> {
-    let staged = agent_changeset_entities::get_one(
-        conn,
-        changeset.id,
+    if let Some(row) = find_row(
+        staged_rows,
         EntityKey::new(ContentEntityType::Chapter, chapter_id),
-    )
-    .await?;
-    if let Some(row) = staged {
+    ) {
         return Ok(row
             .after_snapshot
             .as_ref()

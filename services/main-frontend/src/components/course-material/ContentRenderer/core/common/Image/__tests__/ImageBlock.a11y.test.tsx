@@ -60,3 +60,27 @@ describe("ImageBlock accessibility (issue #75)", () => {
     expect(container.querySelector("figure")).not.toBeNull()
   })
 })
+
+describe("ImageBlock links", () => {
+  it("does not link an image to its own file, which the CMS adds by default", () => {
+    const { container } = renderBlock(
+      makeProps({ href: "https://example.com/photo.jpg", linkDestination: "media" }),
+    )
+    expect(container.querySelector("a")).toBeNull()
+    expect(container.querySelector("img")).not.toBeNull()
+  })
+
+  it("does not link an image whose custom link is its own file", () => {
+    const { container } = renderBlock(
+      makeProps({ href: "https://example.com/photo.jpg", linkDestination: "custom" }),
+    )
+    expect(container.querySelector("a")).toBeNull()
+  })
+
+  it("keeps a custom link to another address", () => {
+    const { container } = renderBlock(
+      makeProps({ href: "https://example.com/article", linkDestination: "custom" }),
+    )
+    expect(container.querySelector("a")).toHaveAttribute("href", "https://example.com/article")
+  })
+})

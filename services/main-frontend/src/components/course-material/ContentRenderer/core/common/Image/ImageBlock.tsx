@@ -72,8 +72,10 @@ const ImageBlock: React.FC<
   const isRounded = Boolean(className?.includes("is-style-rounded"))
 
   // Gutenberg links the image when a destination is set (custom URL, the media file, etc.). The
-  // image must then be wrapped in an anchor; otherwise the `href` is silently dropped.
-  const hasLink = Boolean(href) && linkDestination !== "none"
+  // image must then be wrapped in an anchor; otherwise the `href` is silently dropped. A link to the
+  // image's own file is the CMS default rather than the teacher's choice, so it zooms instead.
+  const linksToOwnFile = linkDestination === "media" || href === url
+  const hasLink = Boolean(href) && linkDestination !== "none" && !linksToOwnFile
   const linkRel = relForLinkTarget(rel, linkTarget)
   // Fallback accessible name for a linked image with no alt text (used by the link below).
   const captionText = caption ? stripTags(caption) : undefined

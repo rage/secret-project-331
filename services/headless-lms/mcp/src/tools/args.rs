@@ -176,6 +176,9 @@ pub struct PatchCourseStructureArgs {
     pub ops: Vec<Value>,
     #[serde(default)]
     pub dry_run: bool,
+    /// With dry_run: also return the full staging diff, not just the outline of what changes.
+    #[serde(default)]
+    pub detail: bool,
     pub read_back: Option<Selector>,
 }
 

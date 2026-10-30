@@ -48,6 +48,7 @@ impl WriteReport {
 pub(super) enum StagingSummary {
     Nothing(NothingStaged),
     DryRun(DryRunSummary),
+    BriefDryRun(BriefDryRunSummary),
     Staged(StagedSummary),
 }
 
@@ -75,6 +76,19 @@ pub(super) struct DryRunSummary {
     pub(super) would_stage: Vec<DryRunEntity>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub(super) block_changes: Vec<BlockChange>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(super) unchanged_block_warnings: Vec<BlockFinding>,
+}
+
+/// A dry run without the per-entity and per-block detail, for calls that report their own outline.
+#[derive(Serialize)]
+pub(super) struct BriefDryRunSummary {
+    pub(super) dry_run: bool,
+    pub(super) would_stage_count: usize,
+    pub(super) block_change_count: usize,
+    /// The would-be staged entities that need a teacher's review.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(super) risky_entities: Vec<ExplainedEntity>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub(super) unchanged_block_warnings: Vec<BlockFinding>,
 }

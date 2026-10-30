@@ -34,8 +34,8 @@ mod validation;
 use page_writes::page_writes;
 pub use report::WriteReport;
 use report::{
-    DryRunEntity, DryRunSummary, NothingStaged, StagedSummary, StagingSummary, page_hints,
-    write_hints,
+    BriefDryRunSummary, DryRunEntity, DryRunSummary, NothingStaged, StagedSummary, StagingSummary,
+    page_hints, write_hints,
 };
 use validation::{ValidatedBlocks, changeset_block_names, validate_changed_blocks};
 
@@ -79,6 +79,8 @@ pub struct WriteRequest {
     pub ops: Value,
     pub summary: String,
     pub mode: WriteMode,
+    /// On a dry run, report counts and risky entities instead of every entity and block change.
+    pub is_dry_run_brief: bool,
     pub source: WriteSource,
 }
 
@@ -89,6 +91,7 @@ impl WriteRequest {
             ops,
             summary,
             mode,
+            is_dry_run_brief: false,
             source: WriteSource::Derived {
                 exercise_copies: Vec::new(),
                 generated_blocks: HashSet::new(),
@@ -111,6 +114,7 @@ pub async fn commit(
         ops,
         summary,
         mode,
+        is_dry_run_brief,
         source,
     } = request;
     let validated = match &source {
@@ -205,6 +209,23 @@ pub async fn commit(
                 || view.staged.is_chapter_front_page(key.entity_id));
         entity
     });
+    if mode == WriteMode::DryRun && is_dry_run_brief {
+        let entities: Vec<ExplainedEntity> = entities.collect();
+        return Ok(WriteReport {
+            summary: StagingSummary::BriefDryRun(BriefDryRunSummary {
+                dry_run: true,
+                would_stage_count: entities.len(),
+                block_change_count: block_changes.len(),
+                risky_entities: entities
+                    .into_iter()
+                    .filter(|entity| !entity.risk_reasons.is_empty())
+                    .collect(),
+                unchanged_block_warnings,
+            }),
+            hints: Vec::new(),
+            after,
+        });
+    }
     if mode == WriteMode::DryRun {
         let would_stage = entities
             .map(|entity| DryRunEntity {

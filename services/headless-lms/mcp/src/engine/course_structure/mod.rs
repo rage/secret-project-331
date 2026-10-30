@@ -4,6 +4,7 @@
 mod editor;
 mod fields;
 mod model;
+mod outline;
 mod paths;
 
 use std::collections::{BTreeMap, HashMap};
@@ -16,6 +17,7 @@ use uuid::Uuid;
 use editor::StructureEditor;
 pub use model::{CourseStructure, StructureChapter, StructureModule, StructurePage};
 pub(crate) use model::{EntityRef, ListRef, Loc, RENDERED_KEYS, parse_structure_path};
+pub use outline::{StructureOutline, outline};
 pub use paths::LinkToOldPath;
 use paths::find_links_to_old_paths;
 

@@ -254,7 +254,7 @@ pub fn patch_course_structure<S>(handler: impl ToolHandler<S> + 'static) -> Tool
         PatchTarget::CourseStructure.tool_name(),
         concat!(
             "Edits modules, chapters and pages: add (a module, a chapter with an automatic front page, or a page, optionally with blocks, and with pair_with: the id of the published page it translates in another language version of the course), remove (+through), replace fields (module name; chapter name, color, opens_at, deadline; page title, url_path, hidden; remove sets nullable fields to null), move (+through), copy (page or chapter, new ids), reorder (value: all current ids in the new order). ",
-            "Paths: /course/modules, /course/pages, /<module id>/chapters, /<chapter id>/pages, /<id>, /<id>/<field>. The first page of a chapter is its front page; the course front page (/) and the default module stay first. Chapter numbers and paths are recomputed after each call; changed paths get redirects automatically. The only way to create pages.",
+            "Paths: /course/modules, /course/pages, /<module id>/chapters, /<chapter id>/pages, /<id>, /<id>/<field>. The first page of a chapter is its front page; the course front page (/) and the default module stay first. Chapter numbers and paths are recomputed after each call; changed paths get redirects automatically. The only way to create pages. dry_run: true returns an outline (outline: counts and one line per created, removed or changed chapter and page, with old and new paths, titles and positions; changed_paths: the redirects) instead of the full diff; detail: true adds the diff.",
             staging_note!()
         ),
         write("Edit course structure", true),

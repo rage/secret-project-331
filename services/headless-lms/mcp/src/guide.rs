@@ -61,6 +61,7 @@ patch_course_structure ops: replace fields (module name; chapter name, color, op
 - Chapter numbers and /chapter-N paths are recomputed after every call. A chapter page's url_path is its last segment, e.g. \"loops\" for /chapter-2/loops; the front page's path is always /chapter-N.
 - url_path is unique in the course after the call; paths can be swapped in one call. Changed paths get redirects automatically; removed pages get none.
 - A new page that translates a page of another language version of the course takes pair_with: <that page's id>; it joins that page's page_language_group_id at publish, so language switching links the two. The source page must be published, and the group can't already have a page in this course.
+- dry_run: true returns an outline of the changed chapters and pages (counts, then one line each: old -> new path, title, position) and the redirects; read it against your plan, as detail: true adds the full diff.
 - Pages with exercises stay inside chapters. Settings (completion, certificates) are edited with patch_course_settings.";
 
 const PUBLISHING_AND_RISK: &str = "\

@@ -200,6 +200,8 @@ struct TemplateBlock {
 
 #[derive(Serialize)]
 struct StructureSummary<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    outline: Option<&'a course_structure::StructureOutline>,
     created: Vec<CreatedStructure<'a>>,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     labels: &'a BTreeMap<String, Uuid>,
@@ -389,6 +391,9 @@ impl ToolHandler<McpState> for PatchCourseStructure {
         )
         .await?;
         let links = result.links_to_old_paths(&snapshots::page_refs(&after), &view.course.slug);
+        let outline = args
+            .dry_run
+            .then(|| course_structure::outline(&before, &result.structure, !args.detail));
         let copy_count = copies.len();
         let report = staging::commit(
             state,
@@ -400,6 +405,7 @@ impl ToolHandler<McpState> for PatchCourseStructure {
                     exercise_copies: copies,
                     generated_blocks,
                 },
+                is_dry_run_brief: !args.detail,
                 ..WriteRequest::new(
                     Value::Array(args.ops),
                     format!("{} structure op(s)", ops.len()),
@@ -437,6 +443,7 @@ impl ToolHandler<McpState> for PatchCourseStructure {
             })
             .collect();
         let summary = StructureSummary {
+            outline: outline.as_ref(),
             created,
             labels: &result.labels,
             warnings: &result.warnings,

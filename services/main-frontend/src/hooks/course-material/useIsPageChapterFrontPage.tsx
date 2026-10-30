@@ -10,7 +10,8 @@ import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOpt
 const useIsPageChapterFrontPage = (pageId: string | undefined) => {
   const viewParams = useAtomValue(viewParamsAtom)
   // A staged page may not exist yet, so the server cannot answer for it.
-  const stagedAnswer = viewParams?.type === "preview" ? viewParams.isChapterFrontPage : undefined
+  const stagedAnswer =
+    viewParams?.type === "preview" ? (viewParams.isChapterFrontPage ?? false) : undefined
   const isChapterFrontPageQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: pageId,

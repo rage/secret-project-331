@@ -28016,10 +28016,14 @@
       "PagePreview": {
         "type": "object",
         "description": "What the preview of a staged page renders.",
-        "required": ["course_name", "language_code", "page"],
+        "required": ["course_name", "language_code", "page", "is_chapter_front_page"],
         "properties": {
           "course_name": {
             "type": "string"
+          },
+          "is_chapter_front_page": {
+            "type": "boolean",
+            "description": "Whether the page is its chapter's front page, as staged."
           },
           "language_code": {
             "type": "string"

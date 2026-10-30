@@ -7,10 +7,13 @@ use utoipa::ToSchema;
 use crate::{
     agent_changeset_entities,
     agent_changesets::AgentChangeset,
-    error::missing_model_error,
+    error::{TryToOptional, missing_model_error},
     library::{
         agent_changesets::course_state::ExerciseReviewConfig,
-        entity_snapshots::{self, ContentEntityType, EntityKey, EntitySnapshot, PageSnapshot},
+        entity_snapshots::{
+            self, ChapterSnapshot, ContentEntity, ContentEntityType, EntityKey, EntitySnapshot,
+            PageSnapshot,
+        },
     },
     prelude::*,
 };
@@ -22,6 +25,8 @@ pub struct PagePreview {
     pub language_code: String,
     /// The page as staged, or as live if the changeset does not change it.
     pub page: PreviewPage,
+    /// Whether the page is its chapter's front page, as staged.
+    pub is_chapter_front_page: bool,
 }
 
 /// A page as students see it before answering anything. The preview needs no login, so exercise
@@ -181,10 +186,42 @@ pub async fn resolve_preview(
             }
         }
     }
+    let is_chapter_front_page = match page.chapter_id {
+        Some(chapter_id) => {
+            staged_front_page_id(conn, changeset, chapter_id).await? == Some(page.id)
+        }
+        None => false,
+    };
     let course = crate::courses::get_course(conn, changeset.course_id).await?;
     Ok(PagePreview {
         course_name: course.name,
         language_code: course.language_code,
         page,
+        is_chapter_front_page,
     })
+}
+
+/// The front page of chapter `chapter_id` as `changeset` stages it.
+async fn staged_front_page_id(
+    conn: &mut PgConnection,
+    changeset: &AgentChangeset,
+    chapter_id: Uuid,
+) -> ModelResult<Option<Uuid>> {
+    let staged = agent_changeset_entities::get_one(
+        conn,
+        changeset.id,
+        EntityKey::new(ContentEntityType::Chapter, chapter_id),
+    )
+    .await?;
+    if let Some(row) = staged {
+        return Ok(row
+            .after_snapshot
+            .as_ref()
+            .and_then(ChapterSnapshot::narrow)
+            .and_then(|chapter| chapter.front_page_id));
+    }
+    Ok(crate::chapters::get_chapter(conn, chapter_id)
+        .await
+        .optional()?
+        .and_then(|chapter| chapter.front_page_id))
 }

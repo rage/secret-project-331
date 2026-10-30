@@ -6,7 +6,6 @@ use utoipa::ToSchema;
 
 use crate::{
     agent_changeset_entities,
-    agent_changeset_entities::AgentChangesetEntity,
     agent_changesets::AgentChangeset,
     error::{TryToOptional, missing_model_error},
     library::{
@@ -239,30 +238,42 @@ pub async fn resolve_preview(
     })
 }
 
-/// The pages `changeset` adds or changes, in path order.
+/// The pages `changeset` adds or changes, in the order the staged course structure shows them.
 pub async fn changed_page_links(
     conn: &mut PgConnection,
     changeset: &AgentChangeset,
 ) -> ModelResult<Vec<PreviewPageLink>> {
     let rows = agent_changeset_entities::get_by_changeset_id(conn, changeset.id).await?;
-    Ok(changed_page_links_of(&rows))
-}
-
-fn changed_page_links_of(rows: &[AgentChangesetEntity]) -> Vec<PreviewPageLink> {
-    let mut links: Vec<PreviewPageLink> = rows
+    let changed: HashMap<Uuid, &PageSnapshot> = rows
         .iter()
         .filter_map(|row| match &row.after_snapshot {
-            Some(EntitySnapshot::Page(page)) => Some(PreviewPageLink {
-                id: page.id,
-                title: page.title.clone(),
-                url_path: page.url_path.clone(),
-                order_number: page.order_number,
-            }),
+            Some(EntitySnapshot::Page(page)) => Some((page.id, page)),
             _ => None,
         })
         .collect();
-    links.sort_by(|a, b| a.url_path.cmp(&b.url_path));
-    links
+    if changed.is_empty() {
+        return Ok(Vec::new());
+    }
+    let course = crate::courses::get_course(conn, changeset.course_id).await?;
+    let staged = load_live_course(conn, &course, CourseParts::All)
+        .await?
+        .overlay(&rows, CourseParts::All);
+    let chapters = staged
+        .modules_in_order()
+        .into_iter()
+        .flat_map(|module| staged.chapters_in_order(module.id))
+        .map(|chapter| Some(chapter.id));
+    Ok(std::iter::once(None)
+        .chain(chapters)
+        .flat_map(|chapter_id| staged.pages_in_order(chapter_id))
+        .filter_map(|page| changed.get(&page.id))
+        .map(|page| PreviewPageLink {
+            id: page.id,
+            title: page.title.clone(),
+            url_path: page.url_path.clone(),
+            order_number: page.order_number,
+        })
+        .collect())
 }
 
 /// What the preview link of the whole `changeset` renders: `page_id`, or the first changed page

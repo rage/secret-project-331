@@ -348,6 +348,7 @@
   "warning-heading-level-jump": "Vältä hyppäämästä tasolta H{{fromLevel}} tasolle H{{toLevel}}.",
   "warning-image-alt-placeholder": "Varoitus: Tästä kuvasta puuttuu kuvaava alt-teksti.",
   "warning-image-alt-placeholder-guidance": "Jos kuva on koristeellinen, valitse lohkon asetuksista \"Mark as decorative\" -valintaruutu. Muussa tapauksessa voit käyttää näitä vaiheita alt-tekstin määrittämiseen:",
+  "warning-image-google-docs": "Varoitus: Kuva on linkitetty Google Docsista, ja linkki lakkaa toimimasta. Lataa kuva asiakirjasta koneellesi ja lisää se tähän lohkoon.",
   "warning-mobile-background-missing": "Varoitus: Mobiili- tai suurempaa taustakuvaa ei ole asetettu, mutta muille näyttökokoille on määritetty taustakuvia. Mobiilitaustakuva toimii oletusvarana kaikille näyttökokoille. Jos haluat käyttää vain yhtä kuvaa, joka näkyisi kaikilla näyttökokoilla, lataa se mobiilitaustakuvaan tai suurempaan kuvaan.",
   "warning-paragraph-bold-line-looks-like-heading": "Varoitus: Tämä kappale on yksi lihavoitu rivi. Jos tarkoitit osion otsikkoa, harkitse Otsikko-lohkon käyttöä sen sijaan.",
   "warning-points-are-all-or-nothing-disabled": "Varoitus: Suositteleme, että pidät asetuksen pisteet on kaikki tai ei mitään päällä. Oppilaiden antamat vertaisarviot vaihtelevat suuresti laadultaan, mikä voi johtaa siihen, että oppilaat saavat joskus epäreiluja pisteitä tehtävästä. Tämän asetuksen käyttö vähentää satunnaisuutta saaduissa pisteissä, mikä tekee vertaisarviointiprosessista oikeudenmukaisemman oppilaille.",

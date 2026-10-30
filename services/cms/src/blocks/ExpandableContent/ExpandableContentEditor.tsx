@@ -9,7 +9,7 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/expandable-content-inner-block"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/expandable-content-inner-block"]
 const ExpandableContentEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
 > = () => {

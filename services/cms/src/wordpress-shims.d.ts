@@ -15,6 +15,7 @@ declare module "@wordpress/block-editor" {
   export const BlockList: any
   export const BlockTools: any
   export const ButtonBlockAppender: any
+  export const HeadingLevelDropdown: any
   export const InnerBlocks: any
   export const InspectorControls: any
   export const MediaPlaceholder: any

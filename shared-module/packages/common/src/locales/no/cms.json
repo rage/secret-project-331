@@ -257,6 +257,7 @@
   "warning-heading-level-jump": "Vennligst unngå å hoppe fra H{{fromLevel}} til H{{toLevel}}.",
   "warning-image-alt-placeholder": "Advarsel: Dette bildet mangler beskrivende alt-tekst.",
   "warning-image-alt-placeholder-guidance": "Hvis bildet er dekorativt, huk av avmerkingsboksen \"Mark as decorative\" i blokkinnstillingene. Ellers kan du bruke stegene her for å bestemme alt-teksten:",
+  "warning-image-google-docs": "Advarsel: Bildet er lenket fra Google Docs, og lenken vil slutte å virke. Last ned bildet fra dokumentet og last det opp til denne blokken.",
   "warning-mobile-background-missing": "Advarsel: Ingen mobil- eller større bakgrunnsbilde er satt, men andre skjermstørrelser har bakgrunnsbilder konfigurert. Mobilbakgrunnsbildet fungerer som standard feiltilfelle for alle skjermstørrelser. Hvis du ønsker å bruke bare ett bilde som vil vises på alle skjermstørrelser, last det opp til mobilbakgrunn eller feltet for større bilde.",
   "warning-paragraph-bold-line-looks-like-heading": "Advarsel: Dette avsnittet er én enkelt fet linje. Hvis du mente en seksjonstittel, bør du vurdere å bruke en Overskrift-blokk i stedet.",
   "warning-points-are-all-or-nothing-disabled": "Advarsel: Det anbefales å aktivere \"poeng er alt eller ingenting\". Medstudentvurderingene gitt av studenter varierer i kvalitet, noe som kan føre til at noen studenter mottar urettferdige poeng for oppgaven. Aktivering av dette alternativet reduserer tilfeldigheten i mottatte poeng, og gjør fagfellevurderingsprosessen mer rettferdig for studentene.",

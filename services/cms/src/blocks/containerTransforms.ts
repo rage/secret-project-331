@@ -1,4 +1,5 @@
 import { cloneBlock, createBlock } from "@wordpress/blocks"
+import { escape } from "lodash"
 
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
@@ -17,15 +18,9 @@ const EXPANDABLE_TITLE_LEVEL = 4
 interface BlockTransform {
   type: "block"
   blocks: string[]
+  // Gutenberg's types cover multi-block transforms; these are single-block, so `block` is one block.
   isMatch?: (attributes: unknown, block: BlockInstance | BlockInstance[]) => boolean
-  // Gutenberg types the arguments as unknown; they are the source block's attributes and inner blocks.
   transform: (attributes: unknown, innerBlocks: unknown) => BlockInstance
-}
-
-const textToHtml = (text: string) => {
-  const element = document.createElement("span")
-  element.textContent = text
-  return element.innerHTML
 }
 
 // An inert document, so markup such as <img onerror> in the content cannot run.
@@ -37,6 +32,19 @@ const cloneAll = (blocks: BlockInstance[]) => blocks.map((block) => cloneBlock(b
 const heading = (level: number, html: string) =>
   createBlock("core/heading", { level, content: html })
 
+const isHeading = (block: BlockInstance) => block.name === "core/heading"
+
+const shallowestHeadingLevel = (blocks: BlockInstance[]) =>
+  Math.min(
+    ...blocks.filter((block) => isHeading(block)).map((block) => Number(block.attributes.level)),
+  )
+
+/** Section titles must sit above the headings inside the sections for the content to split back. */
+function sectionTitleLevel(sections: BlockInstance[]) {
+  const innerLevel = shallowestHeadingLevel(sections.flatMap((section) => section.innerBlocks))
+  return Math.max(2, Math.min(EXPANDABLE_TITLE_LEVEL, innerLevel - 1))
+}
+
 /** The source's content as plain blocks, which the boxes that take any block accept. */
 function contentAsBlocks(
   sourceName: string,
@@ -44,14 +52,16 @@ function contentAsBlocks(
   innerBlocks: BlockInstance[],
 ): BlockInstance[] {
   switch (sourceName) {
-    case EXPANDABLE:
+    case EXPANDABLE: {
+      const titleLevel = sectionTitleLevel(innerBlocks)
       return innerBlocks.flatMap((section) => {
         const name = String(section.attributes.name ?? "").trim()
         return [
-          ...(name === "" ? [] : [heading(EXPANDABLE_TITLE_LEVEL, textToHtml(name))]),
+          ...(name === "" ? [] : [heading(titleLevel, escape(name))]),
           ...cloneAll(section.innerBlocks),
         ]
       })
+    }
     case ASIDE_WITH_IMAGE:
       return [
         ...(htmlToText(attributes.title) === ""
@@ -67,11 +77,15 @@ function contentAsBlocks(
   }
 }
 
-/** Each heading starts a section titled by it, so expandable → box → expandable round-trips. */
+/**
+ * Each heading of the shallowest level starts a section titled by its text; deeper headings stay
+ * inside the sections. Content before the first such heading becomes an untitled section.
+ */
 function blocksAsSections(blocks: BlockInstance[]): BlockInstance[] {
+  const titleLevel = shallowestHeadingLevel(blocks)
   const sections: { name: string; blocks: BlockInstance[] }[] = []
   for (const block of blocks) {
-    if (block.name === "core/heading") {
+    if (isHeading(block) && Number(block.attributes.level) === titleLevel) {
       sections.push({ name: htmlToText(block.attributes.content), blocks: [] })
     } else if (sections.length === 0) {
       sections.push({ name: "", blocks: [cloneBlock(block)] })
@@ -103,27 +117,25 @@ const toAnyContentBox = (target: string, sources: string[]): BlockTransform[] =>
       ),
   }))
 
-const CONTAINER_TRANSFORMS: Record<string, BlockTransform[]> = {
-  [INFOBOX]: toAnyContentBox(INFOBOX, [ASIDE, EXPANDABLE, ASIDE_WITH_IMAGE]),
-  [ASIDE]: toAnyContentBox(ASIDE, [INFOBOX, EXPANDABLE, ASIDE_WITH_IMAGE]),
-  [EXPANDABLE]: [
-    {
-      type: "block",
-      blocks: [INFOBOX, ASIDE],
-      // Offered only when nothing would be dropped by the sections' allowed blocks.
-      isMatch: (_attributes, block) =>
-        !Array.isArray(block) &&
-        block.innerBlocks.every((inner) => EXPANDABLE_SECTION_ALLOWED_BLOCKS.includes(inner.name)),
-      transform: (_attributes, innerBlocks) =>
-        createBlock(EXPANDABLE, {}, blocksAsSections(innerBlocks as BlockInstance[])),
-    },
-  ],
-}
-
 /**
- * "Transform to" options that turn another content container (info box, aside, aside with image,
- * expandable content) into `target`, keeping its content. Goes in the target block's
- * `transforms.from`.
+ * "Transform to" options on each content container (info box, aside, expandable content) that
+ * turn the other containers, and aside with image, into it, keeping their content. They go in the
+ * container's `transforms.from`.
  */
-export const containerTransformsTo = (target: string): BlockTransform[] =>
-  CONTAINER_TRANSFORMS[target] ?? []
+export const TRANSFORMS_TO_INFOBOX = toAnyContentBox(INFOBOX, [ASIDE, EXPANDABLE, ASIDE_WITH_IMAGE])
+
+export const TRANSFORMS_TO_ASIDE = toAnyContentBox(ASIDE, [INFOBOX, EXPANDABLE, ASIDE_WITH_IMAGE])
+
+export const TRANSFORMS_TO_EXPANDABLE: BlockTransform[] = [
+  {
+    type: "block",
+    blocks: [INFOBOX, ASIDE],
+    // A section would drop any other block.
+    isMatch: (_attributes, block) =>
+      (block as BlockInstance).innerBlocks.every((inner) =>
+        EXPANDABLE_SECTION_ALLOWED_BLOCKS.includes(inner.name),
+      ),
+    transform: (_attributes, innerBlocks) =>
+      createBlock(EXPANDABLE, {}, blocksAsSections(innerBlocks as BlockInstance[])),
+  },
+]

@@ -13,7 +13,11 @@ import {
 
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
-import { containerTransformsTo } from "../../src/blocks/containerTransforms"
+import {
+  TRANSFORMS_TO_ASIDE,
+  TRANSFORMS_TO_EXPANDABLE,
+  TRANSFORMS_TO_INFOBOX,
+} from "../../src/blocks/containerTransforms"
 
 // jsdom lacks TextEncoder, which block-library's dependencies use at import time.
 globalThis.TextEncoder = TextEncoder as typeof globalThis.TextEncoder
@@ -22,16 +26,15 @@ const { __experimentalGetCoreBlocks } = await import("@wordpress/block-library")
 const CORE_BLOCKS = ["core/paragraph", "core/heading", "core/image", "core/list", "core/table"]
 
 /** Only names, attributes and transforms matter here, so the course blocks are stand-ins. */
-const COURSE_BLOCKS: Record<string, Record<string, { type: string }>> = {
-  "moocfi/infobox": {},
-  "moocfi/aside": {},
-  "moocfi/expandable-content": {},
-  "moocfi/expandable-content-inner-block": { name: { type: "string" } },
-  "moocfi/aside-with-image": {
-    title: { type: "string" },
-    content: { type: "string" },
-    headingLevel: { type: "number" },
-  },
+const COURSE_BLOCKS: Record<string, [Record<string, { type: string }>, unknown[]]> = {
+  "moocfi/infobox": [{}, TRANSFORMS_TO_INFOBOX],
+  "moocfi/aside": [{}, TRANSFORMS_TO_ASIDE],
+  "moocfi/expandable-content": [{}, TRANSFORMS_TO_EXPANDABLE],
+  "moocfi/expandable-content-inner-block": [{ name: { type: "string" } }, []],
+  "moocfi/aside-with-image": [
+    { title: { type: "string" }, content: { type: "string" }, headingLevel: { type: "number" } },
+    [],
+  ],
 }
 
 beforeAll(() => {
@@ -40,14 +43,14 @@ beforeAll(() => {
       block.init()
     }
   }
-  for (const [name, attributes] of Object.entries(COURSE_BLOCKS)) {
+  for (const [name, [attributes, transforms]] of Object.entries(COURSE_BLOCKS)) {
     registerBlockType(name, {
       apiVersion: 3,
       title: name,
       category: "text",
       attributes,
       save: () => null,
-      transforms: { from: containerTransformsTo(name) },
+      transforms: { from: transforms },
     } as never)
   }
 })
@@ -121,6 +124,35 @@ describe("container block transforms", () => {
       ["core/paragraph", "One"],
       ["core/paragraph", "Two"],
     ])
+  })
+
+  it("keeps deeper headings inside the sections", () => {
+    const infobox = createBlock("moocfi/infobox", {}, [
+      heading("Example", 3),
+      heading("Step 1", 4),
+      paragraph("One"),
+    ])
+
+    expect(outline(switchTo(infobox, "moocfi/expandable-content"))).toEqual([
+      "moocfi/expandable-content",
+      [
+        "moocfi/expandable-content-inner-block",
+        "Example",
+        ["core/heading", "Step 1", 4],
+        ["core/paragraph", "One"],
+      ],
+    ])
+  })
+
+  it("keeps sections with headings inside them intact through a box and back", () => {
+    const expandable = createBlock("moocfi/expandable-content", {}, [
+      section("Setup", [heading("Windows", 3), paragraph("Install")]),
+      section("Use", [paragraph("Run")]),
+    ])
+
+    const roundTripped = switchTo(switchTo(expandable, "moocfi/aside"), "moocfi/expandable-content")
+
+    expect(outline(roundTripped)).toEqual(outline(expandable))
   })
 
   it("turns an aside with image into a box with its heading, image and text", () => {

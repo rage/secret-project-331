@@ -10,8 +10,9 @@ import { ImageInteractivityContext } from "../ImageInteractivityContext"
 // react-medium-image-zoom ships ESM that jest can't transform; mock it out.
 jest.mock("react-medium-image-zoom", () => ({
   __esModule: true,
-  // oxlint-disable-next-line react/jsx-no-useless-fragment -- a component mock must return an element, not bare ReactNode
-  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="zoom">{children}</div>
+  ),
 }))
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
@@ -62,12 +63,14 @@ describe("ImageBlock accessibility (issue #75)", () => {
 })
 
 describe("ImageBlock links", () => {
-  it("does not link an image to its own file, which the CMS adds by default", () => {
-    const { container } = renderBlock(
-      makeProps({ href: "https://example.com/photo.jpg", linkDestination: "media" }),
+  it("zooms an image linked to its own file instead of linking it", () => {
+    const { container, getByTestId } = render(
+      <ImageBlock
+        {...makeProps({ href: "https://example.com/photo.jpg", linkDestination: "media" })}
+      />,
     )
     expect(container.querySelector("a")).toBeNull()
-    expect(container.querySelector("img")).not.toBeNull()
+    expect(getByTestId("zoom")).toContainElement(container.querySelector("img"))
   })
 
   it("does not link an image whose custom link is its own file", () => {

@@ -10,22 +10,20 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { AsideWithImageBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
+import { ASIDE_HEADING_LEVELS, resolveAsideHeadingLevel } from "./headingLevel"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image"]
-const HEADING_LEVELS = [2, 3, 4, 5, 6]
-const DEFAULT_HEADING_LEVEL = 4
 
 const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
 > = ({ attributes: { title, content, headingLevel: storedHeadingLevel }, setAttributes }) => {
   const { t } = useTranslation()
-  // Blocks saved before the heading level existed have no value stored.
-  const headingLevel = storedHeadingLevel ?? DEFAULT_HEADING_LEVEL
+  const headingLevel = resolveAsideHeadingLevel(storedHeadingLevel)
   return (
     <BlockWrapper>
       <BlockControls>
         <HeadingLevelDropdown
-          options={HEADING_LEVELS}
+          options={ASIDE_HEADING_LEVELS}
           value={headingLevel}
           onChange={(level: number) => setAttributes({ headingLevel: level })}
         />

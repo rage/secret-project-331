@@ -1,5 +1,6 @@
 import { createBlock, getBlockAttributes } from "@wordpress/blocks"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 import { CODE_LANGUAGES } from "../codeLanguages"
@@ -80,10 +81,10 @@ const PASTE_TRANSFORMS: Record<string, object> = {
       const language = languageClass
         ? CODE_LANGUAGE_ALIASES[languageClass.toLowerCase()]
         : undefined
-      return createBlock("core/code", {
-        ...getBlockAttributes("core/code", node.outerHTML),
-        ...(language ? { language } : {}),
-      })
+      return createBlock(
+        "core/code",
+        omitUndefined({ ...getBlockAttributes("core/code", node.outerHTML), language }),
+      )
     },
   },
   "moocfi/latex": {

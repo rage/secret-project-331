@@ -47,6 +47,7 @@ describe("isGoogleDocsImageUrl", () => {
     expect(
       isGoogleDocsImageUrl("https://lh7-rt.googleusercontent.com/docsz/AD_4nXc1?key=abc"),
     ).toBe(true)
+    expect(isGoogleDocsImageUrl("https://lh7-us.googleusercontent.com/AD_4nXc1")).toBe(true)
   })
 
   it("ignores other images", () => {

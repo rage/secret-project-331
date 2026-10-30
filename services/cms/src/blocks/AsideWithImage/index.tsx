@@ -7,6 +7,7 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import AsideWithImageEditor from "./AsideWithImageEditor"
 import AsideWithImageSave from "./AsideWithImageSave"
+import { ASIDE_HEADING_LEVELS, DEFAULT_ASIDE_HEADING_LEVEL } from "./headingLevel"
 
 export interface AsideWithImageBlockAttributes {
   title: string
@@ -28,7 +29,8 @@ const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttribu
     },
     headingLevel: {
       type: "number",
-      default: 4,
+      enum: ASIDE_HEADING_LEVELS,
+      default: DEFAULT_ASIDE_HEADING_LEVEL,
     },
     content: {
       type: "string",

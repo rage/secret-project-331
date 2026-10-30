@@ -27,7 +27,10 @@ export const isGoogleDocsImageUrl = (url: unknown): boolean => {
   }
   try {
     const { hostname, pathname } = new URL(url)
-    return hostname.endsWith(".googleusercontent.com") && pathname.startsWith("/docs")
+    return (
+      hostname.endsWith(".googleusercontent.com") &&
+      (pathname.startsWith("/docs") || /^lh7-[a-z]+\./.test(hostname))
+    )
   } catch {
     return false
   }

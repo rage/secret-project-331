@@ -7,6 +7,7 @@ import { TextEncoder } from "util"
 import { getBlockType, pasteHandler, registerBlockType } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
 
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 import { coreBlocksToRegister } from "../../src/blocks/supportedGutenbergBlocks"
@@ -81,7 +82,7 @@ const summarize = (blocks: BlockInstance[]): PastedBlock[] =>
         return value !== undefined && value !== "" && value !== false
       }).map((key) => [key, String(block.attributes[key])]),
     ),
-    ...(block.innerBlocks.length > 0 ? { innerBlocks: summarize(block.innerBlocks) } : {}),
+    ...includeIf(block.innerBlocks.length > 0, { innerBlocks: summarize(block.innerBlocks) }),
   }))
 
 const OPTIONS = { canInsertDisplayMath: true, isFromVsCode: false }
@@ -94,12 +95,16 @@ const paste = (html: string): PastedBlock[] => {
 const katex = (tex: string) =>
   `<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi></mrow><annotation encoding="application/x-tex">${tex}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="mord mathnormal">E</span></span></span></span>`
 
-const pasteEvent = (plainText: string): ClipboardEvent => {
-  const data: Record<string, string> = { "text/plain": plainText, "text/html": "" }
+const richTextTarget = (): Element => {
   const paragraph = document.createElement("p")
   paragraph.setAttribute("contenteditable", "true")
+  return paragraph
+}
+
+const pasteEvent = (plainText: string, target: Element = richTextTarget()): ClipboardEvent => {
+  const data: Record<string, string> = { "text/plain": plainText, "text/html": "" }
   return {
-    target: paragraph,
+    target,
     clipboardData: { getData: (format: string) => data[format] ?? "" },
   } as unknown as ClipboardEvent
 }
@@ -300,6 +305,26 @@ describe("pasted plain-text TeX", () => {
   it("needs Gutenberg's own math block to stay unregistered", () => {
     // Registering it would skip the stand-in and paste blocks the course material cannot show.
     expect(coreBlocksToRegister).not.toContain("core/math")
+  })
+
+  it("also replaces a block selected as a whole", () => {
+    const blockWrapper = document.createElement("div")
+    blockWrapper.setAttribute("data-block", "abc")
+    const event = pasteEvent("\\frac{a}{b} + x^2", blockWrapper)
+    normalizePasteEvent(event)
+    expect(event.clipboardData?.getData("text/html")).toContain("data-pasted-latex")
+  })
+
+  it("leaves code blocks and form fields alone", () => {
+    const codeBlock = document.createElement("div")
+    codeBlock.setAttribute("data-type", "core/code")
+    codeBlock.append(richTextTarget())
+    const field = document.createElement("input")
+    for (const target of [codeBlock.firstElementChild as Element, field]) {
+      const event = pasteEvent("\\frac{a}{b} + x^2", target)
+      normalizePasteEvent(event)
+      expect(event.clipboardData?.getData("text/html")).toBe("")
+    }
   })
 
   it("leaves ordinary text alone", () => {

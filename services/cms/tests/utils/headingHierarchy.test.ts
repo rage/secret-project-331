@@ -101,6 +101,15 @@ describe("analyzeHeadingHierarchy", () => {
     ])
   })
 
+  it("treats an out-of-range aside heading level as the h4 it renders as", () => {
+    const blocks = [
+      createBlock("hero", "moocfi/hero-section", { title: "Page title" }),
+      createBlock("aside", "moocfi/aside-with-image", { title: "Aside", headingLevel: 1 }),
+    ]
+
+    expect(analyzeHeadingHierarchy(blocks).map((entry) => entry.level)).toEqual([1, 4])
+  })
+
   it("uses the aside with image's chosen heading level", () => {
     const blocks = [
       createBlock("hero", "moocfi/hero-section", { title: "Page title" }),

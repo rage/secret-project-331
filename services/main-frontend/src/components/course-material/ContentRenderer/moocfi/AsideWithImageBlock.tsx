@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import ParsedText from "@/components/course-material/ParsedText"
-import { primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -25,7 +25,7 @@ const headingStyles = css`
   margin-bottom: 1.125rem;
   font-weight: 550;
   font-size: 1.5rem;
-  color: #1a2333;
+  color: ${baseTheme.colors.gray[700]};
 `
 
 const AsideWithImageBlock: React.FC<

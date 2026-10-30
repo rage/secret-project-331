@@ -55,10 +55,11 @@ function latexHtml(tex: string, canInsertDisplayMath: boolean): string {
 const PLAIN_TEXT_PASTE_TARGETS =
   '[data-type="core/code"], [data-type="core/preformatted"], [data-type="core/html"]'
 
-const isRichTextTarget = (target: EventTarget | null): boolean =>
+/** Rich text, or a block selected as a whole, which Gutenberg replaces with the pasted blocks. */
+const isBlockPasteTarget = (target: EventTarget | null): boolean =>
   target instanceof Element &&
-  target.closest('[contenteditable="true"]') !== null &&
-  target.closest(PLAIN_TEXT_PASTE_TARGETS) === null
+  target.closest('[contenteditable="true"], [data-block]') !== null &&
+  target.closest(`input, textarea, ${PLAIN_TEXT_PASTE_TARGETS}`) === null
 
 /**
  * Hands Gutenberg's paste handling normalized clipboard HTML (see `normalizePastedHtml`), and
@@ -81,7 +82,7 @@ export function normalizePasteEvent(event: ClipboardEvent): void {
       isFromVsCode: vsCodeData !== "",
       vsCodeLanguage: readVsCodeLanguage(vsCodeData),
     })
-  } else if (plainText && isRichTextTarget(event.target) && getBlockType(GUTENBERG_MATH_BLOCK)) {
+  } else if (plainText && isBlockPasteTarget(event.target) && getBlockType(GUTENBERG_MATH_BLOCK)) {
     const tex = getPlainTextLatex(plainText)
     if (tex !== null) {
       normalizedHtml = latexHtml(tex, canInsertDisplayMath)

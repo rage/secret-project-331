@@ -5305,6 +5305,10 @@ export type PagePreview = {
    * Whether the page is its chapter's front page, as staged.
    */
   is_chapter_front_page: boolean
+  /**
+   * Whether the preview shows the published course rather than a changeset's staged state.
+   */
+  is_published_state: boolean
   language_code: string
   /**
    * The page as staged, or as live if the changeset does not change it.

@@ -149,6 +149,8 @@
   "agent-page-content-unchanged": "Sivun sisältö ei muutu.",
   "agent-preview-banner": "Julkaisemattomien muutosten esikatselu.",
   "agent-preview-banner-course": "Opiskelijat eivät vielä näe tätä versiota. Kurssi: {{course}}",
+  "agent-preview-banner-course-published": "Kurssi: {{course}}",
+  "agent-preview-banner-published": "Julkaistun kurssin esikatselu.",
   "agent-preview-block-name-chapter-progress": "Luvun edistyminen",
   "agent-preview-block-name-chatbot": "Keskustelurobotti",
   "agent-preview-block-name-code-giveaway": "Koodien jakaminen",

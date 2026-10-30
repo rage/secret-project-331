@@ -63,10 +63,17 @@ function AgentPreviewPage() {
             margin: 0;
           `}
         >
-          {t("agent-preview-banner")}
+          {previewQuery.data?.is_published_state
+            ? t("agent-preview-banner-published")
+            : t("agent-preview-banner")}
         </h1>{" "}
         {previewQuery.data &&
-          t("agent-preview-banner-course", { course: previewQuery.data.course_name })}
+          t(
+            previewQuery.data.is_published_state
+              ? "agent-preview-banner-course-published"
+              : "agent-preview-banner-course",
+            { course: previewQuery.data.course_name },
+          )}
       </header>
       <main
         className={css`

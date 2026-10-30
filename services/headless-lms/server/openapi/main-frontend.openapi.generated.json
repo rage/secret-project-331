@@ -28031,6 +28031,7 @@
           "language_code",
           "page",
           "is_chapter_front_page",
+          "is_published_state",
           "references",
           "changed_pages",
           "chapter_pages"
@@ -28056,6 +28057,10 @@
           "is_chapter_front_page": {
             "type": "boolean",
             "description": "Whether the page is its chapter's front page, as staged."
+          },
+          "is_published_state": {
+            "type": "boolean",
+            "description": "Whether the preview shows the published course rather than a changeset's staged state."
           },
           "language_code": {
             "type": "string"

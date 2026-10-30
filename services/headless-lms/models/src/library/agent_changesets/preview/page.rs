@@ -27,6 +27,8 @@ pub struct PagePreview {
     pub page: PreviewPage,
     /// Whether the page is its chapter's front page, as staged.
     pub is_chapter_front_page: bool,
+    /// Whether the preview shows the published course rather than a changeset's staged state.
+    pub is_published_state: bool,
     /// The course's references, with the changeset's staged changes applied if there is one.
     pub references: Vec<PreviewReference>,
     /// The pages the link switches between: the changeset's added or changed pages, or all pages
@@ -168,7 +170,9 @@ pub async fn resolve_published_preview(
     course_id: Uuid,
     page_id: Uuid,
 ) -> ModelResult<PagePreview> {
-    render_page(conn, course_id, &[], page_id).await
+    let mut preview = render_page(conn, course_id, &[], page_id).await?;
+    preview.is_published_state = true;
+    Ok(preview)
 }
 
 fn ensure_open(changeset: &AgentChangeset) -> ModelResult<()> {
@@ -260,6 +264,7 @@ async fn render_page(
         language_code: course.language_code,
         page,
         is_chapter_front_page,
+        is_published_state: false,
         references,
         changed_pages: Vec::new(),
         chapter_pages: Vec::new(),
@@ -335,7 +340,9 @@ pub async fn resolve_published_course_preview(
     course_id: Uuid,
     page_id: Option<Uuid>,
 ) -> ModelResult<PagePreview> {
-    render_with_page_links(conn, course_id, &[], false, page_id).await
+    let mut preview = render_with_page_links(conn, course_id, &[], false, page_id).await?;
+    preview.is_published_state = true;
+    Ok(preview)
 }
 
 async fn render_with_page_links(

@@ -4837,6 +4837,7 @@ export const zPagePreview = z.object({
   chapter_pages: z.array(zPreviewPageLink),
   course_name: z.string(),
   is_chapter_front_page: z.boolean(),
+  is_published_state: z.boolean(),
   language_code: z.string(),
   page: zPreviewPage,
   references: z.array(zPreviewReference),

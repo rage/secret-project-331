@@ -150,6 +150,8 @@
   "agent-page-content-unchanged": "The content of the page does not change.",
   "agent-preview-banner": "Preview of unpublished changes.",
   "agent-preview-banner-course": "Students do not see this version yet. Course: {{course}}",
+  "agent-preview-banner-course-published": "Course: {{course}}",
+  "agent-preview-banner-published": "Preview of the published course.",
   "agent-preview-block-name-chapter-progress": "Chapter progress",
   "agent-preview-block-name-chatbot": "Chatbot",
   "agent-preview-block-name-code-giveaway": "Code giveaway",

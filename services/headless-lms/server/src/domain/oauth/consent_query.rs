@@ -1,3 +1,4 @@
+use super::resource_indicator::ResourceIndicator;
 use crate::prelude::*;
 use utoipa::ToSchema;
 
@@ -14,4 +15,8 @@ pub struct ConsentQuery {
     pub code_challenge: Option<String>,
     #[serde(default)]
     pub code_challenge_method: Option<String>,
+    /// RFC 8707 resource indicator of the authorization request, passed back to `/authorize`.
+    #[serde(default)]
+    #[schema(value_type = Option<String>)]
+    pub resource: Option<ResourceIndicator>,
 }

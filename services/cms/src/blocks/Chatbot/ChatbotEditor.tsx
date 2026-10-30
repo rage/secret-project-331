@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React, { useContext, useEffect } from "react"
 
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -16,8 +15,6 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import type { ChatbotBlockAttributes } from "."
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-const ALLOWED_NESTED_BLOCKS = [""]
 
 const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBlockAttributes>>> = ({
   attributes,
@@ -102,8 +99,6 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
           />
         )}
       </QueryResult>
-
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>
   )
 }

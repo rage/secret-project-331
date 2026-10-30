@@ -91,6 +91,7 @@ export const CERTIFICATE_DETOUR_COURSE_SLUG = "credit-registration-certificate-d
 /** Must match the `*_COURSE_ID` constants in `mock_suotar::fixtures`. */
 export const SUOTAR_COURSE_ID = "c5ed17ea-0001-4a5e-9e6e-c0de00000001"
 export const SUOTAR_B_COURSE_ID = "c5ed17ea-0003-4a5e-9e6e-c0de00000003"
+export const IMPORT_OUTCOMES_COURSE_ID = "c5ed17ea-0004-4a5e-9e6e-c0de00000004"
 export const GRADE_IMPROVEMENT_COURSE_ID = "c5ed17ea-0005-4a5e-9e6e-c0de00000005"
 export const ADMIN_COURSE_ID = "c5ed17ea-0006-4a5e-9e6e-c0de00000006"
 export const STATES_COURSE_ID = "c5ed17ea-0007-4a5e-9e6e-c0de00000007"

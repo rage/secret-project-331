@@ -290,7 +290,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CmsPeerOrSelfReviewConfiguration"
+                  "$ref": "#/components/schemas/VersionedCmsPeerOrSelfReviewConfiguration"
                 }
               }
             }
@@ -316,7 +316,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CmsPeerOrSelfReviewConfiguration"
+                "$ref": "#/components/schemas/CmsPeerOrSelfReviewConfigurationSave"
               }
             }
           },
@@ -328,10 +328,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CmsPeerOrSelfReviewConfiguration"
+                  "$ref": "#/components/schemas/VersionedCmsPeerOrSelfReviewConfiguration"
                 }
               }
             }
+          },
+          "422": {
+            "description": "`stale_version`: the configuration changed after the editor loaded it"
           }
         }
       }
@@ -1010,7 +1013,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CmsPageUpdate"
+                "$ref": "#/components/schemas/CmsPageSave"
               }
             }
           },
@@ -1026,6 +1029,9 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "`stale_version`: the page changed after the editor loaded it"
           }
         }
       }
@@ -1141,6 +1147,44 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/pending-agent-changes": {
+      "get": {
+        "tags": ["cms_pages"],
+        "summary": "\nGET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has\nunpublished AI agent changes on the page, for the notice in the page editor. `null` if not.",
+        "operationId": "getCmsPagePendingAgentChanges",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The open changeset changing the page, if any",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AgentChangeset"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/repository-exercises/{course_id}": {
       "get": {
         "tags": ["cms_repository_exercises"],
@@ -1227,6 +1271,63 @@
   },
   "components": {
     "schemas": {
+      "AgentChangeset": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "course_id",
+          "status",
+          "expires_at",
+          "revision"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "published_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Incremented by every change to the staged entities; see [`increment_revision`]."
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentChangesetStatus",
+            "description": "The status now: `Expired` for an open changeset past `expires_at`, which the table records\nonly at the next write to the course."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The only user who can publish or discard the changeset."
+          }
+        }
+      },
+      "AgentChangesetStatus": {
+        "type": "string",
+        "enum": ["open", "published", "discarded", "expired"]
+      },
       "AutomaticCompletionRequirements": {
         "type": "object",
         "required": ["course_module_id", "requires_exam"],
@@ -1248,6 +1349,142 @@
             "type": "boolean"
           }
         }
+      },
+      "BlockSchema": {
+        "type": "object",
+        "description": "One block type's registration: its attributes, where it may be nested and an example.",
+        "required": ["title", "description", "attributes", "example"],
+        "properties": {
+          "allowed_children": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            },
+            "description": "None means any block the page allows; empty means no inner blocks."
+          },
+          "allowed_parents": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            },
+            "description": "`\"root\"` means the page's top level; None means anywhere the parent allows."
+          },
+          "attributes": {
+            "type": "object",
+            "description": "JSON Schema per attribute; rich text carries `x-rich-text` and `x-rich-text-formats`."
+          },
+          "description": {
+            "type": "string"
+          },
+          "example": {},
+          "template": {},
+          "template_lock": {},
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "BlockSchemas": {
+        "type": "object",
+        "description": "The CMS's export of block registrations, the single source of block schemas, from\n`GET /api/agent/block-schemas`.",
+        "required": [
+          "version",
+          "page_types",
+          "course_feature_gated_blocks",
+          "rich_text_formats",
+          "blocks",
+          "max_request_bytes"
+        ],
+        "properties": {
+          "blocks": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BlockSchema"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "course_feature_gated_blocks": {
+            "type": "object",
+            "description": "Block name to the course setting that enables it.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/CourseBlockFeature"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "max_request_bytes": {
+            "type": "integer",
+            "description": "The largest `validate-blocks` request body the validator takes.",
+            "minimum": 0
+          },
+          "page_types": {
+            "type": "object",
+            "description": "The blocks agents may write on each page type.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string",
+              "description": "The editor (and validator) context a page's blocks are checked against. A chapter's front\npage takes the same blocks as its other pages.",
+              "enum": ["course-page", "top-level-page", "course-front-page"]
+            }
+          },
+          "rich_text_formats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RichTextFormat"
+            }
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "BlockValidationError": {
+        "type": "object",
+        "description": "A problem the validator found in a block, with how to fix it.",
+        "required": ["path", "code", "message", "fix"],
+        "properties": {
+          "clientId": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` only when the block has no usable client id; `path` then starts at the request."
+          },
+          "code": {
+            "$ref": "#/components/schemas/BlockValidationErrorCode"
+          },
+          "fix": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "path": {
+            "type": "array",
+            "items": {},
+            "description": "Attribute path inside the block, e.g. `[\"attributes\", \"content\"]`."
+          }
+        }
+      },
+      "BlockValidationErrorCode": {
+        "type": "string",
+        "description": "What kind of rule a block breaks.",
+        "enum": [
+          "invalid_block",
+          "duplicate_client_id",
+          "unknown_block",
+          "not_allowed_here",
+          "invalid_nesting",
+          "invalid_attribute",
+          "forbidden_attribute",
+          "disallowed_markup"
+        ]
       },
       "ChartSpecGenerationRequest": {
         "type": "object",
@@ -1541,6 +1778,23 @@
           }
         }
       },
+      "CmsPageSave": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CmsPageUpdate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "expected_updated_at": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              }
+            }
+          }
+        ],
+        "description": "A CMS page save. It is refused as stale when `expected_updated_at` is set and the page has\nchanged since that version; leave it unset to overwrite."
+      },
       "CmsPageUpdate": {
         "type": "object",
         "required": [
@@ -1655,6 +1909,23 @@
             }
           }
         }
+      },
+      "CmsPeerOrSelfReviewConfigurationSave": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CmsPeerOrSelfReviewConfiguration"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "expected_updated_at": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              }
+            }
+          }
+        ],
+        "description": "Save of a course's default configuration. A save is refused as stale when `expected_updated_at`\nis set and the configuration has changed since that version; leave it unset to overwrite."
       },
       "CmsPeerOrSelfReviewQuestion": {
         "type": "object",
@@ -1945,6 +2216,26 @@
         "type": "string",
         "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
         "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
+      },
+      "CourseBlockFeature": {
+        "type": "string",
+        "description": "The name of one of the course settings in [`CourseBlockFeatures`].",
+        "enum": ["chapter_locking_enabled", "can_add_chatbot"]
+      },
+      "CourseBlockFeatures": {
+        "type": "object",
+        "description": "The course settings that make blocks available, named as in the course settings.",
+        "required": ["chapter_locking_enabled", "can_add_chatbot"],
+        "properties": {
+          "can_add_chatbot": {
+            "type": "boolean",
+            "description": "Gates `moocfi/chatbot`."
+          },
+          "chapter_locking_enabled": {
+            "type": "boolean",
+            "description": "Gates `moocfi/lock-chapter`."
+          }
+        }
       },
       "CourseInstance": {
         "type": "object",
@@ -2261,6 +2552,11 @@
           "instructions": {}
         }
       },
+      "ExerciseContext": {
+        "type": "string",
+        "description": "The exercise block a list of blocks is validated as the children of.",
+        "enum": ["task_instructions", "review_instructions"]
+      },
       "ExerciseServiceIframeRenderingInfo": {
         "type": "object",
         "description": "Exercise service definition that the CMS can use to render the editor view.",
@@ -2512,6 +2808,38 @@
           }
         }
       },
+      "PageType": {
+        "type": "string",
+        "description": "The editor (and validator) context a page's blocks are checked against. A chapter's front\npage takes the same blocks as its other pages.",
+        "enum": ["course-page", "top-level-page", "course-front-page"]
+      },
+      "PageValidationRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ValidationTarget"
+          },
+          {
+            "type": "object",
+            "required": ["blocks"],
+            "properties": {
+              "blocks": {
+                "type": "array",
+                "items": {},
+                "description": "Full top-level trees: nested blocks are checked in their ancestors' context. Untyped in the\nschema because checking their shape is the validator's job."
+              },
+              "unchanged_client_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": "Blocks in `blocks` that are as published: the teacher wrote them, so the validator spares\nthem the rules on what agents may write and reports their other problems as warnings."
+              }
+            }
+          }
+        ],
+        "description": "One list of blocks to validate: a page's, or an exercise's instructions."
+      },
       "ParagraphSuggestionAction": {
         "type": "string",
         "enum": [
@@ -2742,6 +3070,22 @@
           }
         }
       },
+      "RichTextFormat": {
+        "type": "object",
+        "description": "An inline format rich text may use, and the tag it is stored as.",
+        "required": ["name", "tag", "description"],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          }
+        }
+      },
       "ToolCategory": {
         "type": "string",
         "description": "A category of chatbot tools a configuration can choose to offer the LLM. Independent of the\nchatbot crate's per-tool `ToolPermission` check: a category answers \"does this chatbot offer\nthis kind of tool\", not \"may this caller use it\".",
@@ -2766,9 +3110,106 @@
           }
         }
       },
+      "ValidateBlocksRequest": {
+        "type": "object",
+        "description": "The body of the CMS's `POST /api/agent/validate-blocks`: one HTTP request's share of the pages\na write call validates, its pages already serialized.",
+        "required": ["pages", "course_features"],
+        "properties": {
+          "course_features": {
+            "$ref": "#/components/schemas/CourseBlockFeatures"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageValidationRequest"
+            }
+          }
+        }
+      },
+      "ValidateBlocksResponse": {
+        "type": "object",
+        "description": "The answer of the CMS's `POST /api/agent/validate-blocks`, a verdict per page in request order.",
+        "required": ["pages"],
+        "properties": {
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationOutcome"
+            }
+          }
+        }
+      },
+      "ValidationOutcome": {
+        "type": "object",
+        "description": "The validator's verdict on one page: valid when `errors` is empty.",
+        "required": ["blocks", "errors", "warnings"],
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "items": {},
+            "description": "The blocks in request order, normalised the way the editor stores them."
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockValidationError"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlockValidationError"
+            },
+            "description": "Problems of unchanged blocks, which never fail a write."
+          }
+        }
+      },
+      "ValidationTarget": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The top level of a page.",
+            "required": ["page_type"],
+            "properties": {
+              "page_type": {
+                "$ref": "#/components/schemas/PageType"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The children of an exercise block; `blocks` are its inner blocks, not a page.",
+            "required": ["exercise_context"],
+            "properties": {
+              "exercise_context": {
+                "$ref": "#/components/schemas/ExerciseContext"
+              }
+            }
+          }
+        ],
+        "description": "Where the validated blocks sit, which decides the blocks they may use."
+      },
       "VerbosityLevel": {
         "type": "string",
         "enum": ["low", "medium", "high"]
+      },
+      "VersionedCmsPeerOrSelfReviewConfiguration": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CmsPeerOrSelfReviewConfiguration"
+          },
+          {
+            "type": "object",
+            "required": ["updated_at"],
+            "properties": {
+              "updated_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ],
+        "description": "A course's default configuration as the CMS loaded it. `updated_at` is the version the editor\nsends back on save."
       }
     }
   }

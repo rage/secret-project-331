@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React, { useContext, useEffect, useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
 
@@ -10,6 +10,7 @@ import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import { getCmsCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { Select } from "@/shared-module/components"
 import type { SelectOption } from "@/shared-module/components"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -17,15 +18,6 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import type { ConditionAttributes } from "."
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/buttons",
-  "core/button",
-  "core/paragraph",
-  "core/image",
-  "core/embed",
-]
 
 const CODE_GIVEAWAY_FIELD_NAME = "codeGiveawayId" as const
 /** code-giveaway.spec.ts locates the select by this; its accessible name changes with the value. */
@@ -168,7 +160,7 @@ const CodeGiveawayBlockEditor: React.FC<
         )}
       </InspectorControls>
       <InnerBlocksWrapper title={t("instructions")}>
-        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+        <RegisteredInnerBlocks />
       </InnerBlocksWrapper>
     </BlockPlaceholderWrapper>
   )

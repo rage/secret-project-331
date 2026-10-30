@@ -1,0 +1,40 @@
+{
+  "citations": [
+    { "text": "See \\cite{knuth1984}.", "keys": ["knuth1984"] },
+    { "text": "\\cite[p. 3]{a} and \\cite[see][ch. 2]{b}", "keys": ["a", "b"] },
+    { "text": "[latex]x = \\cite{inside}[/latex] then \\cite{outside}", "keys": ["outside"] },
+    { "text": "<p>\\cite{a&amp;b}</p>", "keys": ["a&b"] },
+    { "text": "No citations here.", "keys": [] }
+  ],
+  "terms": [
+    { "text": "An algorithm here", "term": "algorithm", "is_used": true },
+    { "text": "Algorithms everywhere", "term": "algorithm", "is_used": false },
+    { "text": "algorithmic thinking", "term": "algorithm", "is_used": false },
+    { "text": "An Algorithm here", "term": "algorithm", "is_used": false },
+    { "text": "two-word term inside", "term": "word term", "is_used": true },
+    { "text": "Tekoäly oppii", "term": "äly", "is_used": false },
+    { "text": "Tekoäly oppii", "term": "Teko", "is_used": false },
+    { "text": "Kun äly ei riitä", "term": "äly", "is_used": true },
+    { "text": "Päivä on pitkä", "term": "Päivä", "is_used": true },
+    { "text": "Ääni kuuluu", "term": "Ääni", "is_used": true },
+    { "text": "Äänikirja kuuluu", "term": "Ääni", "is_used": false },
+    { "text": "Write C++ code", "term": "C++", "is_used": true },
+    { "text": "Kesä-yö on valoisa", "term": "yö", "is_used": true },
+    { "text": "Työyö on pitkä", "term": "yö", "is_used": false },
+    {
+      "text": "Markup splits <em>teko</em>äly",
+      "term": "teko",
+      "is_used": true,
+      "note": "a tag is a word edge, so a word split by markup matches in parts"
+    }
+  ],
+  "term_divergences": [
+    {
+      "text": "&auml;ly on",
+      "term": "äly",
+      "renderer": true,
+      "mcp": false,
+      "note": "the renderer matches decoded text; the MCP tools match the stored HTML"
+    }
+  ]
+}

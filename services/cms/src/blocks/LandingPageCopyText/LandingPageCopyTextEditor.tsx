@@ -1,47 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { headingFont } from "@/shared-module/common/styles"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/table",
-  "core/paragraph",
-  "core/heading",
-  "core/list",
-  "core/quote",
-]
-
-const LANDING_PAGE_COPY_TEXT_TEMPLATE: Template[] = [
-  [
-    "core/columns",
-    { isStackedOnMobile: true },
-    [
-      [
-        "core/column",
-        {},
-        [
-          [
-            "core/heading",
-            {
-              placeholder: "About this course",
-              level: 3,
-              textAlign: "left",
-              anchor: "about-this-course",
-            },
-          ],
-          ["core/paragraph", { placeholder: "Insert text...", align: "left" }],
-        ],
-      ],
-    ],
-  ],
-]
 
 const LandingPageCopyTextEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, unknown>>>
@@ -66,10 +33,7 @@ const LandingPageCopyTextEditor: React.FC<
             {t("landing-page-copy-text")}
           </h2>
         </div>
-        <InnerBlocks
-          allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          template={LANDING_PAGE_COPY_TEXT_TEMPLATE}
-        />
+        <RegisteredInnerBlocks />
       </div>
     </BlockWrapper>
   )

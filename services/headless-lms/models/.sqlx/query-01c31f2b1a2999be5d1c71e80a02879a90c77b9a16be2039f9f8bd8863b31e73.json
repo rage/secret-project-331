@@ -1,0 +1,136 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE agent_changesets\nSET status = 'published',\n  published_at = now()\nWHERE id = $1\n  AND agent_changeset_is_open(status, expires_at)\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "agent_changeset_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "published",
+                "discarded",
+                "expired"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "published_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "published_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "revision",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "revision"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "01c31f2b1a2999be5d1c71e80a02879a90c77b9a16be2039f9f8bd8863b31e73"
+}

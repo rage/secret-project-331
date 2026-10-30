@@ -15,6 +15,8 @@ const ExpandableContentConfiguration: BlockConfiguration = {
   description: ExpandableContent,
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  // oxlint-disable-next-line i18next/no-literal-string
+  allowedBlocks: ["moocfi/expandable-content-inner-block"],
   edit: ExpandableContentEditor,
   save: ExpandableContentSave,
 }

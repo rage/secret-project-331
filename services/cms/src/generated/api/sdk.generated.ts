@@ -52,6 +52,8 @@ import type {
   GetCmsPageInfoResponses,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponses,
+  GetCmsPagePendingAgentChangesData,
+  GetCmsPagePendingAgentChangesResponses,
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
@@ -66,12 +68,14 @@ import type {
   SendCmsEmailTemplateTestData,
   SendCmsEmailTemplateTestResponses,
   UpdateCmsCourseDefaultPeerReviewData,
+  UpdateCmsCourseDefaultPeerReviewErrors,
   UpdateCmsCourseDefaultPeerReviewResponses,
   UpdateCmsEmailTemplateData,
   UpdateCmsEmailTemplateResponses,
   UpdateCmsExamInstructionsData,
   UpdateCmsExamInstructionsResponses,
   UpdateCmsPageData,
+  UpdateCmsPageErrors,
   UpdateCmsPageResponses,
   UploadCmsCourseMediaData,
   UploadCmsCourseMediaResponses,
@@ -104,6 +108,7 @@ import {
   zGetCmsExerciseServicesResponse,
   zGetCmsPageInfoResponse,
   zGetCmsPageNavigationResponse,
+  zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
@@ -309,10 +314,15 @@ export const getCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = tru
 
 export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsCourseDefaultPeerReviewData, ThrowOnError>,
-): RequestResult<UpdateCmsCourseDefaultPeerReviewResponses, unknown, ThrowOnError, "data"> =>
+): RequestResult<
+  UpdateCmsCourseDefaultPeerReviewResponses,
+  UpdateCmsCourseDefaultPeerReviewErrors,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).put<
     UpdateCmsCourseDefaultPeerReviewResponses,
-    unknown,
+    UpdateCmsCourseDefaultPeerReviewErrors,
     ThrowOnError,
     "data"
   >({
@@ -723,17 +733,19 @@ export const getCmsPage = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsPage = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsPageData, ThrowOnError>,
-): RequestResult<UpdateCmsPageResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<UpdateCmsPageResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/pages/{page_id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
+): RequestResult<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/cms/pages/{page_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
     },
-  })
+  )
 
 /**
  *
@@ -788,6 +800,27 @@ export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCmsPageNavigationResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/page-navigation",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+ * unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+ */
+export const getCmsPagePendingAgentChanges = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPagePendingAgentChangesData, ThrowOnError>,
+): RequestResult<GetCmsPagePendingAgentChangesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPagePendingAgentChangesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCmsPagePendingAgentChangesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/pending-agent-changes",
     ...options,
   })
 

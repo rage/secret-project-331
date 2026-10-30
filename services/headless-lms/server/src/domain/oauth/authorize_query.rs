@@ -1,6 +1,8 @@
+use super::helpers::{oauth_error, oauth_invalid_request};
 use super::oauth_validate::OAuthValidate;
+use super::resource_indicator::ResourceIndicator;
 use crate::prelude::*;
-use domain::error::{OAuthErrorCode, OAuthErrorData};
+use domain::error::OAuthErrorCode;
 use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Default)]
@@ -15,6 +17,7 @@ pub struct AuthorizeQuery {
     pub code_challenge_method: Option<String>,
 
     pub prompt: Option<String>,
+    pub resource: Option<ResourceIndicator>,
     // Request is not supported, but we capture it so we can return "not supported" error
     pub request: Option<String>,
 
@@ -36,6 +39,7 @@ pub struct AuthorizeParams {
     pub code_challenge_method: Option<String>,
     pub prompt: Option<String>,
     pub request: Option<String>,
+    pub resource: Option<ResourceIndicator>,
 }
 
 // We need to make sure we don't return errors directly, instead we need to return
@@ -51,51 +55,33 @@ impl OAuthValidate for AuthorizeQuery {
         let redirect_uri = self.redirect_uri.as_deref().unwrap_or_default();
         let scope = self.scope.as_deref().unwrap_or_default();
 
-        // preserve original state (don't stringify empty -> Some(""))
-        let state_opt = self.state.clone();
+        let state = self.state.as_deref();
 
         // Required params check
         if client_id.is_empty() || redirect_uri.is_empty() || scope.is_empty() {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "client_id, redirect_uri, and scope are required".into(),
-                    redirect_uri: None,
-                    state: state_opt.clone(),
-                    nonce: None,
-                })),
-                "Missing required OAuth parameters",
+            return Err(oauth_invalid_request(
+                "client_id, redirect_uri, and scope are required",
                 None,
+                state,
             ));
         }
 
         // response_type presence check
         if rt.is_empty() {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "response_type is required".into(),
-                    redirect_uri: None,
-                    state: state_opt.clone(),
-                    nonce: None,
-                })),
-                "Missing response_type",
-                None::<anyhow::Error>,
+            return Err(oauth_invalid_request(
+                "response_type is required",
+                None,
+                state,
             ));
         }
 
         // Only "code" is supported
         if rt != "code" {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::UnsupportedResponseType.as_str().into(),
-                    error_description: "unsupported response_type".into(),
-                    redirect_uri: None, // add later after client+URI validation
-                    state: state_opt,
-                    nonce: None,
-                })),
-                "Unsupported response_type",
-                None::<anyhow::Error>,
+            return Err(oauth_error(
+                OAuthErrorCode::UnsupportedResponseType,
+                "unsupported response_type",
+                None,
+                state,
             ));
         }
 
@@ -110,6 +96,7 @@ impl OAuthValidate for AuthorizeQuery {
             code_challenge_method: self.code_challenge_method.clone(),
             prompt: self.prompt.clone(),
             request: self.request.clone(),
+            resource: self.resource.clone(),
         })
     }
 }
@@ -150,6 +137,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -173,6 +161,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -197,6 +186,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         assert!(q.validate().is_ok());
@@ -232,6 +222,7 @@ mod tests {
             code_challenge_method: None,
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let res = q.validate();
@@ -255,6 +246,7 @@ mod tests {
             code_challenge_method: Some("S256".into()),
             prompt: None,
             request: None,
+            resource: None,
             _extra: Default::default(),
         };
         let p = q.validate().expect("validate should pass");

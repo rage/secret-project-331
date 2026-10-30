@@ -1254,7 +1254,7 @@ mod answer_file_download_tests {
 
     macro_rules! exercises_app {
         ($file_store:expr) => {{
-            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let pool = PgPool::connect(&dev_database_url()).await.expect("pool");
             let file_store: Arc<dyn FileStore> = $file_store;
             test::init_service(
                 App::new()

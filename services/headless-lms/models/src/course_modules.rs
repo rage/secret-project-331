@@ -1,8 +1,16 @@
 use std::collections::HashMap;
 
+use itertools::multiunzip;
 use utoipa::ToSchema;
 
-use crate::{chapters, error::missing_model_error, prelude::*};
+use crate::{
+    chapters,
+    entity_history::{self, HistoryAuthor},
+    error::missing_model_error,
+    library::entity_snapshots::ModuleSnapshot,
+    library::entity_snapshots::{ContentEntityType, EntityKey},
+    prelude::*,
+};
 
 /// The subset of `course_modules` columns [`CourseModule`] is built from; the credit-registration
 /// ones are read through [`CourseModuleCreditRegistrationConfig`], hence no `SELECT *` here.
@@ -172,6 +180,22 @@ impl NewCourseModule {
 
     pub fn new_course_default(course_id: Uuid) -> Self {
         Self::new(course_id, None, 0)
+    }
+
+    /// The module this creates, as a snapshot under `id`.
+    pub(crate) fn into_snapshot(self, id: Uuid) -> ModuleSnapshot {
+        ModuleSnapshot {
+            id,
+            course_id: self.course_id,
+            name: self.name,
+            order_number: self.order_number,
+            completion_policy: self.completion_policy,
+            certification_enabled: false,
+            uh_course_code: self.uh_course_code,
+            ects_credits: self.ects_credits,
+            completion_registration_link_override: self.completion_registration_link_override,
+            completions_can_be_registered_to_sisu: self.completions_can_be_registered_to_sisu,
+        }
     }
 
     pub fn set_uh_course_code(mut self, uh_course_code: Option<String>) -> Self {
@@ -438,7 +462,9 @@ WHERE id = $2
     Ok(())
 }
 
-pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+/// Deletes the module without recording history. Errors with `InvalidRequest` if chapters still
+/// belong to it.
+pub(crate) async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     let associated_chapters = chapters::get_for_module(conn, id).await?;
     if !associated_chapters.is_empty() {
         return Err(ModelError::new(
@@ -995,77 +1021,66 @@ RETURNING id,
     Ok(res.into())
 }
 
-pub async fn update_with_order_number(
+/// Sets the UH course codes, ECTS credits and registration link overrides of the course's modules
+/// as the course auditing view edits them, leaving their other fields alone. Modules of other
+/// courses are ignored. Returns the ids of the updated modules.
+pub async fn update_auditing_fields(
     conn: &mut PgConnection,
-    id: Uuid,
-    name: Option<&str>,
-    order_number: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE course_modules
-SET name = COALESCE($1, name),
-  order_number = $2
-WHERE id = $3
-",
-        name,
-        order_number,
+    course_id: Uuid,
+    modules: Vec<CourseAuditingModuleUpdate>,
+) -> ModelResult<Vec<Uuid>> {
+    for module in &modules {
+        validate_completion_registration_link(
+            module.completion_registration_link_override.as_deref(),
+        )?;
+    }
+    let (ids, uh_course_codes, completion_registration_link_overrides, ects_credits): (
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+    ) = multiunzip(modules.into_iter().map(|m| {
+        (
+            m.id,
+            normalize_uh_course_code(m.uh_course_code),
+            m.completion_registration_link_override,
+            m.ects_credits,
+        )
+    }));
+    let updated_ids = sqlx::query_scalar!(
+        r#"
+UPDATE course_modules cm
+SET uh_course_code = v.uh_course_code,
+  completion_registration_link_override = v.completion_registration_link_override,
+  ects_credits = v.ects_credits
+FROM (
+    SELECT *
+    FROM UNNEST(
+        $1::uuid [],
+        $2::TEXT [],
+        $3::TEXT [],
+        $4::FLOAT8 []
+      ) AS v(
         id,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn update(
-    conn: &mut PgConnection,
-    id: Uuid,
-    updated_course_module: &NewCourseModule,
-) -> ModelResult<()> {
-    // destructure so new fields cause a compilation error here
-    let NewCourseModule {
-        completion_policy: _,
-        course_id: _,
-        ects_credits,
-        order_number,
-        name,
         uh_course_code,
         completion_registration_link_override,
-        completions_can_be_registered_to_sisu,
-    } = updated_course_module;
-    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
-        updated_course_module.completion_policy.to_database_fields();
-    let uh_course_code = normalize_uh_course_code(uh_course_code.clone());
-    sqlx::query!(
-        "
-UPDATE course_modules
-SET name = COALESCE($2, name),
-  order_number = $3,
-  uh_course_code = $4,
-  ects_credits = $5,
-  automatic_completion = $6,
-  automatic_completion_number_of_exercises_attempted_treshold = $7,
-  automatic_completion_number_of_points_treshold = $8,
-  automatic_completion_requires_exam = $9,
-  completion_registration_link_override = $10,
-  completions_can_be_registered_to_sisu = $11
-WHERE id = $1
-        ",
-        id,
-        name.as_ref(),
-        order_number,
-        uh_course_code.as_ref(),
-        ects_credits.as_ref(),
-        automatic_completion,
-        exercises_treshold,
-        points_treshold,
-        requires_exam,
-        completion_registration_link_override.as_ref(),
-        completions_can_be_registered_to_sisu,
+        ects_credits
+      )
+  ) AS v
+WHERE cm.id = v.id
+  AND cm.course_id = $5
+  AND cm.deleted_at IS NULL
+RETURNING cm.id
+"#,
+        &ids,
+        &uh_course_codes as &[Option<String>],
+        &completion_registration_link_overrides as &[Option<String>],
+        &ects_credits as &[Option<f32>],
+        course_id
     )
-    .execute(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(())
+    Ok(updated_ids)
 }
 
 /// Errors with `InvalidRequest` unless `link` is empty or an absolute `https://` URL. Students get
@@ -1130,32 +1145,21 @@ SELECT NOT EXISTS (
     Ok(())
 }
 
-/// Applies the module editor's changes to `course_id` in one transaction.
+/// Applies the module editor's changes to `course_id` in one transaction, through
+/// [`upsert_from_snapshot`], and records the modules and chapters it changed in their history.
 ///
 /// Rejects the whole update if any referenced module or chapter is not in the course, or if a
-/// completion registration link fails [`validate_completion_registration_link`]. Switching a module's
-/// Sisu registration off cancels its registrations not yet sent, on behalf of `actor_user_id`.
+/// module fails [`upsert_from_snapshot`]'s checks. `actor_user_id` is the author of the history rows
+/// and of the registrations [`upsert_from_snapshot`] cancels.
 pub async fn update_modules(
     conn: &mut PgConnection,
     course_id: Uuid,
     updates: ModuleUpdates,
     actor_user_id: Uuid,
 ) -> ModelResult<()> {
-    for link in updates
-        .new_modules
-        .iter()
-        .map(|m| &m.completion_registration_link_override)
-        .chain(
-            updates
-                .modified_modules
-                .iter()
-                .map(|m| &m.completion_registration_link_override),
-        )
-    {
-        validate_completion_registration_link(link.as_deref())?;
-    }
-
+    let author = HistoryAuthor::user(actor_user_id);
     let mut tx = conn.begin().await?;
+    crate::courses::defer_structure_constraints(&mut tx).await?;
 
     let module_ids: Vec<Uuid> = updates
         .modified_modules
@@ -1172,29 +1176,33 @@ pub async fn update_modules(
         .collect();
     ensure_belong_to_course(&mut tx, course_id, &module_ids, &chapter_ids).await?;
 
-    let mut sisu_switched_off_module_ids = Vec::new();
-    for module in &updates.modified_modules {
-        if !module.completions_can_be_registered_to_sisu
-            && get_by_id(&mut tx, module.id)
-                .await?
-                .completions_can_be_registered_to_sisu
-        {
-            sisu_switched_off_module_ids.push(module.id);
-        }
+    let mut written_module_ids = Vec::new();
+    for module in updates.modified_modules {
+        // destructure so new fields cause a compilation error here
+        let ModifiedModule {
+            id,
+            name,
+            order_number,
+            uh_course_code,
+            ects_credits,
+            completion_policy,
+            completion_registration_link_override,
+            completions_can_be_registered_to_sisu,
+        } = module;
+        let current = ModuleSnapshot::from(get_by_id(&mut tx, id).await?);
+        let snapshot = ModuleSnapshot {
+            name: name.or(current.name),
+            order_number,
+            completion_policy,
+            uh_course_code,
+            ects_credits,
+            completion_registration_link_override,
+            completions_can_be_registered_to_sisu,
+            ..current
+        };
+        upsert_from_snapshot(&mut tx, &snapshot, actor_user_id).await?;
+        written_module_ids.push(id);
     }
-
-    // scramble order of modified and deleted modules
-    for module_id in updates
-        .modified_modules
-        .iter()
-        // do not scramble the default module, it should always be first
-        .filter(|m| m.order_number != 0)
-        .map(|m| m.id)
-        .chain(updates.deleted_modules.iter().copied())
-    {
-        update_with_order_number(&mut tx, module_id, None, rand::random()).await?;
-    }
-    let mut modified_and_new_modules = updates.modified_modules;
     for new in updates.new_modules {
         // destructure so new fields cause a compilation error here
         let NewModule {
@@ -1207,89 +1215,141 @@ pub async fn update_modules(
             completion_registration_link_override,
             completions_can_be_registered_to_sisu,
         } = new;
-        // insert with a random order number to avoid conflicts
-        let new_course_module = NewCourseModule::new(course_id, Some(name.clone()), rand::random())
-            .set_completion_policy(completion_policy.clone())
-            .set_completion_registration_link_override(completion_registration_link_override)
-            .set_ects_credits(ects_credits)
+        let snapshot = NewCourseModule::new(course_id, Some(name), order_number)
+            .set_completion_policy(completion_policy)
             .set_uh_course_code(uh_course_code)
-            .set_completions_can_be_registered_to_sisu(completions_can_be_registered_to_sisu);
-        let module = insert(&mut tx, PKeyPolicy::Generate, &new_course_module).await?;
+            .set_ects_credits(ects_credits)
+            .set_completion_registration_link_override(completion_registration_link_override)
+            .set_completions_can_be_registered_to_sisu(completions_can_be_registered_to_sisu)
+            .into_snapshot(Uuid::new_v4());
+        upsert_from_snapshot(&mut tx, &snapshot, actor_user_id).await?;
         for chapter in chapters {
-            chapters::set_module(&mut tx, chapter, module.id).await?;
+            chapters::set_module(&mut tx, chapter, snapshot.id).await?;
         }
-        //modify the order number with the rest
-        modified_and_new_modules.push(ModifiedModule {
-            id: module.id,
-            name: None,
-            order_number,
-            uh_course_code: module.uh_course_code,
-            ects_credits,
-            completion_policy,
-            completion_registration_link_override: module.completion_registration_link_override,
-            completions_can_be_registered_to_sisu,
-        })
+        written_module_ids.push(snapshot.id);
     }
-    // update modified and new modules
-    for module in modified_and_new_modules {
-        // destructure so new fields cause a compilation error here
-        let ModifiedModule {
-            id,
-            name,
-            order_number,
-            uh_course_code,
-            ects_credits,
-            completion_policy,
-            completion_registration_link_override,
-            completions_can_be_registered_to_sisu,
-        } = module;
-        update(
-            &mut tx,
-            id,
-            &NewCourseModule::new(course_id, name.clone(), order_number)
-                .set_completion_policy(completion_policy)
-                .set_completion_registration_link_override(completion_registration_link_override)
-                .set_ects_credits(ects_credits)
-                .set_uh_course_code(uh_course_code)
-                .set_completions_can_be_registered_to_sisu(completions_can_be_registered_to_sisu),
-        )
-        .await?;
-    }
-    for (chapter, module) in updates.moved_chapters {
-        chapters::set_module(&mut tx, chapter, module).await?;
+    for (chapter, module) in &updates.moved_chapters {
+        chapters::set_module(&mut tx, *chapter, *module).await?;
     }
     for deleted in updates.deleted_modules {
+        entity_history::record_deleted(&mut tx, ContentEntityType::Module, deleted, author).await?;
         delete(&mut tx, deleted).await?;
     }
-    for module_id in sisu_switched_off_module_ids {
-        crate::credit_registrations::cancel_unsent_for_course_module(
-            &mut tx,
-            module_id,
-            actor_user_id,
-        )
-        .await?;
-    }
 
+    let changed: Vec<_> = written_module_ids
+        .into_iter()
+        .map(|id| EntityKey::new(ContentEntityType::Module, id))
+        .chain(
+            chapter_ids
+                .into_iter()
+                .map(|id| EntityKey::new(ContentEntityType::Chapter, id)),
+        )
+        .collect();
+    entity_history::record_current_many(&mut tx, &changed, author).await?;
     tx.commit().await?;
     Ok(())
 }
 
+/// Turns certificate generation on or off and records the result in the module's history.
 pub async fn update_certification_enabled(
     conn: &mut PgConnection,
     id: Uuid,
     enabled: bool,
+    author_user_id: Uuid,
 ) -> ModelResult<()> {
+    entity_history::save_recording(
+        conn,
+        ContentEntityType::Module,
+        id,
+        HistoryAuthor::user(author_user_id),
+        async |tx| {
+            let module = ModuleSnapshot {
+                certification_enabled: enabled,
+                ..ModuleSnapshot::from(get_by_id(&mut *tx, id).await?)
+            };
+            upsert_from_snapshot(tx, &module, author_user_id).await
+        },
+    )
+    .await
+}
+
+/// Writes every field of the snapshot to the module, creating it with the snapshot's id if it does
+/// not exist and bringing it back if it is deleted. Does not record history.
+///
+/// Errors with `InvalidRequest` if the completion registration link fails
+/// [`validate_completion_registration_link`]. Switching the module's Sisu registration off cancels
+/// its registrations not yet sent, on behalf of `actor_user_id`.
+pub async fn upsert_from_snapshot(
+    conn: &mut PgConnection,
+    snapshot: &ModuleSnapshot,
+    actor_user_id: Uuid,
+) -> ModelResult<()> {
+    validate_completion_registration_link(
+        snapshot.completion_registration_link_override.as_deref(),
+    )?;
+    let was_registered_to_sisu = get_by_id(conn, snapshot.id)
+        .await
+        .optional()?
+        .map(|module| module.completions_can_be_registered_to_sisu);
+    let (automatic_completion, exercises_treshold, points_treshold, requires_exam) =
+        snapshot.completion_policy.to_database_fields();
     sqlx::query!(
         "
-UPDATE course_modules
-SET certification_enabled = $1
-WHERE id = $2
-",
-        enabled,
-        id
+INSERT INTO course_modules (
+    id,
+    course_id,
+    name,
+    order_number,
+    automatic_completion,
+    automatic_completion_number_of_exercises_attempted_treshold,
+    automatic_completion_number_of_points_treshold,
+    automatic_completion_requires_exam,
+    certification_enabled,
+    uh_course_code,
+    ects_credits,
+    completion_registration_link_override,
+    completions_can_be_registered_to_sisu
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) ON CONFLICT (id) DO
+UPDATE
+SET name = EXCLUDED.name,
+  order_number = EXCLUDED.order_number,
+  automatic_completion = EXCLUDED.automatic_completion,
+  automatic_completion_number_of_exercises_attempted_treshold = EXCLUDED.automatic_completion_number_of_exercises_attempted_treshold,
+  automatic_completion_number_of_points_treshold = EXCLUDED.automatic_completion_number_of_points_treshold,
+  automatic_completion_requires_exam = EXCLUDED.automatic_completion_requires_exam,
+  certification_enabled = EXCLUDED.certification_enabled,
+  uh_course_code = EXCLUDED.uh_course_code,
+  ects_credits = EXCLUDED.ects_credits,
+  completion_registration_link_override = EXCLUDED.completion_registration_link_override,
+  completions_can_be_registered_to_sisu = EXCLUDED.completions_can_be_registered_to_sisu,
+  deleted_at = NULL
+WHERE course_modules.course_id = EXCLUDED.course_id
+        ",
+        snapshot.id,
+        snapshot.course_id,
+        snapshot.name,
+        snapshot.order_number,
+        automatic_completion,
+        exercises_treshold,
+        points_treshold,
+        requires_exam,
+        snapshot.certification_enabled,
+        normalize_uh_course_code(snapshot.uh_course_code.clone()),
+        snapshot.ects_credits,
+        snapshot.completion_registration_link_override,
+        snapshot.completions_can_be_registered_to_sisu,
     )
-    .execute(conn)
+    .execute(&mut *conn)
     .await?;
+    if was_registered_to_sisu == Some(true) && !snapshot.completions_can_be_registered_to_sisu {
+        crate::credit_registrations::cancel_unsent_for_course_module(
+            conn,
+            snapshot.id,
+            actor_user_id,
+        )
+        .await?;
+    }
     Ok(())
 }
 

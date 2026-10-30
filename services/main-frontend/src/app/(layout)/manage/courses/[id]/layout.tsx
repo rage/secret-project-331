@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,13 +11,16 @@ import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
+import { getAgentChangesetCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
 import createFeedbackEditProposalCountsHook from "@/hooks/count/useFeedbackEditProposalCounts"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
+import createOpenAgentChangeCountHook from "@/hooks/count/useOpenAgentChangeCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
   courseStatsRoute,
+  manageCourseAgentChangesetsRoute,
   manageCourseExercisesRoute,
   manageCourseFeedbackRoute,
   manageCourseInstancesRoute,
@@ -43,18 +47,20 @@ const KEY_LANGUAGE_VERSIONS = "language-versions"
 const KEY_PERMISSIONS = "permissions"
 const KEY_STATS = "stats"
 const KEY_OTHER = "other"
+const KEY_AGENT_CHANGESETS = "agent-changesets"
 
 export default function CourseManagementLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
 
-  const canViewStudentsQuery = useAuthorizeMultiple([
+  const permissionsQuery = useAuthorizeMultiple([
     { action: { type: "administrate" }, resource: { type: "global_permissions" } },
     { action: { type: "teach" }, resource: { type: "course", id: courseId } },
+    { action: { type: "edit" }, resource: { type: "course", id: courseId } },
   ])
-  const canViewStudents =
-    (canViewStudentsQuery.isSuccess && canViewStudentsQuery.data?.some(Boolean)) ?? false
+  const [isGlobalAdmin = false, canTeach = false, canEdit = false] = permissionsQuery.data ?? []
+  const canViewStudents = isGlobalAdmin || canTeach
 
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
@@ -89,6 +95,13 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const feedbackCountHook = createFeedbackEditProposalCountsHook(courseId, "both")
   const answersCountHook = useCountAnswersRequiringAttentionHook(courseId)
   const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
+  const openAgentChangeCountHook = createOpenAgentChangeCountHook(courseId)
+  // Only teachers whose AI agent has staged changes in the course get the tab.
+  const { data: hasAgentChangesets = false } = useQuery({
+    ...getAgentChangesetCountsOptions({ query: { course_id: courseId } }),
+    select: (counts) => counts.has_changesets,
+    enabled: canEdit,
+  })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base: RouteTabDefinition[] = [
@@ -159,8 +172,25 @@ export default function CourseManagementLayout({ children }: { children: React.R
         countHook: flaggedCheaterCountHook,
       },
     )
+    if (hasAgentChangesets) {
+      base.push({
+        key: KEY_AGENT_CHANGESETS,
+        title: t("link-agent-changes"),
+        href: manageCourseAgentChangesetsRoute(courseId),
+        countHook: openAgentChangeCountHook,
+      })
+    }
     return base
-  }, [courseId, t, canViewStudents, feedbackCountHook, answersCountHook, flaggedCheaterCountHook])
+  }, [
+    courseId,
+    t,
+    canViewStudents,
+    feedbackCountHook,
+    answersCountHook,
+    flaggedCheaterCountHook,
+    hasAgentChangesets,
+    openAgentChangeCountHook,
+  ])
 
   return (
     <RouteTabListProvider tabs={tabs}>

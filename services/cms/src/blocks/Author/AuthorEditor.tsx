@@ -1,17 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/author-inner-block"]
-const AUTHOR_BLOCK_TEMPLATE: Template[] = [["moocfi/author-inner-block"]]
 const AuthorEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
 > = () => {
@@ -42,7 +40,7 @@ const AuthorEditor: React.FC<
           </span>
 
           <div>
-            <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={AUTHOR_BLOCK_TEMPLATE} />
+            <RegisteredInnerBlocks />
           </div>
         </div>
       </div>

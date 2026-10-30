@@ -6,6 +6,7 @@ import {
   CREDIT_REGISTRATION_STUDENT_6,
   CRS_101,
   CRS_B_101,
+  IMPORT_OUTCOMES_COURSE_ID,
   IMPORT_OUTCOMES_COURSE_SLUG,
   mockCallsForStudent,
   myCreditRegistrations,
@@ -254,6 +255,8 @@ test.describe("A student whose modules are each broken in their own way", () => 
     adminApi,
   }) => {
     const scope = { userEmail: OUTCOMES_EMAIL, courseSlug: IMPORT_OUTCOMES_COURSE_SLUG }
+    // A row the worker claims between these ticks waits for its next sweep, past the poll below.
+    await setTestExclusiveHold(page.request, OUTCOMES_EMAIL, 60, IMPORT_OUTCOMES_COURSE_ID)
 
     // Stamps Suotar's verdict on every module's course code, which is what holds a refused one back.
     await runConfigValidationTick(page.request, { courseSlug: IMPORT_OUTCOMES_COURSE_SLUG })

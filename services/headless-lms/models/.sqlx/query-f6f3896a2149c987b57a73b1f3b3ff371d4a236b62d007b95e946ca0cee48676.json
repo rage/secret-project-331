@@ -177,6 +177,17 @@
             "name": "metadata"
           }
         }
+      },
+      {
+        "ordinal": 15,
+        "name": "resource",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_auth_codes",
+            "name": "resource"
+          }
+        }
       }
     ],
     "parameters": {
@@ -201,7 +212,8 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "f6f3896a2149c987b57a73b1f3b3ff371d4a236b62d007b95e946ca0cee48676"

@@ -7,6 +7,30 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {})
 }
 
+export type AgentChangeset = {
+  course_id: string
+  created_at: string
+  expires_at: string
+  id: string
+  published_at?: string | null
+  /**
+   * Incremented by every change to the staged entities; see [`increment_revision`].
+   */
+  revision: number
+  /**
+   * The status now: `Expired` for an open changeset past `expires_at`, which the table records
+   * only at the next write to the course.
+   */
+  status: AgentChangesetStatus
+  updated_at: string
+  /**
+   * The only user who can publish or discard the changeset.
+   */
+  user_id: string
+}
+
+export type AgentChangesetStatus = "open" | "published" | "discarded" | "expired"
+
 export type AutomaticCompletionRequirements = {
   /**
    * Course module associated with these requirements.
@@ -16,6 +40,89 @@ export type AutomaticCompletionRequirements = {
   number_of_points_treshold?: number | null
   requires_exam: boolean
 }
+
+/**
+ * One block type's registration: its attributes, where it may be nested and an example.
+ */
+export type BlockSchema = {
+  /**
+   * None means any block the page allows; empty means no inner blocks.
+   */
+  allowed_children?: Array<string> | null
+  /**
+   * `"root"` means the page's top level; None means anywhere the parent allows.
+   */
+  allowed_parents?: Array<string> | null
+  /**
+   * JSON Schema per attribute; rich text carries `x-rich-text` and `x-rich-text-formats`.
+   */
+  attributes: {
+    [key: string]: unknown
+  }
+  description: string
+  example: unknown
+  template?: unknown
+  template_lock?: unknown
+  title: string
+}
+
+/**
+ * The CMS's export of block registrations, the single source of block schemas, from
+ * `GET /api/agent/block-schemas`.
+ */
+export type BlockSchemas = {
+  blocks: {
+    [key: string]: BlockSchema
+  }
+  /**
+   * Block name to the course setting that enables it.
+   */
+  course_feature_gated_blocks: {
+    [key: string]: CourseBlockFeature
+  }
+  /**
+   * The largest `validate-blocks` request body the validator takes.
+   */
+  max_request_bytes: number
+  /**
+   * The blocks agents may write on each page type.
+   */
+  page_types: {
+    [key: string]: Array<string>
+  }
+  rich_text_formats: Array<RichTextFormat>
+  version: string
+}
+
+/**
+ * A problem the validator found in a block, with how to fix it.
+ */
+export type BlockValidationError = {
+  /**
+   * `None` only when the block has no usable client id; `path` then starts at the request.
+   */
+  clientId?: string | null
+  code: BlockValidationErrorCode
+  fix: string
+  message: string
+  /**
+   * Attribute path inside the block, e.g. `["attributes", "content"]`.
+   */
+  path: Array<unknown>
+}
+
+/**
+ * What kind of rule a block breaks.
+ */
+export type BlockValidationErrorCode =
+  | "invalid_block"
+  | "duplicate_client_id"
+  | "unknown_block"
+  | "not_allowed_here"
+  | "invalid_nesting"
+  | "invalid_attribute"
+  | "forbidden_attribute"
+  | "disallowed_markup"
 
 export type ChartSpecGenerationRequest = {
   current_spec?: string | null
@@ -103,6 +210,14 @@ export type CmsPageExerciseTask = {
   private_spec_files?: Array<string>
 }
 
+/**
+ * A CMS page save. It is refused as stale when `expected_updated_at` is set and the page has
+ * changed since that version; leave it unset to overwrite.
+ */
+export type CmsPageSave = CmsPageUpdate & {
+  expected_updated_at?: string | null
+}
+
 export type CmsPageUpdate = {
   chapter_id?: string | null
   content: Array<GutenbergBlock>
@@ -130,6 +245,14 @@ export type CmsPeerOrSelfReviewConfig = {
 export type CmsPeerOrSelfReviewConfiguration = {
   peer_or_self_review_config: CmsPeerOrSelfReviewConfig
   peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion>
+}
+
+/**
+ * Save of a course's default configuration. A save is refused as stale when `expected_updated_at`
+ * is set and the configuration has changed since that version; leave it unset to overwrite.
+ */
+export type CmsPeerOrSelfReviewConfigurationSave = CmsPeerOrSelfReviewConfiguration & {
+  expected_updated_at?: string | null
 }
 
 export type CmsPeerOrSelfReviewQuestion = {
@@ -209,6 +332,25 @@ export type Course = {
  * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
+
+/**
+ * The name of one of the course settings in [`CourseBlockFeatures`].
+ */
+export type CourseBlockFeature = "chapter_locking_enabled" | "can_add_chatbot"
+
+/**
+ * The course settings that make blocks available, named as in the course settings.
+ */
+export type CourseBlockFeatures = {
+  /**
+   * Gates `moocfi/chatbot`.
+   */
+  can_add_chatbot: boolean
+  /**
+   * Gates `moocfi/lock-chapter`.
+   */
+  chapter_locking_enabled: boolean
+}
 
 export type CourseInstance = {
   course_id: string
@@ -331,6 +473,11 @@ export type ExamInstructionsUpdate = {
 }
 
 /**
+ * The exercise block a list of blocks is validated as the children of.
+ */
+export type ExerciseContext = "task_instructions" | "review_instructions"
+
+/**
  * Exercise service definition that the CMS can use to render the editor view.
  */
 export type ExerciseServiceIframeRenderingInfo = {
@@ -413,6 +560,28 @@ export type PageRoutingData = {
   page_id: string
   title: string
   url_path: string
+}
+
+/**
+ * The editor (and validator) context a page's blocks are checked against. A chapter's front
+ * page takes the same blocks as its other pages.
+ */
+export type PageType = "course-page" | "top-level-page" | "course-front-page"
+
+/**
+ * One list of blocks to validate: a page's, or an exercise's instructions.
+ */
+export type PageValidationRequest = ValidationTarget & {
+  /**
+   * Full top-level trees: nested blocks are checked in their ancestors' context. Untyped in the
+   * schema because checking their shape is the validator's job.
+   */
+  blocks: Array<unknown>
+  /**
+   * Blocks in `blocks` that are as published: the teacher wrote them, so the validator spares
+   * them the rules on what agents may write and reports their other problems as warnings.
+   */
+  unchanged_client_ids?: Array<string>
 }
 
 export type ParagraphSuggestionAction =
@@ -520,6 +689,15 @@ export type ResearchForm = {
 }
 
 /**
+ * An inline format rich text may use, and the tag it is stored as.
+ */
+export type RichTextFormat = {
+  description: string
+  name: string
+  tag: string
+}
+
+/**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
  * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
  * this kind of tool", not "may this caller use it".
@@ -541,7 +719,57 @@ export type UploadResult = {
   url: string
 }
 
+/**
+ * The body of the CMS's `POST /api/agent/validate-blocks`: one HTTP request's share of the pages
+ * a write call validates, its pages already serialized.
+ */
+export type ValidateBlocksRequest = {
+  course_features: CourseBlockFeatures
+  pages: Array<PageValidationRequest>
+}
+
+/**
+ * The answer of the CMS's `POST /api/agent/validate-blocks`, a verdict per page in request order.
+ */
+export type ValidateBlocksResponse = {
+  pages: Array<ValidationOutcome>
+}
+
+/**
+ * The validator's verdict on one page: valid when `errors` is empty.
+ */
+export type ValidationOutcome = {
+  /**
+   * The blocks in request order, normalised the way the editor stores them.
+   */
+  blocks: Array<unknown>
+  errors: Array<BlockValidationError>
+  /**
+   * Problems of unchanged blocks, which never fail a write.
+   */
+  warnings: Array<BlockValidationError>
+}
+
+/**
+ * Where the validated blocks sit, which decides the blocks they may use.
+ */
+export type ValidationTarget =
+  | {
+      page_type: PageType
+    }
+  | {
+      exercise_context: ExerciseContext
+    }
+
 export type VerbosityLevel = "low" | "medium" | "high"
+
+/**
+ * A course's default configuration as the CMS loaded it. `updated_at` is the version the editor
+ * sends back on save.
+ */
+export type VersionedCmsPeerOrSelfReviewConfiguration = CmsPeerOrSelfReviewConfiguration & {
+  updated_at: string
+}
 
 export type RequestChartSpecGenerationData = {
   body: ChartSpecGenerationRequest
@@ -724,14 +952,14 @@ export type GetCmsCourseDefaultPeerReviewResponses = {
   /**
    * Default peer review configuration
    */
-  200: CmsPeerOrSelfReviewConfiguration
+  200: VersionedCmsPeerOrSelfReviewConfiguration
 }
 
 export type GetCmsCourseDefaultPeerReviewResponse =
   GetCmsCourseDefaultPeerReviewResponses[keyof GetCmsCourseDefaultPeerReviewResponses]
 
 export type UpdateCmsCourseDefaultPeerReviewData = {
-  body: CmsPeerOrSelfReviewConfiguration
+  body: CmsPeerOrSelfReviewConfigurationSave
   path: {
     /**
      * Course id
@@ -742,11 +970,18 @@ export type UpdateCmsCourseDefaultPeerReviewData = {
   url: "/api/v0/cms/courses/{course_id}/default-peer-review"
 }
 
+export type UpdateCmsCourseDefaultPeerReviewErrors = {
+  /**
+   * `stale_version`: the configuration changed after the editor loaded it
+   */
+  422: unknown
+}
+
 export type UpdateCmsCourseDefaultPeerReviewResponses = {
   /**
    * Updated default peer review configuration
    */
-  200: CmsPeerOrSelfReviewConfiguration
+  200: VersionedCmsPeerOrSelfReviewConfiguration
 }
 
 export type UpdateCmsCourseDefaultPeerReviewResponse =
@@ -1161,7 +1396,7 @@ export type GetCmsPageResponses = {
 export type GetCmsPageResponse = GetCmsPageResponses[keyof GetCmsPageResponses]
 
 export type UpdateCmsPageData = {
-  body: CmsPageUpdate
+  body: CmsPageSave
   path: {
     /**
      * Page id
@@ -1170,6 +1405,13 @@ export type UpdateCmsPageData = {
   }
   query?: never
   url: "/api/v0/cms/pages/{page_id}"
+}
+
+export type UpdateCmsPageErrors = {
+  /**
+   * `stale_version`: the page changed after the editor loaded it
+   */
+  422: unknown
 }
 
 export type UpdateCmsPageResponses = {
@@ -1245,6 +1487,28 @@ export type GetCmsPageNavigationResponses = {
 
 export type GetCmsPageNavigationResponse =
   GetCmsPageNavigationResponses[keyof GetCmsPageNavigationResponses]
+
+export type GetCmsPagePendingAgentChangesData = {
+  body?: never
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/pending-agent-changes"
+}
+
+export type GetCmsPagePendingAgentChangesResponses = {
+  /**
+   * The open changeset changing the page, if any
+   */
+  200: null | AgentChangeset
+}
+
+export type GetCmsPagePendingAgentChangesResponse =
+  GetCmsPagePendingAgentChangesResponses[keyof GetCmsPagePendingAgentChangesResponses]
 
 export type GetCmsRepositoryExercisesForCourseData = {
   body?: never

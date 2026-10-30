@@ -28,7 +28,8 @@ pub struct ExerciseIds {
 /// Builder for different types of exercises.
 #[derive(Debug, Clone)]
 pub enum ExerciseBuilder {
-    /// Multiple choice exercise with custom options
+    /// Multiple choice exercise with custom options. Peer reviewed without a config of its own, it
+    /// uses the course default.
     ExampleExercise {
         ids: ExerciseIds,
         assignment_blocks: Vec<GutenbergBlock>,
@@ -193,7 +194,7 @@ impl ExerciseBuilder {
                 peer_or_self_review_questions,
             } => {
                 let assignment_json = serde_json::to_value(assignment_blocks)?;
-                let (_block, exercise, slides, tasks) =
+                let (_block, mut exercise, slides, tasks) =
                     example_exercise_flexible(ExampleExerciseFlexibleParams {
                         exercise_id: ids.exercise_id,
                         exercise_name: name.clone(),
@@ -212,6 +213,8 @@ impl ExerciseBuilder {
                         peer_or_self_review_questions: peer_or_self_review_questions.clone(),
                         teacher_reviews_answer_after_locking: true,
                     });
+                exercise.use_course_default_peer_or_self_review_config =
+                    *needs_peer_review && peer_or_self_review_config.is_none();
 
                 let slide = slides
                     .into_iter()

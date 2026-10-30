@@ -1,12 +1,12 @@
 use crate::domain::oauth::dpop::verify_dpop_from_actix;
+use crate::domain::oauth::helpers::oauth_invalid_token;
 use crate::domain::oauth::userinfo_response::UserInfoResponse;
 use crate::prelude::*;
 use actix_web::{HttpResponse, guard, web};
-use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
 use headless_lms_base::config::ApplicationConfiguration;
 use models::{
-    library::oauth::token_digest_sha256,
+    library::oauth::{bearer::split_authorization, token_digest_sha256},
     oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_client::OAuthClient,
     user_details,
@@ -40,36 +40,14 @@ pub async fn user_info(
         .headers()
         .get("Authorization")
         .and_then(|v| v.to_str().ok())
-        .ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidToken.as_str().into(),
-                    error_description: "missing Authorization header".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "missing Authorization header",
-                None::<anyhow::Error>,
-            )
-        })?;
+        .ok_or_else(|| oauth_invalid_token("missing Authorization header"))?;
 
-    let (presented_scheme, raw_token) = if let Some(t) = auth.strip_prefix("DPoP ") {
-        ("DPoP", t)
-    } else if let Some(t) = auth.strip_prefix("Bearer ") {
-        ("Bearer", t)
-    } else {
-        return Err(ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::InvalidToken.as_str().into(),
-                error_description: "unsupported auth scheme".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            })),
-            "unsupported auth scheme",
-            None::<anyhow::Error>,
-        ));
+    let (presented_scheme, raw_token) = match split_authorization(auth) {
+        Some((scheme, token)) if scheme.eq_ignore_ascii_case("DPoP") => (TokenType::DPoP, token),
+        Some((scheme, token)) if scheme.eq_ignore_ascii_case("Bearer") => {
+            (TokenType::Bearer, token)
+        }
+        _ => return Err(oauth_invalid_token("unsupported auth scheme")),
     };
 
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
@@ -83,64 +61,27 @@ pub async fn user_info(
     match access.token_type {
         TokenType::Bearer => {
             // Bearer tokens must use the Bearer scheme
-            if presented_scheme != "Bearer" {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidToken.as_str().into(),
-                        error_description: "bearer token must use Bearer scheme".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "wrong auth scheme for bearer token",
-                    None::<anyhow::Error>,
-                ));
+            if presented_scheme != TokenType::Bearer {
+                return Err(oauth_invalid_token("bearer token must use Bearer scheme"));
             }
 
             let client = OAuthClient::find_by_id(&mut conn, access.client_id).await?;
             if !client.bearer_allowed {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidToken.as_str().into(),
-                        error_description: "client not allowed to use bearer tokens".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "client not bearer-allowed",
-                    None::<anyhow::Error>,
+                return Err(oauth_invalid_token(
+                    "client not allowed to use bearer tokens",
                 ));
             }
         }
         TokenType::DPoP => {
             // DPoP-bound tokens must use DPoP scheme + valid proof
-            if presented_scheme != "DPoP" {
-                return Err(ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidToken.as_str().into(),
-                        error_description: "DPoP-bound token must use DPoP scheme".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "wrong auth scheme for DPoP token",
-                    None::<anyhow::Error>,
-                ));
+            if presented_scheme != TokenType::DPoP {
+                return Err(oauth_invalid_token("DPoP-bound token must use DPoP scheme"));
             }
 
-            let bound_jkt = access.dpop_jkt.as_deref().ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                        error: OAuthErrorCode::InvalidToken.as_str().into(),
-                        error_description: "token marked DPoP but missing cnf.jkt".into(),
-                        redirect_uri: None,
-                        state: None,
-                        nonce: None,
-                    })),
-                    "dpop token missing jkt",
-                    None::<anyhow::Error>,
-                )
-            })?;
+            let bound_jkt = access
+                .dpop_jkt
+                .as_deref()
+                .ok_or_else(|| oauth_invalid_token("token marked DPoP but missing cnf.jkt"))?;
 
             // Verify proof (includes `ath` = hash of raw_token)
             let presented_jkt = verify_dpop_from_actix(
@@ -164,17 +105,7 @@ pub async fn user_info(
     let user_id = match access.user_id {
         Some(u) => u,
         None => {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidToken.as_str().into(),
-                    error_description: "token has no associated user".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "token has no associated user",
-                None::<anyhow::Error>,
-            ));
+            return Err(oauth_invalid_token("token has no associated user"));
         }
     };
 

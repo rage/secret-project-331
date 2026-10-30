@@ -1,17 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, RichText } from "@wordpress/block-editor"
+import { RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { AsideWithImageBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = ["core/image"]
 
 const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
@@ -34,7 +33,7 @@ const AsideWithImageEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <RegisteredInnerBlocks />
           <div>
             <RichText
               className={css`

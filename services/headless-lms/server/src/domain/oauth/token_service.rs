@@ -7,10 +7,11 @@ use crate::domain::exercise_services::token::invalidate_cached_users;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::split_and_validate_scopes;
 use crate::domain::oauth::pkce::verify_token_pkce;
+use crate::domain::oauth::resource_indicator::ResourceIndicator;
 use headless_lms_utils::cache::Cache;
 
-use headless_lms_models::library::oauth::Digest;
 use headless_lms_models::library::oauth::tokens::token_digest_sha256;
+use headless_lms_models::library::oauth::{Digest, is_bound_to};
 use headless_lms_models::oauth_access_token::TokenType;
 use headless_lms_models::oauth_auth_code::OAuthAuthCode;
 use headless_lms_models::oauth_client::OAuthClient;
@@ -69,6 +70,8 @@ pub struct TokenGrantRequest<'a> {
     pub issued_token_type: TokenType,
     pub dpop_jkt: Option<&'a str>,
     pub token_hmac_key: &'a SecretString,
+    /// The `resource` of the token request; must match the grant's resource when present.
+    pub resource: Option<&'a ResourceIndicator>,
 }
 
 #[derive(Debug)]
@@ -197,6 +200,15 @@ pub async fn process_token_grant(
             )
             .map_err(|_| TokenGrantError::PkceVerificationFailed)?;
 
+            if let Some(requested) = request.resource
+                && code_row.resource.as_deref() != Some(requested.as_str())
+            {
+                return Err(TokenGrantError::InvalidTarget(
+                    "resource does not match the authorization request".to_string(),
+                ));
+            }
+            let audience = code_row.resource.clone().map(|resource| vec![resource]);
+
             OAuthRefreshTokens::issue_tokens_from_auth_code_in_transaction(
                 &mut tx,
                 IssueTokensFromAuthCodeParams {
@@ -210,6 +222,7 @@ pub async fn process_token_grant(
                     access_token_type: request.issued_token_type,
                     access_token_dpop_jkt: request.dpop_jkt,
                     refresh_token_dpop_jkt: request.dpop_jkt,
+                    audience: audience.as_deref(),
                 },
             )
             .await
@@ -244,6 +257,14 @@ pub async fn process_token_grant(
             // On `Err` the caller rolls back the transaction, so the consumed-token
             // update above is undone too and the refresh token isn't burned.
             let effective_scopes = resolve_refresh_scopes(&old.scopes, scope.as_deref())?;
+
+            if let Some(requested) = request.resource
+                && !is_bound_to(old.audience.as_deref(), requested.as_str())
+            {
+                return Err(TokenGrantError::InvalidTarget(
+                    "resource does not match the refresh token".to_string(),
+                ));
+            }
 
             if let Some(expected_jkt) = old.dpop_jkt.as_deref() {
                 let presented_jkt = request.dpop_jkt.ok_or_else(|| {
@@ -376,6 +397,7 @@ async fn process_device_code_grant(
                 access_token_type: request.issued_token_type,
                 access_token_dpop_jkt: request.dpop_jkt,
                 refresh_token_dpop_jkt: request.dpop_jkt,
+                audience: None,
             },
         )
         .await
@@ -453,6 +475,7 @@ mod tests {
             issued_token_type: TokenType::Bearer,
             dpop_jkt: None,
             token_hmac_key: key,
+            resource: None,
         }
     }
 
@@ -593,6 +616,7 @@ mod tests {
             issued_token_type: TokenType::Bearer,
             dpop_jkt: None,
             token_hmac_key: key,
+            resource: None,
         }
     }
 

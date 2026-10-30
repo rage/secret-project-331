@@ -132,7 +132,12 @@ async fn delete_chapter(
         Res::Chapter(chapter_id),
     )
     .await?;
-    let deleted_chapter = models::chapters::delete_chapter(&mut conn, chapter_id).await?;
+    let deleted_chapter = models::chapters::delete_chapter(
+        &mut conn,
+        chapter_id,
+        models::entity_history::HistoryAuthor::user(user.id),
+    )
+    .await?;
     return token.authorized_ok(web::Json(Chapter::from_database_chapter(
         &deleted_chapter,
         file_store.as_ref(),
@@ -186,7 +191,8 @@ async fn update_chapter(
     let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
     let course_update = payload.0;
-    let chapter = models::chapters::update_chapter(&mut conn, chapter_id, course_update).await?;
+    let chapter =
+        models::chapters::update_chapter(&mut conn, chapter_id, course_update, user.id).await?;
 
     let response = Chapter::from_database_chapter(&chapter, file_store.as_ref(), app_conf.as_ref());
 
@@ -244,7 +250,7 @@ async fn set_chapter_image(
     let chapter_image = upload_file_from_cms(
         request.headers(),
         payload,
-        StoreKind::Course(course.id),
+        MediaOwner::Course(course.id),
         file_store.as_ref(),
         &mut conn,
         user,
@@ -252,9 +258,13 @@ async fn set_chapter_image(
     .await?
     .to_string_lossy()
     .to_string();
-    let updated_chapter =
-        models::chapters::update_chapter_image_path(&mut conn, chapter.id, Some(chapter_image))
-            .await?;
+    let updated_chapter = models::chapters::update_chapter_image_path(
+        &mut conn,
+        chapter.id,
+        Some(chapter_image),
+        user.id,
+    )
+    .await?;
 
     // Course copies share chapter images with their source.
     if let Some(old_image_path) = chapter.chapter_image_path
@@ -322,7 +332,9 @@ async fn remove_chapter_image(
     )
     .await?;
     if let Some(chapter_image_path) = chapter.chapter_image_path {
-        let _res = models::chapters::update_chapter_image_path(&mut conn, chapter.id, None).await?;
+        let _res =
+            models::chapters::update_chapter_image_path(&mut conn, chapter.id, None, user.id)
+                .await?;
         // Course copies share chapter images with their source.
         if !models::chapters::chapter_image_path_is_referenced(&mut conn, &chapter_image_path)
             .await?

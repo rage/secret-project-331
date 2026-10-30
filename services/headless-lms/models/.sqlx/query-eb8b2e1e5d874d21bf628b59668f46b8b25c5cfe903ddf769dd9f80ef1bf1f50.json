@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  course_id AS \"course_id!\",\n  chapter_id,\n  url_path,\n  title,\n  hidden,\n  order_number,\n  content AS \"content: Json<Vec<GutenbergBlock>>\"\nFROM pages\nWHERE id = ANY($1)\n  AND course_id IS NOT NULL\n  AND exam_id IS NULL\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "chapter_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "chapter_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "url_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "hidden",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "hidden"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "content: Json<Vec<GutenbergBlock>>",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "content"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "eb8b2e1e5d874d21bf628b59668f46b8b25c5cfe903ddf769dd9f80ef1bf1f50"
+}

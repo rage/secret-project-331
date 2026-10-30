@@ -8,6 +8,7 @@ import ParsedText from "@/components/course-material/ParsedText"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from ".."
 
@@ -58,9 +59,10 @@ const TerminologyBlock: React.FC<
           line-height: 100%;
           font-weight: 400;
         `}
-      >
-        {props.data.attributes.blockName}
-      </span>
+        dangerouslySetInnerHTML={{
+          __html: sanitizeCourseMaterialHtml(props.data.attributes.blockName),
+        }}
+      />
       {hasTitle && <ParsedText text={title} tag="h2" useWrapperElement={true} />}
       <Centered variant="narrow">
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />

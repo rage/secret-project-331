@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT p.page_language_group_id,\n  c.course_language_group_id AS \"course_language_group_id?\"\nFROM pages p\n  LEFT JOIN courses c ON c.id = p.course_id\n  AND c.deleted_at IS NULL\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "page_language_group_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "page_language_group_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_language_group_id?",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_language_group_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      false
+    ]
+  },
+  "hash": "60e9010f988a4e780d96637858811307b46953fd6577a678577e3e4f30b74388"
+}

@@ -2,6 +2,7 @@ use futures::future::BoxFuture;
 use url::Url;
 use utoipa::ToSchema;
 
+use crate::error::{ensure_version, missing_model_error};
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercises::{self, Exercise},
@@ -60,11 +61,79 @@ pub struct CmsPeerOrSelfReviewConfig {
     pub review_instructions: Option<serde_json::Value>,
 }
 
+impl CmsPeerOrSelfReviewConfig {
+    /// The names of the review settings that differ from `other`'s: every field but the ids, the
+    /// course and the review instructions.
+    pub fn settings_differing_from(&self, other: &CmsPeerOrSelfReviewConfig) -> Vec<&'static str> {
+        let CmsPeerOrSelfReviewConfig {
+            id: _,
+            course_id: _,
+            exercise_id: _,
+            peer_reviews_to_give,
+            peer_reviews_to_receive,
+            accepting_threshold,
+            processing_strategy,
+            points_are_all_or_nothing,
+            reset_answer_if_zero_points_from_review,
+            review_instructions: _,
+        } = self;
+        [
+            (
+                "peer_reviews_to_give",
+                *peer_reviews_to_give != other.peer_reviews_to_give,
+            ),
+            (
+                "peer_reviews_to_receive",
+                *peer_reviews_to_receive != other.peer_reviews_to_receive,
+            ),
+            (
+                "accepting_threshold",
+                *accepting_threshold != other.accepting_threshold,
+            ),
+            (
+                "processing_strategy",
+                *processing_strategy != other.processing_strategy,
+            ),
+            (
+                "points_are_all_or_nothing",
+                *points_are_all_or_nothing != other.points_are_all_or_nothing,
+            ),
+            (
+                "reset_answer_if_zero_points_from_review",
+                *reset_answer_if_zero_points_from_review
+                    != other.reset_answer_if_zero_points_from_review,
+            ),
+        ]
+        .into_iter()
+        .filter(|(_, differs)| *differs)
+        .map(|(name, _)| name)
+        .collect()
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct CmsPeerOrSelfReviewConfiguration {
     pub peer_or_self_review_config: CmsPeerOrSelfReviewConfig,
     pub peer_or_self_review_questions: Vec<CmsPeerOrSelfReviewQuestion>,
+}
+
+/// A course's default configuration as the CMS loaded it. `updated_at` is the version the editor
+/// sends back on save.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct VersionedCmsPeerOrSelfReviewConfiguration {
+    #[serde(flatten)]
+    pub configuration: CmsPeerOrSelfReviewConfiguration,
+    pub updated_at: DateTime<Utc>,
+}
+
+/// Save of a course's default configuration. A save is refused as stale when `expected_updated_at`
+/// is set and the configuration has changed since that version; leave it unset to overwrite.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CmsPeerOrSelfReviewConfigurationSave {
+    #[serde(flatten)]
+    pub configuration: CmsPeerOrSelfReviewConfiguration,
+    pub expected_updated_at: Option<DateTime<Utc>>,
 }
 
 /**
@@ -327,9 +396,10 @@ pub async fn get_course_material_peer_or_self_review_data(
     }
 }
 
-pub async fn get_peer_reviews_by_page_id(
+/// The review configs of the undeleted exercises on the pages.
+pub async fn get_peer_reviews_by_page_ids(
     conn: &mut PgConnection,
-    page_id: Uuid,
+    page_ids: &[Uuid],
 ) -> ModelResult<Vec<CmsPeerOrSelfReviewConfig>> {
     let res = sqlx::query_as!(
         CmsPeerOrSelfReviewConfig,
@@ -347,12 +417,12 @@ SELECT pr.id as id,
 from pages p
   join exercises e on p.id = e.page_id
   join peer_or_self_review_configs pr on e.id = pr.exercise_id
-where p.id = $1
+where p.id = ANY($1)
   AND p.deleted_at IS NULL
   AND e.deleted_at IS NULL
   AND pr.deleted_at IS NULL;
     "#,
-        page_id,
+        page_ids,
     )
     .fetch_all(conn)
     .await?;
@@ -409,6 +479,38 @@ WHERE course_id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// Sets the review instructions of the course's default config, leaving its other settings as
+/// they are. Errors with `PreconditionFailed` if `config_id` isn't the course's default config.
+pub async fn set_course_default_review_instructions(
+    conn: &mut PgConnection,
+    config_id: Uuid,
+    course_id: Uuid,
+    review_instructions: Option<&serde_json::Value>,
+) -> ModelResult<()> {
+    let updated = sqlx::query!(
+        r#"
+UPDATE peer_or_self_review_configs
+SET review_instructions = $3
+WHERE id = $1
+  AND course_id = $2
+  AND exercise_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        config_id,
+        course_id,
+        review_instructions,
+    )
+    .execute(conn)
+    .await?;
+    if updated.rows_affected() == 0 {
+        return Err(model_err!(
+            PreconditionFailed,
+            "The course default review config doesn't exist".to_string()
+        ));
+    }
+    Ok(())
 }
 
 pub async fn get_cms_peer_review_by_id(
@@ -484,11 +586,14 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     })
 }
 
+/// With `expected_updated_at` set, refuses with [ModelErrorType::StaleVersion] unless the config
+/// row still has that `updated_at`. The check runs under the row lock.
 pub async fn upsert_for_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
     peer_or_self_review_configuration: &CmsPeerOrSelfReviewConfiguration,
-) -> ModelResult<CmsPeerOrSelfReviewConfiguration> {
+    expected_updated_at: Option<DateTime<Utc>>,
+) -> ModelResult<VersionedCmsPeerOrSelfReviewConfiguration> {
     let input = &peer_or_self_review_configuration.peer_or_self_review_config;
     if input.course_id != course_id {
         return Err(model_err!(
@@ -508,6 +613,27 @@ pub async fn upsert_for_course_id(
     }
 
     let mut tx = conn.begin().await?;
+    if expected_updated_at.is_some() {
+        let current_updated_at = sqlx::query_scalar!(
+            "
+SELECT updated_at
+FROM peer_or_self_review_configs
+WHERE id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+FOR UPDATE
+",
+            input.id,
+            course_id
+        )
+        .fetch_optional(&mut *tx)
+        .await?;
+        ensure_version(
+            current_updated_at,
+            expected_updated_at,
+            "The default peer review settings were changed after they were opened.",
+        )?;
+    }
     let peer_or_self_review_config = sqlx::query_as!(
         CmsPeerOrSelfReviewConfig,
         r#"
@@ -600,11 +726,71 @@ RETURNING id,
     )
     .await?;
 
+    let updated_at = get_updated_at(&mut tx, peer_or_self_review_config.id).await?;
     tx.commit().await?;
 
-    Ok(CmsPeerOrSelfReviewConfiguration {
+    Ok(VersionedCmsPeerOrSelfReviewConfiguration {
+        configuration: CmsPeerOrSelfReviewConfiguration {
+            peer_or_self_review_config,
+            peer_or_self_review_questions,
+        },
+        updated_at,
+    })
+}
+
+async fn get_updated_at(conn: &mut PgConnection, config_id: Uuid) -> ModelResult<DateTime<Utc>> {
+    let updated_at = sqlx::query_scalar!(
+        "SELECT updated_at FROM peer_or_self_review_configs WHERE id = $1 AND deleted_at IS NULL",
+        config_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(updated_at)
+}
+
+/// The course's default configuration with its questions; `None` if the course has none.
+pub async fn get_course_default_cms_peer_review_configuration(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Option<CmsPeerOrSelfReviewConfiguration>> {
+    let mut tx = conn.begin().await?;
+    let Some(peer_or_self_review_config) = get_course_default_cms_peer_review(&mut tx, course_id)
+        .await
+        .optional()?
+    else {
+        tx.rollback().await?;
+        return Ok(None);
+    };
+    let peer_or_self_review_questions =
+        crate::peer_or_self_review_questions::get_course_default_cms_peer_or_self_review_questions(
+            &mut tx,
+            peer_or_self_review_config.id,
+        )
+        .await?;
+    tx.commit().await?;
+    Ok(Some(CmsPeerOrSelfReviewConfiguration {
         peer_or_self_review_config,
         peer_or_self_review_questions,
+    }))
+}
+
+/// The course default configuration with its questions, as the CMS edits it.
+pub async fn get_course_default_versioned_cms_peer_review(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<VersionedCmsPeerOrSelfReviewConfiguration> {
+    let mut tx = conn.begin().await?;
+    let configuration = get_course_default_cms_peer_review_configuration(&mut tx, course_id)
+        .await?
+        .ok_or_else(missing_model_error(
+            ModelErrorType::RecordNotFound,
+            "The course has no default peer review config",
+        ))?;
+    let updated_at = get_updated_at(&mut tx, configuration.peer_or_self_review_config.id).await?;
+    tx.commit().await?;
+    Ok(VersionedCmsPeerOrSelfReviewConfiguration {
+        configuration,
+        updated_at,
     })
 }
 

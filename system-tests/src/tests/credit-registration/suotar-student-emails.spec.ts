@@ -7,7 +7,9 @@ import {
   myRegistrationOnCourse,
   seededStudentStorageState,
   STUDENT_8,
+  SUOTAR_B_COURSE_ID,
   SUOTAR_B_COURSE_SLUG,
+  SUOTAR_COURSE_ID,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -25,6 +27,7 @@ import {
   runPreconditionsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
+  setTestExclusiveHold,
 } from "@/utils/suotarControl"
 
 /**
@@ -32,13 +35,15 @@ import {
  * their enrolment, and the registration succeeded. Owns `credit-registration-student-2` on
  * `via-suotar` and `student8` on `via-suotar-b`.
  *
- * The workers tick every phase unscoped in the test deployment, so a mail can already be queued
- * before this file asks for one. Every assertion is therefore "exactly one of this kind exists",
- * which is what idempotency by `{action_needed,registered}_email_delivery_id` actually promises.
+ * Each test first holds its row from the live worker: while a worker tick has the row locked, this
+ * file's scoped tick skips it, and the next one can move the row past the state its mail is owed in.
+ * Every assertion is "exactly one of this kind exists", which is what idempotency by
+ * `{action_needed,registered}_email_delivery_id` actually promises.
  */
 const REGISTERED_EMAIL = CREDIT_REGISTRATION_STUDENT_2.email
 const REGISTERED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_2.studentNumber
 const NO_ENROLMENT_EMAIL = STUDENT_8.email
+const HOLD_SECS = 60
 
 /**
  * Every value `email_send_status` may take. We can see our own queue, not the recipient's inbox, so
@@ -69,12 +74,12 @@ test.describe("A student whose credits reach the study registry", () => {
     adminApi,
   }) => {
     const scope = { userEmail: REGISTERED_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
+    await setTestExclusiveHold(page.request, REGISTERED_EMAIL, HOLD_SECS, SUOTAR_COURSE_ID)
 
     const registration = await test.step("Drive the completion to registered", async () => {
       await runMaterializeTick(page.request, scope)
       await runPreconditionsTick(page.request, scope)
-      // Parked for its first enrolment check, which the student is mailed about at once. Ticked
-      // here so the mail exists whether or not the workers got to the row first.
+      // Parked for its first enrolment check, which the student is mailed about at once.
       await runStudentNotificationsTick(page.request, scope)
       await runEnrolmentCheckNow(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
@@ -134,6 +139,7 @@ test.describe("A student the study registry has no enrolment for", () => {
     adminApi,
   }) => {
     const scope = { userEmail: NO_ENROLMENT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
+    await setTestExclusiveHold(page.request, NO_ENROLMENT_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
 
     // The row waits a day for its first check, and the student is told what to do meanwhile.
     await runMaterializeTick(page.request, scope)

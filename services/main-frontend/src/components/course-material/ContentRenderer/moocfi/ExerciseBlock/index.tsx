@@ -7,7 +7,7 @@ import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
-import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
+import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -15,6 +15,7 @@ import UserOnWrongCourseNotification from "@/components/course-material/notifica
 import YellowBox from "@/components/course-material/YellowBox"
 import {
   ExerciseCardHeader,
+  ExerciseCardTitle,
   ExerciseCardPointsBadge,
   ExerciseCardTriesBadge,
   ExerciseCardWrapper,
@@ -37,7 +38,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
@@ -157,79 +158,6 @@ const DeadlineText = styled.div<DeadlineProps>`
 `
 
 export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
-
-/** Smaller type on narrow viewports so longer exercise names fit without crowding the header. */
-function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
-  const long = exerciseNameIsLong
-  return {
-    heading: css`
-      font-size: ${long ? "1.03rem" : "1.08rem"};
-      font-weight: 500;
-      font-family: ${headingFont} !important;
-      overflow-wrap: anywhere;
-      min-width: 0;
-      margin-top: -2px;
-
-      /* Focused programmatically after grading, not via tab, so no focus ring needed. */
-      &:focus {
-        outline: none;
-      }
-
-      ${respondToOrLarger.xxxs} {
-        font-size: ${long ? "1.06rem" : "1.14rem"};
-      }
-      ${respondToOrLarger.xxs} {
-        font-size: ${long ? "1.09rem" : "1.2rem"};
-      }
-      ${respondToOrLarger.xs} {
-        font-size: ${long ? "1.12rem" : "1.28rem"};
-      }
-      ${respondToOrLarger.sm} {
-        font-size: ${long ? "1.16rem" : "1.36rem"};
-      }
-      ${respondToOrLarger.md} {
-        font-size: ${long ? "1.2rem" : "1.46rem"};
-      }
-      ${respondToOrLarger.lg} {
-        font-size: ${long ? "1.3rem" : "1.58rem"};
-      }
-      ${respondToOrLarger.xl} {
-        font-size: ${long ? "1.4rem" : "1.7rem"};
-      }
-    `,
-    label: css`
-      font-weight: 600;
-      font-size: 0.8125rem;
-      margin-bottom: 0.25rem;
-
-      ${respondToOrLarger.xxxs} {
-        font-size: 0.875rem;
-      }
-      ${respondToOrLarger.xxs} {
-        font-size: 0.90625rem;
-      }
-      ${respondToOrLarger.xs} {
-        font-size: 0.9375rem;
-      }
-      ${respondToOrLarger.sm} {
-        font-size: 0.96875rem;
-      }
-      ${respondToOrLarger.md} {
-        font-size: 1rem;
-      }
-      ${respondToOrLarger.lg} {
-        font-size: 1.0625rem;
-      }
-      ${respondToOrLarger.xl} {
-        font-size: 1.125rem;
-      }
-    `,
-    nameLine: css`
-      line-height: 1.38;
-      padding-bottom: 0.2rem;
-    `,
-  }
-}
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
@@ -441,15 +369,6 @@ const ExerciseBlock: React.FC<
     },
   )
 
-  const exerciseNameIsLong = useMemo(() => {
-    if (!getCourseMaterialExercise.data) {
-      return false
-    }
-    return getCourseMaterialExercise.data.exercise.name.length > 35
-  }, [getCourseMaterialExercise.data])
-
-  const exerciseTitleStyles = exerciseBlockTitleHeadingStyles(exerciseNameIsLong)
-
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
@@ -555,17 +474,12 @@ const ExerciseBlock: React.FC<
           >
             <ExerciseCardHeader
               title={
-                <h2
+                <ExerciseCardTitle
                   id={exerciseTitleId}
                   ref={exerciseTitleRef}
                   tabIndex={-1}
-                  className={exerciseTitleStyles.heading}
-                >
-                  <div className={exerciseTitleStyles.label}>{t("label-exercise")}:</div>
-                  <div className={exerciseTitleStyles.nameLine}>
-                    {courseMaterialExercise.exercise.name}
-                  </div>
-                </h2>
+                  name={courseMaterialExercise.exercise.name}
+                />
               }
               rightContent={
                 <div

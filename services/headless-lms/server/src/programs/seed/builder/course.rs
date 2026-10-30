@@ -13,6 +13,7 @@ use headless_lms_models::{
     course_modules::CourseModule,
     courses::{self, Course, NewCourse},
     file_uploads, glossary,
+    library::content_management,
     pages::{self, NewCoursePage, NewPage},
     roles::{self, RoleDomain, UserRole},
 };
@@ -323,23 +324,9 @@ impl CourseBuilder {
         let default_instance =
             default_instance.expect("At least one course instance must be provided");
 
-        // Create mandatory front page for the course
-        let default_front_page_content = vec![
-            GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
-            GutenbergBlock::landing_page_copy_text(
-                "About this course",
-                "This course teaches you xxx.",
-            ),
-            GutenbergBlock::course_objective_section(),
-            GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
-            GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-        ];
-
         let front_page_blocks = self
             .front_page_content
-            .unwrap_or(default_front_page_content);
+            .unwrap_or_else(content_management::default_course_front_page_content);
 
         let course_front_page = NewPage {
             chapter_id: None,
@@ -480,27 +467,22 @@ impl CourseBuilder {
         if self.chapter_locking_enabled || self.flagged_answers_skip_manual_review_and_allow_retry {
             use headless_lms_models::courses::CourseUpdate;
             let course_update = CourseUpdate {
-                name: course.name.clone(),
-                description: course.description.clone(),
-                is_draft: course.is_draft,
-                is_test_mode: course.is_test_mode,
-                can_add_chatbot: course.can_add_chatbot,
-                is_unlisted: course.is_unlisted,
-                is_joinable_by_code_only: course.is_joinable_by_code_only,
-                ask_marketing_consent: course.ask_marketing_consent,
                 flagged_answers_threshold: self.flagged_answers_threshold.unwrap_or(3),
                 flagged_answers_skip_manual_review_and_allow_retry: self
                     .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: course.closed_at,
-                closed_additional_message: course.closed_additional_message.clone(),
-                closed_course_successor_id: course.closed_course_successor_id,
                 chapter_locking_enabled: self.chapter_locking_enabled,
-                ai_policy: course.ai_policy,
-                course_material_ai_instructions: course.course_material_ai_instructions,
+                ..CourseUpdate::from(&course)
             };
-            let updated_course = courses::update_course(conn, app_config, course.id, course_update)
-                .await
-                .context("updating course")?;
+            let updated_course = courses::update_course(
+                conn,
+                app_config,
+                course.id,
+                course_update,
+                cx.teacher,
+                false,
+            )
+            .await
+            .context("updating course")?;
             return Ok((
                 updated_course,
                 default_instance,

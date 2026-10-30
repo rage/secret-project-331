@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  chapter_id,\n  title,\n  url_path\nFROM pages\nWHERE course_id = $1\n  AND hidden IS DISTINCT FROM $2\n  AND deleted_at IS NULL\nORDER BY order_number\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "chapter_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "chapter_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "url_path",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "8611964197ac6bb72938434013c7b8d54707f8b12d166869cebd38a178b50ecf"
+}

@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import CourseProgressEditor from "./CourseProgressEditor"
-import CourseProgressSave from "./CourseProgressSave"
 
 const CourseProgressConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -14,7 +14,7 @@ const CourseProgressConfiguration: BlockConfiguration = {
   description: "Course Progress block.",
   category: MOOCFI_CATEGORY_SLUG,
   edit: CourseProgressEditor,
-  save: CourseProgressSave,
+  save: EmptyBlockSave,
   attributes: {},
 }
 

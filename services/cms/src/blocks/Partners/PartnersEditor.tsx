@@ -1,16 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = ["core/image"]
 
 const PartnerEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
@@ -40,7 +38,7 @@ const PartnerEditor: React.FC<
           </span>
         </div>
         <div>
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <RegisteredInnerBlocks />
         </div>
       </div>
     </BlockWrapper>

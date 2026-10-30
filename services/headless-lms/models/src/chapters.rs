@@ -1,9 +1,11 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use crate::CourseOrExamId;
+use crate::entity_history::{self, HistoryAuthor};
 use crate::exercise_slide_submissions;
 use crate::exercises;
 use crate::exercises::GradingProgress;
+use crate::library::entity_snapshots::{ChapterSnapshot, ContentEntityType};
 use crate::library::user_exercise_state_updater;
 use crate::user_exercise_states::{self, ReviewingStage};
 use crate::{
@@ -39,10 +41,14 @@ pub struct DatabaseChapter {
 impl DatabaseChapter {
     /// True if the chapter is currently open or was open and is now closed.
     pub fn has_opened(&self) -> bool {
-        self.opens_at
-            .map(|opens_at| opens_at < Utc::now())
-            .unwrap_or(true)
+        is_open_at(self.opens_at, Utc::now())
     }
+}
+
+/// Whether a chapter that opens at `opens_at` is open at `time`; one with no opening time always
+/// is.
+pub fn is_open_at(opens_at: Option<DateTime<Utc>>, time: DateTime<Utc>) -> bool {
+    opens_at.is_none_or(|opens_at| opens_at <= time)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -236,8 +242,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    let open = res.opens_at.map(|o| o <= Utc::now()).unwrap_or(true);
-    Ok(open)
+    Ok(is_open_at(res.opens_at, Utc::now()))
 }
 
 pub async fn get_chapter(
@@ -274,53 +279,114 @@ pub async fn get_course_id(conn: &mut PgConnection, chapter_id: Uuid) -> ModelRe
     Ok(course_id)
 }
 
+/// The course of each of the chapters, by chapter id; deleted chapters included.
+pub async fn get_course_ids(
+    conn: &mut PgConnection,
+    chapter_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    let rows = sqlx::query!(
+        "SELECT id, course_id FROM chapters WHERE id = ANY($1)",
+        chapter_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.id, row.course_id))
+        .collect())
+}
+
+/// The path of the front page of the chapter with the number.
+pub fn front_page_path(chapter_number: i32) -> String {
+    format!("/chapter-{chapter_number}")
+}
+
+/// The path of a page of the chapter with the number: the [`front_page_path`] for an empty
+/// `segment`, `<front page path>/<segment>` otherwise.
+pub fn page_path(chapter_number: i32, segment: &str) -> String {
+    let front_page_path = front_page_path(chapter_number);
+    if segment.is_empty() {
+        front_page_path
+    } else {
+        format!("{front_page_path}/{segment}")
+    }
+}
+
+/// The segment [`page_path`] would build `url_path` from for the chapter with the number; `None`
+/// when the path is not under that chapter's front page path.
+pub fn page_path_segment(url_path: &str, chapter_number: i32) -> Option<&str> {
+    let rest = url_path.strip_prefix(&front_page_path(chapter_number))?;
+    if rest.is_empty() {
+        Some(rest)
+    } else {
+        rest.strip_prefix('/')
+    }
+}
+
+/// Saves the chapter's editable fields and records the result in its history. A missing
+/// `course_module_id` keeps the chapter's module.
 pub async fn update_chapter(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     chapter_update: ChapterUpdate,
+    author_user_id: Uuid,
 ) -> ModelResult<DatabaseChapter> {
-    let res = sqlx::query_as!(
-        DatabaseChapter,
-        r#"
-UPDATE chapters
-SET name = $2,
-  deadline = $3,
-  opens_at = $4,
-  course_module_id = $5,
-  color = $6
-WHERE id = $1
-RETURNING *;
-    "#,
-        chapter_id,
-        chapter_update.name,
-        chapter_update.deadline,
-        chapter_update.opens_at,
-        chapter_update.course_module_id,
-        chapter_update.color,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
+    let ChapterUpdate {
+        name,
+        color,
+        front_page_id: _,
+        deadline,
+        opens_at,
+        course_module_id,
+    } = chapter_update;
+    save_edit(conn, chapter_id, author_user_id, |current| {
+        ChapterSnapshot {
+            name,
+            color,
+            deadline,
+            opens_at,
+            course_module_id: course_module_id.unwrap_or(current.course_module_id),
+            ..current
+        }
+    })
+    .await
 }
 
+/// Sets the chapter's image and records the result in its history.
 pub async fn update_chapter_image_path(
     conn: &mut PgConnection,
     chapter_id: Uuid,
     chapter_image_path: Option<String>,
+    author_user_id: Uuid,
 ) -> ModelResult<DatabaseChapter> {
-    let updated_chapter = sqlx::query_as!(
-        DatabaseChapter,
-        "
-UPDATE chapters
-SET chapter_image_path = $1
-WHERE id = $2
-RETURNING *;",
-        chapter_image_path,
-        chapter_id
+    save_edit(conn, chapter_id, author_user_id, |current| {
+        ChapterSnapshot {
+            chapter_image_path,
+            ..current
+        }
+    })
+    .await
+}
+
+/// Writes the change `edit` makes to the chapter's snapshot and records the result in its history.
+async fn save_edit(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+    author_user_id: Uuid,
+    edit: impl FnOnce(ChapterSnapshot) -> ChapterSnapshot,
+) -> ModelResult<DatabaseChapter> {
+    entity_history::save_recording(
+        conn,
+        ContentEntityType::Chapter,
+        chapter_id,
+        HistoryAuthor::user(author_user_id),
+        async move |tx| {
+            let current = ChapterSnapshot::from(get_chapter(&mut *tx, chapter_id).await?);
+            upsert_from_snapshot(&mut *tx, &edit(current)).await?;
+            get_chapter(tx, chapter_id).await
+        },
     )
-    .fetch_one(conn)
-    .await?;
-    Ok(updated_chapter)
+    .await
 }
 
 /// Whether a live chapter still uses this image path.
@@ -380,11 +446,7 @@ impl ChapterWithStatus {
         chapter_image_url: Option<String>,
         exercise_deadline_overrides: Option<ChapterExerciseDeadlineOverrideSummary>,
     ) -> Self {
-        let open = database_chapter
-            .opens_at
-            .map(|o| o <= timestamp)
-            .unwrap_or(true);
-        let status = if open {
+        let status = if is_open_at(database_chapter.opens_at, timestamp) {
             ChapterStatus::Open
         } else {
             ChapterStatus::Closed
@@ -525,11 +587,15 @@ WHERE course_id = (SELECT course_id FROM course_instances WHERE id = $1)
     Ok(chapters)
 }
 
+/// Deletes the chapter with its pages and exercises, and records the deletions in the history of
+/// the chapter and its pages.
 pub async fn delete_chapter(
     conn: &mut PgConnection,
     chapter_id: Uuid,
+    author: HistoryAuthor,
 ) -> ModelResult<DatabaseChapter> {
     let mut tx = conn.begin().await?;
+    entity_history::record_deleted(&mut tx, ContentEntityType::Chapter, chapter_id, author).await?;
     let deleted = sqlx::query_as!(
         DatabaseChapter,
         r#"
@@ -543,26 +609,23 @@ RETURNING *;
     )
     .fetch_one(&mut *tx)
     .await?;
-    // We'll also delete all the pages and exercises so that they don't conflict with future chapters
+    // After the chapter, since a live chapter's front page can't be deleted.
+    for page in crate::pages::get_chapter_page_paths(&mut tx, chapter_id).await? {
+        crate::pages::delete_page_and_exercises(&mut tx, page.id, author).await?;
+    }
+    // Exercises whose chapter_id still points here from a page of another chapter.
     sqlx::query!(
-        "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;",
-        chapter_id
-    )
-    .execute(&mut *tx)
-    .await?;
-    // Covers exercises by page_id too, not just chapter_id, in case the two ever disagree.
-    sqlx::query!(
-        "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE deleted_at IS NULL AND (chapter_id = $1 OR page_id IN (SELECT id FROM pages WHERE chapter_id = $1))));",
+        "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE deleted_at IS NULL AND chapter_id = $1));",
         chapter_id
     )
     .execute(&mut *tx).await?;
     sqlx::query!(
-        "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE deleted_at IS NULL AND (chapter_id = $1 OR page_id IN (SELECT id FROM pages WHERE chapter_id = $1)));",
+        "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE deleted_at IS NULL AND chapter_id = $1);",
         chapter_id
     )
     .execute(&mut *tx).await?;
     sqlx::query!(
-        "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND (chapter_id = $1 OR page_id IN (SELECT id FROM pages WHERE chapter_id = $1));",
+        "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
         chapter_id
     )
     .execute(&mut *tx)
@@ -1030,14 +1093,14 @@ pub async fn move_chapter_exercises_to_manual_review(
     Ok(())
 }
 
-/// Unlocks the first chapter(s) with exercises in the base module (order_number == 0) for a user.
-/// Also unlocks any chapters without exercises that come before the first chapter with exercises.
-pub async fn unlock_first_chapters_for_user(
+/// The chapters a student starts chapter locking with: the base module's chapters up to and
+/// including the first one with exercises. Errors with `NotFound` if the course has no base
+/// module.
+pub async fn first_chapters_to_unlock(
     conn: &mut PgConnection,
-    user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
-    use crate::{course_modules, exercises, user_chapter_locking_statuses};
+    use crate::{course_modules, exercises};
 
     let all_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let base_module = all_modules
@@ -1072,12 +1135,6 @@ pub async fn unlock_first_chapters_for_user(
             chapters_to_unlock.push(chapter.id);
         }
     }
-
-    for chapter_id in &chapters_to_unlock {
-        user_chapter_locking_statuses::unlock_chapter(conn, user_id, *chapter_id, course_id)
-            .await?;
-    }
-
     Ok(chapters_to_unlock)
 }
 
@@ -1241,6 +1298,55 @@ pub async fn unlock_next_chapters_for_user(
     }
 
     Ok(chapters_to_unlock)
+}
+
+/// Writes every field of the snapshot to the chapter, creating it with the snapshot's id if it does
+/// not exist and bringing it back if it is deleted. Does not touch the chapter's pages.
+pub async fn upsert_from_snapshot(
+    conn: &mut PgConnection,
+    snapshot: &crate::library::entity_snapshots::ChapterSnapshot,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+INSERT INTO chapters (
+    id,
+    course_id,
+    course_module_id,
+    name,
+    color,
+    chapter_number,
+    front_page_id,
+    opens_at,
+    deadline,
+    chapter_image_path
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
+UPDATE
+SET course_module_id = EXCLUDED.course_module_id,
+  name = EXCLUDED.name,
+  color = EXCLUDED.color,
+  chapter_number = EXCLUDED.chapter_number,
+  front_page_id = EXCLUDED.front_page_id,
+  opens_at = EXCLUDED.opens_at,
+  deadline = EXCLUDED.deadline,
+  chapter_image_path = EXCLUDED.chapter_image_path,
+  deleted_at = NULL
+WHERE chapters.course_id = EXCLUDED.course_id
+        "#,
+        snapshot.id,
+        snapshot.course_id,
+        snapshot.course_module_id,
+        snapshot.name,
+        snapshot.color,
+        snapshot.chapter_number,
+        snapshot.front_page_id,
+        snapshot.opens_at,
+        snapshot.deadline,
+        snapshot.chapter_image_path,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 #[cfg(test)]

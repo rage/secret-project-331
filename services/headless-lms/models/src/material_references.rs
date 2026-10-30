@@ -189,3 +189,29 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+/// Writes the snapshot to the reference, creating it with the snapshot's id if it does not exist
+/// and bringing it back if it is deleted.
+pub async fn upsert_from_snapshot(
+    conn: &mut PgConnection,
+    snapshot: &crate::library::entity_snapshots::ReferenceSnapshot,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO material_references (id, course_id, citation_key, reference)
+VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO
+UPDATE
+SET citation_key = EXCLUDED.citation_key,
+  reference = EXCLUDED.reference,
+  deleted_at = NULL
+WHERE material_references.course_id = EXCLUDED.course_id
+",
+        snapshot.id,
+        snapshot.course_id,
+        snapshot.citation_key,
+        snapshot.reference,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}

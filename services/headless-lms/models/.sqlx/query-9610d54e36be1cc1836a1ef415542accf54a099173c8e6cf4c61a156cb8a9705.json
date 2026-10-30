@@ -1,0 +1,67 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (ce.entity_type, ce.entity_id) ce.entity_type,\n  ce.entity_id,\n  ce.call_id\nFROM agent_changeset_call_entities ce\n  JOIN agent_changeset_calls c ON c.id = ce.call_id\nWHERE c.changeset_id = $1\nORDER BY ce.entity_type,\n  ce.entity_id,\n  c.created_at DESC,\n  c.id DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "entity_type",
+        "type_info": {
+          "Custom": {
+            "name": "content_entity_type",
+            "kind": {
+              "Enum": [
+                "page",
+                "chapter",
+                "module",
+                "course_settings",
+                "glossary_term",
+                "reference",
+                "course_default_review_config"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "entity_type"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "entity_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "entity_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "call_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "call_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "9610d54e36be1cc1836a1ef415542accf54a099173c8e6cf4c61a156cb8a9705"
+}

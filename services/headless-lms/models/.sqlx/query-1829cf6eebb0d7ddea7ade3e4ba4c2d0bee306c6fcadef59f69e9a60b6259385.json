@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT m.id\nFROM course_modules m\nWHERE m.course_id = $1\n  AND EXISTS (\n    SELECT 1\n    FROM course_module_completions c\n    WHERE c.course_module_id = m.id\n      AND c.course_id = $1\n      AND c.deleted_at IS NULL\n  )\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1829cf6eebb0d7ddea7ade3e4ba4c2d0bee306c6fcadef59f69e9a60b6259385"
+}

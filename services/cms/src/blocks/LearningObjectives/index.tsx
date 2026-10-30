@@ -16,6 +16,8 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
     "Learning Objective section where you describe what you will learn in this chapter/page.",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: ["core/list"],
+  innerBlocksArea: { template: [["core/list", {}]], templateLock: "all" },
   edit: LearningObjectiveSectionEditor,
   save: LearningObjectiveSectionSave,
   transforms: {

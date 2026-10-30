@@ -14,6 +14,7 @@ import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const CLIENT_ID = "test-client-id"
+const INNER_BLOCKS_TAG = "inner-blocks"
 const BLOCK_ID = `block-${CLIENT_ID}`
 const BLOCK_LIST_CLASS = "block-editor-block-list__block"
 
@@ -44,6 +45,7 @@ await jest.unstable_mockModule("@wordpress/block-editor", () => ({
     "data-block": CLIENT_ID,
     className: [BLOCK_LIST_CLASS, "wp-block", props.className].filter(Boolean).join(" "),
   }),
+  useBlockEditContext: () => ({ clientId: CLIENT_ID }),
   BlockControls: stub("div"),
   BlockEditorKeyboardShortcuts: stub("div"),
   BlockEditorProvider: stub("div"),
@@ -52,7 +54,7 @@ await jest.unstable_mockModule("@wordpress/block-editor", () => ({
   BlockList: stub("div"),
   BlockTools: stub("div"),
   ButtonBlockAppender: stub("div"),
-  InnerBlocks: stub("div"),
+  InnerBlocks: stub(INNER_BLOCKS_TAG),
   InspectorControls: stub("div"),
   MediaPlaceholder: stub("div"),
   ObserveTyping: stub("div"),
@@ -138,6 +140,7 @@ const {
 const { default: BlockWrapper } = await import("@/blocks/BlockWrapper")
 const { default: BlockPlaceholderWrapper } = await import("@/blocks/BlockPlaceholderWrapper")
 const { default: ExerciseBlockContext } = await import("@/contexts/ExerciseBlockContext")
+const { hasInnerBlocksArea } = await import("@/utils/Gutenberg/innerBlocksArea")
 
 const registeredBlocks = new Map<string, BlockConfiguration>()
 for (const [name, configuration] of [
@@ -150,6 +153,9 @@ for (const [name, configuration] of [
 }
 
 const blockNames = [...registeredBlocks.keys()].toSorted()
+
+/** Exercise parts show their inner blocks only with course data loaded; agents never write them. */
+const INNER_BLOCKS_AFTER_LOADING = new Set(["moocfi/exercise-settings", "moocfi/exercise-task"])
 
 /** Renders past this many attribute updates and the block is looping, not settling. */
 const ATTRIBUTE_UPDATE_LIMIT = 50
@@ -294,6 +300,18 @@ describe("custom block edit components", () => {
       expect(wrapper?.getAttribute("role")).toBe("document")
       expect(wrapper?.getAttribute("tabindex")).toBe("0")
       expect(wrapper?.classList.contains(BLOCK_LIST_CLASS)).toBe(true)
+    },
+  )
+
+  // The validator accepts children exactly where the registration declares an area for them.
+  it.each(blockNames.filter((name) => !INNER_BLOCKS_AFTER_LOADING.has(name)))(
+    "%s renders inner blocks exactly when its registration allows them",
+    async (name) => {
+      const markup = await renderBlockEdit(name)
+
+      expect(markup.querySelector(INNER_BLOCKS_TAG) !== null).toBe(
+        hasInnerBlocksArea(registeredBlocks.get(name) ?? {}),
+      )
     },
   )
 

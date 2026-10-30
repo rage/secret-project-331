@@ -14,6 +14,7 @@ const PartnerConfiguration: BlockConfiguration = {
   description: "Partner Section",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: ["core/image"],
   edit: PartnerEditor,
   save: PartnerSave,
 }

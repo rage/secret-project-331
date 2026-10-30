@@ -20,9 +20,12 @@ const TableBoxConfiguration: BlockConfiguration<TableBoxAttributes> = {
   attributes: {
     width: {
       type: "string",
+      agentSchema: { type: "string", pattern: "^\\d*$" },
       default: "",
     },
   },
+  allowedBlocks: ["core/table"],
+  innerBlocksArea: { template: [["core/table", {}]], templateLock: "all" },
   edit: TableEditor,
   save: TableSave,
 }

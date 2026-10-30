@@ -2,6 +2,7 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
+import { HEX_COLOR_OR_EMPTY } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import AsideEditor from "./AsideEditor"
@@ -21,13 +22,16 @@ const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
   attributes: {
     backgroundColor: {
       type: "string",
+      agentSchema: HEX_COLOR_OR_EMPTY,
       default: "#ebf5fb",
     },
     separatorColor: {
       type: "string",
+      agentSchema: HEX_COLOR_OR_EMPTY,
       default: "#007acc",
     },
   },
+  innerBlocksArea: {},
   edit: AsideEditor,
   save: AsideSave,
   // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes

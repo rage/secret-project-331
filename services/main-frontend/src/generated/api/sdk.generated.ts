@@ -95,6 +95,8 @@ import type {
   ConfirmCourseSuspectedCheaterResponses,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponses,
+  CreateAgentChangesetPreviewLinkData,
+  CreateAgentChangesetPreviewLinkResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateChatbotData,
@@ -181,8 +183,6 @@ import type {
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
-  DeleteOauthAuthorizedClientData,
-  DeleteOauthAuthorizedClientResponses,
   DeleteOrganizationImageData,
   DeleteOrganizationImageResponses,
   DeletePageAudioFileData,
@@ -199,6 +199,8 @@ import type {
   DeviceAuthorizationOauthData,
   DeviceAuthorizationOauthErrors,
   DeviceAuthorizationOauthResponses,
+  DiscardAgentChangesetData,
+  DiscardAgentChangesetResponses,
   DismissCourseSuspectedCheaterData,
   DismissCourseSuspectedCheaterResponses,
   DismissCreditRegistrationEnrolmentBannerData,
@@ -258,6 +260,14 @@ import type {
   GetAccountLinkingUnlinkedEnroleesData,
   GetAccountLinkingUnlinkedEnroleesErrors,
   GetAccountLinkingUnlinkedEnroleesResponses,
+  GetAgentChangesetCountsData,
+  GetAgentChangesetCountsResponses,
+  GetAgentChangesetData,
+  GetAgentChangesetResponses,
+  GetAgentChangesetsData,
+  GetAgentChangesetsResponses,
+  GetAgentPagePreviewData,
+  GetAgentPagePreviewResponses,
   GetAllChatbotsData,
   GetAllChatbotsResponses,
   GetAllCoursesData,
@@ -533,11 +543,13 @@ import type {
   GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses,
   GetNumberOfPeopleStartedCourseData,
   GetNumberOfPeopleStartedCourseResponses,
-  GetOauthAuthorizedClientsData,
-  GetOauthAuthorizedClientsResponses,
+  GetOauthConsentInfoData,
+  GetOauthConsentInfoResponses,
   GetOauthDeviceVerificationData,
   GetOauthDeviceVerificationErrors,
   GetOauthDeviceVerificationResponses,
+  GetOauthGrantsData,
+  GetOauthGrantsResponses,
   GetOauthJwksData,
   GetOauthJwksResponses,
   GetOauthOpenidConfigurationData,
@@ -719,6 +731,8 @@ import type {
   PreviewStudentNumberVerificationTokenResponses,
   ProcessEditProposalData,
   ProcessEditProposalResponses,
+  PublishAgentChangesetData,
+  PublishAgentChangesetResponses,
   ReceivePlaygroundGradingData,
   ReceivePlaygroundGradingResponses,
   RecheckCreditRegistrationEnrolmentData,
@@ -759,6 +773,8 @@ import type {
   RetryCreditRegistrationResponses,
   RetryFailedCreditRegistrationsForCourseData,
   RetryFailedCreditRegistrationsForCourseResponses,
+  RevokeOauthGrantData,
+  RevokeOauthGrantResponses,
   RevokeOauthTokenData,
   RevokeOauthTokenResponses,
   RevokeSubmissionShareData,
@@ -890,6 +906,7 @@ import {
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
+  zCreateAgentChangesetPreviewLinkResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
@@ -918,12 +935,12 @@ import {
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
   zDeleteExternalCourseResponse,
-  zDeleteOauthAuthorizedClientResponse,
   zDeletePageResponse,
   zDeletePlaygroundExampleResponse,
   zDenyOauthConsentResponse,
   zDenyOauthDeviceVerificationResponse,
   zDeviceAuthorizationOauthResponse,
+  zDiscardAgentChangesetResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
   zDownloadExerciseAnswerFilesResponse,
   zDuplicateExamResponse,
@@ -947,6 +964,10 @@ import {
   zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
   zGetAccountLinkingUnlinkedEnroleesResponse,
+  zGetAgentChangesetCountsResponse,
+  zGetAgentChangesetResponse,
+  zGetAgentChangesetsResponse,
+  zGetAgentPagePreviewResponse,
   zGetAllChatbotsResponse,
   zGetAllCoursesResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
@@ -1076,8 +1097,9 @@ import {
   zGetNumberOfPeopleDoneAtLeastOneExerciseResponse,
   zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   zGetNumberOfPeopleStartedCourseResponse,
-  zGetOauthAuthorizedClientsResponse,
+  zGetOauthConsentInfoResponse,
   zGetOauthDeviceVerificationResponse,
+  zGetOauthGrantsResponse,
   zGetOrganizationActiveCourseCountResponse,
   zGetOrganizationActiveCoursesResponse,
   zGetOrganizationBySlugResponse,
@@ -1157,6 +1179,7 @@ import {
   zListVerifiedStudentNumbersForAdminResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
+  zPublishAgentChangesetResponse,
   zRecheckCreditRegistrationEnrolmentResponse,
   zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
@@ -1170,6 +1193,7 @@ import {
   zRestorePageHistoryResponse,
   zRetryCreditRegistrationResponse,
   zRetryFailedCreditRegistrationsForCourseResponse,
+  zRevokeOauthGrantResponse,
   zRevokeSubmissionShareResponse,
   zRevokeSubmissionSharesOfSubmissionResponse,
   zSaveCourseDesignerScheduleResponse,
@@ -1286,6 +1310,131 @@ export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = tr
       "Content-Type": null,
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-changesets?course_id=` - The signed-in user's agent changesets in
+ * the course, newest first, with what each changes.
+ */
+export const getAgentChangesets = <ThrowOnError extends boolean = true>(
+  options: Options<GetAgentChangesetsData, ThrowOnError>,
+): RequestResult<GetAgentChangesetsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetAgentChangesetsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAgentChangesetsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent
+ * changesets in the course, and how many entities their open one stages, for the course management
+ * tab and its badge.
+ */
+export const getAgentChangesetCounts = <ThrowOnError extends boolean = true>(
+  options: Options<GetAgentChangesetCountsData, ThrowOnError>,
+): RequestResult<GetAgentChangesetCountsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetAgentChangesetCountsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAgentChangesetCountsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets/counts",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the
+ * review page: what each staged entity changes, field by field and for pages as students see them,
+ * its risk reasons, the conflicts and the agent calls that staged the changes.
+ */
+export const getAgentChangeset = <ThrowOnError extends boolean = true>(
+  options: Options<GetAgentChangesetData, ThrowOnError>,
+): RequestResult<GetAgentChangesetResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetAgentChangesetResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAgentChangesetResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets/{changeset_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open
+ * changeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no
+ * longer open or no longer the reviewed revision.
+ */
+export const discardAgentChangeset = <ThrowOnError extends boolean = true>(
+  options: Options<DiscardAgentChangesetData, ThrowOnError>,
+): RequestResult<DiscardAgentChangesetResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<DiscardAgentChangesetResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zDiscardAgentChangesetResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/discard",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
+ * short-lived preview link for a page of the user's changeset, so the review page can open the staged
+ * page as students would see it.
+ */
+export const createAgentChangesetPreviewLink = <ThrowOnError extends boolean = true>(
+  options: Options<CreateAgentChangesetPreviewLinkData, ThrowOnError>,
+): RequestResult<CreateAgentChangesetPreviewLinkResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    CreateAgentChangesetPreviewLinkResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateAgentChangesetPreviewLinkResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open
+ * changeset, risky changes included. Rejected without changes if the changeset is no longer open or no
+ * longer the reviewed revision, if any staged page or entity changed live since it was staged, or if
+ * saving a staged entity fails.
+ */
+export const publishAgentChangeset = <ThrowOnError extends boolean = true>(
+  options: Options<PublishAgentChangesetData, ThrowOnError>,
+): RequestResult<PublishAgentChangesetResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PublishAgentChangesetResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zPublishAgentChangesetResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/publish",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No
+ * login: the short-lived signed token stands in for it, while its user may still edit the course.
+ */
+export const getAgentPagePreview = <ThrowOnError extends boolean = true>(
+  options: Options<GetAgentPagePreviewData, ThrowOnError>,
+): RequestResult<GetAgentPagePreviewResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetAgentPagePreviewResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAgentPagePreviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/agent-preview/{token}",
+    ...options,
   })
 
 /**
@@ -7499,55 +7648,28 @@ export const authorizeOauthPost = <ThrowOnError extends boolean = true>(
     },
   })
 
-export const getOauthAuthorizedClients = <ThrowOnError extends boolean = true>(
-  options?: Options<GetOauthAuthorizedClientsData, ThrowOnError>,
-): RequestResult<GetOauthAuthorizedClientsResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).get<
-    GetOauthAuthorizedClientsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zGetOauthAuthorizedClientsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/oauth/authorized-clients",
-    ...options,
-  })
-
-export const deleteOauthAuthorizedClient = <ThrowOnError extends boolean = true>(
-  options: Options<DeleteOauthAuthorizedClientData, ThrowOnError>,
-): RequestResult<DeleteOauthAuthorizedClientResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).delete<
-    DeleteOauthAuthorizedClientResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zDeleteOauthAuthorizedClientResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/oauth/authorized-clients/{client_id}",
-    ...options,
-  })
-
 /**
  * Handles `/consent` approval after the user agrees to grant requested scopes.
  *
  * This endpoint:
- * - Validates the redirect URI and requested scopes against the registered client.
- * - Records granted scopes for the user-client pair.
- * - Redirects back to `/authorize` to continue the OAuth flow.
+ * - Validates the redirect URI and the approved scopes against the registered client.
+ * - Records the approved scopes for the user-client pair.
+ * - Redirects back to `/authorize` with the approved scopes, so the code is issued for them.
+ *
+ * `scope` is what the user approved, which may be fewer scopes than requested. If it contains
+ * any MCP scope it must contain `material:read`.
  *
  * # Example
  * ```http
- * GET /api/v0/main-frontend/oauth/consent?client_id=test-client-id&redirect_uri=http://localhost&scopes=openid%20profile&state=random123&nonce=secure_nonce_abc HTTP/1.1
+ * POST /api/v0/main-frontend/oauth/consent HTTP/1.1
  * Cookie: session=abc123
  *
+ * {"client_id":"test-client-id","redirect_uri":"http://localhost","scope":"openid profile","state":"random123","nonce":"secure_nonce_abc","response_type":"code"}
  * ```
  *
- * Redirect back to `/authorize`:
- * ```http
- * HTTP/1.1 302 Found
- * Location: /api/v0/main-frontend/oauth/authorize?client_id=...
+ * Response:
+ * ```json
+ * {"redirect_uri": "/api/v0/main-frontend/oauth/authorize?client_id=..."}
  * ```
  */
 export const approveOauthConsent = <ThrowOnError extends boolean = true>(
@@ -7565,21 +7687,37 @@ export const approveOauthConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ *
+ * GET `/api/v0/main-frontend/oauth/consent-info` - What the consent screen shows: the client asking
+ * and a checkbox state per requested scope. The client must already be known, which the authorize
+ * endpoint ensures before redirecting to the consent screen.
+ */
+export const getOauthConsentInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetOauthConsentInfoData, ThrowOnError>,
+): RequestResult<GetOauthConsentInfoResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetOauthConsentInfoResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetOauthConsentInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/consent-info",
+    ...options,
+  })
+
+/**
  * Handles `/consent/deny` when the user refuses to grant scopes.
  *
  * This endpoint:
- * - Redirects back to the client with `error=access_denied`.
+ * - Redirects back to the client with `error=access_denied` and `iss` (RFC 9207).
  *
  * # Example
  * ```http
- * GET /api/v0/main-frontend/oauth/consent/deny?redirect_uri=http://localhost&state=random123 HTTP/1.1
+ * POST /api/v0/main-frontend/oauth/consent/deny HTTP/1.1
  *
+ * {"client_id":"test-client-id","redirect_uri":"http://localhost","state":"random123"}
  * ```
  *
  * Response:
- * ```http
- * HTTP/1.1 302 Found
- * Location: http://localhost?error=access_denied&state=random123
+ * ```json
+ * {"redirect_uri": "http://localhost?error=access_denied&state=random123&iss=..."}
  * ```
  */
 export const denyOauthConsent = <ThrowOnError extends boolean = true>(
@@ -7746,6 +7884,36 @@ export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/oauth/grants` - The signed-in user's OAuth grants, including AI agent
+ * clients, with their scopes and when they were last used.
+ */
+export const getOauthGrants = <ThrowOnError extends boolean = true>(
+  options?: Options<GetOauthGrantsData, ThrowOnError>,
+): RequestResult<GetOauthGrantsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetOauthGrantsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetOauthGrantsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/grants",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/oauth/grants/{grant_id}` - Revokes one of the signed-in user's grants
+ * and every token issued from it. The client has to ask for consent again.
+ */
+export const revokeOauthGrant = <ThrowOnError extends boolean = true>(
+  options: Options<RevokeOauthGrantData, ThrowOnError>,
+): RequestResult<RevokeOauthGrantResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<RevokeOauthGrantResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zRevokeOauthGrantResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/oauth/grants/{grant_id}",
+    ...options,
   })
 
 /**

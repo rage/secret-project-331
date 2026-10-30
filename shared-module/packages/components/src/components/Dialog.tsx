@@ -93,6 +93,8 @@ export type DialogProps = DialogLabelling &
     onExitComplete?: () => void
     /** Whether clicking the underlay closes the dialog. */
     isDismissable?: boolean
+    /** Whether Escape is ignored instead of closing the dialog. */
+    isKeyboardDismissDisabled?: boolean
     /** Hides the visible close button in the top corner. */
     showCloseButton?: boolean
     className?: string
@@ -333,6 +335,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   hasDescription = true,
   exit = "fade",
   isDismissable = false,
+  isKeyboardDismissDisabled = false,
   showCloseButton = true,
   footer,
   actions,
@@ -357,7 +360,11 @@ const OpenDialog: React.FC<DialogProps> = ({
       }
     },
   })
-  const { modalProps, underlayProps } = useModalOverlay({ isDismissable }, state, ref)
+  const { modalProps, underlayProps } = useModalOverlay(
+    { isDismissable, isKeyboardDismissDisabled },
+    state,
+    ref,
+  )
   const { dialogProps: dialogPropsFromHook, contentProps } = useDialog(
     hasTitle
       ? { role, "aria-labelledby": titleId }

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT course_id\nFROM agent_changesets\nWHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "fb85f291c559fed63f2834576e49e2dd1cf25ffbaad6f145fc5eea30484a5e4b"
+}

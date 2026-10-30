@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import TopLevelPageEditor from "./TopLevelPageEditor"
-import TopLevelPageSave from "./TopLevelPageSave"
 
 const TopLevePageConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -15,7 +15,7 @@ const TopLevePageConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   edit: TopLevelPageEditor,
-  save: TopLevelPageSave,
+  save: EmptyBlockSave,
 }
 
 export default TopLevePageConfiguration

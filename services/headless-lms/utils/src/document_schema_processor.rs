@@ -12,16 +12,40 @@ use uuid::Uuid;
 
 use crate::strings::strip_html_tags;
 
+/// The name of the block that embeds an exercise; its `id` attribute is the exercise id.
+pub const EXERCISE_BLOCK: &str = "moocfi/exercise";
+
 /// Blocks that are not allowed in top-level pages (pages without chapter_id).
 /// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
-static DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
-    "moocfi/exercise",
+const DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES: &[&str] = &[
+    EXERCISE_BLOCK,
     "moocfi/exercise-task",
     "moocfi/exercises-in-chapter",
     "moocfi/pages-in-chapter",
-    "moocfi/exercises-in-chapter",
     "moocfi/chapter-progress",
 ];
+
+/// The heading and description of each objective in [`GutenbergBlock::course_objective_section`],
+/// placeholder text for the teacher to replace.
+pub const COURSE_OBJECTIVE_PLACEHOLDERS: [(&str, &str); 3] = [
+    (
+        "Objective #1",
+        "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...",
+    ),
+    (
+        "Objective #2",
+        "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...",
+    ),
+    (
+        "Objective #3",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien.",
+    ),
+];
+
+/// The `style` attribute Gutenberg stores for centred text in blocks with the text-align support.
+fn centred_text_style() -> Value {
+    serde_json::json!({"typography": {"textAlign": "center"}})
+}
 
 pub use crate::attributes;
 use crate::prelude::*;
@@ -38,7 +62,7 @@ macro_rules! attributes {
     }};
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
 
 pub struct GutenbergBlock {
     #[serde(rename = "clientId")]
@@ -110,15 +134,47 @@ impl GutenbergBlock {
             vec![GutenbergBlock::block_with_name_and_attributes(
                 "core/paragraph",
                 attributes! {
-                    "align": "center",
                     "content": sub_title,
                     "dropCap": false,
-                    "placeholder": "Insert short description of course..."
+                    "placeholder": "Insert short description of course...",
+                    "style": centred_text_style()
                 },
             )],
         )
     }
+
+    /// The course objectives section with [`COURSE_OBJECTIVE_PLACEHOLDERS`] for the teacher to
+    /// replace.
     pub fn course_objective_section() -> Self {
+        let columns = COURSE_OBJECTIVE_PLACEHOLDERS
+            .iter()
+            .enumerate()
+            .map(|(index, (heading, description))| {
+                GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+                    "core/column",
+                    attributes! {},
+                    vec![
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/heading",
+                            attributes! {
+                                "level": 3,
+                                "content": heading,
+                                "anchor": format!("objective-{}", index + 1),
+                                "style": centred_text_style(),
+                            },
+                        ),
+                        GutenbergBlock::block_with_name_and_attributes(
+                            "core/paragraph",
+                            attributes! {
+                                "dropCap": false,
+                                "content": description,
+                                "style": centred_text_style(),
+                            },
+                        ),
+                    ],
+                )
+            })
+            .collect();
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/course-objective-section",
             attributes! {
@@ -129,77 +185,7 @@ impl GutenbergBlock {
                 attributes! {
                     "isStackedOnMobile": true
                 },
-                vec![
-                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        "core/column",
-                        attributes! {},
-                        vec![
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/heading",
-                                attributes! {
-                                    "textAlign": "center",
-                                    "level": 3,
-                                    "content": "Objective #1",
-                                    "anchor": "objective-1",
-                                },
-                            ),
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/paragraph",
-                                attributes! {
-                                    "align": "center",
-                                    "dropCap": false,
-                                    "content": "Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit..."
-                                },
-                            ),
-                        ],
-                    ),
-                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        "core/column",
-                        attributes! {},
-                        vec![
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/heading",
-                                attributes! {
-                                    "textAlign": "center",
-                                    "level": 3,
-                                    "content": "Objective #2",
-                                    "anchor": "objective-2",
-                                },
-                            ),
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/paragraph",
-                                attributes! {
-                                    "align": "center",
-                                    "dropCap": false,
-                                    "content": "There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain..."
-                                },
-                            ),
-                        ],
-                    ),
-                    GutenbergBlock::block_with_name_attributes_and_inner_blocks(
-                        "core/column",
-                        attributes! {},
-                        vec![
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/heading",
-                                attributes! {
-                                    "textAlign": "center",
-                                    "level": 3,
-                                    "content": "Objective #3",
-                                    "anchor": "objective-3",
-                                },
-                            ),
-                            GutenbergBlock::block_with_name_and_attributes(
-                                "core/paragraph",
-                                attributes! {
-                                    "align": "center",
-                                    "dropCap": false,
-                                    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas a tempor risus. Morbi at sapien."
-                                },
-                            ),
-                        ],
-                    ),
-                ],
+                columns,
             )],
         )
     }
@@ -224,7 +210,6 @@ impl GutenbergBlock {
                                 "level": 2,
                                 "placeholder": heading,
                                 "anchor": heading,
-                                "textAlign": "left"
                             },
                         ),
                         GutenbergBlock::block_with_name_and_attributes(
@@ -246,14 +231,69 @@ impl GutenbergBlock {
             ..self
         }
     }
+
+    /// The exercise an exercise block embeds; `None` for other blocks and for an exercise block
+    /// whose `id` attribute names none.
+    pub fn exercise_id(&self) -> Option<Uuid> {
+        if self.name != EXERCISE_BLOCK {
+            return None;
+        }
+        self.attributes
+            .get("id")
+            .and_then(Value::as_str)
+            .and_then(|id| Uuid::parse_str(id).ok())
+    }
 }
 
-/// Checks if blocks contain any that are not allowed in top-level pages (pages without chapter_id).
+/// Depth-first, pre-order visit of every block with its index path (`[2, 0]` is the first child of
+/// the third top-level block).
+pub fn walk<'a>(blocks: &'a [GutenbergBlock], visit: &mut dyn FnMut(&'a GutenbergBlock, &[usize])) {
+    fn go<'a>(
+        blocks: &'a [GutenbergBlock],
+        prefix: &mut Vec<usize>,
+        visit: &mut dyn FnMut(&'a GutenbergBlock, &[usize]),
+    ) {
+        for (index, block) in blocks.iter().enumerate() {
+            prefix.push(index);
+            visit(block, prefix);
+            go(&block.inner_blocks, prefix, visit);
+            prefix.pop();
+        }
+    }
+    go(blocks, &mut Vec::new(), visit);
+}
+
+/// Depth-first, pre-order visit of every block.
+pub fn walk_mut(blocks: &mut [GutenbergBlock], visit: &mut dyn FnMut(&mut GutenbergBlock)) {
+    for block in blocks.iter_mut() {
+        visit(block);
+        walk_mut(&mut block.inner_blocks, visit);
+    }
+}
+
+/// The `clientId` of every block in the tree, in [`walk`] order.
+pub fn all_client_ids(blocks: &[GutenbergBlock]) -> Vec<Uuid> {
+    let mut ids = Vec::new();
+    walk(blocks, &mut |block, _| ids.push(block.client_id));
+    ids
+}
+
+/// The blocks, at any depth, that aren't allowed in top-level pages (pages without chapter_id).
 /// Note: This is NOT for chapter front pages. Chapter front pages can contain these blocks.
+pub fn blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> Vec<&GutenbergBlock> {
+    let mut found = Vec::new();
+    walk(input, &mut |block, _| {
+        if DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()) {
+            found.push(block);
+        }
+    });
+    found
+}
+
+/// Checks if blocks, at any depth, contain any that are not allowed in top-level pages (pages
+/// without chapter_id). See [`blocks_not_allowed_in_top_level_pages`].
 pub fn contains_blocks_not_allowed_in_top_level_pages(input: &[GutenbergBlock]) -> bool {
-    input
-        .iter()
-        .any(|block| DISALLOWED_BLOCKS_IN_TOP_LEVEL_PAGES.contains(&block.name.as_str()))
+    !blocks_not_allowed_in_top_level_pages(input).is_empty()
 }
 
 pub fn remap_ids_in_content(
@@ -466,13 +506,6 @@ mod tests {
         assert_eq!(get_learning_objectives(&[objectives_block(&[])]), None);
     }
 
-    fn collect_ids(blocks: &Vec<GutenbergBlock>, ids: &mut Vec<Uuid>) {
-        for block in blocks {
-            ids.push(block.client_id);
-            collect_ids(&block.inner_blocks, ids);
-        }
-    }
-
     #[test]
     fn replace_duplicate_client_ids_makes_all_ids_unique_flat_and_nested() {
         let dup_id = Uuid::new_v4();
@@ -493,8 +526,7 @@ mod tests {
         let input = vec![block_a, block_b];
         let output = replace_duplicate_client_ids(input);
 
-        let mut ids: Vec<Uuid> = Vec::new();
-        collect_ids(&output, &mut ids);
+        let ids = all_client_ids(&output);
         let unique: HashSet<Uuid> = ids.iter().cloned().collect();
         assert_eq!(
             unique.len(),

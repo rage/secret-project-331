@@ -10,6 +10,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/course-material/materialFeedbackStore"
 
 import type { BlockRendererProps } from "../../.."
+import { textAlignOf } from "../../../util/textAlign"
 import EditingParagraph from "./proposing-edits/EditingParagraph"
 import { getParagraphStyles } from "./styles"
 
@@ -25,7 +26,8 @@ const P = "p"
 const ParagraphBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
 > = ({ data, id }) => {
-  const { textColor, backgroundColor, fontSize, content, dropCap, align, fitText } = data.attributes
+  const { textColor, backgroundColor, fontSize, content, dropCap, fitText, style } = data.attributes
+  const align = textAlignOf(style, data.attributes.align)
   const [type] = useAtom(currentlyOpenFeedbackDialogAtom)
   const isEditing = type === "proposed-edits"
 

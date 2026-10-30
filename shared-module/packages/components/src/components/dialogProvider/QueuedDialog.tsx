@@ -245,7 +245,11 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
   return (
     <Dialog
       {...labelling}
-      {...omitUndefined({ size: request.size, lang: request.lang })}
+      {...omitUndefined({
+        size: request.size,
+        lang: request.lang,
+        isKeyboardDismissDisabled: request.isKeyboardDismissDisabled,
+      })}
       open={visuallyOpen}
       onClose={() => {
         settle(dismissedResult(kind))

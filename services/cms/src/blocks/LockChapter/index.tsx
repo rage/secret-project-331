@@ -13,6 +13,18 @@ const LockChapterConfiguration: BlockConfiguration = {
   description: "Button for students to lock chapter (mark as done).",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [
+    "core/heading",
+    "core/paragraph",
+    "core/image",
+    "core/video",
+    "core/code",
+    "core/list",
+    "core/quote",
+    "core/table",
+    "moocfi/latex",
+    "moocfi/iframe",
+  ],
   edit: LockChapterEditor,
   save: LockChapterSave,
 }

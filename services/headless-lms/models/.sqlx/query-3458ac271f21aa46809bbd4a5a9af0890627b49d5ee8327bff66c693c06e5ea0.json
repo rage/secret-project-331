@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT user_id\nFROM user_chapter_locking_statuses\nWHERE course_id = $1\n  AND user_id = ANY($2)\n  AND deleted_at IS NULL\nGROUP BY user_id\nHAVING bool_and(status = 'not_unlocked_yet')\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_chapter_locking_statuses",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3458ac271f21aa46809bbd4a5a9af0890627b49d5ee8327bff66c693c06e5ea0"
+}

@@ -2,6 +2,7 @@
 
 /* oxlint-disable i18next/no-literal-string */
 
+import { HEX_COLOR_OR_EMPTY } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { Deprecated1 } from "./deprecated"
@@ -21,6 +22,7 @@ const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
   attributes: {
     backgroundColor: {
       type: "string",
+      agentSchema: HEX_COLOR_OR_EMPTY,
       default: "#faf5f3",
     },
     noPadding: {
@@ -28,6 +30,7 @@ const InfoBoxConfiguration: BlockConfiguration<InfoBoxComponentProps> = {
       default: false,
     },
   },
+  innerBlocksArea: {},
   edit: InfoBoxEditor,
   save: InfoBoxSave,
   // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes

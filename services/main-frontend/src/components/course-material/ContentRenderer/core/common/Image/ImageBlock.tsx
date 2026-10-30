@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
@@ -43,6 +44,7 @@ const stripTags = (html: string): string => html.replaceAll(/<[^>]*>/g, "").trim
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
 > = ({ data }) => {
+  const { t } = useTranslation()
   const { disableInteractivity } = useImageInteractivity()
   const imageRef = useRef<HTMLImageElement>(null)
   const figcaptionRef = useRef<HTMLElement>(null)
@@ -230,7 +232,14 @@ const ImageBlock: React.FC<
     imageContent
   ) : (
     <StyledZoomWrapper>
-      <Zoom>{imageContent}</Zoom>
+      <Zoom
+        a11yNameButtonZoom={t("image-zoom-open")}
+        a11yNameButtonUnzoom={t("image-zoom-close")}
+        // The media link can point at the full-size original of a resized image.
+        {...(linksToOwnFile && href && href !== url && { zoomImg: { src: href } })}
+      >
+        {imageContent}
+      </Zoom>
     </StyledZoomWrapper>
   )
 }

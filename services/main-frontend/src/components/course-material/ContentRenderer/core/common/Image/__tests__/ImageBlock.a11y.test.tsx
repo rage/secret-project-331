@@ -81,9 +81,12 @@ describe("ImageBlock links", () => {
   })
 
   it("keeps a custom link to another address", () => {
-    const { container } = renderBlock(
+    const { getByRole } = renderBlock(
       makeProps({ href: "https://example.com/article", linkDestination: "custom" }),
     )
-    expect(container.querySelector("a")).toHaveAttribute("href", "https://example.com/article")
+    expect(getByRole("link", { name: "A photo" })).toHaveAttribute(
+      "href",
+      "https://example.com/article",
+    )
   })
 })

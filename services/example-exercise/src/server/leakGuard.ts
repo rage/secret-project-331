@@ -69,7 +69,8 @@ export function assertNoLeak(projection: unknown, options: LeakGuardOptions): vo
     // serialized string (a key, array element, or property value), which the quoted form still
     // catches; `JSON.stringify` on both sides also keeps escaping consistent.
     if (forbidden !== "" && serialized.includes(JSON.stringify(forbidden))) {
-      throw new LeakError(`Projection leaked a forbidden value: "${forbidden}"`)
+      // The value is a secret, and this message reaches the logs.
+      throw new LeakError("Projection leaked a forbidden value")
     }
   }
 }

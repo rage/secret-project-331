@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react"
+import { act, render } from "@testing-library/react"
 import type { ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -31,5 +31,29 @@ describe("<IframeView /> (exercise iframe)", () => {
     expect(container.firstChild).not.toBeNull()
     // Readiness lets the parent transfer the MessagePort.
     expect(postMessageSpy).toHaveBeenCalledWith("ready", "*")
+  })
+
+  it("leaves dialog and upload replies to their own listeners without logging them", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+    render(<IframeView />)
+    const channel = new MessageChannel()
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent("message", { source: window.parent, ports: [channel.port2] }),
+      )
+    })
+
+    channel.port1.postMessage({ message: "dialog-response", requestId: "r1", confirmed: true })
+    channel.port1.postMessage({
+      message: "upload-result",
+      requestId: "r2",
+      success: true,
+      files: [],
+    })
+    channel.port1.postMessage({ message: "not-a-protocol-message" })
+
+    await vi.waitFor(() => expect(consoleError).toHaveBeenCalledTimes(1))
+    expect(consoleError).toHaveBeenCalledWith("Frame received an unknown message from message port")
+    channel.port1.close()
   })
 })

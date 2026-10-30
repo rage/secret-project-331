@@ -8,9 +8,6 @@ import { assign } from "lodash"
 // oxlint-disable-next-line typescript/no-explicit-any
 export function modifyImageBlockAttributes(settings: any, name: string): any {
   if (name === "core/image") {
-    if (settings.attributes.linkDestination) {
-      settings.attributes.linkDestination.default = "media"
-    }
     settings.attributes = assign(settings.attributes, {
       blurDataUrl: {
         type: "string",

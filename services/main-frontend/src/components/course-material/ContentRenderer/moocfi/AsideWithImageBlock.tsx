@@ -9,6 +9,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { BlockRendererProps } from ".."
+import { ImageInteractivityContext } from "../core/common/Image/ImageInteractivityContext"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface AsideWithImageBlockAttributes {
@@ -16,6 +17,9 @@ interface AsideWithImageBlockAttributes {
   content: string
   headingLevel?: number
 }
+
+// A decorative icon, too small to be worth zooming.
+const NON_INTERACTIVE_IMAGES = { disableInteractivity: true }
 
 const HEADING_TAGS = { 2: "h2", 3: "h3", 4: "h4", 5: "h5", 6: "h6" } as const
 
@@ -63,13 +67,17 @@ const AsideWithImageBlock: React.FC<
             margin: 0;
           }
 
+          /* Not 100%: the image block's fit-content wrapper sizes itself from the image, so a
+             percentage is circular and some browsers resolve it to 0. */
           img {
-            width: 100%;
+            width: 150px;
             height: auto;
           }
         `}
       >
-        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        <ImageInteractivityContext.Provider value={NON_INTERACTIVE_IMAGES}>
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        </ImageInteractivityContext.Provider>
       </div>
       <div>
         <ParsedText

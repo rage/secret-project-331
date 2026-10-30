@@ -348,11 +348,7 @@ impl ToolHandler<McpState> for PatchCourseStructure {
                 .any(|block| PAGE_TITLE_BLOCKS.contains(&block.name.as_str()))
                 && let Some(page) = result.structure.page(*page_id)
             {
-                let mut hero = GutenbergBlock::hero_section(page.title.trim(), "");
-                // The default label is the page's URL path, which only reads well on chapter
-                // front pages.
-                hero.attributes
-                    .insert("useDefaultTextForLabel".to_string(), false.into());
+                let hero = GutenbergBlock::hero_section(page.title.trim(), "");
                 generated_blocks.insert(hero.client_id);
                 template_blocks.push(TemplateBlock {
                     page: *page_id,

@@ -61,6 +61,7 @@ patch_course_structure ops: replace fields (module name; chapter name, color, op
 - Chapter numbers and /chapter-N paths are recomputed after every call. A chapter page's url_path is its last segment, e.g. \"loops\" for /chapter-2/loops; the front page's path is always /chapter-N.
 - url_path is unique in the course after the call; paths can be swapped in one call. Changed paths get redirects automatically; removed pages get none.
 - A new page that translates a page of another language version of the course takes pair_with: <that page's id>; it joins that page's page_language_group_id at publish, so language switching links the two. The source page must be published, and the group can't already have a page in this course.
+- dry_run: true returns an outline of the changed chapters and pages (counts, then one line each: old -> new path, title, position) and the redirects; read it against your plan, as detail: true adds the full diff.
 - Pages with exercises stay inside chapters. Settings (completion, certificates) are edited with patch_course_settings.";
 
 const PUBLISHING_AND_RISK: &str = "\
@@ -76,7 +77,7 @@ A write fails with staged_state_changed when a parallel call changed what it rea
 After publishing, get_history lists changes and revert_change undoes one write call.";
 
 const PREVIEWS_AND_CHECKS: &str = "\
-get_preview_link returns read-only URLs of pages' staged state (pages: several at once), valid about 15 minutes, no login needed. Open it with your own browser tooling (playwright-cli) in a desktop or mobile viewport and check: render and console errors, LaTeX errors (.katex-error), broken links and images, and accessibility (axe). The preview shows each exercise's name, task instructions and review instructions, but not the exercise itself to answer, and has no chapter navigation. Checks are expected before a changeset is published.";
+get_preview_link returns read-only URLs, valid about 2 hours, no login needed, of staged state or, with nothing staged, of the published pages: without page or pages, one URL for all pages the changeset adds or changes (all course pages when nothing is staged), which the preview page lists and opens one at a time (?page=<id> picks one); page or pages gives a URL per page. Open it with your own browser tooling (playwright-cli) in a desktop or mobile viewport and check: render and console errors, LaTeX errors (.katex-error), broken links and images, and accessibility (axe). The preview shows each exercise's name, task instructions and review instructions, but not the exercise itself to answer, and has no chapter navigation; the changeset URL lists the changed pages and renders the Pages in chapter list on chapter front pages. Checks are expected before a changeset is published.";
 
 const CITATIONS_AND_GLOSSARY: &str = "\
 Citations are written in rich text as \\cite{key}, \\cite[postnote]{key} or \\cite[prenote][postnote]{key}, where key is a reference's citation_key. References hold one BibTeX entry each (fields citation_key, bibtex); the entry's key must equal citation_key and be unique in the course.
@@ -84,7 +85,7 @@ Glossary terms (fields term, definition) are highlighted automatically wherever 
 Renaming a citation_key rewrites its citations in page content and exercise instructions. Removing a reference, or renaming or removing a term, changes no content; the result lists the pages and exercise instructions that use it.";
 
 const RICH_TEXT: &str = "\
-Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math uses the editor's math format (see rich_text_formats). Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
+Rich-text attributes hold the HTML the editor stores, with inline formats only, in exactly the shapes the editor produces (see rich_text_formats). No block-level tags, scripts, event attributes, style attributes or inline images. Inline math is [latex]x^2[/latex], rendered with KaTeX like moocfi/latex blocks; inside it only &amp; is decoded. The editor's <math> format renders as browser MathML and looks different: use it only where the page already does. Write &amp;, &lt; and &gt; as entities. Matching in find_replace sees this markup: <em>for</em> loops doesn't match \"for loops\". The validator normalises harmless differences and rejects anything that would change meaning.";
 
 const EXERCISES: &str = "\
 An exercise block on a page holds only the exercise id (exercise_id in reads). get_exercise reads the exercise: name, tasks, review settings and its instructions; patch_exercise edits the name, the own deadline, each task's instructions (/tasks/<task id>) and the review instructions (/review_instructions) with page-content ops. Everything else (points, tries, task specs, review thresholds and questions) is read-only; the teacher edits it in the editor.
@@ -94,7 +95,7 @@ An exercise block on a page holds only the exercise id (exercise_id in reads). g
 - Review instructions show only for exercises with peer or self reviews. Most exercises use the course default review config, so its instructions are shared: review_config edit_course_default edits them for every exercise using it. Prefer that. fork gives one exercise its own copy of the default settings and questions, for an exercise with special needs; use_course_default drops an exercise's own settings again, and the result lists what it drops.
 - Switching review settings is allowed after students have given reviews, but the result and the review page warn about it.
 - Name and instruction edits are never risky; a deadline change is risky as in publishing-and-risk.
-- find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork.";
+- find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork. Regexes (find_replace regex: true, structural_replace text_regex) use Rust regex syntax: no backreferences or lookaround; (?i) for case-insensitive.";
 
 /// The `guide` tool's result: the guide of each block type and topic asked for, or with neither
 /// asked for, the index of both. `schemas` may be `None` only when only topics are asked for.
@@ -276,7 +277,7 @@ mod tests {
         assert_eq!(guide["blocks"][0]["page_types"], json!(["course-page"]));
         let topics = topics_guide(&[GuideTopic::RichText]);
         assert_eq!(topics[0]["topic"], json!("rich-text"));
-        assert!(topics[0]["text"].as_str().unwrap().contains("math format"));
+        assert!(topics[0]["text"].as_str().unwrap().contains("[latex]"));
     }
 
     #[test]

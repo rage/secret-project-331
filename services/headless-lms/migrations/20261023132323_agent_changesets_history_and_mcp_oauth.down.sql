@@ -1,3 +1,4 @@
+DROP TABLE agent_changeset_preview_links;
 CREATE OR REPLACE FUNCTION is_valid_oauth_uri(uri TEXT) RETURNS BOOLEAN LANGUAGE plpgsql IMMUTABLE AS $$ BEGIN IF uri IS NULL
   OR trim(uri) = ''
   OR uri ~ '\s'

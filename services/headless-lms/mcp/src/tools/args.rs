@@ -176,6 +176,9 @@ pub struct PatchCourseStructureArgs {
     pub ops: Vec<Value>,
     #[serde(default)]
     pub dry_run: bool,
+    /// With dry_run: also return the full staging diff, not just the outline of what changes.
+    #[serde(default)]
+    pub detail: bool,
     pub read_back: Option<Selector>,
 }
 
@@ -209,7 +212,7 @@ pub struct FindReplaceArgs {
     pub scope: Option<ContentScope>,
     /// Literal text (whole words at word edges) or, with regex, a pattern. Matches the stored HTML.
     pub find: String,
-    /// Leave out to search only.
+    /// Leave out to search only. With regex, $1-style groups; Rust regex syntax has no backreferences or lookaround, and (?i) makes it case-insensitive.
     pub replace: Option<String>,
     #[serde(default)]
     pub regex: bool,
@@ -289,9 +292,9 @@ pub struct DiscardChangesetArgs {
 pub struct GetPreviewLinkArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
     pub course: IdArgument,
-    /// One page; its link comes back as `url`. Give this or `pages`.
+    /// One page; its link comes back as `url`. Give this or `pages`, or neither for one link to the whole changeset (all pages of the course when nothing is staged).
     pub page: Option<IdArgument>,
-    /// Several pages; their links come back in `previews`, one per page. Give this or `page`.
+    /// Several pages; their links come back in `previews`, one per page. Give this or `page`, or neither for one link to the whole changeset (all pages of the course when nothing is staged).
     pub pages: Option<Vec<IdArgument>>,
 }
 

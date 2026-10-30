@@ -209,7 +209,7 @@ impl GutenbergBlock {
                                 "content": heading,
                                 "level": 2,
                                 "placeholder": heading,
-                                "anchor": heading,
+                                "anchor": heading.to_lowercase().replace(' ', "-"),
                             },
                         ),
                         GutenbergBlock::block_with_name_and_attributes(

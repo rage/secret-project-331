@@ -48,6 +48,7 @@ impl WriteReport {
 pub(super) enum StagingSummary {
     Nothing(NothingStaged),
     DryRun(DryRunSummary),
+    BriefDryRun(BriefDryRunSummary),
     Staged(StagedSummary),
 }
 
@@ -79,13 +80,25 @@ pub(super) struct DryRunSummary {
     pub(super) unchanged_block_warnings: Vec<BlockFinding>,
 }
 
+/// A dry run without the per-entity and per-block detail, for calls that report their own outline.
+#[derive(Serialize)]
+pub(super) struct BriefDryRunSummary {
+    pub(super) dry_run: bool,
+    pub(super) would_stage_count: usize,
+    pub(super) block_change_count: usize,
+    /// The would-be staged entities that need a teacher's review.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(super) risky_entities: Vec<ExplainedEntity>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(super) unchanged_block_warnings: Vec<BlockFinding>,
+}
+
 #[derive(Serialize)]
 pub(super) struct StagedSummary {
     pub(super) changeset: Uuid,
     pub(super) changeset_revision: i32,
     pub(super) call: Uuid,
     pub(super) staged: Vec<ExplainedEntity>,
-    pub(super) review_url: String,
     pub(super) changeset_expires_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub(super) unchanged_block_warnings: Vec<BlockFinding>,
@@ -102,7 +115,7 @@ pub(super) async fn write_hints(
 ) -> Vec<Hint> {
     let mut hints = vec![hints::staged(staged.changeset.id, is_draft)];
     if staged.risk_reason_count > 0 {
-        let review_url = state.review_url(staged.changeset.course_id, staged.changeset.id);
+        let review_url = state.review_url(staged.changeset.id);
         hints.push(hints::needs_teacher_review(
             &review_url,
             staged.risk_reason_count,

@@ -254,7 +254,7 @@ pub fn patch_course_structure<S>(handler: impl ToolHandler<S> + 'static) -> Tool
         PatchTarget::CourseStructure.tool_name(),
         concat!(
             "Edits modules, chapters and pages: add (a module, a chapter with an automatic front page, or a page, optionally with blocks, and with pair_with: the id of the published page it translates in another language version of the course), remove (+through), replace fields (module name; chapter name, color, opens_at, deadline; page title, url_path, hidden; remove sets nullable fields to null), move (+through), copy (page or chapter, new ids), reorder (value: all current ids in the new order). ",
-            "Paths: /course/modules, /course/pages, /<module id>/chapters, /<chapter id>/pages, /<id>, /<id>/<field>. The first page of a chapter is its front page; the course front page (/) and the default module stay first. Chapter numbers and paths are recomputed after each call; changed paths get redirects automatically. The only way to create pages.",
+            "Paths: /course/modules, /course/pages, /<module id>/chapters, /<chapter id>/pages, /<id>, /<id>/<field>. The first page of a chapter is its front page; the course front page (/) and the default module stay first. Chapter numbers and paths are recomputed after each call; changed paths get redirects automatically. The only way to create pages. dry_run: true returns an outline (outline: counts and one line per created, removed or changed chapter and page, with old and new paths, titles and positions; changed_paths: the redirects) instead of the full diff; detail: true adds the diff.",
             staging_note!()
         ),
         write("Edit course structure", true),
@@ -316,7 +316,7 @@ pub fn find_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "find_replace",
-        "Searches, and with replace changes, text across a course, chapter or page. Matches the stored HTML of text attributes (content, captions, alt texts, titles…), so markup counts: <em>for</em> loops doesn't match \"for loops\". Literal finds match whole words at word edges; regex: true takes a regex and $1-style replacements. attributes picks attribute names or /regex/ on names. expected_count fails the call on any other count. Lists likely inflected forms it didn't change. Use dry_run: true first. Replacing needs the material:stage scope. Searches exercises' task and review instructions too (include_exercise_instructions, default true) and, with include_exercise_names, their names; matches in the course default review instructions are listed once under course_default_review_config and change it for every exercise using it.",
+        "Searches, and with replace changes, text across a course, chapter or page. Matches the stored HTML of text attributes (content, captions, alt texts, titles…), so markup counts: <em>for</em> loops doesn't match \"for loops\". Literal finds match whole words at word edges; regex: true takes a Rust regex (no backreferences or lookaround; (?i) for case-insensitive) and $1-style replacements. attributes picks attribute names or /regex/ on names. expected_count fails the call on any other count. Lists likely inflected forms it didn't change. Use dry_run: true first. Replacing needs the material:stage scope. Searches exercises' task and review instructions too (include_exercise_instructions, default true) and, with include_exercise_names, their names; matches in the course default review instructions are listed once under course_default_review_config and change it for every exercise using it.",
         write("Find and replace text", true),
         McpScope::MaterialRead,
     )
@@ -327,7 +327,7 @@ pub fn structural_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     define(
         handler,
         "structural_replace",
-        "Finds blocks by type and visible text (match: name, text_starts_with, text_contains, text_regex) across a course, chapter or page, and applies one action to each: wrap_in a container type, retype_to another type, unwrap: true or remove: true. Includes exercises' task and review instructions unless include_exercise_instructions is false. Use dry_run: true and expected_count. Stages like other writes.",
+        "Finds blocks by type and visible text (match: name, text_starts_with, text_contains, text_regex, Rust regex syntax: no backreferences or lookaround) across a course, chapter or page, and applies one action to each: wrap_in a container type, retype_to another type, unwrap: true or remove: true. Includes exercises' task and review instructions unless include_exercise_instructions is false. Use dry_run: true and expected_count. Stages like other writes.",
         write("Replace blocks by pattern", true),
         McpScope::MaterialStage,
     )
@@ -382,7 +382,7 @@ pub fn get_preview_link<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "get_preview_link",
-        "Returns read-only preview URLs of pages' staged state, valid about 15 minutes without login, for visual checks in a browser: page gives one url, pages gives previews, a {page, url} per page.",
+        "Returns read-only preview URLs, valid about 2 hours without login, for visual checks in a browser: of staged state, or of the published pages when nothing is staged (so you can check before staging). With neither page nor pages, one url previews every page the changeset adds or changes, or every page of the course when nothing is staged, with links to switch between them (prefer it to several links); page gives one url for that page, pages gives previews, a {page, url} per page.",
         read("Get preview link"),
         McpScope::MaterialRead,
     )

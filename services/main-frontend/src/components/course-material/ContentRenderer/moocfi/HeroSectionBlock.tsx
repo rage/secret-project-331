@@ -3,6 +3,7 @@
 import { useAtomValue } from "jotai"
 import React from "react"
 
+import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -19,7 +20,7 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   const path = pageData?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
   const useDefaultTextForLabel = props.data.attributes.useDefaultTextForLabel ?? DEFAULT
-  const isChapterFrontpage = pageData?.chapter_id
+  const isChapterFrontpage = useIsPageChapterFrontPage(pageData?.id).data?.is_chapter_front_page
   const partiallyTransparent = props.data.attributes.partiallyTransparent ?? DEFAULT
 
   const chapterNumber =

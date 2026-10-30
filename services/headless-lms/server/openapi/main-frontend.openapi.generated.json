@@ -335,7 +335,7 @@
     "/api/v0/main-frontend/agent-preview/{token}": {
       "get": {
         "tags": ["agent_preview"],
-        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The staged page a preview token points at. No\nlogin: the short-lived signed token stands in for it, while its user may still edit the course.",
+        "summary": "\nGET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or\npublished, or for a token of several pages the page `page` with the list of pages. No login: the\nshort-lived random token stands in for it, while its user may still edit the course.",
         "operationId": "getAgentPagePreview",
         "parameters": [
           {
@@ -345,6 +345,16 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page to show; for a token of several pages only. Defaults to the first.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -28015,9 +28025,32 @@
       },
       "PagePreview": {
         "type": "object",
-        "description": "What the preview of a staged page renders.",
-        "required": ["course_name", "language_code", "page", "is_chapter_front_page"],
+        "description": "What the preview of a staged page, or of a published one, renders.",
+        "required": [
+          "course_name",
+          "language_code",
+          "page",
+          "is_chapter_front_page",
+          "is_published_state",
+          "references",
+          "changed_pages",
+          "chapter_pages"
+        ],
         "properties": {
+          "changed_pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewPageLink"
+            },
+            "description": "The pages the link switches between: the changeset's added or changed pages, or all pages\nof the course for a published preview. Empty unless the link covers more than one page."
+          },
+          "chapter_pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewPageLink"
+            },
+            "description": "The visible pages of the page's chapter after its front page; filled only for a chapter\nfront page when the link covers more than one page."
+          },
           "course_name": {
             "type": "string"
           },
@@ -28025,12 +28058,23 @@
             "type": "boolean",
             "description": "Whether the page is its chapter's front page, as staged."
           },
+          "is_published_state": {
+            "type": "boolean",
+            "description": "Whether the preview shows the published course rather than a changeset's staged state."
+          },
           "language_code": {
             "type": "string"
           },
           "page": {
             "$ref": "#/components/schemas/PreviewPage",
             "description": "The page as staged, or as live if the changeset does not change it."
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PreviewReference"
+            },
+            "description": "The course's references, with the changeset's staged changes applied if there is one."
           }
         }
       },
@@ -29654,6 +29698,40 @@
             "type": "string"
           },
           "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PreviewPageLink": {
+        "type": "object",
+        "description": "A page a preview can switch to.",
+        "required": ["id", "title", "url_path", "order_number"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PreviewReference": {
+        "type": "object",
+        "description": "A bibliography entry the page's citations refer to.",
+        "required": ["citation_key", "reference"],
+        "properties": {
+          "citation_key": {
+            "type": "string"
+          },
+          "reference": {
             "type": "string"
           }
         }

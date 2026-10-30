@@ -9,7 +9,7 @@ use crate::protocol::context::ClientKind;
 use crate::validator::BlockSchemas;
 
 /// The skill version this server is built for.
-pub const CURRENT_SKILL_VERSION: Version = Version(0, 2, 0);
+pub const CURRENT_SKILL_VERSION: Version = Version(0, 6, 0);
 /// The oldest skill version this server still works with.
 pub const MINIMUM_SKILL_VERSION: Version = Version(0, 0, 0);
 /// Where teachers learn to set up the skill.
@@ -170,7 +170,7 @@ pub fn rendering_changes(page_count: usize, client: ClientKind) -> Hint {
     Hint::new(
         HintKind::VisualCheck,
         format!(
-            "{page_count} page(s) in the changeset have rendering changes; preview them before publishing. get_preview_link gives preview URLs to open with {tooling}."
+            "{page_count} page(s) in the changeset have rendering changes; preview them before publishing. get_preview_link gives one preview URL for the whole changeset to open with {tooling}."
         ),
     )
 }

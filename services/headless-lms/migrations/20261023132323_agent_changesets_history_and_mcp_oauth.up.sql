@@ -304,3 +304,32 @@ END;
 $$;
 
 COMMENT ON FUNCTION is_valid_oauth_uri(TEXT) IS 'Validates OAuth-safe redirect/identifier URIs: https, http loopback (dev), custom schemes other than javascript, data, file and vbscript, and URNs.';
+
+CREATE TABLE agent_changeset_preview_links (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  token_hash BYTEA NOT NULL UNIQUE,
+  course_id UUID NOT NULL REFERENCES courses(id),
+  changeset_id UUID REFERENCES agent_changesets(id),
+  page_id UUID REFERENCES pages(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON agent_changeset_preview_links FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE INDEX idx_agent_changeset_preview_links_expires_at ON agent_changeset_preview_links (expires_at);
+CREATE INDEX idx_agent_changeset_preview_links_changeset ON agent_changeset_preview_links (changeset_id);
+
+COMMENT ON TABLE agent_changeset_preview_links IS 'Login-free links that show a page of a course, or all of its pages, as published or as a changeset stages them. Each row is one link; only a hash of its token is stored, so reading the table does not reveal live links. Expired rows are deleted when a new link is minted.';
+COMMENT ON COLUMN agent_changeset_preview_links.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN agent_changeset_preview_links.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN agent_changeset_preview_links.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN agent_changeset_preview_links.token_hash IS 'SHA-256 of the random token in the link.';
+COMMENT ON COLUMN agent_changeset_preview_links.course_id IS 'The course the link previews.';
+COMMENT ON COLUMN agent_changeset_preview_links.changeset_id IS 'The changeset whose staged state the link shows. NULL for a link to the published state.';
+COMMENT ON COLUMN agent_changeset_preview_links.page_id IS 'The one page the link shows. NULL for a link to all of the changeset''s changed pages, or to all pages of the course when there is no changeset.';
+COMMENT ON COLUMN agent_changeset_preview_links.user_id IS 'The user who minted the link. The link works only while this user can edit the course and, with a changeset, still owns it.';
+COMMENT ON COLUMN agent_changeset_preview_links.expires_at IS 'When the link stops working.';

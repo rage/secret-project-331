@@ -11,14 +11,12 @@ use headless_lms_models::{
     error::TryToOptional,
     library::agent_changesets::{
         ChangedSinceReview, ChangesetSummary, DiscardOutcome, DiscardRejection, PublishOptions,
-        PublishOutcome, PublishRejection, RiskBaseline, discard, discard_entities, get_summaries,
-        mint_preview_token, preview_path, publish,
+        PublishOutcome, PublishRejection, RiskBaseline, changed_page_links, discard,
+        discard_entities, get_summaries, mint_preview_token, preview_path, publish,
     },
     library::entity_snapshots::{ContentEntityType, EntityKey},
-    organizations,
     pages::{self, Page},
 };
-use headless_lms_utils::course_url::course_page_url;
 use serde_json::{Value, json};
 use sqlx::PgConnection;
 use uuid::Uuid;
@@ -67,7 +65,7 @@ fn summary_json(state: &McpState, summary: ChangesetSummary) -> Value {
         "published_at": changeset.published_at,
         "is_expiring_soon": summary.is_expiring_soon,
         "has_risky_changes": summary.has_risky_changes,
-        "review_url": state.review_url(changeset.course_id, changeset.id),
+        "review_url": state.review_url(changeset.id),
         "entities": explained(summary.entities),
     })
 }
@@ -259,7 +257,7 @@ impl ToolHandler<McpState> for PublishChangeset {
         check_pages_ready(&view)?;
         let rendering_change_count =
             page_readiness::pages_with_content_changes(&view.staged, &view.live).count();
-        let review_url = state.review_url(changeset.course_id, changeset.id);
+        let review_url = state.review_url(changeset.id);
         let can_add_global_admin_only_exercise_services =
             is_user_global_admin(&mut conn, ctx.principal.actor.user_id).await?;
         let spec_fetcher = (state.exercise_services.spec_fetcher)();
@@ -521,9 +519,12 @@ impl ToolHandler<McpState> for GetPreviewLink {
             (None, Some(pages)) if !pages.is_empty() => {
                 pages.iter().map(|page| page.id()).collect()
             }
+            (None, None) => Vec::new(),
             _ => {
                 return Err(ToolError::InvalidArguments {
-                    message: "give either page or a non-empty pages list".into(),
+                    message:
+                        "give page, a non-empty pages list, or neither for the whole changeset"
+                            .into(),
                 });
             }
         };
@@ -539,29 +540,59 @@ impl ToolHandler<McpState> for GetPreviewLink {
         let mut links = Vec::with_capacity(page_ids.len());
         let Some(changeset) = agent_changesets::get_open(&mut conn, user_id, course.id).await?
         else {
-            let organization =
-                organizations::get_organization(&mut conn, course.organization_id).await?;
+            if page_ids.is_empty() {
+                let preview = mint_preview_token(&mut conn, course.id, None, None, user_id).await?;
+                return Ok(ToolResult::success(json!({
+                    "is_staged": false,
+                    "expires_at": preview.expires_at,
+                    "url": state.app_conf.public_url(&preview_path(&preview.token)),
+                    "message": "You have nothing staged in this course, so this link shows the published pages.",
+                }))
+                .into());
+            }
+            let mut expires_at = None;
             for page_id in page_ids {
-                let page = live_page(&mut conn, &course, page_id)
+                live_page(&mut conn, &course, page_id)
                     .await?
                     .ok_or_else(|| not_found(page_id))?;
-                let url = course_page_url(
-                    &state.app_conf.base_url,
-                    &organization.slug,
-                    &course.slug,
-                    &page.url_path,
-                )
-                .ok_or_else(|| ToolError::Internal("the configured base URL is invalid".into()))?;
-                links.push(PreviewLink { page: page_id, url });
+                let preview =
+                    mint_preview_token(&mut conn, course.id, None, Some(page_id), user_id).await?;
+                expires_at = Some(preview.expires_at);
+                links.push(PreviewLink {
+                    page: page_id,
+                    url: state.app_conf.public_url(&preview_path(&preview.token)),
+                });
             }
             let mut result = json!({
                 "is_staged": false,
-                "message": "You have nothing staged in this course, so these are the published pages.",
+                "expires_at": expires_at,
+                "message": "You have nothing staged in this course, so these links show the published pages.",
             });
             insert_links(&mut result, args.page.is_some(), links);
             return Ok(ToolResult::success(result).into());
         };
         let mut expires_at = None;
+        if page_ids.is_empty() {
+            let changed_pages = changed_page_links(&mut conn, &changeset).await?;
+            if changed_pages.is_empty() {
+                return Ok(ToolResult::success(json!({
+                    "is_staged": true,
+                    "changeset": changeset.id,
+                    "message": "The changeset adds or changes no pages, so there is nothing to preview.",
+                }))
+                .into());
+            }
+            let preview =
+                mint_preview_token(&mut conn, course.id, Some(changeset.id), None, user_id).await?;
+            return Ok(ToolResult::success(json!({
+                "is_staged": true,
+                "changeset": changeset.id,
+                "expires_at": preview.expires_at,
+                "url": state.app_conf.public_url(&preview_path(&preview.token)),
+                "pages": changed_pages.len(),
+            }))
+            .into());
+        }
         for page_id in page_ids {
             let key = EntityKey::new(ContentEntityType::Page, page_id);
             match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
@@ -575,7 +606,14 @@ impl ToolHandler<McpState> for GetPreviewLink {
                         .ok_or_else(|| not_found(page_id))?;
                 }
             }
-            let preview = mint_preview_token(&state.jwt_key, changeset.id, page_id, user_id)?;
+            let preview = mint_preview_token(
+                &mut conn,
+                course.id,
+                Some(changeset.id),
+                Some(page_id),
+                user_id,
+            )
+            .await?;
             expires_at = Some(preview.expires_at);
             links.push(PreviewLink {
                 page: page_id,

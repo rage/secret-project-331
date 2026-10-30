@@ -5287,19 +5287,37 @@ export type PageInfo = {
 }
 
 /**
- * What the preview of a staged page renders.
+ * What the preview of a staged page, or of a published one, renders.
  */
 export type PagePreview = {
+  /**
+   * The pages the link switches between: the changeset's added or changed pages, or all pages
+   * of the course for a published preview. Empty unless the link covers more than one page.
+   */
+  changed_pages: Array<PreviewPageLink>
+  /**
+   * The visible pages of the page's chapter after its front page; filled only for a chapter
+   * front page when the link covers more than one page.
+   */
+  chapter_pages: Array<PreviewPageLink>
   course_name: string
   /**
    * Whether the page is its chapter's front page, as staged.
    */
   is_chapter_front_page: boolean
+  /**
+   * Whether the preview shows the published course rather than a changeset's staged state.
+   */
+  is_published_state: boolean
   language_code: string
   /**
    * The page as staged, or as live if the changeset does not change it.
    */
   page: PreviewPage
+  /**
+   * The course's references, with the changeset's staged changes applied if there is one.
+   */
+  references: Array<PreviewReference>
 }
 
 export type PageProposal = {
@@ -5832,6 +5850,24 @@ export type PreviewPage = {
   order_number: number
   title: string
   url_path: string
+}
+
+/**
+ * A page a preview can switch to.
+ */
+export type PreviewPageLink = {
+  id: string
+  order_number: number
+  title: string
+  url_path: string
+}
+
+/**
+ * A bibliography entry the page's citations refer to.
+ */
+export type PreviewReference = {
+  citation_key: string
+  reference: string
 }
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
@@ -7285,7 +7321,12 @@ export type GetAgentPagePreviewData = {
      */
     token: string
   }
-  query?: never
+  query?: {
+    /**
+     * The page to show; for a token of several pages only. Defaults to the first.
+     */
+    page?: string
+  }
   url: "/api/v0/main-frontend/agent-preview/{token}"
 }
 

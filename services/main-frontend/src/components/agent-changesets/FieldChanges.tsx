@@ -15,8 +15,11 @@ import type {
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { ABSENT_LABEL, Table } from "@/shared-module/components"
+import type { Block } from "@/types/courseMaterialBlock"
 
 import BeforeAfterTabs from "./BeforeAfterTabs"
+import BlockChanges from "./BlockChanges"
+import { DIFF_SIDE, type DiffSide } from "./blockDiff"
 import { StagedBlocks } from "./StagedPageContent"
 import { useEntityName } from "./useEntityName"
 
@@ -104,17 +107,33 @@ function isBlocksChange(change: FieldChange): boolean {
   return change.before?.type === "blocks" || change.after?.type === "blocks"
 }
 
-function blocksOf(value: FieldValue | null | undefined): unknown[] {
-  return value?.type === "blocks" && Array.isArray(value.value) ? value.value : []
+function blocksOf(value: FieldValue | null | undefined): Block<unknown>[] {
+  return value?.type === "blocks" && Array.isArray(value.value)
+    ? (value.value as Block<unknown>[])
+    : []
 }
 
+const renderBlocks = (blocks: Block<unknown>[]) => (
+  <StagedBlocks blocks={blocks} isConstrainedToContainer embeddedUnderHeadingLevel={4} />
+)
+
 const BlocksChange: React.FC<{ change: FieldChange; label: string }> = ({ change, label }) => {
-  const column = (value: FieldValue | null | undefined) => {
-    const blocks = blocksOf(value)
-    return blocks.length > 0 ? (
-      <StagedBlocks blocks={blocks} isConstrainedToContainer embeddedUnderHeadingLevel={4} />
+  const beforeBlocks = blocksOf(change.before)
+  const afterBlocks = blocksOf(change.after)
+  const isEdit = beforeBlocks.length > 0 && afterBlocks.length > 0
+  const column = (blocks: Block<unknown>[], side: DiffSide) => {
+    if (blocks.length === 0) {
+      return <p>{ABSENT_LABEL}</p>
+    }
+    return isEdit ? (
+      <BlockChanges
+        before={beforeBlocks}
+        after={afterBlocks}
+        side={side}
+        renderBlocks={renderBlocks}
+      />
     ) : (
-      <p>{ABSENT_LABEL}</p>
+      renderBlocks(blocks)
     )
   }
   return (
@@ -130,8 +149,9 @@ const BlocksChange: React.FC<{ change: FieldChange; label: string }> = ({ change
         {label}
       </h4>
       <BeforeAfterTabs
-        before={column(change.before)}
-        after={column(change.after)}
+        changes={isEdit ? column(afterBlocks, DIFF_SIDE.CHANGES) : undefined}
+        before={column(beforeBlocks, DIFF_SIDE.BEFORE)}
+        after={column(afterBlocks, DIFF_SIDE.AFTER)}
         data-testid-prefix="agent-blocks"
       />
     </section>

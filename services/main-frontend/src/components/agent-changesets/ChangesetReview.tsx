@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -24,6 +24,7 @@ import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, ConfirmDialog, ErrorNotice, Infobox, TONE } from "@/shared-module/components"
 
 import AgentCallList from "./AgentCallList"
+import { STICKY_TOP_PROPERTY } from "./BeforeAfterTabs"
 import { ChangesetStatusBadge } from "./ChangesetStatusBadge"
 import EntityChange, {
   ChapterFrontPageIdsContext,
@@ -76,6 +77,24 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
     }
   }, [])
 
+  const reviewRef = useRef<HTMLDivElement>(null)
+  const actionBarRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const reviewElement = reviewRef.current
+    const actionBar = actionBarRef.current
+    if (reviewElement === null || actionBar === null) {
+      return
+    }
+    const observer = new ResizeObserver(() => {
+      reviewElement.style.setProperty(STICKY_TOP_PROPERTY, `${actionBar.offsetHeight}px`)
+    })
+    observer.observe(actionBar)
+    return () => {
+      observer.disconnect()
+      reviewElement.style.removeProperty(STICKY_TOP_PROPERTY)
+    }
+  }, [isOpen])
+
   const invalidateChangesets = async () => {
     await queryClient.invalidateQueries({
       queryKey: getAgentChangesetQueryKey({ path: { changeset_id: changeset.id } }),
@@ -125,6 +144,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
   return (
     <ChapterFrontPageIdsContext.Provider value={chapterFrontPageIds}>
       <div
+        ref={reviewRef}
         data-testid="agent-changeset-review"
         className={css`
           display: flex;
@@ -207,6 +227,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
 
         {isOpen && (
           <div
+            ref={actionBarRef}
             className={css`
               position: sticky;
               top: 0;

@@ -18,12 +18,15 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Button, ErrorNotice, TONE } from "@/shared-module/components"
+import type { Block } from "@/types/courseMaterialBlock"
 
 import BeforeAfterTabs from "./BeforeAfterTabs"
+import BlockChanges, { type BlocksVersion } from "./BlockChanges"
+import { DIFF_SIDE, type DiffSide } from "./blockDiff"
 import ExerciseWarningList from "./ExerciseWarningList"
 import FieldChanges from "./FieldChanges"
 import RiskReasonList from "./RiskReasonList"
-import StagedPageContent from "./StagedPageContent"
+import StagedPageContent, { StagedBlocks } from "./StagedPageContent"
 import { useEntityName } from "./useEntityName"
 
 /** An entity's heading, such as "Page: Variables"; the course default review config has no name. */
@@ -123,25 +126,56 @@ const OperationBadge: React.FC<{ operation: AgentChangesetEntityOperation }> = (
   }
 }
 
-/** The page before and after the change, rendered as students see it. */
+/** What the change does to the page's content, rendered as students see it. */
 const PageContentChange: React.FC<{ change: PageChange }> = ({ change }) => {
   const { t } = useTranslation()
   const chapterFrontPageIds = useContext(ChapterFrontPageIdsContext)
   if (!change.is_content_changed) {
     return <p>{t("agent-page-content-unchanged")}</p>
   }
-  const stagedContent = (page: PreviewPage) => (
-    <StagedPageContent
-      page={page}
-      isConstrainedToContainer
-      embeddedUnderHeadingLevel={4}
-      isChapterFrontPage={chapterFrontPageIds.has(page.id)}
+  const { base, after } = change
+  if (!base || !after) {
+    const stagedContent = (page: PreviewPage) => (
+      <StagedPageContent
+        page={page}
+        isConstrainedToContainer
+        embeddedUnderHeadingLevel={4}
+        isChapterFrontPage={chapterFrontPageIds.has(page.id)}
+      />
+    )
+    return (
+      <BeforeAfterTabs
+        before={base && stagedContent(base)}
+        after={after && stagedContent(after)}
+        data-testid-prefix="agent-page"
+      />
+    )
+  }
+  const renderBlocks = (blocks: Block<unknown>[], version: BlocksVersion) => {
+    const page = version === DIFF_SIDE.BEFORE ? base : after
+    return (
+      <StagedBlocks
+        blocks={blocks}
+        page={page}
+        isConstrainedToContainer
+        embeddedUnderHeadingLevel={4}
+        isChapterFrontPage={chapterFrontPageIds.has(page.id)}
+      />
+    )
+  }
+  const blockChanges = (side: DiffSide) => (
+    <BlockChanges
+      before={base.content as Block<unknown>[]}
+      after={after.content as Block<unknown>[]}
+      side={side}
+      renderBlocks={renderBlocks}
     />
   )
   return (
     <BeforeAfterTabs
-      before={change.base && stagedContent(change.base)}
-      after={change.after && stagedContent(change.after)}
+      changes={blockChanges(DIFF_SIDE.CHANGES)}
+      before={blockChanges(DIFF_SIDE.BEFORE)}
+      after={blockChanges(DIFF_SIDE.AFTER)}
       data-testid-prefix="agent-page"
     />
   )

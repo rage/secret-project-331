@@ -40,7 +40,7 @@ pub struct BlockFinding {
 /// What validating a write's blocks found besides errors.
 #[derive(Debug, Default)]
 pub struct ValidatedBlocks {
-    /// The names of the block types that were validated.
+    /// The block types of the blocks the call created.
     pub block_names: Vec<String>,
     /// Problems the validator found in the teacher's blocks that the call didn't change.
     pub unchanged_block_warnings: Vec<BlockFinding>,
@@ -125,10 +125,18 @@ pub async fn validate_changed_blocks(
     if pages.is_empty() {
         return Ok(validated);
     }
+    // Moved and edited blocks keep their ids; only blocks this call created get format tips.
+    let earlier_block_ids: HashSet<Uuid> = after
+        .pages_changed_since(before)
+        .filter_map(|page| before.page(page.id))
+        .flat_map(|page| blocks_by_id(&page.content).into_keys())
+        .collect();
     let mut block_names: BTreeSet<&str> = BTreeSet::new();
     for page in &pages {
         crate::engine::blocks::walk(&page.roots, &mut |block, _| {
-            block_names.insert(&block.name);
+            if !earlier_block_ids.contains(&block.client_id) {
+                block_names.insert(&block.name);
+            }
         });
     }
     validated.block_names = block_names.into_iter().map(str::to_owned).collect();

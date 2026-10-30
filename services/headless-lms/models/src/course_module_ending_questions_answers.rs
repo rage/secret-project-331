@@ -135,7 +135,7 @@ pub async fn user_has_answered_all_questions_for_module_id(
     course_id: &Uuid,
     user_id: &Uuid,
 ) -> ModelResult<bool> {
-    // todo check if works
+    // todo verify if works
     let res = sqlx::query!(
         r#"
 SELECT COUNT(questions) = COUNT(user_answers) AS has_answered
@@ -145,10 +145,10 @@ FROM (
     FROM course_module_ending_questions AS q
       LEFT JOIN course_module_ending_questions_answers AS a ON a.question_id = q.id
       AND a.user_id = $1
+      AND a.course_module_id = $3
     WHERE q.course_id = $2
       OR q.course_id IS NULL
       AND q.deleted_at IS NULL
-      AND a.course_module_id = $3
       AND a.deleted_at IS NULL
   )
         "#,
@@ -156,12 +156,10 @@ FROM (
         user_id,
         course_module_id
     )
-    .fetch_all(&mut *conn)
+    .fetch_one(&mut *conn)
     .await?;
 
-    println!("!!!!!!!!!!!!!!!!!!!{:?}", res);
-
-    Ok(false) //(res.res.unwrap_or(false))
+    Ok(res.has_answered.unwrap_or(false))
 }
 
 pub async fn user_has_answered_all_questions_for_course_indexed_by_module_id(

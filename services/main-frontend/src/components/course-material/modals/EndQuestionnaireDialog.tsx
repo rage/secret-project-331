@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useSetAtom } from "jotai"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -16,6 +17,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { RadioGroup, Radio, TextArea, Button, Checkbox } from "@/shared-module/components"
+import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
 
 interface Answer {
   freeText: string
@@ -49,6 +51,7 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const setShowEndQuestionnaire = useSetAtom(needsToAnswerEndQuestionnaire)
   const { control, handleSubmit } = useForm<AnswersData>({
     defaultValues: {},
     // oxlint-disable-next-line i18next/no-literal-string
@@ -72,6 +75,7 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
     {
       onSuccess: () => {
         setOpen(false)
+        setShowEndQuestionnaire(false)
       },
     },
   )

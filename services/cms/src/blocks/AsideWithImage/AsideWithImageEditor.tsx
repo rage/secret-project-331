@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, RichText } from "@wordpress/block-editor"
+import { BlockControls, HeadingLevelDropdown, InnerBlocks, RichText } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -12,13 +12,24 @@ import type { AsideWithImageBlockAttributes } from "."
 import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image"]
+const HEADING_LEVELS = [2, 3, 4, 5, 6]
+const DEFAULT_HEADING_LEVEL = 4
 
 const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
-> = ({ attributes: { title, content }, setAttributes }) => {
+> = ({ attributes: { title, content, headingLevel: storedHeadingLevel }, setAttributes }) => {
   const { t } = useTranslation()
+  // Blocks saved before the heading level existed have no value stored.
+  const headingLevel = storedHeadingLevel ?? DEFAULT_HEADING_LEVEL
   return (
     <BlockWrapper>
+      <BlockControls>
+        <HeadingLevelDropdown
+          options={HEADING_LEVELS}
+          value={headingLevel}
+          onChange={(level: number) => setAttributes({ headingLevel: level })}
+        />
+      </BlockControls>
       <div>
         <div
           className={css`
@@ -40,7 +51,7 @@ const AsideWithImageEditor: React.FC<
               className={css`
                 font-weight: 600;
               `}
-              tagName="h4"
+              tagName={`h${headingLevel}`}
               value={title}
               onChange={(value: string) => setAttributes({ title: value })}
               placeholder={t("heading-placeholder")}

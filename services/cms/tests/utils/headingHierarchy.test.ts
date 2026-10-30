@@ -101,6 +101,20 @@ describe("analyzeHeadingHierarchy", () => {
     ])
   })
 
+  it("uses the aside with image's chosen heading level", () => {
+    const blocks = [
+      createBlock("hero", "moocfi/hero-section", { title: "Page title" }),
+      createBlock("aside", "moocfi/aside-with-image", { title: "Aside", headingLevel: 2 }),
+    ]
+
+    const entries = analyzeHeadingHierarchy(blocks)
+
+    expect(entries.map((entry) => [entry.level, entry.issues])).toEqual([
+      [1, []],
+      [2, []],
+    ])
+  })
+
   it("includes nested heading blocks when analyzing the page outline", () => {
     const blocks = [
       createBlock("objective", "moocfi/course-objective-section", { title: "Goals" }, [

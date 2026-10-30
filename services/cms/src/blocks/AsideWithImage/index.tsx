@@ -11,6 +11,7 @@ import AsideWithImageSave from "./AsideWithImageSave"
 export interface AsideWithImageBlockAttributes {
   title: string
   content: string
+  headingLevel?: number
 }
 
 const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttributes> = {
@@ -24,6 +25,10 @@ const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttribu
       source: "html",
       selector: "h1",
       default: "This is the heading of this component...",
+    },
+    headingLevel: {
+      type: "number",
+      default: 4,
     },
     content: {
       type: "string",

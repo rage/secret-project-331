@@ -102,7 +102,8 @@ const extractBlockHeadingEntries = (block: BlockInstance): RawHeadingEntry[] => 
       return entry ? [entry] : []
     }
     case "moocfi/aside-with-image": {
-      const entry = createRawHeadingEntry(block, 4, block.attributes?.title)
+      const level = parseHeadingLevel(block.attributes?.headingLevel) ?? 4
+      const entry = createRawHeadingEntry(block, level, block.attributes?.title)
       return entry ? [entry] : []
     }
     case "moocfi/expandable-content-inner-block": {

@@ -14,11 +14,25 @@ import InnerBlocks from "../util/InnerBlocks"
 interface AsideWithImageBlockAttributes {
   title: string
   content: string
+  headingLevel?: number
 }
+
+const HEADING_TAGS = { 2: "h2", 3: "h3", 4: "h4", 5: "h5", 6: "h6" } as const
+
+const headingStyles = css`
+  line-height: 140%;
+  font-family: ${primaryFont};
+  margin-bottom: 1.125rem;
+  font-weight: 550;
+  font-size: 1.5rem;
+  color: #1a2333;
+`
 
 const AsideWithImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<AsideWithImageBlockAttributes>>
 > = (props) => {
+  const { title, content, headingLevel } = props.data.attributes
+  const headingTag = HEADING_TAGS[headingLevel as keyof typeof HEADING_TAGS] ?? HEADING_TAGS[4]
   return (
     <div
       className={css`
@@ -34,48 +48,38 @@ const AsideWithImageBlock: React.FC<
           column-gap: 2.5rem;
         }
 
-        div:first-of-type {
-          width: 150px;
-          height: 150px;
-          border-radius: 100%;
-          object-fit: none;
-          overflow: hidden;
-          margin: 0;
-          figure {
-            width: 7.5rem;
-            aspect-ratio: 1/1;
-            margin: 0;
-
-            img {
-              width: 9.375rem;
-              height: 9.375rem;
-              margin: 0;
-            }
-          }
-        }
-
         p {
           margin: 0 !important;
           font-size: 1.125rem;
           line-height: 160%;
         }
-
-        h4 {
-          font-weight: 600;
-          line-height: 140%;
-          font-family: ${primaryFont};
-          margin-bottom: 1.125rem;
-          font-weight: 550;
-          font-size: 1.5rem;
-          color: #1a2333;
-        }
       `}
     >
-      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+      <div
+        className={css`
+          width: 150px;
+
+          figure {
+            margin: 0;
+          }
+
+          img {
+            width: 100%;
+            height: auto;
+          }
+        `}
+      >
+        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+      </div>
       <div>
-        <ParsedText text={props.data.attributes.title} tag="h4" useWrapperElement={true} />
         <ParsedText
-          text={props.data.attributes.content}
+          text={title}
+          tag={headingTag}
+          tagProps={{ className: headingStyles }}
+          useWrapperElement={true}
+        />
+        <ParsedText
+          text={content}
           tag="p"
           useWrapperElement={true}
           tagProps={{

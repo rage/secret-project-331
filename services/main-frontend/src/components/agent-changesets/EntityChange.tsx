@@ -19,7 +19,7 @@ import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Badge, Button, ErrorNotice, TONE } from "@/shared-module/components"
 
-import BeforeAfterColumns from "./BeforeAfterColumns"
+import BeforeAfterTabs from "./BeforeAfterTabs"
 import ExerciseWarningList from "./ExerciseWarningList"
 import FieldChanges from "./FieldChanges"
 import RiskReasonList from "./RiskReasonList"
@@ -123,18 +123,23 @@ const OperationBadge: React.FC<{ operation: AgentChangesetEntityOperation }> = (
   }
 }
 
-const stagedContent = (page: PreviewPage) => (
-  <StagedPageContent page={page} isConstrainedToContainer embeddedUnderHeadingLevel={4} />
-)
-
-/** The page before and after the change, rendered as students see it, side by side. */
+/** The page before and after the change, rendered as students see it. */
 const PageContentChange: React.FC<{ change: PageChange }> = ({ change }) => {
   const { t } = useTranslation()
+  const chapterFrontPageIds = useContext(ChapterFrontPageIdsContext)
   if (!change.is_content_changed) {
     return <p>{t("agent-page-content-unchanged")}</p>
   }
+  const stagedContent = (page: PreviewPage) => (
+    <StagedPageContent
+      page={page}
+      isConstrainedToContainer
+      embeddedUnderHeadingLevel={4}
+      isChapterFrontPage={chapterFrontPageIds.has(page.id)}
+    />
+  )
   return (
-    <BeforeAfterColumns
+    <BeforeAfterTabs
       before={change.base && stagedContent(change.base)}
       after={change.after && stagedContent(change.after)}
       data-testid-prefix="agent-page"

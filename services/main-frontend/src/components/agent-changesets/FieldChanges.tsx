@@ -16,7 +16,7 @@ import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { ABSENT_LABEL, Table } from "@/shared-module/components"
 
-import BeforeAfterColumns from "./BeforeAfterColumns"
+import BeforeAfterTabs from "./BeforeAfterTabs"
 import { StagedBlocks } from "./StagedPageContent"
 import { useEntityName } from "./useEntityName"
 
@@ -129,7 +129,7 @@ const BlocksChange: React.FC<{ change: FieldChange; label: string }> = ({ change
       >
         {label}
       </h4>
-      <BeforeAfterColumns
+      <BeforeAfterTabs
         before={column(change.before)}
         after={column(change.after)}
         data-testid-prefix="agent-blocks"

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -31,6 +31,7 @@ import EntityChange, {
   EntityLabelList,
 } from "./EntityChange"
 import PublishOutcomeNotice, { RejectionNotice } from "./PublishOutcomeNotice"
+import { sortReviewEntities } from "./sortReviewEntities"
 
 const sectionHeadingCss = css`
   font-size: 1.25rem;
@@ -59,6 +60,20 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
     () => new Set(review.chapter_front_page_ids),
     [review.chapter_front_page_ids],
   )
+  const sortedEntities = useMemo(
+    () => sortReviewEntities(entities, chapterFrontPageIds),
+    [entities, chapterFrontPageIds],
+  )
+
+  // The global `overflow-x: hidden` on body makes it a scroll container that never scrolls,
+  // which pins the sticky action bar to it instead of the viewport.
+  useEffect(() => {
+    const previous = document.body.style.overflowX
+    document.body.style.overflowX = "visible"
+    return () => {
+      document.body.style.overflowX = previous
+    }
+  }, [])
 
   const invalidateChangesets = async () => {
     await queryClient.invalidateQueries({
@@ -192,9 +207,15 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
         {isOpen && (
           <div
             className={css`
+              position: sticky;
+              top: 0;
+              z-index: 10;
               display: flex;
               flex-wrap: wrap;
               gap: 0.75rem;
+              padding: 0.75rem 0;
+              background: ${baseTheme.colors.clear[100]};
+              border-bottom: 1px solid ${baseTheme.colors.gray[100]};
             `}
           >
             <Button
@@ -231,7 +252,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
           {entities.length === 0 ? (
             <p>{t("agent-no-changes")}</p>
           ) : (
-            entities.map((reviewEntity) => (
+            sortedEntities.map((reviewEntity) => (
               <EntityChange
                 key={`${reviewEntity.entity_type}-${reviewEntity.entity_id}`}
                 reviewEntity={reviewEntity}

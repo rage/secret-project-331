@@ -34,6 +34,13 @@ const STUDENT_SPECIFIC_BLOCKS = [
   "moocfi/map",
 ]
 
+/** Blocks built from the published course, which has none of the staged changes yet. */
+const PUBLISHED_COURSE_BLOCKS = [
+  "moocfi/pages-in-chapter",
+  "moocfi/course-chapter-grid",
+  "moocfi/top-level-pages",
+]
+
 /** Blocks that show their inner blocks only to some students; the preview shows them to all. */
 const STUDENT_SPECIFIC_CONTAINERS = [
   "moocfi/conditional-block",
@@ -50,17 +57,68 @@ const placeholderCss = css`
   color: ${baseTheme.colors.gray[600]};
 `
 
+/** A block's name as teachers know it, instead of its internal id. */
+function useBlockName() {
+  const { t } = useTranslation()
+  return (blockId: string): string => {
+    switch (blockId) {
+      case "moocfi/chapter-progress":
+        return t("agent-preview-block-name-chapter-progress")
+      case "moocfi/course-progress":
+        return t("agent-preview-block-name-course-progress")
+      case "moocfi/congratulations":
+        return t("agent-preview-block-name-congratulations")
+      case "moocfi/chatbot":
+        return t("agent-preview-block-name-chatbot")
+      case "moocfi/research-consent-question":
+        return t("agent-preview-block-name-research-consent-question")
+      case "moocfi/exercise-custom-view-block":
+        return t("agent-preview-block-name-exercise-custom-view")
+      case "moocfi/exercises-in-chapter":
+        return t("agent-preview-block-name-exercises-in-chapter")
+      case "moocfi/map":
+        return t("agent-preview-block-name-map")
+      case "moocfi/pages-in-chapter":
+        return t("agent-preview-block-name-pages-in-chapter")
+      case "moocfi/course-chapter-grid":
+        return t("agent-preview-block-name-course-chapter-grid")
+      case "moocfi/top-level-pages":
+        return t("agent-preview-block-name-top-level-pages")
+      case "moocfi/conditional-block":
+        return t("agent-preview-block-name-conditional-block")
+      case "moocfi/lock-chapter":
+        return t("agent-preview-block-name-lock-chapter")
+      case "moocfi/code-giveaway":
+        return t("agent-preview-block-name-code-giveaway")
+      default:
+        return blockId
+    }
+  }
+}
+
 const StudentSpecificBlockPlaceholder: React.FC<BlockRendererProps<unknown>> = ({ data }) => {
   const { t } = useTranslation()
+  const blockName = useBlockName()
   return (
     <div className={placeholderCss} data-testid="agent-preview-block-placeholder">
-      {t("agent-preview-student-specific-block", { name: data.name })}
+      {t("agent-preview-student-specific-block", { name: blockName(data.name) })}
+    </div>
+  )
+}
+
+const PublishedCourseBlockPlaceholder: React.FC<BlockRendererProps<unknown>> = ({ data }) => {
+  const { t } = useTranslation()
+  const blockName = useBlockName()
+  return (
+    <div className={placeholderCss} data-testid="agent-preview-block-placeholder">
+      {t("agent-preview-published-course-block", { name: blockName(data.name) })}
     </div>
   )
 }
 
 const StudentSpecificContainer: React.FC<BlockRendererProps<unknown>> = (props) => {
   const { t } = useTranslation()
+  const blockName = useBlockName()
   return (
     <div className={placeholderCss} data-testid="agent-preview-student-specific-container">
       <p
@@ -68,7 +126,7 @@ const StudentSpecificContainer: React.FC<BlockRendererProps<unknown>> = (props) 
           margin: 0 0 1rem 0;
         `}
       >
-        {t("agent-preview-student-specific-container", { name: props.data.name })}
+        {t("agent-preview-student-specific-container", { name: blockName(props.data.name) })}
       </p>
       <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
     </div>
@@ -139,6 +197,9 @@ const ExercisePlaceholder: React.FC<BlockRendererProps<{ id?: string }>> = ({ da
 const BLOCK_RENDERER_OVERRIDES: Record<string, React.ComponentType<BlockRendererProps<never>>> = {
   ...Object.fromEntries(
     STUDENT_SPECIFIC_BLOCKS.map((name) => [name, StudentSpecificBlockPlaceholder]),
+  ),
+  ...Object.fromEntries(
+    PUBLISHED_COURSE_BLOCKS.map((name) => [name, PublishedCourseBlockPlaceholder]),
   ),
   ...Object.fromEntries(
     STUDENT_SPECIFIC_CONTAINERS.map((name) => [name, StudentSpecificContainer]),
@@ -269,12 +330,14 @@ function useEmbeddedContent(
 
 interface StagedBlocksProps {
   blocks: unknown
-  /** Keeps full-width blocks inside the container, for side-by-side columns. */
+  /** Keeps full-width blocks inside the container. */
   isConstrainedToContainer?: boolean
   /** See [`StagedPageContentProps.embeddedUnderHeadingLevel`]. */
   embeddedUnderHeadingLevel?: number
   /** The page the blocks belong to, for blocks that read it. */
   page?: PreviewPage
+  /** Whether `page` is its chapter's front page; blocks cannot ask the server about a staged page. */
+  isChapterFrontPage?: boolean
 }
 
 /** Stored blocks rendered read-only like a page's content, for content that has no page of its own. */
@@ -283,16 +346,21 @@ export const StagedBlocks: React.FC<StagedBlocksProps> = ({
   isConstrainedToContainer = false,
   embeddedUnderHeadingLevel,
   page,
+  isChapterFrontPage,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   useEmbeddedContent(containerRef, embeddedUnderHeadingLevel)
   const store = useMemo(() => {
     const pageStore = createStore()
     if (page) {
-      pageStore.set(viewParamsAtom, { type: "preview", page: coursePageOf(page) })
+      pageStore.set(viewParamsAtom, {
+        type: "preview",
+        page: coursePageOf(page),
+        isChapterFrontPage,
+      })
     }
     return pageStore
-  }, [page])
+  }, [page, isChapterFrontPage])
 
   return (
     <JotaiProvider store={store}>
@@ -313,13 +381,15 @@ export const StagedBlocks: React.FC<StagedBlocksProps> = ({
 
 interface StagedPageContentProps {
   page: PreviewPage
-  /** Keeps full-width blocks inside the container, for side-by-side columns. */
+  /** Keeps full-width blocks inside the container. */
   isConstrainedToContainer?: boolean
   /**
    * Set when the page is shown inside another page, under a heading of this level: the page's
    * headings are announced below it, and its element ids can't clash with another copy's.
    */
   embeddedUnderHeadingLevel?: number
+  /** See [`StagedBlocksProps.isChapterFrontPage`]. */
+  isChapterFrontPage?: boolean
 }
 
 /**

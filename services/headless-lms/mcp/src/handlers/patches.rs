@@ -180,9 +180,27 @@ struct PageContentSummary<'a> {
     read_back: Option<ReadBack>,
 }
 
+/// Ids an op created, with the blocks the server added to its new pages.
+#[derive(Serialize)]
+struct CreatedStructure<'a> {
+    #[serde(flatten)]
+    ids: &'a CreatedIds,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    template_blocks: Vec<TemplateBlock>,
+}
+
+/// A top-level block the server added to a new page: its hero section, or a chapter front page's
+/// standard blocks.
+#[derive(Serialize)]
+struct TemplateBlock {
+    page: Uuid,
+    block: Uuid,
+    block_name: String,
+}
+
 #[derive(Serialize)]
 struct StructureSummary<'a> {
-    created: &'a [CreatedIds],
+    created: Vec<CreatedStructure<'a>>,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     labels: &'a BTreeMap<String, Uuid>,
     #[serde(skip_serializing_if = "<[_]>::is_empty")]
@@ -309,6 +327,7 @@ impl ToolHandler<McpState> for PatchCourseStructure {
 
         let mut contents = std::mem::take(&mut result.new_pages);
         let mut generated_blocks = HashSet::new();
+        let mut template_blocks = Vec::new();
         for (page_id, blocks) in contents.iter_mut() {
             if result.structure.is_chapter_front_page(*page_id) {
                 if blocks.is_empty()
@@ -318,6 +337,11 @@ impl ToolHandler<McpState> for PatchCourseStructure {
                     walk(blocks, &mut |block, _| {
                         generated_blocks.insert(block.client_id);
                     });
+                    template_blocks.extend(blocks.iter().map(|block| TemplateBlock {
+                        page: *page_id,
+                        block: block.client_id,
+                        block_name: block.name.clone(),
+                    }));
                 }
             } else if !blocks
                 .iter()
@@ -326,6 +350,11 @@ impl ToolHandler<McpState> for PatchCourseStructure {
             {
                 let hero = GutenbergBlock::hero_section(page.title.trim(), "");
                 generated_blocks.insert(hero.client_id);
+                template_blocks.push(TemplateBlock {
+                    page: *page_id,
+                    block: hero.client_id,
+                    block_name: hero.name.clone(),
+                });
                 blocks.insert(0, hero);
             }
         }
@@ -392,8 +421,23 @@ impl ToolHandler<McpState> for PatchCourseStructure {
                 }),
             )
         });
+        let created = result
+            .created
+            .iter()
+            .map(|ids| {
+                let (mut own, rest): (Vec<_>, Vec<_>) = std::mem::take(&mut template_blocks)
+                    .into_iter()
+                    .partition(|block| ids.ids.contains(&block.page));
+                template_blocks = rest;
+                own.sort_by_key(|block| ids.ids.iter().position(|id| *id == block.page));
+                CreatedStructure {
+                    ids,
+                    template_blocks: own,
+                }
+            })
+            .collect();
         let summary = StructureSummary {
-            created: &result.created,
+            created,
             labels: &result.labels,
             warnings: &result.warnings,
             changed_paths: &result.changed_paths,

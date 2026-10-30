@@ -5,7 +5,7 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits::{self, NewProposedPageEdits},
 };
-use serde_json::json;
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use crate::fixture::{Fixture, TEST_CLIENT_NAME, changeset_id};
@@ -75,6 +75,23 @@ async fn structure_settings_and_glossary_edits_publish_together() {
             ]}),
         )
         .await;
+    let template_block_names = |op: usize| -> Vec<Value> {
+        structure["created"][op]["template_blocks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|block| block["block_name"].clone())
+            .collect()
+    };
+    assert_eq!(
+        template_block_names(0),
+        [
+            json!("moocfi/hero-section"),
+            json!("moocfi/pages-in-chapter"),
+            json!("moocfi/exercises-in-chapter")
+        ]
+    );
+    assert_eq!(template_block_names(1), [json!("moocfi/hero-section")]);
     let labels = &structure["labels"];
     let new_page = labels["$pg"].as_str().unwrap().to_string();
     fixture

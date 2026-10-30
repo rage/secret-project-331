@@ -9,6 +9,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { BlockRendererProps } from ".."
+import { ImageInteractivityContext } from "../core/common/Image/ImageInteractivityContext"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface AsideWithImageBlockAttributes {
@@ -63,13 +64,18 @@ const AsideWithImageBlock: React.FC<
             margin: 0;
           }
 
+          /* Not 100%: the image block's fit-content wrapper sizes itself from the image, so a
+             percentage is circular and some browsers resolve it to 0. */
           img {
-            width: 100%;
+            width: 150px;
             height: auto;
           }
         `}
       >
-        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        {/* A decorative icon, too small to be worth zooming. */}
+        <ImageInteractivityContext.Provider value={{ disableInteractivity: true }}>
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        </ImageInteractivityContext.Provider>
       </div>
       <div>
         <ParsedText

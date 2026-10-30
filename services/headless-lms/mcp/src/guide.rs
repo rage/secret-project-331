@@ -95,7 +95,7 @@ An exercise block on a page holds only the exercise id (exercise_id in reads). g
 - Review instructions show only for exercises with peer or self reviews. Most exercises use the course default review config, so its instructions are shared: review_config edit_course_default edits them for every exercise using it. Prefer that. fork gives one exercise its own copy of the default settings and questions, for an exercise with special needs; use_course_default drops an exercise's own settings again, and the result lists what it drops.
 - Switching review settings is allowed after students have given reviews, but the result and the review page warn about it.
 - Name and instruction edits are never risky; a deadline change is risky as in publishing-and-risk.
-- find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork.";
+- find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork. Regexes (find_replace regex: true, structural_replace text_regex) use Rust regex syntax: no backreferences or lookaround; (?i) for case-insensitive.";
 
 /// The `guide` tool's result: the guide of each block type and topic asked for, or with neither
 /// asked for, the index of both. `schemas` may be `None` only when only topics are asked for.

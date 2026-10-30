@@ -30,7 +30,8 @@ pub struct StructuralMatch {
     pub text_starts_with: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_contains: Option<String>,
-    /// Regex on the visible text.
+    /// Regex on the visible text. Rust regex syntax: no backreferences or lookaround; (?i) for
+    /// case-insensitive.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_regex: Option<String>,
 }

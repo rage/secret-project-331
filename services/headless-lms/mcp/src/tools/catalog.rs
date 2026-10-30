@@ -316,7 +316,7 @@ pub fn find_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "find_replace",
-        "Searches, and with replace changes, text across a course, chapter or page. Matches the stored HTML of text attributes (content, captions, alt texts, titles…), so markup counts: <em>for</em> loops doesn't match \"for loops\". Literal finds match whole words at word edges; regex: true takes a regex and $1-style replacements. attributes picks attribute names or /regex/ on names. expected_count fails the call on any other count. Lists likely inflected forms it didn't change. Use dry_run: true first. Replacing needs the material:stage scope. Searches exercises' task and review instructions too (include_exercise_instructions, default true) and, with include_exercise_names, their names; matches in the course default review instructions are listed once under course_default_review_config and change it for every exercise using it.",
+        "Searches, and with replace changes, text across a course, chapter or page. Matches the stored HTML of text attributes (content, captions, alt texts, titles…), so markup counts: <em>for</em> loops doesn't match \"for loops\". Literal finds match whole words at word edges; regex: true takes a Rust regex (no backreferences or lookaround; (?i) for case-insensitive) and $1-style replacements. attributes picks attribute names or /regex/ on names. expected_count fails the call on any other count. Lists likely inflected forms it didn't change. Use dry_run: true first. Replacing needs the material:stage scope. Searches exercises' task and review instructions too (include_exercise_instructions, default true) and, with include_exercise_names, their names; matches in the course default review instructions are listed once under course_default_review_config and change it for every exercise using it.",
         write("Find and replace text", true),
         McpScope::MaterialRead,
     )
@@ -327,7 +327,7 @@ pub fn structural_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     define(
         handler,
         "structural_replace",
-        "Finds blocks by type and visible text (match: name, text_starts_with, text_contains, text_regex) across a course, chapter or page, and applies one action to each: wrap_in a container type, retype_to another type, unwrap: true or remove: true. Includes exercises' task and review instructions unless include_exercise_instructions is false. Use dry_run: true and expected_count. Stages like other writes.",
+        "Finds blocks by type and visible text (match: name, text_starts_with, text_contains, text_regex, Rust regex syntax: no backreferences or lookaround) across a course, chapter or page, and applies one action to each: wrap_in a container type, retype_to another type, unwrap: true or remove: true. Includes exercises' task and review instructions unless include_exercise_instructions is false. Use dry_run: true and expected_count. Stages like other writes.",
         write("Replace blocks by pattern", true),
         McpScope::MaterialStage,
     )

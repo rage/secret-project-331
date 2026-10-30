@@ -212,7 +212,7 @@ pub struct FindReplaceArgs {
     pub scope: Option<ContentScope>,
     /// Literal text (whole words at word edges) or, with regex, a pattern. Matches the stored HTML.
     pub find: String,
-    /// Leave out to search only.
+    /// Leave out to search only. With regex, $1-style groups; Rust regex syntax has no backreferences or lookaround, and (?i) makes it case-insensitive.
     pub replace: Option<String>,
     #[serde(default)]
     pub regex: bool,

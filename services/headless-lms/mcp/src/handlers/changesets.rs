@@ -499,6 +499,13 @@ async fn live_page(
         }))
 }
 
+/// The preview link of one page.
+#[derive(serde::Serialize)]
+struct PreviewLink {
+    page: Uuid,
+    url: String,
+}
+
 #[async_trait(?Send)]
 impl ToolHandler<McpState> for GetPreviewLink {
     type Args = GetPreviewLinkArgs;
@@ -509,56 +516,90 @@ impl ToolHandler<McpState> for GetPreviewLink {
         ctx: &RequestContext,
         args: GetPreviewLinkArgs,
     ) -> Result<ToolOutcome, ToolError> {
+        let page_ids: Vec<Uuid> = match (&args.page, &args.pages) {
+            (Some(page), None) => vec![page.id()],
+            (None, Some(pages)) if !pages.is_empty() => {
+                pages.iter().map(|page| page.id()).collect()
+            }
+            _ => {
+                return Err(ToolError::InvalidArguments {
+                    message: "give either page or a non-empty pages list".into(),
+                });
+            }
+        };
         let course_id = args.course.id();
-        let page_id = args.page.id();
         let user_id = ctx.principal.actor.user_id;
         let mut conn = connection(state).await?;
         let course = authorize_course(&mut conn, user_id, course_id).await?;
-        let not_found = || ToolError::NotFound {
+        let not_found = |page_id: Uuid| ToolError::NotFound {
             message: format!(
                 "course {course_id} has no page {page_id}; get_course_structure lists its pages"
             ),
         };
+        let mut links = Vec::with_capacity(page_ids.len());
         let Some(changeset) = agent_changesets::get_open(&mut conn, user_id, course.id).await?
         else {
-            let page = live_page(&mut conn, &course, page_id)
-                .await?
-                .ok_or_else(not_found)?;
             let organization =
                 organizations::get_organization(&mut conn, course.organization_id).await?;
-            let url = course_page_url(
-                &state.app_conf.base_url,
-                &organization.slug,
-                &course.slug,
-                &page.url_path,
-            )
-            .ok_or_else(|| ToolError::Internal("the configured base URL is invalid".into()))?;
-            return Ok(ToolResult::success(json!({
-                "url": url,
-                "is_staged": false,
-                "message": "You have nothing staged in this course, so this is the published page.",
-            }))
-            .into());
-        };
-        let key = EntityKey::new(ContentEntityType::Page, page_id);
-        match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
-            Some(AgentChangesetEntityOperation::Delete) => {
-                return Err(deleted_in_staged_changes(page_id));
-            }
-            Some(_) => {}
-            None => {
-                live_page(&mut conn, &course, page_id)
+            for page_id in page_ids {
+                let page = live_page(&mut conn, &course, page_id)
                     .await?
-                    .ok_or_else(not_found)?;
+                    .ok_or_else(|| not_found(page_id))?;
+                let url = course_page_url(
+                    &state.app_conf.base_url,
+                    &organization.slug,
+                    &course.slug,
+                    &page.url_path,
+                )
+                .ok_or_else(|| ToolError::Internal("the configured base URL is invalid".into()))?;
+                links.push(PreviewLink { page: page_id, url });
             }
+            let mut result = json!({
+                "is_staged": false,
+                "message": "You have nothing staged in this course, so these are the published pages.",
+            });
+            insert_links(&mut result, args.page.is_some(), links);
+            return Ok(ToolResult::success(result).into());
+        };
+        let mut expires_at = None;
+        for page_id in page_ids {
+            let key = EntityKey::new(ContentEntityType::Page, page_id);
+            match agent_changeset_entities::get_operation(&mut conn, changeset.id, key).await? {
+                Some(AgentChangesetEntityOperation::Delete) => {
+                    return Err(deleted_in_staged_changes(page_id));
+                }
+                Some(_) => {}
+                None => {
+                    live_page(&mut conn, &course, page_id)
+                        .await?
+                        .ok_or_else(|| not_found(page_id))?;
+                }
+            }
+            let preview = mint_preview_token(&state.jwt_key, changeset.id, page_id, user_id)?;
+            expires_at = Some(preview.expires_at);
+            links.push(PreviewLink {
+                page: page_id,
+                url: state.app_conf.public_url(&preview_path(&preview.token)),
+            });
         }
-        let preview = mint_preview_token(&state.jwt_key, changeset.id, page_id, user_id)?;
-        Ok(ToolResult::success(json!({
-            "url": state.app_conf.public_url(&preview_path(&preview.token)),
+        let mut result = json!({
             "is_staged": true,
             "changeset": changeset.id,
-            "expires_at": preview.expires_at,
-        }))
-        .into())
+            "expires_at": expires_at,
+        });
+        insert_links(&mut result, args.page.is_some(), links);
+        Ok(ToolResult::success(result).into())
+    }
+}
+
+/// Puts `links` into `result`: the one link as `url` when a single `page` was asked for, else
+/// `previews`.
+fn insert_links(result: &mut Value, is_single_page: bool, links: Vec<PreviewLink>) {
+    let (field, value) = match (is_single_page, links.as_slice()) {
+        (true, [link]) => ("url", json!(link.url)),
+        _ => ("previews", json!(links)),
+    };
+    if let Value::Object(fields) = result {
+        fields.insert(field.into(), value);
     }
 }

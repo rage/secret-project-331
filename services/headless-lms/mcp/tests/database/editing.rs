@@ -256,6 +256,19 @@ async fn uploads_preview_links_and_discard() {
             .unwrap()
             .starts_with("http://project-331.local/agent-preview/")
     );
+    let previews = fixture
+        .call(
+            "get_preview_link",
+            json!({"course": fixture.course_id, "pages": [fixture.page_id]}),
+        )
+        .await;
+    assert_eq!(previews["previews"][0]["page"], json!(fixture.page_id));
+    assert!(
+        previews["previews"][0]["url"]
+            .as_str()
+            .unwrap()
+            .starts_with("http://project-331.local/agent-preview/")
+    );
 
     let discarded = fixture
         .call(

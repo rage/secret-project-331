@@ -69,6 +69,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
   // which pins the sticky action bar to it instead of the viewport.
   useEffect(() => {
     const previous = document.body.style.overflowX
+    // oxlint-disable-next-line i18next/no-literal-string
     document.body.style.overflowX = "visible"
     return () => {
       document.body.style.overflowX = previous

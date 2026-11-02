@@ -16,7 +16,7 @@ use headless_lms_models::{
     library::credit_registration::{PendingPreconditions, StudentFacingCreditRegistrationStatus},
 };
 use headless_lms_utils::services::moocfi::{DelegatedCompletion, MoocfiClient};
-use utoipa::{OpenApi, ToSchema};
+use utoipa::{IntoParams, OpenApi, ToSchema};
 
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
@@ -116,13 +116,16 @@ completions of a mooc.fi course from mooc.fi and returns them with their registr
 When mooc.fi cannot be reached the answer is still 200, from the rows stored earlier, with
 `is_up_to_date` false.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, language))]
 #[utoipa::path(
     get,
     path = "/{moocfi_course_id}",
     operation_id = "getMyMoocfiCreditRegistrations",
     tag = "moocfi-credit-registrations",
-    params(("moocfi_course_id" = Uuid, Path, description = "The handler course id on mooc.fi")),
+    params(
+        ("moocfi_course_id" = Uuid, Path, description = "The handler course id on mooc.fi"),
+        UiLanguageQuery
+    ),
     responses(
         (status = 200, description = "The caller's completions of the course", body = MoocfiCreditRegistrations)
     )
@@ -132,6 +135,7 @@ pub async fn get_my_moocfi_credit_registrations(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
     moocfi_course_id: web::Path<Uuid>,
+    language: web::Query<UiLanguageQuery>,
 ) -> ControllerResult<web::Json<MoocfiCreditRegistrations>> {
     let token = skip_authorize();
     let moocfi_course_id = moocfi_course_id.into_inner();
@@ -167,8 +171,9 @@ pub async fn get_my_moocfi_credit_registrations(
         },
     };
 
-    let course_details = match &moocfi.delegation {
-        Some(delegation) if are_course_details_stale(&targets) => {
+    // `None` when no lookup was due; `Some(None)` when mooc.fi gave no usable answer.
+    let course_lookup = match &moocfi.delegation {
+        Some(delegation) if are_course_details_stale(&targets) => Some(
             match MoocfiClient::new(delegation)
                 .get_delegated_course(moocfi_course_id)
                 .await
@@ -178,21 +183,29 @@ pub async fn get_my_moocfi_credit_registrations(
                     warn!(%error, "Keeping the stored mooc.fi course details: the lookup failed");
                     None
                 }
-            }
-        }
+            },
+        ),
         _ => None,
     };
 
     let mut conn = pool.acquire().await?;
-    if let Some(course) = &course_details {
-        external_credit_targets::record_moocfi_course_details(
-            &mut conn,
-            moocfi_course_id,
-            course.has_certificate,
-        )
-        .await?;
+    match &course_lookup {
+        Some(Some(course)) => {
+            external_credit_targets::record_moocfi_course_details(
+                &mut conn,
+                moocfi_course_id,
+                course.has_certificate,
+            )
+            .await?
+        }
+        Some(None) => {
+            external_credit_targets::record_moocfi_course_check_failure(&mut conn, moocfi_course_id)
+                .await?
+        }
+        None => {}
     }
-    let has_certificate = course_details
+    let has_certificate = course_lookup
+        .flatten()
         .map(|course| course.has_certificate)
         .or_else(|| {
             targets
@@ -311,7 +324,7 @@ pub async fn get_my_moocfi_credit_registrations(
     }
     completions.sort_by_key(|completion| std::cmp::Reverse(completion.completion_date));
 
-    let link = MoocfiCourseLink::of(&app_conf, &targets);
+    let link = MoocfiCourseLink::of(&app_conf, &targets, language.ui_language.as_deref());
     token.authorized_ok(web::Json(MoocfiCreditRegistrations {
         moocfi_course_id,
         signed_in_email,
@@ -331,14 +344,19 @@ pub struct MoocfiCourseLink {
 }
 
 impl MoocfiCourseLink {
-    fn of(app_conf: &ApplicationConfiguration, targets: &[ExternalCreditTarget]) -> Self {
+    fn of(
+        app_conf: &ApplicationConfiguration,
+        targets: &[ExternalCreditTarget],
+        ui_language: Option<&str>,
+    ) -> Self {
         let first_target = targets.first();
         Self {
             course_name: first_target.map(|target| target.name.clone()),
             moocfi_course_url: first_target.and_then(|target| {
                 app_conf
                     .moocfi_configuration
-                    .frontend_url
+                    .localized_frontend_url(ui_language)
+                    .ok()?
                     .join(&format!(
                         "register-completion/{}",
                         target.moocfi_course_slug
@@ -356,13 +374,16 @@ course's name and registration page, without reading mooc.fi.
 
 Needs no sign-in: the handoff error page uses it while the wrong account, or none, is signed in.
 */
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, language))]
 #[utoipa::path(
     get,
     path = "/{moocfi_course_id}/course-link",
     operation_id = "getMoocfiCourseLink",
     tag = "moocfi-credit-registrations",
-    params(("moocfi_course_id" = Uuid, Path, description = "The handler course id on mooc.fi")),
+    params(
+        ("moocfi_course_id" = Uuid, Path, description = "The handler course id on mooc.fi"),
+        UiLanguageQuery
+    ),
     responses(
         (status = 200, description = "The course's name and registration page", body = MoocfiCourseLink)
     )
@@ -371,12 +392,17 @@ pub async fn get_moocfi_course_link(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
     moocfi_course_id: web::Path<Uuid>,
+    language: web::Query<UiLanguageQuery>,
 ) -> ControllerResult<web::Json<MoocfiCourseLink>> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
     let targets =
         external_credit_targets::get_by_moocfi_course_id(&mut conn, *moocfi_course_id).await?;
-    token.authorized_ok(web::Json(MoocfiCourseLink::of(&app_conf, &targets)))
+    token.authorized_ok(web::Json(MoocfiCourseLink::of(
+        &app_conf,
+        &targets,
+        language.ui_language.as_deref(),
+    )))
 }
 
 /// Whether any target of the course lacks mooc.fi's details or has them older than
@@ -388,6 +414,13 @@ fn are_course_details_stale(targets: &[ExternalCreditTarget]) -> bool {
             .moocfi_course_checked_at
             .is_none_or(|checked_at| checked_at < fresh_since)
     })
+}
+
+/// The courses UI language, which picks the language of the mooc.fi links in the answer.
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct UiLanguageQuery {
+    pub ui_language: Option<String>,
 }
 
 /// What reading the student's completions from mooc.fi gave.

@@ -2064,8 +2064,8 @@ fn validated_justification(
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreateMoocfiHandoffPayload {
     pub destination: MoocfiHandoffDestination,
-    /// The language the caller is using courses in; `en` opens mooc.fi in English, anything else
-    /// in Finnish, mooc.fi's default.
+    /// The language the caller is using courses in; see
+    /// [`headless_lms_base::config::MoocfiConfiguration::localized_frontend_url`].
     pub ui_language: Option<String>,
 }
 
@@ -2083,8 +2083,7 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{exte
 - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
 
 mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
-student and the course from the stored completion, never from this request. 500 when handoffs to
-mooc.fi are not configured.
+student and the course from the stored completion, never from this request.
 */
 #[instrument(skip(pool, app_conf, payload))]
 #[utoipa::path(
@@ -2096,7 +2095,8 @@ mooc.fi are not configured.
     request_body = CreateMoocfiHandoffPayload,
     responses(
         (status = 200, description = "Where to send the browser", body = MoocfiHandoff),
-        (status = 404, description = "No such mooc.fi completion of the caller's")
+        (status = 404, description = "No such mooc.fi completion of the caller's"),
+        (status = 503, description = "Handoffs to mooc.fi are not configured")
     )
 )]
 pub async fn create_my_moocfi_handoff(
@@ -2105,18 +2105,26 @@ pub async fn create_my_moocfi_handoff(
     app_conf: web::Data<ApplicationConfiguration>,
     external_completion_id: web::Path<Uuid>,
     payload: web::Json<CreateMoocfiHandoffPayload>,
-) -> ControllerResult<web::Json<MoocfiHandoff>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
     let moocfi = &app_conf.moocfi_configuration;
     if moocfi.handoff_secret.is_none() {
-        return Err(controller_err!(
-            InternalServerError,
-            "Handoffs to mooc.fi are not configured.".to_string()
-        ));
+        return token.authorized_ok(HttpResponse::ServiceUnavailable().json(serde_json::json!({
+            "message": "Handoffs to mooc.fi are not configured.",
+        })));
     }
     let completion = my_external_completion(&mut conn, user.id, *external_completion_id).await?;
+    // The account's TMC id may have changed since the row was stored, and mooc.fi signs in whoever
+    // the stored id names.
+    let target =
+        models::external_credit_targets::get_by_id(&mut conn, completion.external_credit_target_id)
+            .await?;
+    if user.upstream_id() != Some(completion.moocfi_user_upstream_id) || target.enabled_at.is_none()
+    {
+        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
     let handoff_token = models::library::oauth::tokens::generate_access_token();
     models::moocfi_outbound_handoffs::insert(
         &mut conn,
@@ -2127,29 +2135,20 @@ pub async fn create_my_moocfi_handoff(
     )
     .await?;
 
-    let locale_prefix = if payload
-        .ui_language
-        .as_deref()
-        .is_some_and(|language| language.starts_with("en"))
-    {
-        "en/"
-    } else {
-        ""
-    };
     let mut redirect_url = moocfi
-        .frontend_url
-        .join(&format!("{locale_prefix}credit-registration-handoff/"))
+        .localized_frontend_url(payload.ui_language.as_deref())
+        .and_then(|url| Ok(url.join("credit-registration-handoff/")?))
         .map_err(|error| {
             ControllerError::new(
                 ControllerErrorType::InternalServerError,
                 "Invalid MOOCFI_FRONTEND_URL".to_string(),
-                Some(error.into()),
+                Some(error),
             )
         })?;
     redirect_url.set_fragment(Some(&format!("token={handoff_token}")));
     info!(outcome = "minted", "Minted a handoff to mooc.fi");
 
-    token.authorized_ok(web::Json(MoocfiHandoff {
+    token.authorized_ok(HttpResponse::Ok().json(MoocfiHandoff {
         redirect_url: redirect_url.to_string(),
     }))
 }

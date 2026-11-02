@@ -570,6 +570,36 @@ pub async fn admin_update_external_credit_target(
             "The mooc.fi course cannot change once the target has completions.".to_string(),
         ));
     }
+    // mooc.fi has one cutoff per course, so a move takes the course's other targets along;
+    // otherwise each would refuse the change for disagreeing with the others.
+    let mut moved_sibling_ids = Vec::new();
+    if configuration.delegated_at != before.delegated_at
+        && configuration.moocfi_course_id == before.moocfi_course_id
+    {
+        for sibling in external_credit_targets::get_by_moocfi_course_id(
+            &mut tx,
+            configuration.moocfi_course_id,
+        )
+        .await?
+        .into_iter()
+        .filter(|sibling| sibling.id != id)
+        {
+            if external_credit_targets::has_credit_registrations(&mut tx, sibling.id).await? {
+                return Err(controller_err!(
+                    BadRequest,
+                    "The cutoff cannot change once a target of the mooc.fi course has registrations."
+                        .to_string()
+                ));
+            }
+            moved_sibling_ids.push(sibling.id);
+        }
+        external_credit_targets::set_delegated_at_for_moocfi_course(
+            &mut tx,
+            configuration.moocfi_course_id,
+            configuration.delegated_at,
+        )
+        .await?;
+    }
     require_shared_cutoff(&mut tx, &configuration, Some(id)).await?;
     external_credit_targets::update(&mut tx, id, &configuration).await?;
     record_target_action(
@@ -582,6 +612,7 @@ pub async fn admin_update_external_credit_target(
             "change": "update",
             "before": before,
             "after": configuration,
+            "moved_sibling_cutoffs": moved_sibling_ids,
         })),
     )
     .await?;

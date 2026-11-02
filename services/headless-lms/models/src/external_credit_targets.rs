@@ -478,6 +478,27 @@ WHERE id = $1
     Ok(())
 }
 
+/// Moves the cutoff of every live target of the mooc.fi course, which must share one.
+pub async fn set_delegated_at_for_moocfi_course(
+    conn: &mut PgConnection,
+    moocfi_course_id: Uuid,
+    delegated_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE external_credit_targets
+SET delegated_at = $2
+WHERE moocfi_course_id = $1
+  AND deleted_at IS NULL
+        "#,
+        moocfi_course_id,
+        delegated_at,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 /// Stores what mooc.fi said about the course on every live target of it.
 pub async fn record_moocfi_course_details(
     conn: &mut PgConnection,
@@ -494,6 +515,26 @@ WHERE moocfi_course_id = $1
         "#,
         moocfi_course_id,
         has_certificate,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Notes that mooc.fi gave no answer about the course, so the details are not asked for again
+/// until they age; what was last known stays.
+pub async fn record_moocfi_course_check_failure(
+    conn: &mut PgConnection,
+    moocfi_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE external_credit_targets
+SET moocfi_course_checked_at = now()
+WHERE moocfi_course_id = $1
+  AND deleted_at IS NULL
+        "#,
+        moocfi_course_id,
     )
     .execute(conn)
     .await?;

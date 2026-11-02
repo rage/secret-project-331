@@ -50,6 +50,13 @@ pub(crate) async fn run(
                     %error,
                     "Could not re-check mooc.fi completions"
                 );
+                let mut conn = pool.acquire().await?;
+                external_completions::record_upstream_check_failure(
+                    &mut conn,
+                    group.user_id,
+                    group.moocfi_course_id,
+                )
+                .await?;
                 tally.record_failure(error);
             }
         }

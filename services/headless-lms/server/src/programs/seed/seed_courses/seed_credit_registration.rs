@@ -1246,7 +1246,8 @@ async fn seed_moocfi(
             is_reported: false,
         },
     )
-    .await?;
+    .await?
+    .ok_or_else(|| anyhow::anyhow!("the seeded mooc.fi completion belongs to another student"))?;
     credit_registrations::insert(
         conn,
         PKeyPolicy::Fixed(MOOCFI_PAUSED_REGISTRATION_ID),

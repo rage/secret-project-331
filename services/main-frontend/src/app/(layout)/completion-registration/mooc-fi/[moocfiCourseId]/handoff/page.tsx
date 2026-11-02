@@ -42,7 +42,7 @@ const REASON_RATE_LIMITED = "rate_limited"
  * is signed in here, or the student came from another site and confirms the account first.
  */
 const MoocfiHandoffPage: React.FC = () => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   usePageTitle(t("heading-credit-registration"))
   const { moocfiCourseId } = useParams<{ moocfiCourseId: string }>()
   const reason = useQueryParameter("reason")
@@ -51,27 +51,44 @@ const MoocfiHandoffPage: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
 
   const isSignedIn = loginState.signedIn === true
-  const pendingQuery = useQuery({ ...getPendingMoocfiHandoffOptions(), retry: false })
+  const pendingQuery = useQuery({
+    ...getPendingMoocfiHandoffOptions({ query: { moocfi_course_id: moocfiCourseId } }),
+    retry: false,
+  })
   const linkQuery = useQuery(
-    getMoocfiCourseLinkOptions({ path: { moocfi_course_id: moocfiCourseId } }),
+    getMoocfiCourseLinkOptions({
+      path: { moocfi_course_id: moocfiCourseId },
+      query: { ui_language: i18n.language },
+    }),
   )
   const userQuery = useQuery({
     ...getUserDetailsForAuthenticatedUserOptions(),
     enabled: isSignedIn,
   })
+  const pending = pendingQuery.data
   const continueHandoff = useMutation({
-    mutationFn: async () => (await continueMoocfiHandoff()).redirect_path,
+    mutationFn: async () => {
+      if (!pending) {
+        throw new Error("No sign-in is waiting")
+      }
+      const continued = await continueMoocfiHandoff({
+        body: {
+          moocfi_course_id: moocfiCourseId,
+          expected_signed_in_account: pending.signed_in_account,
+        },
+      })
+      return continued.redirect_path
+    },
     // A full navigation, so the page loads as the account now signed in.
     onSuccess: (redirectPath) => window.location.assign(redirectPath),
   })
 
-  const pending = pendingQuery.data
-  const { mutate: continueNow, isIdle: hasNotContinued } = continueHandoff
+  // `pending` has already spent the continuation: the right account is signed in.
   useEffect(() => {
-    if (pending?.signed_in_account === "same" && hasNotContinued) {
-      continueNow()
+    if (pending?.signed_in_account === "same") {
+      window.location.assign(pending.redirect_path)
     }
-  }, [pending?.signed_in_account, hasNotContinued, continueNow])
+  }, [pending?.signed_in_account, pending?.redirect_path])
 
   const logOutAndSignIn = async () => {
     setIsLoggingOut(true)
@@ -92,11 +109,21 @@ const MoocfiHandoffPage: React.FC = () => {
       {t("credit-registration-handoff-continue-failed")}
     </Infobox>
   ) : null
+  const continueButton = (label: string) => (
+    <Button
+      variant={BUTTON_PRIMARY}
+      size="medium"
+      isLoading={continueHandoff.isPending}
+      onClick={() => continueHandoff.mutate()}
+    >
+      {label}
+    </Button>
+  )
 
   if (pendingQuery.isPending || pending?.signed_in_account === "same") {
     return (
       <LandingCard heading={t("register-completion")}>
-        {continueFailed ?? <Spinner label={t("credit-registration-handoff-continuing")} />}
+        <Spinner label={t("credit-registration-handoff-continuing")} />
       </LandingCard>
     )
   }
@@ -115,14 +142,7 @@ const MoocfiHandoffPage: React.FC = () => {
         <p>{t("credit-registration-handoff-different-account-continue")}</p>
         {continueFailed}
         <div className={rowCss}>
-          <Button
-            variant={BUTTON_PRIMARY}
-            size="medium"
-            isLoading={continueHandoff.isPending}
-            onClick={() => continueHandoff.mutate()}
-          >
-            {t("credit-registration-handoff-log-out-and-continue")}
-          </Button>
+          {continueButton(t("credit-registration-handoff-log-out-and-continue"))}
           {backToMoocfi}
         </div>
       </LandingCard>
@@ -135,14 +155,9 @@ const MoocfiHandoffPage: React.FC = () => {
         <p>{t("credit-registration-handoff-confirm")}</p>
         {continueFailed}
         <div className={rowCss}>
-          <Button
-            variant={BUTTON_PRIMARY}
-            size="medium"
-            isLoading={continueHandoff.isPending}
-            onClick={() => continueHandoff.mutate()}
-          >
-            {t("credit-registration-handoff-continue-as", { email: pending.masked_email })}
-          </Button>
+          {continueButton(
+            t("credit-registration-handoff-continue-as", { email: pending.masked_email }),
+          )}
           <Link href={loginRoute(moocfiCompletionRegistrationRoute(moocfiCourseId))}>
             {t("credit-registration-handoff-sign-in-another-account")}
           </Link>

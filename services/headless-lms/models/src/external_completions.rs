@@ -36,6 +36,8 @@ pub struct ExternalCompletion {
     /// new leaves it alone.
     pub revised_at: DateTime<Utc>,
     pub upstream_checked_at: DateTime<Utc>,
+    /// When re-checking last failed to read it from mooc.fi.
+    pub upstream_check_failed_at: Option<DateTime<Utc>>,
     pub upstream_missing_at: Option<DateTime<Utc>>,
     pub registered_upstream_at: Option<DateTime<Utc>>,
     pub reported_at: Option<DateTime<Utc>>,
@@ -67,8 +69,12 @@ pub struct ExternalCompletionFacts {
 
 /// Records a completion as mooc.fi just returned it, under the target its tier maps to, and returns
 /// the row's id. Marks it checked now and present upstream. `registered_upstream_at` and
-/// `reported_at` are set the first time their fact is seen and never cleared.
-pub async fn upsert(conn: &mut PgConnection, facts: &ExternalCompletionFacts) -> ModelResult<Uuid> {
+/// `reported_at` are set the first time their fact is seen and never cleared. `None`, changing
+/// nothing, when another account's row already holds the completion.
+pub async fn upsert(
+    conn: &mut PgConnection,
+    facts: &ExternalCompletionFacts,
+) -> ModelResult<Option<Uuid>> {
     let id = sqlx::query_scalar!(
         r#"
 INSERT INTO external_completions (
@@ -148,6 +154,7 @@ SET user_id = EXCLUDED.user_id,
     external_completions.reported_at,
     EXCLUDED.reported_at
   )
+WHERE external_completions.user_id = EXCLUDED.user_id
 RETURNING id
         "#,
         facts.external_credit_target_id,
@@ -164,9 +171,36 @@ RETURNING id
         facts.is_registered_upstream,
         facts.is_reported,
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
     Ok(id)
+}
+
+/// Notes a failed mooc.fi lookup of the student's completions of the course, which puts off the
+/// next attempt like a successful one would.
+pub async fn record_upstream_check_failure(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE external_completions
+SET upstream_check_failed_at = now()
+WHERE user_id = $1
+  AND deleted_at IS NULL
+  AND external_credit_target_id IN (
+    SELECT id
+    FROM external_credit_targets
+    WHERE moocfi_course_id = $2
+  )
+        "#,
+        user_id,
+        moocfi_course_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 /// A live external completion by id.
@@ -254,12 +288,18 @@ pub async fn sync_from_upstream(
             });
             let is_new_and_ours = completion.eligible_for_ects == Some(true)
                 && completion.effective_date() >= target.delegated_at;
-            if has_row || is_new_and_ours {
-                upsert(
+            if (has_row || is_new_and_ours)
+                && upsert(
                     &mut tx,
                     &completion_facts(&upstream, completion, target.id, target.grading),
                 )
-                .await?;
+                .await?
+                .is_none()
+            {
+                warn!(
+                    moocfi_completion_id = %completion.id,
+                    "Not syncing a mooc.fi completion another account holds"
+                );
             }
         }
         for row in stored.iter().filter(|row| {

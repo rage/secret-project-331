@@ -26,7 +26,7 @@ pub struct RedeemedMoocfiHandoff {
 pub enum RedeemRefusal {
     /// Redeemed already, or expired.
     Spent,
-    /// No such handoff, or pruned long ago.
+    /// No such handoff, pruned long ago, or for a completion or target deleted since.
     Unknown,
 }
 
@@ -78,14 +78,22 @@ pub async fn redeem(
         RedeemedMoocfiHandoff,
         r#"
 WITH redeemed AS (
-  UPDATE moocfi_outbound_handoffs
+  UPDATE moocfi_outbound_handoffs h
   SET redeemed_at = now()
-  WHERE token_digest = $1
-    AND redeemed_at IS NULL
-    AND expires_at > now()
-    AND deleted_at IS NULL
-  RETURNING external_completion_id,
-    destination
+  WHERE h.token_digest = $1
+    AND h.redeemed_at IS NULL
+    AND h.expires_at > now()
+    AND h.deleted_at IS NULL
+    AND EXISTS (
+      SELECT 1
+      FROM external_completions ec
+        JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
+      WHERE ec.id = h.external_completion_id
+        AND ec.deleted_at IS NULL
+        AND t.deleted_at IS NULL
+    )
+  RETURNING h.external_completion_id,
+    h.destination
 )
 SELECT ec.moocfi_user_upstream_id AS upstream_id,
   t.moocfi_course_id,
@@ -105,9 +113,13 @@ FROM redeemed r
         r#"
 SELECT EXISTS (
     SELECT 1
-    FROM moocfi_outbound_handoffs
-    WHERE token_digest = $1
-      AND deleted_at IS NULL
+    FROM moocfi_outbound_handoffs h
+      JOIN external_completions ec ON ec.id = h.external_completion_id
+      JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
+    WHERE h.token_digest = $1
+      AND h.deleted_at IS NULL
+      AND ec.deleted_at IS NULL
+      AND t.deleted_at IS NULL
   ) AS "exists!"
         "#,
         token_digest,

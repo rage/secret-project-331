@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH redeemed AS (\n  UPDATE moocfi_outbound_handoffs\n  SET redeemed_at = now()\n  WHERE token_digest = $1\n    AND redeemed_at IS NULL\n    AND expires_at > now()\n    AND deleted_at IS NULL\n  RETURNING external_completion_id,\n    destination\n)\nSELECT ec.moocfi_user_upstream_id AS upstream_id,\n  t.moocfi_course_id,\n  r.destination AS \"destination: MoocfiHandoffDestination\"\nFROM redeemed r\n  JOIN external_completions ec ON ec.id = r.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n        ",
+  "query": "\nWITH redeemed AS (\n  UPDATE moocfi_outbound_handoffs h\n  SET redeemed_at = now()\n  WHERE h.token_digest = $1\n    AND h.redeemed_at IS NULL\n    AND h.expires_at > now()\n    AND h.deleted_at IS NULL\n    AND EXISTS (\n      SELECT 1\n      FROM external_completions ec\n        JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n      WHERE ec.id = h.external_completion_id\n        AND ec.deleted_at IS NULL\n        AND t.deleted_at IS NULL\n    )\n  RETURNING h.external_completion_id,\n    h.destination\n)\nSELECT ec.moocfi_user_upstream_id AS upstream_id,\n  t.moocfi_course_id,\n  r.destination AS \"destination: MoocfiHandoffDestination\"\nFROM redeemed r\n  JOIN external_completions ec ON ec.id = r.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n        ",
   "describe": {
     "columns": [
       {
@@ -57,5 +57,5 @@
       false
     ]
   },
-  "hash": "4f80db9f360810c96f804631ead0c9ec3c584f92f842a44252d91fe8a7ea009e"
+  "hash": "1fe76db1abdb99b95691f82fdb3ff6d43bca5b3025c8edaaeeb5bc06dbacfad7"
 }

@@ -1354,6 +1354,20 @@ pub async fn verify_email(
 )]
 pub struct AuthRoutesApiDoc;
 
+/// The routes below that sign someone in, up or out.
+const SESSION_CHANGING_ROUTES: [&str; 5] = [
+    "/api/v0/auth/signup",
+    "/api/v0/auth/login",
+    "/api/v0/auth/logout",
+    "/api/v0/auth/delete-user-account",
+    "/api/v0/auth/verify-email",
+];
+
+/// Whether a request to `path` can start or end a session.
+pub fn changes_session(path: &str) -> bool {
+    SESSION_CHANGING_ROUTES.contains(&path)
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::resource("/signup")

@@ -61,15 +61,20 @@ const QUERY_OPTIONS = { refetchOnWindowFocus: false, staleTime: Infinity } as co
 /** Picks the one completion whose stepper the page shows, so its `step` param is unambiguous. */
 const COMPLETION_PARAM = "completion"
 
-const isRegistering = (completion: MoocfiCompletionRegistration) =>
+const isRegistering = (
+  completion: MoocfiCompletionRegistration,
+): completion is MoocfiCompletionRegistration & { external_completion_id: string } =>
   completion.status === "registering_on_courses" && Boolean(completion.external_completion_id)
 
 const MoocfiCompletionRegistrationPage: React.FC = () => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const { moocfiCourseId } = useParams<{ moocfiCourseId: string }>()
   const requestedCompletionId = useQueryParameter(COMPLETION_PARAM)
   const query = useQuery({
-    ...getMyMoocfiCreditRegistrationsOptions({ path: { moocfi_course_id: moocfiCourseId } }),
+    ...getMyMoocfiCreditRegistrationsOptions({
+      path: { moocfi_course_id: moocfiCourseId },
+      query: { ui_language: i18n.language },
+    }),
     ...QUERY_OPTIONS,
   })
 
@@ -140,7 +145,7 @@ const Completions: React.FC<{
   const chosen = requested ?? (registering.length === 1 ? registering[0] : undefined)
   const pageRoute = moocfiCompletionRegistrationRoute(moocfiCourseId)
 
-  if (chosen && requested) {
+  if (requested) {
     return (
       <>
         {completions.length > 1 ? (
@@ -151,7 +156,7 @@ const Completions: React.FC<{
             </Link>
           </div>
         ) : null}
-        <MoocfiCompletion completion={chosen} courseName={courseName} />
+        <MoocfiCompletion completion={requested} courseName={courseName} />
       </>
     )
   }
@@ -234,7 +239,7 @@ const MoocfiCompletion: React.FC<{
   const name = completion.credit_unit?.name ?? courseName
   const ectsCredits = completion.credit_unit?.ects_credits
 
-  if (completion.status === "registering_on_courses" && completion.external_completion_id) {
+  if (isRegistering(completion)) {
     return (
       <CreditRegistrationStatus
         subject={moocfiSubject(completion.external_completion_id)}

@@ -13,11 +13,10 @@ use actix_web::http::{StatusCode, header};
 use headless_lms_base::jwt::{JwtKey, MoocfiHandoffClaim, sign_hs256_claim};
 use headless_lms_utils::services::tmc::TmcClient;
 use once_cell::sync::Lazy;
-use secrecy::{ExposeSecret, SecretString};
+use secrecy::SecretString;
 
 use crate::domain::authentication::{
-    authenticate_test_token, authorization_credential, constant_time_eq_str,
-    get_or_create_user_from_tmc_mooc_fi_response,
+    authenticate_test_token, get_or_create_user_from_tmc_mooc_fi_response,
 };
 use crate::domain::rate_limit_middleware_builder::{EndpointLimiters, RateLimitConfig};
 use crate::prelude::*;
@@ -77,9 +76,9 @@ POST `/api/v0/moocfi/credit-registration-handoffs` - Mints a short-lived sign-in
 their way from mooc.fi's credit registration page.
 
 Authorized by `Authorization: Bearer <MOOCFI_HANDOFF_SECRET>`. Answers 201 with the URL to send the
-student's browser to; 401 for a wrong secret or a TMC token TMC rejects; 409 when we have no live
-target for the course or our cutoff differs from mooc.fi's; 429 per student; 503 when delegation is
-not configured or TMC cannot be reached.
+student's browser to; 401 for a wrong secret or a TMC token TMC rejects; 403 `staff_account` for an
+account with any courses role; 409 when we have no live target for the course or our cutoff differs
+from mooc.fi's; 429 per student; 503 when delegation is not configured or TMC cannot be reached.
 */
 #[instrument(skip_all, fields(moocfi_course_id = %payload.moocfi_course_id))]
 pub async fn create_credit_registration_handoff(
@@ -99,7 +98,7 @@ pub async fn create_credit_registration_handoff(
             "Credit registration handoffs are not configured.",
         ));
     };
-    if !is_authorized(&request, handoff_secret) {
+    if !super::is_authorized(&request, handoff_secret) {
         return token.authorized_ok(refusal(
             StatusCode::UNAUTHORIZED,
             "unauthorized",
@@ -135,6 +134,7 @@ pub async fn create_credit_registration_handoff(
             .check_key(moocfi_course_id.to_string())
             .is_ok()
         {
+            drop(conn);
             report_cutoff_mismatch(&pool, moocfi_course_id, delegated_at, &targets).await;
         }
         return token.authorized_ok(refusal(
@@ -161,6 +161,16 @@ pub async fn create_credit_registration_handoff(
             ));
         }
     };
+
+    // A handoff signs in on TMC's word alone, so a leaked mooc.fi credential must not reach a
+    // courses staff session through it.
+    if models::roles::has_any_role(&mut conn, user.id).await? {
+        return token.authorized_ok(refusal(
+            StatusCode::FORBIDDEN,
+            "staff_account",
+            "Accounts with a role on courses.mooc.fi sign in there directly.",
+        ));
+    }
 
     if let Err(retry_after) = PER_USER_LIMITS.check_key(user.id.to_string()) {
         let mut response = refusal(
@@ -207,11 +217,6 @@ fn refusal(status: StatusCode, kind: &'static str, message: &str) -> HttpRespons
         "type": kind,
         "message": message,
     }))
-}
-
-fn is_authorized(request: &HttpRequest, handoff_secret: &SecretString) -> bool {
-    authorization_credential(request, "Bearer")
-        .is_some_and(|provided| constant_time_eq_str(provided, handoff_secret.expose_secret()))
 }
 
 /// The redeem URL carrying `claim` signed.

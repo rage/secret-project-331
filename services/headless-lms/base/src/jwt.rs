@@ -125,6 +125,16 @@ impl MoocfiHandoffClaim {
         }
     }
 
+    /// The keyed hash of the IP the claim was minted for, which a continuation of it keeps.
+    pub fn client_ip_hash(&self) -> &str {
+        &self.client_ip_hash
+    }
+
+    /// Whether the claim expired at most `grace` ago, or has not expired yet.
+    pub fn is_unexpired_or_expired_within(&self, grace: Duration) -> bool {
+        Utc::now().timestamp() < self.exp + grace.num_seconds()
+    }
+
     /// Whether the claim was minted for a request from `client_ip`.
     pub fn is_bound_to(&self, client_ip: IpAddr, key: &JwtKey) -> bool {
         self.client_ip_hash == client_ip_hash(client_ip, key)
@@ -147,59 +157,10 @@ impl MoocfiHandoffClaim {
     }
 }
 
-/// Finishes a [`MoocfiHandoffClaim`] after the student has confirmed it on the landing page: a
-/// cross-site arrival confirming the account, or switching from another signed-in account.
-///
-/// Lives [`Self::LIFETIME`] so the student has time to read, and works only from the IP the
-/// handoff was minted for. Never put it in a URL: it travels in an HttpOnly cookie.
-#[derive(Debug, Serialize, serde::Deserialize)]
-pub struct MoocfiHandoffContinuationClaim {
-    /// Named apart from [`MoocfiHandoffClaim::user_id`] so neither claim decodes as the other.
-    pub handoff_user_id: Uuid,
-    pub moocfi_course_id: Uuid,
-    pub ui_language: Option<String>,
-    client_ip_hash: String,
-    aud: String,
-    iat: i64,
-    exp: i64,
-}
-
-impl MoocfiHandoffContinuationClaim {
-    pub const LIFETIME: Duration = Duration::minutes(10);
-    const AUDIENCE: &'static str = "moocfi-handoff-continuation";
-
-    /// Continues `handoff`, which must have been checked to be bound to the requesting IP.
-    pub fn continuing(handoff: &MoocfiHandoffClaim) -> Self {
-        let iat = Utc::now().timestamp();
-        Self {
-            handoff_user_id: handoff.user_id,
-            moocfi_course_id: handoff.moocfi_course_id,
-            ui_language: handoff.ui_language.clone(),
-            client_ip_hash: handoff.client_ip_hash.clone(),
-            aud: Self::AUDIENCE.to_string(),
-            iat,
-            exp: iat + Self::LIFETIME.num_seconds(),
-        }
-    }
-
-    /// Whether the handoff it continues was minted for a request from `client_ip`.
-    pub fn is_bound_to(&self, client_ip: IpAddr, key: &JwtKey) -> bool {
-        self.client_ip_hash == client_ip_hash(client_ip, key)
-    }
-
-    /// Checks the signature, the audience and the expiry, with no leeway.
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, jsonwebtoken::errors::Error> {
-        let mut validation = Validation::new(Algorithm::HS256);
-        validation.leeway = 0;
-        validation.set_audience(&[Self::AUDIENCE]);
-        decode_hs256_claim(token, key, validation)
-    }
-}
-
 /// Hex HMAC-SHA256 of the IP as printed after normalising, so textual variants of one IPv6 address
 /// and the IPv4-mapped form of an IPv4 address hash the same. Keyed with a key derived from `key`
 /// rather than `key` itself, so the MAC can never double as an HS256 signature.
-fn client_ip_hash(client_ip: IpAddr, key: &JwtKey) -> String {
+pub fn client_ip_hash(client_ip: IpAddr, key: &JwtKey) -> String {
     let normalised = match client_ip {
         IpAddr::V6(v6) => v6.to_ipv4_mapped().map_or(IpAddr::V6(v6), IpAddr::V4),
         v4 => v4,

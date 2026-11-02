@@ -5,8 +5,17 @@ Handlers for HTTP requests to `/api/v0/moocfi`, which mooc.fi's backend calls se
 pub mod credit_registration_handoffs;
 pub mod outbound_handoffs;
 
+use secrecy::{ExposeSecret, SecretString};
+
+use crate::domain::authentication::{authorization_credential, constant_time_eq_str};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
+
+/// Whether the request carries `Authorization: Bearer <handoff_secret>`, mooc.fi's credential.
+fn is_authorized(request: &HttpRequest, handoff_secret: &SecretString) -> bool {
+    authorization_credential(request, "Bearer")
+        .is_some_and(|provided| constant_time_eq_str(provided, handoff_secret.expose_secret()))
+}
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     // Every call comes from mooc.fi's few egress addresses, so per-IP these are only coarse caps. The

@@ -9694,7 +9694,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request. 500 when handoffs to\nmooc.fi are not configured.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request.",
         "operationId": "createMyMoocfiHandoff",
         "parameters": [
           {
@@ -9731,6 +9731,9 @@
           },
           "404": {
             "description": "No such mooc.fi completion of the caller's"
+          },
+          "503": {
+            "description": "Handoffs to mooc.fi are not configured"
           }
         }
       }
@@ -11919,6 +11922,14 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "ui_language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -11950,6 +11961,14 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "ui_language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -11969,8 +11988,18 @@
     "/api/v0/main-frontend/moocfi-handoffs/continue": {
       "post": {
         "tags": ["moocfi-handoffs"],
-        "summary": "\nPOST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out\nwhoever is signed in and signs in the handoff's account.\n\nOnly from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot\npost it. 404 when no handoff is waiting.",
+        "summary": "\nPOST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out\nwhoever is signed in and signs in the handoff's account. Single use.\n\nOnly from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot\npost it. 404 when no handoff is waiting for the course; 400 when the signed-in account is no longer\nthe one the student saw; 403 for an account with a courses role.",
         "operationId": "continueMoocfiHandoff",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContinueMoocfiHandoffPayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Signed in; where to go next",
@@ -11991,8 +12020,19 @@
     "/api/v0/main-frontend/moocfi-handoffs/pending": {
       "get": {
         "tags": ["moocfi-handoffs"],
-        "summary": "\nGET `/api/v0/main-frontend/moocfi-handoffs/pending` - The handoff waiting for the student's\nconfirmation on the landing page, or 404 when none is waiting, it has expired, or it was minted for\nanother IP.",
+        "summary": "\nGET `/api/v0/main-frontend/moocfi-handoffs/pending?moocfi_course_id=…` - The handoff waiting for the\nstudent's confirmation on the course's landing page, or 404 when none is waiting for that course,\nit has expired or been used, or it was minted for another IP.",
         "operationId": "getPendingMoocfiHandoff",
+        "parameters": [
+          {
+            "name": "moocfi_course_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The waiting handoff",
@@ -19527,6 +19567,21 @@
           }
         }
       },
+      "ContinueMoocfiHandoffPayload": {
+        "type": "object",
+        "required": ["moocfi_course_id", "expected_signed_in_account"],
+        "properties": {
+          "expected_signed_in_account": {
+            "$ref": "#/components/schemas/SignedInAccount",
+            "description": "Who was signed in when the student confirmed, as `pending` said. If it has changed since,\nthe student confirmed something else, so nothing is switched."
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course whose landing page the student confirmed on."
+          }
+        }
+      },
       "ContinuedMoocfiHandoff": {
         "type": "object",
         "required": ["redirect_path"],
@@ -21740,7 +21795,7 @@
           },
           "ui_language": {
             "type": ["string", "null"],
-            "description": "The language the caller is using courses in; `en` opens mooc.fi in English, anything else\nin Finnish, mooc.fi's default."
+            "description": "The language the caller is using courses in; see\n[`headless_lms_base::config::MoocfiConfiguration::localized_frontend_url`]."
           }
         }
       },
@@ -29407,7 +29462,7 @@
       "PendingMoocfiHandoff": {
         "type": "object",
         "description": "Which account a pending continuation would sign in, beside whoever is signed in now.",
-        "required": ["moocfi_course_id", "masked_email", "signed_in_account"],
+        "required": ["moocfi_course_id", "masked_email", "signed_in_account", "redirect_path"],
         "properties": {
           "masked_email": {
             "type": "string",
@@ -29417,8 +29472,13 @@
             "type": "string",
             "format": "uuid"
           },
+          "redirect_path": {
+            "type": "string",
+            "description": "The registration page to open once the right account is signed in."
+          },
           "signed_in_account": {
-            "$ref": "#/components/schemas/SignedInAccount"
+            "$ref": "#/components/schemas/SignedInAccount",
+            "description": "When `Same`, the continuation is already spent: open `redirect_path`."
           }
         }
       },

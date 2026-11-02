@@ -12,7 +12,6 @@ use models::moocfi_outbound_handoffs::{MoocfiHandoffDestination, RedeemRefusal};
 use secrecy::{ExposeSecret, SecretString};
 use sha2::{Digest, Sha256};
 
-use crate::domain::authentication::{authorization_credential, constant_time_eq_str};
 use crate::prelude::*;
 
 #[derive(Debug, Deserialize)]
@@ -47,9 +46,7 @@ pub async fn redeem_outbound_handoff(
     let Some(handoff_secret) = &app_conf.moocfi_configuration.handoff_secret else {
         return token.authorized_ok(refusal(StatusCode::SERVICE_UNAVAILABLE, "not_configured"));
     };
-    let is_authorized = authorization_credential(&request, "Bearer")
-        .is_some_and(|provided| constant_time_eq_str(provided, handoff_secret.expose_secret()));
-    if !is_authorized {
+    if !super::is_authorized(&request, handoff_secret) {
         return token.authorized_ok(refusal(StatusCode::UNAUTHORIZED, "unauthorized"));
     }
     let Some(handoff) = payload

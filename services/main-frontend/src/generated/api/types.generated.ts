@@ -1754,6 +1754,18 @@ export type ConsentResponse = {
   redirect_uri: string
 }
 
+export type ContinueMoocfiHandoffPayload = {
+  /**
+   * Who was signed in when the student confirmed, as `pending` said. If it has changed since,
+   * the student confirmed something else, so nothing is switched.
+   */
+  expected_signed_in_account: SignedInAccount
+  /**
+   * The course whose landing page the student confirmed on.
+   */
+  moocfi_course_id: string
+}
+
 export type ContinuedMoocfiHandoff = {
   /**
    * The registration page; open it with a full navigation so the new session takes over.
@@ -2549,8 +2561,8 @@ export type CreateCourseDesignerStageTaskRequest = {
 export type CreateMoocfiHandoffPayload = {
   destination: MoocfiHandoffDestination
   /**
-   * The language the caller is using courses in; `en` opens mooc.fi in English, anything else
-   * in Finnish, mooc.fi's default.
+   * The language the caller is using courses in; see
+   * [`headless_lms_base::config::MoocfiConfiguration::localized_frontend_url`].
    */
   ui_language?: string | null
 }
@@ -5691,6 +5703,13 @@ export type PendingMoocfiHandoff = {
    */
   masked_email: string
   moocfi_course_id: string
+  /**
+   * The registration page to open once the right account is signed in.
+   */
+  redirect_path: string
+  /**
+   * When `Same`, the continuation is already spent: open `redirect_path`.
+   */
   signed_in_account: SignedInAccount
 }
 
@@ -12933,6 +12952,10 @@ export type CreateMyMoocfiHandoffErrors = {
    * No such mooc.fi completion of the caller's
    */
   404: unknown
+  /**
+   * Handoffs to mooc.fi are not configured
+   */
+  503: unknown
 }
 
 export type CreateMyMoocfiHandoffResponses = {
@@ -14397,7 +14420,9 @@ export type GetMyMoocfiCreditRegistrationsData = {
      */
     moocfi_course_id: string
   }
-  query?: never
+  query?: {
+    ui_language?: string
+  }
   url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}"
 }
 
@@ -14419,7 +14444,9 @@ export type GetMoocfiCourseLinkData = {
      */
     moocfi_course_id: string
   }
-  query?: never
+  query?: {
+    ui_language?: string
+  }
   url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link"
 }
 
@@ -14434,7 +14461,7 @@ export type GetMoocfiCourseLinkResponse =
   GetMoocfiCourseLinkResponses[keyof GetMoocfiCourseLinkResponses]
 
 export type ContinueMoocfiHandoffData = {
-  body?: never
+  body: ContinueMoocfiHandoffPayload
   path?: never
   query?: never
   url: "/api/v0/main-frontend/moocfi-handoffs/continue"
@@ -14460,7 +14487,9 @@ export type ContinueMoocfiHandoffResponse =
 export type GetPendingMoocfiHandoffData = {
   body?: never
   path?: never
-  query?: never
+  query: {
+    moocfi_course_id: string
+  }
   url: "/api/v0/main-frontend/moocfi-handoffs/pending"
 }
 

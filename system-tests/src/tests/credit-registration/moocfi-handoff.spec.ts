@@ -1,13 +1,14 @@
 import type { APIResponse } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
-import { MAIN_FRONTEND_API } from "@/utils/creditRegistration"
+import { MAIN_FRONTEND_API, ORIGIN } from "@/utils/creditRegistration"
 import {
   forgetMockMoocfiStudent,
   mintMoocfiHandoff,
   mockMoocfiRegistrationPageUrl,
   MOOCFI_COURSE,
   MOOCFI_STUDENT_1,
+  MOOCFI_TIERED_COURSE,
   MOOCFI_TARGET_NAME,
   moocfiRegistrationUrl,
   openRegistrationFromMoocfi,
@@ -94,11 +95,27 @@ test("A cross-site redeem signs nobody in, and waits for the student to confirm"
   )
   expect(registrations.status()).toBe(401)
 
+  const pendingFor = (moocfiCourseId: string) =>
+    visitor.get(`${HANDOFFS_API}/pending?moocfi_course_id=${moocfiCourseId}`)
+
+  await test.step("Only the handoff's own course's landing page sees it waiting", async () => {
+    const pending = await pendingFor(MOOCFI_COURSE.id)
+    expect(pending.status()).toBe(200)
+    expect(((await pending.json()) as { signed_in_account: string }).signed_in_account).toBe("none")
+    expect((await pendingFor(MOOCFI_TIERED_COURSE.id)).status()).toBe(404)
+  })
+
   await test.step("Another site cannot complete it: the continuation needs a same-origin request", async () => {
     const forged = await visitor.post(`${HANDOFFS_API}/continue`, {
       headers: { "Sec-Fetch-Site": "cross-site" },
+      data: { moocfi_course_id: MOOCFI_COURSE.id, expected_signed_in_account: "none" },
     })
     expect(forged.status()).toBe(403)
+  })
+
+  await test.step("Signing in or out elsewhere ends it", async () => {
+    expect((await visitor.post(`${ORIGIN}/api/v0/auth/logout`)).ok()).toBe(true)
+    expect((await pendingFor(MOOCFI_COURSE.id)).status()).toBe(404)
   })
 
   await visitor.dispose()

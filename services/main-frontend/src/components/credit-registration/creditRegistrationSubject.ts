@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query"
+import { type QueryClient, queryOptions } from "@tanstack/react-query"
 
 import {
   getCourseModuleUserCompletionQueryKey,
@@ -29,6 +29,7 @@ import {
   withdrawMyExternalCompletionEnrolmentConfirmation,
 } from "@/generated/api/sdk.generated"
 import type {
+  MoocfiCreditRegistrations,
   MyCreditRegistration,
   SetEnrolmentRoutePayload,
 } from "@/generated/api/types.generated"
@@ -125,8 +126,6 @@ const endpointsFor = (subject: CreditRegistrationSubject) => {
       recordEnrolmentPageVisit: () => recordMyEnrolmentPageVisit({ path }),
       setCreditJustification: (justification: string) =>
         setMyCreditJustification({ path, body: { justification } }),
-      // The old registration page reads the saved reason from the completion.
-      creditJustificationQueryKey: getCourseModuleUserCompletionQueryKey({ path }),
     }
   }
   const path = { external_completion_id: subject.externalCompletionId }
@@ -147,8 +146,6 @@ const endpointsFor = (subject: CreditRegistrationSubject) => {
     recordEnrolmentPageVisit: () => recordMyExternalCompletionEnrolmentPageVisit({ path }),
     setCreditJustification: (justification: string) =>
       setMyExternalCompletionCreditJustification({ path, body: { justification } }),
-    // The mooc.fi page reads the saved reason from the course's completions, keyed by the course.
-    creditJustificationQueryKey: [{ _id: "getMyMoocfiCreditRegistrations" }],
   }
 }
 
@@ -213,9 +210,35 @@ export const setCreditJustification = async (
   await endpointsFor(subject).setCreditJustification(justification)
 }
 
-/** The query that carries the saved justification back, as a prefix to invalidate. */
-export const creditJustificationQueryKey = (subject: CreditRegistrationSubject) =>
-  endpointsFor(subject).creditJustificationQueryKey
+/** Shows a just-saved justification wherever the page reads it back from. */
+export const showSavedCreditJustification = async (
+  queryClient: QueryClient,
+  subject: CreditRegistrationSubject,
+  justification: string,
+): Promise<void> => {
+  if (subject.kind === "course_module") {
+    await queryClient.invalidateQueries({
+      queryKey: getCourseModuleUserCompletionQueryKey({
+        path: { course_module_id: subject.courseModuleId },
+      }),
+    })
+    return
+  }
+  // Written into the cached page data: refetching it would read mooc.fi again, which is rate
+  // limited.
+  queryClient.setQueriesData<MoocfiCreditRegistrations>(
+    { queryKey: [{ _id: "getMyMoocfiCreditRegistrations" }] },
+    (registrations) =>
+      registrations && {
+        ...registrations,
+        completions: registrations.completions.map((completion) =>
+          completion.external_completion_id === subject.externalCompletionId
+            ? { ...completion, credit_justification: justification }
+            : completion,
+        ),
+      },
+  )
+}
 
 /**
  * Sends the browser to mooc.fi's certificate page, signed in as the completion's student. A full

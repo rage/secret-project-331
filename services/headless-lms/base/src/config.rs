@@ -369,6 +369,16 @@ impl MoocfiConfiguration {
         })
     }
 
+    /// mooc.fi's site in the language nearest the courses UI's: Finnish for `fi`, English for
+    /// anything else, since mooc.fi has only those two. Ends in `/`.
+    pub fn localized_frontend_url(&self, ui_language: Option<&str>) -> anyhow::Result<Url> {
+        if ui_language.is_some_and(|language| language.starts_with("fi")) {
+            Ok(self.frontend_url.clone())
+        } else {
+            Ok(self.frontend_url.join("en/")?)
+        }
+    }
+
     /// mooc.fi's GraphQL endpoint.
     pub fn graphql_url(&self) -> anyhow::Result<Url> {
         Ok(self.base_url.join("api")?)

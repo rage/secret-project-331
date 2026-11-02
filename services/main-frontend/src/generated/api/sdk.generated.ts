@@ -6604,8 +6604,7 @@ export const confirmMyExternalCompletionEnrolment = <ThrowOnError extends boolea
  * - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
  *
  * mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
- * student and the course from the stored completion, never from this request. 500 when handoffs to
- * mooc.fi are not configured.
+ * student and the course from the stored completion, never from this request.
  */
 export const createMyMoocfiHandoff = <ThrowOnError extends boolean = true>(
   options: Options<CreateMyMoocfiHandoffData, ThrowOnError>,
@@ -7925,20 +7924,21 @@ export const getMoocfiCourseLink = <ThrowOnError extends boolean = true>(
 /**
  *
  * POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out
- * whoever is signed in and signs in the handoff's account.
+ * whoever is signed in and signs in the handoff's account. Single use.
  *
  * Only from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot
- * post it. 404 when no handoff is waiting.
+ * post it. 404 when no handoff is waiting for the course; 400 when the signed-in account is no longer
+ * the one the student saw; 403 for an account with a courses role.
  */
 export const continueMoocfiHandoff = <ThrowOnError extends boolean = true>(
-  options?: Options<ContinueMoocfiHandoffData, ThrowOnError>,
+  options: Options<ContinueMoocfiHandoffData, ThrowOnError>,
 ): RequestResult<
   ContinueMoocfiHandoffResponses,
   ContinueMoocfiHandoffErrors,
   ThrowOnError,
   "data"
 > =>
-  (options?.client ?? client).post<
+  (options.client ?? client).post<
     ContinueMoocfiHandoffResponses,
     ContinueMoocfiHandoffErrors,
     ThrowOnError,
@@ -7948,23 +7948,27 @@ export const continueMoocfiHandoff = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/moocfi-handoffs/continue",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
  *
- * GET `/api/v0/main-frontend/moocfi-handoffs/pending` - The handoff waiting for the student's
- * confirmation on the landing page, or 404 when none is waiting, it has expired, or it was minted for
- * another IP.
+ * GET `/api/v0/main-frontend/moocfi-handoffs/pending?moocfi_course_id=…` - The handoff waiting for the
+ * student's confirmation on the course's landing page, or 404 when none is waiting for that course,
+ * it has expired or been used, or it was minted for another IP.
  */
 export const getPendingMoocfiHandoff = <ThrowOnError extends boolean = true>(
-  options?: Options<GetPendingMoocfiHandoffData, ThrowOnError>,
+  options: Options<GetPendingMoocfiHandoffData, ThrowOnError>,
 ): RequestResult<
   GetPendingMoocfiHandoffResponses,
   GetPendingMoocfiHandoffErrors,
   ThrowOnError,
   "data"
 > =>
-  (options?.client ?? client).get<
+  (options.client ?? client).get<
     GetPendingMoocfiHandoffResponses,
     GetPendingMoocfiHandoffErrors,
     ThrowOnError,

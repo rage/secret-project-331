@@ -8,7 +8,7 @@ reads. Serves:
 
 - `GET api/delegated-completions/{course_id}/users/{upstream_id}`, `GET api/delegated-courses/{course_id}`
   and `POST api/register-completions`, as mooc.fi does, behind the mock organization secret;
-- `register-completion/{slug}`, a stand-in for mooc.fi's registration page whose button mints a
+- `[en/]register-completion/{slug}`, a stand-in for mooc.fi's registration page whose button mints a
   handoff through `api/credit-registration-handoff/{slug}` as mooc.fi's backend does;
 - `[en/]credit-registration-handoff/`, a stand-in for mooc.fi's landing for handoffs from courses,
   which redeems the token through `api/courses-handoff/redeem` as mooc.fi's backend does;
@@ -408,7 +408,9 @@ document.getElementById("register").addEventListener("click", async () => {{
   const button = document.getElementById("register");
   button.textContent = "Opening courses.mooc.fi…";
   const response = await fetch(
-    "/api/v0/mock-moocfi/api/credit-registration-handoff/" + encodeURIComponent(slug),
+    "/api/v0/mock-moocfi/api/credit-registration-handoff/" + encodeURIComponent(slug) +
+      // Unlike mooc.fi, the Finnish page sends no language, so specs land without a `lng` param.
+      (window.location.pathname.includes("/en/") ? "?ui_language=en" : ""),
     {{ method: "POST", headers: {{ Authorization: "Bearer " + tmcAccessToken }} }},
   );
   if (!response.ok) {{
@@ -432,6 +434,11 @@ document.getElementById("register").addEventListener("click", async () => {{
     )
 }
 
+#[derive(Debug, Deserialize)]
+pub struct CreateHandoffQuery {
+    ui_language: Option<String>,
+}
+
 /// mooc.fi's `POST /api/credit-registration-handoff/:slug`: mints a handoff for the student whose
 /// TMC token the page sends, and passes the mint's answer on.
 async fn create_handoff(
@@ -439,6 +446,7 @@ async fn create_handoff(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
     slug: web::Path<String>,
+    query: web::Query<CreateHandoffQuery>,
 ) -> ControllerResult<HttpResponse> {
     assert_enabled(&app_conf);
     let token = skip_authorize();
@@ -482,6 +490,7 @@ async fn create_handoff(
             "moocfi_course_id": moocfi_course_id,
             "delegated_at": delegated_at,
             "client_ip": client_ip.to_string(),
+            "ui_language": query.ui_language,
         }))
         .send()
         .await
@@ -645,6 +654,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     )
     .route(
         "/register-completion/{slug}",
+        web::get().to(registration_page),
+    )
+    .route(
+        "/en/register-completion/{slug}",
         web::get().to(registration_page),
     )
     .route(

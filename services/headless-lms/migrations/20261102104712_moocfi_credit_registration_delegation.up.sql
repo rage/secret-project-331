@@ -142,6 +142,7 @@ CREATE TABLE external_completions (
   grade INT CHECK (grade BETWEEN 0 AND 5),
   revised_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   upstream_checked_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  upstream_check_failed_at TIMESTAMP WITH TIME ZONE,
   upstream_missing_at TIMESTAMP WITH TIME ZONE,
   registered_upstream_at TIMESTAMP WITH TIME ZONE,
   reported_at TIMESTAMP WITH TIME ZONE,
@@ -181,6 +182,7 @@ COMMENT ON COLUMN external_completions.passed IS 'Whether the parsed grade is a 
 COMMENT ON COLUMN external_completions.grade IS 'The numeric grade 0 to 5, NULL for a pass/fail or unrecognised grade.';
 COMMENT ON COLUMN external_completions.revised_at IS 'When the completion''s facts as read from mooc.fi (date, language, tier, eligibility or grade) last changed. Unlike updated_at, not moved by a re-check that finds nothing new. The grade-improvement scan compares against it, through credit_registration_subjects.revised_at.';
 COMMENT ON COLUMN external_completions.upstream_checked_at IS 'When mooc.fi last returned this completion. Import refuses a row whose check is too old.';
+COMMENT ON COLUMN external_completions.upstream_check_failed_at IS 'When moocfi-recheck last failed to read the completion from mooc.fi. Counts as a check for when to try again, so a lookup that keeps failing waits its turn instead of crowding out the others.';
 COMMENT ON COLUMN external_completions.upstream_missing_at IS 'When the lookup first stopped returning the completion, meaning it was deleted on mooc.fi. Cleared if it reappears. Withdraws the row while set.';
 COMMENT ON COLUMN external_completions.registered_upstream_at IS 'When a registration of the completion by another mooc.fi organization was first seen. Withdraws the row: someone else registered it.';
 COMMENT ON COLUMN external_completions.reported_at IS 'When mooc.fi was told we registered the completion, or our registration was found there already. Set once; a later grade improvement is not reported.';
@@ -632,6 +634,7 @@ CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON moocfi_outbound_handoffs FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 CREATE UNIQUE INDEX uq_moocfi_outbound_handoffs_token_digest ON moocfi_outbound_handoffs (token_digest);
+CREATE INDEX idx_moocfi_outbound_handoffs_expires_at ON moocfi_outbound_handoffs (expires_at);
 
 COMMENT ON TABLE moocfi_outbound_handoffs IS 'Single-use sign-in handoffs that send a student from courses to mooc.fi, minted when the student asks to go there and redeemed by mooc.fi''s backend server to server. A row rather than a signed token so that redeeming is single use across replicas. Pruned a day after expiry.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.id IS 'A unique, stable identifier for the record.';
@@ -643,3 +646,36 @@ COMMENT ON COLUMN moocfi_outbound_handoffs.external_completion_id IS 'The studen
 COMMENT ON COLUMN moocfi_outbound_handoffs.destination IS 'Where on mooc.fi the student is going.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.expires_at IS 'When the handoff stops being redeemable, a minute after it was minted at most.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.redeemed_at IS 'When mooc.fi redeemed the handoff. Set once: a second redeem is refused.';
+
+CREATE TABLE moocfi_handoff_continuations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  token_digest BYTEA NOT NULL,
+  user_id UUID NOT NULL REFERENCES users(id),
+  moocfi_course_id UUID NOT NULL,
+  ui_language VARCHAR(15),
+  client_ip_hash TEXT NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  used_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON moocfi_handoff_continuations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE UNIQUE INDEX uq_moocfi_handoff_continuations_token_digest ON moocfi_handoff_continuations (token_digest);
+CREATE INDEX idx_moocfi_handoff_continuations_expires_at ON moocfi_handoff_continuations (expires_at);
+
+COMMENT ON TABLE moocfi_handoff_continuations IS 'A sign-in from mooc.fi waiting for the student to confirm it on the landing page: after a cross-site arrival, or when another account is signed in. The browser holds the token in an HttpOnly cookie; a row rather than a signed token so that continuing is single use. Pruned a day after expiry.';
+COMMENT ON COLUMN moocfi_handoff_continuations.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN moocfi_handoff_continuations.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN moocfi_handoff_continuations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN moocfi_handoff_continuations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN moocfi_handoff_continuations.token_digest IS 'SHA-256 of the token in the cookie. The token itself is never stored.';
+COMMENT ON COLUMN moocfi_handoff_continuations.user_id IS 'The account the handoff signs in.';
+COMMENT ON COLUMN moocfi_handoff_continuations.moocfi_course_id IS 'The mooc.fi course whose registration page the student continues to. Only the landing page of this course can continue it.';
+COMMENT ON COLUMN moocfi_handoff_continuations.ui_language IS 'The language mooc.fi was used in, fi or en, which the registration page opens in. NULL leaves the page to choose.';
+COMMENT ON COLUMN moocfi_handoff_continuations.client_ip_hash IS 'Keyed hash of the IP the handoff was minted for; continuing from another IP is refused.';
+COMMENT ON COLUMN moocfi_handoff_continuations.expires_at IS 'When the continuation stops working, minutes after the handoff was redeemed.';
+COMMENT ON COLUMN moocfi_handoff_continuations.used_at IS 'When the student continued. Set once: a second continue is refused.';

@@ -31,7 +31,8 @@ pub struct MoocfiRecheckGroup {
 }
 
 /// The lookups due, stalest first: every student and mooc.fi course with a row before import, or
-/// blocked on a grade mooc.fi may since have fixed, last read over [`MOOCFI_RECHECK_AFTER`] ago.
+/// blocked on a grade mooc.fi may since have fixed, last read or tried over
+/// [`MOOCFI_RECHECK_AFTER`] ago.
 /// Rows of a paused or switched-off target wait with their target.
 pub async fn get_due_recheck_groups(
     conn: &mut PgConnection,
@@ -57,7 +58,7 @@ WHERE cr.deleted_at IS NULL
     )
   )
   AND ec.deleted_at IS NULL
-  AND ec.upstream_checked_at < now() - $2::interval
+  AND GREATEST(ec.upstream_checked_at, ec.upstream_check_failed_at) < now() - $2::interval
   AND EXISTS (
     SELECT 1
     FROM credit_registration_active_units au
@@ -73,7 +74,9 @@ WHERE cr.deleted_at IS NULL
 GROUP BY ec.user_id,
   ec.moocfi_user_upstream_id,
   t.moocfi_course_id
-ORDER BY MIN(ec.upstream_checked_at)
+ORDER BY MIN(
+    GREATEST(ec.upstream_checked_at, ec.upstream_check_failed_at)
+  )
 LIMIT $7
         "#,
         &STATES_BEFORE_IMPORT as &[CreditRegistrationState],

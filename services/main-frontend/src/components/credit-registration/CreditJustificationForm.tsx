@@ -12,8 +12,8 @@ import { Button, Infobox, TextArea } from "@/shared-module/components"
 import { BUTTON_PRIMARY, TONE } from "./constants"
 import {
   type CreditRegistrationSubject,
-  creditJustificationQueryKey,
   setCreditJustification,
+  showSavedCreditJustification,
 } from "./creditRegistrationSubject"
 import { bandCss, headingCss, rowCss } from "./styles"
 
@@ -68,9 +68,9 @@ export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = (
     },
     { notify: false },
     {
-      onSuccess: async () => {
+      onSuccess: async (_data, justification) => {
         onSaved()
-        await queryClient.invalidateQueries({ queryKey: creditJustificationQueryKey(subject) })
+        await showSavedCreditJustification(queryClient, subject, justification)
       },
     },
   )

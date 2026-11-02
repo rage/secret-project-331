@@ -8,22 +8,22 @@ never JSON:
 
 - the right account signed in: on to the registration page;
 - nobody signed in, same-site: signed in, then on to the registration page;
-- another account signed in, or a cross-site arrival: to the landing page, with a continuation in an
-  HttpOnly cookie that `continue` completes once the student confirms. Nobody is signed in on a
-  cross-site GET, which would allow login CSRF;
-- anything else: to the normal login, which never signs anyone in.
+- another account signed in, or a cross-site arrival: to the course's landing page
+  (`/completion-registration/mooc-fi/{moocfi_course_id}/handoff`), with a single-use continuation
+  in an HttpOnly cookie that `continue` completes once the student confirms. Nobody is signed in
+  on a cross-site GET, which would allow login CSRF;
+- a handoff for an account with any courses role, and anything else: to the normal login, which
+  never signs anyone in.
 */
-
-use std::net::IpAddr;
 
 use actix_session::Session;
 use actix_web::cookie::{Cookie, SameSite, time::Duration as CookieDuration};
 use actix_web::http::header;
-use headless_lms_base::jwt::{
-    JwtKey, MoocfiHandoffClaim, MoocfiHandoffContinuationClaim, sign_hs256_claim,
-};
+use headless_lms_base::jwt::{JwtKey, MoocfiHandoffClaim, client_ip_hash};
+use models::moocfi_handoff_continuations::{self, NewContinuation, PendingContinuation};
 use once_cell::sync::Lazy;
-use utoipa::{OpenApi, ToSchema};
+use sha2::{Digest, Sha256};
+use utoipa::{IntoParams, OpenApi, ToSchema};
 
 use crate::domain::authentication::{self, session_user_id};
 use crate::domain::oauth::redirects::pct_encode;
@@ -44,6 +44,14 @@ pub struct RedeemQuery {
 
 const CONTINUATION_COOKIE: &str = "moocfi_handoff_continuation";
 const CONTINUATION_COOKIE_PATH: &str = "/api/v0/main-frontend/moocfi-handoffs";
+
+/// Long enough to read the landing page, short enough that a shared computer's next user rarely
+/// finds one waiting.
+const CONTINUATION_LIFETIME: chrono::TimeDelta = chrono::TimeDelta::minutes(3);
+
+/// An expired handoff still gets the wrong-account explanation, and is charged to its student's
+/// bucket, only this soon after expiry; older ones could otherwise be replayed to lock them out.
+const RECENTLY_EXPIRED: chrono::TimeDelta = chrono::TimeDelta::minutes(1);
 
 /// Must match the reasons the landing page reads.
 const REASON_DIFFERENT_ACCOUNT: &str = "different_account";
@@ -77,6 +85,7 @@ enum RedeemOutcome {
     Expired,
     IpMismatch,
     RateLimited,
+    StaffAccount,
     DifferentAccount,
     DifferentAccountNotContinuable,
     NeedsConfirmation,
@@ -91,6 +100,7 @@ impl RedeemOutcome {
             Self::Expired => "expired",
             Self::IpMismatch => "ip_mismatch",
             Self::RateLimited => "rate_limited",
+            Self::StaffAccount => "staff_account",
             Self::DifferentAccount => "different_account",
             Self::DifferentAccountNotContinuable => "different_account_not_continuable",
             Self::NeedsConfirmation => "needs_confirmation",
@@ -123,40 +133,55 @@ pub async fn redeem_moocfi_handoff(
         return token.authorized_ok(fall_back_to_login(RedeemOutcome::Invalid, None));
     };
     let moocfi_course_id = claim.moocfi_course_id;
+    let is_unexpired = claim.is_unexpired_or_expired_within(chrono::TimeDelta::zero());
+    let is_recent = claim.is_unexpired_or_expired_within(RECENTLY_EXPIRED);
+    // The binding that stops login CSRF: an attacker can only mint for their own IP.
+    let is_bound = client_ip.is_some_and(|client_ip| claim.is_bound_to(client_ip, &jwt_key));
+
     let is_ip_limited =
         client_ip.is_some_and(|client_ip| PER_IP_LIMITS.check_key(client_ip.to_string()).is_err());
-    if is_ip_limited
-        || PER_STUDENT_LIMITS
+    let is_student_limited = is_bound
+        && is_recent
+        && PER_STUDENT_LIMITS
             .check_key(claim.user_id.to_string())
-            .is_err()
-    {
+            .is_err();
+    if is_ip_limited || is_student_limited {
         log_outcome(RedeemOutcome::RateLimited);
         return token.authorized_ok(see_other(&landing_page_path(
             moocfi_course_id,
             REASON_RATE_LIMITED,
         )));
     }
-    let is_unexpired = query
-        .token
-        .as_deref()
-        .is_some_and(|handoff| MoocfiHandoffClaim::validate(handoff, &jwt_key).is_ok());
-    // The binding that stops login CSRF: an attacker can only mint for their own IP.
-    let is_bound = client_ip.is_some_and(|client_ip| claim.is_bound_to(client_ip, &jwt_key));
+    if !is_recent {
+        return token.authorized_ok(fall_back_to_login(RedeemOutcome::Expired, Some(&claim)));
+    }
 
     // The session cookie is SameSite=Strict, so a cross-site arrival never gets this far.
-    match session_user_id(&session) {
-        Some(user_id) if user_id == claim.user_id => {
-            log_outcome(RedeemOutcome::AlreadySignedIn);
-            return token.authorized_ok(see_other(&registration_page_path(&claim)));
-        }
+    let session_user = session_user_id(&session);
+    if session_user == Some(claim.user_id) {
+        log_outcome(RedeemOutcome::AlreadySignedIn);
+        return token.authorized_ok(see_other(&registration_page_path(&claim)));
+    }
+    // Checked again here, not only at the mint: a role granted since must not be signed in either.
+    let mut conn = pool.acquire().await?;
+    if models::roles::has_any_role(&mut conn, claim.user_id).await? {
+        return token.authorized_ok(fall_back_to_login(
+            RedeemOutcome::StaffAccount,
+            Some(&claim),
+        ));
+    }
+    match session_user {
         Some(_) if is_unexpired && is_bound => {
             log_outcome(RedeemOutcome::DifferentAccount);
-            return token.authorized_ok(to_landing_with_continuation(
-                &claim,
-                REASON_DIFFERENT_ACCOUNT,
-                &app_conf,
-                &jwt_key,
-            )?);
+            return token.authorized_ok(
+                to_landing_with_continuation(
+                    &mut conn,
+                    &claim,
+                    REASON_DIFFERENT_ACCOUNT,
+                    &app_conf,
+                )
+                .await?,
+            );
         }
         Some(_) => {
             log_outcome(RedeemOutcome::DifferentAccountNotContinuable);
@@ -175,17 +200,17 @@ pub async fn redeem_moocfi_handoff(
     }
     if !is_same_site(&request) {
         log_outcome(RedeemOutcome::NeedsConfirmation);
-        return token.authorized_ok(to_landing_with_continuation(
-            &claim,
-            REASON_CONFIRM,
-            &app_conf,
-            &jwt_key,
-        )?);
+        return token.authorized_ok(
+            to_landing_with_continuation(&mut conn, &claim, REASON_CONFIRM, &app_conf).await?,
+        );
     }
 
-    let mut conn = pool.acquire().await?;
-    let Ok(user) = models::users::get_by_id(&mut conn, claim.user_id).await else {
-        return token.authorized_ok(fall_back_to_login(RedeemOutcome::Invalid, Some(&claim)));
+    let user = match models::users::get_by_id(&mut conn, claim.user_id).await {
+        Ok(user) => user,
+        Err(error) if error.error_type() == &ModelErrorType::RecordNotFound => {
+            return token.authorized_ok(fall_back_to_login(RedeemOutcome::Invalid, Some(&claim)));
+        }
+        Err(error) => return Err(error.into()),
     };
     // Against session fixation: the signed-in session must not reuse an id issued before sign-in.
     session.renew();
@@ -194,13 +219,23 @@ pub async fn redeem_moocfi_handoff(
     token.authorized_ok(see_other(&registration_page_path(&claim)))
 }
 
+/// The course whose landing page asks; a continuation for another course is not shown there.
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct PendingMoocfiHandoffQuery {
+    pub moocfi_course_id: Uuid,
+}
+
 /// Which account a pending continuation would sign in, beside whoever is signed in now.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct PendingMoocfiHandoff {
     pub moocfi_course_id: Uuid,
     /// Enough of the handoff account's email for the student to recognise it.
     pub masked_email: String,
+    /// When `Same`, the continuation is already spent: open `redirect_path`.
     pub signed_in_account: SignedInAccount,
+    /// The registration page to open once the right account is signed in.
+    pub redirect_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
@@ -213,9 +248,9 @@ pub enum SignedInAccount {
 }
 
 /**
-GET `/api/v0/main-frontend/moocfi-handoffs/pending` - The handoff waiting for the student's
-confirmation on the landing page, or 404 when none is waiting, it has expired, or it was minted for
-another IP.
+GET `/api/v0/main-frontend/moocfi-handoffs/pending?moocfi_course_id=…` - The handoff waiting for the
+student's confirmation on the course's landing page, or 404 when none is waiting for that course,
+it has expired or been used, or it was minted for another IP.
 */
 #[instrument(skip_all)]
 #[utoipa::path(
@@ -223,6 +258,7 @@ another IP.
     path = "/pending",
     operation_id = "getPendingMoocfiHandoff",
     tag = "moocfi-handoffs",
+    params(PendingMoocfiHandoffQuery),
     responses(
         (status = 200, description = "The waiting handoff", body = PendingMoocfiHandoff),
         (status = 404, description = "No handoff is waiting")
@@ -233,24 +269,40 @@ pub async fn get_pending_moocfi_handoff(
     session: Session,
     pool: web::Data<PgPool>,
     jwt_key: web::Data<JwtKey>,
-) -> ControllerResult<web::Json<PendingMoocfiHandoff>> {
+    query: web::Query<PendingMoocfiHandoffQuery>,
+) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
-    let continuation = valid_continuation(&request, &jwt_key)?;
     let mut conn = pool.acquire().await?;
-    let email =
-        models::user_details::get_user_details_by_user_id(&mut conn, continuation.handoff_user_id)
-            .await?
-            .email;
-    let signed_in_account = match session_user_id(&session) {
-        Some(user_id) if user_id == continuation.handoff_user_id => SignedInAccount::Same,
-        Some(_) => SignedInAccount::Different,
-        None => SignedInAccount::None,
-    };
-    token.authorized_ok(web::Json(PendingMoocfiHandoff {
+    let (digest, continuation) =
+        pending_continuation(&mut conn, &request, &jwt_key, query.moocfi_course_id).await?;
+    let email = models::user_details::get_user_details_by_user_id(&mut conn, continuation.user_id)
+        .await?
+        .email;
+    let signed_in_account = signed_in_account(&session, &continuation);
+    let pending = PendingMoocfiHandoff {
         moocfi_course_id: continuation.moocfi_course_id,
         masked_email: mask_email(&email),
         signed_in_account,
-    }))
+        redirect_path: registration_page_path_of(
+            continuation.moocfi_course_id,
+            continuation.ui_language.as_deref(),
+        ),
+    };
+    if signed_in_account == SignedInAccount::Same {
+        // Nothing left to confirm, so nothing is left waiting for the browser's next user.
+        moocfi_handoff_continuations::take(&mut conn, &digest, query.moocfi_course_id).await?;
+        return token.authorized_ok(clearing_continuation(HttpResponse::Ok().json(pending)));
+    }
+    token.authorized_ok(HttpResponse::Ok().json(pending))
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct ContinueMoocfiHandoffPayload {
+    /// The course whose landing page the student confirmed on.
+    pub moocfi_course_id: Uuid,
+    /// Who was signed in when the student confirmed, as `pending` said. If it has changed since,
+    /// the student confirmed something else, so nothing is switched.
+    pub expected_signed_in_account: SignedInAccount,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -261,10 +313,11 @@ pub struct ContinuedMoocfiHandoff {
 
 /**
 POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out
-whoever is signed in and signs in the handoff's account.
+whoever is signed in and signs in the handoff's account. Single use.
 
 Only from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot
-post it. 404 when no handoff is waiting.
+post it. 404 when no handoff is waiting for the course; 400 when the signed-in account is no longer
+the one the student saw; 403 for an account with a courses role.
 */
 #[instrument(skip_all)]
 #[utoipa::path(
@@ -272,6 +325,7 @@ post it. 404 when no handoff is waiting.
     path = "/continue",
     operation_id = "continueMoocfiHandoff",
     tag = "moocfi-handoffs",
+    request_body = ContinueMoocfiHandoffPayload,
     responses(
         (status = 200, description = "Signed in; where to go next", body = ContinuedMoocfiHandoff),
         (status = 404, description = "No handoff is waiting")
@@ -283,83 +337,133 @@ pub async fn continue_moocfi_handoff(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
     jwt_key: web::Data<JwtKey>,
+    payload: web::Json<ContinueMoocfiHandoffPayload>,
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
-    let is_same_origin = request
-        .headers()
-        .get("Sec-Fetch-Site")
-        .and_then(|value| value.to_str().ok())
-        .is_some_and(|value| value == "same-origin");
-    if !is_same_origin {
+    if !is_same_origin(&request, &app_conf) {
         return Err(controller_err!(Forbidden, "Forbidden.".to_string()));
     }
-    let continuation = valid_continuation(&request, &jwt_key)?;
-    if session_user_id(&session) != Some(continuation.handoff_user_id) {
-        let mut conn = pool.acquire().await?;
-        let user = models::users::get_by_id(&mut conn, continuation.handoff_user_id).await?;
+    let mut conn = pool.acquire().await?;
+    let (digest, continuation) =
+        pending_continuation(&mut conn, &request, &jwt_key, payload.moocfi_course_id).await?;
+    if signed_in_account(&session, &continuation) != payload.expected_signed_in_account {
+        return Err(controller_err!(
+            BadRequest,
+            "The signed-in account has changed.".to_string()
+        ));
+    }
+    // The continuation outlives the handoff by minutes, long enough for a role to be granted.
+    if models::roles::has_any_role(&mut conn, continuation.user_id).await? {
+        return Err(controller_err!(Forbidden, "Forbidden.".to_string()));
+    }
+    // Spent in between by a concurrent continue.
+    let Some(continuation) =
+        moocfi_handoff_continuations::take(&mut conn, &digest, payload.moocfi_course_id).await?
+    else {
+        return Err(controller_err!(NotFound, NO_CONTINUATION.to_string()));
+    };
+    if session_user_id(&session) != Some(continuation.user_id) {
+        let user = models::users::get_by_id(&mut conn, continuation.user_id).await?;
         session.clear();
         session.renew();
         authentication::remember(&session, user)?;
     }
     info!(outcome = "continued", "Continued a mooc.fi handoff");
-    let mut removal = continuation_cookie(String::new(), &app_conf);
-    removal.make_removal();
-    token.authorized_ok(
-        HttpResponse::Ok()
-            .cookie(removal)
-            .json(ContinuedMoocfiHandoff {
-                redirect_path: registration_page_path_of(
-                    continuation.moocfi_course_id,
-                    continuation.ui_language.as_deref(),
-                ),
-            }),
-    )
+    token.authorized_ok(clearing_continuation(HttpResponse::Ok().json(
+        ContinuedMoocfiHandoff {
+            redirect_path: registration_page_path_of(
+                continuation.moocfi_course_id,
+                continuation.ui_language.as_deref(),
+            ),
+        },
+    )))
 }
 
-/// The cookie's continuation, if it is unexpired and was minted for this request's IP.
-fn valid_continuation(
+const NO_CONTINUATION: &str = "No sign-in is waiting.";
+
+/// The cookie's continuation for the course, if one is waiting for this request's IP, with the
+/// cookie token's digest that spends it.
+async fn pending_continuation(
+    conn: &mut PgConnection,
     request: &HttpRequest,
     jwt_key: &JwtKey,
-) -> Result<MoocfiHandoffContinuationClaim, ControllerError> {
-    let client_ip: Option<IpAddr> = request_client_ip(request);
-    request
+    moocfi_course_id: Uuid,
+) -> Result<(Vec<u8>, PendingContinuation), ControllerError> {
+    let not_found = || controller_err!(NotFound, NO_CONTINUATION.to_string());
+    let digest = request
         .cookie(CONTINUATION_COOKIE)
-        .and_then(|cookie| MoocfiHandoffContinuationClaim::validate(cookie.value(), jwt_key).ok())
-        .filter(|continuation| {
-            client_ip.is_some_and(|client_ip| continuation.is_bound_to(client_ip, jwt_key))
-        })
-        .ok_or_else(|| controller_err!(NotFound, "No sign-in is waiting.".to_string()))
+        .map(|cookie| Sha256::digest(cookie.value().as_bytes()).to_vec())
+        .ok_or_else(not_found)?;
+    let continuation = moocfi_handoff_continuations::get_pending(conn, &digest, moocfi_course_id)
+        .await?
+        .ok_or_else(not_found)?;
+    let is_bound = request_client_ip(request)
+        .is_some_and(|client_ip| client_ip_hash(client_ip, jwt_key) == continuation.client_ip_hash);
+    if !is_bound {
+        return Err(not_found());
+    }
+    Ok((digest, continuation))
 }
 
-fn is_same_site(request: &HttpRequest) -> bool {
-    // Browsers set this header and pages cannot forge it. Same-origin is a stricter case of
-    // same-site, and is what dev's mock page sends.
+fn signed_in_account(session: &Session, continuation: &PendingContinuation) -> SignedInAccount {
+    match session_user_id(session) {
+        Some(user_id) if user_id == continuation.user_id => SignedInAccount::Same,
+        Some(_) => SignedInAccount::Different,
+        None => SignedInAccount::None,
+    }
+}
+
+fn sec_fetch_site(request: &HttpRequest) -> Option<&str> {
     request
         .headers()
         .get("Sec-Fetch-Site")
         .and_then(|value| value.to_str().ok())
-        .is_some_and(|value| value == "same-site" || value == "same-origin")
 }
 
-fn to_landing_with_continuation(
+/// From a page of ours. Browsers without Fetch Metadata, such as Safari before 16.4, still send
+/// `Origin` on a POST.
+fn is_same_origin(request: &HttpRequest, app_conf: &ApplicationConfiguration) -> bool {
+    match sec_fetch_site(request) {
+        Some(site) => site == "same-origin",
+        None => request
+            .headers()
+            .get("Origin")
+            .and_then(|value| value.to_str().ok())
+            .is_some_and(|origin| {
+                url::Url::parse(&app_conf.base_url)
+                    .is_ok_and(|base_url| base_url.origin().ascii_serialization() == origin)
+            }),
+    }
+}
+
+/// Browsers set `Sec-Fetch-Site` and pages cannot forge it. Same-origin is a stricter case of
+/// same-site, and is what dev's mock page sends.
+fn is_same_site(request: &HttpRequest) -> bool {
+    sec_fetch_site(request).is_some_and(|site| site == "same-site" || site == "same-origin")
+}
+
+async fn to_landing_with_continuation(
+    conn: &mut PgConnection,
     claim: &MoocfiHandoffClaim,
     reason: &str,
     app_conf: &ApplicationConfiguration,
-    jwt_key: &JwtKey,
 ) -> Result<HttpResponse, ControllerError> {
-    let continuation =
-        sign_hs256_claim(&MoocfiHandoffContinuationClaim::continuing(claim), jwt_key).map_err(
-            |error| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to sign the continuation".to_string(),
-                    Some(error.into()),
-                )
-            },
-        )?;
-    let mut response = see_other(&landing_page_path(claim.moocfi_course_id, reason));
+    let continuation_token = models::library::oauth::tokens::generate_access_token();
+    moocfi_handoff_continuations::insert(
+        conn,
+        &Sha256::digest(continuation_token.as_bytes()),
+        &NewContinuation {
+            user_id: claim.user_id,
+            moocfi_course_id: claim.moocfi_course_id,
+            ui_language: claim.ui_language.as_deref(),
+            client_ip_hash: claim.client_ip_hash(),
+        },
+        CONTINUATION_LIFETIME,
+    )
+    .await?;
+    let mut response = redirect(&landing_page_path(claim.moocfi_course_id, reason));
     response
-        .add_cookie(&continuation_cookie(continuation, app_conf))
+        .add_cookie(&continuation_cookie(continuation_token, app_conf))
         .map_err(|error| {
             ControllerError::new(
                 ControllerErrorType::InternalServerError,
@@ -378,10 +482,24 @@ fn continuation_cookie(value: String, app_conf: &ApplicationConfiguration) -> Co
         .http_only(true)
         .secure(!app_conf.base_url.starts_with("http://"))
         .same_site(SameSite::Lax)
-        .max_age(CookieDuration::seconds(
-            MoocfiHandoffContinuationClaim::LIFETIME.num_seconds(),
-        ))
+        .max_age(CookieDuration::seconds(CONTINUATION_LIFETIME.num_seconds()))
         .finish()
+}
+
+/// Expires the continuation cookie. Sent wherever a session starts or ends, so a continuation
+/// left waiting never outlives the session it was shown beside.
+pub fn continuation_cookie_removal() -> Cookie<'static> {
+    let mut cookie = Cookie::build(CONTINUATION_COOKIE, "")
+        .path(CONTINUATION_COOKIE_PATH)
+        .finish();
+    cookie.make_removal();
+    cookie
+}
+
+fn clearing_continuation(mut response: HttpResponse) -> HttpResponse {
+    // Only fails on a cookie that cannot be a header value, which this one always can.
+    let _ = response.add_cookie(&continuation_cookie_removal());
+    response
 }
 
 /// The first letter of the address and its domain, such as `m…@example.com`.
@@ -424,7 +542,12 @@ fn fall_back_to_login(outcome: RedeemOutcome, claim: Option<&MoocfiHandoffClaim>
     see_other(&location)
 }
 
+/// A redirect that also ends any continuation waiting in the browser.
 fn see_other(location: &str) -> HttpResponse {
+    clearing_continuation(redirect(location))
+}
+
+fn redirect(location: &str) -> HttpResponse {
     HttpResponse::SeeOther()
         .insert_header((header::LOCATION, location))
         .insert_header((header::CACHE_CONTROL, "no-store"))

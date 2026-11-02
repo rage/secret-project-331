@@ -5220,12 +5220,18 @@ export const zSetEnrolmentRoutePayload = z.object({
 
 export const zSignedInAccount = z.enum(["same", "different", "none"])
 
+export const zContinueMoocfiHandoffPayload = z.object({
+  expected_signed_in_account: zSignedInAccount,
+  moocfi_course_id: z.uuid(),
+})
+
 /**
  * Which account a pending continuation would sign in, beside whoever is signed in now.
  */
 export const zPendingMoocfiHandoff = z.object({
   masked_email: z.string(),
   moocfi_course_id: z.uuid(),
+  redirect_path: z.string(),
   signed_in_account: zSignedInAccount,
 })
 
@@ -10515,6 +10521,10 @@ export const zGetMyMoocfiCreditRegistrationsPath = z.object({
   moocfi_course_id: z.uuid(),
 })
 
+export const zGetMyMoocfiCreditRegistrationsQuery = z.object({
+  ui_language: z.string().optional(),
+})
+
 /**
  * The caller's completions of the course
  */
@@ -10524,15 +10534,25 @@ export const zGetMoocfiCourseLinkPath = z.object({
   moocfi_course_id: z.uuid(),
 })
 
+export const zGetMoocfiCourseLinkQuery = z.object({
+  ui_language: z.string().optional(),
+})
+
 /**
  * The course's name and registration page
  */
 export const zGetMoocfiCourseLinkResponse = zMoocfiCourseLink
 
+export const zContinueMoocfiHandoffBody = zContinueMoocfiHandoffPayload
+
 /**
  * Signed in; where to go next
  */
 export const zContinueMoocfiHandoffResponse = zContinuedMoocfiHandoff
+
+export const zGetPendingMoocfiHandoffQuery = z.object({
+  moocfi_course_id: z.uuid(),
+})
 
 /**
  * The waiting handoff

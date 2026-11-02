@@ -1,5 +1,7 @@
 //! The `moocfi-report` phase: telling mooc.fi which of its completions we registered.
 
+use std::collections::HashSet;
+
 use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::credit_registrations::RegistrationScope;
 use headless_lms_models::external_completions;
@@ -12,6 +14,7 @@ use headless_lms_utils::services::moocfi::{
 };
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
+use uuid::Uuid;
 
 use super::moocfi_recheck::lookup_and_sync;
 use crate::error::CreditRegistrationResult;
@@ -26,6 +29,9 @@ pub(crate) async fn run(
 ) -> CreditRegistrationResult<Counts> {
     let client = MoocfiClient::new(delegation);
     let mut tally = RequestTally::default();
+    // One lookup returns all of a student's completions of a course, so it serves the rest of
+    // their candidates in this run too.
+    let mut synced: HashSet<(Uuid, Uuid)> = HashSet::new();
     for _ in 0..MOOCFI_REPORT_LIMIT {
         if shutdown.is_some_and(CancellationToken::is_cancelled) {
             break;
@@ -37,7 +43,7 @@ pub(crate) async fn run(
         let Some(candidate) = claimed else {
             break;
         };
-        match report(pool, delegation, &client, &candidate).await? {
+        match report(pool, delegation, &client, &candidate, &mut synced).await? {
             Ok(()) => tally.record_success(),
             Err(error) => {
                 warn!(
@@ -54,26 +60,31 @@ pub(crate) async fn run(
     Ok(tally.into_counts("mooc.fi registration reports"))
 }
 
-/// Posts the candidate unless the lookup finds our registration already on mooc.fi. The inner
-/// `Err` is a failed report, to back off; the outer one a database failure, after which the lease
-/// lapses and the next try's lookup finds whatever the post did.
+/// Posts the candidate unless this run's lookup of the student's completions found our registration
+/// already on mooc.fi. The inner `Err` is a failed report, to back off; the outer one a database
+/// failure, after which the lease lapses and the next try's lookup finds whatever the post did.
 async fn report(
     pool: &PgPool,
     delegation: &MoocfiDelegationConfiguration,
     client: &MoocfiClient,
     candidate: &MoocfiReportCandidate,
+    synced: &mut HashSet<(Uuid, Uuid)>,
 ) -> CreditRegistrationResult<Result<(), String>> {
-    if let Err(error) = lookup_and_sync(
-        pool,
-        delegation,
-        client,
-        candidate.user_id,
-        candidate.moocfi_user_upstream_id,
-        candidate.moocfi_course_id,
-    )
-    .await?
-    {
-        return Ok(Err(error));
+    let group = (candidate.user_id, candidate.moocfi_course_id);
+    if !synced.contains(&group) {
+        if let Err(error) = lookup_and_sync(
+            pool,
+            delegation,
+            client,
+            candidate.user_id,
+            candidate.moocfi_user_upstream_id,
+            candidate.moocfi_course_id,
+        )
+        .await?
+        {
+            return Ok(Err(error));
+        }
+        synced.insert(group);
     }
     let completion = {
         let mut conn = pool.acquire().await?;

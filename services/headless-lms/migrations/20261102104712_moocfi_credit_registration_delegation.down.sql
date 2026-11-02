@@ -1,3 +1,4 @@
+DROP TABLE moocfi_handoff_continuations;
 DROP TABLE moocfi_outbound_handoffs;
 DROP TYPE moocfi_handoff_destination;
 

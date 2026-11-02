@@ -4,6 +4,7 @@ import type {
   MyCreditRegistration,
   CreditRegistrationPendingReason,
   CreditRegistrationState,
+  MoocfiCompletionStatus,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import type { RegistrationStatusState } from "@/shared-module/components"
@@ -410,3 +411,46 @@ export const enrolmentConfirmedSentence = (
       : "credit-registration-you-told-us-you-enrolled-sisu",
     { date },
   )
+
+const MOOCFI_COMPLETION_STATUS_KEYS = {
+  // Only before the page's own sync has stored the completion, so it reads as under way.
+  registering_on_courses: {
+    heading: "credit-registration-status-sending",
+    body: "credit-registration-explanation-starting",
+  },
+  registration_paused: {
+    heading: "credit-registration-moocfi-paused-heading",
+    body: "credit-registration-moocfi-paused",
+  },
+  before_cutoff: {
+    heading: "credit-registration-moocfi-before-cutoff-heading",
+    body: "credit-registration-moocfi-before-cutoff",
+  },
+  not_eligible: {
+    heading: "credit-registration-moocfi-not-eligible-heading",
+    body: "credit-registration-moocfi-not-eligible",
+  },
+  registered_on_moocfi: {
+    heading: "credit-registration-moocfi-registered-on-moocfi-heading",
+    body: "credit-registration-moocfi-registered-on-moocfi",
+  },
+  no_credit_unit: {
+    heading: "credit-registration-moocfi-no-credit-unit-heading",
+    body: "credit-registration-moocfi-no-credit-unit",
+  },
+  removed_from_moocfi: {
+    heading: "credit-registration-moocfi-removed-heading",
+    body: "credit-registration-moocfi-removed",
+  },
+} as const satisfies Record<MoocfiCompletionStatus, { heading: string; body: string }>
+
+/** The heading and sentence for a mooc.fi completion that has no registration card of its own. */
+export const moocfiCompletionStatusCopy = (
+  t: CreditRegistrationTFunction,
+  status: MoocfiCompletionStatus,
+): { heading: string; body: string } => {
+  const keys =
+    widenedLookup(MOOCFI_COMPLETION_STATUS_KEYS, status) ??
+    MOOCFI_COMPLETION_STATUS_KEYS.no_credit_unit
+  return { heading: translateKey(t, keys.heading), body: translateKey(t, keys.body) }
+}

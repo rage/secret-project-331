@@ -10,6 +10,7 @@ import {
   TONE,
   openUniversityEnrolmentInfoUrl,
 } from "@/components/credit-registration/constants"
+import type { CertificateOffer } from "@/components/credit-registration/creditRegistrationSubject"
 import { OpenUniversityDetour } from "@/components/credit-registration/OpenUniversityDetour"
 import {
   bandCss,
@@ -32,7 +33,6 @@ const STUDENT_TYPE_FIELD = "studentType"
 const myStudyInfoLink = <TransLink href={MY_STUDYINFO} target="_blank" rel="noopener noreferrer" />
 
 export interface RegisterCompletionProps {
-  courseModuleId: string
   /** The address the completion was made under; registration matches on it and nothing else. */
   email: string
   courseName: string
@@ -43,9 +43,7 @@ export interface RegisterCompletionProps {
    * can generate one right now, and that is what puts the detour between them and the Open
    * University instructions.
    */
-  certificateConfigurationId: string | null | undefined
-  /** What the student already answered on the detour's last question, if they got that far. */
-  creditJustification: string | null | undefined
+  certificate: CertificateOffer | null
 }
 
 interface StudentTypeForm {
@@ -53,13 +51,11 @@ interface StudentTypeForm {
 }
 
 const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
-  courseModuleId,
   email,
   courseName,
   ectsCredits,
   registrationFormUrl,
-  certificateConfigurationId,
-  creditJustification,
+  certificate,
 }) => {
   const { t } = useTranslation()
   const { control, watch } = useForm<StudentTypeForm>({
@@ -140,11 +136,9 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
         ) : null}
 
         {studentType === OPEN_UNIVERSITY_OR_NEITHER ? (
-          certificateConfigurationId ? (
+          certificate ? (
             <OpenUniversityDetour
-              courseModuleId={courseModuleId}
-              certificateConfigurationId={certificateConfigurationId}
-              creditJustification={creditJustification}
+              certificate={certificate}
               openUniversityContent={openUniversityDestination}
             />
           ) : (

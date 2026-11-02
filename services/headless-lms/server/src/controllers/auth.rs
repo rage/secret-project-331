@@ -495,8 +495,16 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    return handle_production_login(&session, &mut conn, &client, &tmc_client, &email, &password)
-        .await;
+    return handle_production_login(
+        &session,
+        &mut conn,
+        &client,
+        &tmc_client,
+        &email,
+        &password,
+        &app_conf,
+    )
+    .await;
 }
 
 async fn handle_uuid_login(
@@ -590,6 +598,7 @@ async fn handle_production_login(
     tmc_client: &TmcClient,
     email: &str,
     password: &SecretString,
+    app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
     // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
@@ -620,6 +629,7 @@ async fn handle_production_login(
             email.to_string(),
             password.clone(),
             tmc_client,
+            &app_conf.moocfi_configuration,
         )
         .await?;
 

@@ -19,16 +19,22 @@ pub(crate) fn now() -> DateTime<Utc> {
 /// A fresh row in `state` that has never failed or been submitted.
 pub(crate) fn registration(state: CreditRegistrationState) -> CreditRegistration {
     let at = now();
+    let subject_id = Uuid::new_v4();
+    let credit_unit_id = Uuid::new_v4();
     CreditRegistration {
         id: Uuid::new_v4(),
         created_at: at,
         updated_at: at,
         deleted_at: None,
-        course_module_completion_id: Uuid::new_v4(),
+        course_module_completion_id: Some(subject_id),
         user_id: Uuid::new_v4(),
-        course_id: Uuid::new_v4(),
-        course_module_id: Uuid::new_v4(),
-        course_instance_id: Uuid::new_v4(),
+        course_id: Some(Uuid::new_v4()),
+        course_module_id: Some(credit_unit_id),
+        course_instance_id: Some(Uuid::new_v4()),
+        external_completion_id: None,
+        external_credit_target_id: None,
+        subject_id,
+        credit_unit_id,
         state,
         state_entered_at: at,
         state_changed_at: at,

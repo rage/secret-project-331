@@ -3,7 +3,8 @@
 //! existing `registered` flag working, and gives support the real student number.
 //!
 //! The row's `study_registry_registrar_id` is null, which is what marks it as ours: we registered the
-//! attainment ourselves rather than handing it to a third party holding an API key.
+//! attainment ourselves rather than handing it to a third party holding an API key. mooc.fi rows have
+//! no completion in that ledger and are never mirrored.
 
 use crate::credit_registrations::{CreditRegistrationState, RegistrationScope};
 use crate::prelude::*;
@@ -27,6 +28,7 @@ WITH unmirrored AS (
     cr.student_number
   FROM credit_registrations cr
   WHERE cr.deleted_at IS NULL
+    AND cr.course_module_completion_id IS NOT NULL
     AND cr.state = ANY($5::credit_registration_state [])
     AND cr.student_number IS NOT NULL
     -- Only the completion's latest successful attempt mirrors, or a regraded completion gets two
@@ -89,29 +91,37 @@ FROM inserted
     Ok(mirrored)
 }
 
-/// One ledger row whose standing in the legacy ledger disagrees with ours.
+/// One ledger row whose standing in the legacy ledger, or for a mooc.fi row on mooc.fi, disagrees
+/// with ours.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LegacyLedgerDivergence {
     pub credit_registration_id: Uuid,
-    pub course_module_completion_id: Uuid,
+    /// The completion, whichever kind it is.
+    pub subject_id: Uuid,
+    pub course_module_completion_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
     pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row, as is `course_module_id`.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
     /// We registered it and the legacy ledger has no row of ours, so the teacher views and the pull
-    /// stream still call the completion unregistered.
+    /// stream still call the completion unregistered. Never set on a mooc.fi row.
     pub mirror_missing: bool,
     /// A registrar took the completion through the pull path while our pipeline had not finished
-    /// with it, which is how the same attainment gets submitted twice.
+    /// with it, or, on a mooc.fi row, another organization registered it on mooc.fi after we had
+    /// submitted it: how the same attainment gets submitted twice.
     pub registered_by_a_registrar: bool,
 }
 
-/// Ledger rows the legacy ledger contradicts, in either direction.
+/// Ledger rows the legacy ledger or mooc.fi contradicts, in either direction.
 ///
 /// Not "every completion the pull path registered": `materialize` skips those on purpose, so
 /// listing them would report the coexistence design as a fault. Only rows where one side has moved
@@ -124,23 +134,28 @@ pub async fn get_legacy_ledger_divergences(
         LegacyLedgerDivergence,
         r#"
 SELECT cr.id AS credit_registration_id,
+  cr.subject_id,
   cr.course_module_completion_id,
+  cr.external_completion_id,
   cr.user_id,
   ud.first_name AS "first_name?",
   ud.last_name AS "last_name?",
   ud.email AS "email?",
   cr.course_id,
-  c.name AS course_name,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   cr.course_module_id,
+  cr.external_credit_target_id,
   cr.state,
   cr.state_entered_at,
   d.mirror_missing AS "mirror_missing!",
   d.registered_by_a_registrar AS "registered_by_a_registrar!"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   CROSS JOIN LATERAL (
-    SELECT cr.state = ANY($2::credit_registration_state [])
+    SELECT cr.course_module_completion_id IS NOT NULL
+      AND cr.state = ANY($2::credit_registration_state [])
       AND cr.student_number IS NOT NULL
       AND NOT EXISTS (
         SELECT 1
@@ -149,13 +164,24 @@ FROM credit_registrations cr
           AND r.study_registry_registrar_id IS NULL
           AND r.deleted_at IS NULL
       ) AS mirror_missing,
-      NOT (cr.state = ANY($2::credit_registration_state []))
-      AND EXISTS (
-        SELECT 1
-        FROM course_module_completion_registered_to_study_registries r
-        WHERE r.course_module_completion_id = cr.course_module_completion_id
-          AND r.study_registry_registrar_id IS NOT NULL
-          AND r.deleted_at IS NULL
+      (
+        NOT (cr.state = ANY($2::credit_registration_state []))
+        AND EXISTS (
+          SELECT 1
+          FROM course_module_completion_registered_to_study_registries r
+          WHERE r.course_module_completion_id = cr.course_module_completion_id
+            AND r.study_registry_registrar_id IS NOT NULL
+            AND r.deleted_at IS NULL
+        )
+      )
+      OR (
+        cr.submitted_at IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM external_completions ec
+          WHERE ec.id = cr.external_completion_id
+            AND ec.registered_upstream_at IS NOT NULL
+        )
       ) AS registered_by_a_registrar
   ) d
 WHERE cr.superseded_by_id IS NULL
@@ -182,7 +208,8 @@ mod tests {
         CourseModuleCompletionGranter, NewCourseModuleCompletion,
     };
     use crate::credit_registrations::{
-        CreditRegistrationState, NewCreditRegistration, PayloadSnapshot, Transition,
+        CreditRegistrationState, NewCreditRegistration, NewRegistrationSubject, PayloadSnapshot,
+        Transition,
     };
     use crate::test_helper::*;
 
@@ -218,11 +245,13 @@ mod tests {
             conn,
             PKeyPolicy::Generate,
             &NewCreditRegistration {
-                course_module_completion_id: completion.id,
+                subject: NewRegistrationSubject::CourseModule {
+                    course_module_completion_id: completion.id,
+                    course_id: course,
+                    course_module_id: course_module,
+                    course_instance_id: instance,
+                },
                 user_id: user,
-                course_id: course,
-                course_module_id: course_module,
-                course_instance_id: instance,
                 attempt_number: 1,
             },
             None,
@@ -321,7 +350,7 @@ mod tests {
 
         let mirrored = crate::course_module_completion_registered_to_study_registries::get_platform_registered_row_for_completion(
             tx.as_mut(),
-            registration.course_module_completion_id,
+            registration.course_module_completion_id.unwrap(),
         )
         .await
         .unwrap()

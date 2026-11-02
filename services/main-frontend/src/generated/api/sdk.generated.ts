@@ -28,6 +28,12 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminCreateExternalCreditTargetData,
+  AdminCreateExternalCreditTargetErrors,
+  AdminCreateExternalCreditTargetResponses,
+  AdminDeleteExternalCreditTargetData,
+  AdminDeleteExternalCreditTargetErrors,
+  AdminDeleteExternalCreditTargetResponses,
   AdminDismissCreditRegistrationAttentionData,
   AdminDismissCreditRegistrationAttentionErrors,
   AdminDismissCreditRegistrationAttentionResponses,
@@ -42,6 +48,9 @@ import type {
   AdminPauseCourseModuleCreditRegistrationData,
   AdminPauseCourseModuleCreditRegistrationErrors,
   AdminPauseCourseModuleCreditRegistrationResponses,
+  AdminPauseExternalCreditTargetData,
+  AdminPauseExternalCreditTargetErrors,
+  AdminPauseExternalCreditTargetResponses,
   AdminPausePhaseData,
   AdminPausePhaseErrors,
   AdminPausePhaseResponses,
@@ -60,6 +69,8 @@ import type {
   AdminResumeCourseModuleCreditRegistrationData,
   AdminResumeCourseModuleCreditRegistrationErrors,
   AdminResumeCourseModuleCreditRegistrationResponses,
+  AdminResumeExternalCreditTargetData,
+  AdminResumeExternalCreditTargetResponses,
   AdminResumePhaseData,
   AdminResumePhaseErrors,
   AdminResumePhaseResponses,
@@ -72,6 +83,9 @@ import type {
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberErrors,
   AdminUnlinkStudentNumberResponses,
+  AdminUpdateExternalCreditTargetData,
+  AdminUpdateExternalCreditTargetErrors,
+  AdminUpdateExternalCreditTargetResponses,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
@@ -85,6 +99,8 @@ import type {
   ChangeUserPasswordResponses,
   ChooseMyCertificateData,
   ChooseMyCertificateResponses,
+  ChooseMyExternalCompletionCertificateData,
+  ChooseMyExternalCompletionCertificateResponses,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenErrors,
   ClaimStudentNumberVerificationTokenResponses,
@@ -95,6 +111,8 @@ import type {
   ConfirmCourseSuspectedCheaterResponses,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponses,
+  ConfirmMyExternalCompletionEnrolmentData,
+  ConfirmMyExternalCompletionEnrolmentResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateChatbotData,
@@ -507,6 +525,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetMoocfiCourseLinkData,
+  GetMoocfiCourseLinkResponses,
   GetMyCertificatesData,
   GetMyCertificatesResponses,
   GetMyCoursesData,
@@ -515,12 +535,18 @@ import type {
   GetMyCreditRegistrationEnrolmentBannersResponses,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponses,
+  GetMyCreditRegistrationForExternalCompletionData,
+  GetMyCreditRegistrationForExternalCompletionResponses,
   GetMyCreditRegistrationsData,
   GetMyCreditRegistrationsResponses,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponses,
   GetMyEnrolmentRouteData,
   GetMyEnrolmentRouteResponses,
+  GetMyExternalCompletionEnrolmentRouteData,
+  GetMyExternalCompletionEnrolmentRouteResponses,
+  GetMyMoocfiCreditRegistrationsData,
+  GetMyMoocfiCreditRegistrationsResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -727,6 +753,9 @@ import type {
   RecordMyEnrolmentPageVisitData,
   RecordMyEnrolmentPageVisitErrors,
   RecordMyEnrolmentPageVisitResponses,
+  RecordMyExternalCompletionEnrolmentPageVisitData,
+  RecordMyExternalCompletionEnrolmentPageVisitErrors,
+  RecordMyExternalCompletionEnrolmentPageVisitResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
   RemoveCoursePlanMemberData,
@@ -787,6 +816,8 @@ import type {
   SetMyCreditJustificationResponses,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponses,
+  SetMyExternalCompletionEnrolmentRouteData,
+  SetMyExternalCompletionEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -864,12 +895,17 @@ import type {
   WithdrawMyCertificateChoiceResponses,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponses,
+  WithdrawMyExternalCompletionCertificateChoiceData,
+  WithdrawMyExternalCompletionCertificateChoiceResponses,
+  WithdrawMyExternalCompletionEnrolmentConfirmationData,
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponses,
 } from "./types.generated"
 import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminCreateExternalCreditTargetResponse,
   zAdminDismissCreditRegistrationAttentionResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
@@ -887,9 +923,11 @@ import {
   zApproveOauthDeviceVerificationResponse,
   zChangeUserPasswordResponse,
   zChooseMyCertificateResponse,
+  zChooseMyExternalCompletionCertificateResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
+  zConfirmMyExternalCompletionEnrolmentResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
@@ -1063,13 +1101,17 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetMoocfiCourseLinkResponse,
   zGetMyCertificatesResponse,
   zGetMyCoursesResponse,
   zGetMyCreditRegistrationEnrolmentBannersResponse,
   zGetMyCreditRegistrationForCourseModuleResponse,
+  zGetMyCreditRegistrationForExternalCompletionResponse,
   zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
   zGetMyEnrolmentRouteResponse,
+  zGetMyExternalCompletionEnrolmentRouteResponse,
+  zGetMyMoocfiCreditRegistrationsResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -1181,6 +1223,7 @@ import {
   zSetCourseModuleCertificateGenerationResponse,
   zSetMyCreditJustificationResponse,
   zSetMyEnrolmentRouteResponse,
+  zSetMyExternalCompletionEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
@@ -1207,6 +1250,8 @@ import {
   zVerifyEmailOwnershipResponse,
   zWithdrawMyCertificateChoiceResponse,
   zWithdrawMyEnrolmentConfirmationResponse,
+  zWithdrawMyExternalCompletionCertificateChoiceResponse,
+  zWithdrawMyExternalCompletionEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
 export type Options<
@@ -5307,6 +5352,143 @@ export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean 
 
 /**
  *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets` - Adds a mooc.fi
+ * course whose credits courses registers.
+ */
+export const adminCreateExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminCreateExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminCreateExternalCreditTargetResponses,
+  AdminCreateExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminCreateExternalCreditTargetResponses,
+    AdminCreateExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminCreateExternalCreditTargetResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}`
+ * - Replaces a mooc.fi target's configuration.
+ */
+export const adminUpdateExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminUpdateExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminUpdateExternalCreditTargetResponses,
+  AdminUpdateExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    AdminUpdateExternalCreditTargetResponses,
+    AdminUpdateExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete`
+ * - Soft-deletes a mooc.fi target, which withdraws its completions not yet submitted.
+ */
+export const adminDeleteExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDeleteExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminDeleteExternalCreditTargetResponses,
+  AdminDeleteExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDeleteExternalCreditTargetResponses,
+    AdminDeleteExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause`
+ * - Stops every phase from claiming this mooc.fi target's rows, freezing them where they stand.
+ */
+export const adminPauseExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPauseExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminPauseExternalCreditTargetResponses,
+  AdminPauseExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminPauseExternalCreditTargetResponses,
+    AdminPauseExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume`
+ * - Lets the phases claim this mooc.fi target's rows again.
+ */
+export const adminResumeExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumeExternalCreditTargetData, ThrowOnError>,
+): RequestResult<AdminResumeExternalCreditTargetResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminResumeExternalCreditTargetResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
  * phase from claiming this module's rows.
  *
@@ -6171,6 +6353,199 @@ export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zConfirmMyEnrolmentResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -
+ * The signed-in account's registration for one mooc.fi completion, or null when the pipeline has not
+ * created one yet.
+ */
+export const getMyCreditRegistrationForExternalCompletion = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationForExternalCompletionData, ThrowOnError>,
+): RequestResult<
+  GetMyCreditRegistrationForExternalCompletionResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationForExternalCompletionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationForExternalCompletionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
+ * - [`record_my_enrolment_page_visit`] for a mooc.fi completion.
+ */
+export const recordMyExternalCompletionEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
+  options: Options<RecordMyExternalCompletionEnrolmentPageVisitData, ThrowOnError>,
+): RequestResult<
+  RecordMyExternalCompletionEnrolmentPageVisitResponses,
+  RecordMyExternalCompletionEnrolmentPageVisitErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecordMyExternalCompletionEnrolmentPageVisitResponses,
+    RecordMyExternalCompletionEnrolmentPageVisitErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - What the caller said about where they enrol for this mooc.fi completion.
+ */
+export const getMyExternalCompletionEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyExternalCompletionEnrolmentRouteData, ThrowOnError>,
+): RequestResult<GetMyExternalCompletionEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyExternalCompletionEnrolmentRouteResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyExternalCompletionEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - [`set_my_enrolment_route`] for a mooc.fi completion.
+ */
+export const setMyExternalCompletionEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyExternalCompletionEnrolmentRouteData, ThrowOnError>,
+): RequestResult<SetMyExternalCompletionEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetMyExternalCompletionEnrolmentRouteResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetMyExternalCompletionEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`
+ * - [`withdraw_my_certificate_choice`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionCertificateChoice = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyExternalCompletionCertificateChoiceData, ThrowOnError>,
+): RequestResult<
+  WithdrawMyExternalCompletionCertificateChoiceResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).delete<
+    WithdrawMyExternalCompletionCertificateChoiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyExternalCompletionCertificateChoiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`
+ * - [`choose_my_certificate`] for a mooc.fi completion.
+ */
+export const chooseMyExternalCompletionCertificate = <ThrowOnError extends boolean = true>(
+  options: Options<ChooseMyExternalCompletionCertificateData, ThrowOnError>,
+): RequestResult<ChooseMyExternalCompletionCertificateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ChooseMyExternalCompletionCertificateResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zChooseMyExternalCompletionCertificateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice",
+    ...options,
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionEnrolmentConfirmation = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WithdrawMyExternalCompletionEnrolmentConfirmationData, ThrowOnError>,
+): RequestResult<
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).delete<
+    WithdrawMyExternalCompletionEnrolmentConfirmationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyExternalCompletionEnrolmentConfirmationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`confirm_my_enrolment`] for a mooc.fi completion.
+ */
+export const confirmMyExternalCompletionEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<ConfirmMyExternalCompletionEnrolmentData, ThrowOnError>,
+): RequestResult<ConfirmMyExternalCompletionEnrolmentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ConfirmMyExternalCompletionEnrolmentResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zConfirmMyExternalCompletionEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
     ...options,
   })
 
@@ -7422,6 +7797,47 @@ export const updateGlossaryTerm = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}` - Syncs the caller's
+ * completions of a mooc.fi course from mooc.fi and returns them with their registration status.
+ *
+ * When mooc.fi cannot be reached the answer is still 200, from the rows stored earlier, with
+ * `is_up_to_date` false.
+ */
+export const getMyMoocfiCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyMoocfiCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetMyMoocfiCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyMoocfiCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyMoocfiCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link` - The mooc.fi
+ * course's name and registration page, without reading mooc.fi.
+ *
+ * Needs no sign-in: the handoff error page uses it while the wrong account, or none, is signed in.
+ */
+export const getMoocfiCourseLink = <ThrowOnError extends boolean = true>(
+  options: Options<GetMoocfiCourseLinkData, ThrowOnError>,
+): RequestResult<GetMoocfiCourseLinkResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetMoocfiCourseLinkResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMoocfiCourseLinkResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link",
+    ...options,
   })
 
 /**

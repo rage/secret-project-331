@@ -2,6 +2,7 @@
 //! the heartbeat, the circuit breakers and the limiter.
 
 use chrono::{DateTime, TimeDelta, Utc};
+use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::credit_registration_phase_state::{self, PhaseRunOutcome};
 use headless_lms_models::library::credit_registration::scrub::scrub_text;
 use headless_lms_models::library::credit_registration::sisu_day_gap;
@@ -19,7 +20,8 @@ use crate::phase::{CreditRegistrationPhase, WorkerProcess};
 use crate::use_cases::batch_flow::BatchFlowContext;
 use crate::use_cases::{
     config_validation, enrolment_discovery, import, ledger_snapshot, legacy_mirror, link_emails,
-    materialize, preconditions, resolve_enrolments, retention_sweep, student_notifications, verify,
+    materialize, moocfi_recheck, moocfi_report, preconditions, resolve_enrolments, retention_sweep,
+    student_notifications, verify,
 };
 use crate::workflow::Counts;
 use headless_lms_models::credit_registrations::RegistrationScope;
@@ -41,6 +43,8 @@ pub enum PhaseSkipReason {
     AccountLinkingDisabled,
     /// Finland is on the next day and Sisu is not; see [`sisu_day_gap`].
     SisuDayGap,
+    /// The deployment has no mooc.fi organization credentials.
+    MoocfiDelegationDisabled,
 }
 
 /// Who runs a phase iteration.
@@ -83,6 +87,8 @@ pub struct PhaseContext<'a> {
     /// Linking mails go only to people enrolled at or after it. `None`, none are sent and discovery
     /// only wakes linked students' registrations.
     pub account_linking_since: Option<DateTime<Utc>>,
+    /// `None` skips the phases that call mooc.fi.
+    pub moocfi_delegation: Option<&'a MoocfiDelegationConfiguration>,
     /// The worker's SIGTERM; `None` for a run no signal can stop, such as an on-demand one.
     pub shutdown: Option<&'a CancellationToken>,
 }
@@ -103,6 +109,7 @@ impl<'a> PhaseContext<'a> {
             runner,
             base_url: &app_conf.base_url,
             account_linking_since: app_conf.suotar_configuration.account_linking_since,
+            moocfi_delegation: app_conf.moocfi_configuration.delegation.as_ref(),
             shutdown: None,
         }
     }
@@ -145,6 +152,11 @@ pub async fn run_phase_once(
     // After the heartbeat, like the breaker check below: a switched-off phase is idle, not dead.
     if phase.spec().is_account_linking_only && ctx.account_linking_since.is_none() {
         return Ok(PhaseTick::Skipped(PhaseSkipReason::AccountLinkingDisabled));
+    }
+    if phase.spec().calls_moocfi && ctx.moocfi_delegation.is_none() {
+        return Ok(PhaseTick::Skipped(
+            PhaseSkipReason::MoocfiDelegationDisabled,
+        ));
     }
     // Not in test mode: the system tests run at every hour, the gap's included.
     if phase.spec().waits_out_sisu_day_gap
@@ -264,9 +276,17 @@ async fn run_body(
         CreditRegistrationPhase::ResolveEnrolments => {
             resolve_enrolments::run(&batch_flow, registry).await
         }
+        CreditRegistrationPhase::MoocfiRecheck => match ctx.moocfi_delegation {
+            Some(delegation) => moocfi_recheck::run(pool, scope, delegation, ctx.shutdown).await,
+            None => Ok(Counts::default()),
+        },
         CreditRegistrationPhase::Import => import::run(&batch_flow, registry).await,
         CreditRegistrationPhase::Verify => verify::run(&batch_flow, registry).await,
         CreditRegistrationPhase::LegacyMirror => legacy_mirror::run(pool, scope).await,
+        CreditRegistrationPhase::MoocfiReport => match ctx.moocfi_delegation {
+            Some(delegation) => moocfi_report::run(pool, scope, delegation, ctx.shutdown).await,
+            None => Ok(Counts::default()),
+        },
         CreditRegistrationPhase::StudentNotifications => {
             student_notifications::run(
                 pool,

@@ -8,6 +8,7 @@ import { CheckIcon } from "@/shared-module/components/components/primitives/Chec
 
 import { certificateHref } from "../certificateHref"
 import { BUTTON_PRIMARY, BUTTON_TERTIARY, CREDIT_REGISTRATION_NS } from "../constants"
+import type { CertificateOffer } from "../creditRegistrationSubject"
 import { useIsDemoMode } from "../demoMode"
 import {
   captionCss,
@@ -19,8 +20,7 @@ import {
 } from "./stepperStyles"
 
 export interface CertificateChosenPageProps {
-  courseModuleId: string
-  certificateConfigurationId: string | null | undefined
+  certificate: CertificateOffer | null
   isWithdrawing: boolean
   onChangeChoice: () => void
 }
@@ -30,8 +30,7 @@ export interface CertificateChosenPageProps {
  * one way to registering after all.
  */
 export const CertificateChosenPage: React.FC<CertificateChosenPageProps> = ({
-  courseModuleId,
-  certificateConfigurationId,
+  certificate,
   isWithdrawing,
   onChangeChoice,
 }) => {
@@ -62,9 +61,9 @@ export const CertificateChosenPage: React.FC<CertificateChosenPageProps> = ({
         >
           {t("credit-registration-button-go-to-the-certificate")}
         </Button>
-      ) : certificateConfigurationId ? (
+      ) : certificate ? (
         <Link
-          href={certificateHref(courseModuleId, certificateConfigurationId)}
+          href={certificateHref(certificate)}
           styledAsButton
           variant={BUTTON_PRIMARY}
           size="large"

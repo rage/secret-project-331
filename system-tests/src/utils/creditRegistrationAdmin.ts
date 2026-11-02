@@ -108,6 +108,16 @@ export interface AdminRegistrationDetails {
   notification_emails: AdminNotificationEmail[]
   /** Only on a row the study registry declined as no improvement. */
   not_improved_attainment: { grade_id: string | null; grade_scale_id: string | null } | null
+  /** Only on a mooc.fi row. */
+  moocfi_completion: AdminMoocfiCompletion | null
+}
+
+export interface AdminMoocfiCompletion {
+  moocfi_completion_id: string
+  raw_grade: string | null
+  upstream_checked_at: string
+  reported_at: string | null
+  report_attempt_count: number
 }
 
 export interface AccountLinkingCourseCode {
@@ -127,7 +137,9 @@ export const linkingListedAt = (stats: AccountLinkingStats, courseId: string): s
 
 export interface AdminRegistrationFilter {
   student_number?: string
+  /** A course or a mooc.fi target. */
   course_id?: string
+  user_id?: string
   state?: string
   needs_admin_attention?: boolean
   include_superseded?: boolean
@@ -252,10 +264,14 @@ export interface AdminPhaseList {
 export const listAdminPhases = (request: APIRequestContext): Promise<AdminPhaseList> =>
   getJson<AdminPhaseList>(request, `${CREDIT_REGISTRATION_ADMIN_API}/phases`)
 
-export interface AdminCourseModuleStats {
-  course_id: string
-  course_module_id: string
+/** A course module or a mooc.fi target on the Courses tab. */
+export interface AdminCreditUnitStats {
+  credit_unit_id: string
+  /** `null` for a mooc.fi target, as is `course_module_id`. */
+  course_id: string | null
+  course_module_id: string | null
   course_name: string
+  external_credit_target: AdminExternalCreditTarget | null
   paused_at: string | null
   eligible_completion_count: number
   registration_count: number
@@ -263,12 +279,51 @@ export interface AdminCourseModuleStats {
   check: { course_code_allowed: boolean | null }
 }
 
+/** The subset of a mooc.fi target the admin specs read or send back. */
+export interface AdminExternalCreditTarget {
+  id: string
+  moocfi_course_id: string
+  moocfi_course_slug: string
+  name: string
+  language_code: string
+  tiers: { lowest: number | null; highest: number | null } | null
+  uh_course_code: string
+  ects_credits: number
+  grading: "pass_fail" | "numeric"
+  enrolment_link: string | null
+  delegated_at: string
+  enabled_at: string | null
+  paused_at: string | null
+}
+
+export const adminExternalCreditTargetUrl = (externalCreditTargetId: string): string =>
+  `${CREDIT_REGISTRATION_ADMIN_API}/courses/external-targets/${externalCreditTargetId}`
+
+/** The form's payload for `target` as it stands, for a spec that changes one field of it. */
+export const externalCreditTargetPayload = (target: AdminExternalCreditTarget, reason: string) => ({
+  moocfi_course_id: target.moocfi_course_id,
+  moocfi_course_slug: target.moocfi_course_slug,
+  name: target.name,
+  language_code: target.language_code,
+  tiers: target.tiers,
+  uh_course_code: target.uh_course_code,
+  ects_credits: target.ects_credits,
+  grading: target.grading,
+  enrolment_link: target.enrolment_link,
+  delegated_at: target.delegated_at,
+  enabled: target.enabled_at !== null,
+  reason,
+})
+
 export interface AdminCourseStats {
-  modules: AdminCourseModuleStats[]
+  credit_units: AdminCreditUnitStats[]
   misconfigured_count: number
 }
 
-/** One row per course module with credit registration enabled, with its configuration verdict. */
+/**
+ * One row per course module with credit registration enabled and per mooc.fi target, with its
+ * configuration verdict.
+ */
 export const creditRegistrationCourseStats = (
   request: APIRequestContext,
 ): Promise<AdminCourseStats> =>

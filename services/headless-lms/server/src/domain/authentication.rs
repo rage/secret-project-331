@@ -11,6 +11,7 @@ use actix_web::{FromRequest, HttpRequest};
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use futures::Future;
+use headless_lms_base::config::MoocfiConfiguration;
 use headless_lms_models::{self as models, users::User};
 use headless_lms_utils::http::REQWEST_CLIENT;
 use headless_lms_utils::services::tmc::TMCUser;
@@ -34,8 +35,6 @@ use tracing_log::log;
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
-
-const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
 
 pub(crate) fn constant_time_eq_str(left: &str, right: &str) -> bool {
     left.as_bytes().ct_eq(right.as_bytes()).into()
@@ -195,13 +194,22 @@ pub fn forget(session: &Session) {
     session.purge();
 }
 
+/// The credential of an `Authorization: <scheme> <credential>` header, with the scheme matched
+/// exactly and case-sensitively. `None` when the header is missing, not text or of another scheme.
+pub fn authorization_credential<'a>(request: &'a HttpRequest, scheme: &str) -> Option<&'a str> {
+    request
+        .headers()
+        .get(actix_web::http::header::AUTHORIZATION)?
+        .to_str()
+        .ok()?
+        .strip_prefix(scheme)?
+        .strip_prefix(' ')
+}
+
 /// Returns the bearer token only when there is no authenticated user, for the anonymous
 /// chatbot-embed path; a logged-in request's token is never surfaced here.
 pub fn handle_anonymous_token(req: &HttpRequest, user: Option<AuthUser>) -> Option<String> {
-    let anonymous_token_value = req
-        .headers()
-        .get("authorization")
-        .and_then(|anonymous_token| anonymous_token.to_str().ok()?.strip_prefix("Bearer "));
+    let anonymous_token_value = authorization_credential(req, "Bearer");
 
     if let (Some(anonymous_token), None) = (anonymous_token_value, user) {
         Some(anonymous_token.to_owned())
@@ -274,6 +282,7 @@ pub async fn authenticate_tmc_mooc_fi_user(
     email: String,
     password: SecretString,
     tmc_client: &TmcClient,
+    moocfi: &MoocfiConfiguration,
 ) -> anyhow::Result<Option<(User, SecretString)>> {
     info!("Attempting to authenticate user with TMC");
     let token = match exchange_password_with_tmc(client, email.clone(), password).await? {
@@ -293,7 +302,8 @@ pub async fn authenticate_tmc_mooc_fi_user(
             .map(|uuid| uuid.to_string())
             .unwrap_or_else(|| "None (will fetch from mooc.fi or generate new UUID)".to_string())
     );
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user, &token).await?;
+    let user =
+        get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, moocfi, tmc_user, &token).await?;
     info!(
         "Successfully got user details from mooc.fi for user {}",
         user.id
@@ -358,13 +368,15 @@ pub async fn exchange_password_with_tmc(
 
 /// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token.
 async fn fetch_moocfi_id_by_upstream_id(
+    moocfi: &MoocfiConfiguration,
     tmc_access_token: &SecretString,
     upstream_id: i32,
 ) -> anyhow::Result<Option<Uuid>> {
     info!("Fetching mooc.fi UUID for upstream user id {}", upstream_id);
 
+    let graphql_url = moocfi.graphql_url()?;
     let res = REQWEST_CLIENT
-        .post(MOOCFI_GRAPHQL_URL)
+        .post(graphql_url)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
         // Exposed only here, where the bearer token header is built.
@@ -420,6 +432,7 @@ query ($upstreamId: Int) {
 
 pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     conn: &mut PgConnection,
+    moocfi: &MoocfiConfiguration,
     tmc_mooc_fi_user: TMCUser,
     tmc_access_token: &SecretString,
 ) -> anyhow::Result<User> {
@@ -433,16 +446,18 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
 
     let id = match moocfi_id {
         Some(id) => id,
-        None => match fetch_moocfi_id_by_upstream_id(tmc_access_token, upstream_id).await? {
-            Some(fetched_id) => {
-                info!("Successfully fetched mooc.fi UUID {} for user", fetched_id);
-                fetched_id
+        None => {
+            match fetch_moocfi_id_by_upstream_id(moocfi, tmc_access_token, upstream_id).await? {
+                Some(fetched_id) => {
+                    info!("Successfully fetched mooc.fi UUID {} for user", fetched_id);
+                    fetched_id
+                }
+                None => {
+                    info!("No mooc.fi UUID found, generating new UUID for user");
+                    Uuid::new_v4()
+                }
             }
-            None => {
-                info!("No mooc.fi UUID found, generating new UUID for user");
-                Uuid::new_v4()
-            }
-        },
+        }
     };
 
     let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {
@@ -568,6 +583,11 @@ pub async fn authenticate_test_token(
         "test-token-langs" => "langs@example.com",
         "test-token-student1" => "student1@example.com",
         "test-token-student2" => "student2@example.com",
+        // The seeded accounts with a TMC user id, for the mooc.fi handoff specs.
+        "test-token-moocfi-student-1" => "moocfi-student-1@example.com",
+        "test-token-moocfi-student-2" => "moocfi-student-2@example.com",
+        "test-token-moocfi-student-3" => "moocfi-student-3@example.com",
+        "test-token-moocfi-student-4" => "moocfi-student-4@example.com",
         _ => return Ok(None),
     };
     let user = models::users::get_by_email(conn, email).await?;

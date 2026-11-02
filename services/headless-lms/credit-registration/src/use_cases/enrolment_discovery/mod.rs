@@ -1,10 +1,10 @@
 //! The `enrolment-discovery` phase: who the study registry says is on the course.
 //!
 //! Each iteration fetches the enrolment lists of the course codes that are due, those with people
-//! waiting first, in batches as large as the registry takes; every module on a code shares its
-//! list. One list wakes the registrations of people we already have a link for and, while account
-//! linking is switched on and `link-emails` is not paused, claims a linking email for everybody
-//! else, which the `link-emails` phase is made due at once to send. When to fetch a code is
+//! waiting first, in batches as large as the registry takes; every module and mooc.fi target on a
+//! code shares its list. One list wakes the registrations of people we already have a link for
+//! and, while account linking is switched on and `link-emails` is not paused, claims a linking
+//! email for everybody else, which the `link-emails` phase is made due at once to send. When to fetch a code is
 //! [`headless_lms_models::credit_registration_roster_schedules`].
 
 mod listing;
@@ -12,14 +12,13 @@ mod reconcile;
 
 pub(crate) use reconcile::{list_unlinked, list_unlinked_enrolled_before};
 
-use headless_lms_models::course_module_suotar_configurations::ModuleToList;
 use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registration_roster_schedules::{
-    RosterSchedule, ScheduleSelection, ensure_rows, get_modules_by_code, get_schedules,
+    RosterSchedule, RosterUnit, ScheduleSelection, UnitScope, ensure_rows, get_schedules_within,
+    get_units_by_code,
 };
 use headless_lms_utils::prelude::{DateTime, Utc};
 use sqlx::{PgConnection, PgPool};
-use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::phase::CreditRegistrationPhase;
@@ -29,10 +28,10 @@ use headless_lms_models::credit_registrations::RegistrationScope;
 
 use listing::fetch_course_roster;
 
-/// One code of a listing request, with the modules that share its roster.
+/// One code of a listing request, with the modules and mooc.fi targets that share its roster.
 struct CodeListing {
     code: RosterCode,
-    modules: Vec<ModuleToList>,
+    units: Vec<RosterUnit>,
 }
 
 /// With account linking off (`account_linking_since` `None`), a roster still wakes linked students'
@@ -61,9 +60,13 @@ pub(crate) async fn run<R: StudyRegistry>(
     } else {
         account_linking_since
     };
-    let due = load_due_roster_codes(&mut conn, scope.course_id, mailing_since).await?;
+    let unit_scope = UnitScope {
+        course_id: scope.course_id,
+        external_credit_target_id: scope.external_credit_target_id,
+    };
+    let due = load_due_roster_codes(&mut conn, unit_scope, mailing_since).await?;
     let planned = plan_roster_requests(due, request_limit, registry.roster_request_size());
-    let requests = load_listing_modules(&mut conn, scope.course_id, planned).await?;
+    let requests = load_listing_units(&mut conn, unit_scope, planned).await?;
     drop(conn);
 
     let mut counts = Counts::default();
@@ -89,14 +92,14 @@ pub(crate) async fn run<R: StudyRegistry>(
 /// fell due.
 async fn load_due_roster_codes(
     conn: &mut PgConnection,
-    course_id: Option<Uuid>,
+    unit_scope: UnitScope,
     account_linking_since: Option<DateTime<Utc>>,
 ) -> CreditRegistrationResult<Vec<RosterCode>> {
     let now = Utc::now();
-    ensure_rows(conn, course_id).await?;
-    let mut due: Vec<RosterSchedule> = get_schedules(
+    ensure_rows(conn, unit_scope).await?;
+    let mut due: Vec<RosterSchedule> = get_schedules_within(
         conn,
-        course_id,
+        unit_scope,
         ScheduleSelection::DueCandidates,
         account_linking_since,
     )
@@ -142,10 +145,10 @@ fn plan_roster_requests(
     requests
 }
 
-/// Each planned request's codes, with the modules that share each code's roster.
-async fn load_listing_modules(
+/// Each planned request's codes, with the modules and targets that share each code's roster.
+async fn load_listing_units(
     conn: &mut PgConnection,
-    course_id: Option<Uuid>,
+    unit_scope: UnitScope,
     planned: Vec<Vec<RosterCode>>,
 ) -> CreditRegistrationResult<Vec<Vec<CodeListing>>> {
     let codes: Vec<String> = planned
@@ -153,14 +156,14 @@ async fn load_listing_modules(
         .flatten()
         .map(|code| code.course_code.as_str().to_string())
         .collect();
-    let mut modules_by_code = get_modules_by_code(conn, course_id, &codes).await?;
+    let mut units_by_code = get_units_by_code(conn, unit_scope, &codes).await?;
     Ok(planned
         .into_iter()
         .map(|request| {
             request
                 .into_iter()
                 .map(|code| CodeListing {
-                    modules: modules_by_code
+                    units: units_by_code
                         .remove(code.course_code.as_str())
                         .unwrap_or_default(),
                     code,

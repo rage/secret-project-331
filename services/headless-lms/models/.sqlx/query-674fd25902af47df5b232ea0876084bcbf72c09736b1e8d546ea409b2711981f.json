@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH codes AS (\n  SELECT TRIM(linked.uh_course_code) AS course_code\n  FROM course_modules linked\n  WHERE linked.course_id = $2\n    AND linked.deleted_at IS NULL\n    AND TRIM(COALESCE(linked.uh_course_code, '')) <> ''\n  UNION\n  SELECT TRIM(target.uh_course_code)\n  FROM external_credit_targets target\n  WHERE target.id = $4\n)\nINSERT INTO credit_registration_enrolment_check_signals (\n    course_module_completion_id,\n    external_completion_id,\n    last_check_requested_at,\n    check_request_ladder_anchor_at,\n    check_request_source\n  )\nSELECT s.course_module_completion_id,\n  s.external_completion_id,\n  now(),\n  now(),\n  'account_link'\nFROM credit_registration_subjects s\nWHERE s.user_id = $1\n  AND s.is_on_pipeline\n  AND NOT s.is_withdrawn\n  AND (\n    s.course_id = $2\n    OR TRIM(s.uh_course_code) IN (\n      SELECT course_code\n      FROM codes\n    )\n  ) ON CONFLICT (\n    (COALESCE(course_module_completion_id, external_completion_id)),\n    deleted_at\n  ) DO\nUPDATE\nSET last_check_requested_at = now(),\n  check_request_ladder_anchor_at = restarted_ladder_anchor(\n    credit_registration_enrolment_check_signals.check_request_ladder_anchor_at,\n    $3::bigint * INTERVAL '1 second'\n  ),\n  check_request_source = EXCLUDED.check_request_source\nRETURNING COALESCE(course_module_completion_id, external_completion_id) AS \"subject_id!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "subject_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "674fd25902af47df5b232ea0876084bcbf72c09736b1e8d546ea409b2711981f"
+}

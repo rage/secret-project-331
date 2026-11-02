@@ -16,6 +16,8 @@ pub(crate) mod legacy_mirror;
 pub(crate) mod link_emails;
 mod mail_queue;
 pub(crate) mod materialize;
+pub(crate) mod moocfi_recheck;
+pub(crate) mod moocfi_report;
 pub(crate) mod preconditions;
 pub(crate) mod resolve_enrolments;
 pub(crate) mod retention_sweep;

@@ -4,6 +4,7 @@ import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 
+import type { CertificateOffer } from "@/components/credit-registration/creditRegistrationSubject"
 import { DialogProvider } from "@/shared-module/components"
 
 import RegisterCompletion, { type RegisterCompletionProps } from "../RegisterCompletion"
@@ -18,6 +19,12 @@ const { setMyCreditJustification } = jest.requireMock("@/generated/api/sdk.gener
 
 const CERTIFICATE_CONFIGURATION_ID = "certificate-configuration-1"
 
+const certificateOffer = (creditJustification: string | null = null): CertificateOffer => ({
+  courseModuleId: "module-1",
+  certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID,
+  creditJustification,
+})
+
 // t is mocked in tests/setup-jest.js to return the key verbatim.
 const renderPage = (overrides: Partial<RegisterCompletionProps> = {}) => {
   const queryClient = new QueryClient({
@@ -27,13 +34,11 @@ const renderPage = (overrides: Partial<RegisterCompletionProps> = {}) => {
     <QueryClientProvider client={queryClient}>
       <DialogProvider>
         <RegisterCompletion
-          courseModuleId="module-1"
           email="teacher@example.com"
           courseName="Automatic Completions"
           ectsCredits={5}
           registrationFormUrl="/completion-registration/module-1/redirect"
-          certificateConfigurationId={null}
-          creditJustification={null}
+          certificate={null}
           {...overrides}
         />
       </DialogProvider>
@@ -164,7 +169,7 @@ describe("RegisterCompletion", () => {
 
   describe("with a certificate the student could take instead", () => {
     const renderWithCertificate = (overrides: Partial<RegisterCompletionProps> = {}) =>
-      renderPage({ certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID, ...overrides })
+      renderPage({ certificate: certificateOffer(), ...overrides })
 
     it("holds back the Open University instructions until the detour has been answered", () => {
       renderWithCertificate()
@@ -330,7 +335,7 @@ describe("RegisterCompletion", () => {
     })
 
     it("seeds the field from an answer given earlier and shows where to enrol straight away", () => {
-      renderWithCertificate({ creditJustification: "Written last time." })
+      renderWithCertificate({ certificate: certificateOffer("Written last time.") })
 
       walkToTheLastQuestion()
 

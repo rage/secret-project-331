@@ -1,5 +1,5 @@
 //! The `config-validation` phase: the daily pass over the configuration of every module with a
-//! course code.
+//! course code and every enabled mooc.fi target.
 //!
 //! Asks Suotar's `course-codes/validate` about every distinct course code; the rest of the check
 //! reads the database.
@@ -8,8 +8,11 @@ use headless_lms_models::course_module_suotar_configurations::{
     SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_modules_with_course_code,
     record_config_check,
 };
+use headless_lms_models::external_credit_targets::{
+    self, ExternalCreditTargetConfigFacts, get_config_facts_for_enabled_targets,
+};
 use headless_lms_models::library::credit_registration::config_validation::{
-    CourseCodeVerdict, check_module_config,
+    CourseCodeVerdict, check_module_config, check_target_config,
 };
 use itertools::Itertools;
 use sqlx::PgPool;
@@ -24,11 +27,34 @@ pub(crate) async fn run<R: StudyRegistry>(
     scope: &RegistrationScope,
     registry: &mut R,
 ) -> CreditRegistrationResult<Counts> {
-    let modules = {
+    // A course scope has no targets in it, and a target scope no modules.
+    let (modules, targets) = {
         let mut conn = pool.acquire().await?;
-        get_config_facts_for_modules_with_course_code(&mut conn, scope.course_id).await?
+        let modules = match scope.external_credit_target_id {
+            None => {
+                get_config_facts_for_modules_with_course_code(&mut conn, scope.course_id).await?
+            }
+            Some(_) => Vec::new(),
+        };
+        let targets = match scope.course_id {
+            None => {
+                get_config_facts_for_enabled_targets(&mut conn, scope.external_credit_target_id)
+                    .await?
+            }
+            Some(_) => Vec::new(),
+        };
+        (modules, targets)
     };
-    let course_codes = distinct_course_codes(&modules);
+    let course_codes = distinct_course_codes(
+        modules
+            .iter()
+            .map(|module| module.uh_course_code.as_deref())
+            .chain(
+                targets
+                    .iter()
+                    .map(|target| Some(target.uh_course_code.as_str())),
+            ),
+    );
 
     // After a refusal nothing is recorded, so the previous verdicts stand until a check gets through.
     let Ok(verdicts) = registry.validate_course_codes(&course_codes).await else {
@@ -37,39 +63,44 @@ pub(crate) async fn run<R: StudyRegistry>(
 
     let checks = check_modules(&modules, &verdicts);
     record_checks(pool, &modules, &checks).await?;
+    let target_checks = check_targets(&targets, &verdicts);
+    record_target_checks(pool, &targets, &target_checks).await?;
 
     let with_problems = checks
         .iter()
+        .chain(&target_checks)
         .filter(|check| check.message.is_some())
         .count();
     if with_problems > 0 {
         warn!(
-            modules_with_problems = with_problems,
-            "Course modules have credit registration configuration problems"
+            units_with_problems = with_problems,
+            "Credit registration modules or mooc.fi targets have configuration problems"
         );
     }
     let modules_checked = modules.len();
+    let targets_checked = targets.len();
     let codes_checked = verdicts.len();
-    if modules_checked > 0 {
+    if modules_checked + targets_checked > 0 {
         info!(
             modules_checked,
+            targets_checked,
             codes_checked,
             with_problems,
-            "checked {modules_checked} modules, {codes_checked} course codes"
+            "checked {modules_checked} modules, {targets_checked} mooc.fi targets, {codes_checked} course codes"
         );
     }
 
-    // A misconfigured module is a finding, not a failed item: the phase did its job.
+    // A misconfigured unit is a finding, not a failed item: the phase did its job.
     Ok(Counts::processed(
-        i64::try_from(modules.len()).unwrap_or(i64::MAX),
+        i64::try_from(modules_checked + targets_checked).unwrap_or(i64::MAX),
     ))
 }
 
-/// The modules' course codes as the registry is asked about them: trimmed, sorted, each once.
-fn distinct_course_codes(modules: &[SuotarModuleConfigFacts]) -> Vec<CourseCode> {
-    modules
-        .iter()
-        .filter_map(|module| module.uh_course_code.as_deref())
+/// The course codes as the registry is asked about them: trimmed, sorted, each once.
+fn distinct_course_codes<'a>(codes: impl IntoIterator<Item = Option<&'a str>>) -> Vec<CourseCode> {
+    codes
+        .into_iter()
+        .flatten()
         .filter_map(CourseCode::parse)
         .sorted()
         .dedup()
@@ -95,6 +126,39 @@ fn check_modules(
             check_module_config(module, verdict.as_ref())
         })
         .collect()
+}
+
+/// Each target's check, in target order, with the same fallback to the stored verdict as modules.
+fn check_targets(
+    targets: &[ExternalCreditTargetConfigFacts],
+    verdicts: &CourseCodeVerdicts,
+) -> Vec<SuotarConfigCheck> {
+    targets
+        .iter()
+        .map(|target| {
+            let verdict = CourseCode::parse(&target.uh_course_code)
+                .and_then(|code| verdicts.get(&code).cloned())
+                .or_else(|| CourseCodeVerdict::stored_for_target(target));
+            check_target_config(target, verdict.as_ref())
+        })
+        .collect()
+}
+
+async fn record_target_checks(
+    pool: &PgPool,
+    targets: &[ExternalCreditTargetConfigFacts],
+    checks: &[SuotarConfigCheck],
+) -> CreditRegistrationResult<()> {
+    let mut conn = pool.acquire().await?;
+    for (target, check) in targets.iter().zip(checks) {
+        external_credit_targets::record_config_check(
+            &mut conn,
+            target.external_credit_target_id,
+            check,
+        )
+        .await?;
+    }
+    Ok(())
 }
 
 /// Writes each module's check, in module order.
@@ -148,10 +212,14 @@ mod tests {
             module(Some("   "), None),
             module(None, None),
         ];
-        let codes: Vec<_> = distinct_course_codes(&modules)
-            .iter()
-            .map(|code| code.as_str().to_string())
-            .collect();
+        let codes: Vec<_> = distinct_course_codes(
+            modules
+                .iter()
+                .map(|module| module.uh_course_code.as_deref()),
+        )
+        .iter()
+        .map(|code| code.as_str().to_string())
+        .collect();
         assert_eq!(codes, ["TKT1", "TKT2"]);
     }
 

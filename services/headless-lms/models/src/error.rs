@@ -302,6 +302,22 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
+                        "external_credit_targets_tier_overlap" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "These tiers overlap another mooc.fi target of the same course.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
+                        "uq_external_credit_targets_course_code" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "The mooc.fi course already has a target with this course code.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
                         "uq_credit_registrations_sisu_attainment" => model_err!(
                             DatabaseConstraint {
                                 constraint: constraint.to_string(),

@@ -27,6 +27,7 @@ import {
   UNIVERSITY_OF_HELSINKI,
 } from "../constants"
 import { CreditJustificationForm } from "../CreditJustificationForm"
+import type { CertificateOffer } from "../creditRegistrationSubject"
 import { useIsDemoMode } from "../demoMode"
 import {
   decisionCss,
@@ -101,11 +102,9 @@ const answersOf = (values: Partial<QuestionsForm>): EnrolmentAnswers | null => {
 }
 
 export interface QuestionsPageProps {
-  courseModuleId: string
   enrolmentRoute: MyEnrolmentRoute
   /** Set when a certificate could serve instead, which asks the detour questions. */
-  certificateConfigurationId: string | null | undefined
-  creditJustification: string | null | undefined
+  certificate: CertificateOffer | null
   hasSavedJustification: boolean
   onJustificationSaved: () => void
   actions: EnrolmentAnswerActions
@@ -120,10 +119,8 @@ export interface QuestionsPageProps {
  * it, and a changed answer only hides what is under it, so flipping back finds the old answers.
  */
 export const QuestionsPage: React.FC<QuestionsPageProps> = ({
-  courseModuleId,
   enrolmentRoute,
-  certificateConfigurationId,
-  creditJustification,
+  certificate,
   hasSavedJustification,
   onJustificationSaved,
   actions,
@@ -142,7 +139,7 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
 
   const { mutate: saveAnswers } = actions.saveAnswers
   const { mutate: withdrawCertificateChoice } = actions.withdrawCertificateChoice
-  const hasCertificate = Boolean(certificateConfigurationId)
+  const hasCertificate = certificate !== null
   const isCertificateChosen = Boolean(enrolmentRoute.certificate_chosen_at)
   useEffect(() => {
     const subscription = watch((values, { type }) => {
@@ -196,8 +193,8 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
       })
       return
     }
-    if (certificateConfigurationId) {
-      router.push(certificateHref(courseModuleId, certificateConfigurationId))
+    if (certificate) {
+      router.push(certificateHref(certificate))
     }
   }
 
@@ -333,10 +330,10 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
         </RadioGroup>
       ) : null}
 
-      {asksWhyCreditsAreNeeded ? (
+      {asksWhyCreditsAreNeeded && certificate ? (
         <CreditJustificationForm
-          courseModuleId={courseModuleId}
-          savedJustification={creditJustification}
+          courseModuleId={certificate.courseModuleId}
+          savedJustification={certificate.creditJustification}
           saveLabel={t("credit-registration-button-save-reason")}
           onSaved={onJustificationSaved}
         />

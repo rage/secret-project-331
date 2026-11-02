@@ -2,7 +2,7 @@ use crate::config::server_runtime_config;
 use crate::domain::authentication::{constant_time_eq_str, session_user_id};
 use actix_session::SessionExt;
 use actix_web::{
-    Error, HttpResponse,
+    Error, HttpRequest, HttpResponse,
     body::{EitherBody, MessageBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     http::{StatusCode, header},
@@ -17,6 +17,7 @@ use secrecy::ExposeSecret;
 #[cfg(test)]
 use secrecy::SecretString;
 use std::{
+    net::{IpAddr, SocketAddr},
     num::NonZeroU32,
     sync::{
         Arc,
@@ -38,6 +39,8 @@ pub struct RateLimitConfig {
 /// Whose requests share one quota.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum RateLimitKey {
+    /// [`request_client_ip`], falling back to the peer address when the forwarded entry is not an
+    /// address.
     #[default]
     ClientIp,
     /// The signed-in user, falling back to the client IP for anonymous requests. For endpoints
@@ -61,17 +64,21 @@ enum Bypass {
 type Key = String;
 type Limiter = RateLimiter<Key, DefaultKeyedStateStore<Key>, DefaultClock>;
 
-#[derive(Clone)]
-struct EndpointLimiters {
-    month: Option<Arc<Limiter>>,
-    day: Option<Arc<Limiter>>,
-    hour: Option<Arc<Limiter>>,
-    minute: Option<Arc<Limiter>>,
-    second: Option<Arc<Limiter>>,
+/// The quotas of one [`RateLimitConfig`], kept per key. [`RateLimit`] keys them by request; use
+/// this directly only where the key is known after the request is read, such as a user resolved
+/// from a token in the body.
+pub struct EndpointLimiters {
+    month: Option<Limiter>,
+    day: Option<Limiter>,
+    hour: Option<Limiter>,
+    minute: Option<Limiter>,
+    second: Option<Limiter>,
+    calls: AtomicU64,
 }
 
 impl EndpointLimiters {
-    fn from_config(cfg: &RateLimitConfig) -> Self {
+    /// A zero or over-`u32` quota in `cfg` is off.
+    pub fn from_config(cfg: &RateLimitConfig) -> Self {
         Self {
             month: cfg.per_month.and_then(|n| {
                 build_custom_period_limiter(n, Duration::from_secs(30 * 24 * 60 * 60))
@@ -86,10 +93,40 @@ impl EndpointLimiters {
             second: cfg
                 .per_second
                 .and_then(|n| build_limiter(n, Quota::per_second)),
+            calls: AtomicU64::new(0),
         }
     }
 
-    fn iter(&self) -> impl Iterator<Item = &Arc<Limiter>> {
+    /// Counts a request by `key` against every quota. `Err` holds how long until all of them allow
+    /// it again, for `Retry-After`.
+    pub fn check_key(&self, key: String) -> Result<(), Duration> {
+        const RETAIN_EVERY: u64 = 1024;
+        const SHRINK_EVERY: u64 = 65_536;
+
+        let n = self.calls.fetch_add(1, Ordering::Relaxed) + 1;
+        if n.is_multiple_of(RETAIN_EVERY) {
+            for limiter in self.iter() {
+                limiter.retain_recent();
+            }
+            if n.is_multiple_of(SHRINK_EVERY) {
+                for limiter in self.iter() {
+                    limiter.shrink_to_fit();
+                }
+            }
+        }
+
+        let now = DefaultClock::default().now();
+        let mut retry_after: Option<Duration> = None;
+        for limiter in self.iter() {
+            if let Err(negative) = limiter.check_key(&key) {
+                let wait = negative.wait_time_from(now);
+                retry_after = Some(retry_after.map_or(wait, |cur| cur.max(wait)));
+            }
+        }
+        retry_after.map_or(Ok(()), Err)
+    }
+
+    fn iter(&self) -> impl Iterator<Item = &Limiter> {
         self.month
             .iter()
             .chain(self.day.iter())
@@ -107,18 +144,25 @@ impl EndpointLimiters {
     }
 }
 
-fn build_limiter<F>(n: u64, quota_fn: F) -> Option<Arc<Limiter>>
+fn build_limiter<F>(n: u64, quota_fn: F) -> Option<Limiter>
 where
     F: FnOnce(NonZeroU32) -> Quota,
 {
     let n32 = NonZeroU32::new(u32::try_from(n).ok()?)?;
-    Some(Arc::new(RateLimiter::keyed(quota_fn(n32))))
+    Some(RateLimiter::keyed(quota_fn(n32)))
 }
 
-fn build_custom_period_limiter(n: u64, period: Duration) -> Option<Arc<Limiter>> {
+fn build_custom_period_limiter(n: u64, period: Duration) -> Option<Limiter> {
     let n32 = NonZeroU32::new(u32::try_from(n).ok()?)?;
     let quota = Quota::with_period(period)?.allow_burst(n32);
-    Some(Arc::new(RateLimiter::keyed(quota)))
+    Some(RateLimiter::keyed(quota))
+}
+
+fn too_many_requests(retry_after: Duration) -> HttpResponse {
+    HttpResponse::build(StatusCode::TOO_MANY_REQUESTS)
+        .insert_header((header::RETRY_AFTER, retry_after.as_secs().max(1).to_string()))
+        .content_type("application/json")
+        .body(r#"{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}"#.to_string())
 }
 
 #[derive(Clone)]
@@ -126,7 +170,6 @@ pub struct RateLimit {
     limiters: Arc<EndpointLimiters>,
     key: RateLimitKey,
     bypass: Bypass,
-    calls: Arc<AtomicU64>,
 }
 
 impl RateLimit {
@@ -153,7 +196,6 @@ impl RateLimit {
             limiters: Arc::new(EndpointLimiters::from_config(&cfg)),
             key: RateLimitKey::default(),
             bypass: Bypass::Off,
-            calls: Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -198,7 +240,6 @@ where
             limiters: self.limiters.clone(),
             key: self.key,
             bypass: self.bypass.clone(),
-            calls: self.calls.clone(),
         }))
     }
 }
@@ -208,7 +249,6 @@ pub struct RateLimitInner<S> {
     limiters: Arc<EndpointLimiters>,
     key: RateLimitKey,
     bypass: Bypass,
-    calls: Arc<AtomicU64>,
 }
 
 impl<S> RateLimitInner<S> {
@@ -251,22 +291,6 @@ where
             return Box::pin(async move { fut.await.map(|r| r.map_into_left_body()) });
         }
 
-        const RETAIN_EVERY: u64 = 1024;
-        const SHRINK_EVERY: u64 = 65_536;
-
-        let n = self.calls.fetch_add(1, Ordering::Relaxed) + 1;
-        if n.is_multiple_of(RETAIN_EVERY) {
-            for limiter in self.limiters.iter() {
-                limiter.retain_recent();
-            }
-            if n.is_multiple_of(SHRINK_EVERY) {
-                for limiter in self.limiters.iter() {
-                    limiter.shrink_to_fit();
-                }
-            }
-        }
-
-        let clock = DefaultClock::default();
         let key = match self.key {
             RateLimitKey::User => session_user_id(&req.get_session())
                 .map(|id| format!("user:{id}"))
@@ -274,20 +298,8 @@ where
             RateLimitKey::ClientIp => extract_client_ip_key(&req),
         };
 
-        let mut retry_after: Option<Duration> = None;
-        for limiter in self.limiters.iter() {
-            if let Err(negative) = limiter.check_key(&key) {
-                let wait = negative.wait_time_from(clock.now());
-                retry_after = Some(retry_after.map_or(wait, |cur| cur.max(wait)));
-            }
-        }
-
-        if let Some(wait) = retry_after {
-            let secs = wait.as_secs().max(1);
-            let resp = HttpResponse::build(StatusCode::TOO_MANY_REQUESTS)
-                .insert_header((header::RETRY_AFTER, secs.to_string()))
-                .content_type("application/json")
-                .body(r#"{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}"#.to_string());
+        if let Err(retry_after) = self.limiters.check_key(key) {
+            let resp = too_many_requests(retry_after);
             return Box::pin(async move { Ok(req.into_response(resp).map_into_right_body()) });
         }
 
@@ -297,18 +309,36 @@ where
 }
 
 fn extract_client_ip_key(req: &ServiceRequest) -> String {
-    if let Some(s) = req.connection_info().realip_remote_addr() {
-        let s = s.trim();
-        if !s.is_empty() {
-            return s.to_string();
-        }
-    }
-
-    if let Some(sa) = req.peer_addr() {
-        return sa.ip().to_string();
+    if let Some(ip) = request_client_ip(req.request()).or_else(|| req.peer_addr().map(|sa| sa.ip()))
+    {
+        return ip.to_string();
     }
 
     format!("unknown:{}|{}", req.connection_info().host(), req.path())
+}
+
+/// The client IP as the one proxy in front of us saw it: the right-most `X-Forwarded-For` entry,
+/// or the peer address when there is none. `None` when that entry is not an address.
+///
+/// Every entry left of the right-most is the client's to forge. Matches Express's `req.ip` under
+/// `trust proxy 1`, which is what mooc.fi binds handoffs to; both sides must count the same number
+/// of proxy hops.
+pub fn request_client_ip(req: &HttpRequest) -> Option<IpAddr> {
+    let forwarded_for = req
+        .headers()
+        .get_all(header::X_FORWARDED_FOR)
+        .last()
+        .map(|value| value.to_str().ok()?.rsplit(',').next().map(str::trim));
+    match forwarded_for {
+        Some(entry) => {
+            let entry = entry?;
+            entry
+                .parse::<IpAddr>()
+                .ok()
+                .or_else(|| entry.parse::<SocketAddr>().ok().map(|address| address.ip()))
+        }
+        None => req.peer_addr().map(|address| address.ip()),
+    }
 }
 
 #[cfg(test)]
@@ -394,17 +424,17 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn key_trims_realip_value() {
+    async fn key_is_trimmed_rightmost_forwarded_entry() {
         let req = test::TestRequest::get()
             .uri("/x")
-            .insert_header(("x-forwarded-for", " 9.9.9.9 "))
+            .insert_header(("x-forwarded-for", "6.6.6.6, 9.9.9.9 "))
             .to_srv_request();
 
         assert_eq!(super::extract_client_ip_key(&req), "9.9.9.9");
     }
 
     #[actix_web::test]
-    async fn key_empty_realip_falls_back_to_peer_ip() {
+    async fn key_empty_forwarded_entry_falls_back_to_peer_ip() {
         let peer = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 2, 3, 4)), 5555);
         let req = test::TestRequest::get()
             .uri("/x")
@@ -416,7 +446,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn key_no_realip_uses_peer_ip() {
+    async fn key_no_forwarded_header_uses_peer_ip() {
         let peer = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 9)), 1234);
         let req = test::TestRequest::get()
             .uri("/x")
@@ -426,7 +456,7 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn key_no_realip_and_no_peer_uses_unknown_host_and_path() {
+    async fn key_no_forwarded_header_and_no_peer_uses_unknown_host_and_path() {
         let req = test::TestRequest::get().uri("/path123").to_srv_request();
         let k = super::extract_client_ip_key(&req);
         assert!(k.starts_with("unknown:"), "key={k}");
@@ -596,20 +626,14 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn keys_are_exact_strings_no_normalization_means_ports_are_distinct() {
+    async fn forwarded_port_does_not_split_the_key() {
         let app = app(mw(Some(1), None, None, None)).await;
 
         let a = call_get(&app, "/", Some("1.2.3.4"), None).await;
         let b = call_get(&app, "/", Some("1.2.3.4:12345"), None).await;
 
         assert_eq!(a.status(), StatusCode::OK);
-        assert_eq!(b.status(), StatusCode::OK);
-
-        let a2 = call_get(&app, "/", Some("1.2.3.4"), None).await;
-        let b2 = call_get(&app, "/", Some("1.2.3.4:12345"), None).await;
-
-        assert_eq!(a2.status(), StatusCode::TOO_MANY_REQUESTS);
-        assert_eq!(b2.status(), StatusCode::TOO_MANY_REQUESTS);
+        assert_eq!(b.status(), StatusCode::TOO_MANY_REQUESTS);
     }
 
     async fn call_get_with_safe_api_key<S>(

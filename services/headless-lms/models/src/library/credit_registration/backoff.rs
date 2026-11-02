@@ -37,6 +37,9 @@ pub const UNCERTAIN_ADMIN_AFTER: TimeDelta = TimeDelta::days(1);
 /// pending. Within it, a second import of the same completion can slip past Suotar's duplicate check.
 pub const SUOTAR_PENDING_WINDOW: TimeDelta = TimeDelta::hours(24);
 
+pub const MOOCFI_REPORT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
+pub const MOOCFI_REPORT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
+
 /// How long verify may see only the assessment item attainment before a human looks.
 pub const PARTIAL_REGISTRATION_ADMIN_AFTER: TimeDelta = TimeDelta::days(3);
 /// How many times Suotar may lose a submission (`notRegistered`) before a human looks. Each one
@@ -67,6 +70,15 @@ fn doubling(base: TimeDelta, max: TimeDelta, count: i32) -> TimeDelta {
         max.num_seconds(),
         count,
     ))
+}
+
+/// The wait before the next report to mooc.fi after `attempt_count` failed ones.
+pub fn moocfi_report_backoff(attempt_count: i32) -> TimeDelta {
+    doubling(
+        MOOCFI_REPORT_BASE_BACKOFF,
+        MOOCFI_REPORT_MAX_BACKOFF,
+        attempt_count,
+    )
 }
 
 /// The wait before the next submit after `retry_count` failed ones.

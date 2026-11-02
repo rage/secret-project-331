@@ -1,0 +1,304 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM external_completions\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "external_credit_target_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "moocfi_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "moocfi_user_upstream_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_user_upstream_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "completion_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "completion_date"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "completion_language",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "completion_language"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "tier",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "tier"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "eligible_for_ects",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "eligible_for_ects"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "raw_grade",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "raw_grade"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "passed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "passed"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "grade",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "grade"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "revised_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "revised_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "upstream_checked_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "upstream_checked_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "upstream_missing_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "upstream_missing_at"
+          }
+        }
+      },
+      {
+        "ordinal": 18,
+        "name": "registered_upstream_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "registered_upstream_at"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "reported_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "reported_at"
+          }
+        }
+      },
+      {
+        "ordinal": 20,
+        "name": "report_claimed_until",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "report_claimed_until"
+          }
+        }
+      },
+      {
+        "ordinal": 21,
+        "name": "report_attempt_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "report_attempt_count"
+          }
+        }
+      },
+      {
+        "ordinal": 22,
+        "name": "report_next_attempt_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "report_next_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 23,
+        "name": "report_last_error",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "report_last_error"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "9635d4745677405de88ba984ec49b32548e4e4dc6da19f32d9b45704a92f69d4"
+}

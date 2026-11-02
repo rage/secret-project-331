@@ -29,6 +29,8 @@ pub struct RunTickQuery {
     pub course_id: Option<Uuid>,
     /// Resolved here so a scenario's returned owner object doubles as the tick scope.
     pub course_slug: Option<String>,
+    /// Narrows to one mooc.fi target's rows, which no course scope reaches.
+    pub external_credit_target_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     pub user_email: Option<String>,
     /// Comma-separated ledger row ids, for a spec that already knows them.
@@ -85,6 +87,9 @@ impl PhaseTickResult {
                     PhaseSkipReason::CircuitBreakerOpen => "circuitBreakerOpen".to_string(),
                     PhaseSkipReason::AccountLinkingDisabled => "accountLinkingDisabled".to_string(),
                     PhaseSkipReason::SisuDayGap => "sisuDayGap".to_string(),
+                    PhaseSkipReason::MoocfiDelegationDisabled => {
+                        "moocfiDelegationDisabled".to_string()
+                    }
                 },
             },
             PhaseTick::ScopeNotSupported => Self::ScopeNotSupported {
@@ -207,11 +212,12 @@ pub struct RegradeCompletionPayload {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct RegradeCompletionResult {
-    pub course_module_completion_id: Uuid,
+    pub subject_id: Uuid,
     pub grade: Option<i32>,
 }
 
-/// Rewrites the grade of the completion behind one ledger row.
+/// Rewrites the grade of the completion behind one ledger row, a course module completion or a
+/// mooc.fi one.
 ///
 /// A test hook, not a product path: the manual completion flow writes a new completion row, so
 /// nothing else in the product edits a completion's grade, and the grade-improvement statement is
@@ -227,15 +233,32 @@ async fn regrade_completion(
     let mut conn = pool.acquire().await?;
     let registration =
         models::credit_registrations::get_by_id(&mut conn, payload.credit_registration_id).await?;
-    models::course_module_completions::set_grade_for_testing(
-        &mut conn,
+    match (
         registration.course_module_completion_id,
-        payload.grade,
-        payload.passed,
-    )
-    .await?;
+        registration.external_completion_id,
+    ) {
+        (Some(course_module_completion_id), _) => {
+            models::course_module_completions::set_grade_for_testing(
+                &mut conn,
+                course_module_completion_id,
+                payload.grade,
+                payload.passed,
+            )
+            .await?
+        }
+        (None, Some(external_completion_id)) => {
+            models::credit_registrations::testing::set_external_completion_grade_for_testing(
+                &mut conn,
+                external_completion_id,
+                payload.grade,
+                payload.passed,
+            )
+            .await?
+        }
+        (None, None) => {}
+    }
     token.authorized_ok(HttpResponse::Ok().json(RegradeCompletionResult {
-        course_module_completion_id: registration.course_module_completion_id,
+        subject_id: registration.subject_id,
         grade: payload.grade,
     }))
 }
@@ -392,15 +415,17 @@ async fn make_roster_listings_due(
             return token.authorized_ok(HttpResponse::BadRequest().json(unresolved));
         }
     };
-    let Some(course_id) = scope.course_id else {
+    let Some(course_or_target_id) = scope.course_id.or(scope.external_credit_target_id) else {
         return token.authorized_ok(
-            HttpResponse::BadRequest().json("A course is required, or every test's codes move."),
+            HttpResponse::BadRequest()
+                .json("A course or mooc.fi target is required, or every test's codes move."),
         );
     };
     let mut conn = pool.acquire().await?;
     let made_due_count =
         models::credit_registration_roster_schedules::testing::make_listings_due_for_testing(
-            &mut conn, course_id,
+            &mut conn,
+            course_or_target_id,
         )
         .await?;
     registry_health::reset_rate_limits(&scope);
@@ -544,6 +569,7 @@ async fn resolve_scope(
 ) -> anyhow::Result<Result<RegistrationScope, UnresolvedScope>> {
     let mut scope = RegistrationScope {
         course_id: query.course_id,
+        external_credit_target_id: query.external_credit_target_id,
         user_id: query.user_id,
         credit_registration_ids: Vec::new(),
     };

@@ -1,11 +1,12 @@
-//! What one code's roster does to the modules on it: waking linked students' registrations and
-//! claiming linking mails for everybody else.
+//! What one code's roster does to the modules and mooc.fi targets on it: waking linked students'
+//! registrations and claiming linking mails for everybody else.
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations::mark_listing_succeeded;
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::credit_registration_roster_schedules::{
-    AccountLinkingCodeCounters, record_linking_counters,
+    AccountLinkingCodeCounters, RosterUnit, record_linking_counters,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch, listed_addresses, mail_address,
@@ -25,9 +26,10 @@ use uuid::Uuid;
 use super::CodeListing;
 use crate::error::CreditRegistrationResult;
 
-/// Wakes the linked students' registrations on every module of one code's roster and claims a
-/// linking mail for everybody else, once per course on the code: mails and links are per course.
-/// Returns the linking mails claimed, for the caller's roster-fetch summary.
+/// Wakes the linked students' registrations on every module and mooc.fi target of one code's roster
+/// and claims a linking mail for everybody else, once per course or target on the code: mails and
+/// links are per course, and a target has none. Returns the linking mails claimed, for the caller's
+/// roster-fetch summary.
 pub(super) async fn reconcile_roster(
     conn: &mut PgConnection,
     listing: &CodeListing,
@@ -39,16 +41,20 @@ pub(super) async fn reconcile_roster(
     let linked = LinkedAccounts::new(&linked_rows);
     let enrolees = roster_enrolees(people, &linked);
     if !enrolees.is_empty() {
-        for module in &listing.modules {
-            wake_for_roster_listing(conn, module.course_module_id, &enrolees).await?;
+        for unit in &listing.units {
+            wake_for_roster_listing(conn, unit.credit_unit_id, &enrolees).await?;
         }
     }
     let mut mailed_count = 0;
     if let Some(since) = account_linking_since {
-        let course_ids: BTreeSet<Uuid> = listing
-            .modules
+        let sources: BTreeSet<LinkingMailSource> = listing
+            .units
             .iter()
-            .map(|module| module.course_id)
+            .map(RosterUnit::linking_mail_source)
+            .collect();
+        let course_ids: BTreeSet<Uuid> = sources
+            .iter()
+            .filter_map(|source| source.course_id())
             .collect();
         let mut considered = enrolled_since(&distinct, since);
         let unlinked_early = unlinked_enrolled_before(&distinct, &linked, since);
@@ -61,7 +67,7 @@ pub(super) async fn reconcile_roster(
             conn,
             &considered,
             &linked,
-            &course_ids,
+            &sources,
             &late_completer_courses,
         )
         .await?;
@@ -75,13 +81,8 @@ pub(super) async fn reconcile_roster(
         )
         .await?;
     }
-    for module in &listing.modules {
-        mark_listing_succeeded(
-            conn,
-            module.course_module_id,
-            account_linking_since.is_some(),
-        )
-        .await?;
+    for unit in &listing.units {
+        mark_listing_succeeded(conn, unit.credit_unit_id, account_linking_since.is_some()).await?;
     }
     Ok(mailed_count)
 }
@@ -305,35 +306,39 @@ fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<
         .collect()
 }
 
-/// Claims a linking mail for everyone in `people` we hold no link for, on each of `course_ids` or,
+/// Claims a linking mail for everyone in `people` we hold no link for, on each of `sources` or,
 /// for those in `courses_of_late_completers`, only on the courses their completion is on. Counts
-/// each person once by the strongest claim any course got for them.
+/// each person once by the strongest claim any course or target got for them.
 async fn claim_linking_mails(
     conn: &mut PgConnection,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-    course_ids: &BTreeSet<Uuid>,
+    sources: &BTreeSet<LinkingMailSource>,
     courses_of_late_completers: &HashMap<String, BTreeSet<Uuid>>,
 ) -> CreditRegistrationResult<AccountLinkingCodeCounters> {
     let (mut counters, candidates) = linking_candidates(people, linked);
     let mut strongest = vec![LinkingMailClaim::NoAddress; candidates.len()];
-    for &course_id in course_ids {
-        let on_course: Vec<usize> = (0..candidates.len())
+    for &source in sources {
+        let on_source: Vec<usize> = (0..candidates.len())
             .filter(|&index| {
                 courses_of_late_completers
                     .get(candidates[index].person_id.expose_secret())
-                    .is_none_or(|courses| courses.contains(&course_id))
+                    .is_none_or(|courses| {
+                        source
+                            .course_id()
+                            .is_some_and(|course_id| courses.contains(&course_id))
+                    })
             })
             .collect();
-        if on_course.is_empty() {
+        if on_source.is_empty() {
             continue;
         }
-        let discovered: Vec<DiscoveredPerson> = on_course
+        let discovered: Vec<DiscoveredPerson> = on_source
             .iter()
-            .map(|&index| DiscoveredPerson::listed(candidates[index], course_id))
+            .map(|&index| DiscoveredPerson::listed(candidates[index], source))
             .collect();
         let claims = claim_linking_mails_batch(conn, &discovered).await?;
-        for (&index, claim) in on_course.iter().zip(claims) {
+        for (&index, claim) in on_source.iter().zip(claims) {
             strongest[index] = strongest[index].max(claim);
         }
     }

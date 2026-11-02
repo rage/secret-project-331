@@ -117,15 +117,15 @@
     },
     "nullable": [
       true,
+      false,
+      false,
       true,
-      true,
-      true,
-      true,
-      true,
+      false,
+      false,
       null,
-      true,
-      true,
-      true
+      false,
+      false,
+      false
     ]
   },
   "hash": "2d43f2c9bcc939185854afb315e424a030281d970bc8d6035ec4242a774a1211"

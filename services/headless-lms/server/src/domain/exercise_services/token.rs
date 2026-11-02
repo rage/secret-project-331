@@ -204,20 +204,16 @@ fn digest_to_cache_key(digest: &Digest, token_hmac_key: &SecretString) -> String
 
 /// Upper bound on cache TTL, independent of the token's own expiry.
 ///
-/// A cache hit skips every authorization check in `resolve_oauth_user`, so this is the window in
-/// which a change that nothing evicts for goes unnoticed. Every revocation this application performs
-/// evicts: token revocation (`/revoke`), refresh-family revocation on reuse, consent withdrawal
-/// (`grants`), and user deletion — both self-service and the `sync_tmc_users` batch —
-/// all go through code that holds the affected digests.
-///
-/// What remains is a grant narrowed by a new consent, which keeps its tokens and only caps their
-/// scopes, and out-of-band SQL, which cannot be hooked from here:
+/// A cache hit skips every authorization check in `resolve_oauth_user`, so this bounds how long a
+/// change goes unnoticed when nothing evicts for it. Revocation, refresh-family reuse, consent
+/// withdrawal and user deletion all evict; these do not:
+///  - a grant narrowed by a new consent, which keeps its tokens and only caps their scopes;
 ///  - a hard `DELETE FROM users`/`oauth_clients`, whose `ON DELETE CASCADE` into
-///    `oauth_access_tokens` holds no digests and runs no Rust;
-///  - `oauth_clients` changes — `bearer_allowed = false`, a soft delete, a narrowed `scopes` — for
-///    which no Rust mutator exists at all, so there is no call site to evict from.
+///    `oauth_access_tokens` runs no Rust;
+///  - `oauth_clients` changes (`bearer_allowed = false`, soft delete, narrowed `scopes`), which
+///    have no Rust mutator to evict from.
 ///
-/// For those paths this bound is the only guard, which is why it is minutes and not an hour.
+/// For those this bound is the only guard, which is why it is minutes and not an hour.
 const MAX_CACHE_TTL: Duration = Duration::from_secs(15 * 60);
 
 /// `min(MAX_CACHE_TTL, expires_at - now)`, floored at zero — a flat TTL could otherwise

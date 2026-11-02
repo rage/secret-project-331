@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  course_id,\n  citation_key,\n  reference\nFROM material_references\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n            ",
+  "query": "\nSELECT *\nFROM material_references\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n    ",
   "describe": {
     "columns": [
       {
@@ -46,6 +46,39 @@
             "name": "reference"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "material_references",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "material_references",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "material_references",
+            "name": "deleted_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -57,8 +90,11 @@
       false,
       false,
       false,
-      false
+      false,
+      false,
+      false,
+      true
     ]
   },
-  "hash": "0220b3d8fefeb061e7a183ca45ad42c3c55aef6ba03945ab083478626667e5ba"
+  "hash": "e4e9e76751a01cdb324ec70332a011e3eb34e09e488a2c227e8d59267a84516a"
 }

@@ -505,6 +505,26 @@ WHERE course_id = $1
     Ok(chapters)
 }
 
+/// The chapters with the ids that aren't deleted, in no particular order.
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<DatabaseChapter>> {
+    let chapters = sqlx::query_as!(
+        DatabaseChapter,
+        r#"
+SELECT *
+FROM chapters
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+"#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(chapters)
+}
+
 pub async fn exercise_deadline_overrides_by_chapter_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,

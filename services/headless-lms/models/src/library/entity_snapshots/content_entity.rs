@@ -114,28 +114,11 @@ impl ContentEntity for ChapterSnapshot {
         if ids.is_empty() {
             return Ok(HashMap::new());
         }
-        let chapters = sqlx::query_as!(
-            ChapterSnapshot,
-            r#"
-SELECT id,
-  course_id,
-  course_module_id,
-  name,
-  color,
-  chapter_number,
-  front_page_id,
-  opens_at,
-  deadline,
-  chapter_image_path
-FROM chapters
-WHERE id = ANY($1)
-  AND deleted_at IS NULL
-            "#,
-            ids
-        )
-        .fetch_all(conn)
-        .await?;
-        Ok(chapters.into_iter().map(|c| (c.id, c)).collect())
+        let chapters = crate::chapters::get_by_ids(conn, ids).await?;
+        Ok(chapters
+            .into_iter()
+            .map(|chapter| (chapter.id, ChapterSnapshot::from(chapter)))
+            .collect())
     }
 
     async fn lock_rows(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
@@ -266,22 +249,11 @@ impl ContentEntity for GlossaryTermSnapshot {
         if ids.is_empty() {
             return Ok(HashMap::new());
         }
-        let terms = sqlx::query_as!(
-            GlossaryTermSnapshot,
-            r#"
-SELECT id,
-  course_id,
-  term,
-  definition
-FROM glossary
-WHERE id = ANY($1)
-  AND deleted_at IS NULL
-            "#,
-            ids
-        )
-        .fetch_all(conn)
-        .await?;
-        Ok(terms.into_iter().map(|t| (t.id, t)).collect())
+        let terms = crate::glossary::get_by_ids(conn, ids).await?;
+        Ok(terms
+            .into_iter()
+            .map(|term| (term.id, GlossaryTermSnapshot::from(term)))
+            .collect())
     }
 
     async fn lock_rows(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
@@ -323,22 +295,11 @@ impl ContentEntity for ReferenceSnapshot {
         if ids.is_empty() {
             return Ok(HashMap::new());
         }
-        let references = sqlx::query_as!(
-            ReferenceSnapshot,
-            r#"
-SELECT id,
-  course_id,
-  citation_key,
-  reference
-FROM material_references
-WHERE id = ANY($1)
-  AND deleted_at IS NULL
-            "#,
-            ids
-        )
-        .fetch_all(conn)
-        .await?;
-        Ok(references.into_iter().map(|r| (r.id, r)).collect())
+        let references = crate::material_references::get_by_ids(conn, ids).await?;
+        Ok(references
+            .into_iter()
+            .map(|reference| (reference.id, ReferenceSnapshot::from(reference)))
+            .collect())
     }
 
     async fn lock_rows(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {
@@ -380,22 +341,12 @@ impl ContentEntity for CourseDefaultReviewConfigSnapshot {
         if ids.is_empty() {
             return Ok(HashMap::new());
         }
-        let configs = sqlx::query_as!(
-            CourseDefaultReviewConfigSnapshot,
-            r#"
-SELECT id,
-  course_id,
-  review_instructions
-FROM peer_or_self_review_configs
-WHERE id = ANY($1)
-  AND exercise_id IS NULL
-  AND deleted_at IS NULL
-            "#,
-            ids
-        )
-        .fetch_all(conn)
-        .await?;
-        Ok(configs.into_iter().map(|c| (c.id, c)).collect())
+        let configs = crate::peer_or_self_review_configs::get_by_ids(conn, ids).await?;
+        Ok(configs
+            .into_iter()
+            .filter(|config| config.exercise_id.is_none())
+            .map(|config| (config.id, CourseDefaultReviewConfigSnapshot::from(config)))
+            .collect())
     }
 
     async fn lock_rows(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<()> {

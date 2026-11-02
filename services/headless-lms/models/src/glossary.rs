@@ -172,6 +172,23 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+/// The terms with the ids that aren't deleted, in no particular order.
+pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<Term>> {
+    let res = sqlx::query_as!(
+        Term,
+        "
+SELECT *
+FROM glossary
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Writes the snapshot to the term, creating it with the snapshot's id if it does not exist and
 /// bringing it back if it is deleted.
 pub async fn upsert_from_snapshot(

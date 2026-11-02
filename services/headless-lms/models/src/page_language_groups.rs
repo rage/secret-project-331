@@ -156,21 +156,14 @@ pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, Uuid>> {
-    let rows = sqlx::query!(
-        r#"
-SELECT id,
-  page_language_group_id AS "page_language_group_id!"
-FROM pages
-WHERE course_id = $1
-  AND page_language_group_id IS NOT NULL
-  AND deleted_at IS NULL
-        "#,
-        course_id
+    let pages = crate::pages::get_all_by_course_id_and_visibility(
+        conn,
+        course_id,
+        crate::pages::PageVisibility::Any,
     )
-    .fetch_all(conn)
     .await?;
-    Ok(rows
+    Ok(pages
         .into_iter()
-        .map(|row| (row.id, row.page_language_group_id))
+        .filter_map(|page| Some((page.id, page.page_language_group_id?)))
         .collect())
 }

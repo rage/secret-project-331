@@ -146,11 +146,8 @@ struct Refusal {
 /// gets a redirect from its old path.
 ///
 /// Risk is classified again against the live course and student activity of this moment, and the
-/// new reasons are stored. Returns [`PublishOutcome::Rejected`] without publishing if the
-/// changeset is not open or not at the reviewed revision, if any entity's live state changed since
-/// it was staged, if it holds risky entities and no revision was reviewed, if the new
-/// classification found risks the reviewed revision didn't show, if pages would add exercise
-/// services the publisher may not add, or if a save path refuses what was staged.
+/// new reasons are stored. Returns [`PublishOutcome::Rejected`], writing nothing, for any
+/// [`PublishRejection`] reason.
 pub async fn publish(
     conn: &mut PgConnection,
     changeset_id: Uuid,

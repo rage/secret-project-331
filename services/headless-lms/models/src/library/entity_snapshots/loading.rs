@@ -1,36 +1,23 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
-use sqlx::types::Json;
-
 use super::{
     ChapterSnapshot, ContentEntity, ContentEntityType, CourseAudienceSnapshot,
     CourseDefaultReviewConfigSnapshot, CourseSettingsSnapshot, EntityKey, EntitySnapshot,
     GlossaryTermSnapshot, ModuleSnapshot, PageSnapshot, ReferenceSnapshot, with_snapshot_type,
 };
-use crate::{course_modules, prelude::*};
+use crate::{course_modules, pages::PageVisibility, prelude::*};
 
 /// The course's default review config, if it has one.
 pub async fn load_course_default_review_config(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Option<CourseDefaultReviewConfigSnapshot>> {
-    Ok(sqlx::query_as!(
-        CourseDefaultReviewConfigSnapshot,
-        r#"
-SELECT id,
-  course_id,
-  review_instructions
-FROM peer_or_self_review_configs
-WHERE course_id = $1
-  AND exercise_id IS NULL
-  AND deleted_at IS NULL
-        "#,
-        course_id
-    )
-    .fetch_optional(conn)
-    .await?)
+    let config =
+        crate::peer_or_self_review_configs::get_default_for_course_by_course_id(conn, course_id)
+            .await
+            .optional()?;
+    Ok(config.map(CourseDefaultReviewConfigSnapshot::from))
 }
 
 /// The live state of each entity, `None` for one that does not exist or is deleted. Pages that
@@ -86,43 +73,30 @@ pub async fn load_pages(
     if page_ids.is_empty() {
         return Ok(HashMap::new());
     }
-    let pages = sqlx::query!(
-        r#"
-SELECT id,
-  course_id AS "course_id!",
-  chapter_id,
-  url_path,
-  title,
-  hidden,
-  order_number,
-  content AS "content: Json<Vec<GutenbergBlock>>"
-FROM pages
-WHERE id = ANY($1)
-  AND course_id IS NOT NULL
-  AND exam_id IS NULL
-  AND deleted_at IS NULL
-        "#,
-        page_ids
-    )
-    .fetch_all(&mut *conn)
-    .await?;
+    let pages: Vec<_> =
+        crate::pages::get_by_ids_and_visibility(conn, page_ids, PageVisibility::Any)
+            .await?
+            .into_iter()
+            .filter(|page| page.exam_id.is_none())
+            .filter_map(|page| Some((page.course_id?, page)))
+            .collect();
     let mut exercises = crate::pages::exercises_of_pages(
         conn,
-        &pages.iter().map(|page| page.id).collect::<Vec<_>>(),
+        &pages.iter().map(|(_, page)| page.id).collect::<Vec<_>>(),
     )
     .await?;
     let mut snapshots = HashMap::with_capacity(pages.len());
-    for page in pages {
+    for (course_id, page) in pages {
         let page_exercises = exercises.remove(&page.id).unwrap_or_default();
         let mut snapshot = PageSnapshot {
             id: page.id,
-            course_id: page.course_id,
+            course_id,
             chapter_id: page.chapter_id,
             url_path: page.url_path,
             title: page.title,
             hidden: page.hidden,
             order_number: page.order_number,
-            content: Arc::new(page.content.0),
+            content: Arc::new(serde_json::from_value(page.content)?),
             exercises: page_exercises.exercises,
             exercise_slides: page_exercises.exercise_slides,
             exercise_tasks: page_exercises.exercise_tasks,
@@ -226,6 +200,18 @@ impl From<crate::material_references::MaterialReference> for ReferenceSnapshot {
             course_id: reference.course_id,
             citation_key: reference.citation_key,
             reference: reference.reference,
+        }
+    }
+}
+
+impl From<crate::peer_or_self_review_configs::PeerOrSelfReviewConfig>
+    for CourseDefaultReviewConfigSnapshot
+{
+    fn from(config: crate::peer_or_self_review_configs::PeerOrSelfReviewConfig) -> Self {
+        Self {
+            id: config.id,
+            course_id: config.course_id,
+            review_instructions: config.review_instructions,
         }
     }
 }

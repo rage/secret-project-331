@@ -250,6 +250,26 @@ WHERE id = $1
     Ok(res)
 }
 
+/// The configs with the ids that aren't deleted, in no particular order.
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<PeerOrSelfReviewConfig>> {
+    let res = sqlx::query_as!(
+        PeerOrSelfReviewConfig,
+        r#"
+SELECT *
+FROM peer_or_self_review_configs
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Usually you want to use `get_by_exercise_or_course_id` instead of this one.
 pub async fn get_by_exercise_id(
     conn: &mut PgConnection,
@@ -726,7 +746,9 @@ RETURNING id,
     )
     .await?;
 
-    let updated_at = get_updated_at(&mut tx, peer_or_self_review_config.id).await?;
+    let updated_at = get_by_id(&mut tx, peer_or_self_review_config.id)
+        .await?
+        .updated_at;
     tx.commit().await?;
 
     Ok(VersionedCmsPeerOrSelfReviewConfiguration {
@@ -736,16 +758,6 @@ RETURNING id,
         },
         updated_at,
     })
-}
-
-async fn get_updated_at(conn: &mut PgConnection, config_id: Uuid) -> ModelResult<DateTime<Utc>> {
-    let updated_at = sqlx::query_scalar!(
-        "SELECT updated_at FROM peer_or_self_review_configs WHERE id = $1 AND deleted_at IS NULL",
-        config_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(updated_at)
 }
 
 /// The course's default configuration with its questions; `None` if the course has none.
@@ -786,7 +798,9 @@ pub async fn get_course_default_versioned_cms_peer_review(
             ModelErrorType::RecordNotFound,
             "The course has no default peer review config",
         ))?;
-    let updated_at = get_updated_at(&mut tx, configuration.peer_or_self_review_config.id).await?;
+    let updated_at = get_by_id(&mut tx, configuration.peer_or_self_review_config.id)
+        .await?
+        .updated_at;
     tx.commit().await?;
     Ok(VersionedCmsPeerOrSelfReviewConfiguration {
         configuration,

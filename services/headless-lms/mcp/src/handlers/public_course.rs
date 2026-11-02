@@ -12,7 +12,7 @@ use headless_lms_models::{
     courses::{self, Course},
     error::TryToOptional,
     exercise_slides, exercise_tasks, exercises, organizations,
-    pages::{self, PageOutlineEntry, PageVisibility},
+    pages::{self, Page, PageVisibility},
     roles::Role,
 };
 use headless_lms_utils::course_url::{
@@ -192,15 +192,11 @@ fn take_within<T>(
     (taken, false)
 }
 
-fn listed_page(page: &PageOutlineEntry) -> Value {
+fn listed_page(page: &Page) -> Value {
     json!({"title": page.title, "path": page.url_path})
 }
 
-fn outline_chapter(
-    chapter: &DatabaseChapter,
-    pages: &[PageOutlineEntry],
-    sees_unopened: bool,
-) -> Value {
+fn outline_chapter(chapter: &DatabaseChapter, pages: &[Page], sees_unopened: bool) -> Value {
     let has_opened = chapter.has_opened();
     let status = if has_opened {
         ChapterStatus::Open
@@ -215,7 +211,7 @@ fn outline_chapter(
     });
     if has_opened || sees_unopened {
         // The front page leads the chapter, as on the course site.
-        let mut chapter_pages: Vec<&PageOutlineEntry> = pages
+        let mut chapter_pages: Vec<&Page> = pages
             .iter()
             .filter(|page| page.chapter_id == Some(chapter.id))
             .collect();
@@ -231,9 +227,9 @@ async fn outline(
     offset: usize,
 ) -> Result<Value, ToolError> {
     let course_id = reading.course.id;
-    let pages =
-        pages::get_outline_by_course_id_and_visibility(conn, course_id, PageVisibility::Public)
-            .await?;
+    let mut pages =
+        pages::get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Public).await?;
+    pages.sort_by_key(|page| page.order_number);
     let mut chapter_list = chapters::get_course_chapters(conn, course_id).await?;
     chapter_list.sort_by_key(|chapter| chapter.chapter_number);
     let remaining = chapter_list.get(offset..).unwrap_or_default();

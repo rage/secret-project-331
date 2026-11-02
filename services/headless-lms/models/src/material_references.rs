@@ -105,6 +105,26 @@ WHERE course_id = $1
     Ok(res)
 }
 
+/// The references with the ids that aren't deleted, in no particular order.
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<MaterialReference>> {
+    let res = sqlx::query_as!(
+        MaterialReference,
+        "
+SELECT *
+FROM material_references
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+    ",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn update_material_reference_by_id(
     conn: &mut PgConnection,
     material_reference_id: Uuid,

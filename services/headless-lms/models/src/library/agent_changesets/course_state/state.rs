@@ -1,9 +1,6 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::Arc;
 
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
-use sqlx::types::Json;
-
 use super::{ExerciseDeadline, ExerciseRecord, ExerciseReviewConfig, PageRecord};
 use crate::{
     agent_changeset_entities::AgentChangesetEntity,
@@ -643,36 +640,26 @@ pub async fn load_live_course(
             .collect();
     }
     if parts.includes(ContentEntityType::Page) {
-        state.pages = sqlx::query!(
-            r#"
-SELECT id,
-  chapter_id,
-  url_path,
-  title,
-  hidden,
-  order_number,
-  content AS "content: Json<Vec<GutenbergBlock>>"
-FROM pages
-WHERE course_id = $1
-  AND exam_id IS NULL
-  AND deleted_at IS NULL
-            "#,
-            course.id
+        state.pages = crate::pages::get_all_by_course_id_and_visibility(
+            conn,
+            course.id,
+            crate::pages::PageVisibility::Any,
         )
-        .fetch_all(&mut *conn)
         .await?
         .into_iter()
-        .map(|page| PageRecord {
-            id: page.id,
-            chapter_id: page.chapter_id,
-            url_path: page.url_path,
-            title: page.title,
-            hidden: page.hidden,
-            order_number: page.order_number,
-            content: Arc::new(page.content.0),
-            joins_page_language_group_id: None,
+        .map(|page| {
+            Ok(PageRecord {
+                id: page.id,
+                chapter_id: page.chapter_id,
+                url_path: page.url_path,
+                title: page.title,
+                hidden: page.hidden,
+                order_number: page.order_number,
+                content: Arc::new(serde_json::from_value(page.content)?),
+                joins_page_language_group_id: None,
+            })
         })
-        .collect();
+        .collect::<ModelResult<_>>()?;
         state.exercise_deadlines = crate::exercises::get_exercises_by_course_id(conn, course.id)
             .await?
             .into_iter()

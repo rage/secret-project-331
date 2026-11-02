@@ -3,7 +3,7 @@ use std::collections::{HashMap, hash_map};
 use futures::future::{BoxFuture, OptionFuture};
 use headless_lms_utils::document_schema_processor::{
     GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages, filter_lock_chapter_blocks,
-    replace_duplicate_client_ids,
+    replace_duplicate_client_ids, suffix_duplicate_heading_anchors,
 };
 use itertools::Itertools;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
@@ -1811,7 +1811,9 @@ pub async fn update_page(
         }
     }
 
-    let content = replace_duplicate_client_ids(cms_page_update.content.clone());
+    let content = suffix_duplicate_heading_anchors(replace_duplicate_client_ids(
+        cms_page_update.content.clone(),
+    ));
     let normalized_url_path = normalize_url_path_for_storage(&cms_page_update.url_path);
 
     if !page_update.is_exam_page

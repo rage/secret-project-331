@@ -294,7 +294,8 @@ pub async fn get_history(
 SELECT c.id,
   c.created_at,
   c.changeset_id,
-  agent_changeset_current_status(cs.status, cs.expires_at) AS "changeset_status!",
+  cs.status AS "changeset_status: AgentChangesetStatus",
+  cs.expires_at AS changeset_expires_at,
   c.client_name,
   c.tool_name,
   c.summary,
@@ -356,6 +357,7 @@ ORDER BY entity_type,
                 operation: AgentChangesetEntityOperation::between(row.has_before, row.has_after),
             });
     }
+    let now = Utc::now();
     Ok(calls
         .into_iter()
         .map(|call| CallHistoryEntry {
@@ -363,7 +365,7 @@ ORDER BY entity_type,
             id: call.id,
             created_at: call.created_at,
             changeset_id: call.changeset_id,
-            changeset_status: call.changeset_status,
+            changeset_status: call.changeset_status.at(call.changeset_expires_at, now),
             client_name: call.client_name,
             tool_name: call.tool_name,
             summary: call.summary,

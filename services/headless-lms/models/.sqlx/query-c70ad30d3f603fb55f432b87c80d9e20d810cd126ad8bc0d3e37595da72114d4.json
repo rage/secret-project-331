@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cs.*\nFROM agent_changesets cs\n  JOIN agent_changeset_entities e ON e.changeset_id = cs.id\nWHERE cs.user_id = $1\n  AND agent_changeset_is_open(cs.status, cs.expires_at)\n  AND e.entity_type = 'page'\n  AND e.entity_id = $2\n        ",
+  "query": "\nUPDATE agent_changesets\nSET status = 'published',\n  published_at = now()\nWHERE id = $1\n  AND status = 'open'\n  AND expires_at > now()\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -117,7 +117,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -133,5 +132,5 @@
       false
     ]
   },
-  "hash": "695f3b38e224067923fb6b1d2934da917900c397140ea58e89376db294d43b31"
+  "hash": "c70ad30d3f603fb55f432b87c80d9e20d810cd126ad8bc0d3e37595da72114d4"
 }

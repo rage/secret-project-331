@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.created_at,\n  c.changeset_id,\n  agent_changeset_current_status(cs.status, cs.expires_at) AS \"changeset_status!\",\n  c.client_name,\n  c.tool_name,\n  c.summary,\n  c.revert_of_call_id\nFROM agent_changeset_calls c\n  JOIN agent_changesets cs ON cs.id = c.changeset_id\nWHERE cs.user_id = $1\n  AND cs.course_id = $2\n  AND (\n    $3::uuid IS NULL\n    OR EXISTS (\n      SELECT 1\n      FROM agent_changeset_call_entities ce\n      WHERE ce.call_id = c.id\n        AND ce.entity_id = $3\n    )\n  )\nORDER BY c.created_at DESC,\n  c.id\nLIMIT $4\n        ",
+  "query": "\nSELECT c.id,\n  c.created_at,\n  c.changeset_id,\n  cs.status AS \"changeset_status: AgentChangesetStatus\",\n  cs.expires_at AS changeset_expires_at,\n  c.client_name,\n  c.tool_name,\n  c.summary,\n  c.revert_of_call_id\nFROM agent_changeset_calls c\n  JOIN agent_changesets cs ON cs.id = c.changeset_id\nWHERE cs.user_id = $1\n  AND cs.course_id = $2\n  AND (\n    $3::uuid IS NULL\n    OR EXISTS (\n      SELECT 1\n      FROM agent_changeset_call_entities ce\n      WHERE ce.call_id = c.id\n        AND ce.entity_id = $3\n    )\n  )\nORDER BY c.created_at DESC,\n  c.id\nLIMIT $4\n        ",
   "describe": {
     "columns": [
       {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "changeset_status!",
+        "name": "changeset_status: AgentChangesetStatus",
         "type_info": {
           "Custom": {
             "name": "agent_changeset_status",
@@ -52,10 +52,26 @@
             }
           }
         },
-        "origin": "Expression"
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "status"
+          }
+        }
       },
       {
         "ordinal": 4,
+        "name": "changeset_expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
         "name": "client_name",
         "type_info": "Text",
         "origin": {
@@ -66,7 +82,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "tool_name",
         "type_info": "Text",
         "origin": {
@@ -77,7 +93,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "summary",
         "type_info": "Text",
         "origin": {
@@ -88,7 +104,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "revert_of_call_id",
         "type_info": "Uuid",
         "origin": {
@@ -111,12 +127,13 @@
       false,
       false,
       false,
-      null,
+      false,
+      false,
       false,
       false,
       true,
       true
     ]
   },
-  "hash": "27d3118534218720e4725ec63425ab85a6f717fda42b2d708c30c93b08b9f8f9"
+  "hash": "4df920008a9f97e311ca0864bb3447de256e010472dadea00a41abb9e2a12235"
 }

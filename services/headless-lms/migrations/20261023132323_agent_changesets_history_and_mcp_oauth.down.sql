@@ -75,8 +75,6 @@ DROP TABLE entity_history;
 DROP TABLE agent_changeset_call_entities;
 DROP TABLE agent_changeset_calls;
 DROP TABLE agent_changeset_entities;
-DROP FUNCTION agent_changeset_current_status(agent_changeset_status, TIMESTAMP WITH TIME ZONE);
-DROP FUNCTION agent_changeset_is_open(agent_changeset_status, TIMESTAMP WITH TIME ZONE);
 DROP TABLE agent_changesets;
 
 DROP TYPE entity_history_change_reason;

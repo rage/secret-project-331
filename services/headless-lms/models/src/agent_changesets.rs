@@ -30,7 +30,7 @@ pub struct AgentChangeset {
     pub user_id: Uuid,
     pub course_id: Uuid,
     /// The status now: `Expired` for an open changeset past `expires_at`, which the table records
-    /// only at the next write to the course.
+    /// only at the next write to the course; see [`AgentChangesetStatus::at`].
     pub status: AgentChangesetStatus,
     pub expires_at: DateTime<Utc>,
     pub published_at: Option<DateTime<Utc>>,
@@ -38,7 +38,25 @@ pub struct AgentChangeset {
     pub revision: i32,
 }
 
+impl AgentChangesetStatus {
+    /// The status at `now` of a changeset stored with this status: an open one past `expires_at`
+    /// has expired, though the table records that only at the next write to the course.
+    pub fn at(self, expires_at: DateTime<Utc>, now: DateTime<Utc>) -> Self {
+        if self == Self::Open && expires_at <= now {
+            Self::Expired
+        } else {
+            self
+        }
+    }
+}
+
 impl AgentChangeset {
+    /// The changeset as of now, from a row read as stored.
+    fn with_current_status(mut self) -> Self {
+        self.status = self.status.at(self.expires_at, Utc::now());
+        self
+    }
+
     /// Whether the changeset can still take changes.
     pub fn is_open(&self) -> bool {
         self.status == AgentChangesetStatus::Open
@@ -64,7 +82,7 @@ SET status = 'expired'
 WHERE user_id = $1
   AND course_id = $2
   AND status = 'open'
-  AND NOT agent_changeset_is_open(status, expires_at)
+  AND expires_at <= now()
         "#,
         user_id,
         course_id,
@@ -105,7 +123,8 @@ SELECT *
 FROM agent_changesets
 WHERE user_id = $1
   AND course_id = $2
-  AND agent_changeset_is_open(status, expires_at)
+  AND status = 'open'
+  AND expires_at > now()
         "#,
         user_id,
         course_id,
@@ -128,7 +147,8 @@ SELECT cs.*
 FROM agent_changesets cs
   JOIN agent_changeset_entities e ON e.changeset_id = cs.id
 WHERE cs.user_id = $1
-  AND agent_changeset_is_open(cs.status, cs.expires_at)
+  AND cs.status = 'open'
+  AND cs.expires_at > now()
   AND e.entity_type = 'page'
   AND e.entity_id = $2
         "#,
@@ -145,15 +165,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<AgentCh
     let res = sqlx::query_as!(
         AgentChangeset,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  user_id,
-  course_id,
-  agent_changeset_current_status(status, expires_at) AS "status!",
-  expires_at,
-  published_at,
-  revision
+SELECT *
 FROM agent_changesets
 WHERE id = $1
         "#,
@@ -161,7 +173,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.with_current_status())
 }
 
 /// The user's changeset. Errors with `NotFound` if it is someone else's, so that callers don't
@@ -187,15 +199,7 @@ pub async fn get_by_id_for_update(
     let res = sqlx::query_as!(
         AgentChangeset,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  user_id,
-  course_id,
-  agent_changeset_current_status(status, expires_at) AS "status!",
-  expires_at,
-  published_at,
-  revision
+SELECT *
 FROM agent_changesets
 WHERE id = $1
 FOR UPDATE
@@ -204,7 +208,7 @@ FOR UPDATE
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+    Ok(res.with_current_status())
 }
 
 /// The user's changesets in the course, newest first.
@@ -216,15 +220,7 @@ pub async fn get_by_user_and_course(
     let res = sqlx::query_as!(
         AgentChangeset,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  user_id,
-  course_id,
-  agent_changeset_current_status(status, expires_at) AS "status!",
-  expires_at,
-  published_at,
-  revision
+SELECT *
 FROM agent_changesets
 WHERE user_id = $1
   AND course_id = $2
@@ -236,7 +232,10 @@ ORDER BY created_at DESC,
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(res
+        .into_iter()
+        .map(AgentChangeset::with_current_status)
+        .collect())
 }
 
 /// The courses the user has changesets in.
@@ -279,35 +278,23 @@ SELECT id AS "id!",
   revision AS "revision!"
 FROM (
     (
-      SELECT id,
-        created_at,
-        updated_at,
-        user_id,
-        course_id,
-        agent_changeset_current_status(status, expires_at) AS status,
-        expires_at,
-        published_at,
-        revision
+      SELECT *
       FROM agent_changesets
       WHERE user_id = $1
         AND course_id = ANY($2)
-        AND agent_changeset_is_open(status, expires_at)
+        AND status = 'open'
+        AND expires_at > now()
     )
     UNION ALL
     (
-      SELECT id,
-        created_at,
-        updated_at,
-        user_id,
-        course_id,
-        agent_changeset_current_status(status, expires_at) AS status,
-        expires_at,
-        published_at,
-        revision
+      SELECT *
       FROM agent_changesets
       WHERE user_id = $1
         AND course_id = ANY($2)
-        AND NOT agent_changeset_is_open(status, expires_at)
+        AND (
+          status <> 'open'
+          OR expires_at <= now()
+        )
       ORDER BY created_at DESC,
         id
       LIMIT $3
@@ -322,7 +309,10 @@ ORDER BY created_at DESC,
     )
     .fetch_all(conn)
     .await?;
-    Ok(res)
+    Ok(res
+        .into_iter()
+        .map(AgentChangeset::with_current_status)
+        .collect())
 }
 
 /// What the course management view shows of the user's changesets in a course without listing
@@ -356,7 +346,8 @@ SELECT EXISTS (
       JOIN agent_changesets cs ON cs.id = e.changeset_id
     WHERE cs.user_id = $1
       AND cs.course_id = $2
-      AND agent_changeset_is_open(cs.status, cs.expires_at)
+      AND cs.status = 'open'
+      AND cs.expires_at > now()
   ) AS "open_entity_count!"
         "#,
         user_id,
@@ -377,7 +368,8 @@ UPDATE agent_changesets
 SET revision = revision + 1,
   expires_at = now() + make_interval(days => $2)
 WHERE id = $1
-  AND agent_changeset_is_open(status, expires_at)
+  AND status = 'open'
+  AND expires_at > now()
 RETURNING *
         "#,
         id,
@@ -397,7 +389,8 @@ UPDATE agent_changesets
 SET status = 'published',
   published_at = now()
 WHERE id = $1
-  AND agent_changeset_is_open(status, expires_at)
+  AND status = 'open'
+  AND expires_at > now()
 RETURNING *
         "#,
         id,
@@ -415,7 +408,8 @@ pub async fn discard(conn: &mut PgConnection, id: Uuid) -> ModelResult<AgentChan
 UPDATE agent_changesets
 SET status = 'discarded'
 WHERE id = $1
-  AND agent_changeset_is_open(status, expires_at)
+  AND status = 'open'
+  AND expires_at > now()
 RETURNING *
         "#,
         id,

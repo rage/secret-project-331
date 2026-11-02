@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  user_id,\n  course_id,\n  agent_changeset_current_status(status, expires_at) AS \"status!\",\n  expires_at,\n  published_at,\n  revision\nFROM agent_changesets\nWHERE id = $1\n        ",
+  "query": "\nSELECT *\nFROM agent_changesets\nWHERE id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "status!",
+        "name": "status",
         "type_info": {
           "Custom": {
             "name": "agent_changeset_status",
@@ -74,7 +74,12 @@
             }
           }
         },
-        "origin": "Expression"
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "status"
+          }
+        }
       },
       {
         "ordinal": 6,
@@ -121,11 +126,11 @@
       false,
       false,
       false,
-      null,
+      false,
       false,
       true,
       false
     ]
   },
-  "hash": "9211b3a4e417aa563dbd860c2530cdf4475785e3aed1dfbfddfe79c55a125585"
+  "hash": "c6c5077ada38bc7b2d299b51a8ae21133a0ad71f8c8bf773bbfb5919f9f63e0d"
 }

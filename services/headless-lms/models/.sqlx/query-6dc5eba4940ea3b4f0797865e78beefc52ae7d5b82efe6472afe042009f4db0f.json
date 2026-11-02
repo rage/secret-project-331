@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE agent_changesets\nSET status = 'discarded'\nWHERE id = $1\n  AND agent_changeset_is_open(status, expires_at)\nRETURNING *\n        ",
+  "query": "\nUPDATE agent_changesets\nSET revision = revision + 1,\n  expires_at = now() + make_interval(days => $2)\nWHERE id = $1\n  AND status = 'open'\n  AND expires_at > now()\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -117,7 +117,8 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Int4"
       ]
     },
     "nullable": [
@@ -132,5 +133,5 @@
       false
     ]
   },
-  "hash": "3b81059a03fe3784c2c191b44ec9304e0ea3c1c36001b3e1db10dea099ac41ed"
+  "hash": "6dc5eba4940ea3b4f0797865e78beefc52ae7d5b82efe6472afe042009f4db0f"
 }

@@ -41,31 +41,10 @@ COMMENT ON COLUMN agent_changesets.created_at IS 'Timestamp when the record was 
 COMMENT ON COLUMN agent_changesets.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN agent_changesets.user_id IS 'The user whose agent staged the changes. Only this user can publish or discard the changeset.';
 COMMENT ON COLUMN agent_changesets.course_id IS 'The course every entity in the changeset belongs to.';
-COMMENT ON COLUMN agent_changesets.status IS 'open while it takes writes; published, discarded and expired are final. An open changeset past expires_at stays open here until the next write to the course marks it expired; read it through agent_changeset_current_status.';
+COMMENT ON COLUMN agent_changesets.status IS 'open while it takes writes; published, discarded and expired are final. An open changeset past expires_at stays open here until the next write to the course marks it expired, so it counts as open only while expires_at is in the future.';
 COMMENT ON COLUMN agent_changesets.expires_at IS 'When an open changeset expires: 14 days after its last write.';
 COMMENT ON COLUMN agent_changesets.published_at IS 'When the changeset was published. Set exactly when status is published.';
 COMMENT ON COLUMN agent_changesets.revision IS 'Incremented by every change to the staged entities. The review page publishes only the revision the user reviewed.';
-
-CREATE FUNCTION agent_changeset_is_open(
-  status agent_changeset_status,
-  expires_at TIMESTAMP WITH TIME ZONE
-) RETURNS BOOLEAN LANGUAGE SQL STABLE AS $$
-SELECT status = 'open'
-  AND expires_at > now() $$;
-
-COMMENT ON FUNCTION agent_changeset_is_open(agent_changeset_status, TIMESTAMP WITH TIME ZONE) IS 'Whether an agent changeset takes writes and can be published or discarded: open and not past its expires_at. Every query that filters on open changesets uses it.';
-
-CREATE FUNCTION agent_changeset_current_status(
-  status agent_changeset_status,
-  expires_at TIMESTAMP WITH TIME ZONE
-) RETURNS agent_changeset_status LANGUAGE SQL STABLE AS $$
-SELECT CASE
-    WHEN status = 'open'
-    AND NOT agent_changeset_is_open(status, expires_at) THEN 'expired'
-    ELSE status
-  END $$;
-
-COMMENT ON FUNCTION agent_changeset_current_status(agent_changeset_status, TIMESTAMP WITH TIME ZONE) IS 'The status of an agent changeset now: expired for an open one past its expires_at, which the status column only records at the next write to the course.';
 
 CREATE TABLE agent_changeset_entities (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM agent_changesets\nWHERE user_id = $1\n  AND course_id = $2\n  AND agent_changeset_is_open(status, expires_at)\n        ",
+  "query": "\nSELECT *\nFROM agent_changesets\nWHERE id = $1\nFOR UPDATE\n        ",
   "describe": {
     "columns": [
       {
@@ -117,7 +117,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -133,5 +132,5 @@
       false
     ]
   },
-  "hash": "d3846b29e2d59c35b42539632b4f9aa4fa13d88054f54ed24eaa0ae08fcbece7"
+  "hash": "126dd7c0f2e623da611bfb43cc203e2d5ef0c48bd4a36eaa5ae8bbe855c26dac"
 }

@@ -132,6 +132,7 @@ const OAuthGrantsSection: React.FC = () => {
                 >
                   <div
                     className={css`
+                      flex: 1;
                       min-width: 0;
                     `}
                   >
@@ -173,7 +174,7 @@ const OAuthGrantsSection: React.FC = () => {
                       {grant.scopes.join(", ")}
                     </div>
                     <div data-testid={`app-usage-${grant.id}`} className={metaCss}>
-                      <MaskOverThisInSystemTests>
+                      <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
                         {t("oauth-grant-granted-at", { time: dateToString(grant.granted_at) })}
                         {MIDDLE_DOT}
                         {grant.last_used_at

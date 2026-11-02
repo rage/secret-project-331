@@ -79,6 +79,7 @@ use utoipa::OpenApi;
         (path = "/global-stats", api = global_stats::MainFrontendGlobalStatsApiDoc),
         (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc),
         (path = "/moocfi-credit-registrations", api = moocfi_credit_registrations::MainFrontendMoocfiCreditRegistrationsApiDoc),
+        (path = "/moocfi-handoffs", api = moocfi_handoffs::MainFrontendMoocfiHandoffsApiDoc),
         (path = "/oauth", api = oauth::MainFrontendOauthApiDoc),
         (path = "/org", api = org::MainFrontendOrgApiDoc),
         (path = "/organizations", api = organizations::MainFrontendOrganizationsApiDoc),

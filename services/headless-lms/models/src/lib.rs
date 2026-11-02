@@ -94,6 +94,7 @@ pub mod join_code_uses;
 pub mod library;
 pub mod marketing_consents;
 pub mod material_references;
+pub mod moocfi_outbound_handoffs;
 pub mod oauth_access_token;
 pub mod oauth_auth_code;
 pub mod oauth_client;

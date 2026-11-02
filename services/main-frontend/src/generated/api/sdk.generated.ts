@@ -113,6 +113,9 @@ import type {
   ConfirmMyEnrolmentResponses,
   ConfirmMyExternalCompletionEnrolmentData,
   ConfirmMyExternalCompletionEnrolmentResponses,
+  ContinueMoocfiHandoffData,
+  ContinueMoocfiHandoffErrors,
+  ContinueMoocfiHandoffResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateChatbotData,
@@ -150,6 +153,9 @@ import type {
   CreateExerciseServiceResponses,
   CreateExternalCourseData,
   CreateExternalCourseResponses,
+  CreateMyMoocfiHandoffData,
+  CreateMyMoocfiHandoffErrors,
+  CreateMyMoocfiHandoffResponses,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreateOrganizationExamResponses,
@@ -601,6 +607,9 @@ import type {
   GetPageHistoryResponses,
   GetPageInfoData,
   GetPageInfoResponses,
+  GetPendingMoocfiHandoffData,
+  GetPendingMoocfiHandoffErrors,
+  GetPendingMoocfiHandoffResponses,
   GetPendingRolesData,
   GetPendingRolesResponses,
   GetPlaygroundExamplesData,
@@ -816,6 +825,9 @@ import type {
   SetMyCreditJustificationResponses,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponses,
+  SetMyExternalCompletionCreditJustificationData,
+  SetMyExternalCompletionCreditJustificationErrors,
+  SetMyExternalCompletionCreditJustificationResponses,
   SetMyExternalCompletionEnrolmentRouteData,
   SetMyExternalCompletionEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
@@ -928,6 +940,7 @@ import {
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
   zConfirmMyExternalCompletionEnrolmentResponse,
+  zContinueMoocfiHandoffResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
   zCreateCodeGiveawayResponse,
@@ -943,6 +956,7 @@ import {
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
   zCreateExternalCourseResponse,
+  zCreateMyMoocfiHandoffResponse,
   zCreatePageAudioFileResponse,
   zCreatePageResponse,
   zCreatePlaygroundExampleResponse,
@@ -1135,6 +1149,7 @@ import {
   zGetPageHistoryCountResponse,
   zGetPageHistoryResponse,
   zGetPageInfoResponse,
+  zGetPendingMoocfiHandoffResponse,
   zGetPendingRolesResponse,
   zGetPlaygroundExamplesResponse,
   zGetRegradingInfoResponse,
@@ -1223,6 +1238,7 @@ import {
   zSetCourseModuleCertificateGenerationResponse,
   zSetMyCreditJustificationResponse,
   zSetMyEnrolmentRouteResponse,
+  zSetMyExternalCompletionCreditJustificationResponse,
   zSetMyExternalCompletionEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
@@ -6385,6 +6401,39 @@ export const getMyCreditRegistrationForExternalCompletion = <ThrowOnError extend
 
 /**
  *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`
+ * - [`set_my_credit_justification`] for a mooc.fi completion.
+ *
+ * Stored against the mooc.fi completion rather than this row, so the answer survives a tier change
+ * that replaces the row.
+ */
+export const setMyExternalCompletionCreditJustification = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyExternalCompletionCreditJustificationData, ThrowOnError>,
+): RequestResult<
+  SetMyExternalCompletionCreditJustificationResponses,
+  SetMyExternalCompletionCreditJustificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    SetMyExternalCompletionCreditJustificationResponses,
+    SetMyExternalCompletionCreditJustificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetMyExternalCompletionCreditJustificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
  * - [`record_my_enrolment_page_visit`] for a mooc.fi completion.
  */
@@ -6547,6 +6596,39 @@ export const confirmMyExternalCompletionEnrolment = <ThrowOnError extends boolea
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
     ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`
+ * - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
+ *
+ * mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
+ * student and the course from the stored completion, never from this request. 500 when handoffs to
+ * mooc.fi are not configured.
+ */
+export const createMyMoocfiHandoff = <ThrowOnError extends boolean = true>(
+  options: Options<CreateMyMoocfiHandoffData, ThrowOnError>,
+): RequestResult<
+  CreateMyMoocfiHandoffResponses,
+  CreateMyMoocfiHandoffErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    CreateMyMoocfiHandoffResponses,
+    CreateMyMoocfiHandoffErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zCreateMyMoocfiHandoffResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -7837,6 +7919,60 @@ export const getMoocfiCourseLink = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetMoocfiCourseLinkResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out
+ * whoever is signed in and signs in the handoff's account.
+ *
+ * Only from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot
+ * post it. 404 when no handoff is waiting.
+ */
+export const continueMoocfiHandoff = <ThrowOnError extends boolean = true>(
+  options?: Options<ContinueMoocfiHandoffData, ThrowOnError>,
+): RequestResult<
+  ContinueMoocfiHandoffResponses,
+  ContinueMoocfiHandoffErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).post<
+    ContinueMoocfiHandoffResponses,
+    ContinueMoocfiHandoffErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zContinueMoocfiHandoffResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-handoffs/continue",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/moocfi-handoffs/pending` - The handoff waiting for the student's
+ * confirmation on the landing page, or 404 when none is waiting, it has expired, or it was minted for
+ * another IP.
+ */
+export const getPendingMoocfiHandoff = <ThrowOnError extends boolean = true>(
+  options?: Options<GetPendingMoocfiHandoffData, ThrowOnError>,
+): RequestResult<
+  GetPendingMoocfiHandoffResponses,
+  GetPendingMoocfiHandoffErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    GetPendingMoocfiHandoffResponses,
+    GetPendingMoocfiHandoffErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetPendingMoocfiHandoffResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-handoffs/pending",
     ...options,
   })
 

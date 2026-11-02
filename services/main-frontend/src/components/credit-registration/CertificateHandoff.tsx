@@ -7,12 +7,12 @@ import { Button, Link, useDialog } from "@/shared-module/components"
 
 import { certificateHref } from "./certificateHref"
 import { BUTTON_PRIMARY } from "./constants"
-import type { CertificateOffer } from "./creditRegistrationSubject"
+import type { ModuleCertificateOffer } from "./creditRegistrationSubject"
 import { useIsDemoMode } from "./demoMode"
 import { bandCss, headingCss, rowCss } from "./styles"
 
 export interface CertificateHandoffProps {
-  certificate: CertificateOffer
+  certificate: ModuleCertificateOffer
 }
 
 /**

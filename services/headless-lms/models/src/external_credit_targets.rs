@@ -62,6 +62,9 @@ pub struct ExternalCreditTarget {
     pub last_listed_at: Option<DateTime<Utc>>,
     pub last_listing_error: Option<CreditRegistrationErrorCode>,
     pub consecutive_listing_failures: i32,
+    /// What mooc.fi last said; `None` until it has answered.
+    pub moocfi_has_certificate: Option<bool>,
+    pub moocfi_course_checked_at: Option<DateTime<Utc>>,
 }
 
 impl ExternalCreditTarget {
@@ -118,6 +121,8 @@ struct ExternalCreditTargetRow {
     last_listed_at: Option<DateTime<Utc>>,
     last_listing_error: Option<CreditRegistrationErrorCode>,
     consecutive_listing_failures: i32,
+    moocfi_has_certificate: Option<bool>,
+    moocfi_course_checked_at: Option<DateTime<Utc>>,
 }
 
 impl From<ExternalCreditTargetRow> for ExternalCreditTarget {
@@ -153,6 +158,8 @@ impl From<ExternalCreditTargetRow> for ExternalCreditTarget {
             last_listed_at: row.last_listed_at,
             last_listing_error: row.last_listing_error,
             consecutive_listing_failures: row.consecutive_listing_failures,
+            moocfi_has_certificate: row.moocfi_has_certificate,
+            moocfi_course_checked_at: row.moocfi_course_checked_at,
         }
     }
 }
@@ -299,7 +306,9 @@ SELECT id,
   last_listing_attempted_at,
   last_listed_at,
   last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures
+  consecutive_listing_failures,
+  moocfi_has_certificate,
+  moocfi_course_checked_at
 FROM external_credit_targets
 WHERE id = $1
   AND deleted_at IS NULL
@@ -348,7 +357,9 @@ SELECT id,
   last_listing_attempted_at,
   last_listed_at,
   last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures
+  consecutive_listing_failures,
+  moocfi_has_certificate,
+  moocfi_course_checked_at
 FROM external_credit_targets
 WHERE moocfi_course_id = $1
   AND deleted_at IS NULL
@@ -467,6 +478,48 @@ WHERE id = $1
     Ok(())
 }
 
+/// Stores what mooc.fi said about the course on every live target of it.
+pub async fn record_moocfi_course_details(
+    conn: &mut PgConnection,
+    moocfi_course_id: Uuid,
+    has_certificate: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE external_credit_targets
+SET moocfi_has_certificate = $2,
+  moocfi_course_checked_at = now()
+WHERE moocfi_course_id = $1
+  AND deleted_at IS NULL
+        "#,
+        moocfi_course_id,
+        has_certificate,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// The distinct mooc.fi courses of enabled live targets, optionally only one target's.
+pub async fn get_moocfi_course_ids_of_enabled_targets(
+    conn: &mut PgConnection,
+    external_credit_target_id: Option<Uuid>,
+) -> ModelResult<Vec<Uuid>> {
+    let ids = sqlx::query_scalar!(
+        r#"
+SELECT DISTINCT moocfi_course_id
+FROM external_credit_targets
+WHERE enabled_at IS NOT NULL
+  AND deleted_at IS NULL
+  AND ($1::uuid IS NULL OR id = $1)
+        "#,
+        external_credit_target_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(ids)
+}
+
 /// Enabled live targets the last configuration check found broken; never-checked ones are not.
 pub async fn get_ids_failing_config_check(conn: &mut PgConnection) -> ModelResult<Vec<Uuid>> {
     let ids = sqlx::query_scalar!(
@@ -517,7 +570,9 @@ SELECT id,
   last_listing_attempted_at,
   last_listed_at,
   last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures
+  consecutive_listing_failures,
+  moocfi_has_certificate,
+  moocfi_course_checked_at
 FROM external_credit_targets
 WHERE deleted_at IS NULL
 ORDER BY name,

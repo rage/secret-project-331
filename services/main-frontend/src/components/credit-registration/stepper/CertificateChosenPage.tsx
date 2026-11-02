@@ -3,13 +3,14 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button, Link, useDialog } from "@/shared-module/components"
+import { Button, Infobox, Link, useDialog } from "@/shared-module/components"
 import { CheckIcon } from "@/shared-module/components/components/primitives/CheckIcon"
 
 import { certificateHref } from "../certificateHref"
-import { BUTTON_PRIMARY, BUTTON_TERTIARY, CREDIT_REGISTRATION_NS } from "../constants"
+import { BUTTON_PRIMARY, BUTTON_TERTIARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
 import type { CertificateOffer } from "../creditRegistrationSubject"
 import { useIsDemoMode } from "../demoMode"
+import { useGoToCertificate } from "../useGoToCertificate"
 import {
   captionCss,
   fullWidthCss,
@@ -37,6 +38,7 @@ export const CertificateChosenPage: React.FC<CertificateChosenPageProps> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isDemoMode = useIsDemoMode()
   const { alert } = useDialog()
+  const certificateNavigation = useGoToCertificate(certificate)
   return (
     <div className={pageCss}>
       <div className={statusHeadCss}>
@@ -61,6 +63,23 @@ export const CertificateChosenPage: React.FC<CertificateChosenPageProps> = ({
         >
           {t("credit-registration-button-go-to-the-certificate")}
         </Button>
+      ) : certificate?.kind === "mooc_fi" ? (
+        <>
+          <Button
+            variant={BUTTON_PRIMARY}
+            size="large"
+            className={fullWidthCss}
+            isLoading={certificateNavigation.isPending}
+            onClick={() => void certificateNavigation.goToCertificate()}
+          >
+            {t("credit-registration-button-go-to-the-certificate")}
+          </Button>
+          {certificateNavigation.isError ? (
+            <Infobox tone={TONE.DANGER} announce>
+              {t("credit-registration-moocfi-certificate-failed")}
+            </Infobox>
+          ) : null}
+        </>
       ) : certificate ? (
         <Link
           href={certificateHref(certificate)}

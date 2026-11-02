@@ -41,6 +41,8 @@ CREATE TABLE external_credit_targets (
   last_listed_at TIMESTAMP WITH TIME ZONE,
   last_listing_error credit_registration_error_code,
   consecutive_listing_failures INT NOT NULL DEFAULT 0 CHECK (consecutive_listing_failures >= 0),
+  moocfi_has_certificate BOOLEAN,
+  moocfi_course_checked_at TIMESTAMP WITH TIME ZONE,
   CONSTRAINT external_credit_targets_pause_pair CHECK (
     (paused_at IS NULL) = (paused_by_user_id IS NULL)
   ),
@@ -98,7 +100,7 @@ COMMENT ON COLUMN external_credit_targets.updated_at IS 'Timestamp when the reco
 COMMENT ON COLUMN external_credit_targets.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted. Deleting a target withdraws its completions, cancelling their rows not yet submitted.';
 COMMENT ON COLUMN external_credit_targets.moocfi_course_id IS 'The mooc.fi course the completions are stored on, which is the handler course when another course hands its completions to it. Never the slug, which can change.';
 COMMENT ON COLUMN external_credit_targets.moocfi_course_slug IS 'The mooc.fi course slug, for links back to mooc.fi only.';
-COMMENT ON COLUMN external_credit_targets.name IS 'The course name shown to students and admins, with a "mooc.fi: " prefix added by the UI.';
+COMMENT ON COLUMN external_credit_targets.name IS 'The mooc.fi course''s name, without a prefix. Queries that list it beside native courses show it as "mooc.fi: " and the name.';
 COMMENT ON COLUMN external_credit_targets.language_code IS 'Language of the mails about this target, and the attainment language for a completion that has none.';
 COMMENT ON COLUMN external_credit_targets.tiers IS 'The completion tiers this target registers. NULL for an untiered course, which registers every completion; otherwise a completion whose tier is outside the range is not this target''s.';
 COMMENT ON COLUMN external_credit_targets.uh_course_code IS 'The University of Helsinki course code the credits are registered under.';
@@ -119,6 +121,8 @@ COMMENT ON COLUMN external_credit_targets.last_listing_attempted_at IS 'When enr
 COMMENT ON COLUMN external_credit_targets.last_listed_at IS 'When such a listing last succeeded.';
 COMMENT ON COLUMN external_credit_targets.last_listing_error IS 'Why the last listing attempt failed, null once one succeeds. What separates a failed listing from an empty course.';
 COMMENT ON COLUMN external_credit_targets.consecutive_listing_failures IS 'Failed listing attempts since the last success.';
+COMMENT ON COLUMN external_credit_targets.moocfi_has_certificate IS 'Whether mooc.fi said the course has a certificate the last time courses asked, which decides whether students are offered the certificate instead of credits. NULL until mooc.fi has answered; the offer stands while it is unknown.';
+COMMENT ON COLUMN external_credit_targets.moocfi_course_checked_at IS 'When mooc.fi last answered about the course, for refreshing moocfi_has_certificate when it gets old.';
 
 CREATE TABLE external_completions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -593,3 +597,49 @@ ADD VALUE IF NOT EXISTS 'report_back_overdue';
 INSERT INTO credit_registration_phase_state (phase, process_name, expected_interval_secs)
 VALUES ('moocfi-recheck', 'credit-registrar', 300),
   ('moocfi-report', 'credit-registrar', 60);
+
+ALTER TABLE completion_registration_credit_justifications
+ALTER COLUMN course_module_completion_id DROP NOT NULL,
+  ADD COLUMN moocfi_completion_id UUID,
+  ADD CONSTRAINT completion_registration_credit_justifications_one_subject CHECK (
+    num_nonnulls(course_module_completion_id, moocfi_completion_id) = 1
+  );
+DROP INDEX uq_completion_registration_credit_justifications_completion;
+CREATE UNIQUE INDEX uq_completion_registration_credit_justifications_completion ON completion_registration_credit_justifications (course_module_completion_id, deleted_at) NULLS NOT DISTINCT
+WHERE course_module_completion_id IS NOT NULL;
+CREATE UNIQUE INDEX uq_completion_registration_credit_justifications_moocfi ON completion_registration_credit_justifications (user_id, moocfi_completion_id, deleted_at) NULLS NOT DISTINCT
+WHERE moocfi_completion_id IS NOT NULL;
+COMMENT ON COLUMN completion_registration_credit_justifications.course_module_completion_id IS 'The completion the student was registering when they answered. Unique among live rows: the answer is replaced rather than versioned, and a student who completes the module again starts without one. NULL when the answer is about a mooc.fi completion.';
+COMMENT ON COLUMN completion_registration_credit_justifications.moocfi_completion_id IS 'The mooc.fi completion the student answered about, by its mooc.fi id rather than an external_completions row, which a tier change replaces. Unique per user among live rows. NULL when the answer is about a course module completion.';
+
+CREATE TYPE moocfi_handoff_destination AS ENUM ('certificate');
+
+COMMENT ON TYPE moocfi_handoff_destination IS 'Where on mooc.fi a handoff from courses sends the student. mooc.fi turns it into its own path, so no URL ever crosses between the systems.';
+
+CREATE TABLE moocfi_outbound_handoffs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  token_digest BYTEA NOT NULL,
+  external_completion_id UUID NOT NULL REFERENCES external_completions(id),
+  destination moocfi_handoff_destination NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  redeemed_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON moocfi_outbound_handoffs FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE UNIQUE INDEX uq_moocfi_outbound_handoffs_token_digest ON moocfi_outbound_handoffs (token_digest);
+
+COMMENT ON TABLE moocfi_outbound_handoffs IS 'Single-use sign-in handoffs that send a student from courses to mooc.fi, minted when the student asks to go there and redeemed by mooc.fi''s backend server to server. A row rather than a signed token so that redeeming is single use across replicas. Pruned a day after expiry.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.token_digest IS 'SHA-256 of the token handed to the browser. The token itself is never stored.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.external_completion_id IS 'The student''s mooc.fi completion the handoff is for. mooc.fi learns the student and the course from it, never from the request that minted the handoff.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.destination IS 'Where on mooc.fi the student is going.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.expires_at IS 'When the handoff stops being redeemable, a minute after it was minted at most.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.redeemed_at IS 'When mooc.fi redeemed the handoff. Set once: a second redeem is refused.';

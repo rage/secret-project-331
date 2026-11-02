@@ -52,6 +52,7 @@ import {
   confirmCourseSuspectedCheater,
   confirmMyEnrolment,
   confirmMyExternalCompletionEnrolment,
+  continueMoocfiHandoff,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -70,6 +71,7 @@ import {
   createExerciseRepository,
   createExerciseService,
   createExternalCourse,
+  createMyMoocfiHandoff,
   createOrganization,
   createOrganizationExam,
   createPage,
@@ -289,6 +291,7 @@ import {
   getPageHistory,
   getPageHistoryCount,
   getPageInfo,
+  getPendingMoocfiHandoff,
   getPendingRoles,
   getPlaygroundExamples,
   getPlaygroundViewsWebsocket,
@@ -392,6 +395,7 @@ import {
   setExamCourse,
   setMyCreditJustification,
   setMyEnrolmentRoute,
+  setMyExternalCompletionCreditJustification,
   setMyExternalCompletionEnrolmentRoute,
   softDeleteOrganization,
   teacherLockStudentChapter,
@@ -500,6 +504,8 @@ import type {
   ConfirmMyEnrolmentResponse,
   ConfirmMyExternalCompletionEnrolmentData,
   ConfirmMyExternalCompletionEnrolmentResponse,
+  ContinueMoocfiHandoffData,
+  ContinueMoocfiHandoffResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -533,6 +539,8 @@ import type {
   CreateExerciseServiceResponse,
   CreateExternalCourseData,
   CreateExternalCourseResponse,
+  CreateMyMoocfiHandoffData,
+  CreateMyMoocfiHandoffResponse,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreatePageAudioFileData,
@@ -944,6 +952,8 @@ import type {
   GetPageHistoryResponse,
   GetPageInfoData,
   GetPageInfoResponse,
+  GetPendingMoocfiHandoffData,
+  GetPendingMoocfiHandoffResponse,
   GetPendingRolesData,
   GetPendingRolesResponse,
   GetPlaygroundExamplesData,
@@ -1134,6 +1144,8 @@ import type {
   SetMyCreditJustificationResponse,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponse,
+  SetMyExternalCompletionCreditJustificationData,
+  SetMyExternalCompletionCreditJustificationResponse,
   SetMyExternalCompletionEnrolmentRouteData,
   SetMyExternalCompletionEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
@@ -8126,6 +8138,36 @@ export const getMyCreditRegistrationForExternalCompletionOptions = (
 
 /**
  *
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`
+ * - [`set_my_credit_justification`] for a mooc.fi completion.
+ *
+ * Stored against the mooc.fi completion rather than this row, so the answer survives a tier change
+ * that replaces the row.
+ */
+export const setMyExternalCompletionCreditJustificationMutation = (
+  options?: Partial<Options<SetMyExternalCompletionCreditJustificationData>>,
+): UseMutationOptions<
+  SetMyExternalCompletionCreditJustificationResponse,
+  DefaultError,
+  Options<SetMyExternalCompletionCreditJustificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyExternalCompletionCreditJustificationResponse,
+    DefaultError,
+    Options<SetMyExternalCompletionCreditJustificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyExternalCompletionCreditJustification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
  * - [`record_my_enrolment_page_visit`] for a mooc.fi completion.
  */
@@ -8306,6 +8348,37 @@ export const confirmMyExternalCompletionEnrolmentMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await confirmMyExternalCompletionEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`
+ * - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
+ *
+ * mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
+ * student and the course from the stored completion, never from this request. 500 when handoffs to
+ * mooc.fi are not configured.
+ */
+export const createMyMoocfiHandoffMutation = (
+  options?: Partial<Options<CreateMyMoocfiHandoffData>>,
+): UseMutationOptions<
+  CreateMyMoocfiHandoffResponse,
+  DefaultError,
+  Options<CreateMyMoocfiHandoffData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateMyMoocfiHandoffResponse,
+    DefaultError,
+    Options<CreateMyMoocfiHandoffData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createMyMoocfiHandoff({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -10229,6 +10302,62 @@ export const getMoocfiCourseLinkOptions = (options: Options<GetMoocfiCourseLinkD
         throwOnError: true,
       }),
     queryKey: getMoocfiCourseLinkQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out
+ * whoever is signed in and signs in the handoff's account.
+ *
+ * Only from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot
+ * post it. 404 when no handoff is waiting.
+ */
+export const continueMoocfiHandoffMutation = (
+  options?: Partial<Options<ContinueMoocfiHandoffData>>,
+): UseMutationOptions<
+  ContinueMoocfiHandoffResponse,
+  DefaultError,
+  Options<ContinueMoocfiHandoffData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ContinueMoocfiHandoffResponse,
+    DefaultError,
+    Options<ContinueMoocfiHandoffData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await continueMoocfiHandoff({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getPendingMoocfiHandoffQueryKey = (options?: Options<GetPendingMoocfiHandoffData>) =>
+  createQueryKey("getPendingMoocfiHandoff", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/moocfi-handoffs/pending` - The handoff waiting for the student's
+ * confirmation on the landing page, or 404 when none is waiting, it has expired, or it was minted for
+ * another IP.
+ */
+export const getPendingMoocfiHandoffOptions = (options?: Options<GetPendingMoocfiHandoffData>) =>
+  queryOptions<
+    GetPendingMoocfiHandoffResponse,
+    DefaultError,
+    GetPendingMoocfiHandoffResponse,
+    ReturnType<typeof getPendingMoocfiHandoffQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getPendingMoocfiHandoff({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getPendingMoocfiHandoffQueryKey(options),
   })
 
 export const getOauthOpenidConfigurationQueryKey = (

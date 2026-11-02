@@ -10,6 +10,7 @@ use std::collections::HashSet;
 
 use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::{
+    completion_registration_credit_justifications,
     external_completions::{self, ExternalCompletion, UpstreamCompletions},
     external_credit_targets::{self, ExternalCreditTarget},
     library::credit_registration::{PendingPreconditions, StudentFacingCreditRegistrationStatus},
@@ -19,6 +20,10 @@ use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::prelude::*;
+
+/// How old mooc.fi's course details may get before a page load asks again. The daily configuration
+/// check refreshes them too.
+const COURSE_DETAILS_MAX_AGE: chrono::TimeDelta = chrono::TimeDelta::hours(1);
 
 #[derive(OpenApi)]
 #[openapi(paths(get_my_moocfi_credit_registrations, get_moocfi_course_link))]
@@ -55,6 +60,11 @@ pub struct MoocfiCompletionRegistration {
     /// The live ledger row, once the pipeline has created one.
     pub credit_registration_id: Option<Uuid>,
     pub student_facing_status: Option<StudentFacingCreditRegistrationStatus>,
+    /// Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
+    /// answer is unknown: its certificate page copes with a course that has none.
+    pub offers_certificate: bool,
+    /// The student's saved reason for needing the credits rather than the certificate.
+    pub credit_justification: Option<String>,
 }
 
 /// Why a completion is or is not registered through courses.
@@ -157,7 +167,38 @@ pub async fn get_my_moocfi_credit_registrations(
         },
     };
 
+    let course_details = match &moocfi.delegation {
+        Some(delegation) if are_course_details_stale(&targets) => {
+            match MoocfiClient::new(delegation)
+                .get_delegated_course(moocfi_course_id)
+                .await
+            {
+                Ok(course) => course,
+                Err(error) => {
+                    warn!(%error, "Keeping the stored mooc.fi course details: the lookup failed");
+                    None
+                }
+            }
+        }
+        _ => None,
+    };
+
     let mut conn = pool.acquire().await?;
+    if let Some(course) = &course_details {
+        external_credit_targets::record_moocfi_course_details(
+            &mut conn,
+            moocfi_course_id,
+            course.has_certificate,
+        )
+        .await?;
+    }
+    let has_certificate = course_details
+        .map(|course| course.has_certificate)
+        .or_else(|| {
+            targets
+                .iter()
+                .find_map(|target| target.moocfi_has_certificate)
+        });
     if let Lookup::Fetched {
         delegation,
         upstream_id,
@@ -186,6 +227,22 @@ pub async fn get_my_moocfi_credit_registrations(
             moocfi_course_id,
         )
         .await?;
+    let moocfi_completion_ids: Vec<Uuid> =
+        stored.iter().map(|row| row.moocfi_completion_id).collect();
+    let justifications =
+        completion_registration_credit_justifications::get_by_user_and_moocfi_completion_ids(
+            &mut conn,
+            user.id,
+            &moocfi_completion_ids,
+        )
+        .await?;
+    let justification_of = |moocfi_completion_id: Uuid| {
+        justifications
+            .iter()
+            .find(|row| row.moocfi_completion_id == Some(moocfi_completion_id))
+            .map(|row| row.justification.clone())
+    };
+    let offers_certificate = has_certificate != Some(false);
 
     let mut completions = Vec::new();
     let mut listed = HashSet::new();
@@ -217,6 +274,8 @@ pub async fn get_my_moocfi_credit_registrations(
             credit_unit: target.map(MoocfiCreditUnit::from),
             credit_registration_id: registration_state.map(|state| state.credit_registration_id),
             student_facing_status,
+            offers_certificate,
+            credit_justification: justification_of(row.moocfi_completion_id),
         });
     }
     if let Lookup::Fetched {
@@ -245,6 +304,8 @@ pub async fn get_my_moocfi_credit_registrations(
                 credit_unit: target.map(MoocfiCreditUnit::from),
                 credit_registration_id: None,
                 student_facing_status: None,
+                offers_certificate,
+                credit_justification: None,
             });
         }
     }
@@ -316,6 +377,17 @@ pub async fn get_moocfi_course_link(
     let targets =
         external_credit_targets::get_by_moocfi_course_id(&mut conn, *moocfi_course_id).await?;
     token.authorized_ok(web::Json(MoocfiCourseLink::of(&app_conf, &targets)))
+}
+
+/// Whether any target of the course lacks mooc.fi's details or has them older than
+/// [`COURSE_DETAILS_MAX_AGE`].
+fn are_course_details_stale(targets: &[ExternalCreditTarget]) -> bool {
+    let fresh_since = Utc::now() - COURSE_DETAILS_MAX_AGE;
+    targets.iter().any(|target| {
+        target
+            .moocfi_course_checked_at
+            .is_none_or(|checked_at| checked_at < fresh_since)
+    })
 }
 
 /// What reading the student's completions from mooc.fi gave.

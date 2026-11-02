@@ -4,7 +4,7 @@ import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 
-import type { CertificateOffer } from "@/components/credit-registration/creditRegistrationSubject"
+import type { ModuleCertificateOffer } from "@/components/credit-registration/creditRegistrationSubject"
 import { DialogProvider } from "@/shared-module/components"
 
 import RegisterCompletion, { type RegisterCompletionProps } from "../RegisterCompletion"
@@ -19,7 +19,8 @@ const { setMyCreditJustification } = jest.requireMock("@/generated/api/sdk.gener
 
 const CERTIFICATE_CONFIGURATION_ID = "certificate-configuration-1"
 
-const certificateOffer = (creditJustification: string | null = null): CertificateOffer => ({
+const certificateOffer = (creditJustification: string | null = null): ModuleCertificateOffer => ({
+  kind: "course_module",
   courseModuleId: "module-1",
   certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID,
   creditJustification,

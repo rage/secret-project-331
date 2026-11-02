@@ -6,12 +6,15 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getCourseModuleUserCompletionQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import { setMyCreditJustification } from "@/generated/api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Button, Infobox, TextArea } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, TONE } from "./constants"
+import {
+  type CreditRegistrationSubject,
+  creditJustificationQueryKey,
+  setCreditJustification,
+} from "./creditRegistrationSubject"
 import { bandCss, headingCss, rowCss } from "./styles"
 
 const JUSTIFICATION_FIELD = "justification"
@@ -29,7 +32,8 @@ interface JustificationForm {
 }
 
 export interface CreditJustificationFormProps {
-  courseModuleId: string
+  /** The completion the reason is about. */
+  subject: CreditRegistrationSubject
   /** What the student wrote the last time they got this far, if they did. */
   savedJustification: string | null | undefined
   /** The submit label before a reason is saved. Default: "Continue", for a form that opens what follows. */
@@ -45,7 +49,7 @@ export interface CreditJustificationFormProps {
  * the answer itself is advisory and nothing waits on it.
  */
 export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = ({
-  courseModuleId,
+  subject,
   savedJustification,
   saveLabel,
   onSaved,
@@ -60,20 +64,13 @@ export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = (
 
   const save = useToastMutation<void, unknown, string>(
     async (justification) => {
-      await setMyCreditJustification({
-        path: { course_module_id: courseModuleId },
-        body: { justification },
-      })
+      await setCreditJustification(subject, justification)
     },
     { notify: false },
     {
       onSuccess: async () => {
         onSaved()
-        await queryClient.invalidateQueries({
-          queryKey: getCourseModuleUserCompletionQueryKey({
-            path: { course_module_id: courseModuleId },
-          }),
-        })
+        await queryClient.invalidateQueries({ queryKey: creditJustificationQueryKey(subject) })
       },
     },
   )

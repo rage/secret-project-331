@@ -29,6 +29,7 @@ use headless_lms_models::{
     library::credit_registration::student_progress::{
         self, ProgressFacts, StudentRegistrationProgress,
     },
+    moocfi_outbound_handoffs::MoocfiHandoffDestination,
     student_number_verification_tokens::{self, StudentNumberVerificationToken},
     user_details::UserDetail,
     verified_student_numbers::{
@@ -46,6 +47,7 @@ use models::library::credit_registration::account_linking::MAX_LINKING_MAILS_PER
 use models::library::credit_registration::sisu_name::{self, NameReplacement};
 use models::library::credit_registration::student_number_change;
 use secrecy::ExposeSecret;
+use sha2::{Digest, Sha256};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::credit_registration::enrolment_recheck::{
@@ -82,6 +84,8 @@ use headless_lms_utils::services::tmc::TmcClient;
     withdraw_my_external_completion_certificate_choice,
     record_my_external_completion_enrolment_page_visit,
     set_my_credit_justification,
+    set_my_external_completion_credit_justification,
+    create_my_moocfi_handoff,
     unlink_my_student_number,
     preview_student_number_verification_token,
     claim_student_number_verification_token
@@ -1240,11 +1244,7 @@ async fn my_pipeline_subject(
             Ok(SubjectId::CourseModuleCompletion(completion.id))
         }
         SubjectRef::ExternalCompletion(external_completion_id) => {
-            let completion =
-                models::external_completions::get_by_id(conn, external_completion_id).await?;
-            if completion.user_id != user_id {
-                return Err(controller_err!(NotFound, "Not found.".to_string()));
-            }
+            let completion = my_external_completion(conn, user_id, external_completion_id).await?;
             Ok(SubjectId::ExternalCompletion(completion.id))
         }
     }
@@ -1936,7 +1936,6 @@ pub async fn withdraw_my_external_completion_certificate_choice(
 /// What the caller wrote about needing the credits rather than a certificate.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MyCreditJustification {
-    pub course_module_completion_id: Uuid,
     pub justification: String,
     pub updated_at: DateTime<Utc>,
 }
@@ -1979,6 +1978,72 @@ pub async fn set_my_credit_justification(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
+    let justification = validated_justification(&payload)?;
+    let completion =
+        my_registration_completion_for_module(&mut conn, user.id, *course_module_id).await?;
+    let stored = completion_registration_credit_justifications::upsert(
+        &mut conn,
+        completion.id,
+        user.id,
+        justification,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(MyCreditJustification {
+        justification: stored.justification,
+        updated_at: stored.updated_at,
+    }))
+}
+
+/**
+PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`
+- [`set_my_credit_justification`] for a mooc.fi completion.
+
+Stored against the mooc.fi completion rather than this row, so the answer survives a tier change
+that replaces the row.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/my/by-external-completion/{external_completion_id}/credit-justification",
+    operation_id = "setMyExternalCompletionCreditJustification",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    request_body = SetCreditJustificationPayload,
+    responses(
+        (status = 200, description = "The stored answer", body = MyCreditJustification),
+        (status = 404, description = "No such mooc.fi completion of the caller's")
+    )
+)]
+pub async fn set_my_external_completion_credit_justification(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_completion_id: web::Path<Uuid>,
+    payload: web::Json<SetCreditJustificationPayload>,
+) -> ControllerResult<web::Json<MyCreditJustification>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let justification = validated_justification(&payload)?;
+    let completion = my_external_completion(&mut conn, user.id, *external_completion_id).await?;
+    let stored = completion_registration_credit_justifications::upsert_for_moocfi_completion(
+        &mut conn,
+        user.id,
+        completion.moocfi_completion_id,
+        justification,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(MyCreditJustification {
+        justification: stored.justification,
+        updated_at: stored.updated_at,
+    }))
+}
+
+/// The trimmed answer, or a 400 for an empty or overlong one.
+fn validated_justification(
+    payload: &SetCreditJustificationPayload,
+) -> Result<&str, ControllerError> {
     let justification = payload.justification.trim();
     if justification.is_empty() {
         return Err(controller_err!(
@@ -1992,21 +2057,114 @@ pub async fn set_my_credit_justification(
             format!("Keep your answer under {CREDIT_JUSTIFICATION_MAX_LENGTH} characters.")
         ));
     }
-    let completion =
-        my_registration_completion_for_module(&mut conn, user.id, *course_module_id).await?;
-    let stored = completion_registration_credit_justifications::upsert(
+    Ok(justification)
+}
+
+/// Where the caller asks to be sent on mooc.fi.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreateMoocfiHandoffPayload {
+    pub destination: MoocfiHandoffDestination,
+    /// The language the caller is using courses in; `en` opens mooc.fi in English, anything else
+    /// in Finnish, mooc.fi's default.
+    pub ui_language: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MoocfiHandoff {
+    /// Open it with a full navigation: the token is in the fragment, which mooc.fi's page reads.
+    pub redirect_url: String,
+}
+
+/// mooc.fi's backend redeems the token within this, so it only has to cover a redirect.
+const MOOCFI_HANDOFF_LIFETIME: chrono::TimeDelta = chrono::TimeDelta::seconds(60);
+
+/**
+POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`
+- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
+
+mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
+student and the course from the stored completion, never from this request. 500 when handoffs to
+mooc.fi are not configured.
+*/
+#[instrument(skip(pool, app_conf, payload))]
+#[utoipa::path(
+    post,
+    path = "/my/by-external-completion/{external_completion_id}/moocfi-handoff",
+    operation_id = "createMyMoocfiHandoff",
+    tag = "credit-registrations",
+    params(("external_completion_id" = Uuid, Path, description = "External completion id")),
+    request_body = CreateMoocfiHandoffPayload,
+    responses(
+        (status = 200, description = "Where to send the browser", body = MoocfiHandoff),
+        (status = 404, description = "No such mooc.fi completion of the caller's")
+    )
+)]
+pub async fn create_my_moocfi_handoff(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    external_completion_id: web::Path<Uuid>,
+    payload: web::Json<CreateMoocfiHandoffPayload>,
+) -> ControllerResult<web::Json<MoocfiHandoff>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let moocfi = &app_conf.moocfi_configuration;
+    if moocfi.handoff_secret.is_none() {
+        return Err(controller_err!(
+            InternalServerError,
+            "Handoffs to mooc.fi are not configured.".to_string()
+        ));
+    }
+    let completion = my_external_completion(&mut conn, user.id, *external_completion_id).await?;
+    let handoff_token = models::library::oauth::tokens::generate_access_token();
+    models::moocfi_outbound_handoffs::insert(
         &mut conn,
+        &Sha256::digest(handoff_token.as_bytes()),
         completion.id,
-        user.id,
-        justification,
+        payload.destination,
+        MOOCFI_HANDOFF_LIFETIME,
     )
     .await?;
 
-    token.authorized_ok(web::Json(MyCreditJustification {
-        course_module_completion_id: stored.course_module_completion_id,
-        justification: stored.justification,
-        updated_at: stored.updated_at,
+    let locale_prefix = if payload
+        .ui_language
+        .as_deref()
+        .is_some_and(|language| language.starts_with("en"))
+    {
+        "en/"
+    } else {
+        ""
+    };
+    let mut redirect_url = moocfi
+        .frontend_url
+        .join(&format!("{locale_prefix}credit-registration-handoff/"))
+        .map_err(|error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Invalid MOOCFI_FRONTEND_URL".to_string(),
+                Some(error.into()),
+            )
+        })?;
+    redirect_url.set_fragment(Some(&format!("token={handoff_token}")));
+    info!(outcome = "minted", "Minted a handoff to mooc.fi");
+
+    token.authorized_ok(web::Json(MoocfiHandoff {
+        redirect_url: redirect_url.to_string(),
     }))
+}
+
+/// The caller's own mooc.fi completion; someone else's is a not-found.
+async fn my_external_completion(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    external_completion_id: Uuid,
+) -> Result<models::external_completions::ExternalCompletion, ControllerError> {
+    let completion = models::external_completions::get_by_id(conn, external_completion_id).await?;
+    if completion.user_id != user_id {
+        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
+    Ok(completion)
 }
 
 /**
@@ -2199,6 +2357,24 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .keyed_by(RateLimitKey::User),
             )
             .route(web::post().to(record_my_external_completion_enrolment_page_visit)),
+        )
+        .service(
+            web::resource(
+                "/my/by-external-completion/{external_completion_id}/credit-justification",
+            )
+            .route(web::put().to(set_my_external_completion_credit_justification)),
+        )
+        .service(
+            web::resource("/my/by-external-completion/{external_completion_id}/moocfi-handoff")
+                .wrap(
+                    RateLimit::new(RateLimitConfig {
+                        per_minute: Some(10),
+                        per_hour: Some(60),
+                        ..Default::default()
+                    })
+                    .keyed_by(RateLimitKey::User),
+                )
+                .route(web::post().to(create_my_moocfi_handoff)),
         )
         .route(
             "/my/enrolment-banners/by-course/{course_id}",

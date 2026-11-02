@@ -6,12 +6,14 @@ Mounted at `/api/v0/mock-moocfi` only when `TEST_MODE` and `USE_MOCK_MOOCFI_ENDP
 State is in memory, shared by the server's workers and lost on restart, so a test seeds what it
 reads. Serves:
 
-- `GET api/delegated-completions/{course_id}/users/{upstream_id}` and `POST api/register-completions`,
-  as mooc.fi does, behind the mock organization secret;
+- `GET api/delegated-completions/{course_id}/users/{upstream_id}`, `GET api/delegated-courses/{course_id}`
+  and `POST api/register-completions`, as mooc.fi does, behind the mock organization secret;
 - `register-completion/{slug}`, a stand-in for mooc.fi's registration page whose button mints a
   handoff through `api/credit-registration-handoff/{slug}` as mooc.fi's backend does;
-- `control/...` to seed completions, read the recorded report-back calls, simulate an outage and
-  forget one student.
+- `[en/]credit-registration-handoff/`, a stand-in for mooc.fi's landing for handoffs from courses,
+  which redeems the token through `api/courses-handoff/redeem` as mooc.fi's backend does;
+- `control/...` to seed completions, set whether a course has a certificate, read the recorded
+  report-back calls, simulate an outage and forget one student.
 */
 
 use std::collections::HashSet;
@@ -21,7 +23,8 @@ use headless_lms_base::config::{
     MOCK_MOOCFI_HANDOFF_SECRET, MOCK_MOOCFI_ORGANIZATION_SECRET, MOCK_MOOCFI_ORGANIZATION_SLUG,
 };
 use headless_lms_utils::services::moocfi::{
-    DelegatedCompletion, DelegatedCompletionRegistration, RegisterCompletionsRequest,
+    DelegatedCompletion, DelegatedCompletionRegistration, DelegatedCourse,
+    RegisterCompletionsRequest,
 };
 use once_cell::sync::Lazy;
 use secrecy::ExposeSecret;
@@ -40,6 +43,8 @@ struct MockMoocfiState {
     /// Students whose lookups fail while every other student's work, so a spec can simulate an
     /// outage without breaking the specs running beside it.
     unavailable_upstream_ids: HashSet<i32>,
+    /// Courses answer `has_certificate: true` unless listed here.
+    courses_without_certificate: HashSet<Uuid>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -179,6 +184,75 @@ async fn register_completions(
     };
     state.register_calls.push(call);
     token.authorized_ok(HttpResponse::Ok().json(serde_json::json!({ "message": "success" })))
+}
+
+/// mooc.fi's `GET /api/delegated-courses/:course_id`, answered from our own targets of the course.
+async fn get_delegated_course(
+    request: HttpRequest,
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<HttpResponse> {
+    assert_enabled(&app_conf);
+    let token = skip_authorize();
+    if !is_organization(&request) {
+        return token.authorized_ok(HttpResponse::Forbidden().finish());
+    }
+    let has_certificate = {
+        let state = state();
+        if state.is_unavailable {
+            return token.authorized_ok(HttpResponse::ServiceUnavailable().finish());
+        }
+        !state.courses_without_certificate.contains(&course_id)
+    };
+    let mut conn = pool.acquire().await?;
+    let targets =
+        models::external_credit_targets::get_by_moocfi_course_id(&mut conn, *course_id).await?;
+    let Some(target) = targets.first() else {
+        return token.authorized_ok(HttpResponse::NotFound().finish());
+    };
+    token.authorized_ok(HttpResponse::Ok().json(DelegatedCourse {
+        id: *course_id,
+        slug: target.moocfi_course_slug.clone(),
+        name: target.name.clone(),
+        has_certificate,
+        link: None,
+        credit_registration_delegated_at: Some(target.delegated_at),
+    }))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MockCourseSettings {
+    has_certificate: bool,
+}
+
+/// Sets what `api/delegated-courses/{course_id}` says about the course's certificate, and stores it
+/// on our targets as the daily configuration check would, so a spec need not wait for the cached
+/// details to age.
+async fn set_course_settings(
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    course_id: web::Path<Uuid>,
+    payload: web::Json<MockCourseSettings>,
+) -> ControllerResult<HttpResponse> {
+    assert_enabled(&app_conf);
+    let token = skip_authorize();
+    {
+        let mut state = state();
+        if payload.has_certificate {
+            state.courses_without_certificate.remove(&course_id);
+        } else {
+            state.courses_without_certificate.insert(*course_id);
+        }
+    }
+    let mut conn = pool.acquire().await?;
+    models::external_credit_targets::record_moocfi_course_details(
+        &mut conn,
+        *course_id,
+        payload.has_certificate,
+    )
+    .await?;
+    token.authorized_ok(HttpResponse::NoContent().finish())
 }
 
 /// Upserts completions by id.
@@ -428,6 +502,126 @@ async fn create_handoff(
     )
 }
 
+/// mooc.fi's landing for handoffs from courses, reduced to redeeming the token and naming the result.
+async fn handoff_landing_page(
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<HttpResponse> {
+    assert_enabled(&app_conf);
+    let token = skip_authorize();
+    let html = r#"<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Mock mooc.fi handoff</title></head>
+<body>
+<h1 id="heading">Opening mooc.fi…</h1>
+<p id="details"></p>
+<p><a id="back" hidden>Back to courses.mooc.fi</a></p>
+<script>
+const token = new URLSearchParams(window.location.hash.slice(1)).get("token") ?? "";
+history.replaceState(null, "", window.location.pathname + window.location.search);
+const heading = document.getElementById("heading");
+const details = document.getElementById("details");
+fetch("/api/v0/mock-moocfi/api/courses-handoff/redeem", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ token }),
+}).then(async (response) => {
+  if (response.status === 410) {
+    heading.textContent = "This link has expired or has been used";
+    return;
+  }
+  if (!response.ok) {
+    heading.textContent = "This link does not work";
+    return;
+  }
+  const result = await response.json();
+  heading.textContent = "Mock mooc.fi certificate";
+  details.textContent =
+    "Signed in as TMC user " + result.upstream_id + ", going to " + result.destination_path;
+  const back = document.getElementById("back");
+  back.href = "/completion-registration/mooc-fi/" + result.moocfi_course_id;
+  back.hidden = false;
+});
+</script>
+</body>
+</html>"#;
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .content_type("text/html; charset=utf-8")
+            .body(html),
+    )
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CoursesHandoffRedeemRequest {
+    token: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct RedeemedHandoff {
+    upstream_id: i32,
+    moocfi_course_id: Uuid,
+    destination: String,
+}
+
+/// mooc.fi's `POST /api/courses-handoff/redeem`: redeems the token with courses and resolves the
+/// destination to a mooc.fi path. Signs no one in; the page only names whom mooc.fi would.
+async fn redeem_courses_handoff(
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    payload: web::Json<CoursesHandoffRedeemRequest>,
+) -> ControllerResult<HttpResponse> {
+    assert_enabled(&app_conf);
+    let token = skip_authorize();
+    let redeem_url = url::Url::parse(&app_conf.base_url)
+        .and_then(|base_url| base_url.join("/api/v0/moocfi/outbound-handoffs/redeem"))
+        .map_err(|error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "Invalid BASE_URL".to_string(),
+                Some(error.into()),
+            )
+        })?;
+    let response = REQWEST_CLIENT
+        .post(redeem_url)
+        .bearer_auth(MOCK_MOOCFI_HANDOFF_SECRET)
+        .json(&payload.into_inner())
+        .send()
+        .await
+        .map_err(|error| {
+            ControllerError::new(
+                ControllerErrorType::InternalServerError,
+                "The redeem could not be reached".to_string(),
+                Some(error.into()),
+            )
+        })?;
+    if !response.status().is_success() {
+        let status = actix_web::http::StatusCode::from_u16(response.status().as_u16())
+            .unwrap_or(actix_web::http::StatusCode::BAD_GATEWAY);
+        return token.authorized_ok(HttpResponse::build(status).finish());
+    }
+    let redeemed: RedeemedHandoff = response.json().await.map_err(|error| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "The redeem answered something unexpected".to_string(),
+            Some(error.into()),
+        )
+    })?;
+    let mut conn = pool.acquire().await?;
+    let slug = models::external_credit_targets::get_by_moocfi_course_id(
+        &mut conn,
+        redeemed.moocfi_course_id,
+    )
+    .await?
+    .first()
+    .map(|target| target.moocfi_course_slug.clone())
+    .unwrap_or_default();
+    token.authorized_ok(HttpResponse::Ok().json(serde_json::json!({
+        "upstream_id": redeemed.upstream_id,
+        "moocfi_course_id": redeemed.moocfi_course_id,
+        "destination_path": format!("/register-completion/{slug}/{}", redeemed.destination),
+    })))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/api/delegated-completions/{course_id}/users/{upstream_id}",
@@ -442,8 +636,28 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(create_handoff),
     )
     .route(
+        "/api/delegated-courses/{course_id}",
+        web::get().to(get_delegated_course),
+    )
+    .route(
+        "/api/courses-handoff/redeem",
+        web::post().to(redeem_courses_handoff),
+    )
+    .route(
         "/register-completion/{slug}",
         web::get().to(registration_page),
+    )
+    .route(
+        "/credit-registration-handoff/",
+        web::get().to(handoff_landing_page),
+    )
+    .route(
+        "/en/credit-registration-handoff/",
+        web::get().to(handoff_landing_page),
+    )
+    .route(
+        "/control/courses/{course_id}",
+        web::put().to(set_course_settings),
     )
     .route("/control/completions", web::post().to(seed_completions))
     .route(

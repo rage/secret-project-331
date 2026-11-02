@@ -58,6 +58,19 @@ pub struct DelegatedCompletionRegistration {
     pub created_at: DateTime<Utc>,
 }
 
+/// A handler course as mooc.fi's delegated-courses lookup returns it.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DelegatedCourse {
+    pub id: Uuid,
+    /// The handler course's canonical slug.
+    pub slug: String,
+    pub name: String,
+    /// Course level only: mooc.fi's certificate page decides per student.
+    pub has_certificate: bool,
+    pub link: Option<String>,
+    pub credit_registration_delegated_at: Option<DateTime<Utc>>,
+}
+
 /// The body of mooc.fi's `POST /api/register-completions`.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterCompletionsRequest {
@@ -134,6 +147,27 @@ impl MoocfiClient {
             .json::<Vec<DelegatedCompletion>>()
             .await
             .map_err(MoocfiError::InvalidResponse)
+    }
+
+    /// The handler course `moocfi_course_id`, or `None` when mooc.fi has no delegated handler course
+    /// by that id.
+    #[instrument(skip(self))]
+    pub async fn get_delegated_course(
+        &self,
+        moocfi_course_id: Uuid,
+    ) -> Result<Option<DelegatedCourse>, MoocfiError> {
+        let url = self
+            .api_base_url
+            .join(&format!("api/delegated-courses/{moocfi_course_id}"))?;
+        match self.send("course lookup", REQWEST_CLIENT.get(url)).await {
+            Ok(response) => response
+                .json::<DelegatedCourse>()
+                .await
+                .map(Some)
+                .map_err(MoocfiError::InvalidResponse),
+            Err(MoocfiError::Status { status: 404, .. }) => Ok(None),
+            Err(error) => Err(error),
+        }
     }
 
     /// Reports our registrations to mooc.fi. mooc.fi records one registration per completion and

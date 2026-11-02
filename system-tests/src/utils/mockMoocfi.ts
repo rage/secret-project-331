@@ -17,6 +17,7 @@
  * | moocfi-pipeline         | moocfi-student-2   | delegated                |
  * | moocfi-student-page     | moocfi-student-3   | delegated, tiered, paused |
  * | moocfi-cutoff-split     | moocfi-student-4   | delegated                |
+ * | moocfi-certificate      | moocfi-student-5   | delegated                |
  * | moocfi-admin            | none               | paused (read only), its own |
  */
 
@@ -88,6 +89,7 @@ export const MOOCFI_STUDENT_1 = moocfiStudent(1)
 export const MOOCFI_STUDENT_2 = moocfiStudent(2)
 export const MOOCFI_STUDENT_3 = moocfiStudent(3)
 export const MOOCFI_STUDENT_4 = moocfiStudent(4)
+export const MOOCFI_STUDENT_5 = moocfiStudent(5)
 
 /** The person `MOOCFI_LINKING_TOKEN` links; enrolled on `CRS-MOOCFI-101` in the mock Suotar. */
 export const MOOCFI_PIPELINE_STUDENT_NUMBER = "090003017"
@@ -153,6 +155,20 @@ export const forgetMockMoocfiStudent = async (
   await expectOk(
     await request.delete(`${CONTROL_URL}/users/${student.upstreamId}`),
     "Forgetting a mock mooc.fi student",
+  )
+}
+
+/** Sets whether mooc.fi says the course has a certificate; every course has one until set. */
+export const setMockMoocfiCourseHasCertificate = async (
+  request: APIRequestContext,
+  course: MoocfiCourse,
+  hasCertificate: boolean,
+): Promise<void> => {
+  await expectOk(
+    await request.put(`${CONTROL_URL}/courses/${course.id}`, {
+      data: { has_certificate: hasCertificate },
+    }),
+    "Setting whether a mock mooc.fi course has a certificate",
   )
 }
 
@@ -236,6 +252,8 @@ export interface MyMoocfiCreditRegistrations {
     status: MoocfiCompletionStatus
     external_completion_id: string | null
     credit_registration_id: string | null
+    offers_certificate: boolean
+    credit_justification: string | null
   }[]
 }
 

@@ -9430,6 +9430,50 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification": {
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`\n- [`set_my_credit_justification`] for a mooc.fi completion.\n\nStored against the mooc.fi completion rather than this row, so the answer survives a tier change\nthat replaces the row.",
+        "operationId": "setMyExternalCompletionCreditJustification",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCreditJustificationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCreditJustification"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such mooc.fi completion of the caller's"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit": {
       "post": {
         "tags": ["credit-registrations"],
@@ -9643,6 +9687,50 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request. 500 when handoffs to\nmooc.fi are not configured.",
+        "operationId": "createMyMoocfiHandoff",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMoocfiHandoffPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Where to send the browser",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoocfiHandoff"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such mooc.fi completion of the caller's"
           }
         }
       }
@@ -11874,6 +11962,50 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/moocfi-handoffs/continue": {
+      "post": {
+        "tags": ["moocfi-handoffs"],
+        "summary": "\nPOST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out\nwhoever is signed in and signs in the handoff's account.\n\nOnly from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot\npost it. 404 when no handoff is waiting.",
+        "operationId": "continueMoocfiHandoff",
+        "responses": {
+          "200": {
+            "description": "Signed in; where to go next",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContinuedMoocfiHandoff"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No handoff is waiting"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/moocfi-handoffs/pending": {
+      "get": {
+        "tags": ["moocfi-handoffs"],
+        "summary": "\nGET `/api/v0/main-frontend/moocfi-handoffs/pending` - The handoff waiting for the student's\nconfirmation on the landing page, or 404 when none is waiting, it has expired, or it was minted for\nanother IP.",
+        "operationId": "getPendingMoocfiHandoff",
+        "responses": {
+          "200": {
+            "description": "The waiting handoff",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingMoocfiHandoff"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No handoff is waiting"
           }
         }
       }
@@ -19395,6 +19527,16 @@
           }
         }
       },
+      "ContinuedMoocfiHandoff": {
+        "type": "object",
+        "required": ["redirect_path"],
+        "properties": {
+          "redirect_path": {
+            "type": "string",
+            "description": "The registration page; open it with a full navigation so the new session takes over."
+          }
+        }
+      },
       "CopyCourseMode": {
         "oneOf": [
           {
@@ -21585,6 +21727,20 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "CreateMoocfiHandoffPayload": {
+        "type": "object",
+        "description": "Where the caller asks to be sent on mooc.fi.",
+        "required": ["destination"],
+        "properties": {
+          "destination": {
+            "$ref": "#/components/schemas/MoocfiHandoffDestination"
+          },
+          "ui_language": {
+            "type": ["string", "null"],
+            "description": "The language the caller is using courses in; `en` opens mooc.fi in English, anything else\nin Finnish, mooc.fi's default."
           }
         }
       },
@@ -25436,6 +25592,10 @@
               }
             ]
           },
+          "moocfi_course_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "moocfi_course_id": {
             "type": "string",
             "format": "uuid",
@@ -25443,6 +25603,10 @@
           },
           "moocfi_course_slug": {
             "type": "string"
+          },
+          "moocfi_has_certificate": {
+            "type": ["boolean", "null"],
+            "description": "What mooc.fi last said; `None` until it has answered."
           },
           "name": {
             "type": "string"
@@ -26278,11 +26442,15 @@
       "MoocfiCompletionRegistration": {
         "type": "object",
         "description": "One mooc.fi completion and what is happening to its credits.",
-        "required": ["moocfi_completion_id", "completion_date", "status"],
+        "required": ["moocfi_completion_id", "completion_date", "status", "offers_certificate"],
         "properties": {
           "completion_date": {
             "type": "string",
             "format": "date-time"
+          },
+          "credit_justification": {
+            "type": ["string", "null"],
+            "description": "The student's saved reason for needing the credits rather than the certificate."
           },
           "credit_registration_id": {
             "type": ["string", "null"],
@@ -26308,6 +26476,10 @@
           "moocfi_completion_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "offers_certificate": {
+            "type": "boolean",
+            "description": "Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's\nanswer is unknown: its certificate page copes with a course that has none."
           },
           "status": {
             "$ref": "#/components/schemas/MoocfiCompletionStatus"
@@ -26413,6 +26585,21 @@
           }
         }
       },
+      "MoocfiHandoff": {
+        "type": "object",
+        "required": ["redirect_url"],
+        "properties": {
+          "redirect_url": {
+            "type": "string",
+            "description": "Open it with a full navigation: the token is in the fragment, which mooc.fi's page reads."
+          }
+        }
+      },
+      "MoocfiHandoffDestination": {
+        "type": "string",
+        "description": "Where on mooc.fi a handoff sends the student; mooc.fi maps it to its own path.",
+        "enum": ["certificate"]
+      },
       "MyCourse": {
         "allOf": [
           {
@@ -26433,12 +26620,8 @@
       "MyCreditJustification": {
         "type": "object",
         "description": "What the caller wrote about needing the credits rather than a certificate.",
-        "required": ["course_module_completion_id", "justification", "updated_at"],
+        "required": ["justification", "updated_at"],
         "properties": {
-          "course_module_completion_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "justification": {
             "type": "string"
           },
@@ -29221,6 +29404,24 @@
           }
         }
       },
+      "PendingMoocfiHandoff": {
+        "type": "object",
+        "description": "Which account a pending continuation would sign in, beside whoever is signed in now.",
+        "required": ["moocfi_course_id", "masked_email", "signed_in_account"],
+        "properties": {
+          "masked_email": {
+            "type": "string",
+            "description": "Enough of the handoff account's email for the student to recognise it."
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "signed_in_account": {
+            "$ref": "#/components/schemas/SignedInAccount"
+          }
+        }
+      },
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
@@ -30243,6 +30444,10 @@
             "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
           }
         }
+      },
+      "SignedInAccount": {
+        "type": "string",
+        "enum": ["same", "different", "none"]
       },
       "SisuDescriptionResponse": {
         "type": "object",

@@ -109,10 +109,26 @@ test("Each completion says how it is registered, and stale or missing data says 
     expect(statusOf(REMOVED_ID)).toBe("registering_on_courses")
   })
 
+  await test.step("Two completions registering each get their own page", async () => {
+    await expect(page.getByText("You have more than one completion of this course.")).toBeVisible()
+    const showLinks = page.getByRole("link", { name: "Show registration" })
+    await expect(showLinks).toHaveCount(2)
+    await showLinks.first().click()
+    await page.waitForURL(/\?completion=/)
+    await expect(page.getByRole("link", { name: "Show registration" })).toHaveCount(0)
+    await expect(page.getByRole("heading", { name: "Already registered" })).toHaveCount(0)
+    await page.getByRole("link", { name: "All your completions" }).click()
+    await page.waitForURL(moocfiRegistrationUrl(MOOCFI_TIERED_COURSE))
+    await expect(showLinks).toHaveCount(2)
+  })
+
   await test.step("A completion deleted on mooc.fi reads as removed", async () => {
     await deleteMockMoocfiCompletion(request, REMOVED_ID)
     await page.reload()
     await expect(page.getByRole("heading", { name: "Completion removed" })).toBeVisible()
+    // With one completion left registering, the page opens its stepper by itself.
+    await expect(page.getByRole("link", { name: "Show registration" })).toHaveCount(0)
+    await expect(page.getByRole("heading", { name: "Your other completions" })).toBeVisible()
   })
 
   await test.step("When mooc.fi cannot be reached, the stored completions show with a notice", async () => {

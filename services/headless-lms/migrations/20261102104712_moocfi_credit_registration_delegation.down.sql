@@ -1,3 +1,17 @@
+DROP TABLE moocfi_outbound_handoffs;
+DROP TYPE moocfi_handoff_destination;
+
+DELETE FROM completion_registration_credit_justifications
+WHERE moocfi_completion_id IS NOT NULL;
+DROP INDEX uq_completion_registration_credit_justifications_moocfi;
+DROP INDEX uq_completion_registration_credit_justifications_completion;
+ALTER TABLE completion_registration_credit_justifications DROP CONSTRAINT completion_registration_credit_justifications_one_subject,
+  DROP COLUMN moocfi_completion_id,
+  ALTER COLUMN course_module_completion_id
+SET NOT NULL;
+CREATE UNIQUE INDEX uq_completion_registration_credit_justifications_completion ON completion_registration_credit_justifications (course_module_completion_id, deleted_at) NULLS NOT DISTINCT;
+COMMENT ON COLUMN completion_registration_credit_justifications.course_module_completion_id IS 'The completion the student was registering when they answered. Unique among live rows: the answer is replaced rather than versioned, and a student who completes the module again starts without one.';
+
 DELETE FROM credit_registration_phase_state
 WHERE phase IN ('moocfi-recheck', 'moocfi-report');
 

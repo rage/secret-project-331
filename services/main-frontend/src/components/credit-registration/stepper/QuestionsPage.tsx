@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useRouter } from "next/navigation"
 import React, { useEffect, useMemo } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
@@ -13,9 +12,16 @@ import type {
   CreditRegistrationNeed,
   MyEnrolmentRoute,
 } from "@/generated/api/types.generated"
-import { Button, Link, Radio, RadioGroup, TransLink, useDialog } from "@/shared-module/components"
+import {
+  Button,
+  Infobox,
+  Link,
+  Radio,
+  RadioGroup,
+  TransLink,
+  useDialog,
+} from "@/shared-module/components"
 
-import { certificateHref } from "../certificateHref"
 import {
   BUTTON_PRIMARY,
   CREDIT_REGISTRATION_NS,
@@ -24,11 +30,13 @@ import {
   SUOMI_FI_EIDAS_URL,
   SUOMI_FI_IDENTIFICATION_URL,
   SUPPORT_EMAIL,
+  TONE,
   UNIVERSITY_OF_HELSINKI,
 } from "../constants"
 import { CreditJustificationForm } from "../CreditJustificationForm"
-import type { CertificateOffer } from "../creditRegistrationSubject"
+import { type CertificateOffer, certificateOfferSubject } from "../creditRegistrationSubject"
 import { useIsDemoMode } from "../demoMode"
+import { useGoToCertificate } from "../useGoToCertificate"
 import {
   decisionCss,
   decisionTextCss,
@@ -127,9 +135,9 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
   onContinue,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const router = useRouter()
   const isDemoMode = useIsDemoMode()
   const { alert } = useDialog()
+  const certificateNavigation = useGoToCertificate(certificate)
   const stored = useMemo(() => formValuesOf(enrolmentRoute), [enrolmentRoute])
   const { control, watch, reset } = useForm<QuestionsForm>({ defaultValues: stored })
 
@@ -193,9 +201,7 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
       })
       return
     }
-    if (certificate) {
-      router.push(certificateHref(certificate))
-    }
+    await certificateNavigation.goToCertificate()
   }
 
   return (
@@ -332,7 +338,7 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
 
       {asksWhyCreditsAreNeeded && certificate ? (
         <CreditJustificationForm
-          courseModuleId={certificate.courseModuleId}
+          subject={certificateOfferSubject(certificate)}
           savedJustification={certificate.creditJustification}
           saveLabel={t("credit-registration-button-save-reason")}
           onSaved={onJustificationSaved}
@@ -364,11 +370,16 @@ export const QuestionsPage: React.FC<QuestionsPageProps> = ({
             variant={BUTTON_PRIMARY}
             size="large"
             className={fullWidthCss}
-            isLoading={actions.chooseCertificate.isPending}
+            isLoading={actions.chooseCertificate.isPending || certificateNavigation.isPending}
             onClick={() => void goToCertificate()}
           >
             {t("credit-registration-button-go-to-the-certificate")}
           </Button>
+          {certificateNavigation.isError ? (
+            <Infobox tone={TONE.DANGER} announce>
+              {t("credit-registration-moocfi-certificate-failed")}
+            </Infobox>
+          ) : null}
         </div>
       ) : route ? (
         <div className={decisionCss} role="status">

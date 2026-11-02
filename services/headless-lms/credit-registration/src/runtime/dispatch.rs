@@ -301,7 +301,7 @@ async fn run_body(
         }
         CreditRegistrationPhase::LinkEmails => link_emails::run(pool, scope, ctx.base_url).await,
         CreditRegistrationPhase::ConfigValidation => {
-            config_validation::run(pool, scope, registry).await
+            config_validation::run(pool, scope, registry, ctx.moocfi_delegation).await
         }
         CreditRegistrationPhase::RetentionSweep => retention_sweep::run(pool).await,
         CreditRegistrationPhase::LedgerSnapshot => {

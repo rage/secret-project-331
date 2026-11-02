@@ -1,9 +1,10 @@
 //! The `config-validation` phase: the daily pass over the configuration of every module with a
 //! course code and every enabled mooc.fi target.
 //!
-//! Asks Suotar's `course-codes/validate` about every distinct course code; the rest of the check
-//! reads the database.
+//! Asks Suotar's `course-codes/validate` about every distinct course code, and mooc.fi about each
+//! target's course; the rest of the check reads the database.
 
+use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::course_module_suotar_configurations::{
     SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_modules_with_course_code,
     record_config_check,
@@ -14,6 +15,7 @@ use headless_lms_models::external_credit_targets::{
 use headless_lms_models::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config, check_target_config,
 };
+use headless_lms_utils::services::moocfi::MoocfiClient;
 use itertools::Itertools;
 use sqlx::PgPool;
 
@@ -26,7 +28,13 @@ pub(crate) async fn run<R: StudyRegistry>(
     pool: &PgPool,
     scope: &RegistrationScope,
     registry: &mut R,
+    moocfi_delegation: Option<&MoocfiDelegationConfiguration>,
 ) -> CreditRegistrationResult<Counts> {
+    if scope.course_id.is_none()
+        && let Some(delegation) = moocfi_delegation
+    {
+        refresh_moocfi_course_details(pool, scope, delegation).await?;
+    }
     // A course scope has no targets in it, and a target scope no modules.
     let (modules, targets) = {
         let mut conn = pool.acquire().await?;
@@ -94,6 +102,47 @@ pub(crate) async fn run<R: StudyRegistry>(
     Ok(Counts::processed(
         i64::try_from(modules_checked + targets_checked).unwrap_or(i64::MAX),
     ))
+}
+
+/// Stores what mooc.fi says about each target's course. Best effort: a course mooc.fi does not
+/// answer about keeps its last known details.
+async fn refresh_moocfi_course_details(
+    pool: &PgPool,
+    scope: &RegistrationScope,
+    delegation: &MoocfiDelegationConfiguration,
+) -> CreditRegistrationResult<()> {
+    let moocfi_course_ids = {
+        let mut conn = pool.acquire().await?;
+        external_credit_targets::get_moocfi_course_ids_of_enabled_targets(
+            &mut conn,
+            scope.external_credit_target_id,
+        )
+        .await?
+    };
+    let client = MoocfiClient::new(delegation);
+    for moocfi_course_id in moocfi_course_ids {
+        match client.get_delegated_course(moocfi_course_id).await {
+            Ok(Some(course)) => {
+                let mut conn = pool.acquire().await?;
+                external_credit_targets::record_moocfi_course_details(
+                    &mut conn,
+                    moocfi_course_id,
+                    course.has_certificate,
+                )
+                .await?;
+            }
+            Ok(None) => warn!(
+                %moocfi_course_id,
+                "mooc.fi has no delegated handler course for a credit registration target"
+            ),
+            Err(error) => warn!(
+                %moocfi_course_id,
+                %error,
+                "Could not read a credit registration target's course from mooc.fi"
+            ),
+        }
+    }
+    Ok(())
 }
 
 /// The course codes as the registry is asked about them: trimmed, sorted, each once.

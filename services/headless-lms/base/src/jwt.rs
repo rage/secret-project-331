@@ -91,6 +91,9 @@ fn decode_hs256_claim<T: DeserializeOwned>(
 pub struct MoocfiHandoffClaim {
     pub user_id: Uuid,
     pub moocfi_course_id: Uuid,
+    /// The language mooc.fi was used in, `fi` or `en`, which courses opens in.
+    #[serde(default)]
+    pub ui_language: Option<String>,
     /// The token is signed, not encrypted, so it carries a keyed hash and never the IP itself. A
     /// plain hash of an IPv4 address is reversed by trying all 2^32 of them.
     client_ip_hash: String,
@@ -104,11 +107,18 @@ impl MoocfiHandoffClaim {
 
     /// A claim for the student at `client_ip` as mooc.fi saw them, expiring after
     /// [`Self::LIFETIME`].
-    pub fn new(user_id: Uuid, moocfi_course_id: Uuid, client_ip: IpAddr, key: &JwtKey) -> Self {
+    pub fn new(
+        user_id: Uuid,
+        moocfi_course_id: Uuid,
+        ui_language: Option<String>,
+        client_ip: IpAddr,
+        key: &JwtKey,
+    ) -> Self {
         let iat = Utc::now().timestamp();
         Self {
             user_id,
             moocfi_course_id,
+            ui_language,
             client_ip_hash: client_ip_hash(client_ip, key),
             iat,
             exp: iat + Self::LIFETIME.num_seconds(),
@@ -133,6 +143,55 @@ impl MoocfiHandoffClaim {
     ) -> Result<Self, jsonwebtoken::errors::Error> {
         let mut validation = Validation::new(Algorithm::HS256);
         validation.validate_exp = false;
+        decode_hs256_claim(token, key, validation)
+    }
+}
+
+/// Finishes a [`MoocfiHandoffClaim`] after the student has confirmed it on the landing page: a
+/// cross-site arrival confirming the account, or switching from another signed-in account.
+///
+/// Lives [`Self::LIFETIME`] so the student has time to read, and works only from the IP the
+/// handoff was minted for. Never put it in a URL: it travels in an HttpOnly cookie.
+#[derive(Debug, Serialize, serde::Deserialize)]
+pub struct MoocfiHandoffContinuationClaim {
+    /// Named apart from [`MoocfiHandoffClaim::user_id`] so neither claim decodes as the other.
+    pub handoff_user_id: Uuid,
+    pub moocfi_course_id: Uuid,
+    pub ui_language: Option<String>,
+    client_ip_hash: String,
+    aud: String,
+    iat: i64,
+    exp: i64,
+}
+
+impl MoocfiHandoffContinuationClaim {
+    pub const LIFETIME: Duration = Duration::minutes(10);
+    const AUDIENCE: &'static str = "moocfi-handoff-continuation";
+
+    /// Continues `handoff`, which must have been checked to be bound to the requesting IP.
+    pub fn continuing(handoff: &MoocfiHandoffClaim) -> Self {
+        let iat = Utc::now().timestamp();
+        Self {
+            handoff_user_id: handoff.user_id,
+            moocfi_course_id: handoff.moocfi_course_id,
+            ui_language: handoff.ui_language.clone(),
+            client_ip_hash: handoff.client_ip_hash.clone(),
+            aud: Self::AUDIENCE.to_string(),
+            iat,
+            exp: iat + Self::LIFETIME.num_seconds(),
+        }
+    }
+
+    /// Whether the handoff it continues was minted for a request from `client_ip`.
+    pub fn is_bound_to(&self, client_ip: IpAddr, key: &JwtKey) -> bool {
+        self.client_ip_hash == client_ip_hash(client_ip, key)
+    }
+
+    /// Checks the signature, the audience and the expiry, with no leeway.
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, jsonwebtoken::errors::Error> {
+        let mut validation = Validation::new(Algorithm::HS256);
+        validation.leeway = 0;
+        validation.set_audience(&[Self::AUDIENCE]);
         decode_hs256_claim(token, key, validation)
     }
 }
@@ -317,8 +376,13 @@ mod tests {
     fn the_client_ip_hash_needs_the_key() {
         let ip: IpAddr = "192.0.2.1".parse().expect("an IP");
         let mapped: IpAddr = "::ffff:192.0.2.1".parse().expect("an IP");
-        let claim =
-            MoocfiHandoffClaim::new(Uuid::new_v4(), Uuid::new_v4(), ip, &JwtKey::test_key());
+        let claim = MoocfiHandoffClaim::new(
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            None,
+            ip,
+            &JwtKey::test_key(),
+        );
         assert!(claim.is_bound_to(mapped, &JwtKey::test_key()));
         assert!(!claim.is_bound_to(ip, &other_key()));
     }

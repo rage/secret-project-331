@@ -17,7 +17,7 @@ import {
   TONE,
 } from "./constants"
 import { CreditJustificationForm } from "./CreditJustificationForm"
-import type { CertificateOffer } from "./creditRegistrationSubject"
+import { courseModuleSubject, type ModuleCertificateOffer } from "./creditRegistrationSubject"
 import { bandCss, rowCss } from "./styles"
 
 const HAS_FINNISH_ID_FIELD = "hasFinnishId"
@@ -42,7 +42,7 @@ interface DetourForm {
 
 export interface OpenUniversityDetourProps {
   /** The certificate the student can generate now; having one is what makes the detour worth asking. */
-  certificate: CertificateOffer
+  certificate: ModuleCertificateOffer
   /** The Open University instructions every route through the detour ends at. */
   openUniversityContent: React.ReactNode
 }
@@ -227,7 +227,7 @@ export const OpenUniversityDetour: React.FC<OpenUniversityDetourProps> = ({
 
       {asksWhyCreditsAreNeeded ? (
         <CreditJustificationForm
-          courseModuleId={certificate.courseModuleId}
+          subject={courseModuleSubject(certificate.courseModuleId)}
           savedJustification={certificate.creditJustification}
           onSaved={() => {
             setJustificationSaved(true)

@@ -134,11 +134,12 @@ pub const MOOCFI_CUTOFF: &str = "2025-01-01T00:00:00Z";
 
 /// The seeded accounts with a TMC user id, which `test-token-moocfi-student-N` signs in as student
 /// N. Each spec owns one; see `system-tests/src/utils/mockMoocfi.ts`.
-pub const MOOCFI_STUDENTS: [(&str, i32); 4] = [
+pub const MOOCFI_STUDENTS: [(&str, i32); 5] = [
     ("moocfi-student-1@example.com", 9_100_001),
     ("moocfi-student-2@example.com", 9_100_002),
     ("moocfi-student-3@example.com", 9_100_003),
     ("moocfi-student-4@example.com", 9_100_004),
+    ("moocfi-student-5@example.com", 9_100_005),
 ];
 
 /// Links [`MOOCFI_PIPELINE_STUDENT`]'s number to whoever opens it.

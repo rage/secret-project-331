@@ -1,4 +1,5 @@
-//! Why a student chose credits over a certificate, on the old completion registration page.
+//! Why a student chose credits over a certificate, about a course module completion or a mooc.fi
+//! completion.
 //!
 //! Advisory throughout: nothing reads these rows to decide anything. They exist so we can tell how
 //! often a student without Finnish e-identification still needs the credits.
@@ -11,7 +12,11 @@ pub struct CompletionRegistrationCreditJustification {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_module_completion_id: Uuid,
+    /// `None` on an answer about a mooc.fi completion.
+    pub course_module_completion_id: Option<Uuid>,
+    /// mooc.fi's own completion id, stable across the `external_completions` rows a tier change
+    /// replaces. `None` on an answer about a course module completion.
+    pub moocfi_completion_id: Option<Uuid>,
     pub user_id: Uuid,
     pub justification: String,
 }
@@ -35,7 +40,7 @@ WHERE course_module_completion_id = $1
     Ok(res)
 }
 
-/// Records what the student wrote, replacing anything they wrote before.
+/// Records what the student wrote about a course module completion, replacing any earlier answer.
 pub async fn upsert(
     conn: &mut PgConnection,
     course_module_completion_id: Uuid,
@@ -51,12 +56,67 @@ INSERT INTO completion_registration_credit_justifications (
     justification
   )
 VALUES ($1, $2, $3)
-ON CONFLICT (course_module_completion_id, deleted_at) DO
+ON CONFLICT (course_module_completion_id, deleted_at)
+WHERE course_module_completion_id IS NOT NULL DO
 UPDATE
 SET justification = EXCLUDED.justification
 RETURNING *
         ",
         course_module_completion_id,
+        user_id,
+        justification,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The user's answers about the given mooc.fi completions, by mooc.fi completion id.
+pub async fn get_by_user_and_moocfi_completion_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_completion_ids: &[Uuid],
+) -> ModelResult<Vec<CompletionRegistrationCreditJustification>> {
+    let res = sqlx::query_as!(
+        CompletionRegistrationCreditJustification,
+        "
+SELECT *
+FROM completion_registration_credit_justifications
+WHERE user_id = $1
+  AND moocfi_completion_id = ANY($2)
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        moocfi_completion_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// [`upsert`] for a mooc.fi completion, keyed on the user and mooc.fi's completion id.
+pub async fn upsert_for_moocfi_completion(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_completion_id: Uuid,
+    justification: &str,
+) -> ModelResult<CompletionRegistrationCreditJustification> {
+    let res = sqlx::query_as!(
+        CompletionRegistrationCreditJustification,
+        "
+INSERT INTO completion_registration_credit_justifications (
+    moocfi_completion_id,
+    user_id,
+    justification
+  )
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id, moocfi_completion_id, deleted_at)
+WHERE moocfi_completion_id IS NOT NULL DO
+UPDATE
+SET justification = EXCLUDED.justification
+RETURNING *
+        ",
+        moocfi_completion_id,
         user_id,
         justification,
     )

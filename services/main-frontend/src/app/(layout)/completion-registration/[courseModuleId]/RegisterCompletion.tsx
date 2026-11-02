@@ -10,7 +10,7 @@ import {
   TONE,
   openUniversityEnrolmentInfoUrl,
 } from "@/components/credit-registration/constants"
-import type { CertificateOffer } from "@/components/credit-registration/creditRegistrationSubject"
+import type { ModuleCertificateOffer } from "@/components/credit-registration/creditRegistrationSubject"
 import { OpenUniversityDetour } from "@/components/credit-registration/OpenUniversityDetour"
 import {
   bandCss,
@@ -43,7 +43,7 @@ export interface RegisterCompletionProps {
    * can generate one right now, and that is what puts the detour between them and the Open
    * University instructions.
    */
-  certificate: CertificateOffer | null
+  certificate: ModuleCertificateOffer | null
 }
 
 interface StudentTypeForm {

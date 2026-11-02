@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  moocfi_course_id,\n  moocfi_course_slug,\n  name,\n  language_code,\n  tiers IS NOT NULL AS \"is_tiered!\",\n  LOWER(tiers) AS lowest_tier,\n  UPPER(tiers) - 1 AS highest_tier,\n  uh_course_code,\n  ects_credits,\n  grading AS \"grading: ExternalGrading\",\n  enrolment_link,\n  delegated_at,\n  enabled_at,\n  paused_at,\n  paused_by_user_id,\n  pause_reason,\n  config_checked_at,\n  checked_course_code,\n  course_code_allowed,\n  course_code_rejection,\n  config_check_message,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error: CreditRegistrationErrorCode\",\n  consecutive_listing_failures\nFROM external_credit_targets\nWHERE moocfi_course_id = $1\n  AND deleted_at IS NULL\nORDER BY LOWER(tiers) NULLS FIRST\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  moocfi_course_id,\n  moocfi_course_slug,\n  name,\n  language_code,\n  tiers IS NOT NULL AS \"is_tiered!\",\n  LOWER(tiers) AS lowest_tier,\n  UPPER(tiers) - 1 AS highest_tier,\n  uh_course_code,\n  ects_credits,\n  grading AS \"grading: ExternalGrading\",\n  enrolment_link,\n  delegated_at,\n  enabled_at,\n  paused_at,\n  paused_by_user_id,\n  pause_reason,\n  config_checked_at,\n  checked_course_code,\n  course_code_allowed,\n  course_code_rejection,\n  config_check_message,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error: CreditRegistrationErrorCode\",\n  consecutive_listing_failures,\n  moocfi_has_certificate,\n  moocfi_course_checked_at\nFROM external_credit_targets\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -347,6 +347,28 @@
             "name": "consecutive_listing_failures"
           }
         }
+      },
+      {
+        "ordinal": 29,
+        "name": "moocfi_has_certificate",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_has_certificate"
+          }
+        }
+      },
+      {
+        "ordinal": 30,
+        "name": "moocfi_course_checked_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_checked_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -383,8 +405,10 @@
       true,
       true,
       true,
-      false
+      false,
+      true,
+      true
     ]
   },
-  "hash": "481311bcf4ced0a8946c15b9e9d6643eefbf2c9e4320b55f48189680c6978779"
+  "hash": "7c4f53109e3e3dba5694e8c0bfc118383767dac3b354489563cd69f51493fb0f"
 }

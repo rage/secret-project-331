@@ -588,6 +588,7 @@ pub async fn authenticate_test_token(
         "test-token-moocfi-student-2" => "moocfi-student-2@example.com",
         "test-token-moocfi-student-3" => "moocfi-student-3@example.com",
         "test-token-moocfi-student-4" => "moocfi-student-4@example.com",
+        "test-token-moocfi-student-5" => "moocfi-student-5@example.com",
         _ => return Ok(None),
     };
     let user = models::users::get_by_email(conn, email).await?;

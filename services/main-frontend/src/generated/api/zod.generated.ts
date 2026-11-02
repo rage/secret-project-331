@@ -968,6 +968,10 @@ export const zConsentResponse = z.object({
   redirect_uri: z.string(),
 })
 
+export const zContinuedMoocfiHandoff = z.object({
+  redirect_path: z.string(),
+})
+
 export const zCopyCourseMode = z.union([
   z.object({
     mode: z.enum(["duplicate"]),
@@ -3762,6 +3766,23 @@ export const zMoocfiCreditUnit = z.object({
   uh_course_code: z.string(),
 })
 
+export const zMoocfiHandoff = z.object({
+  redirect_url: z.string(),
+})
+
+/**
+ * Where on mooc.fi a handoff sends the student; mooc.fi maps it to its own path.
+ */
+export const zMoocfiHandoffDestination = z.enum(["certificate"])
+
+/**
+ * Where the caller asks to be sent on mooc.fi.
+ */
+export const zCreateMoocfiHandoffPayload = z.object({
+  destination: zMoocfiHandoffDestination,
+  ui_language: z.string().nullish(),
+})
+
 export const zMyCourse = zCourse.and(
   z.object({
     can_hide: z.boolean(),
@@ -3772,7 +3793,6 @@ export const zMyCourse = zCourse.and(
  * What the caller wrote about needing the credits rather than a certificate.
  */
 export const zMyCreditJustification = z.object({
-  course_module_completion_id: z.uuid(),
   justification: z.string(),
   updated_at: z.iso.datetime(),
 })
@@ -5198,6 +5218,17 @@ export const zSetEnrolmentRoutePayload = z.object({
   route: zCreditRegistrationEnrolmentRoute,
 })
 
+export const zSignedInAccount = z.enum(["same", "different", "none"])
+
+/**
+ * Which account a pending continuation would sign in, beside whoever is signed in now.
+ */
+export const zPendingMoocfiHandoff = z.object({
+  masked_email: z.string(),
+  moocfi_course_id: z.uuid(),
+  signed_in_account: zSignedInAccount,
+})
+
 export const zSisuDescriptionResponse = z.object({
   audience: z.array(z.string()),
   course_description: z.string(),
@@ -5272,10 +5303,12 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
  */
 export const zMoocfiCompletionRegistration = z.object({
   completion_date: z.iso.datetime(),
+  credit_justification: z.string().nullish(),
   credit_registration_id: z.uuid().nullish(),
   credit_unit: zMoocfiCreditUnit.nullish(),
   external_completion_id: z.uuid().nullish(),
   moocfi_completion_id: z.uuid(),
+  offers_certificate: z.boolean(),
   status: zMoocfiCompletionStatus,
   student_facing_status: zStudentFacingCreditRegistrationStatus.nullish(),
   tier: z
@@ -6280,8 +6313,10 @@ export const zExternalCreditTarget = z.object({
   last_listed_at: z.iso.datetime().nullish(),
   last_listing_attempted_at: z.iso.datetime().nullish(),
   last_listing_error: zCreditRegistrationErrorCode.nullish(),
+  moocfi_course_checked_at: z.iso.datetime().nullish(),
   moocfi_course_id: z.uuid(),
   moocfi_course_slug: z.string(),
+  moocfi_has_certificate: z.boolean().nullish(),
   name: z.string(),
   pause_reason: z.string().nullish(),
   paused_at: z.iso.datetime().nullish(),
@@ -9782,6 +9817,17 @@ export const zGetMyCreditRegistrationForExternalCompletionPath = z.object({
 export const zGetMyCreditRegistrationForExternalCompletionResponse =
   zMyCreditRegistrationForSubject.nullable()
 
+export const zSetMyExternalCompletionCreditJustificationBody = zSetCreditJustificationPayload
+
+export const zSetMyExternalCompletionCreditJustificationPath = z.object({
+  external_completion_id: z.uuid(),
+})
+
+/**
+ * The stored answer
+ */
+export const zSetMyExternalCompletionCreditJustificationResponse = zMyCreditJustification
+
 export const zRecordMyExternalCompletionEnrolmentPageVisitPath = z.object({
   external_completion_id: z.uuid(),
 })
@@ -9841,6 +9887,17 @@ export const zConfirmMyExternalCompletionEnrolmentPath = z.object({
  * The stored answer
  */
 export const zConfirmMyExternalCompletionEnrolmentResponse = zMyEnrolmentRoute
+
+export const zCreateMyMoocfiHandoffBody = zCreateMoocfiHandoffPayload
+
+export const zCreateMyMoocfiHandoffPath = z.object({
+  external_completion_id: z.uuid(),
+})
+
+/**
+ * Where to send the browser
+ */
+export const zCreateMyMoocfiHandoffResponse = zMoocfiHandoff
 
 export const zGetMyCreditRegistrationEnrolmentBannersPath = z.object({
   course_id: z.uuid(),
@@ -10471,6 +10528,16 @@ export const zGetMoocfiCourseLinkPath = z.object({
  * The course's name and registration page
  */
 export const zGetMoocfiCourseLinkResponse = zMoocfiCourseLink
+
+/**
+ * Signed in; where to go next
+ */
+export const zContinueMoocfiHandoffResponse = zContinuedMoocfiHandoff
+
+/**
+ * The waiting handoff
+ */
+export const zGetPendingMoocfiHandoffResponse = zPendingMoocfiHandoff
 
 export const zAuthorizeOauthGetQuery = z.object({
   response_type: z.string().optional(),

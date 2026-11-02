@@ -1754,6 +1754,13 @@ export type ConsentResponse = {
   redirect_uri: string
 }
 
+export type ContinuedMoocfiHandoff = {
+  /**
+   * The registration page; open it with a full navigation so the new session takes over.
+   */
+  redirect_path: string
+}
+
 export type CopyCourseMode =
   | {
       mode: "duplicate"
@@ -2534,6 +2541,18 @@ export type CreateCourseDesignerPlanRequest = {
 export type CreateCourseDesignerStageTaskRequest = {
   description?: string | null
   title: string
+}
+
+/**
+ * Where the caller asks to be sent on mooc.fi.
+ */
+export type CreateMoocfiHandoffPayload = {
+  destination: MoocfiHandoffDestination
+  /**
+   * The language the caller is using courses in; `en` opens mooc.fi in English, anything else
+   * in Finnish, mooc.fi's default.
+   */
+  ui_language?: string | null
 }
 
 export type CreditRegistrationAdminAction =
@@ -4204,11 +4223,16 @@ export type ExternalCreditTarget = {
   last_listed_at?: string | null
   last_listing_attempted_at?: string | null
   last_listing_error?: null | CreditRegistrationErrorCode
+  moocfi_course_checked_at?: string | null
   /**
    * The mooc.fi course the completions are stored on, never the slug.
    */
   moocfi_course_id: string
   moocfi_course_slug: string
+  /**
+   * What mooc.fi last said; `None` until it has answered.
+   */
+  moocfi_has_certificate?: boolean | null
   name: string
   pause_reason?: string | null
   paused_at?: string | null
@@ -4504,6 +4528,10 @@ export type ModuleUpdates = {
 export type MoocfiCompletionRegistration = {
   completion_date: string
   /**
+   * The student's saved reason for needing the credits rather than the certificate.
+   */
+  credit_justification?: string | null
+  /**
    * The live ledger row, once the pipeline has created one.
    */
   credit_registration_id?: string | null
@@ -4513,6 +4541,11 @@ export type MoocfiCompletionRegistration = {
    */
   external_completion_id?: string | null
   moocfi_completion_id: string
+  /**
+   * Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
+   * answer is unknown: its certificate page copes with a course that has none.
+   */
+  offers_certificate: boolean
   status: MoocfiCompletionStatus
   student_facing_status?: null | StudentFacingCreditRegistrationStatus
   tier?: number | null
@@ -4583,6 +4616,18 @@ export type MoocfiCreditUnit = {
   uh_course_code: string
 }
 
+export type MoocfiHandoff = {
+  /**
+   * Open it with a full navigation: the token is in the fragment, which mooc.fi's page reads.
+   */
+  redirect_url: string
+}
+
+/**
+ * Where on mooc.fi a handoff sends the student; mooc.fi maps it to its own path.
+ */
+export type MoocfiHandoffDestination = "certificate"
+
 export type MyCourse = Course & {
   /**
    * Whether the course can be hidden from the "My courses" list. False for courses the user has
@@ -4595,7 +4640,6 @@ export type MyCourse = Course & {
  * What the caller wrote about needing the credits rather than a certificate.
  */
 export type MyCreditJustification = {
-  course_module_completion_id: string
   justification: string
   updated_at: string
 }
@@ -5639,6 +5683,18 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 /**
+ * Which account a pending continuation would sign in, beside whoever is signed in now.
+ */
+export type PendingMoocfiHandoff = {
+  /**
+   * Enough of the handoff account's email for the student to recognise it.
+   */
+  masked_email: string
+  moocfi_course_id: string
+  signed_in_account: SignedInAccount
+}
+
+/**
  * Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
  */
 export type PendingReasonCounts = {
@@ -6043,6 +6099,8 @@ export type SetEnrolmentRoutePayload = {
   need_after_reconsider?: null | CreditRegistrationNeed
   route: CreditRegistrationEnrolmentRoute
 }
+
+export type SignedInAccount = "same" | "different" | "none"
 
 export type SisuDescriptionResponse = {
   audience: Array<string>
@@ -12671,6 +12729,35 @@ export type GetMyCreditRegistrationForExternalCompletionResponses = {
 export type GetMyCreditRegistrationForExternalCompletionResponse =
   GetMyCreditRegistrationForExternalCompletionResponses[keyof GetMyCreditRegistrationForExternalCompletionResponses]
 
+export type SetMyExternalCompletionCreditJustificationData = {
+  body: SetCreditJustificationPayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification"
+}
+
+export type SetMyExternalCompletionCreditJustificationErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+}
+
+export type SetMyExternalCompletionCreditJustificationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyCreditJustification
+}
+
+export type SetMyExternalCompletionCreditJustificationResponse =
+  SetMyExternalCompletionCreditJustificationResponses[keyof SetMyExternalCompletionCreditJustificationResponses]
+
 export type RecordMyExternalCompletionEnrolmentPageVisitData = {
   body?: never
   path: {
@@ -12828,6 +12915,35 @@ export type ConfirmMyExternalCompletionEnrolmentResponses = {
 
 export type ConfirmMyExternalCompletionEnrolmentResponse =
   ConfirmMyExternalCompletionEnrolmentResponses[keyof ConfirmMyExternalCompletionEnrolmentResponses]
+
+export type CreateMyMoocfiHandoffData = {
+  body: CreateMoocfiHandoffPayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff"
+}
+
+export type CreateMyMoocfiHandoffErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+}
+
+export type CreateMyMoocfiHandoffResponses = {
+  /**
+   * Where to send the browser
+   */
+  200: MoocfiHandoff
+}
+
+export type CreateMyMoocfiHandoffResponse =
+  CreateMyMoocfiHandoffResponses[keyof CreateMyMoocfiHandoffResponses]
 
 export type GetMyCreditRegistrationEnrolmentBannersData = {
   body?: never
@@ -14316,6 +14432,54 @@ export type GetMoocfiCourseLinkResponses = {
 
 export type GetMoocfiCourseLinkResponse =
   GetMoocfiCourseLinkResponses[keyof GetMoocfiCourseLinkResponses]
+
+export type ContinueMoocfiHandoffData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/moocfi-handoffs/continue"
+}
+
+export type ContinueMoocfiHandoffErrors = {
+  /**
+   * No handoff is waiting
+   */
+  404: unknown
+}
+
+export type ContinueMoocfiHandoffResponses = {
+  /**
+   * Signed in; where to go next
+   */
+  200: ContinuedMoocfiHandoff
+}
+
+export type ContinueMoocfiHandoffResponse =
+  ContinueMoocfiHandoffResponses[keyof ContinueMoocfiHandoffResponses]
+
+export type GetPendingMoocfiHandoffData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/moocfi-handoffs/pending"
+}
+
+export type GetPendingMoocfiHandoffErrors = {
+  /**
+   * No handoff is waiting
+   */
+  404: unknown
+}
+
+export type GetPendingMoocfiHandoffResponses = {
+  /**
+   * The waiting handoff
+   */
+  200: PendingMoocfiHandoff
+}
+
+export type GetPendingMoocfiHandoffResponse =
+  GetPendingMoocfiHandoffResponses[keyof GetPendingMoocfiHandoffResponses]
 
 export type GetOauthOpenidConfigurationData = {
   body?: never

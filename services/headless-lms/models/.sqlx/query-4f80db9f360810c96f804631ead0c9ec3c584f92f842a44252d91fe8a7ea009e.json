@@ -1,0 +1,61 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH redeemed AS (\n  UPDATE moocfi_outbound_handoffs\n  SET redeemed_at = now()\n  WHERE token_digest = $1\n    AND redeemed_at IS NULL\n    AND expires_at > now()\n    AND deleted_at IS NULL\n  RETURNING external_completion_id,\n    destination\n)\nSELECT ec.moocfi_user_upstream_id AS upstream_id,\n  t.moocfi_course_id,\n  r.destination AS \"destination: MoocfiHandoffDestination\"\nFROM redeemed r\n  JOIN external_completions ec ON ec.id = r.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "upstream_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_user_upstream_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "destination: MoocfiHandoffDestination",
+        "type_info": {
+          "Custom": {
+            "name": "moocfi_handoff_destination",
+            "kind": {
+              "Enum": [
+                "certificate"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "moocfi_outbound_handoffs",
+            "name": "destination"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4f80db9f360810c96f804631ead0c9ec3c584f92f842a44252d91fe8a7ea009e"
+}

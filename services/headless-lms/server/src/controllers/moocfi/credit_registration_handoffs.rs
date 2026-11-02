@@ -61,6 +61,10 @@ pub struct CreditRegistrationHandoffRequest {
     delegated_at: DateTime<Utc>,
     /// The student's IP as mooc.fi saw it; the handoff only works from it.
     client_ip: String,
+    /// The language mooc.fi was used in, which courses then opens in. `fi` or `en`; anything else,
+    /// or none, leaves courses to pick as it would.
+    #[serde(default)]
+    ui_language: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -107,7 +111,9 @@ pub async fn create_credit_registration_handoff(
         moocfi_course_id,
         delegated_at,
         client_ip,
+        ui_language,
     } = payload.into_inner();
+    let ui_language = ui_language.filter(|language| language == "fi" || language == "en");
     let Ok(client_ip) = client_ip.trim().parse::<IpAddr>() else {
         return token.authorized_ok(refusal(
             StatusCode::BAD_REQUEST,
@@ -168,7 +174,8 @@ pub async fn create_credit_registration_handoff(
         return token.authorized_ok(response);
     }
 
-    let claim = MoocfiHandoffClaim::new(user.id, moocfi_course_id, client_ip, &jwt_key);
+    let claim =
+        MoocfiHandoffClaim::new(user.id, moocfi_course_id, ui_language, client_ip, &jwt_key);
     let redirect_url = redeem_url(&app_conf.base_url, &claim, &jwt_key).map_err(|error| {
         ControllerError::new(
             ControllerErrorType::InternalServerError,

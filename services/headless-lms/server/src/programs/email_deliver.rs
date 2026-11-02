@@ -13,6 +13,9 @@ use headless_lms_models::email_deliveries::{
 };
 use headless_lms_models::email_layouts::{self, EmailLayout, ResolvedLayout};
 use headless_lms_models::email_templates::EmailTemplateType;
+use headless_lms_models::teacher_newsletter::{
+    get_newsletter_items_as_html_period, get_newsletter_items_as_text_period,
+};
 use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::backoff;
@@ -467,48 +470,28 @@ async fn build_teacher_newsletter_email_content(
 ) -> Result<TeacherNewsletterContent> {
     let courses =
         headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
-    let course_ids_vec: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
-    let course_ids = &course_ids_vec;
+    let course_ids: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
 
-    let from = DateTime::parse_from_rfc3339("2026-10-20T00:00:00Z")
-        .unwrap()
-        .to_utc();
-    let to = DateTime::parse_from_rfc3339("2026-10-27T23:59:59Z")
-        .unwrap()
-        .to_utc();
+    let date_today = Utc::now().date_naive();
 
-    let completors_counts = headless_lms_models::course_module_completions::get_count_of_distinct_completors_by_course_id_and_start_and_end_date(conn, course_ids, from, to).await?;
+    let start_date = date_today - chrono::Duration::days(7);
 
-    let mut returned_counts: HashMap<Uuid, i64> = HashMap::new();
+    let period_end = date_today.format("%Y-%m-%d").to_string();
+    let period_start = start_date.format("%Y-%m-%d").to_string();
 
-    for course_id in course_ids_vec {
-        let total_users =
-            models::library::course_stats::get_total_users_returned_exercises_custom_time_period(
-                conn,
-                course_id,
-                "2026-10-27",
-                "2026-10-27",
-            )
-            .await?;
-        returned_counts.insert(course_id, total_users.count);
-    }
+    let newsletter_items_as_html =
+        get_newsletter_items_as_html_period(conn, &course_ids, &period_start, &period_end).await?;
+    let newsletter_items_as_text =
+        get_newsletter_items_as_text_period(conn, &course_ids, &period_start, &period_end).await?;
 
-    let mut course_html = Vec::new();
     if !courses.is_empty() {
-        for course in &courses {
-            let completor_count = completors_counts.get(&course.id).copied().unwrap_or(0);
-            let returned_count = returned_counts.get(&course.id).copied().unwrap_or(0);
-            let summary_html = format!(
-                r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;"><tbody><tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed the course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td></tr></tbody></table>"#,
-                course.name, completor_count, returned_count
-            );
-            course_html.push(summary_html);
-        }
-        let html_final = course_html.join("\n");
-        Ok(TeacherNewsletterContent { html: html_final })
+        let html = newsletter_items_as_html.join("\n");
+        let text = newsletter_items_as_text.join("\n");
+        Ok(TeacherNewsletterContent { html, text })
     } else {
         Ok(TeacherNewsletterContent {
-            html: "Hello world".to_string(),
+            html: "".to_string(),
+            text: "".to_string(),
         })
     }
 }

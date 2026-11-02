@@ -861,6 +861,7 @@ pub struct EmailRenderInput<'a> {
 
 pub struct TeacherNewsletterContent {
     pub html: String,
+    pub text: String,
 }
 
 impl TeacherNewsletterContent {
@@ -869,7 +870,7 @@ impl TeacherNewsletterContent {
     }
 
     pub fn as_text(&self) -> String {
-        "Hello you knobhead".to_string()
+        self.text.to_owned()
     }
 }
 

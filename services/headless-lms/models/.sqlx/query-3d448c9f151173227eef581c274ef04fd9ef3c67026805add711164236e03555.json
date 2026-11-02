@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT as_html FROM teacher_newsletter_items WHERE course_id = ANY($1) AND period_start >= $2 AND period_end <= $3\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "as_html",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "as_html"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3d448c9f151173227eef581c274ef04fd9ef3c67026805add711164236e03555"
+}

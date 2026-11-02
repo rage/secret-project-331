@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at::timestamptz AS created_at,\n    updated_at::timestamptz AS updated_at,\n    deleted_at::timestamptz AS deleted_at,\n    course_id,\n    period_start::timestamptz AS period_start,\n    period_end::timestamptz AS period_end,\n    as_html,\n    as_text\nFROM teacher_newsletter_items\nWHERE course_id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id, created_at, updated_at, deleted_at, course_id, period_start, period_end, as_html, as_text FROM teacher_newsletter_items WHERE course_id = ANY($1) AND period_start >= $2 AND period_end < $3\n        ",
   "describe": {
     "columns": [
       {
@@ -17,14 +17,24 @@
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamptz",
-        "origin": "Expression"
+        "type_info": "Timestamp",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": "Expression"
+        "type_info": "Timestamp",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 3,
@@ -95,13 +105,15 @@
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
       ]
     },
     "nullable": [
       false,
-      null,
-      null,
+      false,
+      false,
       true,
       false,
       false,
@@ -110,5 +122,5 @@
       false
     ]
   },
-  "hash": "16f4f3c55a72abee489814ed6f9550d244af74ff4947950cc4309633125b0263"
+  "hash": "42b88c2800f40f1a7d5c443c909336a7af3d651b91b74515c2eee0519cbf385b"
 }

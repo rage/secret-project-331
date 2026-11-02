@@ -3,7 +3,7 @@ import { pluginReact } from "@rsbuild/plugin-react"
 import { pluginSvgr } from "@rsbuild/plugin-svgr"
 import { tanstackStart } from "@tanstack/react-start/plugin/rsbuild"
 
-import { IFRAME_HEADERS } from "./iframe-headers.mjs"
+import { answerPreflight, IFRAME_HEADERS } from "./iframe-headers.mjs"
 
 // Base path this service is mounted under behind the ingress, e.g. "/example-exercise". Fixed at
 // build time (the Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`) and auto-inlined into
@@ -56,10 +56,21 @@ export default defineConfig({
     // listens on 127.0.0.1 only.
     host: "0.0.0.0",
     port: Number(process.env.PORT ?? 3002),
+    // Fail rather than drift to the next port: the ingress, the registered service-info URL and
+    // Playwright's webServer expect this one, and whatever holds it may use another base path.
+    strictPort: true,
     // Serve the shell + assets under the ingress base path.
     ...(BASE_PATH ? { base: BASE_PATH } : {}),
     // The dev server doesn't run server.mjs, so stamp the iframe headers here too.
     headers: IFRAME_HEADERS,
+    // Ahead of rsbuild's own CORS middleware, which allows only localhost origins.
+    setup: ({ server }) => {
+      server.middlewares.use((req, res, next) => {
+        if (!answerPreflight(req, res)) {
+          next()
+        }
+      })
+    },
   },
   output: {
     // Absolute-prefix every asset URL: the opaque-origin sandboxed iframe can't resolve relative

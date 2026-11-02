@@ -28,50 +28,53 @@ async function copyWithClipboardApi(text: string): Promise<void> {
 }
 
 /**
- * Returns a callback for copying text to clipboard.
+ * Copies text to the clipboard.
  * Attempts to use the Clipboard API first, falls back to execCommand if needed.
+ * @param text - The text to copy to clipboard
+ * @returns Whether the text was copied successfully
+ */
+export async function copyTextToClipboard(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard) {
+      try {
+        await copyWithClipboardApi(text)
+        return true
+      } catch (error) {
+        const isSecureContext = window.isSecureContext
+        const isPermissionError = error instanceof Error && error.name === "NotAllowedError"
+
+        if (!isSecureContext) {
+          console.warn("[Copy] Unable to use Clipboard API - HTTPS required. Trying legacy method.")
+        } else if (isPermissionError) {
+          console.warn(
+            `[Copy] Unable to use Clipboard API - Permission denied: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
+          )
+        } else {
+          console.warn(
+            `[Copy] Unable to use Clipboard API - Unknown error: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
+          )
+        }
+        copyWithFallback(text)
+        return true
+      }
+    } else {
+      console.warn("[Copy] Clipboard API not available. Trying legacy method.")
+      copyWithFallback(text)
+      return true
+    }
+  } catch (error) {
+    console.error(
+      `[Copy Failed] Copy operation failed. Please try selecting the text manually and using Ctrl+C/Cmd+C. Error: ${error}`,
+    )
+    return false
+  }
+}
+
+/**
+ * Returns a callback for copying text to clipboard.
  * @param text - The text to copy to clipboard
  * @returns A function that when called attempts to copy text and returns true if successful
  */
 export function useCopyToClipboard(text: string): () => Promise<boolean> {
-  const copyToClipboard = useCallback(async (): Promise<boolean> => {
-    try {
-      if (navigator.clipboard) {
-        try {
-          await copyWithClipboardApi(text)
-          return true
-        } catch (error) {
-          const isSecureContext = window.isSecureContext
-          const isPermissionError = error instanceof Error && error.name === "NotAllowedError"
-
-          if (!isSecureContext) {
-            console.warn(
-              "[Copy] Unable to use Clipboard API - HTTPS required. Trying legacy method.",
-            )
-          } else if (isPermissionError) {
-            console.warn(
-              `[Copy] Unable to use Clipboard API - Permission denied: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
-            )
-          } else {
-            console.warn(
-              `[Copy] Unable to use Clipboard API - Unknown error: ${error instanceof Error ? error.message : String(error)}. Trying legacy method.`,
-            )
-          }
-          copyWithFallback(text)
-          return true
-        }
-      } else {
-        console.warn("[Copy] Clipboard API not available. Trying legacy method.")
-        copyWithFallback(text)
-        return true
-      }
-    } catch (error) {
-      console.error(
-        `[Copy Failed] Copy operation failed. Please try selecting the text manually and using Ctrl+C/Cmd+C. Error: ${error}`,
-      )
-      return false
-    }
-  }, [text])
-
-  return copyToClipboard
+  return useCallback(() => copyTextToClipboard(text), [text])
 }

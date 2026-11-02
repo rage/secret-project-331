@@ -6,10 +6,13 @@ import { handlePublicSpec } from "./publicSpec"
 
 // A representative private spec: two options, one correct, plus answer-revealing content that must
 // never reach a student-visible projection.
-const PRIVATE_SPEC = [
-  { id: "opt-a", name: "Helsinki", correct: true },
-  { id: "opt-b", name: "Tampere", correct: false },
-]
+const PRIVATE_SPEC = {
+  version: "1",
+  alternatives: [
+    { id: "opt-a", name: "Helsinki", correct: true },
+    { id: "opt-b", name: "Tampere", correct: false },
+  ],
+}
 
 function specRequest(privateSpec: unknown): Request {
   return new Request("http://localhost/api", {
@@ -46,6 +49,15 @@ describe("assertNoLeak", () => {
     ).toThrow(LeakError)
   })
 
+  it("keeps the leaked value out of the error message", () => {
+    expect(() =>
+      assertNoLeak(
+        { hint: "the answer is A" },
+        { forbiddenKeys: [], forbiddenValues: ["the answer is A"] },
+      ),
+    ).toThrow(/^Projection leaked a forbidden value$/)
+  })
+
   it("does not false-positive when a short forbidden value is only hex inside a legitimate id", () => {
     // Regression: single-character option names ("a"/"b"/"c") must not be treated as leaked just
     // because those letters appear as hex digits inside a correct-option UUID that legitimately
@@ -67,10 +79,13 @@ describe("leak regression over a representative private spec", () => {
     const serialized = JSON.stringify(spec)
     expect(serialized).not.toContain("correct")
     // Options and their public names are allowed; the `correct` flag is not.
-    expect(spec).toEqual([
-      { id: "opt-a", name: "Helsinki" },
-      { id: "opt-b", name: "Tampere" },
-    ])
+    expect(spec).toEqual({
+      version: "1",
+      options: [
+        { id: "opt-a", name: "Helsinki" },
+        { id: "opt-b", name: "Tampere" },
+      ],
+    })
   })
 
   it("model-solution output reveals only correct ids, no names or wrong ids", async () => {

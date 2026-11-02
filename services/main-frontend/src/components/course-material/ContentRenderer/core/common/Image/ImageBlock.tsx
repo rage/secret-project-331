@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
@@ -41,6 +42,7 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
 > = ({ data }) => {
+  const { t } = useTranslation()
   const { disableInteractivity } = useImageInteractivity()
   const imageRef = useRef<HTMLImageElement>(null)
   const figcaptionRef = useRef<HTMLElement>(null)
@@ -69,9 +71,11 @@ const ImageBlock: React.FC<
 
   const isRounded = Boolean(className?.includes("is-style-rounded"))
 
-  // Gutenberg links the image when a destination is set (custom URL, the media file, etc.). The
-  // image must then be wrapped in an anchor; otherwise the `href` is silently dropped.
-  const hasLink = Boolean(href) && linkDestination !== "none"
+  // A link to another address must wrap the image in an anchor, or the `href` is silently dropped.
+  // A link to the image's own file was the CMS default for years rather than the teacher's choice,
+  // so those zoom instead.
+  const linksToOwnFile = linkDestination === "media" || href === url
+  const hasLink = Boolean(href) && linkDestination !== "none" && !linksToOwnFile
   const linkRel = relForLinkTarget(rel, linkTarget)
   // Fallback accessible name for a linked image with no alt text (used by the link below).
   const captionText = caption ? richTextToPlainText(caption) : undefined
@@ -198,7 +202,7 @@ const ImageBlock: React.FC<
             ${align && "display: inline-block;"}
           `}
         >
-          {disableInteractivity ? renderImage() : <>{renderImage()}</>}
+          {renderImage()}
         </div>
         {caption ? (
           <ParsedText
@@ -226,7 +230,14 @@ const ImageBlock: React.FC<
     imageContent
   ) : (
     <StyledZoomWrapper>
-      <Zoom>{imageContent}</Zoom>
+      <Zoom
+        a11yNameButtonZoom={t("image-zoom-open")}
+        a11yNameButtonUnzoom={t("image-zoom-close")}
+        // The media link can point at the full-size original of a resized image.
+        {...(linksToOwnFile && href && href !== url && { zoomImg: { src: href } })}
+      >
+        {imageContent}
+      </Zoom>
     </StyledZoomWrapper>
   )
 }

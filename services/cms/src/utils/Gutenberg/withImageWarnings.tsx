@@ -9,7 +9,7 @@ import { Link } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { useIsBlockPreviewMode } from "./blockPreviewMode"
-import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
+import { isGoogleDocsImageUrl, shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
 
 interface ImageBlockProps {
   name: string
@@ -22,8 +22,6 @@ interface ImageBlockProps {
 }
 
 const IMAGE_BLOCK_NAME = "core/image"
-type ImageWarningKey = "warning-image-alt-placeholder"
-const IMAGE_ALT_WARNING_KEY: ImageWarningKey = "warning-image-alt-placeholder"
 // oxlint-disable-next-line i18next/no-literal-string
 const W3C_ALT_DECISION_TREE_URL = "https://www.w3.org/WAI/tutorials/images/decision-tree/"
 const WARNING_NOTICE_STATUS = "warning"
@@ -34,24 +32,28 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
     const { t } = useTranslation()
     const isPreviewMode = useIsBlockPreviewMode()
 
-    const warningKeys: ImageWarningKey[] =
+    const showGoogleDocsWarning = !isPreviewMode && isGoogleDocsImageUrl(props.attributes?.url)
+    const showAltWarning =
       !isPreviewMode &&
       shouldWarnAboutImageAltPlaceholder(props.attributes?.alt, props.attributes?.isDecorative)
-        ? [IMAGE_ALT_WARNING_KEY]
-        : []
 
     return (
       <Fragment>
         <BlockEdit {...props} />
-        {warningKeys.length > 0 && (
+        {(showGoogleDocsWarning || showAltWarning) && (
           <div
             className={css`
               margin-top: 0.75rem;
             `}
           >
-            {warningKeys.map((warningKey) => (
-              <Notice key={warningKey} status={WARNING_NOTICE_STATUS} isDismissible={false}>
-                <p>{t(warningKey)}</p>
+            {showGoogleDocsWarning && (
+              <Notice status={WARNING_NOTICE_STATUS} isDismissible={false}>
+                <p>{t("warning-image-google-docs")}</p>
+              </Notice>
+            )}
+            {showAltWarning && (
+              <Notice status={WARNING_NOTICE_STATUS} isDismissible={false}>
+                <p>{t("warning-image-alt-placeholder")}</p>
                 <p>
                   {t("warning-image-alt-placeholder-guidance")}{" "}
                   <Link href={W3C_ALT_DECISION_TREE_URL} target="_blank" rel="noopener noreferrer">
@@ -59,7 +61,7 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
                   </Link>
                 </p>
               </Notice>
-            ))}
+            )}
           </div>
         )}
       </Fragment>

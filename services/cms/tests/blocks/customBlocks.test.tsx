@@ -54,6 +54,7 @@ await jest.unstable_mockModule("@wordpress/block-editor", () => ({
   BlockList: stub("div"),
   BlockTools: stub("div"),
   ButtonBlockAppender: stub("div"),
+  HeadingLevelDropdown: stub("div"),
   InnerBlocks: stub(INNER_BLOCKS_TAG),
   InspectorControls: stub("div"),
   MediaPlaceholder: stub("div"),

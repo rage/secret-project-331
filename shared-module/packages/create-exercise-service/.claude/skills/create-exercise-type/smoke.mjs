@@ -136,10 +136,13 @@ async function main() {
       // public-spec derivation: private spec (with `correct`) -> public spec (without it).
       const specReq = {
         request_id: "00000000-0000-0000-0000-000000000000",
-        private_spec: [
-          { id: "a", name: "Helsinki", correct: true },
-          { id: "b", name: "Turku", correct: false },
-        ],
+        private_spec: {
+          version: "1",
+          alternatives: [
+            { id: "a", name: "Helsinki", correct: true },
+            { id: "b", name: "Turku", correct: false },
+          ],
+        },
         upload_url: null,
       }
       const pub = await (
@@ -150,7 +153,7 @@ async function main() {
         })
       ).json()
       check(
-        Array.isArray(pub) && pub.every((o) => !("correct" in o)),
+        Array.isArray(pub?.options) && pub.options.length === 2 && !JSON.stringify(pub).includes("correct"),
         "POST /api/public-spec strips the `correct` flag (no answer leak)",
       )
     } finally {

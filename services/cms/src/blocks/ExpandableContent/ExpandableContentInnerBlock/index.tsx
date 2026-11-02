@@ -5,6 +5,7 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
+import { EXPANDABLE_SECTION_ALLOWED_BLOCKS } from "./allowedBlocks"
 import ExpandableContentEditor from "./ExpandableContentInnerBlockEditor"
 import ExpandableContentSave from "./ExpandableContentInnerBlockSave"
 
@@ -19,7 +20,7 @@ const ExpandableContentInnerBlockConfiguration: BlockConfiguration<ExpandableCon
     category: MOOCFI_CATEGORY_SLUG,
     attributes: { name: { type: "string", default: "" } },
     parent: ["moocfi/expandable-content"],
-    allowedBlocks: ["core/heading", "core/paragraph", "core/image", "core/list", "core/html"],
+    allowedBlocks: EXPANDABLE_SECTION_ALLOWED_BLOCKS,
     edit: ExpandableContentEditor,
     save: ExpandableContentSave,
   }

@@ -3,6 +3,7 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import { TRANSFORMS_TO_EXPANDABLE } from "../containerTransforms"
 import ExpandableContentEditor from "./ExpandableContentEditor"
 import ExpandableContentSave from "./ExpandableContentSave"
 
@@ -19,6 +20,7 @@ const ExpandableContentConfiguration: BlockConfiguration = {
   allowedBlocks: ["moocfi/expandable-content-inner-block"],
   edit: ExpandableContentEditor,
   save: ExpandableContentSave,
+  transforms: { from: TRANSFORMS_TO_EXPANDABLE },
 }
 
 export default ExpandableContentConfiguration

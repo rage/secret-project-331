@@ -5,6 +5,7 @@
 import { HEX_COLOR_OR_EMPTY } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import { TRANSFORMS_TO_ASIDE } from "../containerTransforms"
 import AsideEditor from "./AsideEditor"
 import AsideSave from "./AsideSave"
 import { Deprecated1 } from "./deprecated"
@@ -34,6 +35,7 @@ const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
   innerBlocksArea: {},
   edit: AsideEditor,
   save: AsideSave,
+  transforms: { from: TRANSFORMS_TO_ASIDE },
   // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes
   deprecated: [Deprecated1],
 }

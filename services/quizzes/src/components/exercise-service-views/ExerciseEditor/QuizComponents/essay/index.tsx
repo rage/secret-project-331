@@ -2,8 +2,6 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-
 import type { PrivateSpecQuizItemEssay } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
@@ -11,6 +9,7 @@ import EditorCard from "../common/EditorCard"
 import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
 } from "../common/FeedbackMessagesEditor"
+import NumericField from "../common/NumericField"
 import ParsedTextField from "../common/ParsedTextField"
 
 interface EssayEditorProps {
@@ -68,33 +67,33 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
       )}
       <TextFieldContainer>
         <TextFieldWrapper>
-          <TextField
-            type={"number"}
+          <NumericField
+            integer
             value={selected.minWords ?? 0}
             label={t("min-words")}
-            name={t("min-words")}
-            onChangeByValue={(value) => {
+            min={0}
+            onCommit={(next) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
-                draft.minWords = Number(value)
+                draft.minWords = next
               })
             }}
           />
         </TextFieldWrapper>
         <TextFieldWrapper>
-          <TextField
-            type={"number"}
+          <NumericField
+            integer
             value={selected.maxWords ?? 0}
             label={t("max-words")}
-            name={t("max-words")}
-            onChangeByValue={(value) => {
+            min={0}
+            onCommit={(next) => {
               updateState((draft) => {
                 if (!draft) {
                   return
                 }
-                draft.maxWords = Number(value)
+                draft.maxWords = next
               })
             }}
           />

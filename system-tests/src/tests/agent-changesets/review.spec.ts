@@ -30,9 +30,9 @@ test.describe("publishing", () => {
 
     await test.step("The routine edit renders before and after", async () => {
       await routineChange.getByRole("tab", { name: "Before" }).click()
-      await expect(routineChange.getByTestId("agent-page-before")).toContainText(
-        "A variable stores a value under a name.",
-      )
+      const before = routineChange.getByTestId("agent-page-before")
+      await before.getByRole("button", { name: "Show" }).click()
+      await expect(before).toContainText("A variable stores a value under a name.")
       await routineChange.getByRole("tab", { name: "After" }).click()
       await expect(routineChange.getByTestId("agent-page-after")).toContainText(
         "For example, age = 30 stores the number 30 under the name age.",
@@ -147,7 +147,7 @@ test.describe("conflicts", () => {
       .getByTestId("agent-entity-change")
       .filter({ hasText: "Changed by someone else" })
     await expect(conflictedChange).toHaveCount(1)
-    await expect(conflictedChange.getByTestId("agent-page-after")).toContainText(
+    await expect(conflictedChange.getByTestId("agent-page-changes")).toContainText(
       "Strings can be joined with the + operator.",
     )
     await expect(page.getByTestId("agent-publish-button")).toBeDisabled()

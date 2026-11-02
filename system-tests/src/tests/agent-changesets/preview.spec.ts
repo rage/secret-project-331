@@ -90,7 +90,7 @@ test("preview renders a staged page without logging in", async ({
       await expect(
         content
           .getByTestId("agent-preview-block-placeholder")
-          .filter({ hasText: "moocfi/exercises-in-chapter" }),
+          .filter({ hasText: "Exercises in chapter" }),
       ).toBeVisible()
     })
   } finally {

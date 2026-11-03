@@ -9,6 +9,19 @@ export type ClientOptions = {
 
 export type ErrorSource = "backend" | "frontend"
 
+export type MessageKey =
+  | "course_slug_already_taken"
+  | {
+      foreign_key_violation: {
+        constraint?: string | null
+        table?: string | null
+      }
+    }
+  | "not_enrolled"
+  | "upload_expired"
+  | "unknown_upload"
+  | "duplicate_upload"
+
 export type NewErrorReport = {
   app_version?: string | null
   details?: unknown

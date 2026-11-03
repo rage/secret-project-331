@@ -7,6 +7,7 @@ export { type Options, postError } from "./sdk.generated"
 export type {
   ClientOptions,
   ErrorSource,
+  MessageKey,
   NewErrorReport,
   PostErrorData,
   PostErrorResponse,

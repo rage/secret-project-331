@@ -98,14 +98,14 @@
       ]
     },
     "nullable": [
-      true,
-      true,
-      true,
+      false,
+      false,
+      false,
       true,
       false,
       true,
       true,
-      true
+      false
     ]
   },
   "hash": "0280fea41356d83e5b578f5943663165974f1ecf335076a49a95ff589df70013"

@@ -107,6 +107,7 @@
   "errorNotice.code": "Code",
   "errorNotice.copyReport": "Copy error report",
   "errorNotice.detail": "Detail",
+  "errorNotice.message": "Message",
   "errorNotice.messageKey": "Message key",
   "errorNotice.method": "Method",
   "errorNotice.page": "Page",

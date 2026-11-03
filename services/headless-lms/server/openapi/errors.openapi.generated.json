@@ -43,6 +43,51 @@
         "type": "string",
         "enum": ["backend", "frontend"]
       },
+      "MessageKey": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": ["course_slug_already_taken"]
+          },
+          {
+            "type": "object",
+            "required": ["foreign_key_violation"],
+            "properties": {
+              "foreign_key_violation": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": ["string", "null"]
+                  },
+                  "table": {
+                    "type": ["string", "null"]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "string",
+            "description": "The user is not enrolled on the course the requested exercise belongs to.",
+            "enum": ["not_enrolled"]
+          },
+          {
+            "type": "string",
+            "description": "A submission named a file that was uploaded but has since been reaped.",
+            "enum": ["upload_expired"]
+          },
+          {
+            "type": "string",
+            "description": "A submission named a file the host has no upload record of for this exercise and user.",
+            "enum": ["unknown_upload"]
+          },
+          {
+            "type": "string",
+            "description": "A submission named the same uploaded file more than once.",
+            "enum": ["duplicate_upload"]
+          }
+        ]
+      },
       "NewErrorReport": {
         "type": "object",
         "required": ["service", "message"],

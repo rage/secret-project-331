@@ -18,7 +18,7 @@ use headless_lms_chatbot::prelude::{ChatbotError, ChatbotErrorType};
 use headless_lms_credit_registration::error::{
     CreditRegistrationError, CreditRegistrationErrorType,
 };
-use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
+use headless_lms_models::{ModelError, ModelErrorType, errors::MessageKey, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
@@ -258,6 +258,7 @@ pub struct ControllerError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
+    message_key: Option<MessageKey>,
 }
 
 // Generate the clean developer `Debug`/`clean_string` and a cause resolver.
@@ -333,6 +334,7 @@ impl BackendError for ControllerError {
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
             location,
+            message_key: None,
         }
     }
 }
@@ -509,11 +511,29 @@ impl error::ResponseError for ControllerError {
             }
         });
 
-        let (error_type, message_key) = self.error_type_and_message_key();
+        let (error_type, default_message_key) = self.error_type_and_message_key();
         let errors = self.validation_issues();
+
+        let message_key_string = if self.message_key.is_some() {
+            self.message_key.clone().unwrap().message_key().to_string()
+        } else {
+            default_message_key.to_string()
+        };
+
+        let _message_params = match &self.message_key {
+            None => None,
+            // Some(MessageKey::BlockId { id }) => {
+            //     Some(serde_json::json!({"block_id": id}))
+            // }
+            Some(MessageKey::ForeignKeyViolation { constraint, table }) => {
+                Some(serde_json::json!({"constraint": constraint, "table": table}))
+            }
+            Some(_) => None,
+        };
+
         let error_response = ApiErrorResponse {
             error_type: error_type.to_string(),
-            message_key: message_key.to_string(),
+            message_key: message_key_string,
             message: self.message.clone(),
             errors,
             metadata: metadata_json,
@@ -594,6 +614,13 @@ impl ControllerError {
                 }]
             }
             _ => Vec::new(),
+        }
+    }
+
+    pub fn with_message_key(self, key: MessageKey) -> Self {
+        Self {
+            message_key: Some(key),
+            ..self
         }
     }
 }
@@ -785,18 +812,22 @@ impl From<ModelError> for ControllerError {
                 backtrace,
                 span_trace,
             ),
-            ModelErrorType::ForeignKeyViolation { constraint, table } => Self::new_with_traces(
-                ControllerErrorType::BadRequestWithData(
-                    ErrorMetadata::ForeignKeyViolationMetadata {
-                        constraint: constraint.to_owned(),
-                        table: table.to_owned(),
-                    },
-                ),
-                err.message().to_string(),
-                Some(err.into()),
-                backtrace,
-                span_trace,
-            ),
+            ModelErrorType::ForeignKeyViolation { constraint, table } => {
+                let db_constraint = constraint.to_owned();
+                let db_table = table.to_owned();
+
+                Self::new_with_traces(
+                    ControllerErrorType::BadRequest,
+                    err.message().to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+                .with_message_key(MessageKey::ForeignKeyViolation {
+                    constraint: db_constraint,
+                    table: db_table,
+                })
+            }
             _ => Self::new_with_traces(
                 ControllerErrorType::InternalServerError,
                 err.to_string(),

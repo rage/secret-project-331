@@ -7,6 +7,20 @@ import * as z from "zod"
 
 export const zErrorSource = z.enum(["backend", "frontend"])
 
+export const zMessageKey = z.union([
+  z.enum(["course_slug_already_taken"]),
+  z.object({
+    foreign_key_violation: z.object({
+      constraint: z.string().nullish(),
+      table: z.string().nullish(),
+    }),
+  }),
+  z.enum(["not_enrolled"]),
+  z.enum(["upload_expired"]),
+  z.enum(["unknown_upload"]),
+  z.enum(["duplicate_upload"]),
+])
+
 export const zNewErrorReport = z.object({
   app_version: z.string().nullish(),
   details: z.unknown().optional(),

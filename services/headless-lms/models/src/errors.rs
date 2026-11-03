@@ -44,6 +44,47 @@ pub struct NewErrorReport {
     pub details: Option<serde_json::Value>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum MessageKey {
+    CourseSlugAlreadyTaken,
+    ForeignKeyViolation {
+        constraint: Option<String>,
+        table: Option<String>,
+    },
+    DatabaseConstraint {
+        constraint: Option<String>,
+    },
+    /// The user is not enrolled on the course the requested exercise belongs to.
+    NotEnrolled,
+    /// A submission named a file that was uploaded but has since been reaped.
+    UploadExpired,
+    /// A submission named a file the host has no upload record of for this exercise and user.
+    UnknownUpload,
+    /// A submission named the same uploaded file more than once.
+    DuplicateUpload,
+    InvalidCourseCode,
+    GenericSisuError,
+    SisuResourceNotFound,
+}
+
+impl MessageKey {
+    pub fn message_key(self) -> &'static str {
+        match self {
+            Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
+            Self::ForeignKeyViolation { .. } => "foreign_key_violation",
+            Self::DatabaseConstraint { .. } => "database_constraint",
+            Self::NotEnrolled => "not_enrolled",
+            Self::UploadExpired => "upload_expired",
+            Self::UnknownUpload => "unknown_upload",
+            Self::DuplicateUpload => "duplicate_upload",
+            Self::InvalidCourseCode => "invalid_course_code",
+            Self::GenericSisuError => "generic_sisu_error",
+            Self::SisuResourceNotFound => "sisu_resource_not_found",
+        }
+    }
+}
+
 /// Inserts one error occurrence and upserts its variant in a single transaction.
 /// The variant service is treated as immutable after creation; any future service
 /// rename must update both error_variants.service and related error_occurrences.service

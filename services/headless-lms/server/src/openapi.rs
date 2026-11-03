@@ -69,6 +69,9 @@ pub struct AuthApiDoc;
 #[derive(OpenApi)]
 #[openapi(
     nest((path = "/api/v0/errors", api = crate::controllers::errors::ErrorsRoutesApiDoc)),
+    components(schemas(
+        headless_lms_models::errors::MessageKey
+    )),
     info(
         title = "Errors API",
         version = "0.1.0"

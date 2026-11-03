@@ -358,6 +358,9 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
     if (view.type) {
       rows.push({ label: t("errorNotice.type"), value: view.type })
     }
+    if (view.message) {
+      rows.push({ label: t("errorNotice.message"), value: view.message })
+    }
     if (view.messageKey) {
       rows.push({ label: t("errorNotice.messageKey"), value: view.messageKey })
     }

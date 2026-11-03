@@ -406,6 +406,54 @@ WHERE course_id = $1
     Ok(count)
 }
 
+/// Counts the suspected cheaters in a given review state and time period for a course.
+pub async fn get_count_in_course_by_status_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    status: SuspectedCheaterStatus,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<i64> {
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM suspected_cheaters
+WHERE course_id = $1
+  AND status = $2
+  AND created_at >= $3
+  AND created_at <= $4
+  AND deleted_at IS NULL
+        "#,
+        course_id,
+        status as SuspectedCheaterStatus,
+        start_dt,
+        end_dt
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 /// Guards the invariant that a stored threshold is never negative. `progressing.rs` treats a
 /// stored value of `<= 0` as "duration check disabled", so a stray negative write would silently
 /// turn off cheater detection; rejecting it here protects every writer, not just the HTTP handler.

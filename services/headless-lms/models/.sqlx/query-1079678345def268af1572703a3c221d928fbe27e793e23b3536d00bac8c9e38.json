@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM suspected_cheaters\nWHERE course_id = $1\n  AND status = $2\n  AND created_at >= $3\n  AND created_at <= $4\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "suspected_cheater_status",
+            "kind": {
+              "Enum": [
+                "flagged",
+                "confirmed-cheating",
+                "dismissed"
+              ]
+            }
+          }
+        },
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "1079678345def268af1572703a3c221d928fbe27e793e23b3536d00bac8c9e38"
+}

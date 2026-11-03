@@ -66,10 +66,15 @@ fn as_html(
     returned_exercises_count: i64,
     completed_course_count: i64,
     started_course_count: i64,
+    flagged_cheaters_count: i64,
 ) -> String {
     format!(
-        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;"><tbody><tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students started course</p></td></tr></tbody></table>"#,
-        course_name, returned_exercises_count, completed_course_count, started_course_count
+        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;"><tbody><tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students started course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students flagged as cheaters</p></td></tr></tbody></table>"#,
+        course_name,
+        returned_exercises_count,
+        completed_course_count,
+        started_course_count,
+        flagged_cheaters_count
     )
 }
 
@@ -78,10 +83,15 @@ fn as_text(
     returned_exercises_count: i64,
     completed_course_count: i64,
     started_course_count: i64,
+    flagged_cheaters_count: i64,
 ) -> String {
     format!(
-        "{}\n\n* {} students returned exercises\n* {} students completed the course\n* {} students started the course\n",
-        course_name, returned_exercises_count, completed_course_count, started_course_count
+        "{}\n\n* {} students returned exercises\n* {} students completed the course\n* {} students started the course\n* {} students flagged as cheaters\n",
+        course_name,
+        returned_exercises_count,
+        completed_course_count,
+        started_course_count,
+        flagged_cheaters_count
     )
 }
 
@@ -128,12 +138,22 @@ async fn create_newsletter_items(
         )
         .await?
         .count;
+        let flagged_cheaters_count =
+            models::suspected_cheaters::get_count_in_course_by_status_custom_time_period(
+                conn,
+                course.id,
+                models::suspected_cheaters::SuspectedCheaterStatus::Flagged,
+                period_start,
+                period_end,
+            )
+            .await?;
 
         let html = as_html(
             &course.name,
             returned_exercises_count,
             completed_course_count,
             started_course_count,
+            flagged_cheaters_count,
         );
 
         let text = as_text(
@@ -141,6 +161,7 @@ async fn create_newsletter_items(
             returned_exercises_count,
             completed_course_count,
             started_course_count,
+            flagged_cheaters_count,
         );
 
         create_newsletter_item(conn, course.id, period_start, period_end, html, text).await?;

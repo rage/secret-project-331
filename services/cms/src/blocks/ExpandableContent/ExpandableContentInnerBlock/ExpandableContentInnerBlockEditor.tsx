@@ -11,14 +11,8 @@ import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ExpandableContentConfigurationProps } from "."
+import { EXPANDABLE_SECTION_ALLOWED_BLOCKS } from "./allowedBlocks"
 
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/paragraph",
-  "core/image",
-  "core/list",
-  "core/html",
-]
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
 > = ({ attributes, setAttributes }) => {
@@ -113,7 +107,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <InnerBlocks allowedBlocks={EXPANDABLE_SECTION_ALLOWED_BLOCKS} />
         </div>
       </div>
     </div>

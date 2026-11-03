@@ -336,6 +336,62 @@ fn replace_duplicate_client_ids_inner(
     input
 }
 
+/// Gives repeated heading anchors a `-2`, `-3`, ... suffix so that every heading on the page renders
+/// a unique `id`. Duplicating a heading block copies its anchor, which is the usual way repeats end
+/// up on a page.
+///
+/// The first heading using an anchor, in document order, keeps it, so links to the original stay
+/// valid. A suffix is never one that another heading already uses. Anchors are compared trimmed,
+/// as the material renders them.
+pub fn suffix_duplicate_heading_anchors(mut input: Vec<GutenbergBlock>) -> Vec<GutenbergBlock> {
+    let mut taken = HashSet::new();
+    collect_heading_anchors(&input, &mut taken);
+    let mut seen = HashSet::new();
+    suffix_duplicate_heading_anchors_inner(&mut input, &mut seen, &mut taken);
+    input
+}
+
+fn heading_anchor(block: &GutenbergBlock) -> Option<String> {
+    if block.name != "core/heading" {
+        return None;
+    }
+    let anchor = block.attributes.get("anchor")?.as_str()?.trim();
+    (!anchor.is_empty()).then(|| anchor.to_string())
+}
+
+fn collect_heading_anchors(blocks: &[GutenbergBlock], anchors: &mut HashSet<String>) {
+    for block in blocks {
+        if let Some(anchor) = heading_anchor(block) {
+            anchors.insert(anchor);
+        }
+        collect_heading_anchors(&block.inner_blocks, anchors);
+    }
+}
+
+fn suffix_duplicate_heading_anchors_inner(
+    blocks: &mut [GutenbergBlock],
+    seen: &mut HashSet<String>,
+    taken: &mut HashSet<String>,
+) {
+    for block in blocks.iter_mut() {
+        if let Some(anchor) = heading_anchor(block)
+            && !seen.insert(anchor.clone())
+        {
+            let mut suffix = 2;
+            let mut suffixed = format!("{anchor}-{suffix}");
+            while taken.contains(&suffixed) {
+                suffix += 1;
+                suffixed = format!("{anchor}-{suffix}");
+            }
+            taken.insert(suffixed.clone());
+            block
+                .attributes
+                .insert("anchor".to_string(), Value::String(suffixed));
+        }
+        suffix_duplicate_heading_anchors_inner(&mut block.inner_blocks, seen, taken);
+    }
+}
+
 /// Validates that all client IDs in the Gutenberg blocks are unique.
 /// Returns an error if duplicate client IDs are found.
 pub fn validate_unique_client_ids(input: Vec<GutenbergBlock>) -> UtilResult<Vec<GutenbergBlock>> {
@@ -684,5 +740,110 @@ mod tests {
         assert_eq!(result[1].name, "core/heading");
         assert_eq!(result[2].name, "core/list");
         assert_eq!(result[2].inner_blocks.len(), 1);
+    }
+
+    fn heading(anchor: Option<&str>) -> GutenbergBlock {
+        let mut attributes = attributes! { "content": "Summary", "level": 2 };
+        if let Some(anchor) = anchor {
+            attributes.insert("anchor".into(), Value::String(anchor.to_string()));
+        }
+        GutenbergBlock::block_with_name_and_attributes("core/heading", attributes)
+    }
+
+    fn anchors(blocks: &[GutenbergBlock]) -> Vec<Option<String>> {
+        let mut anchors = Vec::new();
+        for block in blocks {
+            anchors.push(
+                block
+                    .attributes
+                    .get("anchor")
+                    .and_then(Value::as_str)
+                    .map(str::to_string),
+            );
+            anchors.extend(self::anchors(&block.inner_blocks));
+        }
+        anchors
+    }
+
+    #[test]
+    fn suffix_duplicate_heading_anchors_keeps_the_first_and_numbers_the_rest() {
+        let output = suffix_duplicate_heading_anchors(vec![
+            heading(Some("summary")),
+            heading(Some("summary")),
+            heading(Some("summary")),
+        ]);
+        assert_eq!(
+            anchors(&output),
+            vec![
+                Some("summary".to_string()),
+                Some("summary-2".to_string()),
+                Some("summary-3".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn suffix_duplicate_heading_anchors_skips_suffixes_already_in_use() {
+        let output = suffix_duplicate_heading_anchors(vec![
+            heading(Some("summary")),
+            heading(Some("summary")),
+            heading(Some("summary-2")),
+        ]);
+        assert_eq!(
+            anchors(&output),
+            vec![
+                Some("summary".to_string()),
+                Some("summary-3".to_string()),
+                Some("summary-2".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn suffix_duplicate_heading_anchors_walks_inner_blocks() {
+        let columns = GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "core/columns",
+            attributes! {},
+            vec![heading(Some("summary"))],
+        );
+        let output = suffix_duplicate_heading_anchors(vec![heading(Some("summary")), columns]);
+        assert_eq!(
+            anchors(&output),
+            vec![
+                Some("summary".to_string()),
+                None,
+                Some("summary-2".to_string()),
+            ]
+        );
+    }
+
+    #[test]
+    fn suffix_duplicate_heading_anchors_compares_trimmed_anchors() {
+        let output = suffix_duplicate_heading_anchors(vec![
+            heading(Some("summary")),
+            heading(Some(" summary ")),
+        ]);
+        assert_eq!(
+            anchors(&output),
+            vec![Some("summary".to_string()), Some("summary-2".to_string())]
+        );
+    }
+
+    #[test]
+    fn suffix_duplicate_heading_anchors_leaves_unique_blank_and_non_heading_anchors_alone() {
+        let paragraph = GutenbergBlock::block_with_name_and_attributes(
+            "core/paragraph",
+            attributes! { "anchor": "summary" },
+        );
+        let input = vec![
+            heading(Some("summary")),
+            heading(Some("intro")),
+            heading(Some("  ")),
+            heading(Some("  ")),
+            heading(None),
+            paragraph,
+        ];
+        let output = suffix_duplicate_heading_anchors(input.clone());
+        assert_eq!(output, input);
     }
 }

@@ -194,6 +194,9 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
+      '@react-types/shared':
+        specifier: ^3.37.0
+        version: 3.37.0(react@19.2.8)
       '@rsbuild/core':
         specifier: ^2.1.13
         version: 2.1.13
@@ -1093,6 +1096,11 @@ packages:
 
   '@react-types/shared@3.36.1':
     resolution: {integrity: sha512-AzsuD9OfxTOZMMvTRhlN3oHBwOmFN7tDh27LzqmHt4+uOgPhJT7ZM7/kVs/8/o0WxayMUIk3hBmCFRHv1FUoag==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-types/shared@3.37.0':
+    resolution: {integrity: sha512-VNlZuifu4tHdxWPfHvoMfKsHA9kVTCGkduv5vKVTdinm8wHFJNhyVB5RzIMiRFj0q3RKoCbP68u2zaoBSiFueg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
 
@@ -5003,6 +5011,10 @@ snapshots:
     dependencies:
       react: 19.2.8
 
+  '@react-types/shared@3.37.0(react@19.2.8)':
+    dependencies:
+      react: 19.2.8
+
   '@rolldown/binding-android-arm64@1.1.3':
     optional: true
 
@@ -7282,7 +7294,7 @@ snapshots:
     dependencies:
       '@internationalized/date': 3.12.3
       '@internationalized/string': 3.2.10
-      '@react-types/shared': 3.36.1(react@19.2.8)
+      '@react-types/shared': 3.37.0(react@19.2.8)
       '@swc/helpers': 0.5.23
       client-only: 0.0.1
       react: 19.2.8
@@ -7309,7 +7321,7 @@ snapshots:
       '@internationalized/date': 3.12.3
       '@internationalized/number': 3.6.7
       '@internationalized/string': 3.2.10
-      '@react-types/shared': 3.36.1(react@19.2.8)
+      '@react-types/shared': 3.37.0(react@19.2.8)
       '@swc/helpers': 0.5.23
       aria-hidden: 1.2.6
       clsx: 2.1.1
@@ -7440,7 +7452,7 @@ snapshots:
       '@internationalized/date': 3.12.3
       '@internationalized/number': 3.6.7
       '@internationalized/string': 3.2.10
-      '@react-types/shared': 3.36.1(react@19.2.8)
+      '@react-types/shared': 3.37.0(react@19.2.8)
       '@swc/helpers': 0.5.23
       react: 19.2.8
       use-sync-external-store: 1.6.0(react@19.2.8)
@@ -8093,6 +8105,7 @@ time:
   '@react-stately/slider@3.8.1': '2026-05-28T17:28:36.194Z'
   '@react-stately/toggle@3.10.1': '2026-05-28T17:28:36.333Z'
   '@react-types/dialog@3.6.0': '2026-04-14T22:43:55.173Z'
+  '@react-types/shared@3.37.0': '2026-10-08T01:00:02.830Z'
   '@rsbuild/core@2.1.13': '2026-08-13T11:53:33.095Z'
   '@rsbuild/plugin-react@2.1.0': '2026-06-18T14:45:18.837Z'
   '@rsbuild/plugin-svgr@2.0.5': '2026-07-02T08:43:56.547Z'

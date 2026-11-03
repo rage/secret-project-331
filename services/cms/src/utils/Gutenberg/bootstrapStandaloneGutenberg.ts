@@ -29,6 +29,8 @@ import {
 } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import { registerGutenbergMathStandIn } from "../../utils/Gutenberg/paste/normalizePasteEvent"
+import { addPasteTransforms } from "../../utils/Gutenberg/paste/pasteTransforms"
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import withCodeLanguageControls from "../../utils/Gutenberg/withCodeLanguageControls"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
@@ -145,12 +147,14 @@ export const ensureStandaloneGutenbergBootstrap = (
       modifyEmbedBlockAttributes,
     )
     addFilter("blocks.registerBlockType", "moocfi/modifyCodeAttributes", modifyCodeBlockAttributes)
+    addFilter("blocks.registerBlockType", "moocfi/pasteTransforms", addPasteTransforms)
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
     addFilter("editor.BlockEdit", "moocfi/cms/codeLanguageControls", withCodeLanguageControls)
     addFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar", withParagraphAiToolbarAction)
 
     registerEditorAiAbilities()
     registerSupportedCoreBlocks()
+    registerGutenbergMathStandIn()
 
     setCategories(modifyGutenbergCategories())
     registerBlockVariations()

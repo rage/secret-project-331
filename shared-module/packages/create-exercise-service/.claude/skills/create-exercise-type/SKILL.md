@@ -65,16 +65,21 @@ and propose the nearest feasible design rather than attempting it. Grounded in t
 that needs a live DB, a session, or a network call to another course service can't exist — grade runs
 from `private_spec + answer` alone (reference/07 §6), and the *only* sanctioned grading I/O is
 fetching a client-supplied URL, which is hostile input to be guarded, not a data source (§8). The
-plugin cannot store uploaded files or mint their IDs — it only receives host-assigned IDs and URLs
-(see the file-upload gotcha below). You cannot mutate a stored blob's shape in place without a
-version bump + a migration
-step (migrate-on-read, reference/07 §1); you cannot make view-submission depend on server-only data
-it is never sent; and nothing you build may require the host to migrate its database. When an ask
-lands here, refuse the impossible part explicitly and redesign around it.
+plugin cannot store files itself or mint their IDs — but files *are* available: the host stores
+answer and spec uploads and hands back IDs and URLs (see the file-upload gotchas below). You cannot
+mutate a stored blob's shape in place without a version bump + a migration step (migrate-on-read,
+reference/07 §1); you cannot make view-submission depend on server-only data it is never sent; and
+nothing you build may require the host to migrate its database. When an ask lands here, refuse the
+impossible part explicitly and redesign around it. These are limits of the current contract: when a
+design truly needs more (say, the submitter's pseudonymous id in the grading request), propose an
+additive host change as separate scope — never something the plugin attempts on its own.
 
 **Sign-off is its own final round.** Never bundle the confirmation/sign-off question with open
 substantive questions; ask for sign-off only after a full round in which the presented artifact did
 not change.
+
+**Write each gate to a file** with an "Open questions (default first)" list and a dated "Decisions
+(user)" section; implementers build from that file, not from the chat.
 
 **Headless / subagent context.** If `AskUserQuestion` is unavailable (you are running as a subagent,
 or without an interactive user), do **not** skip a gate or sign off on your own behalf. Present the
@@ -119,6 +124,13 @@ optional machinery now: **ask whether CSV export is wanted** (keeping it means r
 handlers + tests for your data; dropping it means deleting files per reference/05 step 3 — neither
 is free).
 
+**If the type ports an external format or system** (a quiz format, another LMS's question type),
+settle the parity policy here: default to the source's semantics, support the format completely or
+name what is deferred, and surface every deviation from the source for explicit confirmation —
+including ones you discover later while implementing. **If it wraps a third-party engine or
+library**, spike it with real teacher exports inside the real host sandbox before Gate 1 closes
+(the checklist is reference/07 §12).
+
 **For any exercise that ingests user content or files, settle the abuse/threat surface here in
 Gate 1**, not Gate 2: malicious, oversized, or executable content; whether grading must *fetch and
 scan* the bytes (which forces async grading **and** an SSRF surface — reference/07 §6/§8); PII in
@@ -137,9 +149,10 @@ boundary: a field you forget to drop leaks answers into every student's browser 
 spec was already served. These are the most expensive-to-get-wrong decisions in the task.
 
 Read **`reference/07-key-design-decisions.md`** (at minimum Part I in full plus the one-screen
-checklist at the end; Part II when you design the tests), then design **each of the five types in
-turn** — private spec, public spec, model solution spec, answer, feedback — as its own short
-conversation round:
+checklist at the end; Part II when you design the tests). Start Gate 2 by listing every Gate 1
+feature the proposed types can't support, each checked against host source (file:line). Then design
+**each of the five types in turn** — private spec, public spec, model solution spec, answer,
+feedback — as its own short conversation round:
 
 - **Propose actual TypeScript type definitions**, not prose. Sign-off applies to the exact types
   shown; if a later answer changes them, the changed types go back to the user.
@@ -155,7 +168,8 @@ conversation round:
   ceilings, character limits. "Add limits" from the user + a number you invented is not a confirmed
   design; propose the value, let them confirm or change it. Limits invented *mid-design* (a character
   cap, a retry count, a timeout) are still limits — surface each as its own number, not folded into a
-  bulk "confirm the invariants" or an option label.
+  bulk "confirm the invariants" or an option label. That includes the cost ceilings of endpoints
+  anyone can call: body caps, rate limits, a grading time budget (reference/07 §9).
 - **Delegation is not sign-off.** When the user says "you come up with X," draft X, then present the
   draft for confirmation before implementing it. Same for anything you invent post-gate.
 
@@ -175,9 +189,17 @@ per view, before implementing:
 
 For each view present **2–3 concrete layout options** (ASCII mockups in `AskUserQuestion` option
 previews work well), state what information appears in which state (empty, filled, error, graded),
-and iterate until the user explicitly confirms one. Behavior you invent during implementation that
-wasn't in the confirmed design (a preview-file-types list, an inline-vs-download rule) goes back for
-a quick confirm — it's part of the design, not an implementation detail.
+and iterate until the user explicitly confirms one. Check every item a view displays against the
+data that view receives — the answer view gets only the public spec. Behavior you invent during
+implementation that wasn't in the confirmed design (a preview-file-types list, an
+inline-vs-download rule) goes back for a quick confirm — it's part of the design, not an
+implementation detail.
+
+**Look and feel is part of this gate — decide it before any view code.** Default to the platform's
+own look, restrained and minimal, never the look of the system a format came from; ask which source
+wording survives. Get a mockup approved before writing view code. Where a format feature doesn't fit
+the look, adjust the look rather than drop the feature, and list each such deviation for the user.
+The reference styles and the mockup procedure are in reference/05, "Look and feel".
 
 ## Implement the confirmed design
 
@@ -206,7 +228,9 @@ ln -s AGENTS.md <project>/CLAUDE.md          # relative symlink, so Claude Code 
 `AGENTS_TEMPLATE.md` (alongside the drivers here) is the source of truth — a distillation of
 `reference/07`: the five data types and what each may/must-not contain, the leak catalogue, and the
 peer-review/exam-mode visibility surprises. Nothing needs substituting (it refers to "this service"
-generically). **Keep it in sync with `reference/07`** whenever the data-model doctrine changes.
+generically). **Keep it in sync with `reference/07`** whenever the data-model doctrine changes. As
+you implement, extend its "Where each concern lives" table with the type's own modules, environment
+variables and fixture rules.
 
 **Then read `reference/05-step-by-step-checklist.md` and follow it for your track** — it is the
 mandatory sequence, not optional background: it routes the five types (`src/util/stateInterfaces.ts`)
@@ -254,11 +278,6 @@ Authoring gotchas (each cost a real session a debugging round-trip):
   plain action and don't give it a pending state.
 - **If the answer view seeds state from `previous_submission`, emit a `current-state` for it** —
   otherwise the host's `valid` gate stays unset and a student can't resubmit unchanged prior work.
-- **The template's CORS headers fail a browser preflight.** `iframe-headers.mjs` sets only
-  `Allow-Origin`, and `server.mjs` has no `OPTIONS` handler, so the Playground's browser-side JSON
-  POSTs to your spec endpoints are refused while a real course (server-to-server) works. Add
-  `Allow-Methods`/`Allow-Headers`/`Max-Age` and answer `OPTIONS` before routing; the project guide
-  has the details.
 
 ## Verify
 
@@ -321,6 +340,9 @@ required level, ending with the complete unfiltered suite:
 node <skill-dir>/scripts/run-generated-playwright.mjs
 ```
 
+To try the plugin inside the local dev cluster (CMS, real course pages, regrading) before it is
+hosted, follow reference/04's "Standalone plugin in the local dev cluster".
+
 Do not merely add or list tests. Any missing browser, zero-test level, legacy path, required failing
 layer, or incomplete run means verification is incomplete and must be reported plainly. Focused
 runs are diagnostic only. `drive-view.mjs` is exploratory only and is never verification evidence.
@@ -332,10 +354,12 @@ Bundled in **`reference/`** (start at `reference/README.md`), alongside the ship
 `docs/plugin-system.md`:
 
 - `01` protocol (a delta over `docs/plugin-system.md`), `02` the template's file-by-file anatomy +
-  change-vs-keep list, `03` the scaffolder internals, `04` backend/infra wiring (first-party plugins).
+  change-vs-keep list, `03` the scaffolder internals, `04` backend/infra wiring (first-party
+  plugins, and a standalone one in the local dev cluster).
 - `05` the end-to-end checklist — **mandatory reading at the implementation step above**.
 - `06` the design rationale.
-- `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above.
+- `07` the data-modelling + leak + testing deep dive — the source of the Gate-2 doctrine above —
+  and, in §12, wrapping a third-party engine or format.
 - `08` the mandatory browser-integration levels, upload evidence, and portable execution rules.
 - `09` hosting a standalone (Track A) plugin on the shared Google Cloud setup, and registering it.
 
@@ -450,7 +474,7 @@ bin/create-exercise-service
 ```
 
 It prompts, in order: **Project name** → **Path** (default is the name, resolved relative to the CLI
-package dir — pass an explicit path) → **Project type** (only _React_ works) → **Package manager** →
+package dir — pass an explicit path) → **Project type** (only _React_ works) →
 **Dev server port** (default `3002`, which collides with example-exercise — pick another) →
 **Confirm** (default No, so type `y`). Then `cd <project> && pnpm install && pnpm run dev`.
 
@@ -470,7 +494,7 @@ After any scaffold — maintainer or authoring — ship the plugin guide into th
 
 ## Test
 
-The CLI's own suite scaffolds into a temp dir and asserts the output (15 tests):
+The CLI's own suite scaffolds into a temp dir and asserts the output:
 
 ```bash
 pnpm --dir shared-module/packages/create-exercise-service test

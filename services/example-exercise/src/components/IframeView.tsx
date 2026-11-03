@@ -4,12 +4,17 @@ import { useTranslation } from "react-i18next"
 
 import Renderer from "@/components/Renderer"
 import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import { isSetLanguageMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import {
+  isDialogResponseMessage,
+  isSetLanguageMessage,
+  isUploadResultMessage,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
 import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import {
   parseAnswer,
+  parseFeedback,
   parseModelSolution,
   parsePreviousSubmission,
   parsePrivateSpec,
@@ -22,7 +27,6 @@ import type {
   ModelSolutionApi,
   PublicAlternative,
 } from "@/util/stateInterfaces"
-import { isExerciseFeedback } from "@/util/stateInterfaces"
 
 export interface SubmissionData {
   grading: ExerciseTaskGradingResult
@@ -84,12 +88,11 @@ const IframeView: React.FC = () => {
             private_spec: parsePrivateSpec(data.private_spec),
           })
         } else if (messageData.view_type === "view-submission") {
-          const feedbackJson = data.grading?.feedback_json
           setState({
             view_type: messageData.view_type,
             public_spec: parsePublicSpec(data.public_spec),
             answer: parseAnswer(data.user_answer),
-            feedback_json: isExerciseFeedback(feedbackJson) ? feedbackJson : null,
+            feedback_json: parseFeedback(data.grading?.feedback_json),
             model_solution_spec: parseModelSolution(data.model_solution_spec),
             grading: data.grading ?? null,
           })
@@ -99,6 +102,8 @@ const IframeView: React.FC = () => {
       })
     } else if (isSetLanguageMessage(messageData)) {
       i18n.changeLanguage(messageData.data)
+    } else if (isDialogResponseMessage(messageData) || isUploadResultMessage(messageData)) {
+      // Answers to `useParentDialog` / `useFileUpload`, which listen on the same port.
     } else {
       console.error("Frame received an unknown message from message port")
     }

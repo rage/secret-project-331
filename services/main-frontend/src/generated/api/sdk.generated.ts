@@ -272,6 +272,8 @@ import type {
   GetCertificateByVerificationIdResponses,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponses,
+  GetChatbotEmbedConfData,
+  GetChatbotEmbedConfResponses,
   GetChatbotModelData,
   GetChatbotModelResponses,
   GetChatbotModelsData,
@@ -951,6 +953,7 @@ import {
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
   zGetChatbotConfigurationResponse,
+  zGetChatbotEmbedConfResponse,
   zGetChatbotModelResponse,
   zGetChatbotModelsResponse,
   zGetCodeGiveawayByIdResponse,
@@ -1556,6 +1559,19 @@ export const getCourseChapters = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseChaptersResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/chatbot-embed/{chatbot_configuration_id}`
+ */
+export const getChatbotEmbedConf = <ThrowOnError extends boolean = true>(
+  options: Options<GetChatbotEmbedConfData, ThrowOnError>,
+): RequestResult<GetChatbotEmbedConfResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetChatbotEmbedConfResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetChatbotEmbedConfResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbot-embed/{chatbot_id}",
     ...options,
   })
 

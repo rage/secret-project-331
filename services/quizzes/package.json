@@ -68,6 +68,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@react-types/shared": "^3.37.0",
     "@rsbuild/core": "^2.1.13",
     "@rsbuild/plugin-react": "^2.1.0",
     "@rsbuild/plugin-svgr": "^2.0.5",

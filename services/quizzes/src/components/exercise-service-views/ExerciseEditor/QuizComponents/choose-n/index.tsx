@@ -6,18 +6,20 @@ import { v4 } from "uuid"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 import type { PrivateSpecQuizItemChooseN } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
+import applyOptionChanges from "../common/applyOptionChanges"
 import EditorCard from "../common/EditorCard"
 import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
 } from "../common/FeedbackMessagesEditor"
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
+import NumericField from "../common/NumericField"
 import ParsedTextField from "../common/ParsedTextField"
+import UnaddedDraftNotice from "../common/UnaddedDraftNotice"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -110,23 +112,19 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         }}
         label={t("title")}
       />
-      <TextField
+      <NumericField
+        integer
         value={selected.n}
         label={t("quiz-choose-n-description")}
-        onChangeByValue={(value) => {
+        min={0}
+        onCommit={(next) => {
           updateState((draft) => {
             if (!draft) {
               return
             }
-            try {
-              // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-              draft.n = parseInt(value, 10)
-            } catch (_e) {
-              /* NOP */
-            }
+            draft.n = next
           })
         }}
-        type={"number"}
       />
       <OptionTitle> {t("title-options")} </OptionTitle>
       <OptionDescription>{t("title-options-description")}</OptionDescription>
@@ -141,20 +139,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(title, feedbackMessages, correctValue) => {
-              updateState((draft) => {
-                if (!draft) {
-                  return
-                }
-                draft.options = draft.options.map((opt) => {
-                  if (opt.id === option.id) {
-                    opt.title = title
-                    opt.correct = correctValue
-                    opt.feedbackMessages = feedbackMessages
-                  }
-                  return opt
-                })
-              })
+            onChange={(changes) => {
+              updateState((draft) => applyOptionChanges(draft, option.id, changes))
             }}
             key={option.id}
             option={option}
@@ -212,6 +198,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         >
           {t("add-option")}
         </Button>
+        <UnaddedDraftNotice draft={optionTitle} />
       </OptionCreationContainer>
 
       {/* Advanced options */}

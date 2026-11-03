@@ -63,6 +63,8 @@ test.describe("Chatbot settings testing", () => {
     await page
       .getByRole("checkbox", { name: "Use course material search and cite sources" })
       .click()
+    await page.getByRole("checkbox", { name: "Can the chatbot be embedded in an iframe" }).click()
+    await expect(page.getByText('<iframe title="Chatbot 2')).toBeVisible()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save", exact: true }).click()
     })

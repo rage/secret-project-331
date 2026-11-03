@@ -73,9 +73,22 @@ test.describe("A student whose credits reach the study registry", () => {
     const registration = await test.step("Drive the completion to registered", async () => {
       await runMaterializeTick(page.request, scope)
       await runPreconditionsTick(page.request, scope)
-      // Parked for its first enrolment check, which the student is mailed about at once. Ticked
-      // here so the mail exists whether or not the workers got to the row first.
+      // Parked for its first enrolment check, which the student is mailed about at once. The mail is
+      // owed only while parked, so it must exist before the check moves the row on; a worker
+      // holding the row can make this tick claim nothing, hence the poll.
+      const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
+        "no_usable_enrolment",
+      ])
       await runStudentNotificationsTick(page.request, scope)
+      await expect
+        .poll(
+          async () =>
+            mailsOfKind(
+              (await adminRegistrationDetails(adminApi, parked.id)).notification_emails,
+              "action_needed",
+            ).length,
+        )
+        .toBe(1)
       await runEnrolmentCheckNow(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
       const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [

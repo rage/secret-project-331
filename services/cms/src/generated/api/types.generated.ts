@@ -37,6 +37,7 @@ export type ChatbotConfiguration = {
   daily_tokens_per_user: number
   default_chatbot: boolean
   deleted_at?: string | null
+  embeddable: boolean
   enabled_to_students: boolean
   enabled_tool_categories: Array<ToolCategory>
   frequency_penalty: number

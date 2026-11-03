@@ -7,6 +7,7 @@ This documents all endpoints. Select a module below for a category.
 
 pub mod certificates;
 pub mod chapters;
+pub mod chatbot_embed;
 pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
@@ -91,6 +92,7 @@ use utoipa::OpenApi;
         (path = "/time", api = time::MainFrontendTimeApiDoc),
         (path = "/user-details", api = user_details::MainFrontendUserDetailsApiDoc),
         (path = "/users", api = users::MainFrontendUsersApiDoc),
+        (path = "/chatbot-embed", api = chatbot_embed::MainFrontendChatbotEmbedApiDoc),
         (path = "/external-courses", api = external_courses::MainFrontendExternalCoursesApiDoc)
     )
 )]
@@ -149,5 +151,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/time").configure(time::_add_routes))
         .service(web::scope("/shared-submissions").configure(shared_submissions::_add_routes))
         .service(web::scope("/status").configure(status::_add_routes))
+        .service(web::scope("/chatbot-embed").configure(chatbot_embed::_add_routes))
         .service(web::scope("/external-courses").configure(external_courses::_add_routes));
 }

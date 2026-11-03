@@ -73,6 +73,7 @@ import {
   redoEditorHistory,
   undoEditorHistory,
 } from "../../utils/Gutenberg/editorHistory"
+import { normalizePasteEvent } from "../../utils/Gutenberg/paste/normalizePasteEvent"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withFileIframePreview from "../../utils/Gutenberg/withFileIframePreview"
@@ -481,6 +482,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
 
   return (
     <div
+      onPasteCapture={(event) => normalizePasteEvent(event.nativeEvent)}
       className={css`
         padding-top: 1rem;
         --start-sidebar-top-px: ${sideBarStartingYCoordinate}px;

@@ -1,5 +1,8 @@
 import { ALT_TEXT_NOT_CHANGED_PLACEHOLDER } from "../../src/services/altTextPlaceholder"
-import { shouldWarnAboutImageAltPlaceholder } from "../../src/utils/Gutenberg/imageAltWarning"
+import {
+  isGoogleDocsImageUrl,
+  shouldWarnAboutImageAltPlaceholder,
+} from "../../src/utils/Gutenberg/imageAltWarning"
 
 describe("shouldWarnAboutImageAltPlaceholder", () => {
   it("warns when the alt text is still the default placeholder", () => {
@@ -36,5 +39,20 @@ describe("shouldWarnAboutImageAltPlaceholder", () => {
 
   it("still warns for a non-decorative image with the placeholder alt", () => {
     expect(shouldWarnAboutImageAltPlaceholder(ALT_TEXT_NOT_CHANGED_PLACEHOLDER, false)).toBe(true)
+  })
+})
+
+describe("isGoogleDocsImageUrl", () => {
+  it("recognizes images pasted from a Google Doc", () => {
+    expect(
+      isGoogleDocsImageUrl("https://lh7-rt.googleusercontent.com/docsz/AD_4nXc1?key=abc"),
+    ).toBe(true)
+    expect(isGoogleDocsImageUrl("https://lh7-us.googleusercontent.com/AD_4nXc1")).toBe(true)
+  })
+
+  it("ignores other images", () => {
+    expect(isGoogleDocsImageUrl("https://lh3.googleusercontent.com/a/profile.png")).toBe(false)
+    expect(isGoogleDocsImageUrl("https://example.com/docs/cat.png")).toBe(false)
+    expect(isGoogleDocsImageUrl(undefined)).toBe(false)
   })
 })

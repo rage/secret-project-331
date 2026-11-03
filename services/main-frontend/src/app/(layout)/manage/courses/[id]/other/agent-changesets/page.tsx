@@ -22,10 +22,15 @@ import {
   TONE,
 } from "@/shared-module/components"
 
+const REFETCH_INTERVAL_MS = 30_000
+
 function AgentChangesetsPage() {
   const params = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const changesetsQuery = useQuery(getAgentChangesetsOptions({ query: { course_id: params.id } }))
+  const changesetsQuery = useQuery({
+    ...getAgentChangesetsOptions({ query: { course_id: params.id } }),
+    refetchInterval: REFETCH_INTERVAL_MS,
+  })
 
   return (
     <div

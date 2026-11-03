@@ -182,7 +182,7 @@ const PageContentChange: React.FC<{ change: PageChange }> = ({ change }) => {
 interface EntityChangeProps {
   reviewEntity: ReviewEntity
   changesetId: string
-  isChangesetOpen: boolean
+  canPreview: boolean
   conflicts: PublishConflict[]
 }
 
@@ -190,7 +190,7 @@ interface EntityChangeProps {
 const EntityChange: React.FC<EntityChangeProps> = ({
   reviewEntity,
   changesetId,
-  isChangesetOpen,
+  canPreview,
   conflicts,
 }) => {
   const { t } = useTranslation()
@@ -271,7 +271,7 @@ const EntityChange: React.FC<EntityChangeProps> = ({
 
       {reviewEntity.kind === "page" && <PageContentChange change={reviewEntity} />}
 
-      {reviewEntity.kind === "page" && reviewEntity.after && isChangesetOpen && (
+      {reviewEntity.kind === "page" && reviewEntity.after && canPreview && (
         <div>
           <Link
             href={agentChangesetPagePreviewRoute(changesetId, entityId)}

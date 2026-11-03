@@ -43,6 +43,7 @@ function AgentChangesetsPage() {
       <p>{t("agent-changesets-description")}</p>
       <QueryResult
         query={changesetsQuery}
+        refreshIndicator="quiet"
         emptyFallback={
           <EmptyState title={t("agent-changesets-empty")} hint={t("agent-changesets-empty-hint")} />
         }

@@ -35,7 +35,9 @@ function AgentChangesetReviewPage() {
       <Link href={manageCourseAgentChangesetsRoute(params.id)}>
         {t("agent-all-changesets-link")}
       </Link>
-      <QueryResult query={reviewQuery}>{(review) => <ShownReview latest={review} />}</QueryResult>
+      <QueryResult query={reviewQuery} refreshIndicator="quiet">
+        {(review) => <ShownReview latest={review} />}
+      </QueryResult>
     </div>
   )
 }
@@ -61,7 +63,10 @@ function ShownReview({ latest }: { latest: ChangesetReviewData }) {
           </Button>
         </Infobox>
       )}
-      <ChangesetReview review={shown} />
+      <ChangesetReview
+        review={{ ...shown, is_expiring_soon: latest.is_expiring_soon }}
+        showsLatestRevision={!hasNewChanges}
+      />
     </>
   )
 }

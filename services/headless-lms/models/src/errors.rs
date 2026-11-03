@@ -53,7 +53,10 @@ pub enum MessageKey {
         table: Option<String>,
     },
     DatabaseConstraint {
-        constraint: Option<String>,
+        constraint: String,
+    },
+    InvalidCMSAnchorBlock {
+        block_id: Uuid,
     },
     /// The user is not enrolled on the course the requested exercise belongs to.
     NotEnrolled,
@@ -74,6 +77,7 @@ impl MessageKey {
             Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
             Self::ForeignKeyViolation { .. } => "foreign_key_violation",
             Self::DatabaseConstraint { .. } => "database_constraint",
+            Self::InvalidCMSAnchorBlock { .. } => "invalid_cms_anchor_block",
             Self::NotEnrolled => "not_enrolled",
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",

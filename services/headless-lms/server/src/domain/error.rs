@@ -520,6 +520,7 @@ impl error::ResponseError for ControllerError {
             default_message_key.to_string()
         };
 
+        // replacing metadata
         let _message_params = match &self.message_key {
             None => None,
             // Some(MessageKey::BlockId { id }) => {
@@ -786,25 +787,29 @@ impl From<ModelError> for ControllerError {
             ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
                 Self::new_with_traces(
                     ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(*id)),
+                    //ControllerErrorType::BadRequest,
                     description.to_string(),
                     Some(err.into()),
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::InvalidCMSAnchorBlock {
+                    block_id: id.to_owned(),
+                })
             }
             ModelErrorType::DatabaseConstraint {
                 constraint,
                 description,
             } => Self::new_with_traces(
-                BadRequestReason::from_database_constraint(constraint)
-                    .map_or(ControllerErrorType::BadRequest, |reason| {
-                        ControllerErrorType::BadRequestWithReason(reason)
-                    }),
+                ControllerErrorType::BadRequest,
                 description.to_string(),
                 Some(err.into()),
                 backtrace,
                 span_trace,
-            ),
+            )
+            .with_message_key(MessageKey::DatabaseConstraint {
+                constraint: constraint.to_owned(),
+            }),
             ModelErrorType::InvalidRequest => Self::new_with_traces(
                 ControllerErrorType::BadRequest,
                 err.message().to_string(),

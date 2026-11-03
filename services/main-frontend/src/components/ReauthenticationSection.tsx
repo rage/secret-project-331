@@ -72,7 +72,7 @@ const ReauthenticationSection: React.FC<{ email: string }> = ({ email }) => {
         <div className={settingsCardIconChipCss}>
           <Padlock size={16} />
         </div>
-        <h3>{t("heading-confirm-your-account")}</h3>
+        <h2>{t("heading-confirm-your-account")}</h2>
       </div>
       <Body email={email} />
     </div>

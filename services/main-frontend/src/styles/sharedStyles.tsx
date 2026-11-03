@@ -59,7 +59,7 @@ export const actionButtonStyle = css`
   }
 `
 
-/** A settings card's title row: icon chip, then an `h3`. */
+/** A settings card's title row: icon chip, then an `h2`. */
 export const settingsCardHeaderCss = css`
   display: flex;
   align-items: center;
@@ -68,7 +68,7 @@ export const settingsCardHeaderCss = css`
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--color-gray-100);
 
-  h3 {
+  h2 {
     margin: 0;
     font-size: 1.0625rem;
     font-weight: 600;

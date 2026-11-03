@@ -15655,6 +15655,11 @@
         "description": "A module or mooc.fi target on a course code, which shares the code's enrolment list.",
         "required": ["credit_unit_id", "course_name"],
         "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The module's course; `None` for a mooc.fi target."
+          },
           "course_module_name": {
             "type": ["string", "null"],
             "description": "`None` for a mooc.fi target."

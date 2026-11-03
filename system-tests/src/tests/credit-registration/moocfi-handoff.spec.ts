@@ -49,7 +49,7 @@ test("The mooc.fi button signs the student in on the course's registration page"
 
   await expect(page.getByRole("link", { name: "Back to mooc.fi" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "No completion found" })).toBeVisible()
-  await expect(page.getByText(MOOCFI_TARGET_NAME)).toBeVisible()
+  await expect(page.getByText(`Course: ${MOOCFI_TARGET_NAME}`)).toBeVisible()
   await accessibilityCheck(page, "mooc.fi registration page after a handoff")
 
   await test.step("A replay of the same handoff goes to the login page: it is single use", async () => {
@@ -72,7 +72,7 @@ test("A same-site redeem that did not come from mooc.fi's page waits for the stu
   const visitor = await playwright.request.newContext()
   const redeemUrl = await mintMoocfiHandoff(visitor, MOOCFI_COURSE, STUDENT)
   const redeem = await visitor.get(redeemUrl, {
-    headers: { "Sec-Fetch-Site": "same-site", Referer: `${ORIGIN}/somewhere-else` },
+    headers: { "Sec-Fetch-Site": "same-site", Referer: "http://other.project-331.local/" },
     maxRedirects: 0,
   })
   expect(redeem.status()).toBe(303)

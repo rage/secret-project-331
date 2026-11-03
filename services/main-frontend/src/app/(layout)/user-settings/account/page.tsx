@@ -79,7 +79,7 @@ const AccountSettingsPage: React.FC = () => {
                   `}
                 />
               </div>
-              <h3
+              <h2
                 className={css`
                   font-size: 1.0625rem;
                   font-weight: ${fontWeights.semibold};
@@ -88,7 +88,7 @@ const AccountSettingsPage: React.FC = () => {
                 `}
               >
                 {t("user-settings-password-security")}
-              </h3>
+              </h2>
             </div>
             <ChangeUserPasswordForm />
           </div>

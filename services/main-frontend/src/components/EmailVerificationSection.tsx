@@ -80,7 +80,7 @@ const EmailVerificationSection: React.FC = () => {
         <div className={settingsCardIconChipCss}>
           <Envelope size={16} />
         </div>
-        <h3>{t("heading-email-address-verification")}</h3>
+        <h2>{t("heading-email-address-verification")}</h2>
       </div>
       <Body status={status} />
     </div>

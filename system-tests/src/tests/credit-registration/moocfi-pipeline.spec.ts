@@ -74,7 +74,7 @@ test("A mooc.fi completion is registered in Sisu and reported back to mooc.fi on
   ])
 
   await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
-  await expect(page.getByText(MOOCFI_TARGET_NAME)).toBeVisible()
+  await expect(page.getByText(`Course: ${MOOCFI_TARGET_NAME}`)).toBeVisible()
 
   const registrationId =
     await test.step("materialize and preconditions wait for a student number", async () => {
@@ -132,6 +132,6 @@ test("A mooc.fi completion is registered in Sisu and reported back to mooc.fi on
 
   await test.step("The student's page shows the credit registered", async () => {
     await page.goto(`/completion-registration/mooc-fi/${MOOCFI_COURSE.id}`)
-    await expect(page.getByText("Registered in Sisu")).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Your completion is registered" })).toBeVisible()
   })
 })

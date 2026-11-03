@@ -199,7 +199,7 @@
     "/api/v0/auth/reauthenticate-with-password": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/reauthenticate-with-password` - Ends the delegation of the session if `password`\nis the account's.\n\nAn account only ever signed in through handoffs has no password stored here, so its password is\nchecked with TMC, like a login would, but nothing is stored.",
+        "summary": "\nPOST `/api/v0/auth/reauthenticate-with-password` - Ends the delegation of the session if `password`\nis the account's.\n\nAn account only ever signed in through handoffs has no password stored here, so its password is\nchecked with TMC under the email TMC has, which an unverified change here has not reached. Nothing is\nstored.",
         "operationId": "postAuthReauthenticateWithPassword",
         "requestBody": {
           "content": {

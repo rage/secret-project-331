@@ -32,6 +32,10 @@ export type AccountLinkingCodeCounters = {
  */
 export type AccountLinkingCodeModule = {
   /**
+   * The module's course; `None` for a mooc.fi target.
+   */
+  course_id?: string | null
+  /**
    * `None` for a mooc.fi target.
    */
   course_module_name?: string | null

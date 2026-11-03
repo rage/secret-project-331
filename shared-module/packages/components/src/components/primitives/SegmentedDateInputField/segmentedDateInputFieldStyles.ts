@@ -54,7 +54,7 @@ export const segmentedPickerGroupCss = css`
 export const segmentedZoneLabelCss = css`
   flex: 0 0 auto;
   margin-inline-start: var(--space-2);
-  color: var(--field-chrome);
+  color: var(--color-gray-500);
   font-size: 0.85em;
   white-space: nowrap;
 `

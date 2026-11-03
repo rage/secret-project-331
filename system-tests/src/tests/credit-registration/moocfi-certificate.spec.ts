@@ -80,10 +80,16 @@ test("The certificate is on mooc.fi, and a reason for needing the credits is kep
     .getByRole("radio", { name: "A certificate of completion" })
     .click()
 
-  const handoffResponse = page.waitForResponse((response) => response.url().endsWith(HANDOFF_PATH))
+  // Read in the route: the page navigates away on the answer, after which its body is gone.
+  let redirectUrl = ""
+  await page.route(`**${HANDOFF_PATH}`, async (route) => {
+    const response = await route.fetch()
+    redirectUrl = ((await response.json()) as { redirect_url: string }).redirect_url
+    await route.fulfill({ response })
+  })
   await page.getByRole("button", { name: "Go to the certificate" }).click()
-  const { redirect_url } = (await (await handoffResponse).json()) as { redirect_url: string }
-  const token = new URL(redirect_url).hash.replace("#token=", "")
+  await page.waitForURL(/\/api\/v0\/mock-moocfi\/(en\/)?credit-registration-handoff\//)
+  const token = new URL(redirectUrl).hash.replace("#token=", "")
 
   await test.step("mooc.fi's landing redeems the token for this student and course", async () => {
     await page.waitForURL(/\/api\/v0\/mock-moocfi\/(en\/)?credit-registration-handoff\//)

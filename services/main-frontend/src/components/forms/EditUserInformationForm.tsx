@@ -134,7 +134,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             border-bottom: 1px solid ${baseTheme.colors.gray[100]};
           `}
         >
-          <h3
+          <h2
             className={css`
               font-size: 1.0625rem;
               font-weight: 600;
@@ -143,7 +143,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             `}
           >
             {t("user-settings-personal-info")}
-          </h3>
+          </h2>
           <Button
             data-testid="edit-profile-button"
             variant="tertiary"
@@ -178,7 +178,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
@@ -203,7 +203,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
@@ -228,7 +228,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
@@ -253,7 +253,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
@@ -295,7 +295,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               font-weight: 500;
               text-transform: uppercase;
               letter-spacing: 0.03em;
-              color: ${baseTheme.colors.gray[400]};
+              color: ${baseTheme.colors.gray[500]};
               margin-bottom: 0.375rem;
             `}
           >
@@ -318,7 +318,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   return (
     <div className={settingsCardCss}>
-      <h3
+      <h2
         className={css`
           font-size: 1.0625rem;
           font-weight: 600;
@@ -332,7 +332,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
         `}
       >
         {t("user-settings-personal-info")}
-      </h3>
+      </h2>
       <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
         <div
           className={css`

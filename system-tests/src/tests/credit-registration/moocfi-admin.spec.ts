@@ -61,11 +61,12 @@ const openAddDialog = async (page: Page, fields: TargetFields): Promise<Locator>
   await dialog
     .getByRole("textbox", { name: "University of Helsinki course code" })
     .fill(fields.courseCode)
-  await dialog.getByRole("spinbutton", { name: "ECTS credits" }).fill("5")
-  await dialog.getByRole("spinbutton", { name: "Lowest tier" }).fill(String(fields.lowestTier))
-  await dialog.getByRole("spinbutton", { name: "Highest tier" }).fill(String(fields.highestTier))
+  await dialog.getByRole("textbox", { name: "ECTS credits" }).fill("5")
+  await dialog.getByRole("textbox", { name: "Lowest tier" }).fill(String(fields.lowestTier))
+  await dialog.getByRole("textbox", { name: "Highest tier" }).fill(String(fields.highestTier))
   // Every target of one mooc.fi course must share the cutoff, so the form's default of now will not do.
-  await dialog.getByRole("spinbutton", { name: "year, Cutoff (Helsinki time)" }).click()
+  // Focused, not clicked: a click opens the calendar, which then takes the typing.
+  await dialog.getByRole("spinbutton", { name: "year, Cutoff (Helsinki time)" }).focus()
   await page.keyboard.type(CUTOFF_SEGMENTS)
   await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
   return dialog
@@ -128,7 +129,7 @@ test("A mooc.fi course is added, edited, paused, resumed and deleted on the Cour
       dialog.getByText("These tiers overlap another target of the same mooc.fi course."),
     ).toBeVisible()
 
-    await dialog.getByRole("spinbutton", { name: "Lowest tier" }).fill("3")
+    await dialog.getByRole("textbox", { name: "Lowest tier" }).fill("3")
     await dialog.getByRole("button", { name: "Save" }).click()
     await expect(dialog).toHaveCount(0)
     await expect(targetRow(page, advanced)).toBeVisible()
@@ -146,7 +147,7 @@ test("A mooc.fi course is added, edited, paused, resumed and deleted on the Cour
     await expect(
       dialog.getByText("This mooc.fi course already has a target with this course code."),
     ).toBeVisible()
-    await page.keyboard.press("Escape")
+    await dialog.getByRole("button", { name: "Close" }).click()
     await expect(dialog).toHaveCount(0)
   })
 

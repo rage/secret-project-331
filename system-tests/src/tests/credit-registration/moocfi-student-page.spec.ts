@@ -148,7 +148,7 @@ test("Each completion says how it is registered, and stale or missing data says 
   await test.step("A paused course says so instead of reading as under way", async () => {
     await page.goto(moocfiRegistrationUrl(MOOCFI_PAUSED_COURSE))
     await expect(page.getByRole("heading", { name: "Registration paused" })).toBeVisible()
-    await expect(page.getByText(MOOCFI_PAUSED_TARGET_NAME)).toBeVisible()
+    await expect(page.getByText(`Course: ${MOOCFI_PAUSED_TARGET_NAME}`)).toBeVisible()
     await expect(page.getByText("Being registered")).toHaveCount(0)
   })
 

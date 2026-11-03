@@ -41,6 +41,7 @@ export const zAccountLinkingCodeCounters = z.object({
  * A module or mooc.fi target on a course code, which shares the code's enrolment list.
  */
 export const zAccountLinkingCodeModule = z.object({
+  course_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
   credit_unit_id: z.uuid(),

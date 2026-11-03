@@ -113,6 +113,8 @@ pub struct AccountLinkingFailureDomain {
 pub struct AccountLinkingCodeModule {
     /// The module's or target's id.
     pub credit_unit_id: Uuid,
+    /// The module's course; `None` for a mooc.fi target.
+    pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     /// `None` for a mooc.fi target.
@@ -1767,6 +1769,7 @@ async fn build_course_codes(
             .or_default()
             .push(AccountLinkingCodeModule {
                 credit_unit_id: row.credit_unit_id,
+                course_id: row.course_id,
                 course_name: row.course_name,
                 course_module_name: row.course_module_name,
                 last_listed_at: row.last_listed_at,

@@ -218,7 +218,8 @@ export const postAuthReauthenticateWithCode = <ThrowOnError extends boolean = tr
  * is the account's.
  *
  * An account only ever signed in through handoffs has no password stored here, so its password is
- * checked with TMC, like a login would, but nothing is stored.
+ * checked with TMC under the email TMC has, which an unverified change here has not reached. Nothing is
+ * stored.
  */
 export const postAuthReauthenticateWithPassword = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthReauthenticateWithPasswordData, ThrowOnError>,

@@ -598,7 +598,6 @@ const CoursesPage: React.FC = () => {
                               courseModuleId: row.credit_unit_id,
                               steps: IN_PROGRESS_STEPS,
                             })}
-                            appearance={LINK_QUIET}
                           >
                             {count}
                           </Link>
@@ -643,7 +642,6 @@ const CoursesPage: React.FC = () => {
                               needsAttention: true,
                               includeNotStarted: true,
                             })}
-                            appearance={LINK_QUIET}
                           >
                             {row.needs_attention_count}
                           </Link>

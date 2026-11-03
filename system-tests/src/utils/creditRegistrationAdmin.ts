@@ -126,7 +126,7 @@ export interface AdminMoocfiCompletion {
 
 export interface AccountLinkingCourseCode {
   course_code: string
-  modules: { course_id: string; last_listed_at: string | null }[]
+  modules: { course_id: string | null; last_listed_at: string | null }[]
   linking: { listed_person_count: number } | null
 }
 

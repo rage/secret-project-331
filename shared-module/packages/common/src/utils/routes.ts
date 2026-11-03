@@ -175,6 +175,11 @@ export function manageCourseAgentChangesetRoute(courseId: string, changesetId: s
   return `/manage/courses/${courseId}/other/agent-changesets/${changesetId}`
 }
 
+/** Opens a fresh preview of a page in an agent changeset; a link, so it can open in a new tab. */
+export function agentChangesetPagePreviewRoute(changesetId: string, pageId: string) {
+  return `/manage/agent-changesets/${changesetId}/preview/${pageId}`
+}
+
 export function manageCourseOtherReferencesRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/references`
 }

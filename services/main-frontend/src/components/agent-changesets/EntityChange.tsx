@@ -1,11 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useRouter } from "next/navigation"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { createAgentChangesetPreviewLinkMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   AgentChangesetEntityOperation,
   EntityRef,
@@ -14,10 +12,10 @@ import type {
   PublishConflict,
   ReviewEntity,
 } from "@/generated/api/types.generated"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
+import { agentChangesetPagePreviewRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Button, ErrorNotice, TONE } from "@/shared-module/components"
+import { Badge, Link, TONE } from "@/shared-module/components"
 import type { Block } from "@/types/courseMaterialBlock"
 
 import BeforeAfterTabs from "./BeforeAfterTabs"
@@ -196,7 +194,6 @@ const EntityChange: React.FC<EntityChangeProps> = ({
   conflicts,
 }) => {
   const { t } = useTranslation()
-  const router = useRouter()
   const entityTitle = useEntityTitle()
   const entityName = useEntityName()
   const {
@@ -211,16 +208,6 @@ const EntityChange: React.FC<EntityChangeProps> = ({
     (conflict) => conflict.entity_type === entityType && conflict.entity_id === entityId,
   )
   const headingId = `agent-entity-${entityType}-${entityId}`
-
-  const previewLinkMutation = useToastMutationOptions(
-    createAgentChangesetPreviewLinkMutation(),
-    { notify: false },
-    {
-      onSuccess: (link) => {
-        router.push(link.preview_path)
-      },
-    },
-  )
 
   return (
     <article
@@ -286,27 +273,15 @@ const EntityChange: React.FC<EntityChangeProps> = ({
 
       {reviewEntity.kind === "page" && reviewEntity.after && isChangesetOpen && (
         <div>
-          <Button
+          <Link
+            href={agentChangesetPagePreviewRoute(changesetId, entityId)}
+            styledAsButton
             variant="secondary"
             size="medium"
-            isLoading={previewLinkMutation.isPending}
             data-testid="agent-open-preview-button"
-            onPress={() =>
-              previewLinkMutation.mutate({
-                path: { changeset_id: changesetId, page_id: entityId },
-              })
-            }
           >
             {t("agent-open-preview")}
-          </Button>
-          {previewLinkMutation.isError && (
-            <ErrorNotice
-              error={previewLinkMutation.error}
-              context={t("agent-open-preview-failed")}
-              headingLevel={4}
-              data-testid="agent-open-preview-error"
-            />
-          )}
+          </Link>
         </div>
       )}
     </article>

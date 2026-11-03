@@ -23,8 +23,7 @@ const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttribu
   attributes: {
     title: {
       type: "string",
-      source: "html",
-      selector: "h1",
+      isRichText: true,
       default: "This is the heading of this component...",
     },
     headingLevel: {
@@ -34,10 +33,12 @@ const AsideWithImageConfiguration: BlockConfiguration<AsideWithImageBlockAttribu
     },
     content: {
       type: "string",
+      isRichText: true,
       default:
         "Coulrophobia brings on feelings of fear when you see clowns or clown images. It's a specific phobic disorder that causes anxiety, a racing heart, nausea and profuse sweating",
     },
   },
+  allowedBlocks: ["core/image"],
   edit: AsideWithImageEditor,
   save: AsideWithImageSave,
 }

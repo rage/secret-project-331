@@ -11,14 +11,29 @@ import type {
 } from "@wordpress/blocks"
 import type { ComponentType } from "react"
 
+import type { AttributeSchema } from "./agentSchema"
+
 /* oxlint-disable typescript/no-explicit-any */
 type UnknownAttributes = Record<string, unknown>
 type CreateBlock = typeof import("@wordpress/blocks").createBlock
 type CreateBlocksFromInnerBlocksTemplate =
   typeof import("@wordpress/blocks").createBlocksFromInnerBlocksTemplate
 
+export type CmsBlockAttribute = BlockAttribute & {
+  /**
+   * Edited with RichText but stored without `source`: custom saves render only the inner blocks,
+   * so a sourced attribute is lost on copy and paste. The agent validator reads this.
+   */
+  isRichText?: true
+  /**
+   * The schema agent writes must match, in place of the one the agent validator derives from
+   * `type`, for constraints the editor's UI enforces but the type can't state.
+   */
+  agentSchema?: AttributeSchema
+}
+
 type BlockAttributeMap<Attributes extends object> = {
-  [Key in keyof Attributes]: BlockAttribute
+  [Key in keyof Attributes]: CmsBlockAttribute
 }
 
 type UpstreamBlockInstance = ReturnType<CreateBlock>
@@ -96,6 +111,7 @@ export type BlockConfiguration<Attributes extends object = any> = Omit<
   getEditWrapperProps?: (attrs: Attributes) => Record<string, string | number | boolean>
   merge?: (attributes: Attributes, attributesToMerge: Attributes) => Partial<Attributes>
   __experimentalLabel?: (attributes: Attributes, options: { context: string }) => string
+  innerBlocksArea?: InnerBlocksArea
 }
 
 export type BlockType<Attributes extends object = any> = Omit<
@@ -119,6 +135,7 @@ export type BlockType<Attributes extends object = any> = Omit<
   getEditWrapperProps?: (attrs: Attributes) => Record<string, string | number | boolean>
   merge?: (attributes: Attributes, attributesToMerge: Attributes) => Partial<Attributes>
   __experimentalLabel?: (attributes: Attributes, options: { context: string }) => string
+  innerBlocksArea?: InnerBlocksArea
 }
 
 export type Category = BlockCategory
@@ -128,4 +145,16 @@ type UpstreamTemplateInput = NonNullable<Parameters<CreateBlocksFromInnerBlocksT
 export type Template = Exclude<UpstreamTemplateInput[number], GutenbergBlock<UnknownAttributes>>
 
 export type TemplateArray = Template[]
+
+export type TemplateLock = "all" | "insert" | "contentOnly" | false
+
+/**
+ * A custom block's InnerBlocks area. Gutenberg's registration has `allowedBlocks` but no template
+ * fields, so these live here for the editor and the headless block validator to share.
+ */
+export interface InnerBlocksArea {
+  template?: TemplateArray
+  /** Unset inherits the lock of the enclosing area, as InnerBlocks does. */
+  templateLock?: TemplateLock
+}
 /* oxlint-enable typescript/no-explicit-any */

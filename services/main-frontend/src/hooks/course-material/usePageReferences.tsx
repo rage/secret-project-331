@@ -1,25 +1,14 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-// @ts-expect-error: No type definitions
-import cite from "citation-js"
 import { useAtomValue } from "jotai"
 import { useMemo } from "react"
 
-import { orderedUniqueCitationKeys } from "@/components/course-material/references/citationExtraction"
+import { formatPageCitations } from "@/components/course-material/references/formatPageCitations"
+import type { Citations } from "@/components/course-material/references/formatPageCitations"
 import { getCourseMaterialReferencesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { pageContentAtom } from "@/state/course-material/selectors"
 import type { Block } from "@/types/courseMaterialBlock"
-
-const BIBLIOGRAPHY = "bibliography"
-const EN_US = "en-US"
-const STRING = "string"
-const VANCOUVER = "vancouver"
-
-export interface Citations {
-  citation: string
-  citationKey: string
-}
 
 const useReferences = (courseId: string) => {
   const pageContent = useAtomValue(pageContentAtom)
@@ -45,33 +34,7 @@ const useReferences = (courseId: string) => {
     if (!getCourseReferences.data) {
       return undefined
     }
-    const orderedKeys = orderedUniqueCitationKeys(pageContent as Block<unknown>[])
-    if (orderedKeys.length === 0) {
-      return []
-    }
-    const referenceByKey = new Map(getCourseReferences.data.map((x) => [x.citation_key, x]))
-    const citations: Citations[] = []
-    for (const key of orderedKeys) {
-      const reference = referenceByKey.get(key)
-      if (!reference) {
-        continue
-      }
-      // citation-js throws on a malformed/unsupported reference string. Skip the bad entry rather
-      // than letting a single reference throw during render and take out the whole accordion.
-      try {
-        citations.push({
-          citationKey: key,
-          citation: cite(reference.reference).format(BIBLIOGRAPHY, {
-            type: STRING,
-            style: VANCOUVER,
-            lang: EN_US,
-          }),
-        })
-      } catch {
-        continue
-      }
-    }
-    return citations
+    return formatPageCitations(pageContent as Block<unknown>[], getCourseReferences.data)
   }, [getCourseReferences.data, getCourseReferences.isError, pageContent])
 
   return pageRefs

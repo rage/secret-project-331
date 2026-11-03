@@ -21,6 +21,8 @@ interface DialogRequest {
   size?: DialogSize
   /** `lang` on the dialog root, when the content is not in the UI language. */
   lang?: string
+  /** Ignores Escape, for a question where backing out would silently pick one of the answers. */
+  isKeyboardDismissDisabled?: boolean
 }
 
 export type AlertRequest = DialogRequest & {

@@ -1,17 +1,17 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { TextField } from "@/shared-module/components"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ExpandableContentConfigurationProps } from "."
-import { EXPANDABLE_SECTION_ALLOWED_BLOCKS } from "./allowedBlocks"
 
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
@@ -107,7 +107,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
             }
           `}
         >
-          <InnerBlocks allowedBlocks={EXPANDABLE_SECTION_ALLOWED_BLOCKS} />
+          <RegisteredInnerBlocks />
         </div>
       </div>
     </div>

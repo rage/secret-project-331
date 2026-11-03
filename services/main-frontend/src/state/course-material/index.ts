@@ -57,6 +57,10 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
     }
   }
 
+  if (viewParams.type === "preview") {
+    return { ...emptyState, status: "ready", page: viewParams.page }
+  }
+
   if (viewParams.type === "material") {
     const { data, isLoading, isError, error } = get(materialQueryAtom)
     if (isLoading) {

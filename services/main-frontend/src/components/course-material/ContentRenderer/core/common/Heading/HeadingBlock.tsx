@@ -18,6 +18,7 @@ import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMap
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
+import { textAlignOf } from "../../../util/textAlign"
 import HeadingAnchorLink, { HEADING_ANCHOR_LINK_CLASS } from "./HeadingAnchorLink"
 
 interface ExtraAttributes {
@@ -35,7 +36,8 @@ const contentStyles = css`
 const HeadingBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { content, level, fontSize, textAlign, fitText, anchor } = data.attributes
+  const { content, level, fontSize, fitText, style, anchor } = data.attributes
+  const textAlign = textAlignOf(style, data.attributes.textAlign)
   const headingText = headingTextFromHtml(content)
   const idPart = data.clientId.replaceAll("-", "").slice(0, HEADING_ANCHOR_ID_PART_LENGTH)
   const anchorId = anchor?.trim() || `${idPart}-${slugifyHeadingText(headingText)}`

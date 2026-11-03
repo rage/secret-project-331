@@ -8,6 +8,8 @@ import type { FileAttributes } from "@/../types/GutenbergBlockAttributes"
 import ExternalLinkSVG from "@/shared-module/common/img/external-link.svg"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link } from "@/shared-module/components"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
@@ -43,18 +45,16 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
     // textLinkHref,
     textLinkTarget: storedTextLinkTarget,
   } = data.attributes
+  const fileNameText = richTextToPlainText(fileName ?? "")
   // Gutenberg stores `false`, not an absent attribute, once "Open in new tab" is switched off.
   const textLinkTarget = (storedTextLinkTarget as string | false | undefined) || undefined
   // Gutenberg offers the embed only for PDFs; anything else in an unsandboxed frame could run.
   const isPdf = /\.pdf$/i.test(href?.split(/[?#]/)[0] ?? "")
-  // window and DOMParser are unavailable during server rendering.
+  // window is unavailable during server rendering.
   const [downloadHref, setDownloadHref] = useState(href)
   useEffect(() => {
-    const plainFileName =
-      // oxlint-disable-next-line i18next/no-literal-string
-      new DOMParser().parseFromString(fileName ?? "", "text/html").body.textContent ?? ""
-    setDownloadHref(href && attachmentHref(href, plainFileName))
-  }, [href, fileName])
+    setDownloadHref(href && attachmentHref(href, fileNameText))
+  }, [href, fileNameText])
 
   return (
     <div>
@@ -64,7 +64,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           // oxlint-disable-next-line react/iframe-missing-sandbox
           <iframe
             src={href}
-            title={t("file-preview", { fileName })}
+            title={t("file-preview", { fileName: fileNameText })}
             className={css`
               display: block;
               width: 100%;
@@ -81,7 +81,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           {...(textLinkTarget && { target: textLinkTarget })}
           rel={relForLinkTarget(undefined, textLinkTarget)}
         >
-          {fileName}
+          <span dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(fileName) }} />
           {textLinkTarget?.includes("_blank") && (
             <div>
               <OpensInNewTabNotice linkTarget={textLinkTarget} />
@@ -99,13 +99,19 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
           <Link
             href={downloadHref ?? ""}
             isDisabled={!href}
-            download={fileName}
+            download={fileNameText}
             styledAsButton
             size="medium"
             variant="tertiary"
-            {...(!downloadButtonText && { "aria-label": t("download-file", { fileName }) })}
+            {...(!downloadButtonText && {
+              "aria-label": t("download-file", { fileName: fileNameText }),
+            })}
           >
-            {downloadButtonText}
+            {downloadButtonText && (
+              <span
+                dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(downloadButtonText) }}
+              />
+            )}
           </Link>
         </span>
       )}

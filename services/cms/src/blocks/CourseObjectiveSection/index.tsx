@@ -20,10 +20,77 @@ const CourseObjectiveSectionConfiguration: BlockConfiguration<CourseObjectiveSec
   attributes: {
     title: {
       type: "string",
-      source: "html",
-      selector: "h2",
+      isRichText: true,
       default: "In this course you'll...",
     },
+  },
+  allowedBlocks: ["core/heading", "core/buttons", "core/paragraph", "core/columns"],
+  innerBlocksArea: {
+    template: [
+      [
+        "core/columns",
+        { isStackedOnMobile: true },
+        [
+          [
+            "core/column",
+            {},
+            [
+              [
+                "core/heading",
+                {
+                  placeholder: "Objective #1",
+                  level: 3,
+                  style: { typography: { textAlign: "center" } },
+                  anchor: "objective-1",
+                },
+              ],
+              [
+                "core/paragraph",
+                { placeholder: "Insert text...", style: { typography: { textAlign: "center" } } },
+              ],
+            ],
+          ],
+          [
+            "core/column",
+            {},
+            [
+              [
+                "core/heading",
+                {
+                  placeholder: "Objective #2",
+                  level: 3,
+                  style: { typography: { textAlign: "center" } },
+                  anchor: "objective-2",
+                },
+              ],
+              [
+                "core/paragraph",
+                { placeholder: "Insert text...", style: { typography: { textAlign: "center" } } },
+              ],
+            ],
+          ],
+          [
+            "core/column",
+            {},
+            [
+              [
+                "core/heading",
+                {
+                  placeholder: "Objective #3",
+                  level: 3,
+                  style: { typography: { textAlign: "center" } },
+                  anchor: "objective-2",
+                },
+              ],
+              [
+                "core/paragraph",
+                { placeholder: "Insert text...", style: { typography: { textAlign: "center" } } },
+              ],
+            ],
+          ],
+        ],
+      ],
+    ],
   },
   edit: CourseObjectiveSectionEditor,
   save: CourseObjectiveSectionSave,

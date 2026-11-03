@@ -1,4 +1,5 @@
 pub mod seed_accessibility_course;
+pub mod seed_agent_changesets;
 use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
@@ -2374,7 +2375,7 @@ pub async fn seed_cs_course_material(
         &mut conn,
         PageUpdateArgs {
             page_id: front_page.id,
-            author: teacher_user_id,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(teacher_user_id),
             cms_page_update: CmsPageUpdate {
                 title: "Introduction to Course Material".to_string(),
                 url_path: "/".to_string(),
@@ -2440,7 +2441,7 @@ pub async fn seed_cs_course_material(
         &mut conn,
         PageUpdateArgs {
             page_id: front_page_ch_1.id,
-            author: teacher_user_id,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(teacher_user_id),
             cms_page_update: CmsPageUpdate {
                 title: "User Interface".to_string(),
                 url_path: "/chapter-1".to_string(),
@@ -2609,7 +2610,7 @@ pub async fn seed_cs_course_material(
         &mut conn,
         PageUpdateArgs {
             page_id: front_page_ch_2.id,
-            author: teacher_user_id,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(teacher_user_id),
             cms_page_update: CmsPageUpdate {
                 url_path: "/chapter-2".to_string(),
                 title: "User Experience".to_string(),

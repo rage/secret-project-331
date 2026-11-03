@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use once_cell::sync::Lazy;
 use rand::{RngExt, distr::Alphanumeric, rng};
 use regex::Regex;
@@ -7,7 +9,8 @@ static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Invalid IETF language code regex.")
 });
 
-static HTML_TAG_REGEX: Lazy<Regex> =
+/// One HTML tag, `<` to the next `>`.
+pub static HTML_TAG_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"<[^>]*>").expect("Invalid HTML tag regex."));
 
 pub fn generate_random_string(length: usize) -> String {
@@ -34,9 +37,73 @@ pub fn is_ietf_language_code_like(string: &str) -> bool {
     IETF_LANGUAGE_CODE_REGEX.is_match(string)
 }
 
-/// Removes all HTML tags from the input, leaving only the text content.
-pub fn strip_html_tags(input: &str) -> String {
-    HTML_TAG_REGEX.replace_all(input, "").into_owned()
+/// Removes all HTML tags from the input, leaving only the text content. Borrows the input when
+/// it has no tags.
+pub fn strip_html_tags(input: &str) -> Cow<'_, str> {
+    HTML_TAG_REGEX.replace_all(input, "")
+}
+
+/// Decodes the entities rich text commonly holds: `&amp;`, `&lt;`, `&gt;`, `&quot;`, `&#39;` and
+/// `&nbsp;` (as a space). Decodes once, so `&amp;lt;` becomes `&lt;`. Borrows the input when it
+/// has no `&`.
+pub fn decode_html_entities(text: &str) -> Cow<'_, str> {
+    if !text.contains('&') {
+        return Cow::Borrowed(text);
+    }
+    Cow::Owned(
+        text.replace("&nbsp;", " ")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&quot;", "\"")
+            .replace("&#39;", "'")
+            .replace("&amp;", "&"),
+    )
+}
+
+/// `text` as HTML text content: `&`, `<` and `>` as entities. Leaves quotes as they are, so it
+/// isn't safe inside attribute values; see [`escape_html`].
+pub fn escape_html_text(text: &str) -> String {
+    escape(text, false)
+}
+
+/// `text` safe both as HTML text content and inside a quoted attribute value.
+pub fn escape_html(text: &str) -> String {
+    escape(text, true)
+}
+
+fn escape(text: &str, escapes_quotes: bool) -> String {
+    let mut escaped = String::with_capacity(text.len());
+    for c in text.chars() {
+        match c {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' if escapes_quotes => escaped.push_str("&quot;"),
+            '\'' if escapes_quotes => escaped.push_str("&#39;"),
+            _ => escaped.push(c),
+        }
+    }
+    escaped
+}
+
+/// A URL path segment made of a title: its letters and digits, of any script, in lowercase, with
+/// each run of other characters as one `-` and none at either end. Empty when the title has no
+/// letters or digits, so the caller picks a fallback.
+pub fn slugify(title: &str) -> String {
+    let mut slug = String::with_capacity(title.len());
+    let mut is_separator_pending = false;
+    for c in title.chars().flat_map(char::to_lowercase) {
+        if c.is_alphanumeric() {
+            if is_separator_pending && !slug.is_empty() {
+                slug.push('-');
+            }
+            is_separator_pending = false;
+            slug.push(c);
+        } else {
+            is_separator_pending = true;
+        }
+    }
+    slug
 }
 
 /// Trims the string and returns `None` if the trimmed result is empty.

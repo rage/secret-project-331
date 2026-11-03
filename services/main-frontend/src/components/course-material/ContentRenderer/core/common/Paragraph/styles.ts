@@ -78,8 +78,8 @@ export const getEditingStyles = (
   fontSize: string | undefined,
 ) => css`
   ${baseParagraphStyles(true)}
-  color: ${textColor};
-  background-color: ${backgroundColor};
+  color: ${colorMapper(textColor)};
+  background-color: ${colorMapper(backgroundColor, UNSET_COLOR)};
   font-size: ${fontSizeMapper(fontSize)};
   ${backgroundColor && `padding: 1.25em 2.375em;`}
   border: 1px;

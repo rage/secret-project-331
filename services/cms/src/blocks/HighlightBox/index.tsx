@@ -21,13 +21,11 @@ const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
   attributes: {
     title: {
       type: "string",
-      source: "html",
-      selector: "h2",
+      isRichText: true,
     },
     content: {
       type: "string",
-      source: "html",
-      selector: "span",
+      isRichText: true,
     },
   },
   icon: formatLTR,

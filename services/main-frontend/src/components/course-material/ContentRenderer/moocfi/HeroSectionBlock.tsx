@@ -3,6 +3,7 @@
 import { useAtomValue } from "jotai"
 import React from "react"
 
+import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -11,6 +12,15 @@ import { currentPageDataAtom } from "@/state/course-material/selectors"
 import type { BlockRendererProps } from ".."
 import type { HeroSectionProps } from "../../HeroSection"
 import HeroSection from "../../HeroSection"
+
+const HERO_SECTION_LABEL_PLACEHOLDER = "Chapter number..."
+
+/** "chapter 2" for any page under /chapter-2, or undefined outside chapters. */
+function chapterLabelFromPath(urlPath: string | undefined): string | undefined {
+  const chapterNumber = urlPath?.match(/^\/chapter-(\d+)(?:\/|$)/)?.[1]
+  return chapterNumber === undefined ? undefined : `chapter ${chapterNumber}`
+}
+
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {
@@ -19,13 +29,18 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
   const path = pageData?.url_path
   const formattedPath = path?.replace("-", " ").replace("/", "")
   const useDefaultTextForLabel = props.data.attributes.useDefaultTextForLabel ?? DEFAULT
-  const isChapterFrontpage = pageData?.chapter_id
+  const isChapterFrontpage = useIsPageChapterFrontPage(pageData?.id).data?.is_chapter_front_page
   const partiallyTransparent = props.data.attributes.partiallyTransparent ?? DEFAULT
 
+  const storedLabel = props.data.attributes.label
+  const isLabelUnset = !storedLabel || storedLabel === HERO_SECTION_LABEL_PLACEHOLDER
+  const automaticLabel = isChapterFrontpage
+    ? formattedPath
+    : isLabelUnset
+      ? (chapterLabelFromPath(path) ?? "")
+      : undefined
   const chapterNumber =
-    useDefaultTextForLabel && formattedPath && isChapterFrontpage
-      ? formattedPath
-      : props.data.attributes.label
+    useDefaultTextForLabel && automaticLabel !== undefined ? automaticLabel : storedLabel
 
   return (
     <BreakFromCentered sidebar={false}>

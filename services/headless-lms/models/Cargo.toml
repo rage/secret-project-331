@@ -25,6 +25,8 @@ sqlx.workspace = true
 uuid = { version = "1.26.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
+# Pure Rust implementation of the SHA-2 hash function family.
+sha2.workspace = true
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # A JSON serialization file format

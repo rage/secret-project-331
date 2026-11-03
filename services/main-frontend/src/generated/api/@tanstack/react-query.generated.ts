@@ -53,6 +53,7 @@ import {
   confirmMyEnrolment,
   confirmMyExternalCompletionEnrolment,
   continueMoocfiHandoff,
+  createAgentChangesetPreviewLink,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -96,7 +97,6 @@ import {
   deleteExerciseService,
   deleteExternalCourse,
   deleteGlossaryTerm,
-  deleteOauthAuthorizedClient,
   deleteOrganizationImage,
   deletePage,
   deletePageAudioFile,
@@ -104,6 +104,7 @@ import {
   denyOauthConsent,
   denyOauthDeviceVerification,
   deviceAuthorizationOauth,
+  discardAgentChangeset,
   dismissCourseSuspectedCheater,
   dismissCreditRegistrationEnrolmentBanner,
   downloadCodeGiveawayCodesCsv,
@@ -132,6 +133,10 @@ import {
   getAccountLinkingCourses,
   getAccountLinkingStats,
   getAccountLinkingUnlinkedEnrolees,
+  getAgentChangeset,
+  getAgentChangesetCounts,
+  getAgentChangesets,
+  getAgentPagePreview,
   getAllChatbots,
   getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
@@ -271,8 +276,9 @@ import {
   getNumberOfPeopleDoneAtLeastOneExercise,
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
   getNumberOfPeopleStartedCourse,
-  getOauthAuthorizedClients,
+  getOauthConsentInfo,
   getOauthDeviceVerification,
+  getOauthGrants,
   getOauthJwks,
   getOauthOpenidConfiguration,
   getOauthUserInfo,
@@ -363,6 +369,7 @@ import {
   previewCourseInstanceCompletions,
   previewStudentNumberVerificationToken,
   processEditProposal,
+  publishAgentChangeset,
   receivePlaygroundGrading,
   recheckCreditRegistrationEnrolment,
   recordMyEnrolmentPageVisit,
@@ -381,6 +388,7 @@ import {
   restorePageHistory,
   retryCreditRegistration,
   retryFailedCreditRegistrationsForCourse,
+  revokeOauthGrant,
   revokeOauthToken,
   revokeSubmissionShare,
   revokeSubmissionSharesOfSubmission,
@@ -506,6 +514,8 @@ import type {
   ConfirmMyExternalCompletionEnrolmentResponse,
   ContinueMoocfiHandoffData,
   ContinueMoocfiHandoffResponse,
+  CreateAgentChangesetPreviewLinkData,
+  CreateAgentChangesetPreviewLinkResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -578,8 +588,6 @@ import type {
   DeleteExternalCourseData,
   DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
-  DeleteOauthAuthorizedClientData,
-  DeleteOauthAuthorizedClientResponse,
   DeleteOrganizationImageData,
   DeletePageAudioFileData,
   DeletePageData,
@@ -592,6 +600,8 @@ import type {
   DenyOauthDeviceVerificationResponse,
   DeviceAuthorizationOauthData,
   DeviceAuthorizationOauthResponse,
+  DiscardAgentChangesetData,
+  DiscardAgentChangesetResponse,
   DismissCourseSuspectedCheaterData,
   DismissCreditRegistrationEnrolmentBannerData,
   DownloadCodeGiveawayCodesCsvData,
@@ -643,6 +653,14 @@ import type {
   GetAccountLinkingStatsResponse,
   GetAccountLinkingUnlinkedEnroleesData,
   GetAccountLinkingUnlinkedEnroleesResponse,
+  GetAgentChangesetCountsData,
+  GetAgentChangesetCountsResponse,
+  GetAgentChangesetData,
+  GetAgentChangesetResponse,
+  GetAgentChangesetsData,
+  GetAgentChangesetsResponse,
+  GetAgentPagePreviewData,
+  GetAgentPagePreviewResponse,
   GetAllChatbotsData,
   GetAllChatbotsResponse,
   GetAllCoursesData,
@@ -915,10 +933,12 @@ import type {
   GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   GetNumberOfPeopleStartedCourseData,
   GetNumberOfPeopleStartedCourseResponse,
-  GetOauthAuthorizedClientsData,
-  GetOauthAuthorizedClientsResponse,
+  GetOauthConsentInfoData,
+  GetOauthConsentInfoResponse,
   GetOauthDeviceVerificationData,
   GetOauthDeviceVerificationResponse,
+  GetOauthGrantsData,
+  GetOauthGrantsResponse,
   GetOauthJwksData,
   GetOauthOpenidConfigurationData,
   GetOauthUserInfoData,
@@ -1088,6 +1108,8 @@ import type {
   PreviewStudentNumberVerificationTokenData,
   PreviewStudentNumberVerificationTokenResponse,
   ProcessEditProposalData,
+  PublishAgentChangesetData,
+  PublishAgentChangesetResponse,
   ReceivePlaygroundGradingData,
   RecheckCreditRegistrationEnrolmentData,
   RecheckCreditRegistrationEnrolmentResponse,
@@ -1119,6 +1141,8 @@ import type {
   RetryCreditRegistrationResponse,
   RetryFailedCreditRegistrationsForCourseData,
   RetryFailedCreditRegistrationsForCourseResponse,
+  RevokeOauthGrantData,
+  RevokeOauthGrantResponse,
   RevokeOauthTokenData,
   RevokeSubmissionShareData,
   RevokeSubmissionShareResponse,
@@ -1281,6 +1305,316 @@ export const uploadFilesFromExerciseServiceMutation = (
   return mutationOptions
 }
 
+export type QueryKey<TOptions extends Options> = [
+  Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
+    _id: string
+    _infinite?: boolean
+    tags?: ReadonlyArray<string>
+  },
+]
+
+const createQueryKey = <TOptions extends Options>(
+  id: string,
+  options?: TOptions,
+  infinite?: boolean,
+  tags?: ReadonlyArray<string>,
+): [QueryKey<TOptions>[0]] => {
+  const params: QueryKey<TOptions>[0] = {
+    _id: id,
+    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
+  } as QueryKey<TOptions>[0]
+  if (infinite) {
+    params._infinite = infinite
+  }
+  if (tags) {
+    params.tags = tags
+  }
+  if (options?.body) {
+    params.body = options.body
+  }
+  if (options?.headers) {
+    params.headers = options.headers
+  }
+  if (options?.path) {
+    params.path = options.path
+  }
+  if (options?.query) {
+    params.query = options.query
+  }
+  return [params]
+}
+
+export const getAgentChangesetsQueryKey = (options: Options<GetAgentChangesetsData>) =>
+  createQueryKey("getAgentChangesets", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-changesets?course_id=` - The signed-in user's agent changesets in
+ * the course, newest first, with what each changes.
+ */
+export const getAgentChangesetsOptions = (options: Options<GetAgentChangesetsData>) =>
+  queryOptions<
+    GetAgentChangesetsResponse,
+    DefaultError,
+    GetAgentChangesetsResponse,
+    ReturnType<typeof getAgentChangesetsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentChangesets({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentChangesetsQueryKey(options),
+  })
+
+export const getAgentChangesetCountsQueryKey = (options: Options<GetAgentChangesetCountsData>) =>
+  createQueryKey("getAgentChangesetCounts", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent
+ * changesets in the course, and how many entities their open one stages, for the course management
+ * tab and its badge.
+ */
+export const getAgentChangesetCountsOptions = (options: Options<GetAgentChangesetCountsData>) =>
+  queryOptions<
+    GetAgentChangesetCountsResponse,
+    DefaultError,
+    GetAgentChangesetCountsResponse,
+    ReturnType<typeof getAgentChangesetCountsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentChangesetCounts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentChangesetCountsQueryKey(options),
+  })
+
+export const getAgentChangesetQueryKey = (options: Options<GetAgentChangesetData>) =>
+  createQueryKey("getAgentChangeset", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the
+ * review page: what each staged entity changes, field by field and for pages as students see them,
+ * its risk reasons, the conflicts and the agent calls that staged the changes.
+ */
+export const getAgentChangesetOptions = (options: Options<GetAgentChangesetData>) =>
+  queryOptions<
+    GetAgentChangesetResponse,
+    DefaultError,
+    GetAgentChangesetResponse,
+    ReturnType<typeof getAgentChangesetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentChangeset({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentChangesetQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open
+ * changeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no
+ * longer open or no longer the reviewed revision.
+ */
+export const discardAgentChangesetMutation = (
+  options?: Partial<Options<DiscardAgentChangesetData>>,
+): UseMutationOptions<
+  DiscardAgentChangesetResponse,
+  DefaultError,
+  Options<DiscardAgentChangesetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DiscardAgentChangesetResponse,
+    DefaultError,
+    Options<DiscardAgentChangesetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await discardAgentChangeset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
+ * short-lived preview link for a page of the user's changeset, so the review page can open the staged
+ * page as students would see it.
+ */
+export const createAgentChangesetPreviewLinkMutation = (
+  options?: Partial<Options<CreateAgentChangesetPreviewLinkData>>,
+): UseMutationOptions<
+  CreateAgentChangesetPreviewLinkResponse,
+  DefaultError,
+  Options<CreateAgentChangesetPreviewLinkData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateAgentChangesetPreviewLinkResponse,
+    DefaultError,
+    Options<CreateAgentChangesetPreviewLinkData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createAgentChangesetPreviewLink({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open
+ * changeset, risky changes included. Rejected without changes if the changeset is no longer open or no
+ * longer the reviewed revision, if any staged page or entity changed live since it was staged, or if
+ * saving a staged entity fails.
+ */
+export const publishAgentChangesetMutation = (
+  options?: Partial<Options<PublishAgentChangesetData>>,
+): UseMutationOptions<
+  PublishAgentChangesetResponse,
+  DefaultError,
+  Options<PublishAgentChangesetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PublishAgentChangesetResponse,
+    DefaultError,
+    Options<PublishAgentChangesetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await publishAgentChangeset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAgentPagePreviewQueryKey = (options: Options<GetAgentPagePreviewData>) =>
+  createQueryKey("getAgentPagePreview", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
+ * published, or for a token of several pages the page `page` with the list of pages. No login: the
+ * short-lived random token stands in for it, while its user may still edit the course.
+ */
+export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewData>) =>
+  queryOptions<
+    GetAgentPagePreviewResponse,
+    DefaultError,
+    GetAgentPagePreviewResponse,
+    ReturnType<typeof getAgentPagePreviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentPagePreview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentPagePreviewQueryKey(options),
+  })
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const getAgentPagePreviewInfiniteQueryKey = (
+  options: Options<GetAgentPagePreviewData>,
+): QueryKey<Options<GetAgentPagePreviewData>> =>
+  createQueryKey("getAgentPagePreview", options, true)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
+ * published, or for a token of several pages the page `page` with the list of pages. No login: the
+ * short-lived random token stands in for it, while its user may still edit the course.
+ */
+export const getAgentPagePreviewInfiniteOptions = (options: Options<GetAgentPagePreviewData>) => {
+  const opts = infiniteQueryOptions<
+    GetAgentPagePreviewResponse,
+    DefaultError,
+    InfiniteData<GetAgentPagePreviewResponse>,
+    QueryKey<Options<GetAgentPagePreviewData>>,
+    | string
+    | Pick<QueryKey<Options<GetAgentPagePreviewData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetAgentPagePreviewData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getAgentPagePreview({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getAgentPagePreviewInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
 /**
  *
  * POST `/api/v0/main-frontend/certificates/`
@@ -1385,45 +1719,6 @@ export const updateGeneratedCertificateMutation = (
       }),
   }
   return mutationOptions
-}
-
-export type QueryKey<TOptions extends Options> = [
-  Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
-    _id: string
-    _infinite?: boolean
-    tags?: ReadonlyArray<string>
-  },
-]
-
-const createQueryKey = <TOptions extends Options>(
-  id: string,
-  options?: TOptions,
-  infinite?: boolean,
-  tags?: ReadonlyArray<string>,
-): [QueryKey<TOptions>[0]] => {
-  const params: QueryKey<TOptions>[0] = {
-    _id: id,
-    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
-  } as QueryKey<TOptions>[0]
-  if (infinite) {
-    params._infinite = infinite
-  }
-  if (tags) {
-    params.tags = tags
-  }
-  if (options?.body) {
-    params.body = options.body
-  }
-  if (options?.headers) {
-    params.headers = options.headers
-  }
-  if (options?.path) {
-    params.path = options.path
-  }
-  if (options?.query) {
-    params.query = options.query
-  }
-  return [params]
 }
 
 export const getCertificateByConfigurationIdQueryKey = (
@@ -2181,40 +2476,6 @@ export const getCourseCreditRegistrationsOptions = (
       }),
     queryKey: getCourseCreditRegistrationsQueryKey(options),
   })
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
-}
 
 export const getCourseCreditRegistrationsInfiniteQueryKey = (
   options: Options<GetCourseCreditRegistrationsData>,
@@ -10454,70 +10715,28 @@ export const authorizeOauthPostMutation = (
   return mutationOptions
 }
 
-export const getOauthAuthorizedClientsQueryKey = (
-  options?: Options<GetOauthAuthorizedClientsData>,
-) => createQueryKey("getOauthAuthorizedClients", options)
-
-export const getOauthAuthorizedClientsOptions = (
-  options?: Options<GetOauthAuthorizedClientsData>,
-) =>
-  queryOptions<
-    GetOauthAuthorizedClientsResponse,
-    DefaultError,
-    GetOauthAuthorizedClientsResponse,
-    ReturnType<typeof getOauthAuthorizedClientsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getOauthAuthorizedClients({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getOauthAuthorizedClientsQueryKey(options),
-  })
-
-export const deleteOauthAuthorizedClientMutation = (
-  options?: Partial<Options<DeleteOauthAuthorizedClientData>>,
-): UseMutationOptions<
-  DeleteOauthAuthorizedClientResponse,
-  DefaultError,
-  Options<DeleteOauthAuthorizedClientData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteOauthAuthorizedClientResponse,
-    DefaultError,
-    Options<DeleteOauthAuthorizedClientData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await deleteOauthAuthorizedClient({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
 /**
  * Handles `/consent` approval after the user agrees to grant requested scopes.
  *
  * This endpoint:
- * - Validates the redirect URI and requested scopes against the registered client.
- * - Records granted scopes for the user-client pair.
- * - Redirects back to `/authorize` to continue the OAuth flow.
+ * - Validates the redirect URI and the approved scopes against the registered client.
+ * - Records the approved scopes for the user-client pair.
+ * - Redirects back to `/authorize` with the approved scopes, so the code is issued for them.
+ *
+ * `scope` is what the user approved, which may be fewer scopes than requested. If it contains
+ * any MCP scope it must contain `material:read`.
  *
  * # Example
  * ```http
- * GET /api/v0/main-frontend/oauth/consent?client_id=test-client-id&redirect_uri=http://localhost&scopes=openid%20profile&state=random123&nonce=secure_nonce_abc HTTP/1.1
+ * POST /api/v0/main-frontend/oauth/consent HTTP/1.1
  * Cookie: session=abc123
  *
+ * {"client_id":"test-client-id","redirect_uri":"http://localhost","scope":"openid profile","state":"random123","nonce":"secure_nonce_abc","response_type":"code"}
  * ```
  *
- * Redirect back to `/authorize`:
- * ```http
- * HTTP/1.1 302 Found
- * Location: /api/v0/main-frontend/oauth/authorize?client_id=...
+ * Response:
+ * ```json
+ * {"redirect_uri": "/api/v0/main-frontend/oauth/authorize?client_id=..."}
  * ```
  */
 export const approveOauthConsentMutation = (
@@ -10542,22 +10761,48 @@ export const approveOauthConsentMutation = (
   return mutationOptions
 }
 
+export const getOauthConsentInfoQueryKey = (options: Options<GetOauthConsentInfoData>) =>
+  createQueryKey("getOauthConsentInfo", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/oauth/consent-info` - What the consent screen shows: the client asking
+ * and a checkbox state per requested scope. The client must already be known, which the authorize
+ * endpoint ensures before redirecting to the consent screen.
+ */
+export const getOauthConsentInfoOptions = (options: Options<GetOauthConsentInfoData>) =>
+  queryOptions<
+    GetOauthConsentInfoResponse,
+    DefaultError,
+    GetOauthConsentInfoResponse,
+    ReturnType<typeof getOauthConsentInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getOauthConsentInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getOauthConsentInfoQueryKey(options),
+  })
+
 /**
  * Handles `/consent/deny` when the user refuses to grant scopes.
  *
  * This endpoint:
- * - Redirects back to the client with `error=access_denied`.
+ * - Redirects back to the client with `error=access_denied` and `iss` (RFC 9207).
  *
  * # Example
  * ```http
- * GET /api/v0/main-frontend/oauth/consent/deny?redirect_uri=http://localhost&state=random123 HTTP/1.1
+ * POST /api/v0/main-frontend/oauth/consent/deny HTTP/1.1
  *
+ * {"client_id":"test-client-id","redirect_uri":"http://localhost","state":"random123"}
  * ```
  *
  * Response:
- * ```http
- * HTTP/1.1 302 Found
- * Location: http://localhost?error=access_denied&state=random123
+ * ```json
+ * {"redirect_uri": "http://localhost?error=access_denied&state=random123&iss=..."}
  * ```
  */
 export const denyOauthConsentMutation = (
@@ -10717,6 +10962,54 @@ export const denyOauthDeviceVerificationMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await denyOauthDeviceVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getOauthGrantsQueryKey = (options?: Options<GetOauthGrantsData>) =>
+  createQueryKey("getOauthGrants", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/oauth/grants` - The signed-in user's OAuth grants, including AI agent
+ * clients, with their scopes and when they were last used.
+ */
+export const getOauthGrantsOptions = (options?: Options<GetOauthGrantsData>) =>
+  queryOptions<
+    GetOauthGrantsResponse,
+    DefaultError,
+    GetOauthGrantsResponse,
+    ReturnType<typeof getOauthGrantsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getOauthGrants({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getOauthGrantsQueryKey(options),
+  })
+
+/**
+ *
+ * DELETE `/api/v0/main-frontend/oauth/grants/{grant_id}` - Revokes one of the signed-in user's grants
+ * and every token issued from it. The client has to ask for consent again.
+ */
+export const revokeOauthGrantMutation = (
+  options?: Partial<Options<RevokeOauthGrantData>>,
+): UseMutationOptions<RevokeOauthGrantResponse, DefaultError, Options<RevokeOauthGrantData>> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeOauthGrantResponse,
+    DefaultError,
+    Options<RevokeOauthGrantData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeOauthGrant({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -18,8 +18,8 @@ test.describe("publishing", () => {
   test.describe.configure({ retries: 0 })
 
   test("teacher reviews and publishes changes that affect students", async ({ page }) => {
-    await test.step("The course shows the AI agent changes tab", async () => {
-      await page.goto(agentChangesetsCourseUrl())
+    await test.step("The Other tab shows the AI agent changes subtab", async () => {
+      await page.goto(agentChangesetsCourseUrl("/other/references"))
       await expect(page.getByRole("tab", { name: /AI agent changes/ })).toBeVisible()
     })
 

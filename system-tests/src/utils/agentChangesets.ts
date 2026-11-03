@@ -30,7 +30,7 @@ export const agentEntityChange = (page: Page, heading: string): Locator =>
 /** Opens the signed-in user's only changeset in the seeded course on the review page. */
 export async function openSeededAgentChangeset(page: Page): Promise<void> {
   await test.step("Open the AI agent changeset", async () => {
-    await page.goto(agentChangesetsCourseUrl("/agent-changesets"))
+    await page.goto(agentChangesetsCourseUrl("/other/agent-changesets"))
     await page.getByTestId("agent-changeset-link").first().click()
     await page.getByTestId("agent-changeset-review").waitFor()
   })

@@ -304,7 +304,12 @@ async fn publish_conflicts_when_the_exercise_changed_live() {
     let result = fixture
         .call_result(
             "publish_changeset",
-            json!({"course": fixture.course_id, "changeset": staged["structuredContent"]["changeset"]}),
+            fixture
+                .publish_arguments(
+                    fixture.course_id,
+                    changeset_id(&staged["structuredContent"]),
+                )
+                .await,
         )
         .await;
     let error = &result["structuredContent"]["error"];

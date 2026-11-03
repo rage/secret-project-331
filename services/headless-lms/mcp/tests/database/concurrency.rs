@@ -35,7 +35,9 @@ async fn publish_is_refused_when_the_page_changed_live() {
     let result = fixture
         .call_result(
             "publish_changeset",
-            json!({"course": fixture.course_id, "changeset": staged["changeset"]}),
+            fixture
+                .publish_arguments(fixture.course_id, changeset_id(&staged))
+                .await,
         )
         .await;
     assert_eq!(result["isError"], json!(true));
@@ -248,6 +250,7 @@ async fn publishing_waits_for_a_live_save_in_progress_and_reports_it() {
             PublishOptions {
                 can_add_global_admin_only_exercise_services: false,
                 reviewed_revision: Some(revision),
+                seen_revision: None,
             },
             &app_conf,
             no_spec,

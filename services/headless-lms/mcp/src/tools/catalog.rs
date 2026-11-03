@@ -360,7 +360,7 @@ pub fn publish_changeset<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "publish_changeset",
-        "Publishes your open changeset so students see it. Refused when it holds risky changes (only the teacher publishes those, on the review page given in the result) or when a staged page or entity changed live since it was staged (the error says how to redo those).",
+        "Publishes your open changeset so students see it. Refused when it changed since the revision you give (another session may share it), when it holds risky changes (only the teacher publishes those, on the review page given in the result) or when a staged page or entity changed live since it was staged (the error says how to redo those).",
         write("Publish changeset", true),
         McpScope::MaterialPublish,
     )

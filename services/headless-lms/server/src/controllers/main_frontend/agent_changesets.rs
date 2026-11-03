@@ -203,6 +203,7 @@ async fn publish_changeset(
         PublishOptions {
             can_add_global_admin_only_exercise_services,
             reviewed_revision: Some(payload.reviewed_revision),
+            seen_revision: None,
         },
         &app_conf,
         models_requests::make_spec_fetcher(

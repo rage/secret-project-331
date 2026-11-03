@@ -9,7 +9,7 @@ use crate::engine::{EditError, EditErrorCode};
 use crate::hints::{CURRENT_SKILL_VERSION, SKILL_DECLINED};
 use crate::protocol::PROTOCOL_VERSION;
 use crate::test_support;
-use crate::tools::args::{ChangesetArgs, GetPageContentArgs, PatchPageContentArgs};
+use crate::tools::args::{GetPageContentArgs, PatchPageContentArgs, PublishChangesetArgs};
 use crate::tools::{McpScope, ToolHandler, catalog};
 
 const COURSE: &str = "00000000-0000-4000-8000-0000000000c1";
@@ -60,14 +60,14 @@ struct Confirming;
 
 #[async_trait(?Send)]
 impl ToolHandler<()> for Confirming {
-    type Args = ChangesetArgs;
+    type Args = PublishChangesetArgs;
     const ASKS_FOR_CONFIRMATION: bool = true;
 
     async fn call(
         &self,
         _: &(),
         ctx: &RequestContext,
-        _: ChangesetArgs,
+        _: PublishChangesetArgs,
     ) -> Result<ToolOutcome, ToolError> {
         if let Some(retry) = &ctx.retry {
             return Ok(
@@ -422,7 +422,7 @@ async fn missing_scope_is_403_and_unknown_tool_is_invalid_params() {
 #[tokio::test]
 async fn confirmation_round_trip_with_signed_state() {
     let server = server();
-    let arguments = json!({"course": COURSE, "changeset": CHANGESET});
+    let arguments = json!({"course": COURSE, "changeset": CHANGESET, "revision": 0});
     let first = send(
         &server,
         &all_scopes(),
@@ -446,7 +446,7 @@ async fn confirmation_round_trip_with_signed_state() {
 
     let mut other_args = call_body(
         "publish_changeset",
-        json!({"course": COURSE, "changeset": OTHER_CHANGESET}),
+        json!({"course": COURSE, "changeset": OTHER_CHANGESET, "revision": 0}),
         "claude-code",
     );
     other_args["params"]["requestState"] = json!(state);
@@ -472,7 +472,7 @@ async fn codex_gets_the_text_fallback() {
         &all_scopes(),
         &call_body(
             "publish_changeset",
-            json!({"course": COURSE, "changeset": CHANGESET}),
+            json!({"course": COURSE, "changeset": CHANGESET, "revision": 0}),
             "codex-mcp-client",
         ),
     )

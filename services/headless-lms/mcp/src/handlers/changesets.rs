@@ -27,7 +27,7 @@ use crate::hints;
 use crate::page_readiness;
 use crate::state::McpState;
 use crate::tools::args::{
-    ChangesetArgs, DiscardChangesetArgs, GetPreviewLinkArgs, IdArgument, ListChangesetsArgs,
+    DiscardChangesetArgs, GetPreviewLinkArgs, IdArgument, ListChangesetsArgs, PublishChangesetArgs,
 };
 use crate::tools::{
     ConfirmationRequest, RequestContext, ToolError, ToolErrorCode, ToolHandler, ToolOutcome,
@@ -232,14 +232,14 @@ fn check_pages_ready(view: &CourseView) -> Result<(), ToolError> {
 
 #[async_trait(?Send)]
 impl ToolHandler<McpState> for PublishChangeset {
-    type Args = ChangesetArgs;
+    type Args = PublishChangesetArgs;
     const ASKS_FOR_CONFIRMATION: bool = true;
 
     async fn call(
         &self,
         state: &McpState,
         ctx: &RequestContext,
-        args: ChangesetArgs,
+        args: PublishChangesetArgs,
     ) -> Result<ToolOutcome, ToolError> {
         let mut conn = connection(state).await?;
         let (course, changeset) =
@@ -267,6 +267,9 @@ impl ToolHandler<McpState> for PublishChangeset {
             PublishOptions {
                 can_add_global_admin_only_exercise_services,
                 reviewed_revision: None,
+                // Refusing for confirmation can bump the revision, and on the retry the teacher has
+                // already seen the changeset on the review page.
+                seen_revision: ctx.retry.is_none().then_some(args.revision),
             },
             &state.app_conf,
             &*spec_fetcher,
@@ -333,10 +336,15 @@ impl ToolHandler<McpState> for PublishChangeset {
                 "Nothing was published: these staged pages or entities changed live after they were staged. Drop them with discard_changeset and entities set to their ids, read their published state again, redo your edits to them on top of it, then publish.",
                 json!({"conflicts": conflicts}),
             )),
-            PublishRejection::ChangedSinceReview(_) => Err(ToolError::Internal(
-                "a review-page revision check rejected an agent publish; nothing was published"
-                    .into(),
-            )),
+            PublishRejection::ChangedSinceReview(ChangedSinceReview { revision }) => {
+                Err(ToolError::refused(
+                    ToolErrorCode::ChangesetChanged,
+                    format!(
+                        "Nothing was published: the changeset is at revision {revision}, not the one you gave, so it holds changes you haven't seen, maybe from another session. list_changesets shows what it holds now; publish only if the teacher asked for all of it."
+                    ),
+                    json!({"revision": revision}),
+                ))
+            }
             PublishRejection::GlobalAdminOnlyExerciseServices { service_names } => {
                 Err(ToolError::refused(
                     ToolErrorCode::AdminOnlyExerciseServices,

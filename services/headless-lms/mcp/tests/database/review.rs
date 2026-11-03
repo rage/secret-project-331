@@ -23,9 +23,11 @@ async fn risky_change_is_left_for_the_teacher() {
         staged["staged"][0]["risk_reasons"][0]["code"],
         json!("visible_page_removed")
     );
-    let arguments = json!({"course": fixture.course_id, "changeset": staged["changeset"]});
+    let arguments = fixture
+        .publish_arguments(fixture.course_id, changeset_id(&staged))
+        .await;
 
-    let refused = fixture.call("publish_changeset", arguments.clone()).await;
+    let refused = fixture.call("publish_changeset", arguments).await;
     assert_eq!(refused["published"], json!(false));
     assert_eq!(refused["reason"], json!("needs_teacher_review"));
     assert!(
@@ -38,7 +40,9 @@ async fn risky_change_is_left_for_the_teacher() {
     let elicited = fixture
         .call_with(
             "publish_changeset",
-            arguments,
+            fixture
+                .publish_arguments(fixture.course_id, changeset_id(&staged))
+                .await,
             json!({"elicitation": {"url": {}}}),
         )
         .await;
@@ -119,7 +123,7 @@ async fn publishing_judges_risk_against_the_course_as_it_is_then() {
     let refused = fixture
         .call(
             "publish_changeset",
-            json!({"course": course, "changeset": changeset}),
+            fixture.publish_arguments(course, changeset).await,
         )
         .await;
     assert_eq!(refused["published"], json!(false), "{refused}");
@@ -218,10 +222,10 @@ async fn conflicting_entities_can_be_discarded_alone() {
     let mut conn = fixture.pool.acquire().await.unwrap();
     fixture.rename_page_live(&mut conn).await;
 
-    let arguments = json!({"course": course, "changeset": staged["changeset"]});
-    let refused = fixture
-        .call_result("publish_changeset", arguments.clone())
+    let arguments = fixture
+        .publish_arguments(course, changeset_id(&staged))
         .await;
+    let refused = fixture.call_result("publish_changeset", arguments).await;
     let error = &refused["structuredContent"]["error"];
     assert_eq!(error["code"], json!("publish_conflict"), "{refused}");
     assert_eq!(error["conflicts"][0]["entity_id"], json!(fixture.page_id));

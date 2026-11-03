@@ -56,7 +56,7 @@ pub enum PublishRejection {
     /// The course with the staged changes would break these rules publishing relies on, which
     /// the live course doesn't.
     Blockers { blockers: Vec<PublishBlocker> },
-    /// The staged changes changed after the user opened the review page.
+    /// The staged changes changed after the revision the publish was based on.
     ChangedSinceReview(ChangedSinceReview),
     /// The changeset was published, discarded or expired before.
     NotOpen { status: AgentChangesetStatus },
@@ -98,6 +98,9 @@ pub struct PublishOptions {
     /// The changeset revision the user reviewed on the review page; publishing any other revision
     /// is rejected. Risky entities are published only with a reviewed revision.
     pub reviewed_revision: Option<i32>,
+    /// The changeset revision an agent last saw; publishing any other revision is rejected. Unlike
+    /// `reviewed_revision`, it approves no risky entity.
+    pub seen_revision: Option<i32>,
 }
 
 /// The order publishing locks the live rows of entity kinds in. Every publish uses it, so two
@@ -158,16 +161,16 @@ pub async fn publish(
 ) -> ModelResult<PublishOutcome> {
     let embeddings = embed_staged_settings(conn, changeset_id, app_conf).await?;
     let mut tx = conn.begin().await?;
-    let changeset =
-        match lock_open_changeset(&mut tx, changeset_id, options.reviewed_revision).await? {
-            Ok(changeset) => changeset,
-            Err(rejection) => {
-                tx.rollback().await?;
-                return Ok(PublishOutcome::Rejected {
-                    rejection: rejection.into(),
-                });
-            }
-        };
+    let expected_revision = options.reviewed_revision.or(options.seen_revision);
+    let changeset = match lock_open_changeset(&mut tx, changeset_id, expected_revision).await? {
+        Ok(changeset) => changeset,
+        Err(rejection) => {
+            tx.rollback().await?;
+            return Ok(PublishOutcome::Rejected {
+                rejection: rejection.into(),
+            });
+        }
+    };
     let course = crate::courses::get_course(&mut tx, changeset.course_id).await?;
     let publishable = match check_publishable(&mut tx, &changeset, &course, options).await? {
         Ok(publishable) => publishable,

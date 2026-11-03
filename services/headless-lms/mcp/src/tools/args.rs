@@ -267,11 +267,13 @@ pub struct ListChangesetsArgs {
 
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-pub struct ChangesetArgs {
+pub struct PublishChangesetArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
     pub course: IdArgument,
     /// Changeset id from list_changesets or a write result.
     pub changeset: IdArgument,
+    /// The changeset revision you last saw (changeset_revision of your last write result, or list_changesets); if it changed since, nothing is published.
+    pub revision: i32,
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]

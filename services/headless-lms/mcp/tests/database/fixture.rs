@@ -533,12 +533,10 @@ impl Fixture {
 
     /// Publishes the changeset of `staged`, a write call's result, which must succeed.
     pub(crate) async fn publish(&self, staged: &Value) {
-        let published = self
-            .call(
-                "publish_changeset",
-                json!({"course": self.course_id, "changeset": staged["changeset"]}),
-            )
+        let arguments = self
+            .publish_arguments(self.course_id, changeset_id(staged))
             .await;
+        let published = self.call("publish_changeset", arguments).await;
         assert_eq!(published["published"], json!(true), "{published}");
     }
 
@@ -595,6 +593,7 @@ impl Fixture {
             PublishOptions {
                 can_add_global_admin_only_exercise_services: false,
                 reviewed_revision: Some(reviewed_revision),
+                seen_revision: None,
             },
             &self.app_conf,
             no_spec,
@@ -602,6 +601,12 @@ impl Fixture {
         )
         .await
         .unwrap()
+    }
+
+    /// `publish_changeset` arguments for the changeset at its current revision.
+    pub(crate) async fn publish_arguments(&self, course_id: Uuid, changeset_id: Uuid) -> Value {
+        let revision = self.changeset_revision(changeset_id).await;
+        json!({"course": course_id, "changeset": changeset_id, "revision": revision})
     }
 
     pub(crate) async fn changeset_revision(&self, changeset_id: Uuid) -> i32 {

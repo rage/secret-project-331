@@ -1,7 +1,7 @@
 use serde_json::{Value, json};
 use uuid::Uuid;
 
-use crate::fixture::Fixture;
+use crate::fixture::{Fixture, changeset_id};
 
 impl Fixture {
     /// The course's pages as get_course_structure lists them in `state`, top-level ones first.
@@ -61,12 +61,10 @@ impl Fixture {
     }
 
     async fn publish_course(&self, course_id: Uuid, staged: &Value) {
-        let published = self
-            .call(
-                "publish_changeset",
-                json!({"course": course_id, "changeset": staged["changeset"]}),
-            )
+        let arguments = self
+            .publish_arguments(course_id, changeset_id(staged))
             .await;
+        let published = self.call("publish_changeset", arguments).await;
         assert_eq!(published["published"], json!(true), "{published}");
     }
 }
@@ -213,7 +211,9 @@ async fn publish_refuses_a_pairing_the_course_regained_a_page_for() {
     let published = fixture
         .call_result(
             "publish_changeset",
-            json!({"course": translation, "changeset": added["structuredContent"]["changeset"]}),
+            fixture
+                .publish_arguments(translation, changeset_id(&added["structuredContent"]))
+                .await,
         )
         .await;
     assert!(refusal(&published).contains("already has its version"));

@@ -105,7 +105,9 @@ async fn an_added_deadline_is_risky_publishes_and_reverts() {
     let refused = fixture
         .call(
             "publish_changeset",
-            json!({"course": fixture.course_id, "changeset": changeset}),
+            fixture
+                .publish_arguments(fixture.course_id, changeset)
+                .await,
         )
         .await;
     assert_eq!(refused["published"], json!(false), "{refused}");
@@ -199,7 +201,9 @@ async fn every_reclassification_sees_the_deadline() {
     let refused = fixture
         .call(
             "publish_changeset",
-            json!({"course": fixture.course_id, "changeset": changeset}),
+            fixture
+                .publish_arguments(fixture.course_id, changeset)
+                .await,
         )
         .await;
     assert_eq!(
@@ -225,7 +229,12 @@ async fn a_deadline_changed_live_conflicts_at_publish() {
     let result = fixture
         .call_result(
             "publish_changeset",
-            json!({"course": fixture.course_id, "changeset": staged["structuredContent"]["changeset"]}),
+            fixture
+                .publish_arguments(
+                    fixture.course_id,
+                    changeset_id(&staged["structuredContent"]),
+                )
+                .await,
         )
         .await;
     let error = &result["structuredContent"]["error"];

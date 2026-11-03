@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_history (\n    id,\n    page_id,\n    title,\n    content,\n    history_change_reason,\n    author_user_id,\n    restored_from_id,\n    agent_call_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_history",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Jsonb",
+        {
+          "Custom": {
+            "name": "history_change_reason",
+            "kind": {
+              "Enum": [
+                "page-saved",
+                "history-restored",
+                "page-deleted"
+              ]
+            }
+          }
+        },
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1e6b298d44f7ee05242353e1f3b0d2ca6c65dbe2bb82a773a4aceb2b496c5f30"
+}

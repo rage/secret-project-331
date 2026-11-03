@@ -17,7 +17,8 @@ const RevealableHiddenContentConfiguration: BlockConfiguration<ConditionAttribut
   description: "This content is hidden and it can be revealed with pressing a button",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
-  parent: ["moocfi/revealable-content"],
+  parent: ["moocfi/revelable-content"],
+  allowedBlocks: ["core/heading", "core/paragraph", "core/image", "core/list"],
   edit: RevealableHiddenContentEditor,
   save: RevealableHiddenContentSave,
 }

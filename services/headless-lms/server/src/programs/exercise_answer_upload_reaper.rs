@@ -217,7 +217,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -271,7 +271,7 @@ mod tests {
         .expect("binding");
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -324,7 +324,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -371,7 +371,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::days(8)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -482,7 +482,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let failing = FailingFileStore::default();

@@ -1,21 +1,13 @@
 "use client"
 
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ConditionAttributes } from "."
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/paragraph",
-  "core/image",
-  "core/list",
-  "moocfi/revealable-hidden-content",
-]
 
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
@@ -27,7 +19,7 @@ const ConditionalBlockEditor: React.FC<
       title={t("revealable-content-placeholder")}
       explanation={t("revealable-content-explanation")}
     >
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <RegisteredInnerBlocks />
     </BlockPlaceholderWrapper>
   )
 }

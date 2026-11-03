@@ -54,13 +54,20 @@ spec:
           env:
             - name: NEXT_PUBLIC_BASE_PATH
               value: "/cms"
+            - name: AGENT_VALIDATOR_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: headless-lms-secrets
+                  key: AGENT_VALIDATOR_SECRET
+          # The block validator worker keeps Gutenberg loaded, about 450 MB on top of Next, and
+          # a 2 MB request takes its heap to about 550 MB.
           resources:
             requests:
-              memory: 100Mi
+              memory: 700Mi
               cpu: 20m
             limits:
-              memory: 300Mi
-              cpu: 200m
+              memory: 1400Mi
+              cpu: 500m
           startupProbe:
             httpGet:
               path: /cms/api/status/up

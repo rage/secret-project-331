@@ -30,7 +30,7 @@ test("Can convert blocks", async ({ page }) => {
       name: "Empty block; start writing or type forward slash to choose a block",
     })
     .fill("Test paragraph 2")
-  await page.getByText("chapter 2/test-pageTest page").click()
+  await page.getByRole("textbox", { name: "Hero section subtitle" }).click()
   await page.getByText("Test paragraph 1").click()
   await page.getByRole("button", { name: "Paragraph" }).click()
   await page.getByRole("menuitem", { name: "Heading" }).click()

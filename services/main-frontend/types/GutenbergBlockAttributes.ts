@@ -537,3 +537,34 @@ export interface VerseAttributes {
     [k: string]: unknown
   }
 }
+
+export interface VideoAttributes {
+  autoplay?: boolean
+  caption?: StringWithHTML
+  controls: boolean
+  id?: number
+  loop?: boolean
+  muted?: boolean
+  poster?: string
+  preload: string
+  blob?: string
+  src?: string
+  width?: number
+  height?: number
+  playsInline?: boolean
+  tracks: {
+    [k: string]: unknown
+  }[]
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
+  lock?: {
+    [k: string]: unknown
+  }
+  anchor?: string
+  className?: string
+  style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
+    [k: string]: unknown
+  }
+}

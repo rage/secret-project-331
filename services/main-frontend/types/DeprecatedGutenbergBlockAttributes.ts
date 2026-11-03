@@ -1806,3 +1806,35 @@ export interface VerseDeprecated3Attributes {
     [k: string]: unknown
   }
 }
+
+/**
+ * @deprecated
+ */
+export interface VideoDeprecated1Attributes {
+  autoplay?: boolean
+  caption?: StringWithHTML
+  controls: boolean
+  id?: number
+  loop?: boolean
+  muted?: boolean
+  poster?: string
+  preload: string
+  blob?: string
+  src?: string
+  width?: number
+  height?: number
+  playsInline?: boolean
+  tracks: {
+    [k: string]: unknown
+  }[]
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
+    [k: string]: unknown
+  }
+}

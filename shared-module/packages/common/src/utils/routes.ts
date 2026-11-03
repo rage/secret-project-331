@@ -167,6 +167,14 @@ export function courseChatbotSettingsRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/chatbot`
 }
 
+export function manageCourseAgentChangesetsRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/agent-changesets`
+}
+
+export function manageCourseAgentChangesetRoute(courseId: string, changesetId: string) {
+  return `/manage/courses/${courseId}/other/agent-changesets/${changesetId}`
+}
+
 export function manageCourseOtherReferencesRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/references`
 }

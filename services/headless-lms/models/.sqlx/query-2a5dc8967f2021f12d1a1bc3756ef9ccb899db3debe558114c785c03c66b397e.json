@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO oauth_auth_codes (\n                digest,\n                user_id,\n                client_id,\n                redirect_uri,\n                scopes,\n                nonce,\n                code_challenge,\n                code_challenge_method,\n                dpop_jkt,\n                expires_at,\n                metadata,\n                resource\n            )\n            VALUES (\n                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12\n            )\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid",
+        "Uuid",
+        "Text",
+        "TextArray",
+        "Varchar",
+        "Text",
+        {
+          "Custom": {
+            "name": "pkce_method",
+            "kind": {
+              "Enum": [
+                "plain",
+                "S256"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Timestamptz",
+        "Jsonb",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2a5dc8967f2021f12d1a1bc3756ef9ccb899db3debe558114c785c03c66b397e"
+}

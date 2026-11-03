@@ -135,6 +135,34 @@ RETURNING *
     Ok(res)
 }
 
+/// How many peer and self reviews students have given on each exercise; exercises with none are
+/// left out.
+pub async fn count_by_exercise_ids(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, i64>> {
+    if exercise_ids.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let counts = sqlx::query!(
+        r#"
+SELECT exercise_id,
+  COUNT(*) AS "count!"
+FROM peer_or_self_review_submissions
+WHERE exercise_id = ANY($1)
+  AND deleted_at IS NULL
+GROUP BY exercise_id
+        "#,
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(counts
+        .into_iter()
+        .map(|row| (row.exercise_id, row.count))
+        .collect())
+}
+
 pub async fn get_by_id(
     conn: &mut PgConnection,
     id: Uuid,

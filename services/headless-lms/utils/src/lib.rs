@@ -28,5 +28,6 @@ pub mod stable_digest;
 pub mod strings;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
+pub mod version;
 #[macro_use]
 extern crate tracing;

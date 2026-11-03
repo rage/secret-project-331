@@ -9,6 +9,7 @@ import Zoom from "react-medium-image-zoom"
 import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
 import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
@@ -37,9 +38,6 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
   // oxlint-disable-next-line i18next/no-literal-string
   return /^\d+$/.test(value) ? `${value}px` : value
 }
-
-/** Strips HTML tags from a rich-text caption to get a plain-text fallback label. */
-const stripTags = (html: string): string => html.replaceAll(/<[^>]*>/g, "").trim()
 
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
@@ -80,7 +78,7 @@ const ImageBlock: React.FC<
   const hasLink = Boolean(href) && linkDestination !== "none" && !linksToOwnFile
   const linkRel = relForLinkTarget(rel, linkTarget)
   // Fallback accessible name for a linked image with no alt text (used by the link below).
-  const captionText = caption ? stripTags(caption) : undefined
+  const captionText = caption ? richTextToPlainText(caption) : undefined
   const linkFallbackName = captionText || title || href
 
   const focalPointPos =

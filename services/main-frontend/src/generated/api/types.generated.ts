@@ -1039,7 +1039,7 @@ export type AgentChangeset = {
   revision: number
   /**
    * The status now: `Expired` for an open changeset past `expires_at`, which the table records
-   * only at the next write to the course.
+   * only at the next write to the course; see [`AgentChangesetStatus::at`].
    */
   status: AgentChangesetStatus
   updated_at: string

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id, created_at, updated_at, deleted_at, course_id, period_start, period_end, as_html, as_text FROM teacher_newsletter_items WHERE course_id = ANY($1) AND period_start >= $2 AND period_end < $3\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  period_start,\n  period_end,\n  as_html,\n  as_text\nFROM teacher_newsletter_items\nWHERE course_id = ANY($1)\n  AND period_start >= $2\n  AND period_end <= $3\n        ",
   "describe": {
     "columns": [
       {
@@ -17,7 +17,7 @@
       {
         "ordinal": 1,
         "name": "created_at",
-        "type_info": "Timestamp",
+        "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "teacher_newsletter_items",
@@ -28,7 +28,7 @@
       {
         "ordinal": 2,
         "name": "updated_at",
-        "type_info": "Timestamp",
+        "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "teacher_newsletter_items",
@@ -122,5 +122,5 @@
       false
     ]
   },
-  "hash": "42b88c2800f40f1a7d5c443c909336a7af3d651b91b74515c2eee0519cbf385b"
+  "hash": "c6f3520edb62cd933a69cd9cfb3b476fba14ea3818fdd2f4a4c5ee6885bff5aa"
 }

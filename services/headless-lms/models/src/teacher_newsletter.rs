@@ -68,7 +68,13 @@ pub async fn create_newsletter_item(
 
     sqlx::query!(
         "
-INSERT INTO teacher_newsletter_items (course_id, period_start, period_end, as_html, as_text)
+INSERT INTO teacher_newsletter_items (
+    course_id,
+    period_start,
+    period_end,
+    as_html,
+    as_text
+  )
 VALUES ($1, $2, $3, $4, $5)
         ",
         course_id,
@@ -80,46 +86,6 @@ VALUES ($1, $2, $3, $4, $5)
     .execute(conn)
     .await?;
     Ok(())
-}
-
-pub async fn get_newsletter_items_as_html_period(
-    conn: &mut PgConnection,
-    course_ids: &[Uuid],
-    period_start: &str,
-    period_end: &str,
-) -> ModelResult<Vec<String>> {
-    let start_dt = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid start_date: {}", e),
-                None,
-            )
-        })?
-        .with_timezone(&Utc);
-
-    let end_dt = DateTime::parse_from_rfc3339(&(period_end.to_owned() + "T23:59:59Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid end_date: {}", e),
-                None,
-            )
-        })?
-        .with_timezone(&Utc);
-
-    let res = sqlx::query!(
-        "
-SELECT as_html FROM teacher_newsletter_items WHERE course_id = ANY($1) AND period_start >= $2 AND period_end <= $3
-        ",
-        course_ids,
-        start_dt,
-        end_dt
-    )
-    .map(|r| r.as_html)
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
 }
 
 pub async fn get_newsletter_items(
@@ -151,52 +117,24 @@ pub async fn get_newsletter_items(
     let res = sqlx::query_as!(
         TeacherNewsletterItems,
         "
-SELECT id, created_at, updated_at, deleted_at, course_id, period_start, period_end, as_html, as_text FROM teacher_newsletter_items WHERE course_id = ANY($1) AND period_start >= $2 AND period_end < $3
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  period_start,
+  period_end,
+  as_html,
+  as_text
+FROM teacher_newsletter_items
+WHERE course_id = ANY($1)
+  AND period_start >= $2
+  AND period_end <= $3
         ",
         course_ids,
         start_dt,
         end_dt,
     )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-pub async fn get_newsletter_items_as_text_period(
-    conn: &mut PgConnection,
-    course_ids: &[Uuid],
-    period_start: &str,
-    period_end: &str,
-) -> ModelResult<Vec<String>> {
-    let start_dt = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid start_date: {}", e),
-                None,
-            )
-        })?
-        .with_timezone(&Utc);
-
-    let end_dt = DateTime::parse_from_rfc3339(&(period_end.to_owned() + "T23:59:59Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid end_date: {}", e),
-                None,
-            )
-        })?
-        .with_timezone(&Utc);
-
-    let res = sqlx::query!(
-        "
-SELECT as_text FROM teacher_newsletter_items WHERE course_id = ANY($1) AND period_start >= $2 AND period_end < $3
-        ",
-        course_ids,
-        start_dt,
-        end_dt
-    )
-    .map(|r| r.as_text)
     .fetch_all(conn)
     .await?;
     Ok(res)

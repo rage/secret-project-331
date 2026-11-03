@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO teacher_newsletter_items (\n    course_id,\n    period_start,\n    period_end,\n    as_html,\n    as_text\n  )\nVALUES ($1, $2, $3, $4, $5)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "df8515cfcbf0c357c5e111e7d2a0a32961659a6438c549e0183b90b3e8eb2f12"
+}

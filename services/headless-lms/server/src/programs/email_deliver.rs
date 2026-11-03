@@ -13,9 +13,7 @@ use headless_lms_models::email_deliveries::{
 };
 use headless_lms_models::email_layouts::{self, EmailLayout, ResolvedLayout};
 use headless_lms_models::email_templates::EmailTemplateType;
-use headless_lms_models::teacher_newsletter::{
-    get_newsletter_items_as_html_period, get_newsletter_items_as_text_period,
-};
+use headless_lms_models::teacher_newsletter::get_newsletter_items;
 use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::backoff;
@@ -479,14 +477,17 @@ async fn build_teacher_newsletter_email_content(
     let period_end = date_today.format("%Y-%m-%d").to_string();
     let period_start = start_date.format("%Y-%m-%d").to_string();
 
-    let newsletter_items_as_html =
-        get_newsletter_items_as_html_period(conn, &course_ids, &period_start, &period_end).await?;
-    let newsletter_items_as_text =
-        get_newsletter_items_as_text_period(conn, &course_ids, &period_start, &period_end).await?;
+    let newsletter_items =
+        get_newsletter_items(conn, &course_ids, &period_start, &period_end).await?;
 
+    let newsletter_items_as_html: String =
+        newsletter_items.iter().map(|i| i.as_html.clone()).collect();
+    let newsletter_items_as_text: String =
+        newsletter_items.iter().map(|i| i.as_text.clone()).collect();
+    dbg!(&newsletter_items_as_html);
     if !courses.is_empty() {
-        let html = newsletter_items_as_html.join("\n");
-        let text = newsletter_items_as_text.join("\n");
+        let html = newsletter_items_as_html.to_string();
+        let text = newsletter_items_as_text.to_string();
         Ok(TeacherNewsletterContent { html, text })
     } else {
         Ok(TeacherNewsletterContent {

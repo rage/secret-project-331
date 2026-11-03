@@ -6,7 +6,8 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::library::oauth::Digest;
 
-const ACCESS_TOKEN_LENGTH: usize = 64;
+/// Length of a [`generate_access_token`] token, all ASCII alphanumerics.
+pub const ACCESS_TOKEN_LENGTH: usize = 64;
 
 /// Crockford base32 alphabet (excludes I, L, O, U to avoid ambiguity with 1/0).
 const USER_CODE_ALPHABET: &[u8] = b"0123456789ABCDEFGHJKMNPQRSTVWXYZ";

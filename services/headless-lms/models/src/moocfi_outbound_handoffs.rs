@@ -24,19 +24,22 @@ pub struct RedeemedMoocfiHandoff {
 /// Why a handoff could not be redeemed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RedeemRefusal {
+    /// Minted from another IP than the one redeeming it. The handoff is left unspent.
+    IpMismatch,
     /// Redeemed already, or expired.
     Spent,
     /// No such handoff, pruned long ago, or for a completion or target deleted since.
     Unknown,
 }
 
-/// Stores a handoff for `external_completion_id`, redeemable for `lifetime`, and prunes handoffs
-/// expired over a day ago.
+/// Stores a handoff for `external_completion_id`, redeemable for `lifetime` from the IP
+/// `client_ip_hash` is of, and prunes handoffs expired over a day ago.
 pub async fn insert(
     conn: &mut PgConnection,
     token_digest: &[u8],
     external_completion_id: Uuid,
     destination: MoocfiHandoffDestination,
+    client_ip_hash: &str,
     lifetime: chrono::Duration,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
@@ -54,13 +57,15 @@ INSERT INTO moocfi_outbound_handoffs (
     token_digest,
     external_completion_id,
     destination,
+    client_ip_hash,
     expires_at
   )
-VALUES ($1, $2, $3, now() + $4 * INTERVAL '1 millisecond')
+VALUES ($1, $2, $3, $4, now() + $5 * INTERVAL '1 millisecond')
         "#,
         token_digest,
         external_completion_id,
         destination as MoocfiHandoffDestination,
+        client_ip_hash,
         lifetime.num_milliseconds() as f64,
     )
     .execute(&mut *tx)
@@ -69,10 +74,35 @@ VALUES ($1, $2, $3, now() + $4 * INTERVAL '1 millisecond')
     Ok(())
 }
 
-/// Consumes the handoff with `token_digest`. Atomic, so of two concurrent redeems only one wins.
+/// The courses account of the student a live handoff with `token_digest` is for, spent or not.
+pub async fn get_student_id(
+    conn: &mut PgConnection,
+    token_digest: &[u8],
+) -> ModelResult<Option<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT ec.user_id
+FROM moocfi_outbound_handoffs h
+  JOIN external_completions ec ON ec.id = h.external_completion_id
+  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
+WHERE h.token_digest = $1
+  AND h.deleted_at IS NULL
+  AND ec.deleted_at IS NULL
+  AND t.deleted_at IS NULL
+        "#,
+        token_digest,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Consumes the handoff with `token_digest` if it was minted from the IP `client_ip_hash` is of.
+/// Atomic, so of two concurrent redeems only one wins, and a redeem from another IP never spends it.
 pub async fn redeem(
     conn: &mut PgConnection,
     token_digest: &[u8],
+    client_ip_hash: &str,
 ) -> ModelResult<Result<RedeemedMoocfiHandoff, RedeemRefusal>> {
     let redeemed = sqlx::query_as!(
         RedeemedMoocfiHandoff,
@@ -81,6 +111,7 @@ WITH redeemed AS (
   UPDATE moocfi_outbound_handoffs h
   SET redeemed_at = now()
   WHERE h.token_digest = $1
+    AND h.client_ip_hash = $2
     AND h.redeemed_at IS NULL
     AND h.expires_at > now()
     AND h.deleted_at IS NULL
@@ -103,32 +134,32 @@ FROM redeemed r
   JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
         "#,
         token_digest,
+        client_ip_hash,
     )
     .fetch_optional(&mut *conn)
     .await?;
     if let Some(redeemed) = redeemed {
         return Ok(Ok(redeemed));
     }
-    let exists = sqlx::query_scalar!(
+    let is_bound = sqlx::query_scalar!(
         r#"
-SELECT EXISTS (
-    SELECT 1
-    FROM moocfi_outbound_handoffs h
-      JOIN external_completions ec ON ec.id = h.external_completion_id
-      JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
-    WHERE h.token_digest = $1
-      AND h.deleted_at IS NULL
-      AND ec.deleted_at IS NULL
-      AND t.deleted_at IS NULL
-  ) AS "exists!"
+SELECT h.client_ip_hash = $2 AS "is_bound!"
+FROM moocfi_outbound_handoffs h
+  JOIN external_completions ec ON ec.id = h.external_completion_id
+  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
+WHERE h.token_digest = $1
+  AND h.deleted_at IS NULL
+  AND ec.deleted_at IS NULL
+  AND t.deleted_at IS NULL
         "#,
         token_digest,
+        client_ip_hash,
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
-    Ok(Err(if exists {
-        RedeemRefusal::Spent
-    } else {
-        RedeemRefusal::Unknown
+    Ok(Err(match is_bound {
+        Some(false) => RedeemRefusal::IpMismatch,
+        Some(true) => RedeemRefusal::Spent,
+        None => RedeemRefusal::Unknown,
     }))
 }

@@ -8,6 +8,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 import { client } from "../client.generated"
 import {
   getAuthLoggedIn,
+  getAuthReauthenticationStatus,
   getAuthUserInfo,
   type Options,
   postAuthAuthorize,
@@ -15,13 +16,18 @@ import {
   postAuthDeleteUserAccount,
   postAuthLogin,
   postAuthLogout,
+  postAuthReauthenticateWithCode,
+  postAuthReauthenticateWithPassword,
   postAuthSendEmailCode,
+  postAuthSendReauthenticationCode,
   postAuthSignup,
   postAuthVerifyEmail,
 } from "../sdk.generated"
 import type {
   GetAuthLoggedInData,
   GetAuthLoggedInResponse,
+  GetAuthReauthenticationStatusData,
+  GetAuthReauthenticationStatusResponse,
   GetAuthUserInfoData,
   GetAuthUserInfoResponse,
   PostAuthAuthorizeData,
@@ -33,8 +39,14 @@ import type {
   PostAuthLoginData,
   PostAuthLoginResponse,
   PostAuthLogoutData,
+  PostAuthReauthenticateWithCodeData,
+  PostAuthReauthenticateWithCodeResponse,
+  PostAuthReauthenticateWithPasswordData,
+  PostAuthReauthenticateWithPasswordResponse,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponse,
+  PostAuthSendReauthenticationCodeData,
+  PostAuthSendReauthenticationCodeResponse,
   PostAuthSignupData,
   PostAuthSignupResponse,
   PostAuthVerifyEmailData,
@@ -228,6 +240,91 @@ export const postAuthLogoutMutation = (
 
 /**
  *
+ * POST `/api/v0/auth/reauthenticate-with-code` - Ends the delegation of the session if `code` is the
+ * one [`send_reauthentication_code`] mailed.
+ */
+export const postAuthReauthenticateWithCodeMutation = (
+  options?: Partial<Options<PostAuthReauthenticateWithCodeData>>,
+): UseMutationOptions<
+  PostAuthReauthenticateWithCodeResponse,
+  DefaultError,
+  Options<PostAuthReauthenticateWithCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthReauthenticateWithCodeResponse,
+    DefaultError,
+    Options<PostAuthReauthenticateWithCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthReauthenticateWithCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/auth/reauthenticate-with-password` - Ends the delegation of the session if `password`
+ * is the account's.
+ *
+ * An account only ever signed in through handoffs has no password stored here, so its password is
+ * checked with TMC, like a login would, but nothing is stored.
+ */
+export const postAuthReauthenticateWithPasswordMutation = (
+  options?: Partial<Options<PostAuthReauthenticateWithPasswordData>>,
+): UseMutationOptions<
+  PostAuthReauthenticateWithPasswordResponse,
+  DefaultError,
+  Options<PostAuthReauthenticateWithPasswordData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthReauthenticateWithPasswordResponse,
+    DefaultError,
+    Options<PostAuthReauthenticateWithPasswordData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthReauthenticateWithPassword({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAuthReauthenticationStatusQueryKey = (
+  options?: Options<GetAuthReauthenticationStatusData>,
+) => createQueryKey("getAuthReauthenticationStatus", options)
+
+/**
+ *
+ * GET `/api/v0/auth/reauthentication` - Whether the session must reauthenticate before account
+ * security changes; see [`authentication::remember_delegated`].
+ */
+export const getAuthReauthenticationStatusOptions = (
+  options?: Options<GetAuthReauthenticationStatusData>,
+) =>
+  queryOptions<
+    GetAuthReauthenticationStatusResponse,
+    DefaultError,
+    GetAuthReauthenticationStatusResponse,
+    ReturnType<typeof getAuthReauthenticationStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAuthReauthenticationStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAuthReauthenticationStatusQueryKey(options),
+  })
+
+/**
+ *
  * POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
  * *
  */
@@ -245,6 +342,33 @@ export const postAuthSendEmailCodeMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await postAuthSendEmailCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/auth/send-reauthentication-code` - Mails a code to the account's current address
+ * that [`reauthenticate_with_code`] takes.
+ */
+export const postAuthSendReauthenticationCodeMutation = (
+  options?: Partial<Options<PostAuthSendReauthenticationCodeData>>,
+): UseMutationOptions<
+  PostAuthSendReauthenticationCodeResponse,
+  DefaultError,
+  Options<PostAuthSendReauthenticationCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSendReauthenticationCodeResponse,
+    DefaultError,
+    Options<PostAuthSendReauthenticationCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSendReauthenticationCode({
         ...options,
         ...fnOptions,
         throwOnError: true,

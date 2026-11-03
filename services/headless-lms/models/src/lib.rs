@@ -100,6 +100,7 @@ pub mod marketing_consents;
 pub mod material_references;
 pub mod moocfi_handoff_continuations;
 pub mod moocfi_outbound_handoffs;
+pub mod moocfi_redeemed_inbound_handoffs;
 pub mod oauth_access_token;
 pub mod oauth_auth_code;
 pub mod oauth_client;

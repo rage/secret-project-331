@@ -329,6 +329,11 @@ pub const MOCK_MOOCFI_ORGANIZATION_SLUG: &str = "courses-mooc-fi-mock";
 /// The handoff secret the mock mooc.fi mints with. Public on purpose: never a real credential.
 pub const MOCK_MOOCFI_HANDOFF_SECRET: &str = "mock-moocfi-handoff-secret";
 
+/// The TMC application uids a mint accepts under the mock unless
+/// `MOOCFI_HANDOFF_TMC_APPLICATION_UIDS` says otherwise. Test-mode tokens skip the check.
+pub const MOCK_MOOCFI_HANDOFF_TMC_APPLICATION_UIDS: [&str; 2] =
+    ["mock-moocfi-frontend", "mock-elements-of-ai"];
+
 const DEFAULT_MOOCFI_URL: &str = "https://www.mooc.fi/";
 
 /// Where mooc.fi is and, when delegated credit registration is on, how courses talks to it.
@@ -342,6 +347,10 @@ pub struct MoocfiConfiguration {
     pub delegation: Option<MoocfiDelegationConfiguration>,
     /// Bearer secret mooc.fi's backend mints handoffs with. `None` closes the mint.
     pub handoff_secret: Option<SecretString>,
+    /// The TMC OAuth applications whose tokens a handoff mint accepts: mooc.fi's frontend and
+    /// Elements of AI, from `MOOCFI_HANDOFF_TMC_APPLICATION_UIDS`, comma separated. Empty closes
+    /// the mint.
+    pub handoff_tmc_application_uids: Vec<String>,
 }
 
 /// How courses calls mooc.fi's organization API as the organization that registers delegated
@@ -376,6 +385,13 @@ impl MoocfiConfiguration {
             handoff_secret: Some(SecretString::new(
                 MOCK_MOOCFI_HANDOFF_SECRET.to_string().into(),
             )),
+            handoff_tmc_application_uids: handoff_tmc_application_uids_from_env().unwrap_or_else(
+                || {
+                    MOCK_MOOCFI_HANDOFF_TMC_APPLICATION_UIDS
+                        .map(str::to_string)
+                        .to_vec()
+                },
+            ),
         })
     }
 
@@ -414,7 +430,15 @@ impl MoocfiConfiguration {
             delegation,
             handoff_secret: non_empty_env("MOOCFI_HANDOFF_SECRET")
                 .map(|secret| SecretString::new(secret.into())),
+            handoff_tmc_application_uids: handoff_tmc_application_uids_from_env()
+                .unwrap_or_default(),
         })
+    }
+
+    /// The origin of [`Self::frontend_url`], which a handoff's `Referer` must match to sign in
+    /// without asking.
+    pub fn frontend_origin(&self) -> String {
+        self.frontend_url.origin().ascii_serialization()
     }
 
     /// mooc.fi's site in the language nearest the courses UI's: Finnish for `fi`, English for
@@ -440,6 +464,16 @@ impl MoocfiConfiguration {
         )
         .context("Invalid URL in MOOCFI_BASE_URL")
     }
+}
+
+fn handoff_tmc_application_uids_from_env() -> Option<Vec<String>> {
+    non_empty_env("MOOCFI_HANDOFF_TMC_APPLICATION_UIDS").map(|uids| {
+        uids.split(',')
+            .map(str::trim)
+            .filter(|uid| !uid.is_empty())
+            .map(str::to_string)
+            .collect()
+    })
 }
 
 #[derive(Clone)]

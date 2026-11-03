@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import React, { useContext, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { useIsReauthenticationRequired } from "@/components/ReauthenticationSection"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
   postAuthDeleteUserAccount,
@@ -39,6 +40,7 @@ const DeleteUserAccountForm: React.FC = () => {
   const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
   const [openDialog, setOpenDialog] = useState(false)
   const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
+  const isReauthenticationRequired = useIsReauthenticationRequired()
   const closeDialog = () => setOpenDialog(false)
 
   const sendEmailCodeMutation = useToastMutation(
@@ -138,10 +140,12 @@ const DeleteUserAccountForm: React.FC = () => {
 
   return (
     <>
+      {isReauthenticationRequired && <p>{t("reauthentication-required-to-delete-account")}</p>}
       <Button
         data-testid="delete-account-button"
         variant="danger"
         size="small"
+        disabled={isReauthenticationRequired}
         onClick={() => setOpenDialog(true)}
       >
         {t("title-delete-account")}

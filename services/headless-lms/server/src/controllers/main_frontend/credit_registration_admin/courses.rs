@@ -802,21 +802,38 @@ fn target_configuration(
             "The language must be a language code such as fi or en-US.".to_string()
         ));
     }
+    let moocfi_course_slug = required(&payload.moocfi_course_slug, "The mooc.fi course slug")?;
+    if !is_plain_slug(&moocfi_course_slug) {
+        return Err(controller_err!(
+            BadRequest,
+            "The mooc.fi course slug may only have letters, numbers, - and _.".to_string()
+        ));
+    }
+    let enrolment_link = payload
+        .enrolment_link
+        .as_deref()
+        .map(str::trim)
+        .filter(|link| !link.is_empty())
+        .map(str::to_string);
+    // Students open it as a link, where a `javascript:` URL would run as our page.
+    if let Some(link) = &enrolment_link
+        && !url::Url::parse(link).is_ok_and(|url| url.scheme() == "https" && url.has_host())
+    {
+        return Err(controller_err!(
+            BadRequest,
+            "The enrolment link must be a web address that starts with https://.".to_string()
+        ));
+    }
     Ok(ExternalCreditTargetConfiguration {
         moocfi_course_id: payload.moocfi_course_id,
-        moocfi_course_slug: required(&payload.moocfi_course_slug, "The mooc.fi course slug")?,
+        moocfi_course_slug,
         name: required(&payload.name, "The name")?,
         language_code,
         tiers: payload.tiers,
         uh_course_code: required(&payload.uh_course_code, "The course code")?,
         ects_credits: payload.ects_credits,
         grading: payload.grading,
-        enrolment_link: payload
-            .enrolment_link
-            .as_deref()
-            .map(str::trim)
-            .filter(|link| !link.is_empty())
-            .map(str::to_string),
+        enrolment_link,
         delegated_at: payload.delegated_at,
         enabled_at: payload.enabled.then(|| {
             existing
@@ -824,6 +841,14 @@ fn target_configuration(
                 .unwrap_or_else(Utc::now)
         }),
     })
+}
+
+/// Whether `slug` can be put in a mooc.fi path as it is.
+fn is_plain_slug(slug: &str) -> bool {
+    slug.len() <= 255
+        && slug
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
 }
 
 /// Refuses a cutoff that differs from the other live targets' of the same mooc.fi course: mooc.fi

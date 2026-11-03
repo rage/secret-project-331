@@ -94,7 +94,10 @@ pub(crate) async fn lookup_and_sync(
         },
     )
     .await;
-    Ok(synced
-        .map(|()| completions)
-        .map_err(|error| error.to_string()))
+    // Backed off like a failed lookup, so one student's bad row cannot stall the queue, but logged
+    // as ours: retrying will not fix it.
+    Ok(synced.map(|()| completions).map_err(|error| {
+        tracing::error!(%user_id, %moocfi_course_id, %error, "Could not sync mooc.fi completions");
+        format!("syncing mooc.fi's completions failed: {error}")
+    }))
 }

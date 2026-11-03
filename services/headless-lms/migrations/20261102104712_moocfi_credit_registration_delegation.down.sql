@@ -1,5 +1,6 @@
 DROP VIEW moocfi_reportable_registrations;
 DROP TABLE moocfi_registration_reports;
+DROP TABLE moocfi_redeemed_inbound_handoffs;
 DROP TABLE moocfi_handoff_continuations;
 DROP TABLE moocfi_outbound_handoffs;
 DROP TYPE moocfi_handoff_destination;
@@ -247,3 +248,50 @@ WHERE TRIM(cm.uh_course_code) <> ''
   AND conf.paused_at IS NULL;
 
 COMMENT ON VIEW credit_registration_active_course_modules IS 'Modules with a course code, completions_can_be_registered_to_sisu on, and credit registration not paused. The gate every phase that spends work on a module shares; every way out of it freezes what is in flight rather than cancelling it, so a query filtering on membership must leave the rows it stops seeing alone.';
+
+DELETE FROM user_email_codes
+WHERE purpose = 'reauthentication';
+ALTER TYPE user_email_code_purpose
+RENAME TO user_email_code_purpose_old;
+CREATE TYPE user_email_code_purpose AS ENUM (
+  'staff_login',
+  'account_deletion',
+  'email_ownership_verification'
+);
+ALTER TABLE user_email_codes
+ALTER COLUMN purpose TYPE user_email_code_purpose USING (purpose::text::user_email_code_purpose);
+DROP TYPE user_email_code_purpose_old;
+COMMENT ON TYPE user_email_code_purpose IS 'What an emailed single-use code authorises. A discriminator, not a label: every read of user_email_codes is scoped by it, so a code mailed for one action cannot be spent on another.';
+
+-- Soft-deleted rather than deleted: email_deliveries reference them. deleted_at differs per row
+-- because unique_email_templates_type_language_general keys on it.
+UPDATE email_templates t
+SET email_template_type = 'generic',
+  deleted_at = now() - (r.n * INTERVAL '1 microsecond')
+FROM (
+    SELECT id,
+      row_number() OVER (
+        ORDER BY id
+      ) AS n
+    FROM email_templates
+    WHERE email_template_type = 'reauthentication_code'
+  ) r
+WHERE t.id = r.id;
+ALTER TYPE email_template_type
+RENAME TO email_template_type_old;
+CREATE TYPE email_template_type AS ENUM (
+  'reset_password_email',
+  'delete_user_email',
+  'generic',
+  'confirm_email_code',
+  'credit_registration_account_linking',
+  'verify_email_address',
+  'credit_registration_action_needed',
+  'credit_registration_registered'
+);
+ALTER TABLE email_templates
+ALTER COLUMN email_template_type TYPE email_template_type USING (
+    email_template_type::text::email_template_type
+  );
+DROP TYPE email_template_type_old;
+COMMENT ON TYPE email_template_type IS 'Type of email template: generic templates do not support automated placeholder replacements, others do.';

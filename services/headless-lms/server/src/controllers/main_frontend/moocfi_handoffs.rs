@@ -7,13 +7,17 @@ page, or from Elements of AI's, carrying a handoff minted by
 never JSON:
 
 - the right account signed in: on to the registration page;
-- nobody signed in, same-site: signed in, then on to the registration page;
-- another account signed in, or a cross-site arrival: to the course's landing page
+- nobody signed in, arriving same-site from mooc.fi's own page: signed in, then on to the
+  registration page;
+- another account signed in, or any other arrival: to the course's landing page
   (`/completion-registration/mooc-fi/{moocfi_course_id}/handoff`), with a single-use continuation
   in an HttpOnly cookie that `continue` completes once the student confirms. Nobody is signed in
-  on a cross-site GET, which would allow login CSRF;
+  without asking on a navigation another site could have started, which would allow login CSRF;
 - a handoff for an account with any courses role, and anything else: to the normal login, which
   never signs anyone in.
+
+A handoff is single use: signing in or starting a continuation spends it. Sessions it signs in are
+delegated; see [`authentication::remember_delegated`].
 */
 
 use actix_session::Session;
@@ -47,7 +51,7 @@ const CONTINUATION_COOKIE_PATH: &str = "/api/v0/main-frontend/moocfi-handoffs";
 
 /// Long enough to read the landing page, short enough that a shared computer's next user rarely
 /// finds one waiting.
-const CONTINUATION_LIFETIME: chrono::TimeDelta = chrono::TimeDelta::minutes(3);
+const CONTINUATION_LIFETIME: chrono::TimeDelta = chrono::TimeDelta::seconds(60);
 
 /// An expired handoff still gets the wrong-account explanation, and is charged to its student's
 /// bucket, only this soon after expiry; older ones could otherwise be replayed to lock them out.
@@ -83,6 +87,7 @@ enum RedeemOutcome {
     AlreadySignedIn,
     Invalid,
     Expired,
+    Spent,
     IpMismatch,
     RateLimited,
     StaffAccount,
@@ -98,6 +103,7 @@ impl RedeemOutcome {
             Self::AlreadySignedIn => "already_signed_in",
             Self::Invalid => "invalid",
             Self::Expired => "expired",
+            Self::Spent => "spent",
             Self::IpMismatch => "ip_mismatch",
             Self::RateLimited => "rate_limited",
             Self::StaffAccount => "staff_account",
@@ -170,8 +176,8 @@ pub async fn redeem_moocfi_handoff(
             Some(&claim),
         ));
     }
-    match session_user {
-        Some(_) if is_unexpired && is_bound => {
+    if session_user.is_some() {
+        if is_unexpired && is_bound && spend(&mut conn, &claim).await? {
             log_outcome(RedeemOutcome::DifferentAccount);
             return token.authorized_ok(
                 to_landing_with_continuation(
@@ -183,14 +189,11 @@ pub async fn redeem_moocfi_handoff(
                 .await?,
             );
         }
-        Some(_) => {
-            log_outcome(RedeemOutcome::DifferentAccountNotContinuable);
-            return token.authorized_ok(see_other(&landing_page_path(
-                moocfi_course_id,
-                REASON_DIFFERENT_ACCOUNT,
-            )));
-        }
-        None => {}
+        log_outcome(RedeemOutcome::DifferentAccountNotContinuable);
+        return token.authorized_ok(see_other(&landing_page_path(
+            moocfi_course_id,
+            REASON_DIFFERENT_ACCOUNT,
+        )));
     }
     if !is_unexpired {
         return token.authorized_ok(fall_back_to_login(RedeemOutcome::Expired, Some(&claim)));
@@ -198,7 +201,10 @@ pub async fn redeem_moocfi_handoff(
     if !is_bound {
         return token.authorized_ok(fall_back_to_login(RedeemOutcome::IpMismatch, Some(&claim)));
     }
-    if !is_same_site(&request) {
+    if !spend(&mut conn, &claim).await? {
+        return token.authorized_ok(fall_back_to_login(RedeemOutcome::Spent, Some(&claim)));
+    }
+    if !is_from_moocfi_page(&request, &app_conf) {
         log_outcome(RedeemOutcome::NeedsConfirmation);
         return token.authorized_ok(
             to_landing_with_continuation(&mut conn, &claim, REASON_CONFIRM, &app_conf).await?,
@@ -214,7 +220,7 @@ pub async fn redeem_moocfi_handoff(
     };
     // Against session fixation: the signed-in session must not reuse an id issued before sign-in.
     session.renew();
-    authentication::remember(&session, user)?;
+    authentication::remember_delegated(&session, user)?;
     log_outcome(RedeemOutcome::SignedIn);
     token.authorized_ok(see_other(&registration_page_path(&claim)))
 }
@@ -230,8 +236,9 @@ pub struct PendingMoocfiHandoffQuery {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct PendingMoocfiHandoff {
     pub moocfi_course_id: Uuid,
-    /// Enough of the handoff account's email for the student to recognise it.
-    pub masked_email: String,
+    /// The handoff account's email, in full: the student confirms by recognising it, and only the
+    /// browser the handoff was minted for, from its IP, gets this far.
+    pub email: String,
     /// When `Same`, the continuation is already spent: open `redirect_path`.
     pub signed_in_account: SignedInAccount,
     /// The registration page to open once the right account is signed in.
@@ -281,7 +288,7 @@ pub async fn get_pending_moocfi_handoff(
     let signed_in_account = signed_in_account(&session, &continuation);
     let pending = PendingMoocfiHandoff {
         moocfi_course_id: continuation.moocfi_course_id,
-        masked_email: mask_email_for_account_choice(&email),
+        email,
         signed_in_account,
         redirect_path: registration_page_path_of(
             continuation.moocfi_course_id,
@@ -366,7 +373,7 @@ pub async fn continue_moocfi_handoff(
         let user = models::users::get_by_id(&mut conn, continuation.user_id).await?;
         session.clear();
         session.renew();
-        authentication::remember(&session, user)?;
+        authentication::remember_delegated(&session, user)?;
     }
     info!(outcome = "continued", "Continued a mooc.fi handoff");
     token.authorized_ok(clearing_continuation(HttpResponse::Ok().json(
@@ -436,10 +443,28 @@ fn is_same_origin(request: &HttpRequest, app_conf: &ApplicationConfiguration) ->
     }
 }
 
-/// Browsers set `Sec-Fetch-Site` and pages cannot forge it. Same-origin is a stricter case of
-/// same-site, and is what dev's mock page sends.
-fn is_same_site(request: &HttpRequest) -> bool {
-    sec_fetch_site(request).is_some_and(|site| site == "same-site" || site == "same-origin")
+/// A navigation from mooc.fi's own page. Browsers set `Sec-Fetch-Site` and pages cannot forge it,
+/// but same-site alone would also admit any other site under mooc.fi; the `Referer` origin narrows
+/// it to mooc.fi's frontend. Same-origin is a stricter case of same-site, and is what dev's mock
+/// page, served from our own origin, sends.
+fn is_from_moocfi_page(request: &HttpRequest, app_conf: &ApplicationConfiguration) -> bool {
+    let is_same_site =
+        sec_fetch_site(request).is_some_and(|site| site == "same-site" || site == "same-origin");
+    is_same_site
+        && request
+            .headers()
+            .get(header::REFERER)
+            .and_then(|value| value.to_str().ok())
+            .and_then(|referer| url::Url::parse(referer).ok())
+            .is_some_and(|referer| {
+                referer.origin().ascii_serialization()
+                    == app_conf.moocfi_configuration.frontend_origin()
+            })
+}
+
+/// Spends the claim, false when it was spent already.
+async fn spend(conn: &mut PgConnection, claim: &MoocfiHandoffClaim) -> ModelResult<bool> {
+    models::moocfi_redeemed_inbound_handoffs::spend(conn, claim.jti(), claim.expires_at()).await
 }
 
 async fn to_landing_with_continuation(
@@ -500,17 +525,6 @@ fn clearing_continuation(mut response: HttpResponse) -> HttpResponse {
     // Only fails on a cookie that cannot be a header value, which this one always can.
     let _ = response.add_cookie(&continuation_cookie_removal());
     response
-}
-
-/// The first letter of the address and its domain, such as `m…@example.com`.
-fn mask_email_for_account_choice(email: &str) -> String {
-    match email.split_once('@') {
-        Some((local, domain)) => {
-            let first: String = local.chars().take(1).collect();
-            format!("{first}…@{domain}")
-        }
-        None => "…".to_string(),
-    }
 }
 
 /// The page a redeemed handoff lands on, in the language mooc.fi was used in.

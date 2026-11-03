@@ -549,7 +549,7 @@ fetch("/api/v0/mock-moocfi/api/courses-handoff/redeem", {
     )
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct CoursesHandoffRedeemRequest {
     token: String,
 }
@@ -564,6 +564,7 @@ struct RedeemedHandoff {
 /// mooc.fi's `POST /api/courses-handoff/redeem`: redeems the token with courses and resolves the
 /// destination to a mooc.fi path. Signs no one in; the page only names whom mooc.fi would.
 async fn redeem_courses_handoff(
+    request: HttpRequest,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<CoursesHandoffRedeemRequest>,
@@ -582,7 +583,10 @@ async fn redeem_courses_handoff(
     let response = REQWEST_CLIENT
         .post(redeem_url)
         .bearer_auth(MOCK_MOOCFI_HANDOFF_SECRET)
-        .json(&payload.into_inner())
+        .json(&serde_json::json!({
+            "token": payload.token,
+            "client_ip": request_client_ip(&request).map(|client_ip| client_ip.to_string()),
+        }))
         .send()
         .await
         .map_err(|error| {

@@ -9,6 +9,7 @@ use headless_lms_models::library::credit_registration::moocfi_report::{
     MOOCFI_REPORT_LIMIT, MoocfiReportCandidate, claim_next_for_report, mark_reported,
     record_report_failure,
 };
+use headless_lms_models::library::credit_registration::scrub::scrub_text;
 use headless_lms_utils::services::moocfi::{
     CompletionRegistrationReport, DelegatedCompletion, DelegatedCompletionRegistration,
     MoocfiClient, RegisterCompletionsRequest,
@@ -52,6 +53,7 @@ pub(crate) async fn run(
         match report(pool, delegation, &client, &candidate, &mut lookups).await? {
             Ok(()) => tally.record_success(),
             Err(error) => {
+                let error = scrub_text(&error);
                 warn!(
                     credit_registration_id = %candidate.credit_registration_id,
                     %error,

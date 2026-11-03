@@ -9951,7 +9951,7 @@
     "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request.",
+        "summary": "\nPOST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request. Only from the IP that\nminted it.",
         "operationId": "createMyMoocfiHandoff",
         "parameters": [
           {
@@ -10390,7 +10390,7 @@
     "/api/v0/main-frontend/email-verification/verify": {
       "post": {
         "tags": ["email-verification"],
-        "summary": "\nPOST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.\n\nAuthenticated and scoped to the caller's own account, so the code is the only secret involved and it\nnever has to identify anybody on its own.",
+        "summary": "\nPOST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof,\nand copies the now proven address to TMC.\n\nAuthenticated and scoped to the caller's own account, so the code is the only secret involved and it\nnever has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot\nbe reached, so the code can be tried again.",
         "operationId": "verifyEmailOwnership",
         "requestBody": {
           "content": {
@@ -14915,7 +14915,7 @@
     "/api/v0/main-frontend/user-details/update-user-info": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nPOST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent\n\nA new email reaches TMC only once it is verified, through\n[`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email\nownership verification is off. 403 for an email change from a delegated session.",
         "operationId": "updateUserInfo",
         "requestBody": {
           "content": {
@@ -24865,7 +24865,8 @@
           "credit_registration_account_linking",
           "verify_email_address",
           "credit_registration_action_needed",
-          "credit_registration_registered"
+          "credit_registration_registered",
+          "reauthentication_code"
         ]
       },
       "EmailVerificationEmailInfo": {
@@ -30650,11 +30651,11 @@
       "PendingMoocfiHandoff": {
         "type": "object",
         "description": "Which account a pending continuation would sign in, beside whoever is signed in now.",
-        "required": ["moocfi_course_id", "masked_email", "signed_in_account", "redirect_path"],
+        "required": ["moocfi_course_id", "email", "signed_in_account", "redirect_path"],
         "properties": {
-          "masked_email": {
+          "email": {
             "type": "string",
-            "description": "Enough of the handoff account's email for the student to recognise it."
+            "description": "The handoff account's email, in full: the student confirms by recognising it, and only the\nbrowser the handoff was minted for, from its IP, gets this far."
           },
           "moocfi_course_id": {
             "type": "string",

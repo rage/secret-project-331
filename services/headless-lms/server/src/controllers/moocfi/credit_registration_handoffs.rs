@@ -10,7 +10,7 @@ from mooc.fi here.
 
 use std::net::IpAddr;
 
-use actix_web::http::{StatusCode, header};
+use actix_web::http::StatusCode;
 use headless_lms_base::jwt::{JwtKey, MoocfiHandoffClaim, sign_hs256_claim};
 use headless_lms_utils::services::tmc::TmcClient;
 use once_cell::sync::Lazy;
@@ -38,6 +38,16 @@ const HANDOFF_RATE_LIMIT: RateLimitConfig = RateLimitConfig {
 /// user is only known once the TMC token checks out.
 static PER_USER_LIMITS: Lazy<EndpointLimiters> =
     Lazy::new(|| EndpointLimiters::from_config(&HANDOFF_RATE_LIMIT));
+
+/// Keyed by the student's IP as mooc.fi forwards it, before TMC is asked. A lecture hall shares one
+/// address, so this only stops one address from flooding TMC through us.
+static PER_CLIENT_IP_LIMITS: Lazy<EndpointLimiters> = Lazy::new(|| {
+    EndpointLimiters::from_config(&RateLimitConfig {
+        per_minute: Some(300),
+        per_hour: Some(3000),
+        ..Default::default()
+    })
+});
 
 /// At most one error report per mooc.fi course an hour, per replica: a mismatch refuses every
 /// student who presses the button, before TMC has vouched for any of them.
@@ -74,9 +84,11 @@ POST `/api/v0/moocfi/credit-registration-handoffs` - Mints a short-lived sign-in
 their way from mooc.fi's credit registration page.
 
 Authorized by `Authorization: Bearer <MOOCFI_HANDOFF_SECRET>`. Answers 201 with the URL to send the
-student's browser to; 401 for a wrong secret or a TMC token TMC rejects; 403 `staff_account` for an
+student's browser to; 401 for a wrong secret or a TMC token TMC rejects; 403 `untrusted_token` for
+a TMC token not issued to one of `MOOCFI_HANDOFF_TMC_APPLICATION_UIDS`, and `staff_account` for an
 account with any courses role; 409 when we have no live target for the course or our cutoff differs
-from mooc.fi's; 429 per student; 503 when delegation is not configured or TMC cannot be reached.
+from mooc.fi's; 429 per student or per `client_ip`; 503 when delegation is not configured or TMC
+cannot be reached.
 */
 #[instrument(skip_all, fields(moocfi_course_id = %payload.moocfi_course_id))]
 pub async fn create_credit_registration_handoff(
@@ -89,7 +101,11 @@ pub async fn create_credit_registration_handoff(
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let moocfi = &app_conf.moocfi_configuration;
-    let (Some(handoff_secret), Some(_)) = (&moocfi.handoff_secret, &moocfi.delegation) else {
+    let (Some(handoff_secret), Some(_), false) = (
+        &moocfi.handoff_secret,
+        &moocfi.delegation,
+        moocfi.handoff_tmc_application_uids.is_empty(),
+    ) else {
         return token.authorized_ok(refusal(
             StatusCode::SERVICE_UNAVAILABLE,
             "not_configured",
@@ -102,6 +118,9 @@ pub async fn create_credit_registration_handoff(
             "unauthorized",
             "Invalid authorization.",
         ));
+    }
+    if super::is_over_global_cap() {
+        return token.authorized_ok(rate_limited(None));
     }
     let CreditRegistrationHandoffRequest {
         tmc_access_token,
@@ -118,6 +137,9 @@ pub async fn create_credit_registration_handoff(
             "client_ip is not an IP address.",
         ));
     };
+    if let Err(retry_after) = PER_CLIENT_IP_LIMITS.check_key(client_ip.to_string()) {
+        return token.authorized_ok(rate_limited(Some(retry_after)));
+    }
 
     let mut conn = pool.acquire().await?;
     let targets =
@@ -153,6 +175,13 @@ pub async fn create_credit_registration_handoff(
                 TMC_REFUSAL_MESSAGE,
             ));
         }
+        Err(TmcFailure::UntrustedToken) => {
+            return token.authorized_ok(refusal(
+                StatusCode::FORBIDDEN,
+                "untrusted_token",
+                "The TMC token was not issued to mooc.fi or Elements of AI.",
+            ));
+        }
         Err(TmcFailure::Unavailable) => {
             return token.authorized_ok(refusal(
                 StatusCode::SERVICE_UNAVAILABLE,
@@ -174,15 +203,7 @@ pub async fn create_credit_registration_handoff(
     }
 
     if let Err(retry_after) = PER_USER_LIMITS.check_key(user.id.to_string()) {
-        let mut response = refusal(
-            StatusCode::TOO_MANY_REQUESTS,
-            "rate_limited",
-            "Too many requests. Please try again later.",
-        );
-        response
-            .headers_mut()
-            .insert(header::RETRY_AFTER, retry_after.as_secs().max(1).into());
-        return token.authorized_ok(response);
+        return token.authorized_ok(rate_limited(Some(retry_after)));
     }
 
     let claim =
@@ -208,6 +229,8 @@ const TMC_REFUSAL_MESSAGE: &str = "Could not verify the student with TMC.";
 /// Why [`find_user`] found no one.
 enum TmcFailure {
     Rejected,
+    /// TMC accepts the token, but it is not one of the applications a handoff may start from.
+    UntrustedToken,
     Unavailable,
 }
 
@@ -218,6 +241,17 @@ fn refusal(status: StatusCode, kind: &'static str, message: &str) -> HttpRespons
         "type": kind,
         "message": message,
     }))
+}
+
+fn rate_limited(retry_after: Option<std::time::Duration>) -> HttpResponse {
+    super::with_retry_after(
+        refusal(
+            StatusCode::TOO_MANY_REQUESTS,
+            "rate_limited",
+            "Too many requests. Please try again later.",
+        ),
+        retry_after,
+    )
 }
 
 /// The redeem URL carrying `claim` signed.
@@ -234,8 +268,10 @@ fn redeem_url(
     Ok(url)
 }
 
-/// The courses account of the TMC token's owner, created on first sight like a login would. Holds
-/// no connection while TMC answers.
+/// The courses account of the TMC token's owner, created on first sight like a login would. Only
+/// tokens TMC issued to the configured applications count: TMC also accepts tokens of its other
+/// applications, such as exercise services, which must not become a courses session. Holds no
+/// connection while TMC answers.
 async fn find_user(
     pool: &PgPool,
     app_conf: &ApplicationConfiguration,
@@ -251,16 +287,33 @@ async fn find_user(
     {
         return Ok(user);
     }
+    let tmc_failure = |error: UtilError| match error.error_type() {
+        UtilErrorType::TmcHttpStatusError(401 | 403) => TmcFailure::Rejected,
+        _ => {
+            warn!(%error, "TMC did not answer a mooc.fi handoff");
+            TmcFailure::Unavailable
+        }
+    };
+    let token_info = tmc_client
+        .get_access_token_info(tmc_access_token)
+        .await
+        .map_err(tmc_failure)?;
+    let is_trusted = token_info.application.as_ref().is_some_and(|application| {
+        app_conf
+            .moocfi_configuration
+            .handoff_tmc_application_uids
+            .contains(&application.uid)
+    });
+    if !is_trusted {
+        return Err(TmcFailure::UntrustedToken);
+    }
     let tmc_user = tmc_client
         .get_user_from_tmc_mooc_fi_by_tmc_access_token(tmc_access_token)
         .await
-        .map_err(|error| match error.error_type() {
-            UtilErrorType::TmcHttpStatusError(401 | 403) => TmcFailure::Rejected,
-            _ => {
-                warn!(%error, "TMC did not answer a mooc.fi handoff");
-                TmcFailure::Unavailable
-            }
-        })?;
+        .map_err(tmc_failure)?;
+    if token_info.resource_owner_id != Some(tmc_user.id) {
+        return Err(TmcFailure::UntrustedToken);
+    }
     get_or_create_user_from_tmc_mooc_fi_response(
         &mut *acquire().await?,
         &app_conf.moocfi_configuration,

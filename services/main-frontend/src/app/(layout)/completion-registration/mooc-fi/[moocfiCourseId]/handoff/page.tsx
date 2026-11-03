@@ -134,12 +134,11 @@ const MoocfiHandoffPage: React.FC = () => {
         <p>
           {userQuery.data
             ? t("credit-registration-handoff-different-account", {
-                handoffEmail: pending.masked_email,
+                handoffEmail: pending.email,
                 signedInEmail: userQuery.data.email,
               })
-            : t("credit-registration-handoff-different-account-unknown")}
+            : t("credit-registration-handoff-confirm", { email: pending.email })}
         </p>
-        <p>{t("credit-registration-handoff-different-account-continue")}</p>
         {continueFailed}
         <div className={rowCss}>
           {continueButton(t("credit-registration-handoff-log-out-and-continue"))}
@@ -152,12 +151,10 @@ const MoocfiHandoffPage: React.FC = () => {
   if (pending?.signed_in_account === "none") {
     return (
       <LandingCard heading={t("credit-registration-handoff-confirm-heading")}>
-        <p>{t("credit-registration-handoff-confirm")}</p>
+        <p>{t("credit-registration-handoff-confirm", { email: pending.email })}</p>
         {continueFailed}
         <div className={rowCss}>
-          {continueButton(
-            t("credit-registration-handoff-continue-as", { email: pending.masked_email }),
-          )}
+          {continueButton(t("credit-registration-handoff-continue-as", { email: pending.email }))}
           <Link href={loginRoute(moocfiCompletionRegistrationRoute(moocfiCourseId))}>
             {t("credit-registration-handoff-sign-in-another-account")}
           </Link>

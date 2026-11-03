@@ -3946,6 +3946,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "reauthentication_code"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we
@@ -6165,9 +6166,10 @@ export type PeerReviewWithQuestionsAndAnswers = {
  */
 export type PendingMoocfiHandoff = {
   /**
-   * Enough of the handoff account's email for the student to recognise it.
+   * The handoff account's email, in full: the student confirms by recognising it, and only the
+   * browser the handoff was minted for, from its IP, gets this far.
    */
-  masked_email: string
+  email: string
   moocfi_course_id: string
   /**
    * The registration page to open once the right account is signed in.

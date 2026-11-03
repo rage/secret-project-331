@@ -21,10 +21,6 @@ import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
  */
 const STUDENT = MOOCFI_STUDENT_1
 
-/** A handoff lives 10 s with no leeway. */
-const HANDOFF_LIFETIME_MS = 10_000
-const EXPIRY_MARGIN_MS = 2_000
-
 const HANDOFFS_API = `${MAIN_FRONTEND_API}/moocfi-handoffs`
 const REDEEM_PATH = "/api/v0/main-frontend/moocfi-handoffs/redeem"
 
@@ -50,28 +46,40 @@ test("The mooc.fi button signs the student in on the course's registration page"
   const redeemRequest = page.waitForRequest((request) => request.url().includes(REDEEM_PATH))
   await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
   const redeemUrl = (await redeemRequest).url()
-  const mintedAt = Date.now()
 
   await expect(page.getByRole("link", { name: "Back to mooc.fi" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "No completion found" })).toBeVisible()
   await expect(page.getByText(MOOCFI_TARGET_NAME)).toBeVisible()
   await accessibilityCheck(page, "mooc.fi registration page after a handoff")
 
-  await test.step("A replay of the same handoff after it expired goes to the login page", async () => {
-    await new Promise((resolve) => {
-      setTimeout(
-        resolve,
-        Math.max(0, mintedAt + HANDOFF_LIFETIME_MS + EXPIRY_MARGIN_MS - Date.now()),
-      )
-    })
+  await test.step("A replay of the same handoff goes to the login page: it is single use", async () => {
     const replayer = await playwright.request.newContext()
     const replay = await replayer.get(redeemUrl, {
-      headers: { "Sec-Fetch-Site": "same-site" },
+      headers: {
+        "Sec-Fetch-Site": "same-site",
+        Referer: mockMoocfiRegistrationPageUrl(MOOCFI_COURSE, STUDENT),
+      },
       maxRedirects: 0,
     })
     expectSentToLogin(replay)
     await replayer.dispose()
   })
+})
+
+test("A same-site redeem that did not come from mooc.fi's page waits for the student to confirm", async ({
+  playwright,
+}) => {
+  const visitor = await playwright.request.newContext()
+  const redeemUrl = await mintMoocfiHandoff(visitor, MOOCFI_COURSE, STUDENT)
+  const redeem = await visitor.get(redeemUrl, {
+    headers: { "Sec-Fetch-Site": "same-site", Referer: `${ORIGIN}/somewhere-else` },
+    maxRedirects: 0,
+  })
+  expect(redeem.status()).toBe(303)
+  expect(redeem.headers()["location"]).toBe(
+    `/completion-registration/mooc-fi/${MOOCFI_COURSE.id}/handoff?reason=confirm`,
+  )
+  await visitor.dispose()
 })
 
 test("A cross-site redeem signs nobody in, and waits for the student to confirm", async ({
@@ -133,9 +141,14 @@ test("Arriving from another site, the student confirms the account and continues
   await expect(
     page.getByRole("heading", { name: "Continue to your credit registration" }),
   ).toBeVisible()
+  await expect(
+    page.getByText(
+      `This link signs you in as ${STUDENT.email}. Continue only if you just pressed the button on mooc.fi or Elements of AI.`,
+    ),
+  ).toBeVisible()
   await accessibilityCheck(page, "mooc.fi handoff confirmation after a cross-site arrival")
 
-  await page.getByRole("button", { name: /^Continue as m…@example\.com$/ }).click()
+  await page.getByRole("button", { name: `Continue as ${STUDENT.email}` }).click()
   await page.waitForURL(moocfiRegistrationUrl(MOOCFI_COURSE))
   await expect(page.getByText(`Signed in as ${STUDENT.email}`)).toBeVisible()
 })
@@ -151,13 +164,67 @@ test.describe("Another account already signed in", () => {
       `${moocfiRegistrationUrl(MOOCFI_COURSE)}/handoff?reason=different_account`,
     )
     await expect(
-      page.getByRole("heading", { name: "You have more than one account" }),
+      page.getByRole("heading", { name: "You are signed in with another account" }),
     ).toBeVisible()
-    await expect(page.getByText(/Here you are signed in as user@example\.com/)).toBeVisible()
+    await expect(
+      page.getByText(
+        `You are signed in as user@example.com. This link signs you in as ${STUDENT.email}.`,
+        { exact: false },
+      ),
+    ).toBeVisible()
     await accessibilityCheck(page, "mooc.fi handoff with another account signed in")
 
     await page.getByRole("button", { name: "Log out and continue" }).click()
     await page.waitForURL(moocfiRegistrationUrl(MOOCFI_COURSE))
     await expect(page.getByText(`Signed in as ${STUDENT.email}`)).toBeVisible()
+  })
+})
+
+test("A session signed in from mooc.fi confirms the account before account security changes", async ({
+  page,
+}) => {
+  await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
+
+  await test.step("The server refuses the changes until then", async () => {
+    const changePassword = await page.request.post(`${MAIN_FRONTEND_API}/users/change-password`, {
+      data: { old_password: "irrelevant", new_password: "irrelevant-too" },
+    })
+    expect(changePassword.status()).toBe(403)
+    const deletionCode = await page.request.post(`${ORIGIN}/api/v0/auth/send-email-code`, {
+      data: { password: "irrelevant", language: "en" },
+    })
+    expect(deletionCode.status()).toBe(403)
+    const emailChange = await page.request.post(
+      `${MAIN_FRONTEND_API}/user-details/update-user-info`,
+      {
+        data: {
+          email: "someone-else@example.com",
+          first_name: "Moocfi",
+          last_name: "Student",
+          country: "FI",
+          email_communication_consent: false,
+        },
+      },
+    )
+    expect(emailChange.status()).toBe(403)
+  })
+
+  await test.step("The account page asks for the password or an emailed code", async () => {
+    await page.goto(`${ORIGIN}/user-settings/account`)
+    const section = page.getByTestId("reauthentication-section")
+    await expect(
+      section.getByRole("heading", { name: "Confirm that this is your account" }),
+    ).toBeVisible()
+    await expect(page.getByTestId("change-password-button")).toBeDisabled()
+    await accessibilityCheck(page, "Account settings in a session signed in from mooc.fi")
+
+    await section.getByLabel("Password").fill("not-the-password")
+    await section.getByRole("button", { name: "Confirm" }).click()
+    await expect(section.getByText("The password is not correct.", { exact: false })).toBeVisible()
+
+    await section.getByRole("button", { name: `Send a code to ${STUDENT.email}` }).click()
+    await expect(
+      section.getByText(`We sent a code to ${STUDENT.email}. Enter it here.`),
+    ).toBeVisible()
   })
 })

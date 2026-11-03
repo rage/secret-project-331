@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
-import { MAIN_FRONTEND_API } from "@/utils/creditRegistration"
+import { MAIN_FRONTEND_API, ORIGIN } from "@/utils/creditRegistration"
 import {
   forgetMockMoocfiStudent,
   MOCK_MOOCFI_URL,
@@ -28,6 +28,9 @@ const TIERED_COMPLETION_ID = "c5ed17ea-5a02-4a5e-9e6e-c0de00005a02"
 const HANDOFF_PATH = "/moocfi-handoff"
 const REASON = "My employer needs the credits in the registry."
 const MOCK_REDEEM_URL = `${MOCK_MOOCFI_URL}/api/courses-handoff/redeem`
+const COURSES_REDEEM_URL = `${ORIGIN}/api/v0/moocfi/outbound-handoffs/redeem`
+/** The mock mooc.fi's handoff secret, public on purpose. */
+const MOCK_HANDOFF_SECRET = "mock-moocfi-handoff-secret"
 
 test.beforeEach(async ({ request }) => {
   await forgetMockMoocfiStudent(request, STUDENT)
@@ -154,6 +157,26 @@ test("The certificate is on mooc.fi, and a reason for needing the credits is kep
       ).status(),
     ).toBe(404)
     await other.dispose()
+  })
+
+  await test.step("A redeem from another IP is refused and leaves the token unspent", async () => {
+    const minted = await page.request.post(
+      `${MAIN_FRONTEND_API}/credit-registrations/my/by-external-completion/${externalCompletionId}${HANDOFF_PATH}`,
+      { data: { destination: "certificate", ui_language: "en" } },
+    )
+    expect(minted.status()).toBe(200)
+    const { redirect_url: freshUrl } = (await minted.json()) as { redirect_url: string }
+    const freshToken = new URL(freshUrl).hash.replace("#token=", "")
+
+    const elsewhere = await page.request.post(COURSES_REDEEM_URL, {
+      headers: { Authorization: `Bearer ${MOCK_HANDOFF_SECRET}` },
+      data: { token: freshToken, client_ip: "192.0.2.1" },
+    })
+    expect(elsewhere.status()).toBe(410)
+    expect(((await elsewhere.json()) as { type: string }).type).toBe("ip_mismatch")
+    expect(
+      (await page.request.post(MOCK_REDEEM_URL, { data: { token: freshToken } })).status(),
+    ).toBe(200)
   })
 })
 

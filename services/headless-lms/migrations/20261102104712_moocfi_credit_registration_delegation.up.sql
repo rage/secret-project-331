@@ -707,6 +707,7 @@ CREATE TABLE moocfi_outbound_handoffs (
   token_digest BYTEA NOT NULL,
   external_completion_id UUID NOT NULL REFERENCES external_completions(id),
   destination moocfi_handoff_destination NOT NULL,
+  client_ip_hash TEXT NOT NULL,
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
   redeemed_at TIMESTAMP WITH TIME ZONE
 );
@@ -725,6 +726,7 @@ COMMENT ON COLUMN moocfi_outbound_handoffs.deleted_at IS 'Timestamp when the rec
 COMMENT ON COLUMN moocfi_outbound_handoffs.token_digest IS 'SHA-256 of the token handed to the browser. The token itself is never stored.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.external_completion_id IS 'The student''s mooc.fi completion the handoff is for. mooc.fi learns the student and the course from it, never from the request that minted the handoff.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.destination IS 'Where on mooc.fi the student is going.';
+COMMENT ON COLUMN moocfi_outbound_handoffs.client_ip_hash IS 'Keyed hash of the IP the student minted the handoff from. mooc.fi forwards the IP its page was used from, and a redeem from another IP is refused without spending the handoff, so a link sent to someone else signs no one in.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.expires_at IS 'When the handoff stops being redeemable, a minute after it was minted at most.';
 COMMENT ON COLUMN moocfi_outbound_handoffs.redeemed_at IS 'When mooc.fi redeemed the handoff. Set once: a second redeem is refused.';
 
@@ -760,3 +762,32 @@ COMMENT ON COLUMN moocfi_handoff_continuations.ui_language IS 'The language mooc
 COMMENT ON COLUMN moocfi_handoff_continuations.client_ip_hash IS 'Keyed hash of the IP the handoff was minted for; continuing from another IP is refused.';
 COMMENT ON COLUMN moocfi_handoff_continuations.expires_at IS 'When the continuation stops working, minutes after the handoff was redeemed.';
 COMMENT ON COLUMN moocfi_handoff_continuations.used_at IS 'When the student continued. Set once: a second continue is refused.';
+
+CREATE TABLE moocfi_redeemed_inbound_handoffs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  jti UUID NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON moocfi_redeemed_inbound_handoffs FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE UNIQUE INDEX uq_moocfi_redeemed_inbound_handoffs_jti ON moocfi_redeemed_inbound_handoffs (jti);
+CREATE INDEX idx_moocfi_redeemed_inbound_handoffs_expires_at ON moocfi_redeemed_inbound_handoffs (expires_at);
+
+COMMENT ON TABLE moocfi_redeemed_inbound_handoffs IS 'The handoffs from mooc.fi that have signed someone in or started a continuation. The handoff is a signed token, so this is what makes it single use across replicas: the insert that spends it conflicts on jti. Pruned a day after expiry, by when the token is refused as expired anyway.';
+COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.jti IS 'The jti claim of the redeemed handoff token.';
+COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.expires_at IS 'When the handoff token itself expires.';
+
+-- Neither value is used here: an enum value added in a transaction cannot be used in it.
+ALTER TYPE user_email_code_purpose
+ADD VALUE 'reauthentication';
+ALTER TYPE email_template_type
+ADD VALUE 'reauthentication_code';

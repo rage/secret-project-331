@@ -454,6 +454,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "reauthentication_code"
 
 export type EmailTemplateUpdate = {
   content: unknown

@@ -8623,7 +8623,8 @@ export const confirmMyExternalCompletionEnrolmentMutation = (
  * - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
  *
  * mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
- * student and the course from the stored completion, never from this request.
+ * student and the course from the stored completion, never from this request. Only from the IP that
+ * minted it.
  */
 export const createMyMoocfiHandoffMutation = (
   options?: Partial<Options<CreateMyMoocfiHandoffData>>,
@@ -9046,10 +9047,12 @@ export const getEmailVerificationCodeForTestModeOptions = (
 
 /**
  *
- * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+ * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof,
+ * and copies the now proven address to TMC.
  *
  * Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
- * never has to identify anybody on its own.
+ * never has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot
+ * be reached, so the code can be tried again.
  */
 export const verifyEmailOwnershipMutation = (
   options?: Partial<Options<VerifyEmailOwnershipData>>,
@@ -13212,6 +13215,10 @@ export const searchUserDetailsFuzzyMutation = (
 /**
  *
  * POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
+ *
+ * A new email reaches TMC only once it is verified, through
+ * [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
+ * ownership verification is off. 403 for an email change from a delegated session.
  */
 export const updateUserInfoMutation = (
   options?: Partial<Options<UpdateUserInfoData>>,

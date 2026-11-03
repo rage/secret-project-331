@@ -167,6 +167,83 @@
         }
       }
     },
+    "/api/v0/auth/reauthenticate-with-code": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/reauthenticate-with-code` - Ends the delegation of the session if `code` is the\none [`send_reauthentication_code`] mailed.",
+        "operationId": "postAuthReauthenticateWithCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailCode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Outcome of the attempt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthenticationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/reauthenticate-with-password": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/reauthenticate-with-password` - Ends the delegation of the session if `password`\nis the account's.\n\nAn account only ever signed in through handoffs has no password stored here, so its password is\nchecked with TMC, like a login would, but nothing is stored.",
+        "operationId": "postAuthReauthenticateWithPassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReauthenticateWithPasswordPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Outcome of the attempt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthenticationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/reauthentication": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "\nGET `/api/v0/auth/reauthentication` - Whether the session must reauthenticate before account\nsecurity changes; see [`authentication::remember_delegated`].",
+        "operationId": "getAuthReauthenticationStatus",
+        "responses": {
+          "200": {
+            "description": "Whether reauthentication is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReauthenticationStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/auth/send-email-code": {
       "post": {
         "tags": ["auth"],
@@ -189,6 +266,35 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SendDeleteUserEmailCodeResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/send-reauthentication-code": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/send-reauthentication-code` - Mails a code to the account's current address\nthat [`reauthenticate_with_code`] takes.",
+        "operationId": "postAuthSendReauthenticationCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendReauthenticationCodePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the request did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendReauthenticationCodeResult"
                 }
               }
             }
@@ -671,6 +777,70 @@
           }
         ]
       },
+      "ReauthenticateWithPasswordPayload": {
+        "type": "object",
+        "required": ["password"],
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "ReauthenticationResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["reauthenticated"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["incorrect_password"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["invalid_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["too_many_attempts"]
+              }
+            }
+          }
+        ],
+        "description": "Outcome of a reauthentication attempt."
+      },
+      "ReauthenticationStatus": {
+        "type": "object",
+        "description": "Whether a session signed in by a handoff still has to prove the account is the student's before\nchanging its email or password or deleting it.",
+        "required": ["is_required"],
+        "properties": {
+          "is_required": {
+            "type": "boolean"
+          }
+        }
+      },
       "Resource": {
         "oneOf": [
           {
@@ -960,6 +1130,45 @@
             "type": "string"
           }
         }
+      },
+      "SendReauthenticationCodePayload": {
+        "type": "object",
+        "required": ["language"],
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Which language to mail. Falls back to English when no template exists for it."
+          }
+        }
+      },
+      "SendReauthenticationCodeResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["queued"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.",
+            "required": ["retry_after_seconds", "type"],
+            "properties": {
+              "retry_after_seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["recently_sent"]
+              }
+            }
+          }
+        ]
       },
       "SignupResponse": {
         "oneOf": [

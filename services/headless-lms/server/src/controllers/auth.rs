@@ -9,7 +9,7 @@ use crate::{
         authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
-        rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
+        rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
     },
     prelude::*,
 };
@@ -795,13 +795,15 @@ POST `/api/v0/auth/send-email-code` If users password is correct, sends a code t
         (status = 200, description = "What the request did", body = SendDeleteUserEmailCodeResult)
     )
 )]
-#[instrument(skip(pool, payload, auth_user, app_conf))]
+#[instrument(skip(pool, payload, auth_user, app_conf, session))]
 pub async fn send_delete_user_email_code(
     auth_user: AuthUser,
+    session: Session,
     pool: web::Data<PgPool>,
     payload: web::Json<SendEmailCodeData>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<SendDeleteUserEmailCodeResult>> {
+    authentication::require_reauthenticated(&session)?;
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
 
@@ -984,6 +986,7 @@ pub async fn delete_user_account(
     app_conf: web::Data<ApplicationConfiguration>,
     cache: web::Data<Cache>,
 ) -> ControllerResult<web::Json<DeleteUserAccountResult>> {
+    authentication::require_reauthenticated(&session)?;
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
 
@@ -1097,6 +1100,269 @@ pub async fn delete_user_account(
 
     authentication::forget(&session);
     token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
+}
+
+/// Whether a session signed in by a handoff still has to prove the account is the student's before
+/// changing its email or password or deleting it.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct ReauthenticationStatus {
+    pub is_required: bool,
+}
+
+/**
+GET `/api/v0/auth/reauthentication` - Whether the session must reauthenticate before account
+security changes; see [`authentication::remember_delegated`].
+*/
+#[utoipa::path(
+    get,
+    path = "/reauthentication",
+    tag = "auth",
+    operation_id = "getAuthReauthenticationStatus",
+    responses(
+        (status = 200, description = "Whether reauthentication is required", body = ReauthenticationStatus)
+    )
+)]
+#[instrument(skip(session))]
+pub async fn get_reauthentication_status(
+    _auth_user: AuthUser,
+    session: Session,
+) -> ControllerResult<web::Json<ReauthenticationStatus>> {
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(ReauthenticationStatus {
+        is_required: authentication::is_delegated(&session),
+    }))
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ReauthenticateWithPasswordPayload {
+    #[schema(value_type = String)]
+    pub password: SecretString,
+}
+
+/// Outcome of a reauthentication attempt.
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum ReauthenticationResult {
+    Reauthenticated,
+    IncorrectPassword,
+    /// Wrong, expired, superseded and spent are one value, as for the other emailed codes.
+    InvalidCode,
+    /// The code was retired after too many wrong guesses; only a new code can get past this.
+    TooManyAttempts,
+}
+
+/**
+POST `/api/v0/auth/reauthenticate-with-password` - Ends the delegation of the session if `password`
+is the account's.
+
+An account only ever signed in through handoffs has no password stored here, so its password is
+checked with TMC under the email TMC has, which an unverified change here has not reached. Nothing is
+stored.
+*/
+#[utoipa::path(
+    post,
+    path = "/reauthenticate-with-password",
+    tag = "auth",
+    operation_id = "postAuthReauthenticateWithPassword",
+    request_body = ReauthenticateWithPasswordPayload,
+    responses(
+        (status = 200, description = "Outcome of the attempt", body = ReauthenticationResult)
+    )
+)]
+#[instrument(skip_all)]
+pub async fn reauthenticate_with_password(
+    auth_user: AuthUser,
+    session: Session,
+    pool: web::Data<PgPool>,
+    client: web::Data<OAuthClient>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    payload: web::Json<ReauthenticateWithPasswordPayload>,
+) -> ControllerResult<web::Json<ReauthenticationResult>> {
+    let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
+    let email = models::user_details::get_user_details_by_user_id(&mut conn, auth_user.id)
+        .await?
+        .email;
+    let is_own_password = authenticate_by_password(
+        &mut conn,
+        auth_user.id,
+        &email,
+        &payload.password,
+        &app_conf,
+    )
+    .await?;
+    let is_tmc_managed = !app_conf.test_mode
+        && !models::user_passwords::check_if_users_password_is_stored(&mut conn, auth_user.id)
+            .await?;
+    drop(conn);
+    let is_own_password = is_own_password
+        || (is_tmc_managed
+            && is_tmc_password(
+                &client,
+                &tmc_client,
+                auth_user.upstream_id(),
+                &payload.password,
+            )
+            .await?);
+    if !is_own_password {
+        info!("Reauthentication with an incorrect password");
+        return token.authorized_ok(web::Json(ReauthenticationResult::IncorrectPassword));
+    }
+    authentication::mark_reauthenticated(&session);
+    token.authorized_ok(web::Json(ReauthenticationResult::Reauthenticated))
+}
+
+/// Whether `password` signs the TMC user `upstream_id` in on TMC, under the email TMC has for them.
+async fn is_tmc_password(
+    client: &OAuthClient,
+    tmc_client: &TmcClient,
+    upstream_id: Option<i32>,
+    password: &SecretString,
+) -> anyhow::Result<bool> {
+    let Some(upstream_id) = upstream_id else {
+        return Ok(false);
+    };
+    let tmc_email = tmc_client
+        .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&upstream_id)
+        .await?
+        .email;
+    let Some(tmc_token) =
+        authentication::exchange_password_with_tmc(client, tmc_email, password.clone()).await?
+    else {
+        return Ok(false);
+    };
+    let tmc_user = tmc_client
+        .get_user_from_tmc_mooc_fi_by_tmc_access_token(&tmc_token)
+        .await?;
+    Ok(tmc_user.id == upstream_id)
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct SendReauthenticationCodePayload {
+    /// Which language to mail. Falls back to English when no template exists for it.
+    pub language: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SendReauthenticationCodeResult {
+    Queued,
+    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.
+    RecentlySent {
+        retry_after_seconds: i64,
+    },
+}
+
+/**
+POST `/api/v0/auth/send-reauthentication-code` - Mails a code to the account's current address
+that [`reauthenticate_with_code`] takes.
+*/
+#[utoipa::path(
+    post,
+    path = "/send-reauthentication-code",
+    tag = "auth",
+    operation_id = "postAuthSendReauthenticationCode",
+    request_body = SendReauthenticationCodePayload,
+    responses(
+        (status = 200, description = "What the request did", body = SendReauthenticationCodeResult)
+    )
+)]
+#[instrument(skip_all)]
+pub async fn send_reauthentication_code(
+    auth_user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<SendReauthenticationCodePayload>,
+) -> ControllerResult<web::Json<SendReauthenticationCodeResult>> {
+    let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
+    let purpose = UserEmailCodePurpose::Reauthentication;
+    if let Some(live_code) =
+        user_email_codes::get_unused_user_email_code_with_user_id(&mut conn, auth_user.id, purpose)
+            .await?
+    {
+        let retry_after_seconds =
+            (live_code.created_at + Duration::minutes(MIN_RESEND_INTERVAL_MINUTES) - Utc::now())
+                .num_seconds();
+        if retry_after_seconds > 0 {
+            return token.authorized_ok(web::Json(SendReauthenticationCodeResult::RecentlySent {
+                retry_after_seconds,
+            }));
+        }
+    }
+    let template = models::email_templates::get_generic_email_template_by_type_and_language(
+        &mut conn,
+        EmailTemplateType::ReauthenticationCode,
+        &payload.language,
+    )
+    .await
+    .map_err(|_e| {
+        anyhow::anyhow!(
+            "Reauthentication email template not configured. Missing template 'reauthentication_code' for language '{}'",
+            payload.language
+        )
+    })?;
+    let code = user_email_codes::generate_code();
+    let mut tx = conn.begin().await?;
+    user_email_codes::insert_user_email_code(&mut tx, auth_user.id, purpose, &code).await?;
+    models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, template.id).await?;
+    tx.commit().await?;
+    token.authorized_ok(web::Json(SendReauthenticationCodeResult::Queued))
+}
+
+/**
+POST `/api/v0/auth/reauthenticate-with-code` - Ends the delegation of the session if `code` is the
+one [`send_reauthentication_code`] mailed.
+*/
+#[utoipa::path(
+    post,
+    path = "/reauthenticate-with-code",
+    tag = "auth",
+    operation_id = "postAuthReauthenticateWithCode",
+    request_body = EmailCode,
+    responses(
+        (status = 200, description = "Outcome of the attempt", body = ReauthenticationResult)
+    )
+)]
+#[instrument(skip_all)]
+pub async fn reauthenticate_with_code(
+    auth_user: AuthUser,
+    session: Session,
+    pool: web::Data<PgPool>,
+    payload: web::Json<EmailCode>,
+) -> ControllerResult<web::Json<ReauthenticationResult>> {
+    let token = skip_authorize();
+    let purpose = UserEmailCodePurpose::Reauthentication;
+    let mut conn = pool.acquire().await?;
+    if !user_email_codes::is_reset_user_email_code_valid(
+        &mut conn,
+        auth_user.id,
+        purpose,
+        &payload.code,
+    )
+    .await?
+    {
+        let is_retired = user_email_codes::record_failed_attempt(
+            &mut conn,
+            auth_user.id,
+            purpose,
+            MAX_CODE_ATTEMPTS,
+        )
+        .await?;
+        return token.authorized_ok(web::Json(if is_retired {
+            ReauthenticationResult::TooManyAttempts
+        } else {
+            ReauthenticationResult::InvalidCode
+        }));
+    }
+    // Spent by whichever of two concurrent submissions gets there first.
+    if !user_email_codes::mark_user_email_code_used(&mut conn, auth_user.id, purpose, &payload.code)
+        .await?
+    {
+        return token.authorized_ok(web::Json(ReauthenticationResult::InvalidCode));
+    }
+    authentication::mark_reauthenticated(&session);
+    token.authorized_ok(web::Json(ReauthenticationResult::Reauthenticated))
 }
 
 /// Copies a changed name, and `email` when it changed too, to TMC, which keeps its own copy of
@@ -1334,6 +1600,10 @@ pub async fn verify_email(
         send_delete_user_email_code,
         delete_user_account,
         verify_email,
+        get_reauthentication_status,
+        reauthenticate_with_password,
+        send_reauthentication_code,
+        reauthenticate_with_code,
     ),
     components(schemas(
         Login,
@@ -1349,6 +1619,11 @@ pub async fn verify_email(
         EmailCode,
         DeleteUserAccountResult,
         VerifyEmailRequest,
+        ReauthenticationStatus,
+        ReauthenticateWithPasswordPayload,
+        ReauthenticationResult,
+        SendReauthenticationCodePayload,
+        SendReauthenticationCodeResult,
         headless_lms_models::roles::UserRole,
     ))
 )]
@@ -1399,6 +1674,46 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(authorize_multiple_actions_on_resources),
     )
     .route("/user-info", web::get().to(user_info))
+    .route(
+        "/reauthentication",
+        web::get().to(get_reauthentication_status),
+    )
+    .service(
+        web::resource("/reauthenticate-with-password")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(30),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .to(reauthenticate_with_password),
+    )
+    .service(
+        web::resource("/send-reauthentication-code")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_hour: Some(5),
+                    per_day: Some(20),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .to(send_reauthentication_code),
+    )
+    .service(
+        web::resource("/reauthenticate-with-code")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(50),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .to(reauthenticate_with_code),
+    )
     .service(
         web::resource("/delete-user-account")
             .wrap(RateLimit::new(RateLimitConfig {

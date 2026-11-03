@@ -256,6 +256,7 @@ pub async fn seed_generic_emails(
     insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
 
     seed_email_ownership_verification_templates(&mut conn).await?;
+    seed_reauthentication_code_templates(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
     seed_credit_registration_status_templates(&mut conn).await?;
 
@@ -565,6 +566,120 @@ async fn seed_email_ownership_verification_templates(
         finnish_subject,
     )
     .await?;
+
+    Ok(())
+}
+
+/// The code a session signed in through mooc.fi confirms the account with before account security
+/// changes.
+async fn seed_reauthentication_code_templates(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
+    info!("inserting reauthentication code emails");
+
+    for (language, subject, content) in [
+        (
+            "en",
+            "Confirm that this is your account",
+            json!([
+                {
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "e4000000-0000-0000-0000-000000000001",
+                    "attributes": {
+                        "content": "Hello, use this code to confirm that this is your account. You need it before you can change your email address or password, or delete your account.",
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                },
+                {
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "e4000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "content": "Your code is:",
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                },
+                {
+                    "name": "moocfi/email-one-time-code",
+                    "isValid": true,
+                    "clientId": "e4000000-0000-0000-0000-000000000003",
+                    "attributes": {
+                        "code": "{{CODE}}"
+                    },
+                    "innerBlocks": []
+                },
+                {
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "e4000000-0000-0000-0000-000000000004",
+                    "attributes": {
+                        "content": "If you did not ask for this code, you can ignore this message. Nothing changes until the code is entered.",
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                }
+            ]),
+        ),
+        (
+            "fi",
+            "Vahvista, että tämä on sinun tilisi",
+            json!([
+                {
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "e5000000-0000-0000-0000-000000000001",
+                    "attributes": {
+                        "content": "Hei, vahvista tällä koodilla, että tämä on sinun tilisi. Tarvitset koodin ennen kuin voit vaihtaa sähköpostiosoitteesi tai salasanasi tai poistaa tilisi.",
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                },
+                {
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "e5000000-0000-0000-0000-000000000002",
+                    "attributes": {
+                        "content": "Koodisi on:",
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                },
+                {
+                    "name": "moocfi/email-one-time-code",
+                    "isValid": true,
+                    "clientId": "e5000000-0000-0000-0000-000000000003",
+                    "attributes": {
+                        "code": "{{CODE}}"
+                    },
+                    "innerBlocks": []
+                },
+                {
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": "e5000000-0000-0000-0000-000000000004",
+                    "attributes": {
+                        "content": "Jos et pyytänyt koodia, voit jättää viestin huomiotta. Mikään ei muutu ennen kuin koodi syötetään.",
+                        "dropCap": false
+                    },
+                    "innerBlocks": []
+                }
+            ]),
+        ),
+    ] {
+        insert_email_template(
+            conn,
+            None,
+            EmailTemplateNew {
+                template_type: EmailTemplateType::ReauthenticationCode,
+                language: Some(language.to_string()),
+                content: Some(content),
+                subject: Some(subject.to_string()),
+            },
+            Some(subject),
+        )
+        .await?;
+    }
 
     Ok(())
 }

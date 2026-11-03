@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nWITH redeemed AS (\n  UPDATE moocfi_outbound_handoffs h\n  SET redeemed_at = now()\n  WHERE h.token_digest = $1\n    AND h.redeemed_at IS NULL\n    AND h.expires_at > now()\n    AND h.deleted_at IS NULL\n    AND EXISTS (\n      SELECT 1\n      FROM external_completions ec\n        JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n      WHERE ec.id = h.external_completion_id\n        AND ec.deleted_at IS NULL\n        AND t.deleted_at IS NULL\n    )\n  RETURNING h.external_completion_id,\n    h.destination\n)\nSELECT ec.moocfi_user_upstream_id AS upstream_id,\n  t.moocfi_course_id,\n  r.destination AS \"destination: MoocfiHandoffDestination\"\nFROM redeemed r\n  JOIN external_completions ec ON ec.id = r.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n        ",
+  "query": "\nWITH redeemed AS (\n  UPDATE moocfi_outbound_handoffs h\n  SET redeemed_at = now()\n  WHERE h.token_digest = $1\n    AND h.client_ip_hash = $2\n    AND h.redeemed_at IS NULL\n    AND h.expires_at > now()\n    AND h.deleted_at IS NULL\n    AND EXISTS (\n      SELECT 1\n      FROM external_completions ec\n        JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n      WHERE ec.id = h.external_completion_id\n        AND ec.deleted_at IS NULL\n        AND t.deleted_at IS NULL\n    )\n  RETURNING h.external_completion_id,\n    h.destination\n)\nSELECT ec.moocfi_user_upstream_id AS upstream_id,\n  t.moocfi_course_id,\n  r.destination AS \"destination: MoocfiHandoffDestination\"\nFROM redeemed r\n  JOIN external_completions ec ON ec.id = r.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n        ",
   "describe": {
     "columns": [
       {
@@ -48,7 +48,8 @@
     ],
     "parameters": {
       "Left": [
-        "Bytea"
+        "Bytea",
+        "Text"
       ]
     },
     "nullable": [
@@ -57,5 +58,5 @@
       false
     ]
   },
-  "hash": "1fe76db1abdb99b95691f82fdb3ff6d43bca5b3025c8edaaeeb5bc06dbacfad7"
+  "hash": "4acfdb41401c8bb1f83b8c47ec31e84237482b37fc5c8f6b753bde0413f36c1d"
 }

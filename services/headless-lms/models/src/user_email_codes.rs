@@ -11,6 +11,8 @@ pub enum UserEmailCodePurpose {
     StaffLogin,
     AccountDeletion,
     EmailOwnershipVerification,
+    /// Proves the account is the student's in a session signed in by a handoff.
+    Reauthentication,
 }
 
 #[derive(sqlx::FromRow, Debug, Clone)]

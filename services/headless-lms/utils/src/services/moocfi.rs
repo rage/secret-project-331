@@ -11,14 +11,16 @@ use serde::{Deserialize, Serialize};
 use url::Url;
 use uuid::Uuid;
 
+use crate::http::REQWEST_CLIENT_WITHOUT_REDIRECTS;
 use crate::prelude::*;
 use crate::secret_string::serialize_exposed;
+use crate::text_scrub::scrub_text;
 
 /// Must stay well under report-back's lease (`MOOCFI_REPORT_LEASE` in headless-lms-models), which
 /// has to outlast a lookup and a post.
 pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
-/// Error bodies are kept for operators, but only this much of them.
+/// Error bodies are kept for operators, scrubbed, and only this much of them.
 const MAX_ERROR_BODY_CHARS: usize = 300;
 
 /// One completion as mooc.fi's delegated-completions lookup returns it. mooc.fi applies no
@@ -135,11 +137,14 @@ impl MoocfiClient {
         let url = self.api_base_url.join(&format!(
             "api/delegated-completions/{moocfi_course_id}/users/{upstream_id}"
         ))?;
-        self.send("completion lookup", REQWEST_CLIENT.get(url))
-            .await?
-            .json::<Vec<DelegatedCompletion>>()
-            .await
-            .map_err(MoocfiError::InvalidResponse)
+        self.send(
+            "completion lookup",
+            REQWEST_CLIENT_WITHOUT_REDIRECTS.get(url),
+        )
+        .await?
+        .json::<Vec<DelegatedCompletion>>()
+        .await
+        .map_err(MoocfiError::InvalidResponse)
     }
 
     /// The handler course `moocfi_course_id`, or `None` when mooc.fi has no delegated handler course
@@ -152,7 +157,10 @@ impl MoocfiClient {
         let url = self
             .api_base_url
             .join(&format!("api/delegated-courses/{moocfi_course_id}"))?;
-        match self.send("course lookup", REQWEST_CLIENT.get(url)).await {
+        match self
+            .send("course lookup", REQWEST_CLIENT_WITHOUT_REDIRECTS.get(url))
+            .await
+        {
             Ok(response) => response
                 .json::<DelegatedCourse>()
                 .await
@@ -173,7 +181,7 @@ impl MoocfiClient {
         let url = self.api_base_url.join("api/register-completions")?;
         self.send(
             "registration report",
-            REQWEST_CLIENT.post(url).json(request),
+            REQWEST_CLIENT_WITHOUT_REDIRECTS.post(url).json(request),
         )
         .await?;
         Ok(())
@@ -197,10 +205,9 @@ impl MoocfiClient {
             if status.is_success() {
                 return Ok(response);
             }
-            let body = response
-                .text()
-                .await
-                .unwrap_or_default()
+            let body = response.text().await.unwrap_or_default();
+            // Truncated after scrubbing, so the cut cannot leave half an address unmatched.
+            let body = scrub_text(&body)
                 .chars()
                 .take(MAX_ERROR_BODY_CHARS)
                 .collect();

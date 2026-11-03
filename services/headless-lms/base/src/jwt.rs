@@ -74,8 +74,8 @@ fn decode_hs256_claim<T: DeserializeOwned>(
 
 /// Signs a student in on courses when mooc.fi's credit registration page sends them over.
 ///
-/// Not single use: a leaked one is harmless because it lives [`Self::LIFETIME`] and works only from
-/// the IP it was minted for. Sign it with [`sign_hs256_claim`].
+/// Lives [`Self::LIFETIME`] and works only from the IP it was minted for. The redeem makes it
+/// single use by spending [`Self::jti`]. Sign it with [`sign_hs256_claim`].
 #[derive(Debug, Serialize, serde::Deserialize)]
 pub struct MoocfiHandoffClaim {
     pub user_id: Uuid,
@@ -86,6 +86,7 @@ pub struct MoocfiHandoffClaim {
     /// The token is signed, not encrypted, so it carries a keyed hash and never the IP itself. A
     /// plain hash of an IPv4 address is reversed by trying all 2^32 of them.
     client_ip_hash: String,
+    jti: Uuid,
     iat: i64,
     exp: i64,
 }
@@ -109,9 +110,20 @@ impl MoocfiHandoffClaim {
             moocfi_course_id,
             ui_language,
             client_ip_hash: client_ip_hash(client_ip, key),
+            jti: Uuid::new_v4(),
             iat,
             exp: iat + Self::LIFETIME.num_seconds(),
         }
+    }
+
+    /// The handoff's own id, which spending it records.
+    pub fn jti(&self) -> Uuid {
+        self.jti
+    }
+
+    /// When the claim stops being redeemable.
+    pub fn expires_at(&self) -> chrono::DateTime<Utc> {
+        chrono::DateTime::from_timestamp(self.exp, 0).unwrap_or_else(Utc::now)
     }
 
     /// The keyed hash of the IP the claim was minted for, which a continuation of it keeps.
@@ -303,6 +315,7 @@ mod tests {
                 "user_id": Uuid::new_v4(),
                 "moocfi_course_id": Uuid::new_v4(),
                 "client_ip_hash": "",
+                "jti": Uuid::new_v4(),
                 "iat": past_timestamp(12),
                 "exp": past_timestamp(2),
             }),

@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { refetchEmailVerificationStatusForUser } from "@/components/EmailVerificationSection"
+import { useIsReauthenticationRequired } from "@/components/ReauthenticationSection"
 import { updateUserInfo } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { refetchUserDetailsForUser } from "@/hooks/useUserDetailsForUserQuery"
@@ -45,6 +46,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const { t: tCountries } = useTranslation("countries")
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
+  const isReauthenticationRequired = useIsReauthenticationRequired()
 
   const { handleSubmit, control, reset } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -347,6 +349,10 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             control={control}
             label={t("email")}
             placeholder={t("email")}
+            isDisabled={isReauthenticationRequired}
+            {...(isReauthenticationRequired
+              ? { description: t("reauthentication-required-to-change-email") }
+              : {})}
             isRequired
             rules={{
               required: t("required-field"),

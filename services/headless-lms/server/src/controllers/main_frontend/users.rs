@@ -1,3 +1,5 @@
+use actix_session::Session;
+
 use crate::prelude::*;
 use anyhow::anyhow;
 use headless_lms_utils::services::tmc::TmcClient;
@@ -1008,7 +1010,7 @@ pub struct ChangePasswordData {
     pub new_password: SecretString,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(pool, session))]
 #[utoipa::path(
     post,
     path = "/change-password",
@@ -1023,7 +1025,9 @@ pub async fn change_user_password(
     pool: web::Data<PgPool>,
     payload: web::Json<ChangePasswordData>,
     user: AuthUser,
+    session: Session,
 ) -> ControllerResult<web::Json<bool>> {
+    crate::domain::authentication::require_reauthenticated(&session)?;
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let password_hash = models::user_passwords::hash_password(&payload.new_password)

@@ -2856,6 +2856,7 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "reauthentication_code",
 ])
 
 export const zEmailTemplate = z.object({
@@ -5887,7 +5888,7 @@ export const zContinueMoocfiHandoffPayload = z.object({
  * Which account a pending continuation would sign in, beside whoever is signed in now.
  */
 export const zPendingMoocfiHandoff = z.object({
-  masked_email: z.string(),
+  email: z.string(),
   moocfi_course_id: z.uuid(),
   redirect_path: z.string(),
   signed_in_account: zSignedInAccount,

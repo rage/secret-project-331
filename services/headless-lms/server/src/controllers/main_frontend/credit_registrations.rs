@@ -2083,9 +2083,10 @@ POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{exte
 - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
 
 mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
-student and the course from the stored completion, never from this request.
+student and the course from the stored completion, never from this request. Only from the IP that
+minted it.
 */
-#[instrument(skip(pool, app_conf, payload))]
+#[instrument(skip(request, pool, app_conf, jwt_key, payload))]
 #[utoipa::path(
     post,
     path = "/my/by-external-completion/{external_completion_id}/moocfi-handoff",
@@ -2100,9 +2101,11 @@ student and the course from the stored completion, never from this request.
     )
 )]
 pub async fn create_my_moocfi_handoff(
+    request: HttpRequest,
     user: AuthUser,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
+    jwt_key: web::Data<headless_lms_base::jwt::JwtKey>,
     external_completion_id: web::Path<Uuid>,
     payload: web::Json<CreateMoocfiHandoffPayload>,
 ) -> ControllerResult<HttpResponse> {
@@ -2125,12 +2128,17 @@ pub async fn create_my_moocfi_handoff(
     {
         return Err(controller_err!(NotFound, "Not found.".to_string()));
     }
+    let client_ip = crate::domain::rate_limit_middleware_builder::request_client_ip(&request)
+        .ok_or_else(|| {
+            controller_err!(BadRequest, "Could not tell your IP address.".to_string())
+        })?;
     let handoff_token = models::library::oauth::tokens::generate_access_token();
     models::moocfi_outbound_handoffs::insert(
         &mut conn,
         &Sha256::digest(handoff_token.as_bytes()),
         completion.id,
         payload.destination,
+        &headless_lms_base::jwt::client_ip_hash(client_ip, &jwt_key),
         MOOCFI_HANDOFF_LIFETIME,
     )
     .await?;

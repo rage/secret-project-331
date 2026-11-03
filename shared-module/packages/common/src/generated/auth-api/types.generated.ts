@@ -131,6 +131,35 @@ export type LoginResponse =
       type: "failed"
     }
 
+export type ReauthenticateWithPasswordPayload = {
+  password: string
+}
+
+/**
+ * Outcome of a reauthentication attempt.
+ */
+export type ReauthenticationResult =
+  | {
+      type: "reauthenticated"
+    }
+  | {
+      type: "incorrect_password"
+    }
+  | {
+      type: "invalid_code"
+    }
+  | {
+      type: "too_many_attempts"
+    }
+
+/**
+ * Whether a session signed in by a handoff still has to prove the account is the student's before
+ * changing its email or password or deleting it.
+ */
+export type ReauthenticationStatus = {
+  is_required: boolean
+}
+
 /**
  * The target of an action.
  */
@@ -227,6 +256,22 @@ export type SendEmailCodeData = {
   language: string
   password: string
 }
+
+export type SendReauthenticationCodePayload = {
+  /**
+   * Which language to mail. Falls back to English when no template exists for it.
+   */
+  language: string
+}
+
+export type SendReauthenticationCodeResult =
+  | {
+      type: "queued"
+    }
+  | {
+      retry_after_seconds: number
+      type: "recently_sent"
+    }
 
 export type SignupResponse =
   | {
@@ -359,6 +404,57 @@ export type PostAuthLogoutResponses = {
   200: unknown
 }
 
+export type PostAuthReauthenticateWithCodeData = {
+  body: EmailCode
+  path?: never
+  query?: never
+  url: "/api/v0/auth/reauthenticate-with-code"
+}
+
+export type PostAuthReauthenticateWithCodeResponses = {
+  /**
+   * Outcome of the attempt
+   */
+  200: ReauthenticationResult
+}
+
+export type PostAuthReauthenticateWithCodeResponse =
+  PostAuthReauthenticateWithCodeResponses[keyof PostAuthReauthenticateWithCodeResponses]
+
+export type PostAuthReauthenticateWithPasswordData = {
+  body: ReauthenticateWithPasswordPayload
+  path?: never
+  query?: never
+  url: "/api/v0/auth/reauthenticate-with-password"
+}
+
+export type PostAuthReauthenticateWithPasswordResponses = {
+  /**
+   * Outcome of the attempt
+   */
+  200: ReauthenticationResult
+}
+
+export type PostAuthReauthenticateWithPasswordResponse =
+  PostAuthReauthenticateWithPasswordResponses[keyof PostAuthReauthenticateWithPasswordResponses]
+
+export type GetAuthReauthenticationStatusData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/auth/reauthentication"
+}
+
+export type GetAuthReauthenticationStatusResponses = {
+  /**
+   * Whether reauthentication is required
+   */
+  200: ReauthenticationStatus
+}
+
+export type GetAuthReauthenticationStatusResponse =
+  GetAuthReauthenticationStatusResponses[keyof GetAuthReauthenticationStatusResponses]
+
 export type PostAuthSendEmailCodeData = {
   body: SendEmailCodeData
   path?: never
@@ -375,6 +471,23 @@ export type PostAuthSendEmailCodeResponses = {
 
 export type PostAuthSendEmailCodeResponse =
   PostAuthSendEmailCodeResponses[keyof PostAuthSendEmailCodeResponses]
+
+export type PostAuthSendReauthenticationCodeData = {
+  body: SendReauthenticationCodePayload
+  path?: never
+  query?: never
+  url: "/api/v0/auth/send-reauthentication-code"
+}
+
+export type PostAuthSendReauthenticationCodeResponses = {
+  /**
+   * What the request did
+   */
+  200: SendReauthenticationCodeResult
+}
+
+export type PostAuthSendReauthenticationCodeResponse =
+  PostAuthSendReauthenticationCodeResponses[keyof PostAuthSendReauthenticationCodeResponses]
 
 export type PostAuthSignupData = {
   body: CreateAccountDetails

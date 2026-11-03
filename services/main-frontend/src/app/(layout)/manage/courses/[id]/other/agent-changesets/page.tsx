@@ -6,6 +6,10 @@ import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import { ChangesetStatusBadge } from "@/components/agent-changesets/ChangesetStatusBadge"
+import {
+  AGENT_CHANGESETS_REFETCH_INTERVAL_MS,
+  QUIET_REFRESH,
+} from "@/components/agent-changesets/polling"
 import { getAgentChangesetsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChangesetSummary } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -22,14 +26,12 @@ import {
   TONE,
 } from "@/shared-module/components"
 
-const REFETCH_INTERVAL_MS = 30_000
-
 function AgentChangesetsPage() {
   const params = useParams<{ id: string }>()
   const { t } = useTranslation()
   const changesetsQuery = useQuery({
     ...getAgentChangesetsOptions({ query: { course_id: params.id } }),
-    refetchInterval: REFETCH_INTERVAL_MS,
+    refetchInterval: AGENT_CHANGESETS_REFETCH_INTERVAL_MS,
   })
 
   return (
@@ -43,7 +45,7 @@ function AgentChangesetsPage() {
       <p>{t("agent-changesets-description")}</p>
       <QueryResult
         query={changesetsQuery}
-        refreshIndicator="quiet"
+        refreshIndicator={QUIET_REFRESH}
         emptyFallback={
           <EmptyState title={t("agent-changesets-empty")} hint={t("agent-changesets-empty-hint")} />
         }

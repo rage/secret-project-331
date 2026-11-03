@@ -7,6 +7,10 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ChangesetReview from "@/components/agent-changesets/ChangesetReview"
+import {
+  AGENT_CHANGESETS_REFETCH_INTERVAL_MS,
+  QUIET_REFRESH,
+} from "@/components/agent-changesets/polling"
 import { getAgentChangesetOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ChangesetReview as ChangesetReviewData } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -14,15 +18,13 @@ import { manageCourseAgentChangesetsRoute } from "@/shared-module/common/utils/r
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Infobox, Link, QueryResult, TONE } from "@/shared-module/components"
 
-const REFETCH_INTERVAL_MS = 30_000
-
 function AgentChangesetReviewPage() {
   const params = useParams<{ id: string; changesetId: string }>()
   const { t } = useTranslation()
   const reviewQuery = useQuery({
     ...getAgentChangesetOptions({ path: { changeset_id: params.changesetId } }),
     refetchInterval: (query) =>
-      query.state.data?.changeset.status === "open" ? REFETCH_INTERVAL_MS : false,
+      query.state.data?.changeset.status === "open" ? AGENT_CHANGESETS_REFETCH_INTERVAL_MS : false,
   })
   return (
     <div
@@ -35,7 +37,7 @@ function AgentChangesetReviewPage() {
       <Link href={manageCourseAgentChangesetsRoute(params.id)}>
         {t("agent-all-changesets-link")}
       </Link>
-      <QueryResult query={reviewQuery} refreshIndicator="quiet">
+      <QueryResult query={reviewQuery} refreshIndicator={QUIET_REFRESH}>
         {(review) => <ShownReview latest={review} />}
       </QueryResult>
     </div>

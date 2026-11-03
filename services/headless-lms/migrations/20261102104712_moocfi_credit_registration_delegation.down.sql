@@ -1,3 +1,5 @@
+DROP VIEW moocfi_reportable_registrations;
+DROP TABLE moocfi_registration_reports;
 DROP TABLE moocfi_handoff_continuations;
 DROP TABLE moocfi_outbound_handoffs;
 DROP TYPE moocfi_handoff_destination;

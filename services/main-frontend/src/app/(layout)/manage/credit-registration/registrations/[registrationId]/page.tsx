@@ -479,31 +479,34 @@ const MoocfiCompletionSection: React.FC<{ completion: AdminMoocfiCompletion }> =
       : []),
   ]
 
+  const report = completion.registration_report
   const reportItems: DescriptionListItem[] = [
     {
       label: t("label-moocfi-reported-at"),
-      value: completion.reported_at ? (
-        <ZonedTimestamp at={completion.reported_at} />
+      value: report.reported_at ? (
+        <ZonedTimestamp at={report.reported_at} />
+      ) : report.is_skipped ? (
+        t("credit-registration-admin-moocfi-not-reportable")
       ) : (
         t("credit-registration-admin-moocfi-not-reported")
       ),
     },
-    ...(completion.report_attempt_count > 0
-      ? [{ label: t("label-moocfi-report-attempts"), value: completion.report_attempt_count }]
+    ...(report.attempt_count > 0
+      ? [{ label: t("label-moocfi-report-attempts"), value: report.attempt_count }]
       : []),
-    ...(!completion.reported_at && completion.report_attempt_count > 0
+    ...(!report.reported_at && report.attempt_count > 0 && report.next_attempt_at
       ? [
           {
             label: t("label-moocfi-next-report-attempt"),
-            value: <ZonedTimestamp at={completion.report_next_attempt_at} />,
+            value: <ZonedTimestamp at={report.next_attempt_at} />,
           },
         ]
       : []),
-    ...(completion.report_last_error
+    ...(report.last_error
       ? [
           {
             label: t("label-credit-registration-last-error"),
-            value: <code className={codeValueCss}>{completion.report_last_error}</code>,
+            value: <code className={codeValueCss}>{report.last_error}</code>,
           },
         ]
       : []),

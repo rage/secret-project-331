@@ -64,8 +64,8 @@ pub enum AttentionReason {
     /// linking began and were never mailed, whom the student may be among. Measured in fetches so a
     /// paused pipeline does not count against the student.
     StudentNumberStuck,
-    /// A mooc.fi completion registered [`MOOCFI_REPORT_OVERDUE_AFTER`] ago or more has still not
-    /// been reported to mooc.fi.
+    /// A registration of a mooc.fi completion made [`MOOCFI_REPORT_OVERDUE_AFTER`] ago or more has
+    /// still not been reported to mooc.fi.
     ReportBackOverdue,
     /// The pipeline's flag is up and no other reason explains it.
     FlaggedByPipeline,
@@ -196,6 +196,7 @@ pub struct AttentionRegistration {
     pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     /// The code's last enrolment list listed nobody.
     pub is_enrolment_list_empty: bool,
+    pub is_superseded: bool,
     pub reasons: Vec<AttentionReason>,
     pub dismissed_reasons: Option<Vec<AttentionReason>>,
     pub dismissed_at: Option<DateTime<Utc>>,
@@ -206,12 +207,11 @@ pub struct AttentionRegistration {
 }
 
 impl AttentionRegistration {
-    /// What decides whether a human may move this row; see [`ResubmissionFacts`]. The queue never
-    /// holds a superseded row.
+    /// What decides whether a human may move this row; see [`ResubmissionFacts`].
     pub fn resubmission_facts(&self) -> ResubmissionFacts {
         ResubmissionFacts {
             state: self.state,
-            is_superseded: false,
+            is_superseded: self.is_superseded,
             error_code: self.error_code,
             resubmit_not_before: self.resubmit_not_before,
             submitted_at: self.submitted_at,
@@ -308,8 +308,8 @@ impl AttentionRegistration {
 }
 
 /// Every live row at least one detector picks, oldest phase start first, narrowed to `only_ids`
-/// when given. Superseded rows are outside every detector: acting on a replaced attempt is never
-/// right.
+/// when given. A superseded row is picked only when its report-back is late: acting on a replaced
+/// attempt is never right, but mooc.fi still has to learn of its registration.
 pub async fn get_attention_items(
     conn: &mut PgConnection,
     rules: &AttentionRules,
@@ -354,6 +354,7 @@ SELECT cr.id,
   sig.last_visited_at AS "last_visited_at?",
   s.last_mailing_fetch_started_at AS "last_mailing_fetch_started_at?",
   COALESCE(s.last_listed_person_count = 0, FALSE) AS "is_enrolment_list_empty!",
+  cr.superseded_by_id IS NOT NULL AS "is_superseded!",
   ARRAY_REMOVE(
     ARRAY [
       CASE WHEN d.stuck_in_state THEN 'stuck_in_state'::credit_registration_attention_reason END,
@@ -459,22 +460,18 @@ FROM credit_registrations cr
         ),
         FALSE
       ) AS student_number_stuck,
-      cr.state IN ('registered', 'duplicate', 'not_improved')
-      AND COALESCE(cr.terminal_at <= now() - ($10::bigint * INTERVAL '1 second'), FALSE)
-      AND EXISTS (
+      EXISTS (
         SELECT 1
-        FROM external_completions ec
-        WHERE ec.id = cr.external_completion_id
-          AND ec.reported_at IS NULL
-          AND ec.deleted_at IS NULL
-      )
-      AND NOT EXISTS (
-        SELECT 1
-        FROM credit_registrations earlier
-        WHERE earlier.subject_id = cr.subject_id
-          AND earlier.attempt_number < cr.attempt_number
-          AND earlier.state IN ('registered', 'duplicate', 'not_improved')
-          AND earlier.deleted_at IS NULL
+        FROM moocfi_reportable_registrations rr
+        WHERE rr.credit_registration_id = cr.id
+          AND rr.registration_date <= now() - ($10::bigint * INTERVAL '1 second')
+          AND NOT EXISTS (
+            SELECT 1
+            FROM moocfi_registration_reports report
+            WHERE report.credit_registration_id = rr.credit_registration_id
+              AND report.deleted_at IS NULL
+              AND report.reported_at IS NOT NULL
+          )
       ) AS report_back_overdue
   ) d
   CROSS JOIN LATERAL (
@@ -493,7 +490,10 @@ FROM credit_registrations cr
         OR d.report_back_overdue
       ) AS only_flag
   ) flagged
-WHERE cr.superseded_by_id IS NULL
+WHERE (
+    cr.superseded_by_id IS NULL
+    OR d.report_back_overdue
+  )
   AND cr.deleted_at IS NULL
   AND (
     $9::uuid [] IS NULL

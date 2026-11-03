@@ -37,7 +37,9 @@ pub const UNCERTAIN_ADMIN_AFTER: TimeDelta = TimeDelta::days(1);
 /// pending. Within it, a second import of the same completion can slip past Suotar's duplicate check.
 pub const SUOTAR_PENDING_WINDOW: TimeDelta = TimeDelta::hours(24);
 
+/// The wait after a registration's first failed report to mooc.fi, doubled per further failure.
 pub const MOOCFI_REPORT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
+/// The longest wait between report attempts of one registration.
 pub const MOOCFI_REPORT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 
 /// How long verify may see only the assessment item attainment before a human looks.

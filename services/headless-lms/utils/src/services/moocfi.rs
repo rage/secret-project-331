@@ -14,7 +14,7 @@ use uuid::Uuid;
 use crate::prelude::*;
 use crate::secret_string::serialize_exposed;
 
-/// Must stay well under report-back's lease (`external_completions.report_claimed_until`), which
+/// Must stay well under report-back's lease (`MOOCFI_REPORT_LEASE` in headless-lms-models), which
 /// has to outlast a lookup and a post.
 pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -31,7 +31,6 @@ pub struct DelegatedCompletion {
     /// `None` for some manually added completions; see [`Self::effective_date`].
     pub completion_date: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
-    pub updated_at: Option<DateTime<Utc>>,
     /// In mooc.fi's form, such as `fi_FI`.
     pub completion_language: Option<String>,
     /// A free string on mooc.fi; parse it with the target's grading before use.
@@ -58,17 +57,11 @@ pub struct DelegatedCompletionRegistration {
     pub created_at: DateTime<Utc>,
 }
 
-/// A handler course as mooc.fi's delegated-courses lookup returns it.
+/// What courses reads of a handler course from mooc.fi's delegated-courses lookup.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DelegatedCourse {
-    pub id: Uuid,
-    /// The handler course's canonical slug.
-    pub slug: String,
-    pub name: String,
     /// Course level only: mooc.fi's certificate page decides per student.
     pub has_certificate: bool,
-    pub link: Option<String>,
-    pub credit_registration_delegated_at: Option<DateTime<Utc>>,
 }
 
 /// The body of mooc.fi's `POST /api/register-completions`.
@@ -170,8 +163,8 @@ impl MoocfiClient {
         }
     }
 
-    /// Reports our registrations to mooc.fi. mooc.fi records one registration per completion and
-    /// organization, but callers must still post each completion only once.
+    /// Reports our registrations to mooc.fi. mooc.fi keeps every post as a registration of its own,
+    /// so callers must post each registration only once.
     #[instrument(skip_all, fields(completions = request.completions.len()))]
     pub async fn register_completions(
         &self,

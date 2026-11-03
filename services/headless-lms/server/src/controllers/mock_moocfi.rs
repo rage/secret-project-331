@@ -135,8 +135,8 @@ async fn get_delegated_completions(
     token.authorized_ok(HttpResponse::Ok().json(completions))
 }
 
-/// mooc.fi's `POST /api/register-completions`: records the call and marks each completion
-/// registered by our organization.
+/// mooc.fi's `POST /api/register-completions`: records the call and adds a registration by our
+/// organization to each completion, as mooc.fi keeps every one.
 async fn register_completions(
     request: HttpRequest,
     app_conf: web::Data<ApplicationConfiguration>,
@@ -158,16 +158,13 @@ async fn register_completions(
             .iter_mut()
             .find(|mock| mock.completion.id == report.completion_id)
         {
-            let registrations = &mut mock.completion.registrations;
-            if !registrations.iter().any(|registration| {
-                registration.organization_slug.as_deref() == Some(MOCK_MOOCFI_ORGANIZATION_SLUG)
-            }) {
-                registrations.push(DelegatedCompletionRegistration {
+            mock.completion
+                .registrations
+                .push(DelegatedCompletionRegistration {
                     organization_slug: Some(MOCK_MOOCFI_ORGANIZATION_SLUG.to_string()),
                     registration_date: Some(report.registration_date),
                     created_at: now,
                 });
-            }
         }
     }
     let call = RecordedRegisterCall {
@@ -208,17 +205,10 @@ async fn get_delegated_course(
     let mut conn = pool.acquire().await?;
     let targets =
         models::external_credit_targets::get_by_moocfi_course_id(&mut conn, *course_id).await?;
-    let Some(target) = targets.first() else {
+    if targets.is_empty() {
         return token.authorized_ok(HttpResponse::NotFound().finish());
-    };
-    token.authorized_ok(HttpResponse::Ok().json(DelegatedCourse {
-        id: *course_id,
-        slug: target.moocfi_course_slug.clone(),
-        name: target.name.clone(),
-        has_certificate,
-        link: None,
-        credit_registration_delegated_at: Some(target.delegated_at),
-    }))
+    }
+    token.authorized_ok(HttpResponse::Ok().json(DelegatedCourse { has_certificate }))
 }
 
 #[derive(Debug, Deserialize)]
@@ -271,7 +261,6 @@ async fn seed_completions(
             course_id: seed.course_id,
             completion_date: seed.completion_date,
             created_at: seed.created_at.unwrap_or(now),
-            updated_at: Some(now),
             completion_language: seed.completion_language,
             grade: seed.grade,
             tier: seed.tier,

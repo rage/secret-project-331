@@ -546,6 +546,7 @@
   "credit-registration-admin-moocfi-enrolment-link-description": "Minne opiskelija ilman ilmoittautumista ohjataan, yleensä Avoimen yliopiston kurssisivulle.",
   "credit-registration-admin-moocfi-language-description": "Sähköpostien kieli, ja kirjauksen kieli, kun suorituksella ei ole kieltä. Esimerkiksi fi-FI.",
   "credit-registration-admin-moocfi-name-description": "Näytetään muodossa \"mooc.fi: nimi\".",
+  "credit-registration-admin-moocfi-not-reportable": "Ei ilmoiteta: tämä yritys ei tuo mooc.fi:hin mitään uutta",
   "credit-registration-admin-moocfi-not-reported": "Ei vielä",
   "credit-registration-admin-moocfi-off": "Pois käytöstä",
   "credit-registration-admin-moocfi-pause-reason-description": "Mitään ei lähetetä Sisuun tästä kurssista ennen kuin jatkat sitä. Opiskelijat näkevät tilan \"Pysäytetty\".",

@@ -21,6 +21,7 @@ use headless_lms_models::external_credit_targets::{
 use headless_lms_models::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config, check_target_config,
 };
+use headless_lms_utils::strings::is_ietf_language_code_like;
 use utoipa::ToSchema;
 
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
@@ -794,11 +795,18 @@ fn target_configuration(
             "The lowest tier is above the highest.".to_string()
         ));
     }
+    let language_code = required(&payload.language_code, "The language")?;
+    if !is_ietf_language_code_like(&language_code) {
+        return Err(controller_err!(
+            BadRequest,
+            "The language must be a language code such as fi or en-US.".to_string()
+        ));
+    }
     Ok(ExternalCreditTargetConfiguration {
         moocfi_course_id: payload.moocfi_course_id,
         moocfi_course_slug: required(&payload.moocfi_course_slug, "The mooc.fi course slug")?,
         name: required(&payload.name, "The name")?,
-        language_code: required(&payload.language_code, "The language")?,
+        language_code,
         tiers: payload.tiers,
         uh_course_code: required(&payload.uh_course_code, "The course code")?,
         ects_credits: payload.ects_credits,

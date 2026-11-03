@@ -6,7 +6,7 @@ use headless_lms_models::external_completions::{self, UpstreamCompletions};
 use headless_lms_models::library::credit_registration::moocfi_recheck::{
     MOOCFI_RECHECK_LIMIT, get_due_recheck_groups,
 };
-use headless_lms_utils::services::moocfi::MoocfiClient;
+use headless_lms_utils::services::moocfi::{DelegatedCompletion, MoocfiClient};
 use sqlx::PgPool;
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
@@ -42,7 +42,7 @@ pub(crate) async fn run(
         )
         .await?
         {
-            Ok(()) => tally.record_success(),
+            Ok(_) => tally.record_success(),
             Err(error) => {
                 warn!(
                     user_id = %group.user_id,
@@ -65,7 +65,8 @@ pub(crate) async fn run(
 }
 
 /// Reads the student's completions of one mooc.fi course from mooc.fi and syncs them, holding no
-/// connection during the lookup. The inner `Err` is a failed lookup or sync.
+/// connection during the lookup, and returns what mooc.fi said. The inner `Err` is a failed
+/// lookup or sync.
 pub(crate) async fn lookup_and_sync(
     pool: &PgPool,
     delegation: &MoocfiDelegationConfiguration,
@@ -73,7 +74,7 @@ pub(crate) async fn lookup_and_sync(
     user_id: Uuid,
     moocfi_user_upstream_id: i32,
     moocfi_course_id: Uuid,
-) -> CreditRegistrationResult<Result<(), String>> {
+) -> CreditRegistrationResult<Result<Vec<DelegatedCompletion>, String>> {
     let completions = match client
         .get_user_completions(moocfi_course_id, moocfi_user_upstream_id)
         .await
@@ -93,5 +94,7 @@ pub(crate) async fn lookup_and_sync(
         },
     )
     .await;
-    Ok(synced.map_err(|error| error.to_string()))
+    Ok(synced
+        .map(|()| completions)
+        .map_err(|error| error.to_string()))
 }

@@ -117,9 +117,9 @@ test("A mooc.fi completion is registered in Sisu and reported back to mooc.fi on
     const details = await pollUntil(
       async () => {
         const current = await adminRegistrationDetails(adminApi, registrationId)
-        return current.moocfi_completion?.reported_at ? current : null
+        return current.moocfi_completion?.registration_report.reported_at ? current : null
       },
-      { description: "the mooc.fi completion to be reported" },
+      { description: "the registration to be reported" },
     )
     expect(details.moocfi_completion?.moocfi_completion_id).toBe(COMPLETION_ID)
 

@@ -63,17 +63,6 @@ pub fn validate_hs256_claim<T: DeserializeOwned>(
     decode_hs256_claim(token, key, Validation::new(Algorithm::HS256))
 }
 
-/// [`validate_hs256_claim`] with no clock leeway, for claims living shorter than the default 60 s
-/// leeway, which would otherwise outlive them several times over.
-pub fn validate_hs256_claim_without_leeway<T: DeserializeOwned>(
-    token: &str,
-    key: &JwtKey,
-) -> Result<T, jsonwebtoken::errors::Error> {
-    let mut validation = Validation::new(Algorithm::HS256);
-    validation.leeway = 0;
-    decode_hs256_claim(token, key, validation)
-}
-
 fn decode_hs256_claim<T: DeserializeOwned>(
     token: &str,
     key: &JwtKey,
@@ -138,11 +127,6 @@ impl MoocfiHandoffClaim {
     /// Whether the claim was minted for a request from `client_ip`.
     pub fn is_bound_to(&self, client_ip: IpAddr, key: &JwtKey) -> bool {
         self.client_ip_hash == client_ip_hash(client_ip, key)
-    }
-
-    /// Checks the signature and the expiry, with no leeway.
-    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, jsonwebtoken::errors::Error> {
-        validate_hs256_claim_without_leeway(token, key)
     }
 
     /// Checks only the signature, so an expired claim still names its course. Never sign anyone in
@@ -312,7 +296,7 @@ mod tests {
     }
 
     #[test]
-    fn moocfi_handoff_claim_expires_without_leeway() {
+    fn an_expired_handoff_still_names_its_course() {
         let key = JwtKey::test_key();
         let token = sign_hs256_claim(
             &serde_json::json!({
@@ -325,12 +309,9 @@ mod tests {
             &key,
         )
         .expect("signing should succeed");
-        validate_hs256_claim::<MoocfiHandoffClaim>(&token, &key)
-            .expect("the default leeway would still accept it");
-        MoocfiHandoffClaim::validate(&token, &key)
-            .expect_err("an expired handoff must be rejected");
-        MoocfiHandoffClaim::read_ignoring_expiry(&token, &key)
+        let claim = MoocfiHandoffClaim::read_ignoring_expiry(&token, &key)
             .expect("an expired handoff still names its course");
+        assert!(!claim.is_unexpired_or_expired_within(Duration::zero()));
     }
 
     #[test]

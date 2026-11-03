@@ -904,7 +904,7 @@ export type AdminMaterializeResult = {
 }
 
 /**
- * A mooc.fi completion as courses last read it, and how reporting the registration back went.
+ * A mooc.fi completion as courses last read it, and how reporting this registration back went.
  */
 export type AdminMoocfiCompletion = {
   moocfi_completion_id: string
@@ -916,13 +916,7 @@ export type AdminMoocfiCompletion = {
    * When another organization's registration of it was first seen on mooc.fi.
    */
   registered_upstream_at?: string | null
-  report_attempt_count: number
-  report_last_error?: string | null
-  report_next_attempt_at: string
-  /**
-   * When our registration was reported back to mooc.fi, or found already there.
-   */
-  reported_at?: string | null
+  registration_report: AdminMoocfiRegistrationReport
   tier?: number | null
   /**
    * The last successful read from mooc.fi.
@@ -932,6 +926,27 @@ export type AdminMoocfiCompletion = {
    * When mooc.fi stopped returning the completion.
    */
   upstream_missing_at?: string | null
+}
+
+/**
+ * Reporting this registration back to mooc.fi.
+ */
+export type AdminMoocfiRegistrationReport = {
+  attempt_count: number
+  /**
+   * A success mooc.fi is never told about: a duplicate or not-improved row after an earlier
+   * success of the same completion.
+   */
+  is_skipped: boolean
+  last_error?: string | null
+  /**
+   * `None` until a report has been tried.
+   */
+  next_attempt_at?: string | null
+  /**
+   * When this registration was reported to mooc.fi, or found already there.
+   */
+  reported_at?: string | null
 }
 
 /**

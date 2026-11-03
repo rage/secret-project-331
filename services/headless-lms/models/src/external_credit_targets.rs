@@ -27,6 +27,8 @@ pub struct TierRange {
     pub highest: Option<i32>,
 }
 
+/// A mooc.fi course, or a tier range of one, whose completions courses registers under one course
+/// code.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ExternalCreditTarget {
     pub id: Uuid,
@@ -730,10 +732,7 @@ WHERE id = $1
         && let Some(paused_at) = previously_paused_at
     {
         crate::library::credit_registration::enrolment_checks::shift_past_pause(
-            &mut tx,
-            id,
-            // Whole seconds: Postgres intervals hold no nanoseconds, which the clock has.
-            chrono::TimeDelta::seconds((Utc::now() - paused_at).num_seconds()),
+            &mut tx, id, paused_at,
         )
         .await?;
     }

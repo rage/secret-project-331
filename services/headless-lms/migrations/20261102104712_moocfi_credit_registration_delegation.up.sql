@@ -93,7 +93,7 @@ UPDATE OF moocfi_course_id,
   tiers,
   deleted_at ON external_credit_targets FOR EACH ROW EXECUTE FUNCTION check_external_credit_target_tier_overlap();
 
-COMMENT ON TABLE external_credit_targets IS 'A mooc.fi course whose credits courses registers into the study registry, standing in for both course_modules and course_module_suotar_configurations for mooc.fi ledger rows. Each tier of a course maps to at most one live target, enforced by the external_credit_targets_tier_overlap trigger, so a completion registers one course code at most.';
+COMMENT ON TABLE external_credit_targets IS 'A mooc.fi course whose credits courses registers into the study registry, standing in for both course_modules and course_module_suotar_configurations for mooc.fi ledger rows. Each tier of a course maps to at most one live target, enforced by the external_credit_targets_tier_overlap trigger, so a completion registers one course code per tier it has had.';
 COMMENT ON COLUMN external_credit_targets.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN external_credit_targets.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN external_credit_targets.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
@@ -146,10 +146,6 @@ CREATE TABLE external_completions (
   upstream_missing_at TIMESTAMP WITH TIME ZONE,
   registered_upstream_at TIMESTAMP WITH TIME ZONE,
   reported_at TIMESTAMP WITH TIME ZONE,
-  report_claimed_until TIMESTAMP WITH TIME ZONE,
-  report_attempt_count INT NOT NULL DEFAULT 0 CHECK (report_attempt_count >= 0),
-  report_next_attempt_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  report_last_error TEXT,
   CONSTRAINT external_completions_grade_needs_passed CHECK (
     passed IS NOT NULL
     OR grade IS NULL
@@ -185,11 +181,7 @@ COMMENT ON COLUMN external_completions.upstream_checked_at IS 'When mooc.fi last
 COMMENT ON COLUMN external_completions.upstream_check_failed_at IS 'When moocfi-recheck last failed to read the completion from mooc.fi. Counts as a check for when to try again, so a lookup that keeps failing waits its turn instead of crowding out the others.';
 COMMENT ON COLUMN external_completions.upstream_missing_at IS 'When the lookup first stopped returning the completion, meaning it was deleted on mooc.fi. Cleared if it reappears. Withdraws the row while set.';
 COMMENT ON COLUMN external_completions.registered_upstream_at IS 'When a registration of the completion by another mooc.fi organization was first seen. Withdraws the row: someone else registered it.';
-COMMENT ON COLUMN external_completions.reported_at IS 'When mooc.fi was told we registered the completion, or our registration was found there already. Set once; a later grade improvement is not reported.';
-COMMENT ON COLUMN external_completions.report_claimed_until IS 'Lease of the reporter now posting this completion. Must outlast a lookup plus a post, or two reporters could both post.';
-COMMENT ON COLUMN external_completions.report_attempt_count IS 'Failed report-back attempts, which drive the backoff.';
-COMMENT ON COLUMN external_completions.report_next_attempt_at IS 'When report-back may next try this completion.';
-COMMENT ON COLUMN external_completions.report_last_error IS 'Why the last report-back attempt failed, for operators.';
+COMMENT ON COLUMN external_completions.reported_at IS 'When a registration of the completion by our organization was first on mooc.fi, reported by us or found there. Set once. Keeps a completion registered before delegation from getting a ledger row, though not one whose tier moved after we registered it under another target; which registrations were reported is in moocfi_registration_reports.';
 
 DROP VIEW credit_registration_preconditions;
 DROP VIEW credit_registration_registrable_completions;
@@ -546,9 +538,16 @@ WHERE NOT EXISTS (
     FROM external_completions ec
     WHERE ec.id = e.external_completion_id
       AND ec.reported_at IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM external_completions sibling
+          JOIN credit_registrations sibling_cr ON sibling_cr.external_completion_id = sibling.id
+        WHERE sibling.moocfi_completion_id = ec.moocfi_completion_id
+          AND sibling.id <> ec.id
+      )
   );
 
-COMMENT ON VIEW credit_registration_registrable_completions IS 'Eligible completions that have no ledger row and are not already in the study registry through the pull path or reported to mooc.fi as registered. Exactly the rows the materialiser creates a registration for, and so exactly the rows it may be accused of having missed. fully_eligible is not applied here: a completion still waiting on a prerequisite gets its row and waits in pending.';
+COMMENT ON VIEW credit_registration_registrable_completions IS 'Eligible completions that have no ledger row and are not already in the study registry through the pull path or reported to mooc.fi as registered. A registration by us on mooc.fi does not count when a ledger row of ours for the completion under another target, left by a tier change, can have made it. Exactly the rows the materialiser creates a registration for, and so exactly the rows it may be accused of having missed. fully_eligible is not applied here: a completion still waiting on a prerequisite gets its row and waits in pending.';
 
 CREATE VIEW credit_registration_preconditions AS
 SELECT cr.id AS credit_registration_id,
@@ -589,9 +588,91 @@ COMMENT ON COLUMN credit_registration_preconditions.frozen_identity_stale IS 'Th
 COMMENT ON COLUMN credit_registration_preconditions.course_code_allowed IS 'False while Suotar''s last verdict on the unit''s current course code says it does not accept it; true once it does, or when there is no verdict. Rows wait in pending while false, since every import would come back courseNotAllowed.';
 COMMENT ON COLUMN credit_registration_preconditions.grade_unrecognised IS 'The mooc.fi grade could not be parsed, so completion_eligible is false until it is fixed on mooc.fi. Always false for a course module completion.';
 
-CREATE INDEX idx_external_completions_report_due ON external_completions (report_next_attempt_at)
-WHERE reported_at IS NULL
-  AND deleted_at IS NULL;
+CREATE TABLE moocfi_registration_reports (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  credit_registration_id UUID NOT NULL REFERENCES credit_registrations(id),
+  moocfi_completion_id UUID NOT NULL,
+  registration_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  reported_at TIMESTAMP WITH TIME ZONE,
+  claimed_until TIMESTAMP WITH TIME ZONE,
+  attempt_count INT NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+  next_attempt_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  last_error TEXT
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON moocfi_registration_reports FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE UNIQUE INDEX uq_moocfi_registration_reports_registration ON moocfi_registration_reports (credit_registration_id)
+WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_moocfi_registration_reports_date ON moocfi_registration_reports (moocfi_completion_id, registration_date)
+WHERE deleted_at IS NULL;
+
+COMMENT ON TABLE moocfi_registration_reports IS 'Report-back of one mooc.fi ledger row to mooc.fi. Created when report-back first claims the row; a row of moocfi_reportable_registrations without one has not been tried yet.';
+COMMENT ON COLUMN moocfi_registration_reports.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN moocfi_registration_reports.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN moocfi_registration_reports.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN moocfi_registration_reports.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN moocfi_registration_reports.credit_registration_id IS 'The ledger row reported. Unique among live rows.';
+COMMENT ON COLUMN moocfi_registration_reports.moocfi_completion_id IS 'mooc.fi''s id of the completion registered, which registration_date is unique within.';
+COMMENT ON COLUMN moocfi_registration_reports.registration_date IS 'The registration date reported, fixed when report-back first claims the row so a retry of the row cannot move it, in whole milliseconds as mooc.fi keeps it, and moved a millisecond on when another registration of the completion already has it. How report-back recognises the registration on mooc.fi after a post whose answer was lost.';
+COMMENT ON COLUMN moocfi_registration_reports.reported_at IS 'When mooc.fi was told about the registration, or it was found there already. Set once.';
+COMMENT ON COLUMN moocfi_registration_reports.claimed_until IS 'Lease of the reporter now posting this registration. Must outlast a lookup plus a post, or two reporters could both post.';
+COMMENT ON COLUMN moocfi_registration_reports.attempt_count IS 'Failed report-back attempts, which drive the backoff.';
+COMMENT ON COLUMN moocfi_registration_reports.next_attempt_at IS 'When report-back may next try this registration.';
+COMMENT ON COLUMN moocfi_registration_reports.last_error IS 'Why the last report-back attempt failed, for operators.';
+
+CREATE VIEW moocfi_reportable_registrations AS
+SELECT cr.id AS credit_registration_id,
+  cr.external_completion_id,
+  ec.moocfi_completion_id,
+  COALESCE(cr.registered_at, cr.terminal_at, cr.state_entered_at) AS registration_date
+FROM credit_registrations cr
+  JOIN external_completions ec ON ec.id = cr.external_completion_id
+WHERE cr.deleted_at IS NULL
+  AND ec.deleted_at IS NULL
+  AND cr.student_number IS NOT NULL
+  AND (
+    cr.state = 'registered'
+    OR (
+      cr.state IN ('duplicate', 'not_improved')
+      AND NOT EXISTS (
+        SELECT 1
+        FROM external_completions earlier_ec
+          JOIN credit_registrations earlier ON earlier.subject_id = earlier_ec.id
+        WHERE earlier_ec.moocfi_completion_id = ec.moocfi_completion_id
+          AND earlier.id <> cr.id
+          AND earlier.state IN ('registered', 'duplicate', 'not_improved')
+          AND (
+            earlier.deleted_at IS NULL
+            OR EXISTS (
+              SELECT 1
+              FROM moocfi_registration_reports earlier_report
+              WHERE earlier_report.credit_registration_id = earlier.id
+                AND earlier_report.reported_at IS NOT NULL
+            )
+          )
+          AND (
+            COALESCE(
+              earlier.registered_at,
+              earlier.terminal_at,
+              earlier.state_entered_at
+            ),
+            earlier.id
+          ) < (
+            COALESCE(cr.registered_at, cr.terminal_at, cr.state_entered_at),
+            cr.id
+          )
+      )
+    )
+  );
+
+COMMENT ON VIEW moocfi_reportable_registrations IS 'The mooc.fi ledger rows that report-back tells mooc.fi about, one report each, since mooc.fi keeps every registration of a completion as history. Every registered row, a later grade improvement included. A duplicate or not_improved row puts nothing new in Sisu, so it is reported only when it is the first success of its mooc.fi completion: mooc.fi must still learn that the completion is registered. An earlier success deleted since still counts if it was reported.';
+COMMENT ON COLUMN moocfi_reportable_registrations.registration_date IS 'When the credit landed in the study registry. What moocfi_registration_reports.registration_date is fixed from.';
+
 
 ALTER TYPE credit_registration_attention_reason
 ADD VALUE IF NOT EXISTS 'report_back_overdue';

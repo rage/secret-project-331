@@ -442,19 +442,27 @@ export const zAdminMaterializeResult = z.object({
 })
 
 /**
- * A mooc.fi completion as courses last read it, and how reporting the registration back went.
+ * Reporting this registration back to mooc.fi.
+ */
+export const zAdminMoocfiRegistrationReport = z.object({
+  attempt_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  is_skipped: z.boolean(),
+  last_error: z.string().nullish(),
+  next_attempt_at: z.iso.datetime().nullish(),
+  reported_at: z.iso.datetime().nullish(),
+})
+
+/**
+ * A mooc.fi completion as courses last read it, and how reporting this registration back went.
  */
 export const zAdminMoocfiCompletion = z.object({
   moocfi_completion_id: z.uuid(),
   raw_grade: z.string().nullish(),
   registered_upstream_at: z.iso.datetime().nullish(),
-  report_attempt_count: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  report_last_error: z.string().nullish(),
-  report_next_attempt_at: z.iso.datetime(),
-  reported_at: z.iso.datetime().nullish(),
+  registration_report: zAdminMoocfiRegistrationReport,
   tier: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })

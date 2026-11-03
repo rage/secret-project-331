@@ -3,8 +3,9 @@ Handlers for HTTP requests to `/api/v0/moocfi/credit-registration-handoffs`.
 
 mooc.fi's backend mints a handoff here when a student presses "Register in courses.mooc.fi", and
 sends the student's browser to the returned URL, where
-[`crate::controllers::main_frontend::moocfi_handoffs`] signs them in. Nothing is stored, and no
-completion is read from mooc.fi here.
+[`crate::controllers::main_frontend::moocfi_handoffs`] signs them in. The handoff itself is not
+stored, though a student new to courses gets an account as on login, and no completion is read
+from mooc.fi here.
 */
 
 use std::net::IpAddr;
@@ -42,11 +43,8 @@ static PER_USER_LIMITS: Lazy<EndpointLimiters> =
 /// student who presses the button, before TMC has vouched for any of them.
 static CUTOFF_MISMATCH_REPORTS_PER_COURSE: Lazy<EndpointLimiters> = Lazy::new(|| {
     EndpointLimiters::from_config(&RateLimitConfig {
-        per_second: None,
-        per_minute: None,
         per_hour: Some(1),
-        per_day: None,
-        per_month: None,
+        ..Default::default()
     })
 });
 
@@ -144,7 +142,9 @@ pub async fn create_credit_registration_handoff(
         ));
     }
 
-    let user = match find_user(&mut conn, &app_conf, &tmc_client, &tmc_access_token).await {
+    drop(conn);
+
+    let user = match find_user(&pool, &app_conf, &tmc_client, &tmc_access_token).await {
         Ok(user) => user,
         Err(TmcFailure::Rejected) => {
             return token.authorized_ok(refusal(
@@ -164,6 +164,7 @@ pub async fn create_credit_registration_handoff(
 
     // A handoff signs in on TMC's word alone, so a leaked mooc.fi credential must not reach a
     // courses staff session through it.
+    let mut conn = pool.acquire().await?;
     if models::roles::has_any_role(&mut conn, user.id).await? {
         return token.authorized_ok(refusal(
             StatusCode::FORBIDDEN,
@@ -233,17 +234,20 @@ fn redeem_url(
     Ok(url)
 }
 
-/// The courses account of the TMC token's owner, created on first sight like a login would.
+/// The courses account of the TMC token's owner, created on first sight like a login would. Holds
+/// no connection while TMC answers.
 async fn find_user(
-    conn: &mut PgConnection,
+    pool: &PgPool,
     app_conf: &ApplicationConfiguration,
     tmc_client: &TmcClient,
     tmc_access_token: &SecretString,
 ) -> Result<models::users::User, TmcFailure> {
+    let acquire = || async { pool.acquire().await.map_err(|_| TmcFailure::Unavailable) };
     if app_conf.test_mode
-        && let Some(user) = authenticate_test_token(conn, tmc_access_token, app_conf)
-            .await
-            .map_err(|_| TmcFailure::Unavailable)?
+        && let Some(user) =
+            authenticate_test_token(&mut *acquire().await?, tmc_access_token, app_conf)
+                .await
+                .map_err(|_| TmcFailure::Unavailable)?
     {
         return Ok(user);
     }
@@ -258,7 +262,7 @@ async fn find_user(
             }
         })?;
     get_or_create_user_from_tmc_mooc_fi_response(
-        conn,
+        &mut *acquire().await?,
         &app_conf.moocfi_configuration,
         tmc_user,
         tmc_access_token,

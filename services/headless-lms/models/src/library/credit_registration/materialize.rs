@@ -325,13 +325,7 @@ LIMIT $1
             candidate.course_instance_id,
             candidate.external_completion_id,
             candidate.external_credit_target_id,
-        )
-        .ok_or_else(|| {
-            model_err!(
-                Generic,
-                "A ledger row names neither exactly a course module completion nor a mooc.fi one."
-            )
-        })?;
+        )?;
         let next = crate::credit_registrations::insert(
             &mut tx,
             PKeyPolicy::Generate,
@@ -414,6 +408,13 @@ WHERE cr.deleted_at IS NULL
     FROM external_completions ec
     WHERE ec.id = cr.external_completion_id
       AND ec.reported_at IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM external_completions sibling
+          JOIN credit_registrations sibling_cr ON sibling_cr.external_completion_id = sibling.id
+        WHERE sibling.moocfi_completion_id = ec.moocfi_completion_id
+          AND sibling.id <> ec.id
+      )
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
   AND ($4::uuid IS NULL OR cr.external_credit_target_id = $4)
@@ -439,13 +440,7 @@ LIMIT $1
             candidate.course_instance_id,
             candidate.external_completion_id,
             candidate.external_credit_target_id,
-        )
-        .ok_or_else(|| {
-            model_err!(
-                Generic,
-                "A ledger row names neither exactly a course module completion nor a mooc.fi one."
-            )
-        })?;
+        )?;
         let next = Uuid::new_v4();
         // Before the insert: the cancelled row holds the completion's slot in
         // uq_credit_registrations_completion until it is superseded.

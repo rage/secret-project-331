@@ -233,50 +233,6 @@
             "name": "reported_at"
           }
         }
-      },
-      {
-        "ordinal": 21,
-        "name": "report_claimed_until",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "external_completions",
-            "name": "report_claimed_until"
-          }
-        }
-      },
-      {
-        "ordinal": 22,
-        "name": "report_attempt_count",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "external_completions",
-            "name": "report_attempt_count"
-          }
-        }
-      },
-      {
-        "ordinal": 23,
-        "name": "report_next_attempt_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "external_completions",
-            "name": "report_next_attempt_at"
-          }
-        }
-      },
-      {
-        "ordinal": 24,
-        "name": "report_last_error",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "external_completions",
-            "name": "report_last_error"
-          }
-        }
       }
     ],
     "parameters": {
@@ -306,10 +262,6 @@
       true,
       true,
       true,
-      true,
-      true,
-      false,
-      false,
       true
     ]
   },

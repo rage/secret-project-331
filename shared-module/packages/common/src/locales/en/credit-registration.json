@@ -546,6 +546,7 @@
   "credit-registration-admin-moocfi-enrolment-link-description": "Where a student without an enrolment is sent, usually the Open University course page.",
   "credit-registration-admin-moocfi-language-description": "For the emails, and for the registration when the completion has no language. For example fi-FI.",
   "credit-registration-admin-moocfi-name-description": "Shown as \"mooc.fi: name\".",
+  "credit-registration-admin-moocfi-not-reportable": "Not reported: this attempt adds nothing new for mooc.fi",
   "credit-registration-admin-moocfi-not-reported": "Not yet",
   "credit-registration-admin-moocfi-off": "Off",
   "credit-registration-admin-moocfi-pause-reason-description": "Nothing is sent to Sisu for this course until you resume it. Students see \"Paused\".",

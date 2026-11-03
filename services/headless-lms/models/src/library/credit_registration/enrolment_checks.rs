@@ -604,14 +604,16 @@ pub async fn record_enrolment_check(
     Ok(())
 }
 
-/// Moves the schedules of a module's or mooc.fi target's rows past a pause of `paused_for`, so the
-/// pause spends none of their ladder. A batched row stays on a batch boundary. Stopped rows are left
-/// as they are.
+/// Moves the schedules of a module's or mooc.fi target's rows past a pause that began at
+/// `paused_at` and ends now, so the pause spends none of their ladder. A batched row stays on a
+/// batch boundary. Stopped rows are left as they are.
 pub async fn shift_past_pause(
     conn: &mut PgConnection,
     credit_unit_id: Uuid,
-    paused_for: TimeDelta,
+    paused_at: DateTime<Utc>,
 ) -> ModelResult<u64> {
+    // Whole seconds: Postgres intervals hold no nanoseconds, which the clock has.
+    let paused_for = TimeDelta::seconds((Utc::now() - paused_at).num_seconds());
     let res = sqlx::query!(
         r#"
 UPDATE credit_registrations

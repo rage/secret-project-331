@@ -290,7 +290,7 @@ pub struct AdminCreditRegistrationDetails {
     pub moocfi_completion: Option<AdminMoocfiCompletion>,
 }
 
-/// A mooc.fi completion as courses last read it, and how reporting the registration back went.
+/// A mooc.fi completion as courses last read it, and how reporting this registration back went.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminMoocfiCompletion {
     pub moocfi_completion_id: Uuid,
@@ -303,11 +303,21 @@ pub struct AdminMoocfiCompletion {
     pub upstream_missing_at: Option<DateTime<Utc>>,
     /// When another organization's registration of it was first seen on mooc.fi.
     pub registered_upstream_at: Option<DateTime<Utc>>,
-    /// When our registration was reported back to mooc.fi, or found already there.
+    pub registration_report: AdminMoocfiRegistrationReport,
+}
+
+/// Reporting this registration back to mooc.fi.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminMoocfiRegistrationReport {
+    /// A success mooc.fi is never told about: a duplicate or not-improved row after an earlier
+    /// success of the same completion.
+    pub is_skipped: bool,
+    /// When this registration was reported to mooc.fi, or found already there.
     pub reported_at: Option<DateTime<Utc>>,
-    pub report_attempt_count: i32,
-    pub report_next_attempt_at: DateTime<Utc>,
-    pub report_last_error: Option<String>,
+    pub attempt_count: i32,
+    /// `None` until a report has been tried.
+    pub next_attempt_at: Option<DateTime<Utc>>,
+    pub last_error: Option<String>,
 }
 
 /// The states an admin may move a row to; everything else is the pipeline's to decide.
@@ -737,6 +747,11 @@ pub async fn get_credit_registration_for_admin(
                 external_completion_id,
             )
             .await?;
+            let report =
+                models::library::credit_registration::moocfi_report::get_registration_report(
+                    &mut conn, id,
+                )
+                .await?;
             Some(AdminMoocfiCompletion {
                 moocfi_completion_id: completion.moocfi_completion_id,
                 raw_grade: completion.raw_grade,
@@ -744,10 +759,13 @@ pub async fn get_credit_registration_for_admin(
                 upstream_checked_at: completion.upstream_checked_at,
                 upstream_missing_at: completion.upstream_missing_at,
                 registered_upstream_at: completion.registered_upstream_at,
-                reported_at: completion.reported_at,
-                report_attempt_count: completion.report_attempt_count,
-                report_next_attempt_at: completion.report_next_attempt_at,
-                report_last_error: completion.report_last_error,
+                registration_report: AdminMoocfiRegistrationReport {
+                    is_skipped: report.is_skipped,
+                    reported_at: report.reported_at,
+                    attempt_count: report.attempt_count,
+                    next_attempt_at: report.next_attempt_at,
+                    last_error: report.last_error,
+                },
             })
         }
         None => None,

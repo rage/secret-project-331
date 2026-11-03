@@ -10,6 +10,7 @@ use crate::external_credit_targets::{self, ExternalGrading, TierRange};
 use crate::library::credit_registration::moocfi_grade::parse_moocfi_grade;
 use crate::prelude::*;
 
+/// A mooc.fi completion as last read, under the target its tier mapped to then.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ExternalCompletion {
     pub id: Uuid,
@@ -41,10 +42,6 @@ pub struct ExternalCompletion {
     pub upstream_missing_at: Option<DateTime<Utc>>,
     pub registered_upstream_at: Option<DateTime<Utc>>,
     pub reported_at: Option<DateTime<Utc>>,
-    pub report_claimed_until: Option<DateTime<Utc>>,
-    pub report_attempt_count: i32,
-    pub report_next_attempt_at: DateTime<Utc>,
-    pub report_last_error: Option<String>,
 }
 
 /// What one successful read of a completion from mooc.fi says, for [`upsert`].
@@ -115,8 +112,7 @@ VALUES (
   ) ON CONFLICT (moocfi_completion_id, external_credit_target_id)
 WHERE deleted_at IS NULL DO
 UPDATE
-SET user_id = EXCLUDED.user_id,
-  moocfi_user_upstream_id = EXCLUDED.moocfi_user_upstream_id,
+SET moocfi_user_upstream_id = EXCLUDED.moocfi_user_upstream_id,
   completion_date = EXCLUDED.completion_date,
   completion_language = EXCLUDED.completion_language,
   tier = EXCLUDED.tier,

@@ -17302,13 +17302,8 @@
       },
       "AdminMoocfiCompletion": {
         "type": "object",
-        "description": "A mooc.fi completion as courses last read it, and how reporting the registration back went.",
-        "required": [
-          "moocfi_completion_id",
-          "upstream_checked_at",
-          "report_attempt_count",
-          "report_next_attempt_at"
-        ],
+        "description": "A mooc.fi completion as courses last read it, and how reporting this registration back went.",
+        "required": ["moocfi_completion_id", "upstream_checked_at", "registration_report"],
         "properties": {
           "moocfi_completion_id": {
             "type": "string",
@@ -17323,21 +17318,8 @@
             "format": "date-time",
             "description": "When another organization's registration of it was first seen on mooc.fi."
           },
-          "report_attempt_count": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "report_last_error": {
-            "type": ["string", "null"]
-          },
-          "report_next_attempt_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "reported_at": {
-            "type": ["string", "null"],
-            "format": "date-time",
-            "description": "When our registration was reported back to mooc.fi, or found already there."
+          "registration_report": {
+            "$ref": "#/components/schemas/AdminMoocfiRegistrationReport"
           },
           "tier": {
             "type": ["integer", "null"],
@@ -17352,6 +17334,34 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "When mooc.fi stopped returning the completion."
+          }
+        }
+      },
+      "AdminMoocfiRegistrationReport": {
+        "type": "object",
+        "description": "Reporting this registration back to mooc.fi.",
+        "required": ["is_skipped", "attempt_count"],
+        "properties": {
+          "attempt_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "is_skipped": {
+            "type": "boolean",
+            "description": "A success mooc.fi is never told about: a duplicate or not-improved row after an earlier\nsuccess of the same completion."
+          },
+          "last_error": {
+            "type": ["string", "null"]
+          },
+          "next_attempt_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` until a report has been tried."
+          },
+          "reported_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When this registration was reported to mooc.fi, or found already there."
           }
         }
       },

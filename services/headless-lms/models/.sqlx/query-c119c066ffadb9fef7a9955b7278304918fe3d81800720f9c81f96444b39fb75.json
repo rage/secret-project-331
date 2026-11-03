@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT pg_advisory_xact_lock(\n    hashtextextended('external_completions:report:' || $1::uuid::text, 0)\n  )\n            ",
+  "query": "\nSELECT pg_advisory_xact_lock(\n    hashtextextended('moocfi_registration_reports:' || $1::uuid::text, 0)\n  )\n            ",
   "describe": {
     "columns": [
       {
@@ -19,5 +19,5 @@
       null
     ]
   },
-  "hash": "4be3f5d8f9fe3e2d6b89f5a62da906dbc0849624d78019737f1cd710e5aa284b"
+  "hash": "c119c066ffadb9fef7a9955b7278304918fe3d81800720f9c81f96444b39fb75"
 }

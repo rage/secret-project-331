@@ -116,8 +116,12 @@ export interface AdminMoocfiCompletion {
   moocfi_completion_id: string
   raw_grade: string | null
   upstream_checked_at: string
-  reported_at: string | null
-  report_attempt_count: number
+  /** Reporting this attempt's registration. */
+  registration_report: {
+    is_skipped: boolean
+    reported_at: string | null
+    attempt_count: number
+  }
 }
 
 export interface AccountLinkingCourseCode {

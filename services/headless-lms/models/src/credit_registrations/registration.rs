@@ -208,7 +208,7 @@ pub enum NewRegistrationSubject {
 }
 
 impl NewRegistrationSubject {
-    /// The subject a ledger row's id columns name, as read back from the row; `None` for a mix
+    /// The subject a ledger row's id columns name, as read back from the row; errors on a mix
     /// `credit_registrations_one_subject` refuses.
     pub fn from_columns(
         course_module_completion_id: Option<Uuid>,
@@ -217,7 +217,7 @@ impl NewRegistrationSubject {
         course_instance_id: Option<Uuid>,
         external_completion_id: Option<Uuid>,
         external_credit_target_id: Option<Uuid>,
-    ) -> Option<Self> {
+    ) -> ModelResult<Self> {
         match (
             course_module_completion_id,
             course_id,
@@ -233,7 +233,7 @@ impl NewRegistrationSubject {
                 Some(course_instance_id),
                 None,
                 None,
-            ) => Some(Self::CourseModule {
+            ) => Ok(Self::CourseModule {
                 course_module_completion_id,
                 course_id,
                 course_module_id,
@@ -246,11 +246,14 @@ impl NewRegistrationSubject {
                 None,
                 Some(external_completion_id),
                 Some(external_credit_target_id),
-            ) => Some(Self::Moocfi {
+            ) => Ok(Self::Moocfi {
                 external_completion_id,
                 external_credit_target_id,
             }),
-            _ => None,
+            _ => Err(model_err!(
+                Generic,
+                "A ledger row names neither exactly a course module completion nor a mooc.fi one."
+            )),
         }
     }
 }
@@ -270,30 +273,38 @@ pub async fn insert(
     event_message: Option<&str>,
 ) -> ModelResult<Uuid> {
     let id = pkey_policy.into_uuid();
-    let (course_module_completion_id, course_id, course_module_id, course_instance_id) =
-        match new.subject {
-            NewRegistrationSubject::CourseModule {
-                course_module_completion_id,
-                course_id,
-                course_module_id,
-                course_instance_id,
-            } => (
-                Some(course_module_completion_id),
-                Some(course_id),
-                Some(course_module_id),
-                Some(course_instance_id),
-            ),
-            NewRegistrationSubject::Moocfi { .. } => (None, None, None, None),
-        };
-    let (external_completion_id, external_credit_target_id) = match new.subject {
+    let (
+        course_module_completion_id,
+        course_id,
+        course_module_id,
+        course_instance_id,
+        external_completion_id,
+        external_credit_target_id,
+    ) = match new.subject {
+        NewRegistrationSubject::CourseModule {
+            course_module_completion_id,
+            course_id,
+            course_module_id,
+            course_instance_id,
+        } => (
+            Some(course_module_completion_id),
+            Some(course_id),
+            Some(course_module_id),
+            Some(course_instance_id),
+            None,
+            None,
+        ),
         NewRegistrationSubject::Moocfi {
             external_completion_id,
             external_credit_target_id,
         } => (
+            None,
+            None,
+            None,
+            None,
             Some(external_completion_id),
             Some(external_credit_target_id),
         ),
-        NewRegistrationSubject::CourseModule { .. } => (None, None),
     };
     let mut tx = conn.begin().await?;
     sqlx::query!(

@@ -281,7 +281,7 @@ pub async fn get_pending_moocfi_handoff(
     let signed_in_account = signed_in_account(&session, &continuation);
     let pending = PendingMoocfiHandoff {
         moocfi_course_id: continuation.moocfi_course_id,
-        masked_email: mask_email(&email),
+        masked_email: mask_email_for_account_choice(&email),
         signed_in_account,
         redirect_path: registration_page_path_of(
             continuation.moocfi_course_id,
@@ -503,7 +503,7 @@ fn clearing_continuation(mut response: HttpResponse) -> HttpResponse {
 }
 
 /// The first letter of the address and its domain, such as `m…@example.com`.
-fn mask_email(email: &str) -> String {
+fn mask_email_for_account_choice(email: &str) -> String {
     match email.split_once('@') {
         Some((local, domain)) => {
             let first: String = local.chars().take(1).collect();

@@ -25,15 +25,15 @@
         # binaries there instead (keeps node and pnpm's embedded nodejs-slim stable).
         # Bump version+hash together:
         # nix-prefetch-url https://nodejs.org/dist/v<VER>/node-v<VER>-darwin-arm64.tar.xz
-        nodeVersion = "24.19.0";
+        nodeVersion = "26.13.0";
         officialNodeSrcs = {
           aarch64-darwin = {
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.xz";
-            sha256 = "153v346r9pxn8rviazlfx7nhil7rz89mw44340sq054w8xbz271z";
+            sha256 = "0vjv96i5ccnnhdy3gp0d8lkassbxph2pj5l1x03w17yzv63k2nvg";
           };
           x86_64-darwin = {
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-x64.tar.xz";
-            sha256 = "1r4g6afmn03ak4q1dyz1sl2mwwy649kcb5zl3msz1xj61wirapnk";
+            sha256 = "1612570xvvnd47j18kgrmaqnw1z2xh7380hcjfmy34hsk2y3dmlb";
           };
         };
         officialNodeOverlay = final: prev:
@@ -63,9 +63,9 @@
             in
             {
               nodejs = officialNode;
-              nodejs_24 = officialNode;
+              nodejs_26 = officialNode;
               nodejs-slim = officialNode;
-              nodejs-slim_24 = officialNode;
+              nodejs-slim_26 = officialNode;
             }
           );
 
@@ -83,12 +83,12 @@
         # lockfile.includeResolutionSettings in pnpm-workspace.yaml, and nixpkgs lags behind.
         # Bump version+hashes together:
         # nix-prefetch-url https://registry.npmjs.org/@pnpm/exe.<PLATFORM>/-/exe.<PLATFORM>-<VER>.tgz
-        pnpmVersion = "12.11.2";
+        pnpmVersion = "12.17.0";
         pnpmPlatforms = {
-          x86_64-linux = { name = "linux-x64"; sha256 = "1gr0dqzcc70vf8s2yw0ishdhxs0m32wfd0a3zshfhpl460qqs03r"; };
-          aarch64-linux = { name = "linux-arm64"; sha256 = "1nzz12xis0riiz651j5i6vxy9p41pjxqp1xxdwx5kx2llaid3df9"; };
-          x86_64-darwin = { name = "darwin-x64"; sha256 = "0zych2hhj4i86qgh31z6llg0jgwkmaq1hpnxgyvk6ya4kscvj3np"; };
-          aarch64-darwin = { name = "darwin-arm64"; sha256 = "184gzjsv565hdr0xhb4g301pb9rf1lclzaih6cnfrwdwlya4likj"; };
+          x86_64-linux = { name = "linux-x64"; sha256 = "1m69jc8dmc8i2aj6vj27bnnx2gskjhd6vpw8fj7msxl21z87273c"; };
+          aarch64-linux = { name = "linux-arm64"; sha256 = "0l2x24j4163s3c8pyf6xq28sf105216dkxc29pimbaf3m9j04zh1"; };
+          x86_64-darwin = { name = "darwin-x64"; sha256 = "00gzhlh62ik76cs7pzlq58vf3iwk3snw7s5ln18synxcjbkil7d5"; };
+          aarch64-darwin = { name = "darwin-arm64"; sha256 = "0wm5n2pfqwlw5l6czm58j5y210bjfszdcy5ckzyajjgrjxvir4kz"; };
         };
         pnpm = pkgs.stdenv.mkDerivation {
           pname = "pnpm";
@@ -231,7 +231,7 @@
             tar -xzf "$srcPlaywright"    --strip-components=1 -C "$modules/playwright"
             tar -xzf "$srcPlaywrightCore" --strip-components=1 -C "$modules/playwright-core"
 
-            makeWrapper ${pkgs.nodejs_24}/bin/node "$out/bin/playwright-cli" \
+            makeWrapper ${pkgs.nodejs_26}/bin/node "$out/bin/playwright-cli" \
               --add-flags "$modules/@playwright/cli/playwright-cli.js" \
               --set-default PLAYWRIGHT_MCP_EXECUTABLE_PATH ${pkgs.chromium}/bin/chromium
 
@@ -268,7 +268,7 @@
           pkgs.mold
         ];
         pathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [
-          pkgs.nodejs_24
+          pkgs.nodejs_26
           rustToolchain
         ]
         ++ projectCliPackages
@@ -312,7 +312,7 @@
 
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
 
-        nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_24 ];
+        nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_26 ];
         clusterShellPathPriorityPackages =
           nodeShellPathPriorityPackages ++ projectCliPackages ++ [ pkgs.minikube ];
       in

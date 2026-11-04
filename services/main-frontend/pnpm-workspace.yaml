@@ -8,7 +8,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeIgnoreMissingTime: false
 minimumReleaseAgeExcludePrune: true
 
-nodeVersion: 24.22.1
+nodeVersion: 26.13.0
 
 packageExtensions:
   # These import packages their manifests don't declare, which fails without hoisting.
@@ -78,7 +78,6 @@ minimumReleaseAgeExclude:
   - "@typescript/typescript-*"
   - "@typescript/typescript6@6.0.2"
   - postcss@8.5.23
-  - "@babel/plugin-transform-modules-systemjs@7.29.4"
   - tmp@0.2.7
   - body-parser@2.4.0
 

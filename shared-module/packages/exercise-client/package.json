@@ -62,14 +62,14 @@
     "react-dom": "^19.2.6",
     "tsdown": "0.22.7",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.22.1",
+      "version": "26.13.0",
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@12.11.2"
+  "packageManager": "pnpm@12.17.0"
 }

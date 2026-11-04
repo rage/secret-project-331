@@ -31,7 +31,7 @@
   "dependencies": {
     "@axe-core/playwright": "^4.14.0",
     "axe-core": "^4.14.0",
-    "jose": "^6.2.12",
+    "jose": "^6.2.13",
     "js-yaml": "^5.5.0",
     "png-metadata": "^1.0.2",
     "tar-fs": "^3.1.3",

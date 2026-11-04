@@ -177,8 +177,8 @@ importers:
         specifier: ^4.14.0
         version: 4.14.0
       jose:
-        specifier: ^6.2.12
-        version: 6.2.12
+        specifier: ^6.2.13
+        version: 6.2.13
       js-yaml:
         specifier: ^5.5.0
         version: 5.5.0
@@ -442,8 +442,8 @@ packages:
     resolution: {integrity: sha512-FFUtZMpoZ8RqHS3XeXEmHWLA4thH+ZxCv2lOiPIn1Xc7CxrqhWzNSDzD+/chS/zbYezmiwWLdQC09JdQKmthOw==}
     engines: {node: '>=20'}
 
-  jose@6.2.12:
-    resolution: {integrity: sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw==}
+  jose@6.2.13:
+    resolution: {integrity: sha512-7TIg10ZE1x82YediN+lcrPNvGMKge9yFHQD+Qho/b8y2adfugU3AsvvHfxV0fzyFllT6l9xCjf4RWY9g/Z9PJQ==}
 
   js-yaml@5.5.0:
     resolution: {integrity: sha512-paNr4LFIFPjeeSmwNYdrb8FafLLG/Cr2Af3GjbsHJ5CxIjH4r0c2emlmRdAtpPAieP1gRVzk6buBbVP5gBMGAg==}
@@ -783,7 +783,7 @@ snapshots:
 
   isexe@4.0.0: {}
 
-  jose@6.2.12: {}
+  jose@6.2.13: {}
 
   js-yaml@5.5.0:
     dependencies:
@@ -895,7 +895,7 @@ time:
   '@types/which@3.0.4': '2024-05-30T17:36:03.133Z'
   '@typescript/typescript6@6.0.2': '2026-07-06T18:06:47.459Z'
   axe-core@4.14.0: '2026-10-05T17:43:36.099Z'
-  jose@6.2.12: '2026-09-05T09:17:12.608Z'
+  jose@6.2.13: '2026-10-20T06:21:48.616Z'
   js-yaml@5.5.0: '2026-10-15T23:28:37.500Z'
   playwright@1.64.1: '2026-10-14T11:54:49.998Z'
   png-metadata@1.0.2: '2018-09-13T10:05:00.505Z'

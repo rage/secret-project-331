@@ -2,6 +2,7 @@ use std::{error::Error as StdError, time::Duration};
 
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
+use crate::programs::teacher_newsletter::get_newsletter_period;
 use crate::setup_tracing;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
@@ -470,24 +471,17 @@ async fn build_teacher_newsletter_email_content(
         headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
     let course_ids: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
 
-    let date_today = Utc::now().date_naive();
-
-    let start_date = date_today - chrono::Duration::days(7);
-
-    let period_end = date_today.format("%Y-%m-%d").to_string();
-    let period_start = start_date.format("%Y-%m-%d").to_string();
+    let (period_start, period_end) = get_newsletter_period();
 
     let newsletter_items =
         get_newsletter_items(conn, &course_ids, &period_start, &period_end).await?;
 
-    let newsletter_items_as_html: String =
-        newsletter_items.iter().map(|i| i.as_html.clone()).collect();
-    let newsletter_items_as_text: String =
-        newsletter_items.iter().map(|i| i.as_text.clone()).collect();
-    dbg!(&newsletter_items_as_html);
     if !courses.is_empty() {
-        let html = newsletter_items_as_html.to_string();
-        let text = newsletter_items_as_text.to_string();
+        let (html, text): (String, String) = newsletter_items
+            .into_iter()
+            .map(|i| (i.as_html, i.as_text))
+            .unzip();
+
         Ok(TeacherNewsletterContent { html, text })
     } else {
         Ok(TeacherNewsletterContent {

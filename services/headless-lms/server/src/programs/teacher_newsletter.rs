@@ -106,7 +106,7 @@ fn as_text(
     )
 }
 
-fn get_newsletter_period() -> (String, String) {
+pub fn get_newsletter_period() -> (String, String) {
     let date_today = Utc::now().date_naive();
     let date_yesterday = date_today - chrono::Duration::days(1);
 

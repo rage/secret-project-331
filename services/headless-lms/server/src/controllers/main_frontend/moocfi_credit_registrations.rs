@@ -1,9 +1,9 @@
 /*!
 Handlers for HTTP requests to `/api/v0/main-frontend/moocfi-credit-registrations`.
 
-The mooc.fi registration page's own data: the signed-in student's completions of one mooc.fi course,
-read fresh from mooc.fi on every load. Only completions courses registers get an
-`external_completion_id`; the per-registration detail is behind the routes keyed on it.
+The mooc.fi registration page's data: the signed-in student's completions of one mooc.fi course,
+read from mooc.fi on every load. Per-registration detail is behind the routes keyed on a
+completion's `external_completion_id`, which only completions courses registers have.
 */
 
 use std::collections::HashSet;

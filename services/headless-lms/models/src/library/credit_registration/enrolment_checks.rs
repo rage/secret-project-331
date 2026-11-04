@@ -461,9 +461,9 @@ pub struct RosterEnrolee {
 /// their student under an enrolment id the row has not seen, stopped rows included, and returns how
 /// many it touched.
 ///
-/// A row never checked has seen nothing, so any listing wakes it. The listed ids count as seen from
-/// here on, so one listing wakes a row once. A row a later attempt has replaced is left alone. Only
-/// the clock moves: the enrolment is still resolved by a check rather than read off the roster.
+/// A row never checked has seen nothing, so any listing wakes it. The listed ids count as seen
+/// afterwards, so one listing wakes a row once. Replaced rows are left alone. Only the clock moves:
+/// the enrolment is still resolved by a check, not read off the roster.
 pub async fn wake_for_roster_listing(
     conn: &mut PgConnection,
     credit_unit_id: Uuid,

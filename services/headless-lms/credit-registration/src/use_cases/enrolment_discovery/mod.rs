@@ -4,8 +4,8 @@
 //! waiting first, in batches as large as the registry takes; every module and mooc.fi target on a
 //! code shares its list. One list wakes the registrations of people we already have a link for
 //! and, while account linking is switched on and `link-emails` is not paused, claims a linking
-//! email for everybody else, which the `link-emails` phase is made due at once to send. When to fetch a code is
-//! [`headless_lms_models::credit_registration_roster_schedules`].
+//! email for everybody else, which the `link-emails` phase is made due at once to send. When to
+//! fetch a code is [`headless_lms_models::credit_registration_roster_schedules`].
 
 mod listing;
 mod reconcile;

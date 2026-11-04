@@ -478,9 +478,8 @@ test("The overview reads the daily snapshots", async ({ page }) => {
 
   await test.step("The live counts sit beside the trend", async () => {
     const standing = page.getByRole("list", { name: "Where registrations stand", exact: true })
-    // The seed leaves rows at most steps, so an empty list would mean the section rendered without
-    // reading its counts.
-    expect(await standing.getByRole("link").count()).toBeGreaterThan(0)
+    // The seed leaves rows at most steps. Retrying, because this list's query is not the trend's.
+    await expect(standing.getByRole("link").first()).toBeVisible()
   })
 })
 

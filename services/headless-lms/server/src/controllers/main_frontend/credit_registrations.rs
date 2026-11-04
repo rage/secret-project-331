@@ -1226,9 +1226,8 @@ async fn my_registration_completion_for_module(
 /// The caller's completion behind `subject`, but only on the push path, and only their own: either
 /// miss is a not-found.
 ///
-/// A module completion the old path owns is a not-found because the enrolment answers only exist
-/// for the push path, and nothing should be stored against a completion that will never ask the
-/// question. A mooc.fi completion is always on the push path.
+/// A module completion the old path owns is a not-found: enrolment answers exist only for the push
+/// path. A mooc.fi completion is always on the push path.
 async fn my_pipeline_subject(
     conn: &mut PgConnection,
     user_id: Uuid,

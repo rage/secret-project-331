@@ -98,7 +98,7 @@ WHERE h.token_digest = $1
 }
 
 /// Consumes the handoff with `token_digest` if it was minted from the IP `client_ip_hash` is of.
-/// Atomic, so of two concurrent redeems only one wins, and a redeem from another IP never spends it.
+/// Atomic: of two concurrent redeems only one wins, and a redeem from another IP never spends it.
 pub async fn redeem(
     conn: &mut PgConnection,
     token_digest: &[u8],

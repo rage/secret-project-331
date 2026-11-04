@@ -500,7 +500,8 @@ async fn create_handoff(
     )
 }
 
-/// mooc.fi's landing for handoffs from courses, reduced to redeeming the token and naming the result.
+/// mooc.fi's landing for handoffs from courses, reduced to redeeming the token and naming the
+/// result.
 async fn handoff_landing_page(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {

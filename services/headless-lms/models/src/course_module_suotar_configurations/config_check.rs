@@ -57,8 +57,8 @@ ORDER BY cm.course_id,
 /// Modules with a course code and mooc.fi targets the last check found broken. Unchecked ones are
 /// not counted: unknown is not a failure.
 ///
-/// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's own
-/// "misconfigured" tile. The boolean covers only the course code, while [`check_module_config`]
+/// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's
+/// "misconfigured" tile: the boolean covers only the course code, while [`check_module_config`]
 /// also reports missing credits, a missing enrolment link and a double-enabled registration path.
 ///
 /// [`check_module_config`]:

@@ -32,8 +32,7 @@ pub struct MoocfiRecheckGroup {
 
 /// The lookups due, stalest first: every student and mooc.fi course with a row before import, or
 /// blocked on a grade mooc.fi may since have fixed, last read or tried over
-/// [`MOOCFI_RECHECK_AFTER`] ago.
-/// Rows of a paused or switched-off target wait with their target.
+/// [`MOOCFI_RECHECK_AFTER`] ago. Rows of a paused or switched-off target wait with their target.
 pub async fn get_due_recheck_groups(
     conn: &mut PgConnection,
     scope: &RegistrationScope,

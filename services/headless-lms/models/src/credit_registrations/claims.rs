@@ -78,9 +78,8 @@ pub async fn claim_due_for_person_lookup(
 /// or target it came from, so each is weighed against the outcome of the one before it rather than
 /// racing it to the registry; see
 /// [`lock_live_successes_for_same_course_code`](super::lock_live_successes_for_same_course_code).
-/// Of two such rows claimed together only the first comes back; the other stays claimable where it
-/// is. A parked row sent for a check must be marked with [`claim_enrolment_checks`] before the
-/// claim's transaction commits.
+/// Of two such rows claimed together only the first comes back. A parked row sent for a check must
+/// be marked with [`claim_enrolment_checks`] before the claim's transaction commits.
 pub async fn claim_due_for_resolve(
     conn: &mut PgConnection,
     scope: &RegistrationScope,

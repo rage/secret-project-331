@@ -2,9 +2,9 @@
 //! registry's own `?exclude_already_registered=true` skip the completion, keeps the teacher views'
 //! existing `registered` flag working, and gives support the real student number.
 //!
-//! The row's `study_registry_registrar_id` is null, which is what marks it as ours: we registered the
-//! attainment ourselves rather than handing it to a third party holding an API key. mooc.fi rows have
-//! no completion in that ledger and are never mirrored.
+//! The row's `study_registry_registrar_id` is null, which marks it as ours: we registered the
+//! attainment ourselves, not a third party holding an API key. mooc.fi rows have no completion in
+//! that ledger and are never mirrored.
 
 use crate::credit_registrations::{CreditRegistrationState, RegistrationScope};
 use crate::prelude::*;

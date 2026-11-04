@@ -259,10 +259,10 @@ pub struct UpstreamCompletions<'a> {
 /// Brings the student's stored rows for one mooc.fi course in line with a fresh lookup.
 ///
 /// A completion gets a new row only under the live target its tier maps to, and only when it is
-/// ECTS-eligible and dated on or after the target's cutoff. Rows that already exist are always
-/// updated, under whichever target they are on, so a completion that turned ineligible, moved
-/// before the cutoff or changed tier is withdrawn by the subjects view rather than left stale.
-/// Stored completions absent from the answer are marked missing upstream.
+/// ECTS-eligible and dated on or after the target's cutoff. Existing rows are always updated, on
+/// whichever target they are, so a completion that turned ineligible, moved before the cutoff or
+/// changed tier is withdrawn by the subjects view rather than left stale. Stored completions absent
+/// from the answer are marked missing upstream.
 pub async fn sync_from_upstream(
     conn: &mut PgConnection,
     upstream: UpstreamCompletions<'_>,

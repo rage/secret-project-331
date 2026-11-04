@@ -47,9 +47,8 @@ impl RecordedCredit {
 /// row's code is its unit's current one, which is what a payload frozen now would carry; credits of
 /// the same unit count whatever code they were frozen with.
 ///
-/// For an answer that lists no existing attainments. Not
-/// [`lock_live_successes_for_same_course_code`], which locks, and leaves out the pull path because
-/// nothing there can be marked for replacement.
+/// Not [`lock_live_successes_for_same_course_code`], which locks, and leaves out the pull path
+/// because nothing there can be marked for replacement.
 pub async fn get_recorded_credits_for_same_course_code(
     conn: &mut PgConnection,
     id: Uuid,

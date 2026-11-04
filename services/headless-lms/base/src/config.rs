@@ -320,7 +320,7 @@ impl SuotarConfiguration {
     }
 }
 
-/// The only organization secret the mock mooc.fi accepts. Public on purpose: never a real credential.
+/// The only organization secret the mock mooc.fi accepts. Public on purpose; never a real one.
 pub const MOCK_MOOCFI_ORGANIZATION_SECRET: &str = "mock-moocfi-organization-secret";
 
 /// The organization slug the mock mooc.fi records our registrations under.
@@ -357,8 +357,8 @@ pub struct MoocfiConfiguration {
 /// completions.
 #[derive(Clone)]
 pub struct MoocfiDelegationConfiguration {
-    /// The root the `api/...` routes are joined onto; [`MoocfiConfiguration::base_url`] except under
-    /// the mock. Ends in `/`.
+    /// The root the `api/...` routes are joined onto; [`MoocfiConfiguration::base_url`] except
+    /// under the mock. Ends in `/`.
     pub api_base_url: Url,
     pub organization_secret: SecretString,
     /// Our organization's slug on mooc.fi, which tells our registrations from other registrars'.

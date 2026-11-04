@@ -1,8 +1,7 @@
 //! The HS256 signing key and the claims that live outside the server crate.
 //!
-//! Download claims live here rather than beside the rest of the claim machinery in
-//! `headless_lms_server::domain::models_requests` because the answer readers that mint download
-//! URLs sit in `headless-lms-models`, under the server crate.
+//! Download claims live here, not in `headless_lms_server::domain::models_requests`, because the
+//! answer readers that mint download URLs sit in `headless-lms-models`, under the server crate.
 
 use std::net::IpAddr;
 

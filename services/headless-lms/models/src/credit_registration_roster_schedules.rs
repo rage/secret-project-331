@@ -3,10 +3,9 @@
 //! A code is due weekly, and sooner while somebody on its modules or mooc.fi targets waits for a
 //! student number: each such person is on the ladders of the signals they have given that they are
 //! enrolling, and the code is due at the earliest rung no fetch that could claim linking mail has
-//! served. Every due
-//! time snaps up to the code's own grid, see [`fetch_slot`], so codes spread evenly over the hour.
-//! Both are derived whenever they are needed; the table keeps only what cannot be: when fetches
-//! ran, the failure backoff and how many fetches of the code went out today.
+//! served. Every due time snaps up to the code's own grid, see [`fetch_slot`], so codes spread
+//! evenly over the hour. Both are derived on demand; the table keeps only when fetches ran, the
+//! failure backoff and how many fetches of the code went out today.
 
 use std::collections::HashMap;
 

@@ -11,9 +11,9 @@ static EMAIL_RE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}").expect("hardcoded regex")
 });
 
-/// Student-number-shaped digit runs. The id shapes come first because the `regex` crate has no
-/// lookaround: leftmost-first alternation is the only way to say "digits not part of an id". The
-/// word boundaries keep the digit branch off longer numbers such as millisecond timestamps.
+/// Student-number-shaped digit runs. The id shapes come first because `regex` has no lookaround:
+/// leftmost-first alternation is the only way to exclude digits inside an id. Word boundaries keep
+/// the digit branch off longer numbers such as millisecond timestamps.
 ///
 /// Known cost of the `prefixed` branch: a student number hyphen-joined to a word,
 /// `person-012345678`, survives. A bare digit run, the shape Suotar's messages use, still goes.

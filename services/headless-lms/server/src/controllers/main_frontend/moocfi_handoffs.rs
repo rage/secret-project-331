@@ -443,11 +443,9 @@ fn is_same_origin(request: &HttpRequest, app_conf: &ApplicationConfiguration) ->
     }
 }
 
-/// A navigation from mooc.fi's own page. Browsers set `Sec-Fetch-Site` and pages cannot forge it,
-/// but same-site alone would also admit any other site under mooc.fi; the `Referer` origin narrows
-/// it to mooc.fi's frontend. Same-origin is a stricter case of same-site, and is what dev's mock
-/// page, served from our own origin, sends. In test mode a missing header passes, because
-/// Chromium sends no Fetch Metadata to the plain-http test site.
+/// A navigation from mooc.fi's own page. Same-site alone would admit any site under mooc.fi, so
+/// the `Referer` origin must also be mooc.fi's frontend. Same-origin is what dev's mock page sends.
+/// In test mode a missing `Sec-Fetch-Site` passes: Chromium sends none to the plain-http test site.
 fn is_from_moocfi_page(request: &HttpRequest, app_conf: &ApplicationConfiguration) -> bool {
     let is_same_site = match sec_fetch_site(request) {
         Some(site) => site == "same-site" || site == "same-origin",

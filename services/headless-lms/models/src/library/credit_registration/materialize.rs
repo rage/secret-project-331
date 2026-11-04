@@ -268,11 +268,9 @@ WHERE cr.deleted_at IS NULL
       AND later.attempt_number > cr.attempt_number
       AND later.deleted_at IS NULL
   )
-  -- Two halves of one cheap pre-filter. A completion unrevised since the attempt was created cannot
-  -- have been regraded after that attempt froze its grade; but one revised for any other reason
-  -- passes that test forever, and only the grade comparison below can tell the two apart, which is
-  -- why the loop stamps the watermark on every candidate it declines. Without the second half the
-  -- limit keeps spending itself on the same rows while a real regrade waits behind them.
+  -- Cheap pre-filter: a completion unrevised since the attempt cannot have been regraded. One revised
+  -- for another reason would pass forever, so the loop watermarks every candidate it declines, or
+  -- the limit keeps spending itself on those rows while a real regrade waits behind them.
   AND s.revised_at > cr.created_at
   AND (
     cr.improvement_checked_completion_updated_at IS NULL

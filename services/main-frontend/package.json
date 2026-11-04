@@ -117,8 +117,8 @@
     "jest-axe": "^11.0.0",
     "jest-environment-jsdom": "^30.5.2",
     "postcss-styled-syntax": "^0.7.4",
-    "stylelint": "^18.0.0-next.0",
-    "stylelint-config-recommended": "^19.0.0-next.0",
+    "stylelint": "^17.16.0",
+    "stylelint-config-recommended": "^18.0.0",
     "ts-jest": "^29.4.15",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },

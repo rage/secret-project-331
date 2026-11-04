@@ -39,13 +39,13 @@
   },
   "dependencies": {
     "@fontsource/commit-mono": "^5.3.0",
-    "@inquirer/prompts": "^8.7.3"
+    "@inquirer/prompts": "^8.7.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
     "@typescript/native": "npm:typescript@^7.0.2",
     "publint": "0.3.25",
-    "tsdown": "0.23.1",
+    "tsdown": "0.23.3",
     "tsx": "^4.23.15",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },

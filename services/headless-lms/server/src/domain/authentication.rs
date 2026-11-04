@@ -50,19 +50,37 @@ struct GraphQLRequest<'a> {
     variables: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 struct MoocfiUserResponse {
-    pub data: MoocfiUserResponseData,
+    data: Option<MoocfiUserResponseData>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct MoocfiUserResponseData {
-    pub user: MoocfiUserData,
+    current_user: Option<MoocfiCurrentUser>,
+    user: Option<MoocfiUserData>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+struct MoocfiCurrentUser {
+    id: Uuid,
+    upstream_id: i32,
+}
+
+#[derive(Debug, Deserialize)]
 struct MoocfiUserData {
-    pub id: Uuid,
+    id: Uuid,
+}
+
+impl MoocfiUserResponseData {
+    /// The token's own account when it is the one asked for, else what the admin-only lookup found.
+    fn moocfi_id_of(self, upstream_id: i32) -> Option<Uuid> {
+        self.current_user
+            .filter(|current_user| current_user.upstream_id == upstream_id)
+            .map(|current_user| current_user.id)
+            .or(self.user.map(|user| user.id))
+    }
 }
 
 // upstream_id is private so FromRequest is the only way to construct an AuthUser.
@@ -414,7 +432,8 @@ pub async fn exchange_password_with_tmc(
     }
 }
 
-/// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token.
+/// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token, which may
+/// be the user's own or an admin's.
 async fn fetch_moocfi_id_by_upstream_id(
     moocfi: &MoocfiConfiguration,
     tmc_access_token: &SecretString,
@@ -430,8 +449,14 @@ async fn fetch_moocfi_id_by_upstream_id(
         // Exposed only here, where the bearer token header is built.
         .bearer_auth(tmc_access_token.expose_secret())
         .json(&GraphQLRequest {
+            // mooc.fi lets only admins call `user`; for anyone else it errors while
+            // `currentUser` still answers.
             query: r#"
 query ($upstreamId: Int) {
+  currentUser {
+    id
+    upstream_id
+  }
   user(upstream_id: $upstreamId) {
     id
   }
@@ -452,12 +477,19 @@ query ($upstreamId: Int) {
             }
 
             match response.json::<MoocfiUserResponse>().await {
-                Ok(current_user_response) => {
-                    info!(
-                        "Successfully fetched mooc.fi UUID {} for upstream id {}",
-                        current_user_response.data.user.id, upstream_id
-                    );
-                    Ok(Some(current_user_response.data.user.id))
+                Ok(MoocfiUserResponse { data }) => {
+                    let moocfi_id = data.and_then(|data| data.moocfi_id_of(upstream_id));
+                    match moocfi_id {
+                        Some(id) => info!(
+                            "Successfully fetched mooc.fi UUID {} for upstream id {}",
+                            id, upstream_id
+                        ),
+                        None => debug!(
+                            "mooc.fi has no user with upstream id {} visible to this token",
+                            upstream_id
+                        ),
+                    }
+                    Ok(moocfi_id)
                 }
                 Err(e) => {
                     debug!(

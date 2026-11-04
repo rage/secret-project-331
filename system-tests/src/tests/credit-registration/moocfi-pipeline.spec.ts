@@ -22,11 +22,13 @@ import {
 import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
+  queuedEmailsFor,
   runEnrolmentCheckNow,
   runImportSubmissionTick,
   runMaterializeTick,
   runMoocfiReportTick,
   runPreconditionsTick,
+  runStudentNotificationsTick,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
 import { pollUntil } from "@/utils/waitingUtils"
@@ -86,6 +88,14 @@ test("A mooc.fi completion is registered in Sisu and reported back to mooc.fi on
       expect(registration.pending_reason).toBe("student_number")
       return id
     })
+
+  await test.step("A mooc.fi registration gets no enrolment-needed email", async () => {
+    await runStudentNotificationsTick(request, SCOPE)
+    const queued = await queuedEmailsFor(request, STUDENT.email)
+    expect(queued.map((mail) => mail.templateType)).not.toContain(
+      "credit_registration_action_needed",
+    )
+  })
 
   await test.step("The student links their student number", async () => {
     await page.goto(linkStudentNumberUrl(MOOCFI_LINKING_TOKEN))

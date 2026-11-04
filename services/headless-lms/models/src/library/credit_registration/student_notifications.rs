@@ -80,7 +80,8 @@ pub struct StudentNotificationToQueue {
 /// nothing. Nor a `duplicate` or `not_improved` row whose student already has, or is owed, the
 /// registered mail for another row of the module or target. A `pending` row is owed the
 /// action-needed mail only while its student has no student number and
-/// `is_account_linking_enabled`, since only then does enrolling lead to one.
+/// `is_account_linking_enabled`, since only then does enrolling lead to one. A mooc.fi target's row
+/// is never owed it: those registrations only start when the student starts them on mooc.fi.
 pub async fn claim_unnotified(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -120,10 +121,12 @@ WHERE cr.deleted_at IS NULL
   AND (
     (
       cr.state = 'no_usable_enrolment'
+      AND cr.external_credit_target_id IS NULL
       AND cr.action_needed_email_delivery_id IS NULL
     )
     OR (
       cr.state = 'pending'
+      AND cr.external_credit_target_id IS NULL
       AND $7
       AND cr.action_needed_email_delivery_id IS NULL
       AND NOT EXISTS (

@@ -35,6 +35,7 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     registry: &mut R,
     request: &[CodeListing],
     account_linking_since: Option<DateTime<Utc>>,
+    ignores_test_holds: bool,
 ) -> CreditRegistrationResult<FetchedRosters> {
     let codes: Vec<String> = request
         .iter()
@@ -71,8 +72,14 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
         let course_code = listing.code.course_code.as_str();
         match roster {
             Ok(people) => {
-                new_mails +=
-                    reconcile_roster(&mut conn, listing, people, account_linking_since).await?;
+                new_mails += reconcile_roster(
+                    &mut conn,
+                    listing,
+                    people,
+                    account_linking_since,
+                    ignores_test_holds,
+                )
+                .await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
                 enrolments += person_count;
                 let previous_fetch_at = mark_fetched(

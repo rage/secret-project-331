@@ -35,6 +35,7 @@ pub(super) async fn reconcile_roster(
     listing: &CodeListing,
     people: &[RosterPerson],
     account_linking_since: Option<DateTime<Utc>>,
+    ignores_test_holds: bool,
 ) -> CreditRegistrationResult<i32> {
     let distinct = distinct_people(people);
     let linked_rows = load_linked_accounts(conn, &distinct).await?;
@@ -42,7 +43,8 @@ pub(super) async fn reconcile_roster(
     let enrolees = roster_enrolees(people, &linked);
     if !enrolees.is_empty() {
         for unit in &listing.units {
-            wake_for_roster_listing(conn, unit.credit_unit_id, &enrolees).await?;
+            wake_for_roster_listing(conn, unit.credit_unit_id, &enrolees, ignores_test_holds)
+                .await?;
         }
     }
     let mut mailed_count = 0;

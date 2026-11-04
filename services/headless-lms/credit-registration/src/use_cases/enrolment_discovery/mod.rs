@@ -72,7 +72,14 @@ pub(crate) async fn run<R: StudyRegistry>(
     let mut counts = Counts::default();
     let mut claimed_mail = false;
     for request in requests {
-        let fetched = fetch_course_roster(pool, registry, &request, mailing_since).await?;
+        let fetched = fetch_course_roster(
+            pool,
+            registry,
+            &request,
+            mailing_since,
+            !scope.is_unscoped(),
+        )
+        .await?;
         counts += fetched.counts;
         claimed_mail |= fetched.claimed_mail;
     }

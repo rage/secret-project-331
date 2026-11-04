@@ -296,6 +296,21 @@ pub async fn seed_credit_registration(
         }
     }
 
+    // suotar-student-emails asserts what a parked row is owed, so the live worker must not move
+    // these seeded rows on before the spec's own hold, which comes after the worker's first sweeps.
+    for (student, course_id) in [
+        (&CREDIT_REGISTRATION_STUDENT_2, lanes[CRS_101].course_id),
+        (&STUDENT_8, lanes[CRS_B_101].course_id),
+    ] {
+        credit_registrations::testing::set_test_exclusive_hold_for_testing(
+            &mut conn,
+            students.get(student)?.user_id,
+            Some(course_id),
+            Utc::now() + Duration::hours(1),
+        )
+        .await?;
+    }
+
     let link_claimer = insert_student(
         &mut conn,
         cx.v5(b"user:link-claimer"),

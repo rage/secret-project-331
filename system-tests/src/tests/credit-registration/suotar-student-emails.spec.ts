@@ -75,20 +75,27 @@ const mailIdentities = (mails: AdminNotificationEmail[]): string[] =>
  * claims nothing while the live worker has the row locked, and the hold then keeps the worker from
  * finishing it, so both ticks repeat until the row parks.
  */
-const parkRegistration = (
+const parkRegistration = async (
   request: APIRequestContext,
   adminApi: APIRequestContext,
   scope: TickScope & { courseSlug: string },
-) =>
-  pollUntil(
-    async () => {
-      await runMaterializeTick(request, scope)
-      await runPreconditionsTick(request, scope)
-      const row = await myRegistrationOnCourse(request, adminApi, scope.courseSlug)
-      return row.state === "no_usable_enrolment" ? row : null
-    },
-    { description: `the registration on ${scope.courseSlug} to park at no_usable_enrolment` },
-  )
+) => {
+  let lastSeen = "no row"
+  try {
+    return await pollUntil(
+      async () => {
+        await runMaterializeTick(request, scope)
+        await runPreconditionsTick(request, scope)
+        const row = await myRegistrationOnCourse(request, adminApi, scope.courseSlug)
+        lastSeen = JSON.stringify(row)
+        return row.state === "no_usable_enrolment" ? row : null
+      },
+      { description: `the registration on ${scope.courseSlug} to park at no_usable_enrolment` },
+    )
+  } catch (error) {
+    throw new Error(`${error} Last seen: ${lastSeen}`, { cause: error })
+  }
+}
 
 test.describe("A student whose credits reach the study registry", () => {
   test.use({ storageState: seededStudentStorageState(REGISTERED_EMAIL) })

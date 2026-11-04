@@ -463,11 +463,14 @@ pub struct RosterEnrolee {
 ///
 /// A row never checked has seen nothing, so any listing wakes it. The listed ids count as seen
 /// afterwards, so one listing wakes a row once. Replaced rows are left alone. Only the clock moves:
-/// the enrolment is still resolved by a check, not read off the roster.
+/// the enrolment is still resolved by a check, not read off the roster. Unless
+/// `ignores_test_holds`, rows under a test-exclusive hold are left alone, as an unscoped claim
+/// leaves them.
 pub async fn wake_for_roster_listing(
     conn: &mut PgConnection,
     credit_unit_id: Uuid,
     enrolees: &[RosterEnrolee],
+    ignores_test_holds: bool,
 ) -> ModelResult<u64> {
     let mut user_ids = Vec::new();
     let mut enrolment_ids: Vec<Option<String>> = Vec::new();
@@ -516,10 +519,24 @@ WHERE cr.credit_unit_id = $1
       AND later.created_at > cr.created_at
       AND later.deleted_at IS NULL
   )
+  AND (
+    $4::boolean
+    OR NOT EXISTS (
+      SELECT 1
+      FROM credit_registration_test_exclusive_holds h
+      WHERE h.user_id = cr.user_id
+        AND (
+          h.course_id IS NULL
+          OR h.course_id = cr.course_id
+        )
+        AND h.held_until > now()
+    )
+  )
         "#,
         credit_unit_id,
         &user_ids,
         &enrolment_ids as &[Option<String>],
+        ignores_test_holds,
     )
     .execute(conn)
     .await?;

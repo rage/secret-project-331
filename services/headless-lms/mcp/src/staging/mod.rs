@@ -287,6 +287,7 @@ pub async fn commit(
     ));
     let summary = StagedSummary {
         changeset: staged.changeset.id,
+        review_url: state.review_url(staged.changeset.id),
         changeset_revision: staged.changeset.revision,
         call: staged.call_id,
         staged: entities.collect(),

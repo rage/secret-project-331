@@ -337,7 +337,16 @@ impl<'c> StructureEditor<'c> {
                 && !kind.editable_fields().contains(&key.as_str())
                 && !contents.contains(&key.as_str())
         }) {
-            return Err(field_error(kind, key));
+            let error = field_error(kind, key);
+            if error.code != EditErrorCode::UnknownField {
+                return Err(error);
+            }
+            let accepted = [&["label"], kind.editable_fields(), contents].concat();
+            return Err(error.with_fix(format!(
+                "a new {} takes: {}",
+                kind.noun(),
+                accepted.join(", ")
+            )));
         }
         let label = label_field(object, "$ch")?;
         let entity = match kind {

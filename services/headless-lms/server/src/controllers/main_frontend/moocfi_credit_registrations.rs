@@ -171,20 +171,25 @@ pub async fn get_my_moocfi_credit_registrations(
         },
     };
 
-    // `None` when no lookup was due; `Some(None)` when mooc.fi gave no usable answer.
+    // `None` when no lookup was due; `Some(None)` when mooc.fi gave no usable answer. Not after a
+    // failed completions lookup, so an unreachable mooc.fi costs one timeout, not two.
     let course_lookup = match &moocfi.delegation {
-        Some(delegation) if are_course_details_stale(&targets) => Some(
-            match MoocfiClient::new(delegation)
-                .get_delegated_course(moocfi_course_id)
-                .await
-            {
-                Ok(course) => course,
-                Err(error) => {
-                    warn!(%error, "Keeping the stored mooc.fi course details: the lookup failed");
-                    None
-                }
-            },
-        ),
+        Some(delegation)
+            if are_course_details_stale(&targets) && !matches!(lookup, Lookup::Unavailable) =>
+        {
+            Some(
+                match MoocfiClient::new(delegation)
+                    .get_delegated_course(moocfi_course_id)
+                    .await
+                {
+                    Ok(course) => course,
+                    Err(error) => {
+                        warn!(%error, "Keeping the stored mooc.fi course details: the lookup failed");
+                        None
+                    }
+                },
+            )
+        }
         _ => None,
     };
 

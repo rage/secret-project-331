@@ -67,15 +67,17 @@ const ChangeUserPasswordForm: React.FC = () => {
     setIsOpen(false)
   }
 
-  if (!isOpen || isReauthenticationRequired) {
+  if (!isOpen || isReauthenticationRequired !== false) {
     return (
       <div>
-        {isReauthenticationRequired && <p>{t("reauthentication-required-to-change-password")}</p>}
+        {isReauthenticationRequired === true && (
+          <p>{t("reauthentication-required-to-change-password")}</p>
+        )}
         <Button
           data-testid="change-password-button"
           variant="primary"
           size="small"
-          disabled={isReauthenticationRequired}
+          disabled={isReauthenticationRequired !== false}
           onClick={() => setIsOpen(true)}
         >
           {t("change-password")}

@@ -349,8 +349,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             control={control}
             label={t("email")}
             placeholder={t("email")}
-            isDisabled={isReauthenticationRequired}
-            {...(isReauthenticationRequired
+            isDisabled={isReauthenticationRequired !== false}
+            {...(isReauthenticationRequired === true
               ? { description: t("reauthentication-required-to-change-email") }
               : {})}
             isRequired

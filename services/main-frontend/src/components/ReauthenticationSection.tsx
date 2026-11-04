@@ -53,17 +53,22 @@ const codeFormCss = css`
 
 /**
  * Whether this session was signed in through mooc.fi or Elements of AI and must confirm the
- * account before changing its email or password, or deleting it.
+ * account before changing its email or password, or deleting it. `undefined` until known: keep the
+ * controls disabled then, but do not explain why.
  */
-export const useIsReauthenticationRequired = (): boolean => {
+export const useIsReauthenticationRequired = (): boolean | undefined => {
   const statusQuery = useQuery(getAuthReauthenticationStatusOptions())
-  return statusQuery.data?.is_required ?? false
+  // The server refuses the changes anyway, so a failed status read must not lock the controls.
+  if (statusQuery.isError) {
+    return false
+  }
+  return statusQuery.data?.is_required
 }
 
 /** Lets a session signed in through a handoff confirm the account. Nothing when not needed. */
 const ReauthenticationSection: React.FC<{ email: string }> = ({ email }) => {
   const { t } = useTranslation()
-  if (!useIsReauthenticationRequired()) {
+  if (useIsReauthenticationRequired() !== true) {
     return null
   }
   return (

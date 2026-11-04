@@ -15,7 +15,7 @@ use headless_lms_models::external_credit_targets::{
 use headless_lms_models::library::credit_registration::config_validation::{
     CourseCodeVerdict, check_module_config, check_target_config,
 };
-use headless_lms_utils::services::moocfi::MoocfiClient;
+use headless_lms_utils::services::moocfi::{MoocfiClient, MoocfiError};
 use itertools::Itertools;
 use sqlx::PgPool;
 
@@ -135,6 +135,11 @@ async fn refresh_moocfi_course_details(
                 %moocfi_course_id,
                 "mooc.fi has no delegated handler course for a credit registration target"
             ),
+            // The remaining courses would only wait out the same timeout.
+            Err(error @ MoocfiError::Unreachable(_)) => {
+                warn!(%error, "Could not reach mooc.fi to read the credit registration targets' courses");
+                break;
+            }
             Err(error) => warn!(
                 %moocfi_course_id,
                 %error,

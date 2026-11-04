@@ -553,10 +553,9 @@ pub async fn admin_update_external_credit_target(
     let mut tx = conn.begin().await?;
     let before = external_credit_targets::get_by_id(&mut tx, id).await?;
     let configuration = target_configuration(&payload, Some(&before))?;
+    let is_cutoff_moved = configuration.delegated_at != before.delegated_at;
     // Moving the cutoff of a target with registrations is a hand-run procedure on both platforms.
-    if configuration.delegated_at != before.delegated_at
-        && external_credit_targets::has_credit_registrations(&mut tx, id).await?
-    {
+    if is_cutoff_moved && external_credit_targets::has_credit_registrations(&mut tx, id).await? {
         return Err(controller_err!(
             BadRequest,
             "The cutoff cannot change once the target has registrations.".to_string()
@@ -574,9 +573,7 @@ pub async fn admin_update_external_credit_target(
     // mooc.fi has one cutoff per course, so a move takes the course's other targets along;
     // otherwise each would refuse the change for disagreeing with the others.
     let mut moved_sibling_ids = Vec::new();
-    if configuration.delegated_at != before.delegated_at
-        && configuration.moocfi_course_id == before.moocfi_course_id
-    {
+    if is_cutoff_moved && configuration.moocfi_course_id == before.moocfi_course_id {
         for sibling in external_credit_targets::get_by_moocfi_course_id(
             &mut tx,
             configuration.moocfi_course_id,
@@ -793,6 +790,17 @@ fn target_configuration(
         return Err(controller_err!(
             BadRequest,
             "The lowest tier is above the highest.".to_string()
+        ));
+    }
+    // Postgres stores the inclusive range with an exclusive upper bound of `highest + 1`.
+    if let Some(TierRange {
+        highest: Some(i32::MAX),
+        ..
+    }) = payload.tiers
+    {
+        return Err(controller_err!(
+            BadRequest,
+            "The highest tier is too large.".to_string()
         ));
     }
     let language_code = required(&payload.language_code, "The language")?;

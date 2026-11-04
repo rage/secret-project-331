@@ -114,7 +114,7 @@ const TMC_TOKEN_INFO_URL: &str = "https://tmc.mooc.fi/oauth/token/info";
 const DELETE_ACCOUNT_TIMEOUT: Duration = Duration::from_secs(150);
 
 fn http_client() -> reqwest::Result<Client> {
-    Client::builder()
+    crate::http::base_client_builder()
         .timeout(Duration::from_secs(15))
         // Requests carry the admin token or a student's token, which a redirect would forward.
         .redirect(reqwest::redirect::Policy::none())

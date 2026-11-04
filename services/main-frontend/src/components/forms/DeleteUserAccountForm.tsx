@@ -140,12 +140,14 @@ const DeleteUserAccountForm: React.FC = () => {
 
   return (
     <>
-      {isReauthenticationRequired && <p>{t("reauthentication-required-to-delete-account")}</p>}
+      {isReauthenticationRequired === true && (
+        <p>{t("reauthentication-required-to-delete-account")}</p>
+      )}
       <Button
         data-testid="delete-account-button"
         variant="danger"
         size="small"
-        disabled={isReauthenticationRequired}
+        disabled={isReauthenticationRequired !== false}
         onClick={() => setOpenDialog(true)}
       >
         {t("title-delete-account")}

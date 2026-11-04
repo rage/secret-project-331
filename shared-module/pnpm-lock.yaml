@@ -193,8 +193,8 @@ importers:
         version: 1.22.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     devDependencies:
       '@types/lodash':
-        specifier: ^4.17.26
-        version: 4.17.26
+        specifier: ^4.17.27
+        version: 4.17.27
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -468,8 +468,8 @@ packages:
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
 
-  '@types/lodash@4.17.26':
-    resolution: {integrity: sha512-48NWfiY6oNcKOh47Z4h+sIvwcQR91h6KPhaYKgeMIrkT2jV82Gy90SErj60vW8jQbeMSOSbhIv3bZ7JoqPPVhA==}
+  '@types/lodash@4.17.27':
+    resolution: {integrity: sha512-VenMRv/eKNrspX9v3H4dbmjsrnCOYdYBG3kxXKk3dG6X+urBGcj2Prww3xw1U5K4FV/mE4h5GbWd0szEKf+9ew==}
 
   aria-hidden@1.2.6:
     resolution: {integrity: sha512-ik3ZgC9dY/lYVVM++OISsaYDeg1tb0VtP5uL3ouh1koGOaUMDPpbFIei4JkFimWUFPn90sbMNMXQAIVOlnYKJA==}
@@ -856,7 +856,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@types/lodash@4.17.26': {}
+  '@types/lodash@4.17.27': {}
 
   aria-hidden@1.2.6:
     dependencies:
@@ -982,7 +982,7 @@ time:
   '@fontsource-variable/inter@5.3.0': '2026-07-19T03:50:25.793Z'
   '@fontsource/inter@5.3.0': '2026-07-19T03:40:13.819Z'
   '@parcel/watcher@2.6.0': '2026-07-20T05:38:07.544Z'
-  '@types/lodash@4.17.26': '2026-10-09T18:46:42.671Z'
+  '@types/lodash@4.17.27': '2026-10-21T15:41:18.542Z'
   date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
   esbuild@0.28.2: '2026-08-08T20:00:55.454Z'
   lodash@4.18.1: '2026-04-01T21:01:20.458Z'
